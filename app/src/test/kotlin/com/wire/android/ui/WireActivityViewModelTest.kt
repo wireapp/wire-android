@@ -1231,12 +1231,31 @@ class WireActivityViewModelTest {
             .arrange()
 
         viewModel.initialStartupSnapshot(taskId = 1)
-        viewModel.globalAppState.startupAccountLimitDialog shouldBeEqualTo true
+        viewModel.globalAppState.startupAccountLimitExcessAccounts shouldBeEqualTo 1
         viewModel.globalAppState.maxAccountDialog shouldBeEqualTo false
         viewModel.dismissStartupAccountLimitDialog()
         viewModel.initialStartupSnapshot(taskId = 1)
-        viewModel.globalAppState.startupAccountLimitDialog shouldBeEqualTo false
+        viewModel.globalAppState.startupAccountLimitExcessAccounts shouldBeEqualTo null
         viewModel.globalAppState.currentUserId shouldBeEqualTo USER_ID
+    }
+
+    @Test
+    fun `startup passes excess count excluding invalid accounts and preserves it during same task`() = runTest {
+        val accounts = listOf(
+            TEST_ACCOUNT_INFO,
+            AccountInfo.Invalid(UserId("invalid", "wire.com"), LogoutReason.SESSION_EXPIRED),
+        ) + mockedTestAccounts(BuildConfig.MAX_ACCOUNTS + 1)
+        val (_, viewModel) = Arrangement()
+            .withSomeCurrentSession()
+            .withObserveSessionsFlow(flowOf(GetAllSessionsResult.Success(accounts)))
+            .arrange()
+
+        viewModel.initialStartupSnapshot(taskId = 1)
+        viewModel.globalAppState.startupAccountLimitExcessAccounts shouldBeEqualTo 2
+        viewModel.initialStartupSnapshot(taskId = 1)
+        viewModel.globalAppState.startupAccountLimitExcessAccounts shouldBeEqualTo 2
+        viewModel.dismissStartupAccountLimitDialog()
+        viewModel.globalAppState.startupAccountLimitExcessAccounts shouldBeEqualTo null
     }
 
     @Test
@@ -1250,16 +1269,16 @@ class WireActivityViewModelTest {
 
         val firstActivity = newViewModel()
         firstActivity.initialStartupSnapshot(taskId = 10)
-        firstActivity.globalAppState.startupAccountLimitDialog shouldBeEqualTo true
+        firstActivity.globalAppState.startupAccountLimitExcessAccounts shouldBeEqualTo 1
         firstActivity.dismissStartupAccountLimitDialog()
 
         val recreatedActivity = newViewModel()
         recreatedActivity.initialStartupSnapshot(taskId = 10)
-        recreatedActivity.globalAppState.startupAccountLimitDialog shouldBeEqualTo false
+        recreatedActivity.globalAppState.startupAccountLimitExcessAccounts shouldBeEqualTo null
 
         val newTaskActivity = newViewModel()
         newTaskActivity.initialStartupSnapshot(taskId = 11)
-        newTaskActivity.globalAppState.startupAccountLimitDialog shouldBeEqualTo true
+        newTaskActivity.globalAppState.startupAccountLimitExcessAccounts shouldBeEqualTo 1
     }
 
     @Test
@@ -1272,7 +1291,7 @@ class WireActivityViewModelTest {
             .arrange()
 
         viewModel.initialStartupSnapshot(taskId = 1)
-        viewModel.globalAppState.startupAccountLimitDialog shouldBeEqualTo false
+        viewModel.globalAppState.startupAccountLimitExcessAccounts shouldBeEqualTo null
     }
 
     @Test
@@ -1283,7 +1302,7 @@ class WireActivityViewModelTest {
             .arrange()
 
         viewModel.initialStartupSnapshot(taskId = 1)
-        viewModel.globalAppState.startupAccountLimitDialog shouldBeEqualTo false
+        viewModel.globalAppState.startupAccountLimitExcessAccounts shouldBeEqualTo null
     }
 
     @Test
@@ -1294,7 +1313,7 @@ class WireActivityViewModelTest {
             .arrange()
 
         viewModel.initialStartupSnapshot(taskId = 1)
-        viewModel.globalAppState.startupAccountLimitDialog shouldBeEqualTo false
+        viewModel.globalAppState.startupAccountLimitExcessAccounts shouldBeEqualTo null
     }
 
     @Test
@@ -1306,7 +1325,7 @@ class WireActivityViewModelTest {
             .arrange()
 
         viewModel.initialStartupSnapshot(taskId = 1)
-        viewModel.globalAppState.startupAccountLimitDialog shouldBeEqualTo false
+        viewModel.globalAppState.startupAccountLimitExcessAccounts shouldBeEqualTo null
     }
 
     @Test

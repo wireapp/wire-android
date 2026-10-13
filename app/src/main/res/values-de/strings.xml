@@ -1866,4 +1866,22 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
     <string name="notification_meeting_update_short">Meeting aktualisiert</string>
     <string name="notification_meeting_cancel">%1$s hat dieses Meeting abgesagt</string>
     <string name="notification_meeting_cancel_short">Meeting abgesagt</string>
+    <plurals name="startup_account_limit_title">
+        <item quantity="one">Ein Konto entfernen</item>
+        <item quantity="other">%1$d Konten entfernen</item>
+    </plurals>
+    <plurals name="startup_account_limit_message_one_allowed">
+        <item quantity="one">Auf diesem Gerät können Sie jeweils nur ein Benutzerkonto verwenden. Melden Sie sich von diesem Konto ab oder wählen Sie „Später“, um sich von dem anderen Konto abzumelden.\nErstellen Sie eine Datensicherung, um Ihren Gesprächsverlauf zu erhalten.</item>
+        <item quantity="other">Auf diesem Gerät können Sie jeweils nur ein Benutzerkonto verwenden. Melden Sie sich von diesem Konto ab oder wählen Sie „Später“, um sich von den anderen Konten abzumelden.\nErstellen Sie eine Datensicherung, um Ihren Gesprächsverlauf zu erhalten.</item>
+    </plurals>
+    <plurals name="startup_account_limit_message_two_allowed">
+        <item quantity="one">Auf diesem Gerät können Sie nur zwei Benutzerkonten gleichzeitig verwenden. Melden Sie sich von diesem Konto ab oder wählen Sie „Später“, um sich vom anderen Konto abzumelden.\nErstellen Sie eine Datensicherung, um Ihren Gesprächsverlauf zu erhalten.</item>
+        <item quantity="other">Auf diesem Gerät können Sie nur zwei Benutzerkonten gleichzeitig verwenden. Melden Sie sich von diesem Konto ab oder wählen Sie „Später“, um sich von den anderen Konten abzumelden.\nErstellen Sie eine Datensicherung, um Ihren Gesprächsverlauf zu erhalten.</item>
+    </plurals>
+    <plurals name="startup_account_limit_message_other_allowed">
+        <item quantity="one">Auf diesem Gerät können Sie nur %1$d Benutzerkonten gleichzeitig verwenden. Melden Sie sich von diesem Konto ab oder wählen Sie „Später“, um sich vom anderen Konto abzumelden.\nErstellen Sie eine Datensicherung, um Ihren Gesprächsverlauf zu erhalten.</item>
+        <item quantity="other">Auf diesem Gerät können Sie nur %1$d Benutzerkonten gleichzeitig verwenden. Melden Sie sich von diesem Konto ab oder wählen Sie „Später“, um sich von den anderen Konten abzumelden.\nErstellen Sie eine Datensicherung, um Ihren Gesprächsverlauf zu erhalten.</item>
+    </plurals>
+    <string name="startup_account_limit_logout">Von diesem Konto abmelden</string>
+    <string name="startup_account_limit_later">Später</string>
 </resources>

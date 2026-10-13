@@ -194,6 +194,13 @@ jobs:
           fetch-depth: 1 # Keep the large Kalium submodule checkout shallow
       - name: Set up Java and Gradle
         uses: ./.github/actions/setup-java-gradle
+      - name: Check Google Maven HEAD response
+        run: |
+          curl --http1.1 --head --silent --show-error \
+            --connect-timeout 10 --max-time 40 --output /dev/null \
+            --write-out 'Google Maven HEAD: http=%{http_code} ip=%{remote_ip} dns=%{time_namelookup}s connect=%{time_connect}s tls=%{time_appconnect}s first_byte=%{time_starttransfer}s total=%{time_total}s\n' \
+            'https://dl.google.com/dl/android/maven2/androidx/baselineprofile/androidx.baselineprofile.gradle.plugin/1.5.0-rc01/androidx.baselineprofile.gradle.plugin-1.5.0-rc01.jar' \
+            || echo "Google Maven HEAD check failed (curl exit code: $?)"
       - name: Run Compose stability check
         run: make compose-stability GRADLE='./gradlew --stacktrace'
       - name: Cleanup Gradle Cache

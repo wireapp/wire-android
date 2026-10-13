@@ -18,6 +18,14 @@
 rootProject.name = "wire-android"
 pluginManagement {
     includeBuild("build-logic")
+    resolutionStrategy {
+        eachPlugin {
+            if (requested.id.id == "androidx.baselineprofile") {
+                // The marker is POM-only; resolve the implementation directly to avoid probing a missing marker JAR.
+                useModule("androidx.benchmark:benchmark-baseline-profile-gradle-plugin:${requested.version}")
+            }
+        }
+    }
     repositories {
         gradlePluginPortal()
         mavenCentral()

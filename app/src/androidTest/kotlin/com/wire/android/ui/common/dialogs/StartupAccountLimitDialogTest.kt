@@ -145,7 +145,8 @@ class StartupAccountLimitDialogTest {
         composeRule.onNodeWithText("Remove an account").assertExists()
         composeRule.onNodeWithText(
             "You can only use one account at once on this device. " +
-                "Log out of this account or select Later to log out of the other account."
+                "Log out of this account or select Later to log out of the other account.\n" +
+                "Create a backup to preserve your conversation history."
         ).assertExists()
         composeRule.onNodeWithText("Log out of this account").assertExists()
 
@@ -153,7 +154,8 @@ class StartupAccountLimitDialogTest {
         composeRule.onNodeWithText("Remove 2 accounts").assertExists()
         composeRule.onNodeWithText(
             "You can only use one account at once on this device. " +
-                "Log out of this account or select Later to log out of the other accounts."
+                "Log out of this account or select Later to log out of the other accounts.\n" +
+                "Create a backup to preserve your conversation history."
         ).assertExists()
 
         composeRule.runOnIdle {
@@ -163,13 +165,15 @@ class StartupAccountLimitDialogTest {
         composeRule.onNodeWithText("Remove an account").assertExists()
         composeRule.onNodeWithText(
             "You can only use two accounts at once on this device. " +
-                "Log out of this account or select Later to log out of the other account."
+                "Log out of this account or select Later to log out of the other account.\n" +
+                "Create a backup to preserve your conversation history."
         ).assertExists()
 
         composeRule.runOnIdle { maxAccounts.intValue = 3 }
         composeRule.onNodeWithText(
             "You can only use 3 accounts at once on this device. " +
-                "Log out of this account or select Later to log out of the other account."
+                "Log out of this account or select Later to log out of the other account.\n" +
+                "Create a backup to preserve your conversation history."
         ).assertExists()
     }
 
@@ -180,7 +184,8 @@ class StartupAccountLimitDialogTest {
         composeRule.onNodeWithText("Ein Konto entfernen").assertExists()
         composeRule.onNodeWithText(
             "Auf diesem Gerät können Sie jeweils nur ein Benutzerkonto verwenden. " +
-                "Melden Sie sich von diesem Konto ab oder wählen Sie „Später“, um sich von dem anderen Konto abzumelden."
+                "Melden Sie sich von diesem Konto ab oder wählen Sie „Später“, um sich von dem anderen Konto abzumelden.\n" +
+                "Erstellen Sie eine Datensicherung, um Ihren Gesprächsverlauf zu erhalten."
         ).assertExists()
         composeRule.onNodeWithText("Von diesem Konto abmelden").assertExists()
         composeRule.onNodeWithText("Später").assertExists()
@@ -189,7 +194,8 @@ class StartupAccountLimitDialogTest {
         composeRule.onNodeWithText("2 Konten entfernen").assertExists()
         composeRule.onNodeWithText(
             "Auf diesem Gerät können Sie jeweils nur ein Benutzerkonto verwenden. " +
-                "Melden Sie sich von diesem Konto ab oder wählen Sie „Später“, um sich von den anderen Konten abzumelden."
+                "Melden Sie sich von diesem Konto ab oder wählen Sie „Später“, um sich von den anderen Konten abzumelden.\n" +
+                "Erstellen Sie eine Datensicherung, um Ihren Gesprächsverlauf zu erhalten."
         ).assertExists()
 
         composeRule.runOnIdle {
@@ -199,13 +205,15 @@ class StartupAccountLimitDialogTest {
         composeRule.onNodeWithText("Ein Konto entfernen").assertExists()
         composeRule.onNodeWithText(
             "Auf diesem Gerät können Sie nur zwei Benutzerkonten gleichzeitig verwenden. " +
-                "Melden Sie sich von diesem Konto ab oder wählen Sie „Später“, um sich vom anderen Konto abzumelden."
+                "Melden Sie sich von diesem Konto ab oder wählen Sie „Später“, um sich vom anderen Konto abzumelden.\n" +
+                "Erstellen Sie eine Datensicherung, um Ihren Gesprächsverlauf zu erhalten."
         ).assertExists()
 
         composeRule.runOnIdle { maxAccounts.intValue = 3 }
         composeRule.onNodeWithText(
             "Auf diesem Gerät können Sie nur 3 Benutzerkonten gleichzeitig verwenden. " +
-                "Melden Sie sich von diesem Konto ab oder wählen Sie „Später“, um sich vom anderen Konto abzumelden."
+                "Melden Sie sich von diesem Konto ab oder wählen Sie „Später“, um sich vom anderen Konto abzumelden.\n" +
+                "Erstellen Sie eine Datensicherung, um Ihren Gesprächsverlauf zu erhalten."
         ).assertExists()
     }
 }

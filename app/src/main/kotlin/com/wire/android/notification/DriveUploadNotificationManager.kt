@@ -61,9 +61,9 @@ class DriveUploadNotificationManager @Inject constructor(
 
     private val notificationManager = NotificationManagerCompat.from(context)
 
-    // Written once per update from each account's own collector (see updateNotifications): concurrent puts
-    // land on different user keys, so a ConcurrentHashMap is enough without extra synchronization. Read by
-    // the stale-user cleanup below to cancel every per-conversation notification a removed account had up.
+    // Updated atomically per user in updateNotifications() via compute(), so the diff against the previous
+    // conversation ids is never read and written as two separate steps. Read by the stale-user cleanup below
+    // to cancel every per-conversation notification a removed account had up.
     private val conversationIdsByUser = ConcurrentHashMap<UserId, Set<String>>()
 
     suspend fun observeAndNotify() {
@@ -94,11 +94,14 @@ class DriveUploadNotificationManager @Inject constructor(
     private suspend fun updateNotifications(userId: UserId, uploads: List<CellUploadItem>) {
         val byConversation = uploads.groupBy { it.conversationId }
 
-        val previousConversationIds = conversationIdsByUser[userId].orEmpty()
-        (previousConversationIds - byConversation.keys).forEach { staleConversationId ->
+        val staleConversationIds = mutableListOf<String>()
+        conversationIdsByUser.compute(userId) { _, previousConversationIds ->
+            staleConversationIds.addAll(previousConversationIds.orEmpty() - byConversation.keys)
+            byConversation.keys
+        }
+        staleConversationIds.forEach { staleConversationId ->
             notificationManager.cancel(NotificationConstants.getDriveUploadNotificationId(userId, staleConversationId))
         }
-        conversationIdsByUser[userId] = byConversation.keys
 
         byConversation.forEach { (conversationId, conversationUploads) ->
             updateNotification(userId, conversationId, conversationUploads)

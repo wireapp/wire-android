@@ -20,7 +20,7 @@ jobs:
   coverage:
     env:
       GRADLE_OPTS: '-Dorg.gradle.jvmargs="-XX:MaxMetaspaceSize=2g -Xmx4G"'
-    runs-on: warp-ubuntu-2404-x64-8x
+    runs-on: warp-ubuntu-2604-x64-8x
     steps:
       - name: Checkout
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6

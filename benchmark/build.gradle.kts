@@ -26,7 +26,7 @@ plugins {
 
 android {
     namespace = "com.wire.benchmark"
-    compileSdk = 36
+    compileSdk = 37
 
     defaultConfig {
         minSdk = 28

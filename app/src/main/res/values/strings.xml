@@ -1922,16 +1922,16 @@ In group conversations, the group admin can overwrite this setting.</string>
         <item quantity="other">Remove %1$d accounts</item>
     </plurals>
     <plurals name="startup_account_limit_message_one_allowed">
-        <item quantity="one">You can only use one account at once on this device. Log out of this account or select Later to log out of the other account.</item>
-        <item quantity="other">You can only use one account at once on this device. Log out of this account or select Later to log out of the other accounts.</item>
+        <item quantity="one">You can only use one account at once on this device. Log out of this account or select Later to log out of the other account.\nCreate a backup to preserve your conversation history.</item>
+        <item quantity="other">You can only use one account at once on this device. Log out of this account or select Later to log out of the other accounts.\nCreate a backup to preserve your conversation history.</item>
     </plurals>
     <plurals name="startup_account_limit_message_two_allowed">
-        <item quantity="one">You can only use two accounts at once on this device. Log out of this account or select Later to log out of the other account.</item>
-        <item quantity="other">You can only use two accounts at once on this device. Log out of this account or select Later to log out of the other accounts.</item>
+        <item quantity="one">You can only use two accounts at once on this device. Log out of this account or select Later to log out of the other account.\nCreate a backup to preserve your conversation history.</item>
+        <item quantity="other">You can only use two accounts at once on this device. Log out of this account or select Later to log out of the other accounts.\nCreate a backup to preserve your conversation history.</item>
     </plurals>
     <plurals name="startup_account_limit_message_other_allowed">
-        <item quantity="one">You can only use %1$d accounts at once on this device. Log out of this account or select Later to log out of the other account.</item>
-        <item quantity="other">You can only use %1$d accounts at once on this device. Log out of this account or select Later to log out of the other accounts.</item>
+        <item quantity="one">You can only use %1$d accounts at once on this device. Log out of this account or select Later to log out of the other account.\nCreate a backup to preserve your conversation history.</item>
+        <item quantity="other">You can only use %1$d accounts at once on this device. Log out of this account or select Later to log out of the other accounts.\nCreate a backup to preserve your conversation history.</item>
     </plurals>
     <string name="startup_account_limit_logout">Log out of this account</string>
     <string name="startup_account_limit_later">Later</string>

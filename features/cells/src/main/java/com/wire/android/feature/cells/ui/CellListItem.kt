@@ -76,12 +76,14 @@ import com.wire.android.feature.cells.domain.model.icon
 import com.wire.android.feature.cells.domain.model.previewSupported
 import com.wire.android.feature.cells.ui.model.CellNodeUi
 import com.wire.android.feature.cells.ui.model.OpenLoadState
+import com.wire.android.feature.cells.ui.search.sort.SortBy
 import com.wire.android.feature.cells.ui.util.PreviewMultipleThemes
 import com.wire.android.ui.common.chip.WireDisplayChipWithOverFlow
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.typography
 import com.wire.android.ui.theme.WireTheme
+import com.wire.android.util.FileSizeFormatter
 import com.wire.android.util.cellFileDateTime
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.filter
@@ -97,6 +99,7 @@ internal fun CellListItem(
     modifier: Modifier = Modifier,
     showConversationName: Boolean = true,
     showViewerOnlyIcon: Boolean = false,
+    sortBy: SortBy = SortBy.Default,
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     var showReadyState by remember { mutableStateOf(false) }
@@ -134,7 +137,12 @@ internal fun CellListItem(
             )
 
             Row(verticalAlignment = Alignment.CenterVertically) {
-                CellItemSubtitle(cell = cell, showReadyState = showReadyState, showConversationName = showConversationName)
+                CellItemSubtitle(
+                    cell = cell,
+                    showReadyState = showReadyState,
+                    showConversationName = showConversationName,
+                    sortBy = sortBy,
+                )
             }
         }
 
@@ -186,7 +194,7 @@ private fun CellItemIcon(cell: CellNodeUi, showReadyState: Boolean, showViewerOn
 }
 
 @Composable
-private fun CellItemSubtitle(cell: CellNodeUi, showReadyState: Boolean, showConversationName: Boolean) {
+private fun CellItemSubtitle(cell: CellNodeUi, showReadyState: Boolean, showConversationName: Boolean, sortBy: SortBy) {
     when {
         cell.openLoadState is OpenLoadState.Loading -> Text(
             text = stringResource(R.string.tap_to_cancel_loading),
@@ -243,7 +251,7 @@ private fun CellItemSubtitle(cell: CellNodeUi, showReadyState: Boolean, showConv
                     modifier = Modifier.padding(end = dimensions().spacing4x)
                 )
             }
-            cell.subtitle(showConversationName)?.let {
+            cell.subtitle(showConversationName, sortBy)?.let {
                 Text(
                     text = it,
                     textAlign = TextAlign.Left,
@@ -480,23 +488,68 @@ private fun PublicLinkIcon(
     )
 }
 
+/**
+ * Subtitle of a node, whose leading detail follows the sorting the list is showing, so that the
+ * value the items are ordered by is always visible.
+ *
+ * Where a node is identified by the conversation it lives in, such as Drive, it is named after that
+ * conversation; everywhere else the conversation is already given by the screen, so it is named
+ * after its owner instead.
+ */
 @Composable
-private fun CellNodeUi.subtitle(showConversationName: Boolean): String? {
-    val formattedTime = modifiedTime?.let {
-        remember(it) { Instant.fromEpochMilliseconds(it).cellFileDateTime() }
-    }
+private fun CellNodeUi.subtitle(showConversationName: Boolean, sortBy: SortBy): String? {
+    val conversation = conversationName?.takeIf { showConversationName }
     return when {
-        showConversationName && userName != null && conversationName != null ->
-            stringResource(R.string.file_subtitle, userName!!, conversationName!!)
-
-        userName != null && formattedTime != null ->
-            stringResource(R.string.file_subtitle_modified, formattedTime, userName!!)
-
-        userName != null -> userName
-        showConversationName && conversationName != null -> conversationName
-        formattedTime != null -> formattedTime
-        else -> null
+        conversation != null -> conversationSubtitle(conversation, sortBy)
+        else -> ownerSubtitle(sortBy)
     }
+}
+
+/**
+ * Reads `<detail> in <conversation>`, the detail being the value the list is sorted by: the modified
+ * date, the size, or the owner name when sorting by name. Nodes missing that value are named after
+ * their owner, which is what sorting by name shows anyway.
+ */
+@Composable
+private fun CellNodeUi.conversationSubtitle(conversation: String, sortBy: SortBy): String {
+    val sortedDetail = when (sortBy) {
+        SortBy.Modified -> formattedModifiedTime()
+        SortBy.Size -> formattedSize()
+        SortBy.Name, SortBy.Default -> userName
+    }
+    return (sortedDetail ?: userName)
+        ?.let { stringResource(R.string.file_subtitle, it, conversation) }
+        ?: conversation
+}
+
+/**
+ * Reads `<detail> by <owner>`, the detail being the size when the list is sorted by size and the
+ * modified date otherwise, since that is the one attribute every other sorting leaves unsaid.
+ */
+@Composable
+private fun CellNodeUi.ownerSubtitle(sortBy: SortBy): String? {
+    val sortedDetail = if (sortBy == SortBy.Size) formattedSize() else formattedModifiedTime()
+    val owner = userName
+    return when {
+        sortedDetail != null && owner != null -> stringResource(
+            id = R.string.file_subtitle_modified,
+            sortedDetail,
+            owner
+        )
+
+        else -> owner ?: sortedDetail
+    }
+}
+
+@Composable
+private fun CellNodeUi.formattedModifiedTime(): String? = modifiedTime?.let {
+    remember(it) { Instant.fromEpochMilliseconds(it).cellFileDateTime() }
+}
+
+@Composable
+private fun CellNodeUi.formattedSize(): String? {
+    val context = LocalContext.current
+    return size?.let { remember(it) { FileSizeFormatter(context).formatSize(it) } }
 }
 
 @PreviewMultipleThemes

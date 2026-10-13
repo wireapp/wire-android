@@ -31,7 +31,7 @@ import user.utils.ClientUser
 import java.net.HttpURLConnection
 import java.net.URI
 
-fun BackendClient.getBackendClientIds(forUser: ClientUser): List<String> {
+fun BackendClient.getBackendClientIds(forUser: ClientUser, model: String? = null): List<String> {
     val token = runBlocking { getAuthToken(forUser) }
     val url = URI("clients".composePublicApiUrl()).toURL()
 
@@ -53,7 +53,10 @@ fun BackendClient.getBackendClientIds(forUser: ClientUser): List<String> {
     val clients = JSONArray(response.body)
     return buildList {
         for (i in 0 until clients.length()) {
-            add(clients.getJSONObject(i).getString("id"))
+            val client = clients.getJSONObject(i)
+            if (model == null || client.optString("model").contains(model)) {
+                add(client.getString("id"))
+            }
         }
     }
 }

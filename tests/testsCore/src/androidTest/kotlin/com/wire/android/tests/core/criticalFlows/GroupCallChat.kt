@@ -66,6 +66,13 @@ class GroupCallChat : BaseCallUiTest() {
                 context
             )
             teamOwner = clientUserManager.findUserBy("user1Name", ClientUserManager.FindBy.NAME_ALIAS)
+
+            backendSetupHelper.userConfiguresMLSForTeam(
+                "user1Name",
+                "WeLikeCalling",
+                backendClient
+            )
+
             backendSetupHelper.userXAddsUsersToTeam(
                 "user1Name",
                 "user2Name,user3Name",
@@ -76,14 +83,18 @@ class GroupCallChat : BaseCallUiTest() {
                 true
             )
 
-            backendSetupHelper.userHasGroupConversationInTeam(
-                "user1Name",
-                "GroupCallChat",
-                "user2Name,user3Name",
-                "WeLikeCalling"
-            )
+            testServiceHelper.apply {
+                listOf("user1Name", "user2Name", "user3Name").forEach { user ->
+                    addDevice(user, null, "Device1")
+                }
 
-            testServiceHelper.addDevice("user3Name", null, "Device1")
+                userCreatesMLSGroupConversation(
+                    ownerAlias = "user1Name",
+                    participantAliases = "user2Name,user3Name",
+                    conversationName = "GroupCallChat",
+                    deviceName = "Device1"
+                )
+            }
         }
 
         step("Enable conference calling & start browser instances for participants") {
@@ -132,6 +143,10 @@ class GroupCallChat : BaseCallUiTest() {
             }
         }
 
+        step("Wait until Wire service notification disappears") {
+            pages.conversationListPage.waitUntilWireServiceNotificationDisappears()
+        }
+
         step("Start group call from GroupCallChats conversation") {
             pages.conversationViewPage.apply {
                 iTapStartCallButton()
@@ -170,7 +185,6 @@ class GroupCallChat : BaseCallUiTest() {
         }
         step("Participant sends a message to the group conversation") {
             testServiceHelper.apply {
-                addDevice("user2Name", null, "Device1")
                 userSendMessageToConversation(
                     "user2Name",
                     "Hello Friends",

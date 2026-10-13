@@ -43,6 +43,11 @@ sealed interface ReplaceRetainedSsoSessionResult {
     ) : ReplaceRetainedSsoSessionResult
 }
 
+internal fun missingSsoLoginContextFailure(): SSOLoginSessionResult.Failure.Generic =
+    SSOLoginSessionResult.Failure.Generic(
+        CoreFailure.Unknown(IllegalStateException("Missing or mismatched SSO login context; restart sign-in"))
+    )
+
 class LoginSSOViewModelExtension(
     private val addAuthenticatedUser: AddAuthenticatedUserUseCase,
     private val coreLogic: CoreLogic,
@@ -68,13 +73,13 @@ class LoginSSOViewModelExtension(
         cookieLabel: String? = null,
         onAuthScopeFailure: (AutoVersionAuthScopeUseCase.Result.Failure) -> Unit,
         onSSOInitiateFailure: (SSOInitiateLoginResult.Failure) -> Unit,
-        onSuccess: suspend (redirectUrl: String) -> Unit,
+        onSuccess: suspend (SSOInitiateLoginResult.Success) -> Unit,
     ) {
         withAuthenticationScope(serverConfig, onAuthScopeFailure) { authScope ->
             authScope.ssoLoginScope.initiate(SSOInitiateLoginUseCase.Param.WithRedirect(ssoCode, cookieLabel)).let { result ->
                 when (result) {
                     is SSOInitiateLoginResult.Failure -> onSSOInitiateFailure(result)
-                    is SSOInitiateLoginResult.Success -> onSuccess(result.requestUrl)
+                    is SSOInitiateLoginResult.Success -> onSuccess(result)
                 }
             }
         }
@@ -110,7 +115,13 @@ class LoginSSOViewModelExtension(
             onAddAuthenticatedUserFailure(AddAuthenticatedUserUseCase.Result.Failure.SsoIdentityChanged)
         },
         ssoIdentityProviderId: String? = null,
+        pendingSsoLogin: PendingSsoLogin,
     ) {
+        if (pendingSsoLogin.serverConfigId != serverConfigId) {
+            onSSOLoginFailure(missingSsoLoginContextFailure())
+            return
+        }
+
         val authScope = when (val result = coreLogic.authenticationScopeForConfigId(serverConfigId)) {
             is AutoVersionAuthScopeUseCase.Result.Success -> {
                 appLogger.i("SSO: Resolved auth scope from serverConfigId=$serverConfigId")
@@ -123,33 +134,34 @@ class LoginSSOViewModelExtension(
             }
         }
 
-        val ssoLoginSuccess = when (val ssoLoginResult = authScope.ssoLoginScope.getLoginSession(cookie)) {
-            is SSOLoginSessionResult.Failure -> {
-                onSSOLoginFailure(ssoLoginResult)
-                return
+        when (
+            val ssoLoginResult = authScope.ssoLoginScope.getLoginSession(
+                cookie,
+                checkIdpChangeDetection = pendingSsoLogin.requiresCapabilityCheck
+            )
+        ) {
+            is SSOLoginSessionResult.Failure -> onSSOLoginFailure(ssoLoginResult)
+            is SSOLoginSessionResult.Success -> {
+                val session = StoreSessionParam(
+                    accountTokens = ssoLoginResult.accountTokens.withCookieLabelIfMissing(consumeCookieLabel()),
+                    ssoId = ssoLoginResult.ssoId,
+                    serverConfigId = serverConfigId,
+                    proxyCredentials = ssoLoginResult.proxyCredentials,
+                    managedBy = ssoLoginResult.managedBy,
+                    isPersistentWebSocketEnabled = defaultWebSocketEnabledByDefault,
+                    nomadServiceUrl = consumeNomadServiceUrl(),
+                    ssoIdentityProviderId = if (pendingSsoLogin.requiresCapabilityCheck) {
+                        pendingSsoLogin.identityProviderId.takeIf { ssoLoginResult.isIdpChangeDetectionEnabled }
+                    } else {
+                        ssoIdentityProviderId
+                    },
+                )
+                when (val authenticatedUserResult = addAuthenticatedUser(session, replace = false)) {
+                    AddAuthenticatedUserUseCase.Result.Failure.SsoIdentityChanged -> onSsoIdentityChanged(session)
+                    is AddAuthenticatedUserUseCase.Result.Failure -> onAddAuthenticatedUserFailure(authenticatedUserResult)
+                    is AddAuthenticatedUserUseCase.Result.Success -> onSuccess(authenticatedUserResult.userId)
+                }
             }
-            is SSOLoginSessionResult.Success -> ssoLoginResult
-        }
-
-        val session = StoreSessionParam(
-            accountTokens = ssoLoginSuccess.accountTokens.withCookieLabelIfMissing(consumeCookieLabel()),
-            ssoId = ssoLoginSuccess.ssoId,
-            serverConfigId = serverConfigId,
-            proxyCredentials = ssoLoginSuccess.proxyCredentials,
-            managedBy = ssoLoginSuccess.managedBy,
-            isPersistentWebSocketEnabled = defaultWebSocketEnabledByDefault,
-            nomadServiceUrl = consumeNomadServiceUrl(),
-            ssoIdentityProviderId = ssoIdentityProviderId,
-        )
-        val authenticatedUserResult = addAuthenticatedUser(
-            session,
-            replace = false
-        )
-
-        when (authenticatedUserResult) {
-            AddAuthenticatedUserUseCase.Result.Failure.SsoIdentityChanged -> onSsoIdentityChanged(session)
-            is AddAuthenticatedUserUseCase.Result.Failure -> onAddAuthenticatedUserFailure(authenticatedUserResult)
-            is AddAuthenticatedUserUseCase.Result.Success -> onSuccess(authenticatedUserResult.userId)
         }
     }
 

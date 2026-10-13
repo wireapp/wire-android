@@ -25,35 +25,41 @@ import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import androidx.paging.insertSeparators
 import androidx.paging.map
+import com.wire.android.di.CurrentAccount
 import com.wire.android.di.metro.WireAssistedViewModelBinding
 import com.wire.android.feature.meetings.mapper.toMeetingItem
 import com.wire.android.feature.meetings.mapper.toOngoingCallStatus
 import com.wire.android.feature.meetings.model.MeetingHeader
 import com.wire.android.feature.meetings.model.MeetingItem
 import com.wire.android.feature.meetings.model.MeetingListItem
-import com.wire.android.feature.meetings.ui.MeetingsTabItem
 import com.wire.android.feature.meetings.ui.MeetingsManualViewModelFactoryGroup
+import com.wire.android.feature.meetings.ui.MeetingsTabItem
 import com.wire.android.feature.meetings.ui.mock.MeetingMocksProvider
 import com.wire.android.feature.meetings.ui.usecase.GetPaginatedFlowOfMeetingsUseCase
+import com.wire.android.feature.meetings.ui.util.SystemTimeObserver
 import com.wire.android.util.CurrentTimeProvider
 import com.wire.android.util.dispatchers.DispatcherProvider
+import com.wire.android.util.time.CurrentTimeZoneProvider
+import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.call.usecase.ObserveActiveCallsUseCase
+import com.wire.kalium.logic.feature.meeting.SyncMeetingsUseCase
 import dev.zacsweers.metro.Assisted
 import dev.zacsweers.metro.AssistedFactory
 import dev.zacsweers.metro.AssistedInject
-import kotlinx.coroutines.currentCoroutineContext
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.shareIn
-import kotlinx.coroutines.isActive
-import kotlinx.datetime.Instant
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.atTime
@@ -62,41 +68,71 @@ import kotlinx.datetime.toLocalDateTime
 
 interface MeetingListViewModel {
     val currentTimeProvider: CurrentTimeProvider
+    val currentTimeZoneProvider: CurrentTimeZoneProvider
+    val displayTimeZoneFlow: StateFlow<TimeZone>
     val meetings: Flow<PagingData<MeetingListItem>> get() = flowOf()
+    fun onEmptyListLoaded() {}
 }
 
 class MeetingListViewModelPreview(type: MeetingsTabItem) : MeetingListViewModel {
     override val currentTimeProvider: CurrentTimeProvider = CurrentTimeProvider.Preview
+    override val currentTimeZoneProvider: CurrentTimeZoneProvider = CurrentTimeZoneProvider.Preview
+    override val displayTimeZoneFlow: StateFlow<TimeZone> = MutableStateFlow(currentTimeZoneProvider())
     private val meetingMocksProvider = MeetingMocksProvider(currentTimeProvider)
     override val meetings: Flow<PagingData<MeetingListItem>> = MutableStateFlow(
-        meetingMocksProvider.getItems(type).toPagingDataWithLoadState(false).insertHeaders(type)
+        meetingMocksProvider.getItems(type)
+            .toPagingDataWithLoadState(false).insertHeaders(type, currentTimeZoneProvider())
     )
 }
 
 @WireAssistedViewModelBinding(MeetingsManualViewModelFactoryGroup::class)
 class MeetingListViewModelImpl @AssistedInject constructor(
     @Assisted val type: MeetingsTabItem,
+    @CurrentAccount private val selfUserId: UserId,
     override val currentTimeProvider: CurrentTimeProvider,
+    override val currentTimeZoneProvider: CurrentTimeZoneProvider,
+    systemTimeObserver: SystemTimeObserver,
     getMeetingsPaginated: GetPaginatedFlowOfMeetingsUseCase,
     observeActiveCalls: ObserveActiveCallsUseCase,
-    dispatcher: DispatcherProvider,
+    private val syncMeetings: SyncMeetingsUseCase,
+    private val dispatcher: DispatcherProvider,
 ) : ViewModel(), MeetingListViewModel {
+    private var initialMeetingsLoaded = false
+
+    override fun onEmptyListLoaded() {
+        if (!initialMeetingsLoaded) {
+            initialMeetingsLoaded = true
+            viewModelScope.launch(dispatcher.io()) {
+                syncMeetings()
+            }
+        }
+    }
 
     @AssistedFactory
     interface Factory {
         fun create(type: MeetingsTabItem): MeetingListViewModelImpl
     }
 
-    private val alignedTickerFlow = flow {
-        while (currentCoroutineContext().isActive) {
-            val currentTime = currentTimeProvider()
-            emit(currentTime)
-            delay(currentTime.millisToNextFullMinute())
+    // Drives paging refreshes and the display timezone; updated while meetings is collected.
+    private val localDateAndTimeZoneFlow = MutableStateFlow(
+        currentTimeZoneProvider().let { timeZone ->
+            currentTimeProvider().toLocalDateTime(timeZone).date to timeZone
         }
-    }
+    )
 
-    private val pagingDataFlow = flowOf(type)
-        .flatMapLatest { type ->
+    private val currentTimeAndTimeZoneFlow = systemTimeObserver()
+        .map { currentTimeProvider() to currentTimeZoneProvider() }
+        .onStart { emit(currentTimeProvider() to currentTimeZoneProvider()) }
+        .onEach { (currentTime, timeZone) ->
+            localDateAndTimeZoneFlow.value = currentTime.toLocalDateTime(timeZone).date to timeZone
+        }
+
+    override val displayTimeZoneFlow: StateFlow<TimeZone> = localDateAndTimeZoneFlow
+        .map { (_, timeZone) -> timeZone }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), localDateAndTimeZoneFlow.value.second)
+
+    private val pagingDataFlow = localDateAndTimeZoneFlow // refresh whole list when local date or time zone changes
+        .flatMapLatest {
             getMeetingsPaginated(type = type)
         }
         .flowOn(dispatcher.io())
@@ -104,15 +140,21 @@ class MeetingListViewModelImpl @AssistedInject constructor(
 
     override val meetings: Flow<PagingData<MeetingListItem>> = combine(
         pagingDataFlow,
-        observeActiveCalls(),
-        alignedTickerFlow
-    ) { pagingData, activeCalls, currentTime ->
+        observeActiveCalls(), // update item statuses when active calls change
+        currentTimeAndTimeZoneFlow // update item statuses on every minute tick or when system date/time/timezone changes
+    ) { pagingData, activeCalls, _ ->
+        val currentTime = currentTimeProvider()
+        val currentTimeZone = currentTimeZoneProvider()
         pagingData
             .map { item ->
                 val activeCall = activeCalls.find { it.conversationId == item.meeting.conversationId }
-                item.toMeetingItem(time = currentTime, ongoingCallStatus = activeCall?.toOngoingCallStatus())
+                item.toMeetingItem(
+                    time = currentTime,
+                    ongoingCallStatus = activeCall?.toOngoingCallStatus(),
+                    selfUserId = selfUserId
+                )
             }
-            .insertHeaders(type = type)
+            .insertHeaders(type = type, timeZone = currentTimeZone)
     }.shareIn(scope = viewModelScope, started = SharingStarted.WhileSubscribed(), replay = 1)
 }
 
@@ -121,11 +163,12 @@ class MeetingListViewModelImpl @AssistedInject constructor(
 private fun generateHeader(
     before: MeetingItem?,
     after: MeetingItem?,
+    timeZone: TimeZone,
     ongoingEnabled: Boolean = false,
     hoursEnabled: Boolean = false,
 ): MeetingHeader? {
-    val beforeLocalTime = before?.status?.startTime?.toLocalDateTime(TimeZone.currentSystemDefault())
-    val afterLocalTime = after?.status?.startTime?.toLocalDateTime(TimeZone.currentSystemDefault())
+    val beforeLocalTime = before?.status?.startTime?.toLocalDateTime(timeZone)
+    val afterLocalTime = after?.status?.startTime?.toLocalDateTime(timeZone)
     val beforeStatusOngoing = before?.status is MeetingItem.Status.Ongoing
     val afterStatusOngoing = after?.status is MeetingItem.Status.Ongoing
     return when {
@@ -134,30 +177,27 @@ private fun generateHeader(
 
         // If the previous meeting is ongoing in "Ongoing" section and the next one is not, start new "Day" section, add "Hour" if enabled.
         ongoingEnabled && afterLocalTime != null && beforeStatusOngoing && !afterStatusOngoing -> when {
-            hoursEnabled -> MeetingHeader.DayAndHour(time = afterLocalTime.headerDayHourTime())
-            else -> MeetingHeader.Day(time = afterLocalTime.headerDayHourTime())
+            hoursEnabled -> MeetingHeader.DayAndHour(time = afterLocalTime.headerDayHourTime(timeZone))
+            else -> MeetingHeader.Day(time = afterLocalTime.headerDayHourTime(timeZone))
         }
 
         // If the next meeting is on a different day than the previous one, start a new "Day" section, add "Hour" if enabled.
         afterLocalTime != null && beforeLocalTime?.date != afterLocalTime.date -> when {
-            hoursEnabled -> MeetingHeader.DayAndHour(time = afterLocalTime.headerDayHourTime())
-            else -> MeetingHeader.Day(time = afterLocalTime.headerDayHourTime())
+            hoursEnabled -> MeetingHeader.DayAndHour(time = afterLocalTime.headerDayHourTime(timeZone))
+            else -> MeetingHeader.Day(time = afterLocalTime.headerDayHourTime(timeZone))
         }
 
         // If the next meeting is on the same day but a different hour than the previous one, add an "Hour" header if enabled.
         hoursEnabled && afterLocalTime != null && beforeLocalTime?.hour != afterLocalTime.hour ->
-            MeetingHeader.Hour(time = afterLocalTime.headerDayHourTime())
+            MeetingHeader.Hour(time = afterLocalTime.headerDayHourTime(timeZone))
 
         // Otherwise, no header is added.
         else -> null
     }
 }
 
-@Suppress("MagicNumber")
-private fun Instant.millisToNextFullMinute(): Long = 60_000L - (this.toEpochMilliseconds() % 60_000L)
-
 /** Extension function to create a header time at the start of the hour of the meeting's start time. */
-private fun LocalDateTime.headerDayHourTime() = date.atTime(hour, 0, 0).toInstant(TimeZone.currentSystemDefault())
+private fun LocalDateTime.headerDayHourTime(timeZone: TimeZone) = date.atTime(hour, 0, 0).toInstant(timeZone)
 
 /** Extension function to convert a list of MeetingItems to PagingData of MeetingItems with load states. */
 private fun List<MeetingItem>.toPagingDataWithLoadState(appendLoading: Boolean): PagingData<MeetingItem> =
@@ -171,10 +211,10 @@ private fun List<MeetingItem>.toPagingDataWithLoadState(appendLoading: Boolean):
     )
 
 /** Extension function to insert headers into a PagingData stream of MeetingItems based on the given type. */
-private fun PagingData<MeetingItem>.insertHeaders(type: MeetingsTabItem): PagingData<MeetingListItem> =
+private fun PagingData<MeetingItem>.insertHeaders(type: MeetingsTabItem, timeZone: TimeZone): PagingData<MeetingListItem> =
     insertSeparators { before, after ->
         when (type) {
-            MeetingsTabItem.NEXT -> generateHeader(before = before, after = after)
+            MeetingsTabItem.NEXT -> generateHeader(before = before, after = after, timeZone = timeZone)
             MeetingsTabItem.PAST -> null // No headers for past meetings
         }
     }

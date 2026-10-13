@@ -70,6 +70,7 @@ import com.wire.android.feature.meetings.R
 import com.wire.android.feature.meetings.model.MeetingItem
 import com.wire.android.feature.meetings.ui.create.NewMeetingViewModel.Companion.MEETING_NAME_MAX_COUNT
 import com.wire.android.feature.meetings.ui.util.PreviewMultipleThemes
+import com.wire.android.feature.meetings.ui.util.audioPermissionCheckFlow
 import com.wire.android.model.Contact
 import com.wire.android.ui.common.VisibilityState
 import com.wire.android.ui.common.WireDialog
@@ -135,6 +136,7 @@ fun NewMeetingContent(
     onRepeatingIntervalChanged: (interval: MeetingItem.RepeatingInterval?) -> Unit = {},
 ) {
     val scrollState = rememberScrollState()
+    val audioPermissionCheck = audioPermissionCheckFlow(onPermissionGranted = onCreateClicked)
     WireScaffold(
         modifier = modifier,
         topBar = {
@@ -144,7 +146,7 @@ fun NewMeetingContent(
                 onNavigationPressed = {
                     if (!state.isSubmitting) onBackPressed()
                 },
-                navigationIconType = NavigationIconType.Back(
+                navigationIconType = NavigationIconType.Close(
                     contentDescription = R.string.content_description_new_meeting_back_icon
                 ),
             )
@@ -240,7 +242,8 @@ fun NewMeetingContent(
                     loading = state.isSubmitting,
                     onClick = when (type) {
                         is NewMeetingType.Edit -> onUpdateClicked
-                        NewMeetingType.MeetNow, NewMeetingType.Schedule -> onCreateClicked
+                        NewMeetingType.MeetNow -> audioPermissionCheck::launch
+                        NewMeetingType.Schedule -> onCreateClicked
                     },
                     modifier = Modifier
                         .fillMaxWidth()

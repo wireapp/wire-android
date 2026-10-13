@@ -104,7 +104,7 @@ internal fun OtherUserProfileRouteScreen(
     onOpenDeviceDetails: (Device) -> Unit,
     onSearchConversationMessages: (ConversationId) -> Unit,
     onOpenConversationMedia: (ConversationId) -> Unit,
-    onMoveToFolder: (ConversationId, (String) -> Unit) -> Unit,
+    onMoveToFolder: (ConversationFoldersNavArgs) -> Unit,
     onOpenConversationDebugMenu: (ConversationId) -> Unit,
 ) {
     val snackbarHostState = LocalSnackbarHostState.current
@@ -133,11 +133,7 @@ internal fun OtherUserProfileRouteScreen(
             viewModel.state.activeOneOnOneConversationId?.let(onOpenConversationMedia)
         },
         onLegalHoldLearnMoreClick = remember { { legalHoldSubjectDialogState.show(Unit) } },
-        onMoveToFolder = { arguments ->
-            onMoveToFolder(arguments.conversationId) { message ->
-                scope.launch { snackbarHostState.showSnackbar(message) }
-            }
-        },
+        onMoveToFolder = onMoveToFolder,
         openConversationDebugMenu = onOpenConversationDebugMenu,
     )
 

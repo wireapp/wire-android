@@ -22,7 +22,6 @@ import app.cash.turbine.test
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.framework.TestUser
 import com.wire.android.notification.CallNotificationManager
-import com.wire.android.ui.home.appLock.LockCodeTimeManager
 import com.wire.kalium.logic.data.call.Call
 import com.wire.kalium.logic.data.call.CallStatus
 import com.wire.kalium.logic.data.conversation.Conversation
@@ -37,7 +36,6 @@ import com.wire.kalium.logic.feature.call.usecase.RejectCallUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
-import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
@@ -76,9 +74,6 @@ class IncomingCallViewModelTest {
         lateinit var muteCall: MuteCallUseCase
 
         @MockK
-        lateinit var lockCodeTimeManager: LockCodeTimeManager
-
-        @MockK
         lateinit var callNotificationManager: CallNotificationManager
 
         init {
@@ -90,18 +85,6 @@ class IncomingCallViewModelTest {
             coEvery { incomingCalls.invoke() } returns flowOf(listOf(provideCall()))
             coEvery { observeEstablishedCalls.invoke() } returns flowOf(emptyList())
             coEvery { muteCall(any(), any()) } returns Unit
-        }
-
-        fun withAppNotLocked() = apply {
-            every { lockCodeTimeManager.observeAppLock() } returns flowOf(false)
-        }
-
-        fun withAppLocked() = apply {
-            every { lockCodeTimeManager.observeAppLock() } returns flowOf(true)
-        }
-
-        fun withLockStateLockedAndThenUnlocked() = apply {
-            every { lockCodeTimeManager.observeAppLock() } returns flowOf(true) andThen flowOf(false)
         }
 
         fun withEstablishedCalls(flow: Flow<List<Call>>) = apply {
@@ -121,29 +104,13 @@ class IncomingCallViewModelTest {
             observeEstablishedCalls = observeEstablishedCalls,
             endCall = endCall,
             muteCall = muteCall,
-            lockCodeTimeManager = lockCodeTimeManager,
             callNotificationManager = callNotificationManager,
         )
     }
 
     @Test
-    fun `given app Locked, when the user decline the call, then do not reject the call`() = runTest {
-        val (arrangement, viewModel) = Arrangement()
-            .withAppLocked()
-            .arrange()
-
-        viewModel.actions.test {
-            viewModel.declineCall()
-
-            coVerify(inverse = true) { arrangement.rejectCall(conversationId = any()) }
-            assertEquals(IncomingCallViewActions.AppLocked, awaitItem())
-        }
-    }
-
-    @Test
     fun `given an incoming call, when the user decline the call, then the reject call use case is called`() = runTest {
         val (arrangement, viewModel) = Arrangement()
-            .withAppNotLocked()
             .arrange()
 
         viewModel.actions.test {
@@ -156,23 +123,8 @@ class IncomingCallViewModelTest {
     }
 
     @Test
-    fun `given app locked, when user tries to accept an incoming call, then do not accept the call`() = runTest {
-        val (arrangement, viewModel) = Arrangement()
-            .withAppLocked()
-            .arrange()
-
-        viewModel.actions.test {
-            viewModel.acceptCall()
-
-            coVerify(inverse = true) { arrangement.acceptCall(conversationId = any()) }
-            assertEquals(IncomingCallViewActions.AppLocked, awaitItem())
-        }
-    }
-
-    @Test
     fun `given no ongoing call, when user tries to accept an incoming call, then invoke answerCall call use case`() = runTest {
         val (arrangement, viewModel) = Arrangement()
-            .withAppNotLocked()
             .arrange()
 
         viewModel.acceptCall()
@@ -187,7 +139,6 @@ class IncomingCallViewModelTest {
     @Test
     fun `given an ongoing call, when user tries to accept an incoming call, then show JoinCallAnywayDialog`() = runTest {
         val (arrangement, viewModel) = Arrangement()
-            .withAppNotLocked()
             .withEstablishedCalls(flowOf(listOf(provideCall(ConversationId("value", "Domain")))))
             .arrange()
 
@@ -204,7 +155,6 @@ class IncomingCallViewModelTest {
             val establishedCallsChannel = Channel<List<Call>>(capacity = Channel.UNLIMITED)
                 .also { it.send(listOf(provideCall(ConversationId("value", "Domain")))) }
             val (arrangement, viewModel) = Arrangement()
-                .withAppNotLocked()
                 .withEstablishedCalls(establishedCallsChannel.consumeAsFlow())
                 .withEndCall { establishedCallsChannel.send(listOf()) }
                 .arrange()
@@ -220,7 +170,6 @@ class IncomingCallViewModelTest {
     @Test
     fun `given join dialog displayed, when user dismisses it, then hide it`() = runTest {
         val (arrangement, viewModel) = Arrangement()
-            .withAppNotLocked()
             .withEstablishedCalls(flowOf(listOf(provideCall())))
             .arrange()
 
@@ -232,43 +181,9 @@ class IncomingCallViewModelTest {
     }
 
     @Test
-    fun `given app locked, when user tries to accept an incoming call, then do not accept the call until is unlocked`() = runTest {
-        val (arrangement, viewModel) = Arrangement()
-            .withLockStateLockedAndThenUnlocked()
-            .arrange()
-
-        viewModel.acceptCall()
-
-        coVerify { arrangement.acceptCall(conversationId = any()) }
-    }
-
-    @Test
-    fun `given app locked, when user tries to accept an second incoming call, then do not accept the call until is unlocked`() = runTest {
-        val (arrangement, viewModel) = Arrangement()
-            .withLockStateLockedAndThenUnlocked()
-            .arrange()
-
-        viewModel.acceptCallAnyway()
-
-        coVerify { arrangement.acceptCall(conversationId = any()) }
-    }
-
-    @Test
-    fun `given app Locked, when the user decline the call, then do not reject the call until is unlocked`() = runTest {
-        val (arrangement, viewModel) = Arrangement()
-            .withLockStateLockedAndThenUnlocked()
-            .arrange()
-
-        viewModel.declineCall()
-
-        coVerify { arrangement.rejectCall(conversationId = any()) }
-    }
-
-    @Test
     fun `given call not accepted, when bringing back notification, then bring back notification`() = runTest {
         // given
         val (arrangement, viewModel) = Arrangement()
-            .withAppNotLocked()
             .arrange()
         // when
         viewModel.bringBackNotificationIfNeeded()
@@ -285,7 +200,6 @@ class IncomingCallViewModelTest {
     fun `given call being accepted but unlock required, when bringing back notification, then do not bring back notification`() = runTest {
         // given
         val (arrangement, viewModel) = Arrangement()
-            .withAppNotLocked()
             .arrange()
         // when
         viewModel.bringBackNotificationIfNeeded()
@@ -302,7 +216,6 @@ class IncomingCallViewModelTest {
     fun `given call accepted, when bringing back notification, then bring back notification`() = runTest {
         // given
         val (arrangement, viewModel) = Arrangement()
-            .withAppLocked()
             .arrange()
         viewModel.acceptCall()
         advanceUntilIdle()

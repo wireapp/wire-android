@@ -61,7 +61,7 @@ val CurrentTimeProvider.ongoingAttendingOneOnOneMeeting
         selfRole = MeetingItem.SelfRole.Creator,
         status = Status.Ongoing(
             startTime = currentTime().fullMinutes().minus(15.minutes),
-            scheduledEndTime = currentTime().fullMinutes().plus(45.minutes),
+            endTime = currentTime().fullMinutes().plus(45.minutes),
             ongoingCallStatus = MeetingItem.OngoingCallStatus(
                 currentCallEstablishedTime = currentTime().fullMinutes().minus(15.minutes),
                 isSelfUserAttending = true,
@@ -90,7 +90,7 @@ val CurrentTimeProvider.grouplessOngoingMeeting
         selfRole = MeetingItem.SelfRole.Creator,
         status = Status.Ongoing(
             startTime = currentTime().fullMinutes().minus(10.minutes),
-            scheduledEndTime = currentTime().fullMinutes().plus(1.minutes)
+            endTime = currentTime().fullMinutes().plus(1.minutes)
         ),
     )
 

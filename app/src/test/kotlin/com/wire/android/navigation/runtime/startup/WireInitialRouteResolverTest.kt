@@ -25,7 +25,6 @@ import com.wire.android.ui.e2eiEnrollment.E2EIEnrollmentRoute
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.navigation.WireNavEntryId
 import com.wire.navigation.WireSessionId
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertThrows

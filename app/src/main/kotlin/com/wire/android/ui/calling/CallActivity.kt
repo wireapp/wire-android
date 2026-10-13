@@ -118,7 +118,9 @@ abstract class CallActivity : BaseActivity() {
         }
 
         setupOrientationForDevice()
-        setUpCallingFlags()
+        setUpCallingFlags(
+            showWhenLocked = (request?.screen as? CallActivityScreen.Starting)?.type == StartingCallScreenType.Incoming
+        )
 
         enableEdgeToEdge()
 
@@ -235,20 +237,22 @@ abstract class CallActivity : BaseActivity() {
             }
     }
 
-    fun setUpCallingFlags() {
+    fun setUpCallingFlags(showWhenLocked: Boolean) {
         window.addFlags(
             WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
                     or WindowManager.LayoutParams.FLAG_ALLOW_LOCK_WHILE_SCREEN_ON
         )
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
-            setShowWhenLocked(true)
+            setShowWhenLocked(showWhenLocked)
             setTurnScreenOn(true)
         } else {
-            window.addFlags(
-                WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED or
-                        WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
-            )
+            window.addFlags(WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON)
+            if (showWhenLocked) {
+                window.addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED)
+            } else {
+                window.clearFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED)
+            }
         }
     }
 

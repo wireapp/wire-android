@@ -38,6 +38,7 @@ import com.wire.android.di.ObserveSelfUserUseCaseProvider
 import com.wire.android.di.ObserveSyncStateUseCaseProvider
 import com.wire.android.emm.ManagedConfigurationsManager
 import com.wire.android.feature.AccountSwitchUseCase
+import com.wire.android.feature.StartupAccountLimitGate
 import com.wire.android.feature.SwitchAccountActions
 import com.wire.android.feature.SwitchAccountParam
 import com.wire.android.feature.SwitchAccountResult
@@ -97,7 +98,7 @@ import com.wire.kalium.logic.feature.session.ObserveSessionsUseCase
 import com.wire.kalium.logic.feature.user.SelfServerConfigUseCase
 import com.wire.kalium.logic.feature.user.screenshotCensoring.ObserveScreenshotCensoringConfigResult
 import com.wire.kalium.logic.feature.user.webSocketStatus.ObservePersistentWebSocketConnectionStatusUseCase
-import kotlinx.datetime.Instant
+import dev.zacsweers.metro.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -106,7 +107,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
@@ -116,11 +116,10 @@ import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlinx.serialization.encodeToString
+import kotlinx.datetime.Instant
 import kotlinx.serialization.json.Json
 import java.io.InputStream
 import java.io.InputStreamReader
-import dev.zacsweers.metro.Inject
 
 private const val AUTOMATED_NOMAD_COOKIE_LABEL = "shared-device"
 
@@ -157,6 +156,7 @@ class WireActivityViewModel @Inject constructor(
     private val nomadProfilesFeatureConfig: NomadProfilesFeatureConfig,
     private val loginTypeSelector: LoginTypeSelector,
     private val doesValidNomadAccountExist: Lazy<DoesValidNomadAccountExistUseCase>,
+    private val startupAccountLimitGate: StartupAccountLimitGate,
 ) : ActionsViewModel<WireActivityViewAction>() {
 
     var globalAppState: GlobalAppState by mutableStateOf(GlobalAppState())
@@ -346,22 +346,34 @@ class WireActivityViewModel @Inject constructor(
         }
     }
 
-    suspend fun initialAppState(): InitialAppState = withContext(dispatchers.io()) {
+    suspend fun initialStartupSnapshot(taskId: Int): InitialStartupSnapshot = withContext(dispatchers.io()) {
         initValidSessionsFlowIfNeeded()
         val currentValidUserId = resolveInitialCurrentUserId()
-        withContext(dispatchers.main()) {
-            globalAppState = globalAppState.copy(
-                currentUserId = currentValidUserId,
-                isSessionTransitionInProgress = false,
-                sessionTransitionReason = null,
-            )
-        }
-        when {
+        val initialAppState = when {
             currentValidUserId == null -> InitialAppState.NotLoggedIn
             shouldEnrollToE2ei(currentValidUserId) -> InitialAppState.EnrollE2EI(currentValidUserId)
             else -> InitialAppState.LoggedIn
         }
+        withContext(dispatchers.main()) {
+            globalAppState = globalAppState.copy(
+                currentUserId = currentValidUserId,
+                startupAccountLimitDialog = globalAppState.startupAccountLimitDialog || startupAccountLimitGate.shouldShow(
+                    accounts = validSessions.value,
+                    currentUserId = currentValidUserId,
+                    maxAccounts = BuildConfig.MAX_ACCOUNTS,
+                    taskId = taskId,
+                ),
+                isSessionTransitionInProgress = false,
+                sessionTransitionReason = null,
+            )
+        }
+        InitialStartupSnapshot(
+            initialAppState = initialAppState,
+            currentUserId = currentValidUserId,
+        )
     }
+
+    suspend fun initialAppState(taskId: Int): InitialAppState = initialStartupSnapshot(taskId).initialAppState
 
     private suspend fun handleInvalidSession(userId: UserId, logoutReason: LogoutReason) {
         when (logoutReason) {
@@ -480,7 +492,9 @@ class WireActivityViewModel @Inject constructor(
                 }
 
                 is DeepLinkResult.MigrationLogin -> sendAction(OnMigrationLogin(result))
+                is DeepLinkResult.OpenMeetings -> sendAction(OpenMeetings(result))
                 is DeepLinkResult.OpenConversation -> sendAction(OpenConversation(result))
+                is DeepLinkResult.OpenDriveFiles -> sendAction(OpenDriveFiles(result))
                 is DeepLinkResult.OpenOtherUserProfile -> onOpenUserProfileDeepLink(result)
 
                 DeepLinkResult.SharingIntent -> {
@@ -864,6 +878,10 @@ class WireActivityViewModel @Inject constructor(
         )
     }
 
+    fun dismissStartupAccountLimitDialog() {
+        globalAppState = globalAppState.copy(startupAccountLimitDialog = false)
+    }
+
     fun dismissMaxAccountDialog() {
         globalAppState = globalAppState.copy(maxAccountDialog = false)
     }
@@ -1000,6 +1018,7 @@ data class GlobalAppState(
     val confirmedSessionGeneration: Long = 0,
     val customBackendDialog: CustomServerDialogState? = null,
     val maxAccountDialog: Boolean = false,
+    val startupAccountLimitDialog: Boolean = false,
     val crossBackendLoginBlockedDialog: Boolean = false,
     val blockUserUI: CurrentSessionErrorState? = null,
     val updateAppDialog: Boolean = false,
@@ -1055,8 +1074,15 @@ sealed interface InitialAppState {
     data class EnrollE2EI(val userId: UserId) : InitialAppState
 }
 
+data class InitialStartupSnapshot(
+    val initialAppState: InitialAppState,
+    val currentUserId: UserId?,
+)
+
 sealed interface WireActivityViewAction
 internal data class OpenConversation(val result: DeepLinkResult.OpenConversation) : WireActivityViewAction
+internal data class OpenMeetings(val result: DeepLinkResult.OpenMeetings) : WireActivityViewAction
+internal data class OpenDriveFiles(val result: DeepLinkResult.OpenDriveFiles) : WireActivityViewAction
 internal data object OnShowImportMediaScreen : WireActivityViewAction
 internal data object OnAuthorizationNeeded : WireActivityViewAction
 internal data object OnUnknownDeepLink : WireActivityViewAction

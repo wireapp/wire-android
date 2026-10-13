@@ -26,14 +26,18 @@ import com.wire.android.tests.support.tags.TestCaseId
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import uiautomatorutils.UiWaitUtils
 import uiautomatorutils.UiWaitUtils.iSeeSystemMessage
 import uiautomatorutils.UiWaitUtils.waitUntilToastIsDisplayed
 import user.usermanager.ClientUserManager
 import user.utils.ClientUser
+import kotlin.time.Duration.Companion.seconds
 
 @RunWith(AndroidJUnit4::class)
 class GroupInteraction : BaseUiTest() {
     private lateinit var teamOwnerA: ClientUser
+    private lateinit var teamOwnerB: ClientUser
+    private val pollAppId = "14969de0-76ae-486a-b3e9-7960b1c7f5b2"
 
     @Before
     fun setUp() {
@@ -45,23 +49,31 @@ class GroupInteraction : BaseUiTest() {
     @TestCaseId("TC-8601")
     @Category("criticalFlow")
     @Test
-    fun givenTeamOwnerWithGroupConversationAndBot_whenValidatingReactionsAndInteractions_thenFlowSucceeds() {
-        step("There is TeamOwnerA with team Bots") {
+    fun givenTeamOwnerWithGroupConversationAndApp_whenValidatingReactionsAndInteractions_thenFlowSucceeds() {
+        step("There is TeamOwnerA with team Apps") {
             backendSetupHelper.createTeamOwnerByAlias(
                 "user1Name",
-                "Bots",
+                "Apps",
                 "en_US",
                 true,
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "Apps", backendClient)
+            backendSetupHelper.userEnablesAppsForTeam("user1Name", "Apps", backendClient)
+            backendSetupHelper.userAddsAppAsTeamCollaborator(
+                "user1Name",
+                "Apps",
+                pollAppId,
+                backendClient
+            )
         }
 
-        step("TeamOwnerA adds Member1 and Member2 to team Bots with role Member") {
+        step("TeamOwnerA adds Member1 and Member2 to team Apps with role Member") {
             backendSetupHelper.userXAddsUsersToTeam(
                 "user1Name",
                 "user2Name,user3Name",
-                "Bots",
+                "Apps",
                 TeamRoles.Member,
                 backendClient,
                 context,
@@ -78,31 +90,27 @@ class GroupInteraction : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user4Name", "ConnectedFriend", backendClient)
+            teamOwnerB = clientUserManager.findUserBy("user4Name", ClientUserManager.FindBy.NAME_ALIAS)
         }
 
         step("TeamOwnerA is connected to TeamOwnerB") {
             backendSetupHelper.userIsConnectedTo("user1Name", "user4Name")
         }
 
-        step("TeamOwnerA adds a new device Device1 with label Device1") {
-            testServiceHelper.addDevice("user1Name", null, "Device1")
+        step("MLS devices are registered for all participants") {
+            listOf("user1Name", "user2Name", "user3Name", "user4Name").forEach { user ->
+                testServiceHelper.addDevice(user, null, "Device1")
+            }
         }
 
-        step("TeamOwnerA enables Poll Bot service for team Bots") {
-            backendSetupHelper.userEnablesServiceForTeam("user1Name", "Poll Bot", "Bots")
-        }
-
-        step("TeamOwnerA has group conversation BotsConversation with Member1, Member2, and TeamOwnerB in team Bots") {
-            backendSetupHelper.userHasGroupConversationInTeam(
-                "user1Name",
-                "BotsConversation",
-                "user2Name,user3Name,user4Name",
-                "Bots"
+        step("TeamOwnerA creates MLS group conversation AppsConversation with all participants") {
+            testServiceHelper.userCreatesMLSGroupConversation(
+                ownerAlias = "user1Name",
+                participantAliases = "user2Name,user3Name,user4Name",
+                conversationName = "AppsConversation",
+                deviceName = "Device1"
             )
-        }
-
-        step("TeamOwnerA adds Poll Bot to conversation BotsConversation") {
-            backendSetupHelper.userAddsBotToConversation("user1Name", "Poll Bot", "BotsConversation")
         }
 
         step("TeamOwnerA is me") {
@@ -140,38 +148,61 @@ class GroupInteraction : BaseUiTest() {
             }
         }
 
-        step("Then I tap on conversation name BotsConversation in conversation list") {
+        step("Then I tap on conversation name AppsConversation in conversation list") {
             pages.conversationListPage.apply {
-                clickGroupConversation("BotsConversation")
+                clickGroupConversation("AppsConversation")
             }
         }
 
-        step("And I see group conversation BotsConversation is in foreground") {
+        step("And I see group conversation AppsConversation is in foreground") {
             pages.conversationViewPage.apply {
                 assertConversationScreenVisible()
             }
         }
 
-        step("Then I see a banner informing me that Guests and apps are present in the conversation view") {
-            pages.conversationViewPage.apply {
-                assertGuestsAndAppsBannerVisible()
+        step("And I open the participants list and Apps tab") {
+            pages.conversationViewPage.clickOnGroupConversationDetails("AppsConversation")
+            pages.groupConversationDetailsPage.apply {
+                assertGroupDetailsPageVisible()
+                tapOnParticipantsTab()
+                tapAddParticipantsButton()
+                tapOnAppsTab()
             }
         }
 
-        step("When Member1 sends message Hello fellow members to group conversation BotsConversation") {
-            testServiceHelper.apply {
-                addDevice("user2Name", null, "Device2")
-                userSendMessageToConversation(
-                    "user2Name",
-                    "Hello fellow members",
-                    "Device2",
-                    "BotsConversation"
-                )
+        step("And I add Poll App Staging to AppsConversation") {
+            pages.groupConversationDetailsPage.apply {
+                assertAppInSearchResultsVisible("Poll App (Staging)")
+                tapAppInSearchResults("Poll App (Staging)")
+                tapAddToConversationButton()
             }
+            waitUntilToastIsDisplayed("App added to conversation")
+        }
+
+        step("And I return to AppsConversation") {
+            pages.groupConversationDetailsPage.apply {
+                tapBackButton()
+                tapBackButton()
+                tapBackButton()
+            }
+        }
+
+        step("Then I see a banner informing me that Guests and apps are present in the conversation view") {
+            pages.conversationViewPage.assertGuestsAndAppsBannerVisible()
+        }
+
+        step("When Member1 sends message Hello fellow members to group conversation AppsConversation") {
+            testServiceHelper.userSendMessageToConversation(
+                "user2Name",
+                "Hello fellow members",
+                "Device1",
+                "AppsConversation"
+            )
         }
 
         step("Then I see the message Hello fellow members in current conversation") {
             pages.conversationViewPage.apply {
+                scrollToBottomOfConversationScreen()
                 assertReceivedMessageIsVisibleInCurrentConversation("Hello fellow members")
             }
         }
@@ -190,13 +221,13 @@ class GroupInteraction : BaseUiTest() {
 
         step("And I tap on heart reaction icon") {
             pages.conversationViewPage.apply {
-                tapReactionIcon("\u2764\uFE0F") // ❤️
+                tapReactionIcon("❤️")
             }
         }
 
         step("Then I see a heart reaction from 1 user as reaction to Member1 message") {
             pages.conversationViewPage.apply {
-                assertReactionAndUserCountVisible("\u2764\uFE0F", 1) // ❤️
+                assertReactionAndUserCountVisible("❤️", 1)
             }
         }
 
@@ -213,24 +244,24 @@ class GroupInteraction : BaseUiTest() {
             }
         }
 
-        step("When TeamOwner toggles thumbs up reaction on the recent message from BotsConversation via Device1") {
+        step("When TeamOwner toggles thumbs up reaction on the recent message from AppsConversation via Device1") {
             testServiceHelper.userTogglesReactionOnLatestMessage(
                 "user1Name",
-                "BotsConversation",
+                "AppsConversation",
                 "Device1",
-                "\uD83D\uDC4D" // 👍
+                "👍"
             )
         }
 
         step("Then I see a thumbs up reaction from 1 user as reaction to TeamOwnerA message") {
             pages.conversationViewPage.apply {
-                assertReactionAndUserCountVisible("\uD83D\uDC4D", 1) // 👍
+                assertReactionAndUserCountVisible("👍", 1)
             }
         }
 
-        step("When I tap on group conversation title BotsConversation to open group details") {
+        step("When I tap on group conversation title AppsConversation to open group details") {
             pages.conversationViewPage.apply {
-                clickOnGroupConversationDetails("BotsConversation")
+                clickOnGroupConversationDetails("AppsConversation")
             }
         }
 
@@ -247,28 +278,24 @@ class GroupInteraction : BaseUiTest() {
             }
         }
 
-        step("When I close the group conversation details through X icon") {
-            pages.groupConversationDetailsPage.apply {
-                tapCloseButtonOnGroupConversationDetailsPage()
+        step("And TeamOwnerA removes TeamOwnerB from group conversation AppsConversation") {
+            pages.groupConversationDetailsPage.tapUserInParticipantsList(teamOwnerB.name ?: "")
+            pages.connectedUserProfilePage.apply {
+                tapRemoveFromConversationButtonForParticipant()
+                tapRemoveConversationButtonOnModal()
+                tapCloseButtonOnConnectedUserProfilePage()
+                UiWaitUtils.waitFor(1.seconds)
             }
-        }
-
-        step("And TeamOwnerA removes TeamOwnerB from group conversation BotsConversation") {
-            backendSetupHelper.userRemovesUserFromGroupConversation(
-                "user1Name",
-                "user4Name",
-                "BotsConversation"
-            )
+            pages.groupConversationDetailsPage.tapCloseButtonOnGroupConversationDetailsPage()
         }
 
         step("Then I see system message You removed TeamOwnerB from the conversation in conversation view") {
-            val teamOwnerB = clientUserManager.findUserBy("user4Name", ClientUserManager.FindBy.NAME_ALIAS)
             iSeeSystemMessage("You removed ${teamOwnerB.name ?: ""} from the conversation")
         }
 
-        step("When I tap on group conversation title BotsConversation to open group details") {
+        step("When I tap on group conversation title AppsConversation to open group details") {
             pages.conversationViewPage.apply {
-                clickOnGroupConversationDetails("BotsConversation")
+                clickOnGroupConversationDetails("AppsConversation")
             }
         }
 
@@ -284,15 +311,15 @@ class GroupInteraction : BaseUiTest() {
             }
         }
 
-        step("And I see user Poll Bot in participants list") {
+        step("And I see Poll App Staging in participants list") {
             pages.groupConversationDetailsPage.apply {
-                assertUsernameIsAddedToParticipantsList("Poll Bot")
+                assertUsernameIsAddedToParticipantsList("Poll App (Staging)")
             }
         }
 
-        step("And I tap on user Poll Bot in participants list") {
+        step("And I tap on Poll App Staging in participants list") {
             pages.groupConversationDetailsPage.apply {
-                tapUserInParticipantsList("Poll Bot")
+                tapUserInParticipantsList("Poll App (Staging)")
             }
         }
 
@@ -327,9 +354,9 @@ class GroupInteraction : BaseUiTest() {
             }
         }
 
-        step("Then I do not see user Poll Bot in participants list") {
+        step("Then I do not see Poll App Staging in participants list") {
             pages.groupConversationDetailsPage.apply {
-                assertUserIsNotInParticipantsList("Poll Bot")
+                assertUserIsNotInParticipantsList("Poll App (Staging)")
             }
         }
 
@@ -339,8 +366,8 @@ class GroupInteraction : BaseUiTest() {
             }
         }
 
-        step("Then I see system message You removed Poll Bot from the conversation in conversation view") {
-            iSeeSystemMessage("You removed Poll Bot from the conversation")
+        step("Then I see system message You removed Poll App Staging from the conversation in conversation view") {
+            iSeeSystemMessage("You removed Poll App (Staging) from the conversation")
         }
     }
 }

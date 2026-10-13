@@ -17,6 +17,8 @@
  */
 package com.wire.android.feature.cells.ui.search
 
+import androidx.paging.LoadState
+import androidx.paging.LoadStates
 import androidx.paging.PagingData
 import com.wire.android.feature.cells.ui.CellFileLocalPathCache
 import com.wire.android.feature.cells.ui.search.filter.data.FilterConversationUi
@@ -36,11 +38,14 @@ import com.wire.kalium.common.functional.Either
 import com.wire.kalium.logic.data.id.ConversationId
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
@@ -355,6 +360,51 @@ class SearchScreenViewModelTest {
         assertNotNull(viewModel.conversationsFlow)
     }
 
+    @Test
+    fun givenDriveSearchWithoutAnyFilter_whenFilesFlowIsCollected_thenNoFilesAreRequested() = runTest {
+        withCollectableFilesFlow()
+        val viewModel = createDriveViewModel()
+
+        viewModel.cellNodesFlow.first()
+
+        coVerify(exactly = 0) { getCellFilesPaged(any(), any(), any(), any()) }
+    }
+
+    @Test
+    fun givenDriveSearch_whenConversationFilterIsApplied_thenFilesAreRequestedForThatConversation() = runTest {
+        withCollectableFilesFlow()
+        val viewModel = createDriveViewModel()
+        val conversation = FilterConversationUi(
+            id = ConversationId("conv1", "domain"),
+            name = "Engineering",
+        )
+
+        viewModel.onSaveConversation(conversation)
+        advanceUntilIdle()
+
+        viewModel.cellNodesFlow.first()
+
+        coVerify(exactly = 1) { getCellFilesPaged(conversation.id.toString(), "", any(), any()) }
+    }
+
+    /**
+     * [SearchScreenViewModel.cellNodesFlow] combines the paged files with the offline files flow,
+     * so both have to emit for the combined flow to produce a value that can be collected.
+     */
+    private fun withCollectableFilesFlow() {
+        every { observeOfflineFiles() } returns flowOf(emptyList())
+        coEvery { getCellFilesPaged(any(), any(), any(), any()) } returns flowOf(
+            PagingData.from(
+                data = emptyList<Node>(),
+                sourceLoadStates = LoadStates(
+                    prepend = LoadState.NotLoading(true),
+                    append = LoadState.NotLoading(true),
+                    refresh = LoadState.NotLoading(true),
+                ),
+            )
+        )
+    }
+
     private fun createViewModel(): SearchScreenViewModel {
         return SearchScreenViewModel(
             navArgs = SearchNavArgs(CONVERSATION_ID, DriveSearchScreenType.SHARED_DRIVE),
@@ -374,6 +424,19 @@ class SearchScreenViewModelTest {
                 screenType = DriveSearchScreenType.SHARED_DRIVE,
                 initialSortingCriteria = sortCriteria,
             ),
+            getAllTagsUseCase = getAllTagsUseCase,
+            getCellFilesPaged = getCellFilesPaged,
+            getOwners = getOwners,
+            getPaginatedConversations = getPaginatedConversations,
+            sharedPathCache = sharedPathCache,
+            observeOfflineFiles = observeOfflineFiles,
+        )
+    }
+
+    /** All-files search: no conversation in nav args, so the conversation filter is available. */
+    private fun createDriveViewModel(): SearchScreenViewModel {
+        return SearchScreenViewModel(
+            navArgs = SearchNavArgs(conversationId = null, screenType = DriveSearchScreenType.DRIVE),
             getAllTagsUseCase = getAllTagsUseCase,
             getCellFilesPaged = getCellFilesPaged,
             getOwners = getOwners,

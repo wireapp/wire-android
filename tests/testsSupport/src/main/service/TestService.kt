@@ -966,7 +966,7 @@ class TestService(private val baseUri: String, private val testName: String) {
         val requestBody = JSONObject().apply {
             put("buttonId", buttonId)
             put("referenceMessageId", referenceMessageId)
-            put("userIds", arrayOf(receiverId))
+            put("userIds", JSONArray().put(receiverId))
             put("conversationId", convoId)
         }
         sendHttpRequest(connection, requestBody)
@@ -985,7 +985,7 @@ class TestService(private val baseUri: String, private val testName: String) {
         val requestBody = JSONObject().apply {
             put("buttonId", buttonId)
             put("referenceMessageId", referenceMessageId)
-            put("userIds", arrayOf(receiverId))
+            put("userIds", JSONArray().put(receiverId))
             put("conversationId", convoId)
         }
         sendHttpRequest(connection, requestBody)

@@ -185,8 +185,13 @@ private fun HomeNavigation3Entry(
 ) {
     val context = LocalContext.current
     val snackbarHostState = LocalSnackbarHostState.current
-    val selectedDestination = rememberSaveable(route.entryId.value) {
-        mutableStateOf(HomeTopLevelDestination.CONVERSATIONS)
+    val selectedDestination = rememberSaveable(route.entryId.value, route.homeDestination) {
+        mutableStateOf(
+            when (route.homeDestination) {
+                HomeRoute.HomeDestination.CONVERSATIONS -> HomeTopLevelDestination.CONVERSATIONS
+                HomeRoute.HomeDestination.MEETINGS -> HomeTopLevelDestination.MEETINGS
+            }
+        )
     }
     var conversationRequestIdValue by rememberSaveable(route.entryId.value) {
         mutableStateOf<String?>(null)

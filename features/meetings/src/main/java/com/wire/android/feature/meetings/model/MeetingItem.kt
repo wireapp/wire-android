@@ -80,21 +80,23 @@ data class MeetingItem(
     @Stable
     sealed interface Status {
         val startTime: Instant
+        val endTime: Instant
 
         data class Scheduled(
             override val startTime: Instant, // scheduled start time
-            val endTime: Instant, // scheduled end time
+            override val endTime: Instant, // scheduled end time
         ) : Status
 
         data class Ongoing(
             override val startTime: Instant, // time when the meeting actually started
+            override val endTime: Instant, // scheduled end time
             val scheduledEndTime: Instant? = null, // null for ad-hoc meetings
             val ongoingCallStatus: OngoingCallStatus? = null, // null if the call is not ongoing / hasn't started yet
         ) : Status
 
         data class Ended(
             override val startTime: Instant, // time when the meeting actually started
-            val endTime: Instant // time when the meeting actually ended
+            override val endTime: Instant // time when the meeting actually ended
         ) : Status {
             val duration: Duration = endTime - startTime
         }

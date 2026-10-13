@@ -40,12 +40,18 @@ internal fun DeleteMeetingDialog(
         val (titleResId, textResId) = when (state.deleteType) {
             DeleteMeetingType.ForEveryone -> Pair(
                 R.string.delete_meeting_for_everyone_title,
-                R.string.delete_meeting_for_everyone_description,
+                when (state.isRecurring) {
+                    true -> R.string.delete_meeting_for_everyone_recurring_description
+                    false -> R.string.delete_meeting_for_everyone_description
+                },
             )
 
             DeleteMeetingType.ForMe -> Pair(
                 R.string.delete_meeting_for_me_title,
-                R.string.delete_meeting_for_me_description,
+                when (state.isRecurring) {
+                    true -> R.string.delete_meeting_for_me_recurring_description
+                    false -> R.string.delete_meeting_for_me_description
+                },
             )
         }
         WireDialog(
@@ -79,6 +85,7 @@ enum class DeleteMeetingType {
 
 data class DeleteMeetingDialogState(
     val deleteType: DeleteMeetingType,
+    val isRecurring: Boolean,
     val meetingId: MeetingId,
     val meetingTitle: String,
     val loading: Boolean = false,

@@ -291,12 +291,14 @@ class NewMeetingViewModelTest {
     }
 
     @Test
-    fun givenMeetNowTypeWithValidData_whenSubmitCreationIsCalled_thenMeetingIsCreatedAndSuccessActionIsSent() = runTest(dispatcher) {
+    fun givenMeetNowTypeWithValidData_whenSubmitCreationIsCalled_thenSuccessRequestsCallInCreatedConversation() = runTest(dispatcher) {
         val currentTime = Instant.parse("2026-01-01T12:00:00Z")
+        val createdConversationId = ConversationId("created-meet-now-conversation", "domain")
         val (arrangement, viewModel) = arrangeViewModel(
             Arrangement(dispatcher)
+                .withNewMeetingType(NewMeetingType.MeetNow)
                 .withCurrentTimeProvider { currentTime }
-                .withCreateMeetingResult(CreateNewMeetingUseCase.Result.Success)
+                .withCreateMeetingResult(CreateNewMeetingUseCase.Result.Success(createdConversationId))
         )
 
         enterTitle(viewModel, "  Quick sync  ")
@@ -321,20 +323,20 @@ class NewMeetingViewModelTest {
             assertEquals(currentTime + 1.hours, viewModel.state.endTime)
             assertFalse(viewModel.state.isSubmitting)
             assertNull(viewModel.state.submitError)
-            assertEquals(NewMeetingViewActions.Success, awaitItem())
-            cancelAndConsumeRemainingEvents()
+            assertEquals(NewMeetingViewActions.Success(conversationIdToStartACall = createdConversationId), awaitItem())
+            expectNoEvents()
         }
     }
 
     @Test
-    fun givenScheduleTypeWithValidData_whenSubmitCreationIsCalled_thenMeetingIsCreatedAndSuccessActionIsSent() = runTest(dispatcher) {
+    fun givenScheduleTypeWithValidData_whenSubmitCreationIsCalled_thenSuccessDoesNotRequestCall() = runTest(dispatcher) {
         val currentTime = Instant.parse("2026-01-01T12:00:00Z")
         val createMeeting = UPSERT_MEETING.copy(startTime = currentTime + 2.hours, endTime = currentTime + 3.hours)
         val (arrangement, viewModel) = arrangeViewModel(
             Arrangement(dispatcher)
                 .withNewMeetingType(NewMeetingType.Schedule)
                 .withCurrentTimeProvider { currentTime }
-                .withCreateMeetingResult(CreateNewMeetingUseCase.Result.Success)
+                .withCreateMeetingResult(CreateNewMeetingUseCase.Result.Success(ConversationId("conversation-id", "domain")))
         )
         enterTitle(viewModel, createMeeting.title)
         viewModel.updateStartTime(createMeeting.startTime)
@@ -349,8 +351,8 @@ class NewMeetingViewModelTest {
             coVerify(exactly = 1) { arrangement.createNewMeeting(createMeeting) }
             assertFalse(viewModel.state.isSubmitting)
             assertNull(viewModel.state.submitError)
-            assertEquals(NewMeetingViewActions.Success, awaitItem())
-            cancelAndConsumeRemainingEvents()
+            assertEquals(NewMeetingViewActions.Success(conversationIdToStartACall = null), awaitItem())
+            expectNoEvents()
         }
     }
 
@@ -412,7 +414,7 @@ class NewMeetingViewModelTest {
             coVerify(exactly = 1) { arrangement.updateMeeting(editType.id, createMeeting) }
             assertFalse(viewModel.state.isSubmitting)
             assertNull(viewModel.state.submitError)
-            assertEquals(NewMeetingViewActions.Success, awaitItem())
+            assertEquals(NewMeetingViewActions.Success(), awaitItem())
             cancelAndConsumeRemainingEvents()
         }
     }
@@ -462,7 +464,7 @@ class NewMeetingViewModelTest {
                 assertNull(viewModel.state.endTimeError)
                 assertFalse(viewModel.state.isSubmitting)
                 assertNull(viewModel.state.submitError)
-                assertEquals(NewMeetingViewActions.Success, awaitItem())
+                assertEquals(NewMeetingViewActions.Success(), awaitItem())
                 cancelAndConsumeRemainingEvents()
             }
         }
@@ -604,7 +606,7 @@ class NewMeetingViewModelTest {
                 )
             }
             assertNull(viewModel.state.submitError)
-            assertEquals(NewMeetingViewActions.Success, awaitItem())
+            assertEquals(NewMeetingViewActions.Success(), awaitItem())
             cancelAndConsumeRemainingEvents()
         }
     }
@@ -789,7 +791,7 @@ class NewMeetingViewModelTest {
                 .withNewMeetingType(NewMeetingType.Schedule)
                 .withCurrentTimeProvider { currentTime }
                 .withCurrentTimeZone(localTimeZoneID)
-                .withCreateMeetingResult(CreateNewMeetingUseCase.Result.Success)
+                .withCreateMeetingResult(CreateNewMeetingUseCase.Result.Success(ConversationId("conversation-id", "domain")))
         )
         enterTitle(viewModel, createMeeting.title)
         viewModel.updateStartTime(createMeeting.startTime)
@@ -800,7 +802,7 @@ class NewMeetingViewModelTest {
             advanceUntilIdle()
 
             coVerify(exactly = 1) { arrangement.createNewMeeting(createMeeting) }
-            assertEquals(NewMeetingViewActions.Success, awaitItem())
+            assertEquals(NewMeetingViewActions.Success(), awaitItem())
             cancelAndConsumeRemainingEvents()
         }
     }
@@ -857,13 +859,13 @@ class NewMeetingViewModelTest {
                 advanceUntilIdle()
 
                 coVerify(exactly = 1) { arrangement.updateMeeting(editType.id, updateMeeting) }
-                assertEquals(NewMeetingViewActions.Success, awaitItem())
+                assertEquals(NewMeetingViewActions.Success(), awaitItem())
                 cancelAndConsumeRemainingEvents()
             }
         }
 
     @Test
-    fun givenEditTypeAndMeetingInDifferentTimeZone_whenSubmitUpdateWithStartTimeChanges_thenCurrentLocalTzidIsPassed() =
+    fun givenEditTypeAndMeetingInDifferentTimeZone_whenSubmitUpdateWithStartTimeChanges_thenOriginalMeetingTzidIsPassed() =
         runTest(dispatcher) {
             val currentTime = Instant.parse("2026-01-01T12:00:00Z")
             val meetingTimeZoneId = "America/New_York"
@@ -874,7 +876,7 @@ class NewMeetingViewModelTest {
             val updateMeeting = UPSERT_MEETING.copy(
                 startTime = updatedStartTime,
                 endTime = updatedStartTime + 1.hours, // it's recalculated based on the original duration of the meeting
-                tzid = localTimeZoneID, // since time changes are made, the tzid should also be updated to the current local tzid
+                tzid = meetingTimeZoneId, // keep the original tzid
                 otherParticipants = emptyList()
             )
             val (arrangement, viewModel) = arrangeViewModel(
@@ -893,13 +895,13 @@ class NewMeetingViewModelTest {
                 advanceUntilIdle()
 
                 coVerify(exactly = 1) { arrangement.updateMeeting(editType.id, updateMeeting) }
-                assertEquals(NewMeetingViewActions.Success, awaitItem())
+                assertEquals(NewMeetingViewActions.Success(), awaitItem())
                 cancelAndConsumeRemainingEvents()
             }
         }
 
     @Test
-    fun givenEditTypeAndMeetingInDifferentTimeZone_whenSubmitUpdateWithEndTimeChanges_thenCurrentLocalTzidIsPassed() =
+    fun givenEditTypeAndMeetingInDifferentTimeZone_whenSubmitUpdateWithEndTimeChanges_thenOriginalMeetingTzidIsPassed() =
         runTest(dispatcher) {
             val currentTime = Instant.parse("2026-01-01T12:00:00Z")
             val meetingTimeZoneId = "America/New_York"
@@ -910,7 +912,7 @@ class NewMeetingViewModelTest {
             val updateMeeting = UPSERT_MEETING.copy(
                 startTime = nextOccurrence.occurrenceStartTime,
                 endTime = updatedEndTime,
-                tzid = localTimeZoneID, // since time changes are made, the tzid should also be updated to the current local tzid
+                tzid = meetingTimeZoneId, // keep the original tzid
                 otherParticipants = emptyList()
             )
             val (arrangement, viewModel) = arrangeViewModel(
@@ -929,7 +931,7 @@ class NewMeetingViewModelTest {
                 advanceUntilIdle()
 
                 coVerify(exactly = 1) { arrangement.updateMeeting(editType.id, updateMeeting) }
-                assertEquals(NewMeetingViewActions.Success, awaitItem())
+                assertEquals(NewMeetingViewActions.Success(), awaitItem())
                 cancelAndConsumeRemainingEvents()
             }
         }
@@ -1045,6 +1047,7 @@ class NewMeetingViewModelTest {
 
     private val MEETING_TIME_ZONE_ID = "Europe/Berlin"
     private val MEETING_OCCURRENCE = MeetingOccurrence(
+        participants = emptyList(),
         meeting = Meeting(
             meetingId = MeetingId("meeting-id", "domain"),
             conversationId = ConversationId("conversation-id", "domain"),

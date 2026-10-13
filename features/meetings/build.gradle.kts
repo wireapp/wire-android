@@ -42,6 +42,7 @@ dependencies {
     testImplementation(libs.mockk.core)
     testImplementation(libs.turbine)
     testImplementation(libs.androidx.paging.testing)
+    testImplementation(libs.androidx.lifecycle.viewModelTesting)
     testRuntimeOnly(libs.junit5.engine)
     androidTestImplementation(libs.androidx.test.extJunit)
     androidTestImplementation(libs.androidx.espresso.core)

@@ -19,6 +19,7 @@ package com.wire.android.tests.core.pages
 
 import android.os.SystemClock
 import androidx.test.platform.app.InstrumentationRegistry
+import androidx.test.uiautomator.By
 import androidx.test.uiautomator.StaleObjectException
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.UiSelector
@@ -52,6 +53,7 @@ data class ConversationListPage(private val device: UiDevice) {
     private val conversationNameSelector: (String) -> UiSelectorParams = { conversationName ->
         UiSelectorParams(text = conversationName)
     }
+    private val deletedStatus = UiSelectorParams(text = "Deleted")
     private val deleteConversationButton = UiSelectorParams(text = "Delete Conversation")
 
     private val leaveConversationButton = UiSelectorParams(text = "Leave Conversation")
@@ -276,6 +278,21 @@ data class ConversationListPage(private val device: UiDevice) {
     fun assertConversationVisible(conversationName: String): ConversationListPage {
         val conversation = UiWaitUtils.waitElement(conversationNameSelector(conversationName))
         assertTrue("Conversation '$conversationName' is not visible", !conversation.visibleBounds.isEmpty)
+        return this
+    }
+
+    fun assertConversationDeletedStatusVisible(conversationName: String): ConversationListPage {
+        val deletedStatusIsVisible = UiWaitUtils.retryUntilTimeout(UiWaitUtils.DEFAULT_TIMEOUT) {
+            findElementOrNull(conversationNameSelector(conversationName))
+                ?.parent
+                ?.findObject(deletedStatus.toBySelector())
+                ?.visibleBounds
+                ?.isEmpty == false
+        }
+        assertTrue(
+            "Deleted status is not visible for conversation '$conversationName'",
+            deletedStatusIsVisible
+        )
         return this
     }
 
@@ -839,6 +856,33 @@ data class ConversationListPage(private val device: UiDevice) {
 
     fun clickUserProfileButtonNoPhoto(): ConversationListPage {
         UiWaitUtils.waitElement(userProfileButton).click()
+        return this
+    }
+
+    fun assertSelfAvailabilityStatusIconVisible(): ConversationListPage {
+        val statusIconVisible = UiWaitUtils.retryUntilTimeout(UiWaitUtils.DEFAULT_TIMEOUT) {
+            val profileButton = findElementOrNull(userProfileButton) ?: return@retryUntilTimeout false
+            val statusIcon = profileButton.parent?.findObject(By.res("status_indicator"))
+            statusIcon != null && !statusIcon.visibleBounds.isEmpty
+        }
+        Assert.assertTrue("Status icon is not displayed next to my avatar.", statusIconVisible)
+        return this
+    }
+
+    fun assertUserAvailabilityStatusIconVisible(userName: String): ConversationListPage {
+        val statusIconVisible = UiWaitUtils.retryUntilTimeout(UiWaitUtils.DEFAULT_TIMEOUT) {
+            device.findObjects(By.text(userName)).any { userNameElement ->
+                generateSequence(userNameElement) { it.parent }
+                    .take(5)
+                    .any { parent ->
+                        parent.findObject(By.res("status_indicator"))?.visibleBounds?.isEmpty == false
+                    }
+            }
+        }
+        Assert.assertTrue(
+            "Status icon is not displayed next to user '$userName' on the conversation list.",
+            statusIconVisible
+        )
         return this
     }
 

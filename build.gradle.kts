@@ -18,8 +18,8 @@
 
 buildscript {
     repositories {
-        mavenCentral()
         google()
+        mavenCentral()
         maven(url = "https://oss.sonatype.org/content/repositories/snapshots")
         maven(url = "https://plugins.gradle.org/m2/")
     }
@@ -43,8 +43,8 @@ buildscript {
 
 allprojects {
     repositories {
-        mavenCentral()
         google()
+        mavenCentral()
         maven(url = "https://maven.wire.com")
         maven(url = "https://jitpack.io")
         maven(url = "https://oss.sonatype.org/content/repositories/snapshots")

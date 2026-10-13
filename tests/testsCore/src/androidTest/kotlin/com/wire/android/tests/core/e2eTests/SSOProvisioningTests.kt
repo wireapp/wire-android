@@ -69,6 +69,7 @@ class SSOProvisioningTests : BaseUiTest() {
                     keycloakApiClient
                 )
             }
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "ResetPassword", backendClient)
         }
 
         step("And User TeamOwner is available") {
@@ -177,6 +178,7 @@ class SSOProvisioningTests : BaseUiTest() {
                     keycloakApiClient
                 )
             }
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "ChangeUserName", backendClient)
         }
 
         step("And User TeamOwner is available") {

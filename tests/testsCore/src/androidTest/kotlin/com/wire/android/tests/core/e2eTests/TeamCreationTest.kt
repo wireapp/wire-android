@@ -150,6 +150,7 @@ class TeamCreationTest : BaseUiTest() {
                 assertTeamCreatedPageVisible()
             }
             registerTeamOwnerForCleanup(userInfo)
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "SuperTeam", backendClient)
         }
 
         step("When I close team created page") {

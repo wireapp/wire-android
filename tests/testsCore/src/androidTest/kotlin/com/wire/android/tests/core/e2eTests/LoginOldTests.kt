@@ -259,7 +259,7 @@ class LoginOldTests : BaseUiTest() {
 
         step("When I tap OK button on the alert and see email verification Welcome Page") {
             pages.commonAppPage.confirmRemovedDeviceDialog()
-            pages.registrationPage.assertEmailWelcomePage()
+            pages.loginPage.assertEmailInputPageVisible()
         }
 
         step("And I open staging backend deep link for old login flows and see Welcome Page") {
@@ -339,6 +339,7 @@ class LoginOldTests : BaseUiTest() {
                     keycloakApiClient
                 )
             }
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "SSO", backendClient)
             SSOServiceHelper.setCurrentSsoUser("user2Name")
             teamMember = clientUserManager.findUserByNameOrNameAlias("user2Name")
         }
@@ -428,6 +429,7 @@ class LoginOldTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", teamName, backendClient)
             backendSetupHelper.userXAddsUsersToTeam(
                 "user1Name",
                 "user2Name",

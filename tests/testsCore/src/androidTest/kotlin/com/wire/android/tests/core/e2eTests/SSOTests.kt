@@ -79,6 +79,7 @@ class SSOTests : BaseUiTest() {
                     keycloakApiClient
                 )
             }
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "SSO", backendClient)
         }
 
         step("And User user1Name adds user user2Name to keycloak") {
@@ -173,6 +174,7 @@ class SSOTests : BaseUiTest() {
                     keycloakApiClient
                 )
             }
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "SSO", backendClient)
         }
 
         step("And User user1Name adds user user2Name to keycloak") {
@@ -304,6 +306,7 @@ class SSOTests : BaseUiTest() {
                     keycloakApiClient
                 )
             }
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "ClaimedDomain", backendClient)
             ssoCode = SSOServiceHelper.getSsoCode()
         }
 

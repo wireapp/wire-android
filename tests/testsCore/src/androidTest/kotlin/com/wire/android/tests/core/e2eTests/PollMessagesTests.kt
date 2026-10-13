@@ -158,6 +158,7 @@ class PollMessagesTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "Polling", backendClient)
         }
 
         step("And User TeamOwner adds user Member1 to team Polling with role Member") {
@@ -172,17 +173,20 @@ class PollMessagesTests : BaseUiTest() {
             )
         }
 
-        step("And User TeamOwner has group conversation Polls with Member1 in team Polling") {
-            backendSetupHelper.userHasGroupConversationInTeam(
-                "user1Name",
-                "Polls",
-                "user2Name",
-                "Polling"
-            )
+        step("And MLS devices are registered for all participants") {
+            testServiceHelper.apply {
+                addDevice("user1Name", null, "Device1")
+                addDevice("user2Name", null, "Device1")
+            }
         }
 
-        step("And User Member1 adds a new device Device1 with label Device1") {
-            testServiceHelper.addDevice("user2Name", null, "Device1")
+        step("And User TeamOwner creates MLS group conversation Polls with Member1 in team Polling") {
+            testServiceHelper.userCreatesMLSGroupConversation(
+                ownerAlias = "user1Name",
+                participantAliases = "user2Name",
+                conversationName = "Polls",
+                deviceName = "Device1"
+            )
         }
 
         step("And User TeamOwner is me") {

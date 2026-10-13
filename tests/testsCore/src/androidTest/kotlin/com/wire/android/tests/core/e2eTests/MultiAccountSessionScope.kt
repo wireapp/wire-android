@@ -329,6 +329,7 @@ class MultiAccountSessionScope : BaseUiTest() {
             backendClient,
             context
         )
+        backendSetupHelper.userConfiguresMLSForTeam("user1Name", teamName, backendClient)
         backendSetupHelper.userXAddsUsersToTeam(
             "user1Name",
             "user2Name",

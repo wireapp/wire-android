@@ -46,6 +46,7 @@ import org.json.JSONObject
 import service.enums.LegalHoldStatus
 import service.models.Conversation
 import service.models.Mentions
+import service.models.QualifiedID
 import service.models.SendFileParams
 import service.models.SendLocationParams
 import service.models.SendTextParams
@@ -420,6 +421,36 @@ class TestServiceHelper(
         )
     }
 
+    fun contactSendsLocalImageMessagePersonalMLSConversation(
+        context: Context,
+        fileName: String,
+        senderAlias: String,
+        deviceName: String,
+        dstConvoName: String
+    ) {
+        val image = getRawResourceAsFile(context, R.raw.testing_image, fileName)
+        val conversation = toConvoObjPersonal(senderAlias, dstConvoName)
+
+        if (image?.exists() != true) {
+            throw Exception("Image file not found")
+        }
+
+        testServiceClient.sendImage(
+            SendFileParams(
+                owner = toClientUser(senderAlias),
+                deviceName = deviceName,
+                convoId = conversation.qualifiedID.id,
+                convoDomain = conversation.qualifiedID.domain,
+                timeout = getSelfDeletingMessageTimeout(senderAlias, dstConvoName),
+                filePath = image.absolutePath.orEmpty(),
+                type = "image/jpeg",
+                otherAlgorithm = false,
+                otherHash = false,
+                invalidHash = false
+            )
+        )
+    }
+
     fun toConvoObjPersonal(ownerAlias: String, convoName: String): Conversation {
         return toConvoObjPersonal(toClientUser(ownerAlias), convoName)
     }
@@ -482,6 +513,63 @@ class TestServiceHelper(
             participants = participants,
             chatName = conversationName,
             deviceName = deviceName
+        )
+    }
+
+    fun userXAddedContactsToGroupChat(
+        userAsNameAlias: String,
+        contactsToAddNameAliases: String,
+        chatName: String,
+        deviceName: String
+    ) {
+        val userAs = toClientUser(userAsNameAlias)
+        val conversation = toConvoObj(userAs, chatName)
+        val contactsToAdd = usersManager.splitAliases(contactsToAddNameAliases).map { alias ->
+            val user = toClientUser(alias)
+            QualifiedID(
+                id = requireNotNull(user.id) { "The user to add must have a registered ID." },
+                domain = backendFor(user).domain
+            )
+        }
+
+        testServiceClient.addMembersToConversation(
+            owner = userAs,
+            deviceName = deviceName,
+            convoId = conversation.qualifiedID.id,
+            convoDomain = conversation.qualifiedID.domain,
+            users = contactsToAdd
+        )
+    }
+
+    fun userRemovesUserFromGroupConversation(
+        userWhoRemovesAlias: String,
+        userToRemoveAlias: String,
+        chatName: String,
+        deviceName: String
+    ) {
+        val userWhoRemoves = toClientUser(userWhoRemovesAlias)
+        val userToRemove = toClientUser(userToRemoveAlias)
+        val conversation = toConvoObj(userWhoRemoves, chatName)
+
+        testServiceClient.removeMemberFromConversation(
+            owner = userWhoRemoves,
+            deviceName = deviceName,
+            convoId = conversation.qualifiedID.id,
+            convoDomain = conversation.qualifiedID.domain,
+            userId = requireNotNull(userToRemove.id) { "The user to remove must have a registered ID." },
+            userDomain = backendFor(userToRemove).domain
+        )
+    }
+
+    fun userLeavesGroupConversation(userAlias: String, chatName: String, deviceName: String) {
+        val user = toClientUser(userAlias)
+        val conversation = toConvoObj(user, chatName)
+
+        testServiceClient.leaveConversation(
+            owner = user,
+            deviceName = deviceName,
+            convoId = conversation.qualifiedID.id,
+            convoDomain = conversation.qualifiedID.domain
         )
     }
 

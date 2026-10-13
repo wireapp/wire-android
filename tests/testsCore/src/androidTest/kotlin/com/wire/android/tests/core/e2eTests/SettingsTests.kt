@@ -54,6 +54,7 @@ class SettingsTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "MyAmazingTeam", backendClient)
         }
 
         step("And User user1Name adds user user2Name to team MyAmazingTeam with role Member") {
@@ -117,6 +118,7 @@ class SettingsTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "ResetPassword", backendClient)
         }
 
         step("And User user1Name adds user user2Name to team ResetPassword with role Member") {
@@ -223,6 +225,7 @@ class SettingsTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "ChangeUserName", backendClient)
         }
 
         step("And User user1Name adds user user2Name to team ChangeUserName with role Member") {
@@ -291,6 +294,7 @@ class SettingsTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "ReportBug", backendClient)
         }
 
         step("And User user1Name adds user user2Name to team ReportBug with role Member") {
@@ -346,6 +350,7 @@ class SettingsTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "NetworkSettings", backendClient)
         }
 
         step("And User user1Name adds user user2Name to team NetworkSettings with role Member") {

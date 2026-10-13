@@ -34,6 +34,7 @@ import uiautomatorutils.UiWaitUtils.findElementOrNull
 import uiautomatorutils.UiWaitUtils.waitElement
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
 import kotlin.test.DefaultAsserter.assertTrue
 import kotlin.test.assertEquals
 import kotlin.time.Duration
@@ -84,10 +85,7 @@ data class ConversationViewPage(private val device: UiDevice) {
     private fun userInMentionList(userName: String): UiObject2 {
         var user: UiObject2? = null
         val visible = UiWaitUtils.retryUntilTimeout(UiWaitUtils.DEFAULT_TIMEOUT) {
-            user = device.findObjects(By.res("User avatar"))
-                .firstNotNullOfOrNull { avatar ->
-                    avatar.parent?.parent?.findObject(By.textContains(userName))
-                }
+            user = device.findObject(By.clazz("android.widget.Button").descStartsWith("$userName,"))
             user != null
         }
         if (!visible) {
@@ -362,7 +360,7 @@ data class ConversationViewPage(private val device: UiDevice) {
 
         Assert.assertTrue("Edited label is not visible for message '$message'.", "Edited" in labels)
 
-        val timeFormatter = DateTimeFormatter.ofPattern("HH:mm")
+        val timeFormatter = DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT)
         val currentTime = LocalTime.now()
         val expectedTimes = setOf(currentTime.format(timeFormatter), currentTime.minusMinutes(1).format(timeFormatter))
         Assert.assertTrue(

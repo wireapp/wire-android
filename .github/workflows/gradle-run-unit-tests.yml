@@ -19,7 +19,7 @@ env:
 jobs:
   coverage:
     env:
-      GRADLE_OPTS: '-Dorg.gradle.jvmargs="-XX:MaxMetaspaceSize=2g -Xmx4G -Djava.net.preferIPv6Addresses=system"'
+      GRADLE_OPTS: '-Dorg.gradle.jvmargs="-XX:MaxMetaspaceSize=2g -Xmx4G"'
     runs-on: warp-ubuntu-2404-x64-8x
     steps:
       - name: Checkout

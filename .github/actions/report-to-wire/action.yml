@@ -19,7 +19,7 @@ runs:
     - name: Notify
       if: ${{ inputs.body != '' }}
       continue-on-error: true
-      uses: wireapp/github-app/.github/actions/notify-wire@v1
+      uses: wireapp/github-app/.github/actions/notify-wire@3a9c9d7e71d96d391951429c1d1bfbbee081ed8c # v1
       with:
         webhook-url: ${{ inputs.webhook-url }}
         token: ${{ inputs.webhook-token }}

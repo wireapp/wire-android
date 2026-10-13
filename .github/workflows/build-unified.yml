@@ -202,7 +202,7 @@ jobs:
             'https://dl.google.com/dl/android/maven2/androidx/baselineprofile/androidx.baselineprofile.gradle.plugin/1.5.0-rc01/androidx.baselineprofile.gradle.plugin-1.5.0-rc01.jar' \
             || echo "Google Maven HEAD check failed (curl exit code: $?)"
       - name: Run Compose stability check
-        run: make compose-stability GRADLE='./gradlew --stacktrace'
+        run: make compose-stability
       - name: Cleanup Gradle Cache
         # Remove some files from the Gradle cache, so they aren't cached by GitHub Actions.
         # Restoring these files from a GitHub Actions cache might cause problems for future builds.

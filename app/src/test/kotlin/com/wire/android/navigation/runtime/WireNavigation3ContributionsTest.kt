@@ -38,6 +38,7 @@ class WireNavigation3ContributionsTest {
                 "media.gallery",
                 "cells.boolean",
                 "cells.public-link-expiration",
+                "meetings.new-meeting",
                 "sketch.drawing-canvas",
             ),
             contractIds,

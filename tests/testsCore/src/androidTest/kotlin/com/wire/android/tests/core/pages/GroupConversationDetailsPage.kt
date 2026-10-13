@@ -19,6 +19,7 @@ package com.wire.android.tests.core.pages
 
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
+import androidx.test.uiautomator.UiScrollable
 import androidx.test.uiautomator.UiSelector
 import org.junit.Assert.assertTrue
 import uiautomatorutils.UiSelectorParams
@@ -225,6 +226,10 @@ data class GroupConversationDetailsPage(private val device: UiDevice) {
 
     fun tapOnParticipantsTab() {
         UiWaitUtils.waitElement(participantsTab).click()
+        val participantsTabSelected = UiWaitUtils.retryUntilTimeout(UiWaitUtils.SHORT_TIMEOUT) {
+            device.hasObject(By.selected(true).hasChild(participantsTab.toBySelector()))
+        }
+        assertTrue("Participants tab was not selected.", participantsTabSelected)
     }
 
     fun tapOnAppsTab(): GroupConversationDetailsPage {
@@ -333,6 +338,8 @@ data class GroupConversationDetailsPage(private val device: UiDevice) {
     fun assertUsernameIsAddedToParticipantsList(expectedHandle: String): GroupConversationDetailsPage {
         val handleSelector = textViewSelector(expectedHandle)
         try {
+            UiScrollable(UiSelector().scrollable(true))
+                .scrollIntoView(UiSelector().text(expectedHandle))
             UiWaitUtils.waitElement(params = handleSelector)
         } catch (e: AssertionError) {
             throw AssertionError(

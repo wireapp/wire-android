@@ -92,6 +92,7 @@ import org.junit.jupiter.api.Test
 import kotlin.io.path.createTempDirectory
 import com.wire.kalium.cells.data.SortingCriteria as KaliumSortingCriteria
 
+@Suppress("LargeClass")
 class CellViewModelTest {
 
     private companion object {
@@ -399,23 +400,24 @@ class CellViewModelTest {
     }
 
     @Test
-    fun `given in-app image viewer disabled when image file clicked and local file is not present and url is openable then url is opened`() = runTest {
-        val (arrangement, viewModel) = Arrangement()
-            .withLoadSuccess()
-            .arrange()
+    fun `given in-app image viewer disabled when image file clicked and local file is not present and url is openable then url is opened`() =
+        runTest {
+            val (arrangement, viewModel) = Arrangement()
+                .withLoadSuccess()
+                .arrange()
 
-        val testFile = testFiles[0].copy(
-            localPath = null,
-            contentUrl = "https://example.com/file"
-        )
+            val testFile = testFiles[0].copy(
+                localPath = null,
+                contentUrl = "https://example.com/file"
+            )
 
-        viewModel.actions.test {
-            viewModel.sendIntent(CellViewIntent.OnItemClick(testFile.toUiModel()))
+            viewModel.actions.test {
+                viewModel.sendIntent(CellViewIntent.OnItemClick(testFile.toUiModel()))
 
-            expectNoEvents()
+                expectNoEvents()
+            }
+            coVerify(exactly = 1) { arrangement.fileHelper.openAssetUrlWithExternalApp(any(), any(), any()) }
         }
-        coVerify(exactly = 1) { arrangement.fileHelper.openAssetUrlWithExternalApp(any(), any(), any()) }
-    }
 
     @Test
     fun `given in-app image viewer enabled when image file clicked and local file is not present and url is openable then in-app viewer is opened`() =

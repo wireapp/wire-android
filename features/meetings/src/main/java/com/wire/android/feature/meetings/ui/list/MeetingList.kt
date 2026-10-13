@@ -22,6 +22,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -125,6 +126,12 @@ fun MeetingList(
                     MeetingLoadMoreFooter()
                 }
             }
+        }
+    }
+
+    LaunchedEffect(lazyPagingItems.loadState, lazyPagingItems.itemCount) {
+        if (lazyPagingItems.loadState.isIdle && !lazyPagingItems.loadState.hasError && lazyPagingItems.itemCount == 0) {
+            meetingListViewModel.onEmptyListLoaded()
         }
     }
 }

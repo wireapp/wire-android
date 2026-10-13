@@ -17,8 +17,8 @@
  */
 dependencyResolutionManagement {
     repositories {
-        google()
         mavenCentral()
+        google()
     }
     versionCatalogs {
         create("libs") {

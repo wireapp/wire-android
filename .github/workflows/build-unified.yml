@@ -195,7 +195,7 @@ jobs:
       - name: Set up Java and Gradle
         uses: ./.github/actions/setup-java-gradle
       - name: Run Compose stability check
-        run: make compose-stability
+        run: make compose-stability GRADLE='./gradlew --stacktrace'
       - name: Cleanup Gradle Cache
         # Remove some files from the Gradle cache, so they aren't cached by GitHub Actions.
         # Restoring these files from a GitHub Actions cache might cause problems for future builds.

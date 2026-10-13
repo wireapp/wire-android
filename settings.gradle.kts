@@ -51,8 +51,8 @@ rootDir
 
 dependencyResolutionManagement {
  repositories {
-        google()
         mavenCentral()
+        google()
         maven(url = "https://s01.oss.sonatype.org/content/repositories/snapshots")
     }
     versionCatalogs {

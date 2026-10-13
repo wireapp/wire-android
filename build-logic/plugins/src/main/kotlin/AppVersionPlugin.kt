@@ -1,3 +1,4 @@
+import com.wire.android.gradle.version.BetaReleaseVersion
 import com.wire.android.gradle.version.Versionizer
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -35,9 +36,10 @@ class AppVersionPlugin : Plugin<Project> {
                 val currentTime = LocalDateTime.now()
                 val versnisor = Versionizer(projectDir, currentTime)
                 val versionCode = versnisor.versionCode
-                val versionName = AndroidApp.versionName
+                val betaReleaseVersion = BetaReleaseVersion.resolve(AndroidApp.versionName, System.getenv("WIRE_RELEASE_VERSION"))
+                val versionName = betaReleaseVersion ?: AndroidApp.versionName
                 val buildTime = currentTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")) ?: error("Failed to get build time")
-                val appName = "com.wire"
+                val appName = if (betaReleaseVersion != null) "com.wire.android.internal" else "com.wire"
                 // git commit hash code
                 val gitRevision = "git rev-parse --short HEAD".execute().text.trim()
                 println("VersionCode: $versionCode")

@@ -188,26 +188,26 @@ private fun UploadStatusIndicatorPreview() {
             uploads = listOf(
                 CellUploadItem(
                     id = "1",
-                    conversationId = "cellName",
                     request = CellUploadRequest(
                         localPath = "/path/to/file1.txt".toPath(),
                         fileName = "file1.txt",
                         sizeBytes = 1024,
                         destinationFolderPath = "cellName/folder",
                     ),
+                    conversationId = "conversation-id-1",
                     state = CellUploadState.Queued,
                     nodeUuid = "node-uuid-1",
                     versionId = "version-id-1",
                 ),
                 CellUploadItem(
                     id = "2",
-                    conversationId = "cellName",
                     request = CellUploadRequest(
                         localPath = "/path/to/file2.txt".toPath(),
                         fileName = "file2.txt",
                         sizeBytes = 1024,
                         destinationFolderPath = "cellName/folder",
                     ),
+                    conversationId = "conversation-id-2",
                     state = CellUploadState.Uploading(50f),
                     nodeUuid = "node-uuid-2",
                     versionId = "version-id-2",
@@ -227,13 +227,13 @@ private fun UploadStatusIndicatorSuccessPreview() {
             uploads = listOf(
                 CellUploadItem(
                     id = "1",
-                    conversationId = "cellName",
                     request = CellUploadRequest(
                         localPath = "/path/to/file1.txt".toPath(),
                         fileName = "file1.txt",
                         sizeBytes = 1024,
                         destinationFolderPath = "cellName/folder",
                     ),
+                    conversationId = "conversation-id-1",
                     state = CellUploadState.Completed,
                     nodeUuid = "node-uuid-1",
                     versionId = "version-id-1",
@@ -253,20 +253,20 @@ private fun UploadStatusIndicatorFailedPreview() {
             uploads = listOf(
                 CellUploadItem(
                     id = "1",
-                    conversationId = "cellName",
                     request = CellUploadRequest(
                         localPath = "/path/to/file1.txt".toPath(),
                         fileName = "file1.txt",
                         sizeBytes = 1024,
                         destinationFolderPath = "cellName/folder",
                     ),
+                    conversationId = "conversation-id-1",
                     state = CellUploadState.Failed,
                     nodeUuid = "node-uuid-1",
                     versionId = "version-id-1",
                 ),
                 CellUploadItem(
                     id = "2",
-                    conversationId = "cellName",
+                    conversationId = "conversation-id-2",
                     request = CellUploadRequest(
                         localPath = "/path/to/file2.txt".toPath(),
                         fileName = "file2.txt",

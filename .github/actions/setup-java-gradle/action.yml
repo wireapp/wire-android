@@ -70,6 +70,20 @@ runs:
           echo "warp=false" >> "$GITHUB_OUTPUT"
         fi
 
+    # Temporary Warp support workaround for Google Maven endpoint timeouts.
+    # /etc/hosts overrides DNS for dl.google.com; HTTPS still verifies that hostname.
+    # ARIN assigns 142.250.27.93 to Google LLC's 142.250.0.0/15 allocation:
+    # https://rdap.arin.net/registry/ip/142.250.27.93
+    # Verified 2026-10-13: a Maven POM returned HTTP 200 via this IP with TLS
+    # certificate verification enabled. Warp identifies it as an Amsterdam endpoint;
+    # that location was not independently verified.
+    # Remove once normal DNS routing works reliably on Warp runners.
+    - name: Temporary Google Maven routing workaround
+      if: steps.cache_backend.outputs.warp == 'true'
+      shell: bash
+      run: |
+        printf '%s\n' '142.250.27.93 dl.google.com' | sudo tee -a /etc/hosts
+
     - name: Summarize Gradle cache policy
       shell: bash
       env:

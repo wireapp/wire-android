@@ -12,7 +12,8 @@ permissions:
 
 jobs:
   ui-tests:
-    runs-on: warp-ubuntu-latest-x64-8x
+    # Expose /dev/kvm for hardware-accelerated Android emulator tests.
+    runs-on: "warp-ubuntu-2404-x64-8x;nested-virtualization.enabled=true"
     timeout-minutes: 30
     strategy:
       matrix:

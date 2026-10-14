@@ -1095,6 +1095,7 @@
         <item quantity="other">Uploading %1$d files</item>
     </plurals>
     <string name="notification_drive_upload_progress_text">%1$d of %2$d completed</string>
+    <string name="notification_drive_upload_title_with_conversation">%1$s • %2$s</string>
     <string name="notification_drive_upload_complete_title">Upload complete</string>
     <plurals name="notification_drive_upload_complete_text">
         <item quantity="one">%1$d file uploaded</item>

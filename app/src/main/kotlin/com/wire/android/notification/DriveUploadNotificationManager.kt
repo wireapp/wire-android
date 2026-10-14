@@ -185,7 +185,9 @@ class DriveUploadNotificationManager @Inject constructor(
 
     /** Falls back to [title] alone when the conversation name isn't known locally yet. */
     private fun withConversationName(title: String, conversationName: String?): String =
-        conversationName?.let { context.getString(R.string.notification_drive_upload_title_with_conversation, title, it) } ?: title
+        conversationName?.let {
+            context.getString(R.string.notification_drive_upload_title_with_conversation, title, it)
+        } ?: title
 
     /** Weighted by bytes rather than file count, so one large file mid-transfer still moves the bar. */
     private fun NotificationCompat.Builder.applyProgress(uploads: List<CellUploadItem>): NotificationCompat.Builder {

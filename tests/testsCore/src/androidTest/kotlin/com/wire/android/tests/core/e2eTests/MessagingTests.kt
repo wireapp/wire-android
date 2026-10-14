@@ -51,7 +51,7 @@ class MessagingTests : BaseUiTest() {
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
     @TestCaseId("TC-4450")
-    @Category("regression", "RC", "messaging", "smoke", "smokeSchwarz")
+    @Category("regression", "RC", "messaging", "fdroid")
     @Test
     fun givenOneOnOneConversationWithTeamMember_whenIExchangeMessages_thenMessagesAreSentAndReceived() {
         step("Given There is a team owner TeamOwner with team Messaging") {

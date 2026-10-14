@@ -266,7 +266,7 @@ class ConnectTests : BaseUiTest() {
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
     @TestCaseId("TC-4297")
-    @Category("regression", "RC", "connect", "smoke", "smokeSchwarz")
+    @Category("regression", "RC", "connect", "fdroid")
     @Test
     fun givenPersonalUser_whenReceivingConnectionRequest_thenConnectionRequestCanBeAccepted() {
         step("Given There are personal users user1Name and user2Name") {

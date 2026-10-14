@@ -1,4 +1,5 @@
 name: QA Android Critical Flow Tests
+run-name: ${{ inputs.runMode == 'Deflake failed tests' && format('QA Android Critical Flow Tests - Manual Deflake from run {0}', inputs.sourceRunId) || 'QA Android Critical Flow Tests' }}
 
 # Lock each configured device group independently. Groups must be disjoint, so
 # criticalFlow, e2eTests, GrapheneOS, and future pools can run concurrently.
@@ -10,43 +11,67 @@ on:
   # Uncomment merge_group when the team is ready to enable automatic merge queue runs.
   # merge_group:
   #   types: [checks_requested]
-  # GitHub schedules use UTC. 04:00 UTC is 06:00 in Berlin during daylight saving time.
+  # GitHub schedules use UTC. 04:00 UTC is 06:00 in Berlin in summer, 05:00 in winter.
   schedule:
     - cron: "0 4 * * *"
   workflow_dispatch:
     inputs:
-      testServiceUrl:
-        description: "Test Service HTTP(S) origin. Leave empty to use TEST_SERVICE_URL."
+      runMode:
+        description: "Run tests (default '@criticalFlow') or deflake failures from this workflow."
+        required: true
+        default: "Normal tests"
+        type: choice
+        options:
+          - Normal tests
+          - Deflake failed tests
+
+      sourceRunId:
+        description: "Deflake only: copy the 'manual deflake id' from a previous run of this workflow. Required in deflake mode."
         required: false
         default: ""
         type: string
 
+      testServiceUrl:
+        description: "Test Service HTTP(S) origin. Empty uses TEST_SERVICE_URL for normal runs or the source run URL for deflake."
+        required: false
+        default: ""
+        type: string
+
+      deflakeRetrySettings:
+        description: "Deflake only: inherit retries or use the retry checkbox and count below."
+        required: true
+        default: "Use original run settings"
+        type: choice
+        options:
+          - Use original run settings
+          - Use settings entered below
+
       appBuildNumber:
-        description: "AppBuildNumber. Use 'latest' or build number(e.g 71389)"
+        description: "Normal runs only: 'latest' or build number (e.g. 71389). Deflake reuses the source build."
         required: true
         default: "latest"
         type: string
 
       isUpgrade:
-        description: "Upgrade test? If true, oldBuildNumber is optional and defaults to the previous APK."
+        description: "Normal runs only: upgrade test? oldBuildNumber defaults to the previous APK."
         required: true
         default: false
         type: boolean
 
       oldBuildNumber:
-        description: "For upgrade runs: optional old build number. Leave empty to auto-pick the previous APK."
+        description: "Normal upgrade runs only: optional old build number. Empty auto-picks the previous APK."
         required: false
         default: ""
         type: string
 
       enforceAppInstall:
-        description: "If you want to run with a lower version than currently on the device, set this value to true."
+        description: "Normal runs only: enable to install a lower version than currently on the device."
         required: true
         default: false
         type: boolean
 
       flavor:
-        description: "App flavor."
+        description: "Normal runs only: app flavor. Deflake reuses the source flavor."
         required: true
         type: choice
         options:
@@ -59,37 +84,37 @@ on:
         default: alpha release candidate
 
       TAGS:
-        description: "Tags: '@regression' OR '@TC-8143'."
+        description: "Normal runs: defaults to '@criticalFlow'. Replace with another tag or test ID, e.g. '@regression' or '@TC-8143'. Deflake reruns only source failures."
         required: false
-        default: ""
+        default: "@criticalFlow"
         type: string
 
       testinyRunName:
-        description: "TESTINY_RUN_NAME."
+        description: "Normal runs only: TESTINY_RUN_NAME. Deflake automatically reuses the source run's setting."
         required: false
         default: ""
         type: string
 
       androidDeviceId:
-        description: "Target one device from androidDeviceGroup. Leave empty to use the group."
+        description: "Normal runs only: target one device from the group. Deflake reuses the source selection."
         required: false
         default: ""
         type: string
 
       androidDeviceGroup:
-        description: "Named group from the ANDROID_DEVICE_GROUPS_JSON repository variable."
+        description: "Named group from ANDROID_DEVICE_GROUPS_JSON. For deflake, select the source run's group."
         required: true
         default: "criticalFlow"
         type: string
 
       rerunFailedEnabled:
-        description: "Automatically rerun only failed tests in this run."
+        description: "Automatically retry failed tests. For deflake, applies only with 'Use settings entered below'."
         required: true
         default: true
         type: boolean
 
       rerunFailedCount:
-        description: "How many failed-test rerun attempts (0-3). Default is 1."
+        description: "Additional retries after the first execution (0-3). Deflake uses this only with 'Use settings entered below'."
         required: true
         default: "1"
         type: string
@@ -100,10 +125,19 @@ permissions:
 jobs:
   # Validate user inputs and derive selectors.
   validate-and-resolve-inputs:
-    name: Validate + resolve selectors
+    name: Validate + resolve run inputs
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: read
 
     outputs:
+      resolvedRunMode: ${{ steps.validate_run_mode.outputs.runMode }}
+      sourceRunId: ${{ steps.validate_source_run.outputs.sourceRunId }}
+      sourceRepository: ${{ steps.validate_source_run.outputs.sourceRepository }}
+      sourceWorkflowFile: ${{ steps.validate_source_run.outputs.sourceWorkflowFile }}
+      sourceHeadSha: ${{ steps.validate_source_run.outputs.sourceHeadSha }}
+      sourceHeadBranch: ${{ steps.validate_source_run.outputs.sourceHeadBranch }}
       resolvedAppBuildNumber: ${{ steps.resolve_run_inputs.outputs.appBuildNumber }}
       resolvedIsUpgrade: ${{ steps.resolve_run_inputs.outputs.isUpgrade == 'true' || steps.resolve_selector.outputs.category == 'upgrade' }}
       resolvedOldBuildNumber: ${{ steps.resolve_run_inputs.outputs.oldBuildNumber }}
@@ -127,17 +161,38 @@ jobs:
           TRUSTED_REF: refs/heads/${{ github.event.repository.default_branch }}
         run: |
           if [[ "${ACTUAL_REF}" != "${TRUSTED_REF}" ]]; then
-            echo "ERROR: Secret-bearing Android E2E runs are restricted to ${TRUSTED_REF}."
+            echo "ERROR: Critical Flow runs are restricted to ${TRUSTED_REF}."
             exit 1
           fi
 
       - name: Checkout repository
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
 
-      # Scheduled and PR runs do not have UI inputs, so resolve one shared set
+      # Validate the mode before choosing a job so a missing source ID cannot
+      # accidentally fall back to a normal test run.
+      - name: Validate run mode
+        id: validate_run_mode
+        shell: bash
+        env:
+          RUN_MODE: ${{ inputs.runMode || 'Normal tests' }}
+          SOURCE_RUN_ID: ${{ inputs.sourceRunId }}
+          DEFLAKE_RETRY_SETTINGS: ${{ inputs.deflakeRetrySettings || 'Use original run settings' }}
+        run: make qa-ui-validate cmd=validate-run-mode
+
+      - name: Validate selected GitHub Actions run
+        id: validate_source_run
+        if: steps.validate_run_mode.outputs.runMode == 'deflake'
+        env:
+          SOURCE_RUN_ID: ${{ inputs.sourceRunId }}
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+          GITHUB_TOKEN: ${{ github.token }}
+        run: python3 scripts/qa/android-ui/validate_source_run.py
+
+      # Scheduled runs do not have UI inputs, so resolve one shared set
       # of values here and let later jobs consume the same outputs.
       - name: Resolve run inputs
         id: resolve_run_inputs
+        if: steps.validate_run_mode.outputs.runMode == 'normal'
         shell: bash
         env:
           APP_BUILD_NUMBER_INPUT: ${{ inputs.appBuildNumber }}
@@ -177,9 +232,10 @@ jobs:
             exit 0
           fi
 
+          # Nightly critical-flow runs no longer include upgrade tests.
           {
             echo "appBuildNumber=latest"
-            echo "isUpgrade=true"
+            echo "isUpgrade=false"
             echo "oldBuildNumber="
             echo "enforceAppInstall=false"
             echo "flavor=alpha release candidate"
@@ -193,6 +249,7 @@ jobs:
 
       # Validate upgrade inputs before runner work starts.
       - name: Validate upgrade inputs
+        if: steps.validate_run_mode.outputs.runMode == 'normal'
         shell: bash
         env:
           IS_UPGRADE: ${{ steps.resolve_run_inputs.outputs.isUpgrade }}
@@ -201,15 +258,17 @@ jobs:
 
       # Validate retry toggle/count before any runner work starts.
       - name: Validate rerun inputs
+        if: steps.validate_run_mode.outputs.runMode == 'normal' || inputs.deflakeRetrySettings == 'Use settings entered below'
         shell: bash
         env:
-          RERUN_FAILED_ENABLED: ${{ steps.resolve_run_inputs.outputs.rerunFailedEnabled }}
-          RERUN_FAILED_COUNT: ${{ steps.resolve_run_inputs.outputs.rerunFailedCount }}
+          RERUN_FAILED_ENABLED: ${{ steps.resolve_run_inputs.outputs.rerunFailedEnabled || inputs.rerunFailedEnabled }}
+          RERUN_FAILED_COUNT: ${{ steps.resolve_run_inputs.outputs.rerunFailedCount || inputs.rerunFailedCount }}
         run: make qa-ui-validate cmd=validate-rerun-inputs
 
       # Resolve TAGS into CI selectors and expose them as job outputs.
       - name: Resolve selector from TAGS
         id: resolve_selector
+        if: steps.validate_run_mode.outputs.runMode == 'normal'
         shell: bash
         env:
           TAGS_RAW: ${{ steps.resolve_run_inputs.outputs.TAGS }}
@@ -217,6 +276,7 @@ jobs:
 
       # Print resolved values for traceability in workflow logs.
       - name: Print resolved values
+        if: steps.validate_run_mode.outputs.runMode == 'normal'
         shell: bash
         env:
           WORKFLOW_REF: ${{ github.ref_name }}
@@ -228,9 +288,10 @@ jobs:
         run: make qa-ui-validate cmd=print-resolved-values
 
   run-android-ui-tests:
-    name: Run Android UI tests
+    name: Run critical-flow tests
+    if: needs.validate-and-resolve-inputs.outputs.resolvedRunMode == 'normal'
     # Configure this environment with required reviewers and a deployment-branch
-    # rule limited to the default branch. Move the E2E secrets into it so a
+    # rule limited to the default branch. Move the workflow secrets into it so a
     # modified workflow on another ref cannot bypass this trust boundary.
     environment: android-e2e
     runs-on:
@@ -442,7 +503,6 @@ jobs:
           SOURCE_REF: ${{ github.ref }}
           SOURCE_REF_NAME: ${{ github.ref_name }}
           SOURCE_SHA: ${{ github.sha }}
-          TEST_SOURCE_SHA: ${{ github.sha }}
           FLAVOR_INPUT: ${{ needs.validate-and-resolve-inputs.outputs.resolvedFlavor }}
           TAGS_INPUT: ${{ needs.validate-and-resolve-inputs.outputs.resolvedTags }}
           RESOLVED_TESTCASE_ID: ${{ needs.validate-and-resolve-inputs.outputs.resolvedTestCaseId }}
@@ -456,7 +516,9 @@ jobs:
           ANDROID_DEVICE_GROUP: ${{ needs.validate-and-resolve-inputs.outputs.resolvedAndroidDeviceGroup }}
           RERUN_FAILED_ENABLED: ${{ needs.validate-and-resolve-inputs.outputs.resolvedRerunFailedEnabled }}
           RERUN_FAILED_COUNT: ${{ needs.validate-and-resolve-inputs.outputs.resolvedRerunFailedCount }}
-        run: make qa-ui-report cmd=prepare-deflake-bundle
+        run: |
+          test_source_sha="$(git rev-parse HEAD)"
+          TEST_SOURCE_SHA="${test_source_sha}" make qa-ui-report cmd=prepare-deflake-bundle
 
       - name: Upload deflake input artifact
         if: always()
@@ -531,6 +593,7 @@ jobs:
         id: build_wire_notification
         if: always()
         env:
+          REPORT_TITLE: android critical flows
           EVENT_NAME: ${{ github.event_name }}
           BRANCH_NAME: ${{ github.ref_name }}
           RUN_NUMBER: ${{ github.run_number }}
@@ -555,6 +618,405 @@ jobs:
           body: ${{ steps.build_wire_notification.outputs.body }}
 
       # Clean temporary artifacts on the runner, even after failures.
+      - name: Cleanup (remove secrets + build outputs)
+        if: always()
+        env:
+          ALLURE_RESULTS_DIR: ${{ runner.temp }}/allure-results
+          ALLURE_RESULTS_MERGED_DIR: ${{ runner.temp }}/allure-results-merged
+          ALLURE_REPORT_DIR: ${{ runner.temp }}/allure-report
+        run: make qa-ui-report cmd=cleanup-workspace
+
+      - name: Stop isolated Gradle daemons
+        if: always()
+        continue-on-error: true
+        run: ./gradlew --stop
+
+  # Both modes share one entry point; only the selected execution job can run.
+  run-manual-deflake:
+    name: Run critical-flow manual deflake
+    needs: validate-and-resolve-inputs
+    if: needs.validate-and-resolve-inputs.outputs.resolvedRunMode == 'deflake'
+    # Configure this environment with required reviewers and a deployment-branch
+    # rule limited to the default branch. Move the workflow secrets into it so a
+    # modified workflow on another ref cannot bypass this trust boundary.
+    environment: android-e2e
+    runs-on:
+      - self-hosted
+      - Linux
+      - X64
+      - office
+      - android-qa
+
+    permissions:
+      contents: write
+      actions: read
+
+    env:
+      FLAVORS_CONFIG_PATH: "/etc/android-qa/flavors.json"
+      DEVICE_GROUPS_JSON: ${{ vars.ANDROID_DEVICE_GROUPS_JSON }}
+
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - name: Register log masks
+        run: |
+          echo "::add-mask::eu-west-1"
+
+      # Deflake uses the same runner setup, with execution settings recovered
+      # from the source artifact rather than today's normal-run inputs.
+      - name: Checkout (with submodules)
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          clean: true
+          ref: ${{ github.event.repository.default_branch }}
+          submodules: recursive
+          persist-credentials: false
+
+      - name: Set up Java and Gradle
+        uses: ./.github/actions/setup-java-gradle
+        with:
+          isolate-gradle-home: true
+
+      - name: Set up Android SDK (ANDROID_HOME + adb)
+        uses: android-actions/setup-android@40fd30fb8d7440372e1316f5d1809ec01dcd3699 # v4
+        with:
+          packages: platform-tools
+
+      - name: Ensure required tools exist
+        run: make qa-ui-setup cmd=ensure-required-tools
+
+      # Download the standard deflake artifact exported by a previous normal
+      # or manual deflake run of this Critical Flow workflow.
+      - name: Download deflake input artifact
+        uses: dawidd6/action-download-artifact@b6e2e70617bc3265edd6dab6c906732b2f1ae151 # v21
+        with:
+          run_id: ${{ needs.validate-and-resolve-inputs.outputs.sourceRunId }}
+          name: android-ui-test-deflake-input
+          path: ${{ runner.temp }}/deflake-input
+          github_token: ${{ github.token }}
+
+      # Validate the downloaded deflake artifact and print the resolved run context.
+      - name: Validate deflake input artifact
+        id: validate_deflake_input
+        env:
+          DEFLAKE_BUNDLE_ROOT: ${{ runner.temp }}/deflake-input
+          TEST_SERVICE_URL_OVERRIDE: ${{ inputs.testServiceUrl }}
+          EXPECTED_SOURCE_REPOSITORY: ${{ needs.validate-and-resolve-inputs.outputs.sourceRepository }}
+          EXPECTED_SOURCE_RUN_ID: ${{ needs.validate-and-resolve-inputs.outputs.sourceRunId }}
+          EXPECTED_SOURCE_SHA: ${{ needs.validate-and-resolve-inputs.outputs.sourceHeadSha }}
+          EXPECTED_SOURCE_WORKFLOW_FILE: ${{ needs.validate-and-resolve-inputs.outputs.sourceWorkflowFile }}
+          EXPECTED_SOURCE_REF_NAME: ${{ needs.validate-and-resolve-inputs.outputs.sourceHeadBranch }}
+        run: python3 scripts/qa/android-ui/inspect_deflake_bundle.py
+
+      - name: Checkout source run test revision
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: ${{ steps.validate_deflake_input.outputs.testSourceSha }}
+          path: source-run
+          sparse-checkout: |
+            tests/testsCore/src
+            tests/testsSupport/src
+          persist-credentials: false
+
+      - name: Apply source run test revision
+        run: |
+          command -v rsync >/dev/null 2>&1 || { echo "ERROR: rsync is required"; exit 1; }
+          rsync --archive --delete source-run/tests/testsCore/src/ tests/testsCore/src/
+          rsync --archive --delete source-run/tests/testsSupport/src/ tests/testsSupport/src/
+
+      - name: Validate source device group
+        env:
+          SOURCE_DEVICE_GROUP: ${{ steps.validate_deflake_input.outputs.androidDeviceGroup }}
+          REQUESTED_DEVICE_GROUP: ${{ inputs.androidDeviceGroup }}
+        run: |
+          if [[ -n "${SOURCE_DEVICE_GROUP}" && "${SOURCE_DEVICE_GROUP}" != "${REQUESTED_DEVICE_GROUP}" ]]; then
+            echo "ERROR: Source run used device group '${SOURCE_DEVICE_GROUP}', but this deflake requested '${REQUESTED_DEVICE_GROUP}'."
+            exit 1
+          fi
+
+      # Reuse the same input validators here so malformed selected-run metadata fails
+      # before the runner spends time on APK, device, or report setup.
+      - name: Validate upgrade inputs
+        env:
+          IS_UPGRADE: ${{ steps.validate_deflake_input.outputs.isUpgrade }}
+          OLD_BUILD_NUMBER: ${{ steps.validate_deflake_input.outputs.oldBuildNumber }}
+        run: make qa-ui-validate cmd=validate-upgrade-inputs
+
+      # Resolve retries once and use the same values for execution and the next
+      # artifact. That keeps chained deflake runs consistent after an override.
+      - name: Resolve deflake retry settings
+        id: resolve_deflake_retries
+        env:
+          RERUN_FAILED_ENABLED: ${{ steps.validate_deflake_input.outputs.rerunFailedEnabled }}
+          RERUN_FAILED_COUNT: ${{ steps.validate_deflake_input.outputs.rerunFailedCount }}
+          DEFLAKE_RETRY_SETTINGS: ${{ inputs.deflakeRetrySettings }}
+          RERUN_FAILED_ENABLED_INPUT: ${{ inputs.rerunFailedEnabled }}
+          RERUN_FAILED_COUNT_INPUT: ${{ inputs.rerunFailedCount }}
+        run: |
+          if [[ "${DEFLAKE_RETRY_SETTINGS}" == "Use settings entered below" ]]; then
+            export RERUN_FAILED_ENABLED="${RERUN_FAILED_ENABLED_INPUT}"
+            export RERUN_FAILED_COUNT="${RERUN_FAILED_COUNT_INPUT}"
+          fi
+          make qa-ui-validate cmd=validate-rerun-inputs
+          {
+            echo "rerunFailedEnabled=${RERUN_FAILED_ENABLED}"
+            echo "rerunFailedCount=${RERUN_FAILED_COUNT}"
+          } >> "${GITHUB_OUTPUT}"
+          echo "Deflake retries: ${DEFLAKE_RETRY_SETTINGS}; enabled=${RERUN_FAILED_ENABLED}, additionalAttempts=${RERUN_FAILED_COUNT}"
+
+      # Reuse the same flavor resolver and pass its S3 folder output into the APK
+      # download step so deflake stays aligned with qa-android-critical-flow-tests.yml.
+      - name: Resolve flavor (runner config)
+        id: resolve_flavor
+        env:
+          FLAVOR_INPUT: ${{ steps.validate_deflake_input.outputs.flavor }}
+        run: make qa-ui-setup cmd=resolve-flavor
+
+      - name: Configure AWS credentials (for S3)
+        uses: aws-actions/configure-aws-credentials@cbe3b392738ccf3f987d68400dafcf4b0624a56c # v6
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-west-1
+
+      - name: Download APK(s) from S3
+        id: download_apks
+        env:
+          APP_BUILD_NUMBER: ${{ steps.validate_deflake_input.outputs.resolvedBuildNumber || steps.validate_deflake_input.outputs.appBuildNumberInput }}
+          IS_UPGRADE: ${{ steps.validate_deflake_input.outputs.isUpgrade }}
+          OLD_BUILD_NUMBER: ${{ steps.validate_deflake_input.outputs.oldBuildNumber }}
+          S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
+          S3_FOLDER: ${{ steps.resolve_flavor.outputs.s3Folder }}
+        run: make qa-ui-setup cmd=download-apks
+
+      # Keep device selection and app installation identical to the selected run
+      # contract so deflake executes against the same kind of target setup.
+      - name: Detect target device(s)
+        env:
+          TARGET_DEVICE_ID: ${{ steps.validate_deflake_input.outputs.androidDeviceId }}
+          TARGET_DEVICE_GROUP: ${{ inputs.androidDeviceGroup }}
+          RESOLVED_TESTCASE_ID: ${{ steps.validate_deflake_input.outputs.selectorType == 'testCaseId' && steps.validate_deflake_input.outputs.selectorValue || '' }}
+        run: make qa-ui-setup cmd=detect-target-devices
+
+      - name: Clear stale Allure results on device(s)
+        run: make qa-ui-setup cmd=clear-allure-results-on-devices
+
+      - name: Install APK(s) on device(s)
+        env:
+          ENFORCE_APP_INSTALL: ${{ steps.validate_deflake_input.outputs.enforceAppInstall }}
+          IS_UPGRADE: ${{ steps.validate_deflake_input.outputs.isUpgrade }}
+        run: make qa-ui-setup cmd=install-apks-on-devices
+
+      - name: Install 1Password CLI
+        uses: 1password/install-cli-action@1a3160d5e9de1ae0803eaa08a88746f5ae3daa50 # v4
+
+      - name: Fetch secrets.json (runtime only)
+        env:
+          OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
+        run: make qa-ui-setup cmd=fetch-runtime-secrets
+
+      - name: Build test APK (assemble once)
+        env:
+          TEST_SERVICE_URL: ${{ steps.validate_deflake_input.outputs.testServiceUrl }}
+        run: |
+          : "${TEST_SERVICE_URL:?Test Service URL resolution failed}"
+          make qa-ui-setup cmd=build-test-apk
+
+      - name: Resolve test APK path
+        run: make qa-ui-setup cmd=resolve-test-apk-path
+
+      - name: Resolve AndroidX Test Services APKs (for Allure TestStorage)
+        run: make qa-ui-setup cmd=resolve-test-services-apks
+
+      # Start execution from the downloaded failed-tests.txt list, then let the
+      # existing rerun logic handle any failures that remain in this run.
+      - name: Run failed tests from deflake artifact
+        env:
+          INITIAL_FAILED_TESTS_FILE: ${{ steps.validate_deflake_input.outputs.failedTestsFile }}
+          RESOLVED_TESTCASE_ID: ${{ steps.validate_deflake_input.outputs.selectorType == 'testCaseId' && steps.validate_deflake_input.outputs.selectorValue || '' }}
+          RESOLVED_CATEGORY: ${{ steps.validate_deflake_input.outputs.selectorType == 'category' && steps.validate_deflake_input.outputs.selectorValue || '' }}
+          IS_UPGRADE: ${{ steps.validate_deflake_input.outputs.isUpgrade }}
+          RERUN_FAILED_ENABLED: ${{ steps.resolve_deflake_retries.outputs.rerunFailedEnabled }}
+          RERUN_FAILED_COUNT: ${{ steps.resolve_deflake_retries.outputs.rerunFailedCount }}
+          ALLURE_RESULTS_ROOT: ${{ runner.temp }}/allure-results
+          # Reuse the same Testiny run so deflake updates the original run.
+          TESTINY_PROJECT_NAME: Wire Android
+          TESTINY_RUN_NAME: ${{ steps.validate_deflake_input.outputs.effectiveTestinyRunName }}
+          TESTINY_SOURCE_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          if [[ "${IS_UPGRADE}" == "true" ]]; then
+            upgrade_failed_file="${RUNNER_TEMP}/deflake-upgrade-failed-tests.txt"
+            normal_failed_file="${RUNNER_TEMP}/deflake-normal-failed-tests.txt"
+            normal_status=0
+            upgrade_status=0
+            retry_state_dirs=""
+            grep 'tests\.UpgradeVersion#' "${INITIAL_FAILED_TESTS_FILE}" > "${upgrade_failed_file}" || true
+            grep -v 'tests\.UpgradeVersion#' "${INITIAL_FAILED_TESTS_FILE}" > "${normal_failed_file}" || true
+
+            if [[ -s "${normal_failed_file}" ]]; then
+              INITIAL_FAILED_TESTS_FILE="${normal_failed_file}" \
+                RETRY_STATE_DIR="${RUNNER_TEMP}/retry-state-normal-deflake" \
+                ALLURE_RESULTS_ROOT="${RUNNER_TEMP}/allure-results/normal" \
+                make qa-ui-run || normal_status=$?
+              retry_state_dirs="${retry_state_dirs} ${RUNNER_TEMP}/retry-state-normal-deflake"
+            fi
+
+            if [[ -s "${upgrade_failed_file}" ]]; then
+              upgrade_device="${DEVICE_LIST%% *}"
+              DEVICE_LIST="${upgrade_device}" \
+                DEVICE_COUNT="1" \
+                INITIAL_FAILED_TESTS_FILE="${upgrade_failed_file}" \
+                APP_APK_BEFORE_ATTEMPT="${OLD_APK_DEVICE_PATH:-/data/local/tmp/Wire.old.apk}" \
+                RETRY_STATE_DIR="${RUNNER_TEMP}/retry-state-upgrade-deflake" \
+                ALLURE_RESULTS_ROOT="${RUNNER_TEMP}/allure-results/upgrade" \
+                make qa-ui-run || upgrade_status=$?
+              retry_state_dirs="${retry_state_dirs} ${RUNNER_TEMP}/retry-state-upgrade-deflake"
+            fi
+
+            if [[ -n "${retry_state_dirs// /}" ]]; then
+              RETRY_STATE_DIRS="${retry_state_dirs}" \
+                COMBINED_RETRY_STATE_DIR="${RUNNER_TEMP}/retry-state-deflake-combined" \
+                make qa-ui-report cmd=combine-retry-state
+            fi
+
+            if (( normal_status != 0 )); then
+              exit "${normal_status}"
+            fi
+            if (( upgrade_status != 0 )); then
+              exit "${upgrade_status}"
+            fi
+          else
+            make qa-ui-run
+          fi
+
+      # Record this workflow as the source so remaining failures can be
+      # deflaked again through the same entry point.
+      - name: Prepare deflake input artifact
+        if: always()
+        env:
+          DEFLAKE_BUNDLE_DIR: ${{ runner.temp }}/deflake-input-next
+          TEST_SERVICE_URL: ${{ steps.validate_deflake_input.outputs.testServiceUrl }}
+          SOURCE_WORKFLOW_NAME: ${{ github.workflow }}
+          SOURCE_WORKFLOW_FILE: ".github/workflows/qa-android-critical-flow-tests.yml"
+          SOURCE_REPOSITORY: ${{ github.repository }}
+          SOURCE_RUN_ID: ${{ github.run_id }}
+          SOURCE_RUN_NUMBER: ${{ github.run_number }}
+          SOURCE_RUN_ATTEMPT: ${{ github.run_attempt }}
+          SOURCE_REF: ${{ github.ref }}
+          SOURCE_REF_NAME: ${{ github.ref_name }}
+          SOURCE_SHA: ${{ github.sha }}
+          TEST_SOURCE_SHA: ${{ steps.validate_deflake_input.outputs.testSourceSha }}
+          FLAVOR_INPUT: ${{ steps.validate_deflake_input.outputs.flavor }}
+          TAGS_INPUT: ${{ steps.validate_deflake_input.outputs.tags }}
+          RESOLVED_TESTCASE_ID: ${{ steps.validate_deflake_input.outputs.selectorType == 'testCaseId' && steps.validate_deflake_input.outputs.selectorValue || '' }}
+          RESOLVED_CATEGORY: ${{ steps.validate_deflake_input.outputs.selectorType == 'category' && steps.validate_deflake_input.outputs.selectorValue || '' }}
+          APP_BUILD_NUMBER_INPUT: ${{ steps.validate_deflake_input.outputs.resolvedBuildNumber || steps.validate_deflake_input.outputs.appBuildNumberInput }}
+          IS_UPGRADE: ${{ steps.validate_deflake_input.outputs.isUpgrade }}
+          OLD_BUILD_NUMBER: ${{ steps.download_apks.outputs.OLD_BUILD_NUMBER }}
+          ENFORCE_APP_INSTALL: ${{ steps.validate_deflake_input.outputs.enforceAppInstall }}
+          TESTINY_RUN_NAME: ${{ steps.validate_deflake_input.outputs.effectiveTestinyRunName }}
+          ANDROID_DEVICE_ID: ${{ steps.validate_deflake_input.outputs.androidDeviceId }}
+          ANDROID_DEVICE_GROUP: ${{ inputs.androidDeviceGroup }}
+          RERUN_FAILED_ENABLED: ${{ steps.resolve_deflake_retries.outputs.rerunFailedEnabled }}
+          RERUN_FAILED_COUNT: ${{ steps.resolve_deflake_retries.outputs.rerunFailedCount }}
+        run: make qa-ui-report cmd=prepare-deflake-bundle
+
+      - name: Upload deflake input artifact
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: android-ui-test-deflake-input
+          path: ${{ runner.temp }}/deflake-input-next
+          if-no-files-found: warn
+
+      - name: Remove runtime secrets (before Allure/Pages)
+        if: always()
+        run: make qa-ui-report cmd=remove-runtime-secrets
+
+      - name: Pull Allure results from device(s) (fallback)
+        if: always()
+        env:
+          OUT_DIR: ${{ runner.temp }}/allure-results
+        run: make qa-ui-report cmd=pull-allure-results
+
+      # Publish a fresh Allure report for this manual deflake run only. The
+      # report does not merge results back into the selected previous run.
+      - name: Merge Allure results
+        if: always()
+        env:
+          OUT_DIR: ${{ runner.temp }}/allure-results
+          MERGED_DIR: ${{ runner.temp }}/allure-results-merged
+          REAL_BUILD_NUMBER: ${{ env.REAL_BUILD_NUMBER }}
+          NEW_APK_NAME: ${{ env.NEW_APK_NAME }}
+          INPUT_TAGS: ${{ steps.validate_deflake_input.outputs.tags }}
+        run: make qa-ui-report cmd=merge-allure-results
+
+      - name: Generate Allure HTML report
+        if: always()
+        env:
+          MERGED_DIR: ${{ runner.temp }}/allure-results-merged
+          REPORT_DIR: ${{ runner.temp }}/allure-report
+        run: make qa-ui-report cmd=generate-allure-report
+
+      - name: Checkout GitHub Pages branch
+        if: always()
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: gh-pages
+          path: gh-pages
+          fetch-depth: 1
+          persist-credentials: true
+
+      - name: Publish Allure report to Pages branch
+        id: publish_allure_report
+        if: always()
+        env:
+          REPORT_DIR: ${{ runner.temp }}/allure-report
+          PAGES_DIR: gh-pages/docs/qa-ui-tests
+          PAGES_TITLE: QA Android Critical Flow Tests
+          KEEP_DAYS: "90"
+          INPUT_TAGS: ${{ steps.validate_deflake_input.outputs.tags }}
+          APK_VERSION: ${{ env.REAL_BUILD_NUMBER }}
+          APK_NAME: ${{ env.NEW_APK_NAME }}
+        run: make qa-ui-report cmd=publish-allure-report
+
+      - name: Summarize merged Allure results
+        id: summarize_allure_results
+        if: always()
+        env:
+          MERGED_DIR: ${{ runner.temp }}/allure-results-merged
+        run: make qa-ui-report cmd=summarize-allure-results
+
+      - name: Build Wire notification body
+        id: build_wire_notification
+        if: always()
+        env:
+          REPORT_TITLE: android critical flows manual deflake
+          EVENT_NAME: ${{ github.event_name }}
+          BRANCH_NAME: ${{ github.ref_name }}
+          RUN_NUMBER: ${{ github.run_number }}
+          RESOLVED_TAGS: ${{ steps.validate_deflake_input.outputs.tags }}
+          APK_NAME: ${{ env.NEW_APK_NAME }}
+          ALLURE_REPORT_URL: ${{ steps.publish_allure_report.outputs.allure_report_url }}
+          TESTS_PASSED: ${{ steps.summarize_allure_results.outputs.passed }}
+          TESTS_FAILED: ${{ steps.summarize_allure_results.outputs.failed }}
+          TESTS_SKIPPED: ${{ steps.summarize_allure_results.outputs.skipped }}
+          TESTS_TOTAL: ${{ steps.summarize_allure_results.outputs.total }}
+          TESTS_SUCCESS_PERCENT: ${{ steps.summarize_allure_results.outputs.success_percent }}
+          PASSED_ON_RERUN_COUNT: ${{ env.PASSED_ON_RERUN_COUNT }}
+          JOB_STATUS: ${{ job.status }}
+        run: python3 scripts/qa/android-ui/build_wire_notification.py
+
+      - name: Notify Wire
+        if: ${{ success() || failure() }}
+        uses: ./.github/actions/report-to-wire
+        with:
+          webhook-url: ${{ secrets.WIRE_QA_AUTOMATION_CHANNEL_URL }}
+          webhook-token: ${{ secrets.WIRE_QA_AUTOMATION_CHANNEL_TOKEN }}
+          body: ${{ steps.build_wire_notification.outputs.body }}
+
       - name: Cleanup (remove secrets + build outputs)
         if: always()
         env:

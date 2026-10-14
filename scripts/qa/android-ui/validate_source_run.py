@@ -13,7 +13,6 @@ from typing import Any
 
 ALLOWED_WORKFLOW_FILES = {
     ".github/workflows/qa-android-critical-flow-tests.yml",
-    ".github/workflows/qa-android-ui-test-manual-deflake.yml",
 }
 ALLOWED_CONCLUSIONS = {"success", "failure"}
 

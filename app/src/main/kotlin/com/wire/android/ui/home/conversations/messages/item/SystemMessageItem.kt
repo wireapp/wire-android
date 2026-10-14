@@ -499,7 +499,7 @@ private fun SystemMessage.buildContent(isWireCellsEnabled: Boolean) = when (this
     }
 
     is SystemMessage.LegalHold -> buildContent(
-        iconResId = R.drawable.ic_legal_hold,
+        iconResId = commonR.drawable.ic_legal_hold,
         iconTintColor = MaterialTheme.wireColorScheme.error,
         learnMorePage = SupportPage.LEGAL_HOLD,
     ) {

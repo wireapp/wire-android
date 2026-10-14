@@ -1,0 +1,71 @@
+name: "Release beta"
+run-name: "Release beta from ${{ inputs.commit || github.sha }}"
+
+on:
+  workflow_dispatch:
+    inputs:
+      commit:
+        description: "Commit SHA on develop. Leave blank to use the selected develop commit."
+        required: false
+        type: string
+      beta-number:
+        description: "Beta number, such as 1. Leave blank to choose the next number."
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: create-beta-tag
+  cancel-in-progress: false
+  queue: max
+
+jobs:
+  create-tag:
+    name: Create beta tag
+    if: github.ref == 'refs/heads/develop'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # create an annotated beta tag
+      actions: write # dispatch the build at the created tag
+    steps:
+      - name: Checkout
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+
+      - name: Create tag and start beta build
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPOSITORY: ${{ github.repository }}
+          SOURCE_COMMIT: ${{ inputs.commit || github.sha }}
+          BETA_NUMBER: ${{ inputs.beta-number }}
+        run: |
+          if [[ ! "$SOURCE_COMMIT" =~ ^[0-9a-fA-F]{7,40}$ ]]; then
+            echo "Commit must be a Git commit SHA on develop"
+            exit 1
+          fi
+          commit=$(git rev-parse --verify "${SOURCE_COMMIT}^{commit}")
+          git merge-base --is-ancestor "$commit" origin/develop
+          version=$(git show "$commit:build-logic/plugins/src/main/kotlin/AndroidCoordinates.kt" | sed -nE 's/^[[:space:]]*const val versionName = "([^"]+)".*/\1/p')
+          if [[ -z "$BETA_NUMBER" ]]; then
+            previous=$(git tag --list "v${version}-beta.*" | sed -nE 's/.*-beta\.([1-9][0-9]*)$/\1/p' | sort -n | tail -n1)
+            BETA_NUMBER=$(( ${previous:-0} + 1 ))
+          fi
+          if [[ ! "$BETA_NUMBER" =~ ^[1-9][0-9]*$ || -z "$version" ]]; then
+            echo "Expected an app version and a positive beta number without leading zeros"
+            exit 1
+          fi
+          tag="v${version}-beta.${BETA_NUMBER}"
+          if git show-ref --verify --quiet "refs/tags/$tag"; then
+            echo "$tag already exists. Choose another beta number."
+            exit 1
+          fi
+          tag_sha=$(gh api "repos/$REPOSITORY/git/tags" \
+            -f tag="$tag" -f message="Beta $tag" -f object="$commit" -f type=commit --jq '.sha')
+          gh api "repos/$REPOSITORY/git/refs" -f ref="refs/tags/$tag" -f sha="$tag_sha"
+          # Tags created with GITHUB_TOKEN do not trigger push workflows.
+          gh workflow run build-beta.yml --repo "$REPOSITORY" --ref "$tag"
+          echo "Started beta release $tag from $commit" >> "$GITHUB_STEP_SUMMARY"

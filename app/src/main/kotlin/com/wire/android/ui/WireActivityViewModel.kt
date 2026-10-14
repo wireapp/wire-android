@@ -38,6 +38,7 @@ import com.wire.android.di.ObserveSelfUserUseCaseProvider
 import com.wire.android.di.ObserveSyncStateUseCaseProvider
 import com.wire.android.emm.ManagedConfigurationsManager
 import com.wire.android.feature.AccountSwitchUseCase
+import com.wire.android.feature.StartupAccountLimitGate
 import com.wire.android.feature.SwitchAccountActions
 import com.wire.android.feature.SwitchAccountParam
 import com.wire.android.feature.SwitchAccountResult
@@ -155,6 +156,7 @@ class WireActivityViewModel @Inject constructor(
     private val nomadProfilesFeatureConfig: NomadProfilesFeatureConfig,
     private val loginTypeSelector: LoginTypeSelector,
     private val doesValidNomadAccountExist: Lazy<DoesValidNomadAccountExistUseCase>,
+    private val startupAccountLimitGate: StartupAccountLimitGate,
 ) : ActionsViewModel<WireActivityViewAction>() {
 
     var globalAppState: GlobalAppState by mutableStateOf(GlobalAppState())
@@ -344,7 +346,7 @@ class WireActivityViewModel @Inject constructor(
         }
     }
 
-    suspend fun initialStartupSnapshot(): InitialStartupSnapshot = withContext(dispatchers.io()) {
+    suspend fun initialStartupSnapshot(taskId: Int): InitialStartupSnapshot = withContext(dispatchers.io()) {
         initValidSessionsFlowIfNeeded()
         val currentValidUserId = resolveInitialCurrentUserId()
         val initialAppState = when {
@@ -352,9 +354,21 @@ class WireActivityViewModel @Inject constructor(
             shouldEnrollToE2ei(currentValidUserId) -> InitialAppState.EnrollE2EI(currentValidUserId)
             else -> InitialAppState.LoggedIn
         }
+        val accounts = validSessions.value
+        val showAccountLimitDialog = startupAccountLimitGate.shouldShow(
+            accounts = accounts,
+            currentUserId = currentValidUserId,
+            maxAccounts = BuildConfig.MAX_ACCOUNTS,
+            taskId = taskId,
+        )
         withContext(dispatchers.main()) {
             globalAppState = globalAppState.copy(
                 currentUserId = currentValidUserId,
+                startupAccountLimitExcessAccounts = if (showAccountLimitDialog) {
+                    accounts.count { it is AccountInfo.Valid } - BuildConfig.MAX_ACCOUNTS
+                } else {
+                    globalAppState.startupAccountLimitExcessAccounts
+                },
                 isSessionTransitionInProgress = false,
                 sessionTransitionReason = null,
             )
@@ -365,7 +379,7 @@ class WireActivityViewModel @Inject constructor(
         )
     }
 
-    suspend fun initialAppState(): InitialAppState = initialStartupSnapshot().initialAppState
+    suspend fun initialAppState(taskId: Int): InitialAppState = initialStartupSnapshot(taskId).initialAppState
 
     private suspend fun handleInvalidSession(userId: UserId, logoutReason: LogoutReason) {
         when (logoutReason) {
@@ -870,6 +884,10 @@ class WireActivityViewModel @Inject constructor(
         )
     }
 
+    fun dismissStartupAccountLimitDialog() {
+        globalAppState = globalAppState.copy(startupAccountLimitExcessAccounts = null)
+    }
+
     fun dismissMaxAccountDialog() {
         globalAppState = globalAppState.copy(maxAccountDialog = false)
     }
@@ -1006,6 +1024,7 @@ data class GlobalAppState(
     val confirmedSessionGeneration: Long = 0,
     val customBackendDialog: CustomServerDialogState? = null,
     val maxAccountDialog: Boolean = false,
+    val startupAccountLimitExcessAccounts: Int? = null,
     val crossBackendLoginBlockedDialog: Boolean = false,
     val blockUserUI: CurrentSessionErrorState? = null,
     val updateAppDialog: Boolean = false,

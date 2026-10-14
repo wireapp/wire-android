@@ -97,7 +97,7 @@ internal fun ConversationFilesRouteScreen(
     val isOnlineState by viewModel.isOnline.collectAsState()
     // When offline files are disabled, never enter offline mode so all offline UI stays hidden.
     val isOnline = isOnlineState || !viewModel.offlineFilesEnabled
-    val uploadStatusViewModel = uploadStatusViewModel()
+    val uploadStatusViewModel = uploadStatusViewModel(viewModel.currentNodeUuid()?.substringBefore("/"))
     val uploads by uploadStatusViewModel.uploads.collectAsState()
     val uploadConfirmation by viewModel.uploadConfirmation.collectAsState()
 
@@ -133,7 +133,7 @@ internal fun ConversationFilesRouteScreen(
         onSortByClicked = viewModel::setSortBy,
         onSortOrderClicked = viewModel::setSorting,
         showViewerAccessBanner = viewModel.showViewerAccessBanner.collectAsState().value,
-        drivePermissionsEnabled = viewModel.drivePermissionsEnabled,
+        isSelfUserViewerOnly = viewModel.isSelfUserViewerOnly.collectAsState().value,
         driveDirectUploadEnabled = viewModel.driveDirectUploadEnabled,
         onViewerAccessBannerCloseClick = viewModel::onViewerAccessBannerDismissed,
     )
@@ -170,7 +170,7 @@ internal fun ConversationFilesScreenContent(
     onSortByClicked: (SortBy) -> Unit = {},
     onSortOrderClicked: (SortingCriteria) -> Unit = {},
     showViewerAccessBanner: Boolean = false,
-    drivePermissionsEnabled: Boolean = false,
+    isSelfUserViewerOnly: Boolean = false,
     driveDirectUploadEnabled: Boolean = false,
     onViewerAccessBannerCloseClick: () -> Unit = {},
     uploads: List<CellUploadItem> = emptyList(),
@@ -191,6 +191,12 @@ internal fun ConversationFilesScreenContent(
     val fileTypeBottomSheetState = rememberWireModalSheetState<Unit>()
     val optionsBottomSheetState = rememberWireModalSheetState<Unit>()
 
+    LaunchedEffect(uploads) {
+        if (uploads.isEmpty() && uploadStatusSheetState.isVisible) {
+            uploadStatusSheetState.hide()
+        }
+    }
+
     val uploadFilesFlow = rememberChooseMultipleFilesFlow(
         onFileBrowserItemPicked = { uris ->
             sendIntent(CellViewIntent.OnFilesPickedForUpload(uris))
@@ -200,7 +206,7 @@ internal fun ConversationFilesScreenContent(
     )
 
     val isFabVisible = when {
-        showViewerAccessBanner && drivePermissionsEnabled -> false
+        isSelfUserViewerOnly -> false
         pagingListItems.isLoading() -> false
         pagingListItems.isError() -> false
         isRecycleBin -> false
@@ -302,7 +308,7 @@ internal fun ConversationFilesScreenContent(
                             val shouldShowActionIcon =
                                 !isRecycleBin &&
                                         isOnline &&
-                                        (!drivePermissionsEnabled || !showViewerAccessBanner)
+                                        !isSelfUserViewerOnly
                             if (shouldShowActionIcon) {
                                 MoreOptionIcon(
                                     contentDescription = R.string.content_description_conversation_files_more_button,

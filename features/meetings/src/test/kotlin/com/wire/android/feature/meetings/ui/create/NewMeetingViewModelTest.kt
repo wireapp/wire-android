@@ -26,6 +26,7 @@ import com.wire.android.feature.meetings.model.MeetingItem
 import com.wire.android.framework.TestUser
 import com.wire.android.mapper.ContactMapper
 import com.wire.android.model.Contact
+import com.wire.android.search.groups.SearchGroup
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.util.CurrentTimeProvider
 import com.wire.android.util.time.CurrentTimeZoneProvider
@@ -51,6 +52,7 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
+import kotlin.time.Duration.Companion.hours
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
@@ -73,7 +75,6 @@ import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import kotlin.time.Duration.Companion.hours
 
 @Suppress("LargeClass")
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -129,6 +130,94 @@ class NewMeetingViewModelTest {
 
         viewModel.resetSelectedContacts()
         assertEquals(setOf(contact, otherContact), viewModel.state.selectedContacts.toSet())
+    }
+
+    @Test
+    fun givenOverlappingGroups_whenOneIsRemoved_thenMembersFromTheOtherRemain() = runTest(dispatcher) {
+        val (_, viewModel) = arrangeViewModel()
+        val shared = contact("shared")
+        val firstOnly = contact("first-only")
+        val firstGroup = SearchGroup(ConversationId("first", "wire.com"), "First", setOf(shared, firstOnly))
+        val secondGroup = SearchGroup(ConversationId("second", "wire.com"), "Second", setOf(shared))
+
+        viewModel.updateSelectedGroup(true, firstGroup)
+        viewModel.updateSelectedGroup(true, secondGroup)
+        viewModel.updateSelectedGroup(false, firstGroup)
+
+        assertEquals(setOf(shared), viewModel.state.selectedContacts.toSet())
+        assertEquals(setOf(secondGroup), viewModel.state.selectedGroups.toSet())
+
+        viewModel.confirmSelectedContacts()
+        viewModel.updateSelectedGroup(false, secondGroup)
+        viewModel.resetSelectedContacts()
+
+        assertEquals(setOf(shared), viewModel.state.selectedContacts.toSet())
+        assertEquals(setOf(secondGroup), viewModel.state.selectedGroups.toSet())
+    }
+
+    @Test
+    fun givenIndividualAndGroupSelection_whenResetAndGroupRemoved_thenIndividualSelectionRemains() = runTest(dispatcher) {
+        val (_, viewModel) = arrangeViewModel()
+        val contact = contact("shared")
+        val group = SearchGroup(ConversationId("group", "wire.com"), "Group", setOf(contact))
+
+        viewModel.updateSelectedContact(true, contact)
+        viewModel.updateSelectedGroup(true, group)
+        viewModel.confirmSelectedContacts()
+        viewModel.updateSelectedContact(false, contact)
+        viewModel.updateSelectedGroup(false, group)
+        viewModel.resetSelectedContacts()
+        viewModel.updateSelectedGroup(false, group)
+
+        assertEquals(setOf(contact), viewModel.state.selectedContacts.toSet())
+        assertEquals(setOf(contact), viewModel.state.selectedIndividualContacts.toSet())
+        assertEquals(emptySet<SearchGroup>(), viewModel.state.selectedGroups.toSet())
+    }
+
+    @Test
+    fun givenOverlappingSelectedGroups_whenMemberIsDeselected_thenOthersRemainAsIndividualSelections() = runTest(dispatcher) {
+        val (_, viewModel) = arrangeViewModel()
+        val shared = contact("shared")
+        val firstOnly = contact("first-only")
+        val secondOnly = contact("second-only")
+        val unrelated = contact("unrelated")
+        val individual = contact("individual")
+        val firstGroup = SearchGroup(ConversationId("first", "wire.com"), "First", setOf(shared, firstOnly))
+        val secondGroup = SearchGroup(ConversationId("second", "wire.com"), "Second", setOf(shared, secondOnly))
+        val unrelatedGroup = SearchGroup(ConversationId("unrelated", "wire.com"), "Unrelated", setOf(unrelated))
+        viewModel.updateSelectedContact(true, individual)
+        viewModel.updateSelectedContact(true, shared)
+        listOf(firstGroup, secondGroup, unrelatedGroup).forEach { viewModel.updateSelectedGroup(true, it) }
+
+        // The picker may hold newer contact details for the same person.
+        viewModel.updateSelectedContact(false, shared.copy(name = "Updated name"))
+
+        assertEquals(setOf(individual, firstOnly, secondOnly, unrelated), viewModel.state.selectedContacts.toSet())
+        assertEquals(setOf(individual, firstOnly, secondOnly), viewModel.state.selectedIndividualContacts.toSet())
+        assertEquals(setOf(unrelatedGroup), viewModel.state.selectedGroups.toSet())
+    }
+
+    @Test
+    fun givenGroupMemberDeselected_whenSelectionIsResetOrConfirmed_thenGroupAndContactsFollowTheConfirmation() = runTest(dispatcher) {
+        val (_, viewModel) = arrangeViewModel()
+        val removed = contact("removed")
+        val remaining = contact("remaining")
+        val group = SearchGroup(ConversationId("group", "wire.com"), "Group", setOf(removed, remaining))
+        viewModel.updateSelectedGroup(true, group)
+        viewModel.confirmSelectedContacts()
+
+        viewModel.updateSelectedContact(false, removed)
+        viewModel.resetSelectedContacts()
+        assertEquals(setOf(group), viewModel.state.selectedGroups.toSet())
+        assertEquals(setOf(removed, remaining), viewModel.state.selectedContacts.toSet())
+
+        viewModel.updateSelectedContact(false, removed)
+        viewModel.confirmSelectedContacts()
+        viewModel.updateSelectedGroup(true, group)
+        viewModel.resetSelectedContacts()
+        assertEquals(emptySet<SearchGroup>(), viewModel.state.selectedGroups.toSet())
+        assertEquals(setOf(remaining), viewModel.state.selectedContacts.toSet())
+        assertEquals(setOf(remaining), viewModel.state.confirmedContacts.toSet())
     }
 
     @Test
@@ -291,12 +380,14 @@ class NewMeetingViewModelTest {
     }
 
     @Test
-    fun givenMeetNowTypeWithValidData_whenSubmitCreationIsCalled_thenMeetingIsCreatedAndSuccessActionIsSent() = runTest(dispatcher) {
+    fun givenMeetNowTypeWithValidData_whenSubmitCreationIsCalled_thenSuccessRequestsCallInCreatedConversation() = runTest(dispatcher) {
         val currentTime = Instant.parse("2026-01-01T12:00:00Z")
+        val createdConversationId = ConversationId("created-meet-now-conversation", "domain")
         val (arrangement, viewModel) = arrangeViewModel(
             Arrangement(dispatcher)
+                .withNewMeetingType(NewMeetingType.MeetNow)
                 .withCurrentTimeProvider { currentTime }
-                .withCreateMeetingResult(CreateNewMeetingUseCase.Result.Success)
+                .withCreateMeetingResult(CreateNewMeetingUseCase.Result.Success(createdConversationId))
         )
 
         enterTitle(viewModel, "  Quick sync  ")
@@ -321,25 +412,28 @@ class NewMeetingViewModelTest {
             assertEquals(currentTime + 1.hours, viewModel.state.endTime)
             assertFalse(viewModel.state.isSubmitting)
             assertNull(viewModel.state.submitError)
-            assertEquals(NewMeetingViewActions.Success, awaitItem())
-            cancelAndConsumeRemainingEvents()
+            assertEquals(NewMeetingViewActions.Success(conversationIdToStartACall = createdConversationId), awaitItem())
+            expectNoEvents()
         }
     }
 
     @Test
-    fun givenScheduleTypeWithValidData_whenSubmitCreationIsCalled_thenMeetingIsCreatedAndSuccessActionIsSent() = runTest(dispatcher) {
+    fun givenScheduleTypeWithValidData_whenSubmitCreationIsCalled_thenSuccessDoesNotRequestCall() = runTest(dispatcher) {
         val currentTime = Instant.parse("2026-01-01T12:00:00Z")
         val createMeeting = UPSERT_MEETING.copy(startTime = currentTime + 2.hours, endTime = currentTime + 3.hours)
         val (arrangement, viewModel) = arrangeViewModel(
             Arrangement(dispatcher)
                 .withNewMeetingType(NewMeetingType.Schedule)
                 .withCurrentTimeProvider { currentTime }
-                .withCreateMeetingResult(CreateNewMeetingUseCase.Result.Success)
+                .withCreateMeetingResult(CreateNewMeetingUseCase.Result.Success(ConversationId("conversation-id", "domain")))
         )
         enterTitle(viewModel, createMeeting.title)
         viewModel.updateStartTime(createMeeting.startTime)
         viewModel.updateEndTime(createMeeting.endTime)
-        viewModel.updateSelectedContact(selected = true, contact = CONTACT)
+        val removed = contact("removed")
+        val group = SearchGroup(ConversationId("group", "wire.com"), "Group", setOf(CONTACT, removed))
+        viewModel.updateSelectedGroup(true, group)
+        viewModel.updateSelectedContact(false, removed)
         viewModel.confirmSelectedContacts()
         viewModel.updateRepeatingInterval(createMeeting.recurrence?.toRepeatingInterval())
 
@@ -349,8 +443,8 @@ class NewMeetingViewModelTest {
             coVerify(exactly = 1) { arrangement.createNewMeeting(createMeeting) }
             assertFalse(viewModel.state.isSubmitting)
             assertNull(viewModel.state.submitError)
-            assertEquals(NewMeetingViewActions.Success, awaitItem())
-            cancelAndConsumeRemainingEvents()
+            assertEquals(NewMeetingViewActions.Success(conversationIdToStartACall = null), awaitItem())
+            expectNoEvents()
         }
     }
 
@@ -412,7 +506,7 @@ class NewMeetingViewModelTest {
             coVerify(exactly = 1) { arrangement.updateMeeting(editType.id, createMeeting) }
             assertFalse(viewModel.state.isSubmitting)
             assertNull(viewModel.state.submitError)
-            assertEquals(NewMeetingViewActions.Success, awaitItem())
+            assertEquals(NewMeetingViewActions.Success(), awaitItem())
             cancelAndConsumeRemainingEvents()
         }
     }
@@ -462,7 +556,7 @@ class NewMeetingViewModelTest {
                 assertNull(viewModel.state.endTimeError)
                 assertFalse(viewModel.state.isSubmitting)
                 assertNull(viewModel.state.submitError)
-                assertEquals(NewMeetingViewActions.Success, awaitItem())
+                assertEquals(NewMeetingViewActions.Success(), awaitItem())
                 cancelAndConsumeRemainingEvents()
             }
         }
@@ -604,7 +698,7 @@ class NewMeetingViewModelTest {
                 )
             }
             assertNull(viewModel.state.submitError)
-            assertEquals(NewMeetingViewActions.Success, awaitItem())
+            assertEquals(NewMeetingViewActions.Success(), awaitItem())
             cancelAndConsumeRemainingEvents()
         }
     }
@@ -789,7 +883,7 @@ class NewMeetingViewModelTest {
                 .withNewMeetingType(NewMeetingType.Schedule)
                 .withCurrentTimeProvider { currentTime }
                 .withCurrentTimeZone(localTimeZoneID)
-                .withCreateMeetingResult(CreateNewMeetingUseCase.Result.Success)
+                .withCreateMeetingResult(CreateNewMeetingUseCase.Result.Success(ConversationId("conversation-id", "domain")))
         )
         enterTitle(viewModel, createMeeting.title)
         viewModel.updateStartTime(createMeeting.startTime)
@@ -800,7 +894,7 @@ class NewMeetingViewModelTest {
             advanceUntilIdle()
 
             coVerify(exactly = 1) { arrangement.createNewMeeting(createMeeting) }
-            assertEquals(NewMeetingViewActions.Success, awaitItem())
+            assertEquals(NewMeetingViewActions.Success(), awaitItem())
             cancelAndConsumeRemainingEvents()
         }
     }
@@ -857,7 +951,7 @@ class NewMeetingViewModelTest {
                 advanceUntilIdle()
 
                 coVerify(exactly = 1) { arrangement.updateMeeting(editType.id, updateMeeting) }
-                assertEquals(NewMeetingViewActions.Success, awaitItem())
+                assertEquals(NewMeetingViewActions.Success(), awaitItem())
                 cancelAndConsumeRemainingEvents()
             }
         }
@@ -893,7 +987,7 @@ class NewMeetingViewModelTest {
                 advanceUntilIdle()
 
                 coVerify(exactly = 1) { arrangement.updateMeeting(editType.id, updateMeeting) }
-                assertEquals(NewMeetingViewActions.Success, awaitItem())
+                assertEquals(NewMeetingViewActions.Success(), awaitItem())
                 cancelAndConsumeRemainingEvents()
             }
         }
@@ -929,7 +1023,7 @@ class NewMeetingViewModelTest {
                 advanceUntilIdle()
 
                 coVerify(exactly = 1) { arrangement.updateMeeting(editType.id, updateMeeting) }
-                assertEquals(NewMeetingViewActions.Success, awaitItem())
+                assertEquals(NewMeetingViewActions.Success(), awaitItem())
                 cancelAndConsumeRemainingEvents()
             }
         }

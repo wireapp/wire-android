@@ -129,12 +129,12 @@ abstract class BaseUiTest : KoinTest {
     ) {
         // Removes backend clients/devices only. This does not delete the user.
         clientUserManager.createdUsers.forEach { user ->
-            cleanupBackendClient(backendClient, user)
+            runCatching { cleanupBackendClient(backendForCleanup(user, backendClient), user) }
         }
 
         // Deletes tracked teams. Deleting a team also removes its members on the backend.
         clientUserManager.getAllTeamOwners().forEach { owner ->
-            runCatching { owner.deleteTeam(backendClient) }
+            runCatching { owner.deleteTeam(backendForCleanup(owner, backendClient)) }
         }
 
         if (deletePersonalUsers) {
@@ -142,10 +142,16 @@ abstract class BaseUiTest : KoinTest {
             clientUserManager.createdUsers
                 .filter { it.teamId.isNullOrBlank() }
                 .forEach { user ->
-                    runCatching { user.deleteUser(backendClient) }
+                    runCatching { user.deleteUser(backendForCleanup(user, backendClient)) }
                 }
         }
     }
+
+    private fun backendForCleanup(user: ClientUser, fallbackBackend: BackendClient): BackendClient =
+        user.backendName
+            ?.takeIf { it.isNotBlank() }
+            ?.let { BackendClient.loadBackend(it) }
+            ?: fallbackBackend
 
     /**
      * Shared UI test helper wiring.

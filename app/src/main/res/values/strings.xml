@@ -1095,6 +1095,7 @@
         <item quantity="other">Uploading %1$d files</item>
     </plurals>
     <string name="notification_drive_upload_progress_text">%1$d of %2$d completed</string>
+    <string name="notification_drive_upload_title_with_conversation">%1$s • %2$s</string>
     <string name="notification_drive_upload_complete_title">Upload complete</string>
     <plurals name="notification_drive_upload_complete_text">
         <item quantity="one">%1$d file uploaded</item>
@@ -1997,4 +1998,26 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="notification_meeting_update_short">Meeting updated</string>
     <string name="notification_meeting_cancel">%1$s canceled this meeting</string>
     <string name="notification_meeting_cancel_short">Meeting canceled</string>
+    <string name="notification_meeting_starting_at">Starting at %1$s</string>
+    <string name="meeting_reminder_exact_alarm_title">Enable precise meeting reminders</string>
+    <string name="meeting_reminder_exact_alarm_description">Allow alarms and reminders for Wire in device settings to receive meeting reminders on time.</string>
+    <string name="meeting_reminder_exact_alarm_settings">Open settings</string>
+    <plurals name="startup_account_limit_title">
+        <item quantity="one">Remove an account</item>
+        <item quantity="other">Remove %1$d accounts</item>
+    </plurals>
+    <plurals name="startup_account_limit_message_one_allowed">
+        <item quantity="one">You can only use one account at once on this device. Log out of this account or select Later to log out of the other account.\nCreate a backup to preserve your conversation history.</item>
+        <item quantity="other">You can only use one account at once on this device. Log out of this account or select Later to log out of the other accounts.\nCreate a backup to preserve your conversation history.</item>
+    </plurals>
+    <plurals name="startup_account_limit_message_two_allowed">
+        <item quantity="one">You can only use two accounts at once on this device. Log out of this account or select Later to log out of the other account.\nCreate a backup to preserve your conversation history.</item>
+        <item quantity="other">You can only use two accounts at once on this device. Log out of this account or select Later to log out of the other accounts.\nCreate a backup to preserve your conversation history.</item>
+    </plurals>
+    <plurals name="startup_account_limit_message_other_allowed">
+        <item quantity="one">You can only use %1$d accounts at once on this device. Log out of this account or select Later to log out of the other account.\nCreate a backup to preserve your conversation history.</item>
+        <item quantity="other">You can only use %1$d accounts at once on this device. Log out of this account or select Later to log out of the other accounts.\nCreate a backup to preserve your conversation history.</item>
+    </plurals>
+    <string name="startup_account_limit_logout">Log out of this account</string>
+    <string name="startup_account_limit_later">Later</string>
 </resources>

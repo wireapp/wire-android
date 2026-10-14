@@ -49,23 +49,26 @@ class DriveUploadActionReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         context.wireApplicationGraph.inject(this)
         val userId = intent.getStringExtra(EXTRA_USER_ID)?.toQualifiedID(qualifiedIdMapper) ?: return
+        val conversationId = intent.getStringExtra(EXTRA_CONVERSATION_ID) ?: return
         val uploadCoordinator = coreLogic.getSessionScope(userId).cells.uploadCoordinator
 
         when (intent.getStringExtra(EXTRA_ACTION)) {
-            ACTION_CANCEL_ALL -> uploadCoordinator.cancelAll()
-            ACTION_RETRY_FAILED -> uploadCoordinator.retryAllFailed()
+            ACTION_CANCEL_ALL -> uploadCoordinator.cancelAll(conversationId)
+            ACTION_RETRY_FAILED -> uploadCoordinator.retryAllFailed(conversationId)
         }
     }
 
     companion object {
         private const val EXTRA_USER_ID = "user_id_extra"
+        private const val EXTRA_CONVERSATION_ID = "conversation_id_extra"
         private const val EXTRA_ACTION = "action_extra"
         const val ACTION_CANCEL_ALL = "cancel_all"
         const val ACTION_RETRY_FAILED = "retry_failed"
 
-        fun newIntent(context: Context, userId: String, action: String): Intent =
+        fun newIntent(context: Context, userId: String, conversationId: String, action: String): Intent =
             Intent(context, DriveUploadActionReceiver::class.java).apply {
                 putExtra(EXTRA_USER_ID, userId)
+                putExtra(EXTRA_CONVERSATION_ID, conversationId)
                 putExtra(EXTRA_ACTION, action)
             }
     }

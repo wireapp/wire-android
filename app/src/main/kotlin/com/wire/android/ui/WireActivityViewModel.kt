@@ -354,15 +354,21 @@ class WireActivityViewModel @Inject constructor(
             shouldEnrollToE2ei(currentValidUserId) -> InitialAppState.EnrollE2EI(currentValidUserId)
             else -> InitialAppState.LoggedIn
         }
+        val accounts = validSessions.value
+        val showAccountLimitDialog = startupAccountLimitGate.shouldShow(
+            accounts = accounts,
+            currentUserId = currentValidUserId,
+            maxAccounts = BuildConfig.MAX_ACCOUNTS,
+            taskId = taskId,
+        )
         withContext(dispatchers.main()) {
             globalAppState = globalAppState.copy(
                 currentUserId = currentValidUserId,
-                startupAccountLimitDialog = globalAppState.startupAccountLimitDialog || startupAccountLimitGate.shouldShow(
-                    accounts = validSessions.value,
-                    currentUserId = currentValidUserId,
-                    maxAccounts = BuildConfig.MAX_ACCOUNTS,
-                    taskId = taskId,
-                ),
+                startupAccountLimitExcessAccounts = if (showAccountLimitDialog) {
+                    accounts.count { it is AccountInfo.Valid } - BuildConfig.MAX_ACCOUNTS
+                } else {
+                    globalAppState.startupAccountLimitExcessAccounts
+                },
                 isSessionTransitionInProgress = false,
                 sessionTransitionReason = null,
             )
@@ -879,7 +885,7 @@ class WireActivityViewModel @Inject constructor(
     }
 
     fun dismissStartupAccountLimitDialog() {
-        globalAppState = globalAppState.copy(startupAccountLimitDialog = false)
+        globalAppState = globalAppState.copy(startupAccountLimitExcessAccounts = null)
     }
 
     fun dismissMaxAccountDialog() {
@@ -1018,7 +1024,7 @@ data class GlobalAppState(
     val confirmedSessionGeneration: Long = 0,
     val customBackendDialog: CustomServerDialogState? = null,
     val maxAccountDialog: Boolean = false,
-    val startupAccountLimitDialog: Boolean = false,
+    val startupAccountLimitExcessAccounts: Int? = null,
     val crossBackendLoginBlockedDialog: Boolean = false,
     val blockUserUI: CurrentSessionErrorState? = null,
     val updateAppDialog: Boolean = false,

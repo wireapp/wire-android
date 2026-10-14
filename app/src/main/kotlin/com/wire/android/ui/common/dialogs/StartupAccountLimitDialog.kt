@@ -18,19 +18,27 @@ import com.wire.android.R
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
-import com.wire.android.ui.theme.WireTheme
-import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.ui.common.visbility.rememberVisibilityState
+import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.userprofile.self.dialog.LogoutOptionsDialog
 import com.wire.android.ui.userprofile.self.dialog.LogoutOptionsDialogState
+import com.wire.android.util.ui.PreviewMultipleThemes
 
 @Composable
-fun StartupAccountLimitDialog(onLogout: () -> Unit, onDismiss: () -> Unit, maxAccounts: Int = BuildConfig.MAX_ACCOUNTS) {
+fun StartupAccountLimitDialog(
+    onLogout: () -> Unit,
+    onDismiss: () -> Unit,
+    excessAccounts: Int,
+    maxAccounts: Int = BuildConfig.MAX_ACCOUNTS,
+) {
+    val message = when (maxAccounts) {
+        1 -> pluralStringResource(R.plurals.startup_account_limit_message_one_allowed, excessAccounts)
+        2 -> pluralStringResource(R.plurals.startup_account_limit_message_two_allowed, excessAccounts)
+        else -> pluralStringResource(R.plurals.startup_account_limit_message_other_allowed, excessAccounts, maxAccounts)
+    }
     WireDialog(
-        title = stringResource(R.string.startup_account_limit_title),
-        text = pluralStringResource(R.plurals.startup_account_limit_message, maxAccounts, maxAccounts) +
-            "\n\n" + stringResource(R.string.startup_account_limit_backup_reminder) +
-            "\n\n" + stringResource(R.string.startup_account_limit_guidance),
+        title = pluralStringResource(R.plurals.startup_account_limit_title, excessAccounts, excessAccounts),
+        text = message,
         onDismiss = onDismiss,
         buttonsHorizontalAlignment = false,
         optionButton1Properties = WireDialogButtonProperties(
@@ -50,20 +58,27 @@ fun StartupAccountLimitDialog(onLogout: () -> Unit, onDismiss: () -> Unit, maxAc
 @Composable
 private fun PreviewStartupAccountLimitDialog() {
     WireTheme {
-        StartupAccountLimitDialog(onLogout = {}, onDismiss = {})
+        StartupAccountLimitDialog(onLogout = {}, onDismiss = {}, excessAccounts = 1)
     }
 }
 
 @Composable
-internal fun StartupAccountLimitDialogFlow(visible: Boolean, onDismiss: () -> Unit, logout: (Boolean) -> Unit) {
+internal fun StartupAccountLimitDialogFlow(
+    excessAccounts: Int?,
+    onDismiss: () -> Unit,
+    logout: (Boolean) -> Unit,
+    maxAccounts: Int = BuildConfig.MAX_ACCOUNTS,
+) {
     val logoutOptionsState = rememberVisibilityState<LogoutOptionsDialogState>()
-    if (visible) {
+    if (excessAccounts != null) {
         StartupAccountLimitDialog(
             onLogout = {
                 onDismiss()
                 logoutOptionsState.show(LogoutOptionsDialogState(shouldWipeData = false))
             },
             onDismiss = onDismiss,
+            excessAccounts = excessAccounts,
+            maxAccounts = maxAccounts,
         )
     }
     LogoutOptionsDialog(dialogState = logoutOptionsState, logout = logout)

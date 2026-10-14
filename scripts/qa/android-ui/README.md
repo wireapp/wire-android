@@ -72,13 +72,34 @@ and manual deflake.
 - Sends both modes to the same Wire conversation with distinct headings:
   `android critical flows` and `android critical flows manual deflake`.
 
+### `qa-android-fdroid-tests.yml`
+
+**QA Android F-Droid Tests** runs nightly at `03:00 UTC`, using the latest
+`fdroid` APK, `@fdroid`, and one additional failed-test retry. Manual runs
+allow custom tags or test IDs; the flavor is always `fdroid` and the only
+supported device group is `GrapheneOS`.
+
+This workflow reuses Critical Flow's execution, retry, deflake, and reporting
+jobs rather than maintaining a second pipeline.
+
+Choose **Deflake failed tests** in this workflow to rerun failures from a
+previous F-Droid run. Leave `sourceRunId` empty to use the latest completed run
+on `develop`, or enter a specific run ID. Source runs must belong to
+`qa-android-fdroid-tests.yml`. If the selected run has no remaining failures or
+its artifact is unavailable, or it was cancelled or timed out, the workflow stops
+rather than choosing an older run.
+Normal and deflake reports share the F-Droid reports page (`qa-fdroid-tests`).
+Wire notifications use the QA automation conversation with headings
+`android fdroid tests` and `android fdroid tests manual deflake`.
+
 ### Deflake Mode
 
 Deflake is an option in **QA Android Critical Flow Tests**, rather than a
 separate workflow. To launch it:
 
 1. Open **Run workflow** on `develop` and choose **Deflake failed tests**.
-2. Enter the previous run's `manual deflake id` into `sourceRunId`.
+2. Leave `sourceRunId` empty for the latest completed Critical Flow run on
+   `develop`, or enter a previous run's `manual deflake id`.
 3. Select the source run's `androidDeviceGroup`.
 4. Leave **Use original run settings** selected for retries, or choose
    **Use settings entered below** and set the existing retry checkbox and count.
@@ -99,8 +120,10 @@ Testiny reporting stays disabled. The normal-run `testinyRunName` input cannot
 override this behavior.
 
 GitHub displays all inputs in both modes, so normal-only fields are labeled
-accordingly and ignored during deflake. `sourceRunId` is optional in the form
-but mandatory in deflake mode. Normal mode rejects a nonempty `sourceRunId`
+accordingly and ignored during deflake. An empty `sourceRunId` selects the
+latest completed run of this workflow, without falling back to older runs if
+the selected run has no remaining failures or its artifact is unavailable.
+Normal mode rejects a nonempty `sourceRunId`
 to avoid accidentally starting normal tests when a deflake was intended.
 
 The retry count means **additional attempts after the first execution**.

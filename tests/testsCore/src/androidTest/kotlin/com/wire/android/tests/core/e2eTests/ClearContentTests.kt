@@ -43,7 +43,7 @@ class ClearContentTests : BaseUiTest() {
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
     @TestCaseId("TC-4271", "TC-4272")
-    @Category("regression", "RC", "groups", "clearContent", "smoke", "smokeSchwarz")
+    @Category("regression", "RC", "groups", "clearContent", "fdroid")
     @Test
     fun givenGroupConversation_whenIClearContentViaGroupDetailsAndConversationList_thenContentIsCleared() {
         step("Given There is a team owner user1Name with team Clearing") {

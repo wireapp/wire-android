@@ -230,11 +230,6 @@ install_apks_on_devices() {
   echo "NEW_APK_DEVICE_PATH=${new_apk_device_path}" >> "$GITHUB_ENV"
   echo "OLD_APK_DEVICE_PATH=${old_apk_device_path}" >> "$GITHUB_ENV"
 
-  local install_flags="-r"
-  if [[ "${ENFORCE_APP_INSTALL:-}" == "true" ]]; then
-    install_flags="-r -d"
-  fi
-
   local packages_to_uninstall="${PACKAGES_TO_UNINSTALL:-}"
   read -ra PACKAGES <<< "${packages_to_uninstall}"
 
@@ -263,7 +258,7 @@ install_apks_on_devices() {
     fi
     # Always install the selected new APK during general setup. The upgrade
     # phase explicitly reinstalls the old device-side APK before instrumentation.
-    ${adb_cmd} install ${install_flags} "${NEW_APK_PATH}"
+    ${adb_cmd} install -r "${NEW_APK_PATH}"
 
     if ! ${adb_cmd} shell pm list packages | grep -qx "package:${APP_ID}"; then
       echo "ERROR: '${APP_ID}' not installed on ${serial}."

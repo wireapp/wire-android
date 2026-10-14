@@ -23,7 +23,6 @@ import com.wire.android.tests.core.BaseUiTest
 import com.wire.android.tests.support.UiAutomatorSetup
 import com.wire.android.tests.support.tags.Category
 import com.wire.android.tests.support.tags.TestCaseId
-import org.junit.Assert.fail
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -229,8 +228,6 @@ class GroupMessaging : BaseUiTest() {
         step("Verify group conversation is no longer visible in conversation list") {
             pages.conversationListPage.apply {
                 assertConversationNotVisible("MyTeam")
-                // Intentional failure for testing manual deflake; remove after validation.
-                fail("Intentional failure for testing manual deflake.")
             }
         }
     }

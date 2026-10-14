@@ -93,7 +93,6 @@ metadata = {
     "new_apk_name": env("NEW_APK_NAME"),
     "is_upgrade": env_bool("IS_UPGRADE"),
     "old_build_number": env("OLD_BUILD_NUMBER"),
-    "enforce_app_install": env_bool("ENFORCE_APP_INSTALL"),
     "testiny_run_name": env("TESTINY_RUN_NAME"),
     "android_device_id": android_device_id,
     "android_device_group": android_device_group,

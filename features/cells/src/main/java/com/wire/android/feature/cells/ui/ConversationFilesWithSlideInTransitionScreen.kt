@@ -79,6 +79,7 @@ internal fun ConversationFilesSlideRouteScreen(
         onRetryUpload = uploadStatusViewModel::retry,
         onRetryAllFailedUploads = uploadStatusViewModel::retryAllFailed,
         onDismissUpload = uploadStatusViewModel::dismiss,
+        onDismissAllUploads = uploadStatusViewModel::dismissAll,
         uploadConfirmation = uploadConfirmation,
         onConfirmUpload = viewModel::confirmUpload,
         onCancelUploadConfirmation = viewModel::cancelUploadConfirmation,

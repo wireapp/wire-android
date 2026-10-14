@@ -31,7 +31,7 @@ import android.os.Parcel
 import android.os.Process
 import android.os.RemoteException
 import android.os.ResultReceiver
-import android.util.Log
+import com.wire.android.appLogger
 import com.wire.android.ui.WireActivity
 import com.wire.android.ui.debug.StartServiceReceiver
 import kotlinx.coroutines.CompletableDeferred
@@ -59,17 +59,14 @@ class RestartService : Service() {
         val ready = intent?.getParcelableExtra<ResultReceiver>(EXTRA_READY)
         val invalidPid = previousPid <= 0 || previousPid == Process.myPid()
         if (ready == null || invalidPid || previousProcess == null) {
-            Log.w(TAG, "Ignoring restart request: missing or invalid process arguments")
             stopSelf(startId)
             return
         }
-        Log.i(TAG, "Preparing restart of main process pid=$previousPid; service pid=${Process.myPid()}")
         // Keep the Binder proxy alive until its death notification is delivered.
         previousProcessToken = previousProcess
         // Binder death confirms the old process is gone before asking Android to recreate it.
         val onDeath = IBinder.DeathRecipient {
             handler.post {
-                Log.i(TAG, "Main process pid=$previousPid death confirmed")
                 restoreServices()
             }
         }
@@ -80,14 +77,11 @@ class RestartService : Service() {
                 if (!restartRequested) {
                     restartRequested = true
                     reopenApp = data?.getBoolean(EXTRA_REOPEN_APP) == true
-                    Log.i(TAG, "Proceed signal received; terminating main process pid=$previousPid; reopen App=$reopenApp")
                     Process.killProcess(previousPid)
                 }
             }
-            Log.i(TAG, "Process death listener registered; notifying main process that restart service is ready")
             ready.send(0, Bundle().apply { putParcelable(EXTRA_PROCEED, proceed) })
         } catch (_: RemoteException) {
-            Log.i(TAG, "Main process pid=$previousPid already dead; requesting service recovery")
             restoreServices()
         }
     }
@@ -95,11 +89,9 @@ class RestartService : Service() {
     private fun restoreServices() {
         try {
             // The receiver runs in the main process and checks account/MDM settings before starting the socket service.
-            Log.i(TAG, "Requesting persistent WebSocket recovery in the main process; reopen App=$reopenApp")
             sendBroadcast(Intent(this, StartServiceReceiver::class.java).setAction(ACTION_RESTORE_SERVICES))
             if (reopenApp) {
                 try {
-                    Log.i(TAG, "Requesting UI relaunch because Wire was visible before restart")
                     startActivity(
                         Intent(this, WireActivity::class.java).apply {
                             action = Intent.ACTION_MAIN
@@ -107,18 +99,13 @@ class RestartService : Service() {
                             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                         }
                     )
-                } catch (exception: ActivityNotFoundException) {
-                    Log.w(TAG, "UI relaunch failed; service recovery was already requested", exception)
-                } catch (exception: SecurityException) {
+                } catch (_: ActivityNotFoundException) {
+                    // UI relaunch is best-effort; service recovery was already requested.
+                } catch (_: SecurityException) {
                     // Background activity restrictions may reject this best-effort launch.
-                    Log.w(TAG, "UI relaunch failed; service recovery was already requested", exception)
                 }
             }
-        } catch (exception: SecurityException) {
-            Log.e(TAG, "Failed to request service recovery", exception)
-            throw exception
         } finally {
-            Log.i(TAG, "Stopping restart service process pid=${Process.myPid()}")
             stopSelf()
             Process.killProcess(Process.myPid())
         }
@@ -127,13 +114,12 @@ class RestartService : Service() {
     /** A ready helper that can be told to terminate the main process after its cleanup completes. */
     class PreparedRestart internal constructor(private val proceed: ResultReceiver) {
         fun restart(reopenApp: Boolean) {
-            Log.i(TAG, "Signalling restart service to proceed after main-process cleanup")
+            appLogger.i("$TAG: Signalling restart service to proceed after main-process cleanup")
             proceed.send(0, Bundle().apply { putBoolean(EXTRA_REOPEN_APP, reopenApp) })
         }
     }
 
     companion object {
-        // The :restart process skips application logger initialization, so log directly to Logcat.
         private const val TAG = "RestartService"
         private const val EXTRA_REOPEN_APP = "reopen_app"
         private const val EXTRA_PROCEED = "restart_helper_proceed"
@@ -173,10 +159,10 @@ class RestartService : Service() {
                 putBinder(EXTRA_PROCESS, processToken)
             }
             // Called during MY_PACKAGE_REPLACED's temporary background-service allowance.
-            Log.i(TAG, "Starting restart service; waiting up to ${READY_TIMEOUT_MS}ms for readiness")
+            appLogger.i("$TAG: Starting restart service; waiting up to ${READY_TIMEOUT_MS}ms for readiness")
             val intent = Intent(context, RestartService::class.java).putExtras(extras)
             if (context.startService(intent) == null) {
-                Log.w(TAG, "Restart service could not be resolved; skipping restart")
+                appLogger.w("$TAG: Restart service could not be resolved; skipping restart")
                 return null
             }
             val preparedRestart = try {
@@ -185,7 +171,7 @@ class RestartService : Service() {
                 ready.cancel() // Ignore replies delivered after timeout or cancellation.
             }
             if (preparedRestart == null) {
-                Log.w(TAG, "No usable readiness reply within ${READY_TIMEOUT_MS}ms; stopping restart service")
+                appLogger.w("$TAG: No usable readiness reply within ${READY_TIMEOUT_MS}ms; stopping restart service")
                 context.stopService(intent)
             }
             return preparedRestart

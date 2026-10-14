@@ -285,23 +285,23 @@ fun stopAudioPendingIntent(context: Context): PendingIntent {
     )
 }
 
-fun cancelAllDriveUploadsPendingIntent(context: Context, userId: String): PendingIntent {
-    val intent = DriveUploadActionReceiver.newIntent(context, userId, DriveUploadActionReceiver.ACTION_CANCEL_ALL)
+fun cancelAllDriveUploadsPendingIntent(context: Context, userId: String, conversationId: String): PendingIntent {
+    val intent = DriveUploadActionReceiver.newIntent(context, userId, conversationId, DriveUploadActionReceiver.ACTION_CANCEL_ALL)
 
     return PendingIntent.getBroadcast(
         context.applicationContext,
-        getRequestCode(CANCEL_ALL_DRIVE_UPLOADS_REQUEST_CODE, userId),
+        getRequestCode(CANCEL_ALL_DRIVE_UPLOADS_REQUEST_CODE, userId, conversationId),
         intent,
         PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
     )
 }
 
-fun retryFailedDriveUploadsPendingIntent(context: Context, userId: String): PendingIntent {
-    val intent = DriveUploadActionReceiver.newIntent(context, userId, DriveUploadActionReceiver.ACTION_RETRY_FAILED)
+fun retryFailedDriveUploadsPendingIntent(context: Context, userId: String, conversationId: String): PendingIntent {
+    val intent = DriveUploadActionReceiver.newIntent(context, userId, conversationId, DriveUploadActionReceiver.ACTION_RETRY_FAILED)
 
     return PendingIntent.getBroadcast(
         context.applicationContext,
-        getRequestCode(RETRY_DRIVE_UPLOADS_REQUEST_CODE, userId),
+        getRequestCode(RETRY_DRIVE_UPLOADS_REQUEST_CODE, userId, conversationId),
         intent,
         PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
     )

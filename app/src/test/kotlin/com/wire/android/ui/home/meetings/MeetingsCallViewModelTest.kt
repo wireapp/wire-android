@@ -43,6 +43,7 @@ import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
+import io.mockk.mockk
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
@@ -180,6 +181,7 @@ class MeetingsCallViewModelTest {
         }
         fun arrange() = this to MeetingsCallViewModel(
             currentAccount = TestUser.SELF_USER_ID,
+            globalDataStore = lazy { mockk() },
             observeEstablishedCalls = observeEstablishedCalls,
             observeParticipantsForConversation = observeParticipantsForConversation,
             answerCall = answerCall,

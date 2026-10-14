@@ -28,7 +28,7 @@ internal class SearchAssistedFactorySourceTest {
         assertTrue(searchUserViewModel.contains("@WireAssistedViewModelBinding(SearchManualViewModelFactoryGroup::class)"))
         assertTrue(
             searchUserViewModel.contains(
-                "fun create(conversationId: ConversationId?, onlyConnectedContacts: Boolean): SearchUserViewModel"
+                "fun create(conversationId: ConversationId?, onlySelfTeamAndDomain: Boolean): SearchUserViewModel"
             )
         )
         assertFalse(File("src/main/kotlin/com/wire/android/search/SearchMetroViewModelBindings.kt").exists())

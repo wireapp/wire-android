@@ -40,9 +40,12 @@ import com.wire.android.ui.authentication.login.LoginPasswordPath
 import com.wire.android.ui.authentication.login.LoginViewModelExtension
 import com.wire.android.ui.authentication.login.PreFilledUserIdentifierType
 import com.wire.android.ui.authentication.login.email.LoginEmailViewModel.Companion.USER_IDENTIFIER_SAVED_STATE_KEY
+import com.wire.android.ui.authentication.login.SavedStateLoginSavedInputStore
+import com.wire.android.ui.authentication.login.sso.PendingSsoLogin
 import com.wire.android.ui.authentication.login.sso.LoginSSOViewModelExtension
 import com.wire.android.ui.authentication.login.sso.ReplaceRetainedSsoSessionResult
 import com.wire.android.ui.authentication.login.sso.SSOUrlConfig
+import com.wire.android.ui.authentication.login.sso.missingSsoLoginContextFailure
 import com.wire.android.ui.authentication.login.sso.ssoCodeWithPrefix
 import com.wire.android.ui.authentication.toBackendConfigUrl
 import com.wire.android.ui.common.ActionsViewModel
@@ -144,6 +147,7 @@ class NewLoginViewModel(
     private var pendingNomadServiceUrl: String? = loginNavArgs.ssoCodeAutoLogin?.nomadServiceUrl
     private var pendingCookieLabel: String? = loginNavArgs.ssoCodeAutoLogin?.cookieLabel
     private var pendingSsoSession: StoreSessionParam? = null
+    private val ssoLoginStore = SavedStateLoginSavedInputStore(savedStateHandle)
     private val customServerConfig = loginNavArgs.loginPasswordPath?.customServerConfig
     private val isCustomServerConfigured = customServerConfig?.api?.isNotBlank() == true
     private val isDefaultServerConfigured = isDefaultBackendConfigured && defaultServerConfig.api.isNotBlank()
@@ -433,17 +437,21 @@ class NewLoginViewModel(
     ) =
         withContext(dispatchers.io()) {
             savedStateHandle.remove<String>(PENDING_SSO_IDENTITY_PROVIDER_ID_KEY)
+            ssoLoginStore.pendingSsoLogin = null
             ssoExtension.initiateSSO(
                 serverConfig = serverConfig,
                 ssoCode = ssoCode,
                 cookieLabel = pendingCookieLabel,
                 onAuthScopeFailure = { updateLoginFlowState(it.toLoginError()) },
                 onSSOInitiateFailure = { updateLoginFlowState(it.toLoginError()) },
-                onSuccess = { requestUrl ->
+                onSuccess = { result ->
                     withContext(dispatchers.main()) {
                         savedStateHandle[PENDING_SSO_IDENTITY_PROVIDER_ID_KEY] = ssoIdentityProviderId
+                        ssoLoginStore.pendingSsoLogin = PendingSsoLogin(
+                            result.identityProviderId, result.serverConfigId, requiresCapabilityCheck = ssoIdentityProviderId == null
+                        )
                         updateLoginFlowState(NewLoginFlowState.Default)
-                        sendAction(NewLoginAction.SSO(requestUrl, SSOUrlConfig(userIdentifierTextState.text.toString())))
+                        sendAction(NewLoginAction.SSO(result.requestUrl, SSOUrlConfig(userIdentifierTextState.text.toString())))
                         updateLoginFlowState(NewLoginFlowState.Default)
                     }
                 }
@@ -454,12 +462,20 @@ class NewLoginViewModel(
         updateLoginFlowState(NewLoginFlowState.Loading)
         when (ssoLoginResult) {
             is DeepLinkResult.SSOLogin.Success -> {
+                val pendingSsoLogin = consumePendingSsoLogin()
+                if (pendingSsoLogin == null) {
+                    consumePendingSsoIdentityProviderId()
+                    updateLoginFlowState(missingSsoLoginContextFailure().toLoginError())
+                    return
+                }
+
                 val isNomadFlow = pendingNomadServiceUrl != null
                 viewModelScope.launch(dispatchers.io()) {
                     ssoExtension.establishSSOSession(
                         cookie = ssoLoginResult.cookie,
                         serverConfigId = ssoLoginResult.serverConfigId,
                         ssoIdentityProviderId = consumePendingSsoIdentityProviderId(),
+                        pendingSsoLogin = pendingSsoLogin,
                         consumeNomadServiceUrl = ::consumePendingNomadServiceUrl,
                         consumeCookieLabel = ::consumePendingCookieLabel,
                         onAuthScopeFailure = { updateLoginFlowState(it.toLoginError()) },
@@ -477,6 +493,8 @@ class NewLoginViewModel(
             }
 
             is DeepLinkResult.SSOLogin.Failure -> {
+                ssoLoginStore.pendingSsoLogin = null
+                consumePendingSsoIdentityProviderId()
                 updateLoginFlowState(NewLoginFlowState.Error.DialogError.SSOResultFailure(ssoLoginResult.ssoError))
             }
         }
@@ -660,6 +678,10 @@ class NewLoginViewModel(
 
     private fun consumePendingSsoIdentityProviderId(): String? =
         savedStateHandle.remove(PENDING_SSO_IDENTITY_PROVIDER_ID_KEY)
+
+    private fun consumePendingSsoLogin(): PendingSsoLogin? = ssoLoginStore.pendingSsoLogin.also {
+        ssoLoginStore.pendingSsoLogin = null
+    }
 
     companion object {
         private const val TAG = "[NewLoginViewModel]"

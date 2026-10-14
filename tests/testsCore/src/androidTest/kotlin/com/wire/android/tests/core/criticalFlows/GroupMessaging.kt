@@ -26,7 +26,9 @@ import com.wire.android.tests.support.tags.TestCaseId
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import uiautomatorutils.KeyboardUtils.closeKeyboardIfOpened
 import uiautomatorutils.UiWaitUtils
+import uiautomatorutils.UiWaitUtils.iSeeSystemMessage
 import user.usermanager.ClientUserManager
 import user.utils.ClientUser
 import kotlin.time.Duration.Companion.seconds
@@ -58,6 +60,12 @@ class GroupMessaging : BaseUiTest() {
 
             teamOwner = clientUserManager.findUserBy("user1Name", ClientUserManager.FindBy.NAME_ALIAS)
 
+            backendSetupHelper.userConfiguresMLSForTeam(
+                "user1Name",
+                "GroupMessaging",
+                backendClient
+            )
+
             backendSetupHelper.userXAddsUsersToTeam(
                 "user1Name",
                 "user2Name,user3Name,user4Name,user5Name,user6Name",
@@ -68,12 +76,25 @@ class GroupMessaging : BaseUiTest() {
                 true
             )
 
-            backendSetupHelper.userHasGroupConversationInTeam(
-                "user1Name",
-                "MyTeam",
-                "user2Name,user3Name,user4Name,user5Name,user6Name",
-                "GroupMessaging"
-            )
+            testServiceHelper.apply {
+                listOf(
+                    "user1Name",
+                    "user2Name",
+                    "user3Name",
+                    "user4Name",
+                    "user5Name",
+                    "user6Name"
+                ).forEach { user ->
+                    addDevice(user, null, "Device1")
+                }
+
+                userCreatesMLSGroupConversation(
+                    ownerAlias = "user1Name",
+                    participantAliases = "user2Name,user3Name,user4Name,user5Name,user6Name",
+                    conversationName = "MyTeam",
+                    deviceName = "Device1"
+                )
+            }
         }
 
         step("Login as team owner in Android app") {
@@ -126,7 +147,6 @@ class GroupMessaging : BaseUiTest() {
 
         step("Send a message to the group conversation as another member via backend") {
             testServiceHelper.apply {
-                addDevice("user2Name", null, "Device1")
                 userSendMessageToConversation("user2Name", "Hello Friends", "Device1", "MyTeam")
             }
         }
@@ -144,6 +164,17 @@ class GroupMessaging : BaseUiTest() {
             }
             pages.conversationViewPage.apply {
                 assertReceivedMessageIsVisibleInCurrentConversation("Hello Friends")
+            }
+        }
+
+        step("Ping group members and confirm the action") {
+            pages.conversationViewPage.apply {
+                tapMessageInInputField()
+                tapPingButton()
+                iSeePingModalWithText("Are you sure you want to ping 6 people?")
+                tapPingButtonModal()
+                iSeeSystemMessage("You pinged")
+                closeKeyboardIfOpened()
             }
         }
 

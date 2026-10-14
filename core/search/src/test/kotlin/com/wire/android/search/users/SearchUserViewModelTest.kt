@@ -286,7 +286,7 @@ class SearchUserViewModelTest {
         coVerify(exactly = 1) {
             arrangement.searchUsersByHandleUseCase.invoke(
                 query,
-                excludingConversation = null,
+                excludingMembersOfConversation = null,
                 customDomain = "domain"
             )
         }
@@ -329,10 +329,10 @@ class SearchUserViewModelTest {
     }
 
     @Test
-    fun `given only connected contacts is false, when searching by handle, then do not exclude remote`() = runTest {
+    fun `given only self team and domain is false, when searching by handle, then search for all users`() = runTest {
         val query = "handle"
         val (arrangement, viewModel) = Arrangement()
-            .withOnlyConnectedContacts(false)
+            .withOnlySelfTeamAndDomain(false)
             .withSearchByHandleResult(SearchUserResult(connected = listOf(), notConnected = listOf()))
             .withFederatedSearchParserResult(FederatedSearchParser.Result(searchTerm = query, domain = "domain"))
             .withIsValidHandleResult(ValidateUserHandleResult.Valid(""))
@@ -342,18 +342,18 @@ class SearchUserViewModelTest {
         coVerify(exactly = 1) {
             arrangement.searchUsersByHandleUseCase.invoke(
                 searchHandle = query,
-                excludingConversation = null,
-                skipRemoteSearch = false,
+                excludingMembersOfConversation = null,
+                onlySelfTeamAndDomain = false,
                 customDomain = "domain"
             )
         }
     }
 
     @Test
-    fun `given only connected contacts is true, when searching by handle, then exclude remote`() = runTest {
+    fun `given only self team and domain is true, when searching by handle, then only search for self team and domain users`() = runTest {
         val query = "handle"
         val (arrangement, viewModel) = Arrangement()
-            .withOnlyConnectedContacts(true)
+            .withOnlySelfTeamAndDomain(true)
             .withSearchByHandleResult(SearchUserResult(connected = listOf(), notConnected = listOf()))
             .withFederatedSearchParserResult(FederatedSearchParser.Result(searchTerm = query, domain = "domain"))
             .withIsValidHandleResult(ValidateUserHandleResult.Valid(""))
@@ -363,18 +363,18 @@ class SearchUserViewModelTest {
         coVerify(exactly = 1) {
             arrangement.searchUsersByHandleUseCase.invoke(
                 searchHandle = query,
-                excludingConversation = null,
-                skipRemoteSearch = true,
+                excludingMembersOfConversation = null,
+                onlySelfTeamAndDomain = true,
                 customDomain = "domain"
             )
         }
     }
 
     @Test
-    fun `given only connected contacts is false, when searching by name, then do not exclude remote`() = runTest {
+    fun `given only self team and domain is false, when searching by name, then search for all users`() = runTest {
         val query = "Name"
         val (arrangement, viewModel) = Arrangement()
-            .withOnlyConnectedContacts(false)
+            .withOnlySelfTeamAndDomain(false)
             .withSearchResult(SearchUserResult(connected = listOf(), notConnected = listOf()))
             .withFederatedSearchParserResult(FederatedSearchParser.Result(searchTerm = query, domain = "domain"))
             .withIsValidHandleResult(ValidateUserHandleResult.Invalid.InvalidCharacters("ame", listOf('N')))
@@ -385,17 +385,17 @@ class SearchUserViewModelTest {
             arrangement.searchUsersByNameUseCase.invoke(
                 searchQuery = query,
                 excludingMembersOfConversation = null,
-                skipRemoteSearch = false,
+                onlySelfTeamAndDomain = false,
                 customDomain = "domain"
             )
         }
     }
 
     @Test
-    fun `given only connected contacts is true, when searching by name, then exclude remote`() = runTest {
+    fun `given only self team and domain is true, when searching by name, then only search for self team and domain users`() = runTest {
         val query = "Name"
         val (arrangement, viewModel) = Arrangement()
-            .withOnlyConnectedContacts(true)
+            .withOnlySelfTeamAndDomain(true)
             .withSearchResult(SearchUserResult(connected = listOf(), notConnected = listOf()))
             .withFederatedSearchParserResult(FederatedSearchParser.Result(searchTerm = query, domain = "domain"))
             .withIsValidHandleResult(ValidateUserHandleResult.Invalid.InvalidCharacters("ame", listOf('N')))
@@ -406,7 +406,7 @@ class SearchUserViewModelTest {
             arrangement.searchUsersByNameUseCase.invoke(
                 searchQuery = query,
                 excludingMembersOfConversation = null,
-                skipRemoteSearch = true,
+                onlySelfTeamAndDomain = true,
                 customDomain = "domain"
             )
         }
@@ -434,7 +434,7 @@ class SearchUserViewModelTest {
 
         private var conversationId: ConversationId? = null
 
-        private var onlyConnectedContacts: Boolean = false
+        private var onlySelfTeamAndDomain: Boolean = false
 
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
@@ -479,8 +479,8 @@ class SearchUserViewModelTest {
             this.conversationId = conversationId
         }
 
-        fun withOnlyConnectedContacts(onlyConnectedContacts: Boolean) = apply {
-            this.onlyConnectedContacts = onlyConnectedContacts
+        fun withOnlySelfTeamAndDomain(onlySelfTeamAndDomain: Boolean) = apply {
+            this.onlySelfTeamAndDomain = onlySelfTeamAndDomain
         }
 
         fun withSearchResult(result: SearchUserResult) = apply {
@@ -508,7 +508,7 @@ class SearchUserViewModelTest {
         fun arrange() = apply {
             searchUserViewModel = SearchUserViewModel(
                 conversationId = conversationId,
-                onlyConnectedContacts = onlyConnectedContacts,
+                onlySelfTeamAndDomain = onlySelfTeamAndDomain,
                 searchUsersByName = searchUsersByNameUseCase,
                 searchUsersByHandle = searchUsersByHandleUseCase,
                 contactMapper = contactMapper,

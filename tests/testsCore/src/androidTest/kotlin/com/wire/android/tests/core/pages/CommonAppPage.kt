@@ -17,6 +17,10 @@
  */
 package com.wire.android.tests.core.pages
 
+import android.content.Intent
+import android.net.Uri
+import androidx.test.platform.app.InstrumentationRegistry
+import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
 import com.wire.android.tests.support.UiAutomatorSetup
 import org.junit.Assert.assertTrue
@@ -27,11 +31,28 @@ import kotlin.time.Duration.Companion.seconds
 
 data class CommonAppPage(private val device: UiDevice) {
     private val teamSettingsChangedAlert = UiSelectorParams(textContains = "Team Settings Changed")
+    private val accountUsedOnAnotherDeviceAlert = UiSelectorParams(text = "Your account was used on")
+    private val manageDevicesButton = UiSelectorParams(text = "Manage Devices")
+    private val switchAccountButton = UiSelectorParams(text = "Switch Account")
     private val removedDeviceDialogTitle = UiSelectorParams(text = "Removed Device")
+    private val deletedAccountDialogTitle = UiSelectorParams(text = "Deleted account")
+    private val wireEnterpriseAlert = UiSelectorParams(textContains = "Wire Enterprise")
+    private val learnMoreWireEnterpriseLink = UiSelectorParams(textContains = "Learn more about Wire")
+    private val upgradeNowButton = UiSelectorParams(text = "Upgrade now")
     private val okButton = UiSelectorParams(text = "OK")
+    private val cancelButton = UiSelectorParams(text = "Cancel")
     private val closeWebPageButton = UiSelectorParams(description = "Close tab")
+    private val joinConversationDialogTitle = UiSelectorParams(text = "Join conversation?")
+    private val unableToJoinConversationDialogTitle = UiSelectorParams(text = "Unable to join conversation")
+    private val joinConversationButton = UiSelectorParams(text = "Join")
+    private val joinConversationPasswordField = UiSelectorParams(className = "android.widget.EditText")
+    private val invalidPasswordError = UiSelectorParams(text = "Invalid password")
 
     private fun teamSettingsChangedAlertSubtext(text: String) = UiSelectorParams(textContains = text)
+    private fun secondAccountUsedOnAnotherDeviceAlert(accountName: String) =
+        UiSelectorParams(textContains = "Your account “$accountName")
+
+    private fun wireEnterpriseAlertText(text: String) = UiSelectorParams(textContains = text)
 
     fun assertTeamSettingsChangedAlertVisible(): CommonAppPage {
         val alert = UiWaitUtils.waitElement(teamSettingsChangedAlert)
@@ -45,8 +66,73 @@ data class CommonAppPage(private val device: UiDevice) {
         return this
     }
 
+    fun assertWireEnterpriseAlertVisible(): CommonAppPage {
+        val alert = UiWaitUtils.waitElement(wireEnterpriseAlert)
+        assertTrue("Wire Enterprise alert is not visible", !alert.visibleBounds.isEmpty)
+        return this
+    }
+
+    fun assertWireEnterpriseAlertTextVisible(text: String): CommonAppPage {
+        val alertText = UiWaitUtils.waitElement(wireEnterpriseAlertText(text))
+        assertTrue("Wire Enterprise alert text is not visible", !alertText.visibleBounds.isEmpty)
+        return this
+    }
+
+    fun tapLearnMoreWireEnterpriseLink(): CommonAppPage {
+        UiWaitUtils.waitElement(learnMoreWireEnterpriseLink).click()
+        return this
+    }
+
+    fun tapUpgradeNowButtonOnEnterpriseAlert(): CommonAppPage {
+        UiWaitUtils.waitElement(upgradeNowButton).click()
+        return this
+    }
+
+    fun assertAccountUsedOnAnotherDeviceAlertVisible(): CommonAppPage {
+        UiWaitUtils.waitUntilVisibleOrThrow(
+            params = accountUsedOnAnotherDeviceAlert,
+            timeout = UiWaitUtils.SHORT_TIMEOUT,
+            errorMessage = "Account used on another device alert is not visible"
+        )
+        return this
+    }
+
+    fun assertSecondAccountUsedOnAnotherDeviceAlertVisible(accountName: String): CommonAppPage {
+        UiWaitUtils.waitUntilVisibleOrThrow(
+            params = secondAccountUsedOnAnotherDeviceAlert(accountName),
+            timeout = UiWaitUtils.SHORT_TIMEOUT,
+            errorMessage = "Account used on another device alert for '$accountName' is not visible"
+        )
+        return this
+    }
+
+    fun assertAddedDeviceAlertSubtextVisible(expectedSubtext: String): CommonAppPage {
+        val subtext = UiWaitUtils.waitElement(
+            UiSelectorParams(textContains = expectedSubtext),
+            timeout = UiWaitUtils.SHORT_TIMEOUT
+        )
+        assertTrue("Added device alert subtext is not visible", !subtext.visibleBounds.isEmpty)
+        return this
+    }
+
+    fun tapManageDevicesButton(): CommonAppPage {
+        UiWaitUtils.waitElement(manageDevicesButton).click()
+        return this
+    }
+
+    fun tapSwitchAccountButton(): CommonAppPage {
+        UiWaitUtils.waitElement(switchAccountButton).click()
+        return this
+    }
+
     fun tapOkButtonOnAlert(): CommonAppPage {
         UiWaitUtils.waitElement(okButton).click()
+        device.waitForIdle()
+        return this
+    }
+
+    fun tapCancelButtonOnAlert(): CommonAppPage {
+        UiWaitUtils.waitElement(cancelButton).click()
         device.waitForIdle()
         return this
     }
@@ -68,6 +154,23 @@ data class CommonAppPage(private val device: UiDevice) {
 
     fun confirmRemovedDeviceDialog(): CommonAppPage = tapOkButtonOnAlert()
 
+    fun assertDeletedAccountDialogVisible(): CommonAppPage {
+        val dialog = UiWaitUtils.waitElement(deletedAccountDialogTitle)
+        assertTrue("Deleted account dialog is not visible", !dialog.visibleBounds.isEmpty)
+        return this
+    }
+
+    fun assertDeletedAccountDialogSubtextVisible(expectedSubtext: String): CommonAppPage {
+        val subtext = UiWaitUtils.waitElement(
+            UiSelectorParams(textContains = expectedSubtext),
+            timeout = UiWaitUtils.SHORT_WAIT
+        )
+        assertTrue("Deleted account dialog subtext is not visible", !subtext.visibleBounds.isEmpty)
+        return this
+    }
+
+    fun confirmDeletedAccountDialog(): CommonAppPage = tapOkButtonOnAlert()
+
     fun assertWireAppIsNotInForeground(): CommonAppPage {
         val wireAppIsNotInForeground = UiWaitUtils.retryUntilTimeout(
             timeout = UiWaitUtils.SHORT_WAIT,
@@ -82,11 +185,124 @@ data class CommonAppPage(private val device: UiDevice) {
         return this
     }
 
+    @Suppress("MagicNumber")
+    fun swipeWireAppAwayFromBackground(): CommonAppPage {
+        device.pressRecentApps()
+        device.waitForIdle()
+        val packageManager = InstrumentationRegistry.getInstrumentation().context.packageManager
+        val appName = packageManager.getApplicationLabel(
+            packageManager.getApplicationInfo(UiAutomatorSetup.appPackage, 0)
+        ).toString()
+        val wireApp = By.desc(appName)
+        val wireAppCard = UiWaitUtils.waitElement(
+            UiSelectorParams(description = appName),
+            timeout = UiWaitUtils.SHORT_WAIT
+        )
+        val cardBounds = wireAppCard.visibleBounds
+        device.executeShellCommand(
+            "input touchscreen swipe ${cardBounds.centerX()} " +
+                "${cardBounds.bottom - cardBounds.height() / 4} " +
+                "${cardBounds.centerX()} 0 200"
+        )
+        UiWaitUtils.waitUntilGoneOrThrow(
+            selector = wireApp,
+            timeout = UiWaitUtils.SHORT_WAIT,
+            errorMessage = "Wire app is still running in the background"
+        )
+        device.pressBack()
+        return this
+    }
+
+    fun restartWireApp(): CommonAppPage {
+        device.executeShellCommand(
+            "am start -n ${UiAutomatorSetup.appPackage}/com.wire.android.ui.WireActivity"
+        )
+        return this
+    }
+
+    fun assertWireAppIsInForeground(): CommonAppPage {
+        val wireAppIsInForeground = UiWaitUtils.retryUntilTimeout(
+            timeout = UiWaitUtils.SHORT_WAIT,
+            pollingInterval = UiWaitUtils.POLLING_FAST
+        ) {
+            device.currentPackageName == UiAutomatorSetup.appPackage
+        }
+        assertTrue(
+            "Wire app is not in foreground: ${device.currentPackageName}",
+            wireAppIsInForeground
+        )
+        return this
+    }
+
     fun closeWebPage(): CommonAppPage {
         UiWaitUtils.waitElement(
             closeWebPageButton,
             timeout = UiWaitUtils.SHORT_WAIT
         ).click()
+        return this
+    }
+
+    fun openDeepLink(deepLinkUrl: String): CommonAppPage {
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        val intent = Intent(Intent.ACTION_VIEW).apply {
+            data = Uri.parse(deepLinkUrl)
+            setPackage(UiAutomatorSetup.appPackage)
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        }
+        context.startActivity(intent)
+        return this
+    }
+
+    fun assertJoinConversationAlertVisible(): CommonAppPage {
+        UiWaitUtils.waitUntilVisibleOrThrow(
+            params = joinConversationDialogTitle,
+            timeout = UiWaitUtils.SHORT_TIMEOUT,
+            errorMessage = "Join conversation alert is not visible"
+        )
+        return this
+    }
+
+    fun assertJoinConversationAlertTextVisible(text: String): CommonAppPage {
+        UiWaitUtils.waitUntilVisibleOrThrow(
+            params = UiSelectorParams(textContains = text),
+            timeout = UiWaitUtils.SHORT_TIMEOUT,
+            errorMessage = "Join conversation alert text '$text' is not visible"
+        )
+        return this
+    }
+
+    fun assertUnableToJoinConversationAlertVisible(): CommonAppPage {
+        UiWaitUtils.waitUntilVisibleOrThrow(
+            params = unableToJoinConversationDialogTitle,
+            timeout = UiWaitUtils.SHORT_TIMEOUT,
+            errorMessage = "Unable to join conversation alert is not visible"
+        )
+        return this
+    }
+
+    fun assertUnableToJoinConversationAlertTextVisible(text: String): CommonAppPage {
+        UiWaitUtils.waitUntilVisibleOrThrow(
+            params = UiSelectorParams(textContains = text),
+            timeout = UiWaitUtils.SHORT_TIMEOUT,
+            errorMessage = "Unable to join conversation alert text '$text' is not visible"
+        )
+        return this
+    }
+
+    fun tapJoinConversationButton(): CommonAppPage {
+        UiWaitUtils.waitElement(joinConversationButton).click()
+        return this
+    }
+
+    fun enterJoinConversationPassword(password: String?): CommonAppPage {
+        val passwordField = UiWaitUtils.waitElement(joinConversationPasswordField)
+        passwordField.click()
+        passwordField.text = password
+        return this
+    }
+
+    fun assertInvalidPasswordErrorVisible(): CommonAppPage {
+        UiWaitUtils.waitElement(invalidPasswordError)
         return this
     }
 

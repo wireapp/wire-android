@@ -57,8 +57,8 @@ class CellAssetRefreshHelper(
     @VisibleForTesting(otherwise = PRIVATE)
     val regularAssets = expiringMap(
         expirationMs = DEFAULT_CONTENT_URL_EXPIRY_MS,
-        onExpired = { assetId ->
-            coroutineScope.launch { refreshAsset(assetId) }
+        onExpired = { assetId, conversationId ->
+            coroutineScope.launch { refreshAsset(assetId, conversationId) }
         },
     )
 
@@ -68,27 +68,27 @@ class CellAssetRefreshHelper(
  * - Refresh every 30 sec to update preview if currently visible.
  */
     @VisibleForTesting(otherwise = PRIVATE)
-    val visibleEditableAssets: ExpiringMap<String, Unit> = expiringMap(
+    val visibleEditableAssets: ExpiringMap<String, String?> = expiringMap(
         expirationMs = EDITABLE_CONTENT_EXPIRY_MS,
-        onExpired = { assetId ->
-            coroutineScope.launch { refreshAsset(assetId) }
+        onExpired = { assetId, conversationId ->
+            coroutineScope.launch { refreshAsset(assetId, conversationId) }
 
             // Re-add to schedule next refresh
-            visibleEditableAssets[assetId] = Unit
+            visibleEditableAssets[assetId] = conversationId
         }
     )
 
-    private fun expiringMap(expirationMs: Long, onExpired: (String) -> Unit) = ExpiringMap<String, Unit>(
+    private fun expiringMap(expirationMs: Long, onExpired: (String, String?) -> Unit) = ExpiringMap<String, String?>(
         scope = coroutineScope,
         expirationMs = expirationMs,
         delegate = mutableMapOf(),
-        onEntryExpired = { key, _ -> onExpired(key) },
+        onEntryExpired = { key, conversationId -> onExpired(key, conversationId) },
         currentTime = currentTime,
     )
 
-    fun onAttachmentsVisible(attachments: List<MessageAttachment>) {
+    fun onAttachmentsVisible(attachments: List<MessageAttachment>, conversationId: String?) {
         attachments.forEach {
-            onAttachmentVisible(it.toUiModel())
+            onAttachmentVisible(it.toUiModel(), conversationId)
         }
     }
 
@@ -98,32 +98,32 @@ class CellAssetRefreshHelper(
         }
     }
 
-    fun onAttachmentVisible(attachment: MultipartAttachmentUi) {
+    fun onAttachmentVisible(attachment: MultipartAttachmentUi, conversationId: String?) {
         if (attachment.isEditSupported && featureFlags.collaboraIntegration) {
 
             if (visibleEditableAssets.contains(attachment.uuid)) return
 
-            visibleEditableAssets[attachment.uuid] = Unit
+            visibleEditableAssets[attachment.uuid] = conversationId
 
             coroutineScope.launch {
-                refreshAsset(attachment.uuid)
+                refreshAsset(attachment.uuid, conversationId)
             }
         } else {
 
             if (regularAssets.contains(attachment.uuid)) return
 
             if (attachment.contentUrlExpiresAt != null) {
-                regularAssets.putWithExpireAt(attachment.uuid, Unit, attachment.contentUrlExpiresAt)
+                regularAssets.putWithExpireAt(attachment.uuid, conversationId, attachment.contentUrlExpiresAt)
             } else {
-                regularAssets[attachment.uuid] = Unit
+                regularAssets[attachment.uuid] = conversationId
             }
 
             coroutineScope.launch {
-                refreshAsset(attachment.uuid)
+                refreshAsset(attachment.uuid, conversationId)
                     .onSuccess { node ->
                         if (node.supportedEditors.isNotEmpty()) {
                             regularAssets.remove(attachment.uuid)
-                            visibleEditableAssets[attachment.uuid] = Unit
+                            visibleEditableAssets[attachment.uuid] = conversationId
                         }
                     }
             }
@@ -136,9 +136,9 @@ class CellAssetRefreshHelper(
         }
     }
 
-    fun refresh(uuid: String) {
+    fun refresh(uuid: String, conversationId: String?) {
         coroutineScope.launch {
-            refreshAsset(uuid)
+            refreshAsset(uuid, conversationId)
         }
     }
 

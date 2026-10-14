@@ -17,6 +17,7 @@
  */
 package com.wire.android.ui.common.datetime
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -31,9 +32,9 @@ import androidx.compose.material3.SelectableDates
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalLocale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.window.DialogProperties
 import com.wire.android.ui.common.R
@@ -49,7 +50,6 @@ import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.PreviewMultipleThemes
 import java.time.LocalDate
 import java.time.ZoneOffset
-import androidx.compose.ui.platform.LocalLocale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -89,16 +89,13 @@ private fun DatePickerDialogContent(
 ) {
 
     val datePickerState = rememberDatePickerState(
-        selectableDates = selectableDates
+        selectableDates = selectableDates,
+        initialSelectedDateMillis = selectedDateMillis,
     )
     val dateFormatter: DatePickerFormatter = remember { DatePickerDefaults.dateFormatter() }
     val formattedDate = dateFormatter.formatDate(datePickerState.selectedDateMillis, LocalLocale.current.platformLocale)
 
-    LaunchedEffect(Unit) {
-        datePickerState.selectedDateMillis = selectedDateMillis
-    }
-
-    Column {
+    Column(modifier = Modifier.background(color = colorsScheme().surface)) {
         DatePicker(
             title = null,
             headline = {

@@ -48,6 +48,7 @@
     <string name="share_file_via_link">Поделиться файлом по ссылке</string>
     <string name="share_folder_via_link">Поделиться папкой по ссылке</string>
     <string name="no_app_found">Не найдено приложение для открытия файла.</string>
+    <string name="file_not_supported">Не удается открыть этот файл. Тип файла не поддерживается.</string>
     <string name="cell_files_load_failure_message">Не удается загрузить. Пожалуйста, повторите попытку позже.</string>
     <string name="action_failed">Действие не удалось.</string>
     <string name="cancel">Отмена</string>
@@ -72,6 +73,41 @@
     <string name="cells_new_label">Новая</string>
     <string name="cells_new_label_content_description">Новая</string>
     <string name="cells_create_folder">Создать папку</string>
+    <string name="cells_upload_files">Загрузить файлы</string>
+    <plurals name="cells_upload_status_title_uploading">
+        <item quantity="one">Загрузка %1$d файла</item>
+        <item quantity="few">Загрузка %1$d файлов</item>
+        <item quantity="many">Загрузка %1$d файлов</item>
+        <item quantity="other">Загрузка %1$d файла</item>
+    </plurals>
+    <string name="cells_upload_status_title_complete">Загрузка завершена</string>
+    <string name="cells_upload_status_title_partial">%1$d из %2$d загружено</string>
+    <string name="cells_upload_status_title_failed_partial">Не удалось загрузить %1$d из %2$d</string>
+    <plurals name="cells_upload_status_subtitle_failed_count">
+        <item quantity="one">Не удалось загрузить %1$d</item>
+        <item quantity="few">Не удалось загрузить %1$d</item>
+        <item quantity="many">Не удалось загрузить %1$d</item>
+        <item quantity="other">Не удалось загрузить %1$d</item>
+    </plurals>
+    <string name="cells_upload_status_subtitle_queued">Ожидание…</string>
+    <string name="cells_upload_status_subtitle_uploading">Отправка…</string>
+    <string name="cells_upload_status_subtitle_completed_with_size">Загружено %1$s</string>
+    <string name="cells_upload_status_subtitle_failed">Не удалось загрузить файл</string>
+    <string name="cells_upload_status_subtitle_cancelled">Отменено</string>
+    <string name="cells_upload_status_retry_failed">Повторить</string>
+    <string name="cells_upload_status_cancel_all">Отменить все</string>
+    <plurals name="cells_upload_confirmation_title">
+        <item quantity="one">Загрузить %1$d файл?</item>
+        <item quantity="few">Загрузить %1$d файла?</item>
+        <item quantity="many">Загрузить %1$d файлов?</item>
+        <item quantity="other">Загрузить %1$d файла?</item>
+    </plurals>
+    <string name="cells_upload_confirmation_destination">Файлы будут загружены в %1$s</string>
+    <string name="cells_upload_confirmation_confirm">Загрузить</string>
+    <string name="content_description_cancel_upload">Отменить загрузку</string>
+    <string name="content_description_open_upload_status">Открыть статус загрузки</string>
+    <string name="content_description_retry_upload">Повторить загрузку</string>
+    <string name="content_description_dismiss_upload">Отклонить</string>
     <string name="cells_folder_name">Название папки</string>
     <string name="loading_files">Загрузка файлов…</string>
     <string name="tap_to_cancel_loading">Нажмите, чтобы отменить загрузку</string>
@@ -258,6 +294,7 @@
     <string name="sort_name_z_to_a">Я-А</string>
     <string name="sort_size_smallest_first">Сначала маленькие</string>
     <string name="sort_size_largest_first">Сначала большие</string>
+    <string name="content_description_offline_available">Доступен оффлайн</string>
     <string name="content_description_image_message">Изображение</string>
     <string name="cells_video_enter_fullscreen">Полноэкранный режим</string>
     <string name="cells_video_exit_fullscreen">Выход из полноэкранного режима</string>

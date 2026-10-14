@@ -1,0 +1,7 @@
+New
+Drive: Sorting option in default view of Shared Drive
+
+Fixes
+- Crash when sending pending messages
+- Issue with MLS group creation
+- App got stuck in "Waiting for network"

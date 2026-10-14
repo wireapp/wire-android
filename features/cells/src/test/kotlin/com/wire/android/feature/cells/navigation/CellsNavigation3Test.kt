@@ -41,6 +41,7 @@ class CellsNavigation3Test {
             CellImageViewerRoute(sessionId),
             VideoPlayerRoute(sessionId),
             AudioPlayerRoute(sessionId),
+            PdfViewerRoute(sessionId),
             SearchRoute(sessionId),
         )
 

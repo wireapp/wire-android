@@ -70,6 +70,7 @@ import com.wire.android.feature.meetings.R
 import com.wire.android.feature.meetings.model.MeetingItem
 import com.wire.android.feature.meetings.ui.create.NewMeetingViewModel.Companion.MEETING_NAME_MAX_COUNT
 import com.wire.android.feature.meetings.ui.util.PreviewMultipleThemes
+import com.wire.android.feature.meetings.ui.util.audioPermissionCheckFlow
 import com.wire.android.model.Contact
 import com.wire.android.ui.common.VisibilityState
 import com.wire.android.ui.common.WireDialog
@@ -106,6 +107,7 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.CurrentTimeProvider
 import com.wire.android.util.DateAndTimeParsers
 import com.wire.android.util.EMPTY
+import com.wire.android.util.time.CurrentTimeZoneProvider
 import com.wire.kalium.logic.data.id.MeetingId
 import com.wire.kalium.logic.data.user.ConnectionState
 import kotlinx.collections.immutable.ImmutableSet
@@ -134,6 +136,7 @@ fun NewMeetingContent(
     onRepeatingIntervalChanged: (interval: MeetingItem.RepeatingInterval?) -> Unit = {},
 ) {
     val scrollState = rememberScrollState()
+    val audioPermissionCheck = audioPermissionCheckFlow(onPermissionGranted = onCreateClicked)
     WireScaffold(
         modifier = modifier,
         topBar = {
@@ -143,7 +146,7 @@ fun NewMeetingContent(
                 onNavigationPressed = {
                     if (!state.isSubmitting) onBackPressed()
                 },
-                navigationIconType = NavigationIconType.Back(
+                navigationIconType = NavigationIconType.Close(
                     contentDescription = R.string.content_description_new_meeting_back_icon
                 ),
             )
@@ -239,7 +242,8 @@ fun NewMeetingContent(
                     loading = state.isSubmitting,
                     onClick = when (type) {
                         is NewMeetingType.Edit -> onUpdateClicked
-                        NewMeetingType.MeetNow, NewMeetingType.Schedule -> onCreateClicked
+                        NewMeetingType.MeetNow -> audioPermissionCheck::launch
+                        NewMeetingType.Schedule -> onCreateClicked
                     },
                     modifier = Modifier
                         .fillMaxWidth()
@@ -570,7 +574,7 @@ fun PreviewNewMeetingScreen_MeetNow() = WireTheme {
     NewMeetingContent(
         titleState = rememberTextFieldState("Meeting with 9 users"),
         type = NewMeetingType.MeetNow,
-        state = NewMeetingState.initialState(CurrentTimeProvider.Preview).copy(
+        state = NewMeetingState.initialState(CurrentTimeProvider.Preview, CurrentTimeZoneProvider.Preview).copy(
             confirmedContacts = buildContacts(names.size),
             continueButtonEnabled = true,
             initialLoading = NewMeetingState.InitialLoadingState.Loaded,
@@ -584,9 +588,9 @@ fun PreviewNewMeetingScreen_Schedule() = WireTheme {
     NewMeetingContent(
         titleState = rememberTextFieldState(),
         type = NewMeetingType.Schedule,
-        state = NewMeetingState.initialState(CurrentTimeProvider.Preview).copy(
-            startTime = getNextFullHour(CurrentTimeProvider.Preview.invoke()),
-            endTime = getNextFullHour(CurrentTimeProvider.Preview.invoke()).plus(1.hours),
+        state = NewMeetingState.initialState(CurrentTimeProvider.Preview, CurrentTimeZoneProvider.Preview).copy(
+            startTime = getNextFullHour(CurrentTimeProvider.Preview.invoke(), CurrentTimeZoneProvider.Preview.invoke()),
+            endTime = getNextFullHour(CurrentTimeProvider.Preview.invoke(), CurrentTimeZoneProvider.Preview.invoke()).plus(1.hours),
             repeatingInterval = MeetingItem.RepeatingInterval.Supported.first(),
             initialLoading = NewMeetingState.InitialLoadingState.Loaded,
         ),
@@ -599,9 +603,9 @@ fun PreviewNewMeetingScreen_Edit() = WireTheme {
     NewMeetingContent(
         titleState = rememberTextFieldState(),
         type = NewMeetingType.Edit(MeetingId("meetingId", "domain")),
-        state = NewMeetingState.initialState(CurrentTimeProvider.Preview).copy(
-            startTime = getNextFullHour(CurrentTimeProvider.Preview.invoke()),
-            endTime = getNextFullHour(CurrentTimeProvider.Preview.invoke()).plus(1.hours),
+        state = NewMeetingState.initialState(CurrentTimeProvider.Preview, CurrentTimeZoneProvider.Preview).copy(
+            startTime = getNextFullHour(CurrentTimeProvider.Preview.invoke(), CurrentTimeZoneProvider.Preview.invoke()),
+            endTime = getNextFullHour(CurrentTimeProvider.Preview.invoke(), CurrentTimeZoneProvider.Preview.invoke()).plus(1.hours),
             repeatingInterval = MeetingItem.RepeatingInterval.Supported.first(),
             initialLoading = NewMeetingState.InitialLoadingState.Loaded,
         ),

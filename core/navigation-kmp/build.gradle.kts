@@ -6,6 +6,7 @@ plugins {
 kotlin {
     android {
         namespace = "com.wire.navigation"
+        withHostTest {}
     }
 
     @OptIn(org.jetbrains.kotlin.gradle.ExperimentalWasmDsl::class)

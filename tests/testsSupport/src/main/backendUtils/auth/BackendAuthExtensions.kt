@@ -60,7 +60,7 @@ private suspend fun BackendClient.getAuthCredentials(user: ClientUser): AccessCr
 
 private suspend fun BackendClient.login(user: ClientUser): AccessCredentials {
     val connection = NetworkBackendClient.makeRequest(
-        url = URL("login".composeCompleteUrl()),
+        url = URL("login".composePublicApiUrl()),
         method = "POST",
         body = jsonOf(
             "email" to user.email,
@@ -80,7 +80,7 @@ private suspend fun BackendClient.login(user: ClientUser): AccessCredentials {
                 user.email ?: throw IllegalArgumentException("No email tied to user")
             )
             val connection2fa = NetworkBackendClient.makeRequest(
-                url = URL("login".composeCompleteUrl()),
+                url = URL("login".composePublicApiUrl()),
                 method = "POST",
                 body = jsonOf(
                     "email" to user.email,
@@ -98,7 +98,7 @@ private suspend fun BackendClient.login(user: ClientUser): AccessCredentials {
 
 private fun BackendClient.access(credentials: AccessCredentials): AccessCredentials {
     val connection = NetworkBackendClient.makeRequest(
-        url = URL("access".composeCompleteUrl()),
+        url = URL("access".composePublicApiUrl()),
         method = "POST",
         body = jsonOf("withCredentials" to true).toString(),
         headers = defaultheaders,

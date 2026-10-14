@@ -32,6 +32,7 @@ import com.wire.android.util.ui.UIText
 import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
+import com.wire.kalium.logic.failure.NoClientsForUser
 import com.wire.kalium.logic.feature.connection.AcceptConnectionRequestUseCase
 import com.wire.kalium.logic.feature.connection.AcceptConnectionRequestUseCaseResult
 import com.wire.kalium.logic.feature.connection.CancelConnectionRequestUseCase
@@ -210,8 +211,8 @@ internal class ConnectionActionButtonViewModelImpl @AssistedInject constructor(
                 is CreateConversationResult.Failure -> {
                     appLogger.d(("Couldn't retrieve or create the conversation"))
                     state = state.finishAction()
-                    if (result.coreFailure is CoreFailure.MissingKeyPackages) {
-                        sendAction(MissingKeyPackages)
+                    if (result.coreFailure is CoreFailure.MissingKeyPackages || result.coreFailure is NoClientsForUser) {
+                        sendAction(UnableToStartConversation)
                     }
                 }
 
@@ -230,5 +231,5 @@ internal class ConnectionActionButtonViewModelImpl @AssistedInject constructor(
 
 sealed interface ConnectionButtonAction
 internal data class OpenConversation(val conversationId: ConversationId) : ConnectionButtonAction
-internal data object MissingKeyPackages : ConnectionButtonAction
+internal data object UnableToStartConversation : ConnectionButtonAction
 internal data class ConnectionRequestIgnored(val userName: String) : ConnectionButtonAction

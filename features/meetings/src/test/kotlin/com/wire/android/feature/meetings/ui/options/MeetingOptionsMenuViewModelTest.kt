@@ -317,6 +317,7 @@ class MeetingOptionsMenuViewModelTest {
         occurrenceStartTime: Instant,
         occurrenceEndTime: Instant = occurrenceStartTime + 30.minutes
     ) = MeetingOccurrence(
+        participants = emptyList(),
         meeting = Meeting(
             meetingId = MEETING_ID,
             conversationId = CONVERSATION_ID,
@@ -324,6 +325,7 @@ class MeetingOptionsMenuViewModelTest {
             title = MEETING_TITLE,
             startTime = occurrenceStartTime,
             endTime = occurrenceEndTime,
+            tzid = "Europe/Berlin",
             recurrence = null,
         ),
         occurrenceId = OCCURRENCE_ID,
@@ -351,12 +353,14 @@ class MeetingOptionsMenuViewModelTest {
         deleteType = DeleteMeetingType.ForEveryone,
         meetingId = MEETING_ID,
         meetingTitle = MEETING_TITLE,
+        isRecurring = false,
     )
 
     private fun deleteMeetingForMeDialogState() = DeleteMeetingDialogState(
         deleteType = DeleteMeetingType.ForMe,
         meetingId = MEETING_ID,
         meetingTitle = MEETING_TITLE,
+        isRecurring = false,
     )
 
     private class Arrangement {

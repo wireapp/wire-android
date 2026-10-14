@@ -19,6 +19,7 @@ package com.wire.android.ui.sharing
 
 import androidx.compose.runtime.Stable
 import androidx.paging.PagingData
+import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.home.conversationslist.model.ConversationItemType
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.message.SelfDeletionTimer
@@ -34,8 +35,17 @@ data class ImportMediaAuthenticatedState(
     val isImporting: Boolean = false,
     val conversations: Flow<PagingData<ConversationItemType>> = emptyFlow(),
     val selectedConversationItem: List<ConversationId> = persistentListOf(),
-    val selfDeletingTimer: SelfDeletionTimer = SelfDeletionTimer.Enabled(null)
+    val selfDeletingTimer: SelfDeletionTimer = SelfDeletionTimer.Enabled(null),
+    val drivePermissionsEnabled: Boolean = false
 ) {
     @Stable
     fun hasImportedContent(): Boolean = importedText?.isNotEmpty() == true || importedAssets.isNotEmpty()
+
+    /**
+     * Conversations where the self user only has viewer access to the shared drive can not receive shared files,
+     * so they can not be selected as a share target when drive permissions are enabled.
+     */
+    @Stable
+    fun isConversationSelectable(conversation: ConversationItem): Boolean =
+        !(drivePermissionsEnabled && conversation.isSelfUserViewerOnly)
 }

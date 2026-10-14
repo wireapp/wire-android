@@ -67,6 +67,7 @@ class NotificationChannelsManager @Inject constructor(
             createOutgoingCallChannel(groupId, user.id)
             createMessagesNotificationChannel(user.id, groupId)
             createPingNotificationChannel(user.id, groupId)
+            createMeetingsNotificationChannel(user.id, groupId)
         }
 
         // OngoingCall is not user specific channel, but common for all users.
@@ -175,6 +176,16 @@ class NotificationChannelsManager @Inject constructor(
         notificationManagerCompat.createNotificationChannel(notificationChannel)
     }
 
+    private fun createMeetingsNotificationChannel(userId: UserId, channelGroupId: String) {
+        val notificationChannel = NotificationChannelCompat
+            .Builder(NotificationConstants.getMeetingsChannelId(userId), NotificationManagerCompat.IMPORTANCE_HIGH)
+            .setName(NotificationConstants.MEETING_CHANNEL_NAME)
+            .setGroup(channelGroupId)
+            .build()
+
+        notificationManagerCompat.createNotificationChannel(notificationChannel)
+    }
+
     private fun createPingNotificationChannel(userId: UserId, channelGroupId: String) {
         val audioAttributes = AudioAttributes.Builder()
             .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
@@ -192,9 +203,9 @@ class NotificationChannelsManager @Inject constructor(
         notificationManagerCompat.createNotificationChannel(notificationChannel)
     }
 
-    fun createRegularChannel(channelId: String, channelName: String) {
+    fun createRegularChannel(channelId: String, channelName: String, importance: Int = NotificationManagerCompat.IMPORTANCE_HIGH) {
         val notificationChannel = NotificationChannelCompat
-            .Builder(channelId, NotificationManagerCompat.IMPORTANCE_HIGH)
+            .Builder(channelId, importance)
             .setName(channelName)
             .setShowBadge(false)
             .build()

@@ -24,9 +24,8 @@ import com.wire.android.navigation.navigation3.WireNavigation3ResultType
 import com.wire.android.navigation.navigation3.WireNavigation3Runtime
 import com.wire.android.navigation.navigation3.wireEntry
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
-import com.wire.android.ui.home.conversations.ConversationAuxId
 import com.wire.android.ui.home.conversations.ConversationFoldersNavigation3ResultType
-import com.wire.android.ui.home.conversations.ConversationFoldersRoute
+import com.wire.android.ui.home.conversations.toNavigation3Route
 import com.wire.android.ui.legalhold.dialog.requested.LegalHoldRequestedViewModel
 import com.wire.android.ui.miscViewModel
 import com.wire.android.ui.home.settings.otherUserProfileScreenViewModel
@@ -278,14 +277,9 @@ private fun OtherUserProfileNavigation3Entry(
         onOpenConversationMedia = {
             actions.openConversationMedia(it.toNavigationId())
         },
-        onMoveToFolder = { conversationId, _ ->
+        onMoveToFolder = { arguments ->
             folderRequestIdValue = runtime.navigateForResult(
-                ConversationFoldersRoute(
-                    route.sessionId,
-                    ConversationAuxId(conversationId.value, conversationId.domain),
-                    "",
-                    null,
-                ),
+                arguments.toNavigation3Route(route.sessionId),
                 ConversationFoldersNavigation3ResultType,
             )?.value
         },

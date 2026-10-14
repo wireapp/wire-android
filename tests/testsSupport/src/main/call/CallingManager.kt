@@ -184,6 +184,17 @@ class CallingManager(private val usersManager: ClientUserManager) {
         }
     }
 
+    suspend fun stopOutgoingCall(callerNames: List<String>, conversationName: String) {
+        callerNames.forEach { name ->
+            val user = usersManager.findUserByNameOrNameAlias(name)
+            val backend = BackendClient.loadBackend(user.backendName.orEmpty())
+            val conversationId = backend.getConversationByName(user, conversationName).id
+            withContext(Dispatchers.IO) {
+                client.stopCall(getInstance(user), getOutgoingCall(user, conversationId))
+            }
+        }
+    }
+
     private fun getIncomingCall(user: ClientUser): Call =
         calls[user.email.orEmpty()] ?: error("No incoming call for user '${user.name}'")
 

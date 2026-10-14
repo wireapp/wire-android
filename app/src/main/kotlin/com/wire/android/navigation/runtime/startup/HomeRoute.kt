@@ -32,6 +32,7 @@ import kotlinx.serialization.Serializable
 data class HomeRoute(
     override val sessionId: WireSessionId,
     override val entryId: WireNavEntryId = WireNavEntryId.random(),
+    val homeDestination: HomeDestination = HomeDestination.CONVERSATIONS,
 ) : SessionRoute {
     override val routeId: String
         get() = ROUTE_ID
@@ -39,4 +40,6 @@ data class HomeRoute(
     companion object {
         const val ROUTE_ID = "app/home_screen"
     }
+
+    enum class HomeDestination { CONVERSATIONS, MEETINGS }
 }

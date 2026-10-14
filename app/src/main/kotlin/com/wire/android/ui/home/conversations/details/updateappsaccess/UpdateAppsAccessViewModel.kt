@@ -27,7 +27,6 @@ import com.wire.android.util.AppsUtil
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.ConversationDetails
-import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.user.SelfUser
 import com.wire.kalium.logic.data.user.type.isTeamAdmin
@@ -68,6 +67,7 @@ class UpdateAppsAccessViewModel @AssistedInject constructor(
     }
 
     private val conversationId: QualifiedID = navigationArgs.conversationId
+    private var currentConversation: Conversation? = null
     private val currentAccessParams = navigationArgs.updateAppsAccessParams
     val shouldUseNewAppsUi: Boolean = currentAccessParams.shouldUseNewAppsUi
 
@@ -107,6 +107,7 @@ class UpdateAppsAccessViewModel @AssistedInject constructor(
             ) { isAppsAllowedResult, conversationDetails, isSelfAnAdmin, selfUser ->
                 CombineFour(isAppsAllowedResult, conversationDetails, isSelfAnAdmin, selfUser)
             }.collect { (isAppsAllowedResult, conversationDetails, isSelfAnAdmin, selfUser) ->
+                currentConversation = conversationDetails.conversation
                 val isTeamAdmin = selfUser.userType.isTeamAdmin()
                 val isSelfInConversationTeam = selfUser.teamId == conversationDetails.conversation.teamId
                 val isSelfChannelTeamAdmin =
@@ -167,6 +168,7 @@ class UpdateAppsAccessViewModel @AssistedInject constructor(
     )
 
     fun onAppsAccessUpdate(shouldEnableAppsAccess: Boolean) {
+        if (currentConversation == null) return
         updateState(updateAppsAccessState.copy(isLoadingAppsOption = true, isAppAccessAllowed = shouldEnableAppsAccess))
         when (shouldEnableAppsAccess) {
             true -> updateAppsAccessRemotely(true)
@@ -176,11 +178,11 @@ class UpdateAppsAccessViewModel @AssistedInject constructor(
 
     private fun updateAppsAccessRemotely(shouldEnableAppsAccess: Boolean) {
         viewModelScope.launch {
+            val conversation = currentConversation ?: return@launch
             val result = withContext(dispatcher.io()) {
                 updateConversationAccess(
-                    enableGuestAndNonTeamMember = currentAccessParams.isGuestAllowed,
-                    enableServices = shouldEnableAppsAccess,
-                    conversationId = conversationId
+                    conversation = conversation,
+                    enableServices = shouldEnableAppsAccess
                 )
             }
 
@@ -206,28 +208,21 @@ class UpdateAppsAccessViewModel @AssistedInject constructor(
     }
 
     private suspend fun updateConversationAccess(
-        enableGuestAndNonTeamMember: Boolean,
+        conversation: Conversation,
         enableServices: Boolean,
-        conversationId: ConversationId
     ): UpdateConversationAccessRoleUseCase.Result {
-
-        val accessRoles = Conversation
-            .accessRolesFor(
-                guestAllowed = enableGuestAndNonTeamMember,
-                servicesAllowed = enableServices,
-                nonTeamMembersAllowed = enableGuestAndNonTeamMember
-            )
-
-        val access = Conversation.accessFor(guestsAllowed = enableGuestAndNonTeamMember)
-
+        val accessRoles = conversation.accessRole.toSet().let {
+            if (enableServices) it + Conversation.AccessRole.SERVICE else it - Conversation.AccessRole.SERVICE
+        }
         return changeAccessForAppsInConversation(
             conversationId = conversationId,
             accessRoles = accessRoles,
-            access = access
+            access = conversation.access.toSet()
         )
     }
 
     fun onServiceDialogConfirm() {
+        if (currentConversation == null) return
         updateState(updateAppsAccessState.copy(shouldShowDisableAppsConfirmationDialog = false, isLoadingAppsOption = true))
         updateAppsAccessRemotely(false)
     }

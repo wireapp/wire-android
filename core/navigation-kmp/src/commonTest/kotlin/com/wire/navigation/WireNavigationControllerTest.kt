@@ -50,6 +50,37 @@ class WireNavigationControllerTest {
     }
 
     @Test
+    fun givenConversationStack_whenGoingBack_thenLastRouteIsRemovedAndChangeIsReported() {
+        val home = route("home")
+        val conversation = route("conversation")
+        val backStack = mutableListOf<NavKey>(home, conversation)
+        val changes = mutableListOf<Triple<List<WireRoute>, List<WireRoute>, WireBackStackChange>>()
+        val controller = WireNavigationController(
+            backStack,
+            onBackStackChanged = { previous, current, change -> changes.add(Triple(previous, current, change)) },
+        )
+
+        assertTrue(controller.goBack())
+
+        assertEquals(listOf<NavKey>(home), backStack)
+        assertEquals(home, controller.currentRoute)
+        assertEquals(
+            listOf(Triple(listOf<WireRoute>(home, conversation), listOf<WireRoute>(home), WireBackStackChange.BACK)),
+            changes,
+        )
+    }
+
+    @Test
+    fun givenOnlyStartRoute_whenGoingBackAllowingEmpty_thenStackIsEmpty() {
+        val controller = WireNavigationController(mutableListOf<NavKey>(route("home")))
+
+        assertTrue(controller.goBack(allowEmpty = true))
+        assertTrue(controller.routes.isEmpty())
+        assertFalse(controller.goBack())
+        assertFalse(controller.goBack(allowEmpty = true))
+    }
+
+    @Test
     fun givenOnlyStartRoute_whenGoingBack_thenStartRouteIsRetained() {
         val controller = WireNavigationController(mutableListOf<NavKey>(route("home")))
 

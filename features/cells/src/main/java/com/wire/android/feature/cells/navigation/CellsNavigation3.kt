@@ -202,6 +202,23 @@ data class AudioPlayerRoute(
 }
 
 @Serializable
+data class PdfViewerRoute(
+    override val sessionId: WireSessionId,
+    val localPath: String? = null,
+    val assetId: String? = null,
+    val remotePath: String? = null,
+    val conversationId: String? = null,
+    val assetSize: Long = 0L,
+    val fileName: String? = null,
+    /** Set when the document is displayed through a PDF rendition served by this URL. */
+    val preSignedUrl: String? = null,
+    override val entryId: WireNavEntryId = WireNavEntryId.random(),
+) : CellsRoute {
+    override val routeId = ROUTE_ID
+    companion object { const val ROUTE_ID = "cells/pdf_viewer_screen" }
+}
+
+@Serializable
 enum class CellsSearchType { SHARED_DRIVE, DRIVE }
 
 @Serializable

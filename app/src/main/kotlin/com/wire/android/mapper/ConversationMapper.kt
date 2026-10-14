@@ -17,10 +17,12 @@
  */
 package com.wire.android.mapper
 
+import com.wire.android.R
 import com.wire.android.model.BadgeEventType
 import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.model.NameBasedAvatar
 import com.wire.android.model.UserAvatarData
+import com.wire.android.ui.home.conversations.model.MessageBody
 import com.wire.android.ui.home.conversations.model.UILastMessageContent
 import com.wire.android.ui.home.conversationslist.model.BlockState
 import com.wire.android.ui.home.conversationslist.model.ConversationInfo
@@ -30,6 +32,7 @@ import com.wire.android.ui.home.conversationslist.model.ConversationItem.Group.C
 import com.wire.android.ui.home.conversationslist.model.ConversationItem.Group.Regular
 import com.wire.android.ui.home.conversationslist.model.ConversationItem.PrivateConversation
 import com.wire.android.util.ui.UiTextResolver
+import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.call.Call
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.conversation.ConversationDetails.Connection
@@ -59,33 +62,7 @@ fun ConversationDetailsWithEvents.toConversationItem(
             conversationId = conversationDetails.conversation.id,
             mutedStatus = conversationDetails.conversation.mutedStatus,
             legalHoldStatus = conversationDetails.conversation.legalHoldStatus,
-            lastMessageContent = lastMessage.toUIPreview(unreadEventCount, uiTextResolver),
-            badgeEventType = parseConversationEventType(
-                mutedStatus = conversationDetails.conversation.mutedStatus,
-                unreadEventCount = unreadEventCount
-            ),
-            hasOnGoingCall = hasJoinableCall,
-            isFromTheSameTeam = conversationDetails.conversation.teamId == selfUserTeamId,
-            isSelfUserMember = conversationDetails.isSelfUserMember,
-            teamId = conversationDetails.conversation.teamId,
-            selfMemberRole = conversationDetails.selfRole,
-            isArchived = conversationDetails.conversation.archived,
-            mlsVerificationStatus = conversationDetails.conversation.mlsVerificationStatus,
-            proteusVerificationStatus = conversationDetails.conversation.proteusVerificationStatus,
-            hasNewActivitiesToShow = hasNewActivitiesToShow.withJoinableCall(hasJoinableCall),
-            isFavorite = conversationDetails.isFavorite,
-            folder = conversationDetails.folder
-        )
-    }
-
-    is Group.Channel -> {
-        val hasJoinableCall = conversationDetails.hasJoinableCall(joinableCallsByConversationId)
-        Channel(
-            groupName = conversationDetails.conversation.name.orEmpty(),
-            conversationId = conversationDetails.conversation.id,
-            mutedStatus = conversationDetails.conversation.mutedStatus,
-            legalHoldStatus = conversationDetails.conversation.legalHoldStatus,
-            lastMessageContent = lastMessage.toUIPreview(unreadEventCount, uiTextResolver),
+            lastMessageContent = adminlessDeleteAwareLastMessage(uiTextResolver),
             badgeEventType = parseConversationEventType(
                 mutedStatus = conversationDetails.conversation.mutedStatus,
                 unreadEventCount = unreadEventCount
@@ -101,7 +78,35 @@ fun ConversationDetailsWithEvents.toConversationItem(
             hasNewActivitiesToShow = hasNewActivitiesToShow.withJoinableCall(hasJoinableCall),
             isFavorite = conversationDetails.isFavorite,
             folder = conversationDetails.folder,
-            isPrivate = conversationDetails.access == Group.Channel.ChannelAccess.PRIVATE
+            isSelfUserViewerOnly = conversationDetails.isSelfUserViewerOnly(selfUserTeamId)
+        )
+    }
+
+    is Group.Channel -> {
+        val hasJoinableCall = conversationDetails.hasJoinableCall(joinableCallsByConversationId)
+        Channel(
+            groupName = conversationDetails.conversation.name.orEmpty(),
+            conversationId = conversationDetails.conversation.id,
+            mutedStatus = conversationDetails.conversation.mutedStatus,
+            legalHoldStatus = conversationDetails.conversation.legalHoldStatus,
+            lastMessageContent = adminlessDeleteAwareLastMessage(uiTextResolver),
+            badgeEventType = parseConversationEventType(
+                mutedStatus = conversationDetails.conversation.mutedStatus,
+                unreadEventCount = unreadEventCount
+            ),
+            hasOnGoingCall = hasJoinableCall,
+            isFromTheSameTeam = conversationDetails.conversation.teamId == selfUserTeamId,
+            isSelfUserMember = conversationDetails.isSelfUserMember,
+            teamId = conversationDetails.conversation.teamId,
+            selfMemberRole = conversationDetails.selfRole,
+            isArchived = conversationDetails.conversation.archived,
+            mlsVerificationStatus = conversationDetails.conversation.mlsVerificationStatus,
+            proteusVerificationStatus = conversationDetails.conversation.proteusVerificationStatus,
+            hasNewActivitiesToShow = hasNewActivitiesToShow.withJoinableCall(hasJoinableCall),
+            isFavorite = conversationDetails.isFavorite,
+            folder = conversationDetails.folder,
+            isPrivate = conversationDetails.access == Group.Channel.ChannelAccess.PRIVATE,
+            isSelfUserViewerOnly = conversationDetails.isSelfUserViewerOnly(selfUserTeamId)
         )
     }
 
@@ -122,7 +127,7 @@ fun ConversationDetailsWithEvents.toConversationItem(
             conversationId = conversationDetails.conversation.id,
             mutedStatus = conversationDetails.conversation.mutedStatus,
             legalHoldStatus = conversationDetails.conversation.legalHoldStatus,
-            lastMessageContent = lastMessage.toUIPreview(unreadEventCount, uiTextResolver),
+            lastMessageContent = adminlessDeleteAwareLastMessage(uiTextResolver),
             badgeEventType = parsePrivateConversationEventType(
                 conversationDetails.otherUser.connectionStatus,
                 conversationDetails.otherUser.deleted,
@@ -181,10 +186,29 @@ fun ConversationDetailsWithEvents.toConversationItem(
     }
 }
 
+private fun ConversationDetailsWithEvents.adminlessDeleteAwareLastMessage(
+    uiTextResolver: UiTextResolver
+): UILastMessageContent = if (
+    !conversationDetails.conversation.archived && conversationDetails.conversation.adminlessGroupDeletionTimestamp != null
+) {
+    UILastMessageContent.TextMessage(
+        MessageBody(UIText.StringResource(R.string.last_message_adminless_delete_reminder))
+    )
+} else {
+    lastMessage.toUIPreview(unreadEventCount, uiTextResolver)
+}
+
 private fun Group.hasJoinableCall(joinableCallsByConversationId: Map<ConversationId, Call>): Boolean =
     joinableCallsByConversationId.containsKey(conversation.id) && isSelfUserMember
 
 private fun Boolean.withJoinableCall(hasJoinableCall: Boolean): Boolean = this || hasJoinableCall
+
+/**
+ * The self user only has viewer access when the conversation has a shared drive (Wire Cell)
+ * and the conversation is not owned by the self user's team.
+ */
+private fun Group.isSelfUserViewerOnly(selfUserTeamId: TeamId?): Boolean =
+    wireCell != null && conversation.teamId != selfUserTeamId
 
 private fun parseConnectionEventType(connectionState: ConnectionState) =
     if (connectionState == ConnectionState.SENT) {

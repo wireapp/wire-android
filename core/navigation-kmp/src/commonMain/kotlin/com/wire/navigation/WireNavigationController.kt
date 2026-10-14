@@ -69,7 +69,8 @@ class WireNavigationController(
     fun goBack(allowEmpty: Boolean = false): Boolean {
         if (backStack.isEmpty() || (!allowEmpty && backStack.size == 1)) return false
         val previous = routes
-        backStack.removeLast()
+        // List.removeLast() is only available on Android API 35 and newer.
+        backStack.removeAt(backStack.lastIndex)
         onBackStackChanged(previous, routes, WireBackStackChange.BACK)
         return true
     }

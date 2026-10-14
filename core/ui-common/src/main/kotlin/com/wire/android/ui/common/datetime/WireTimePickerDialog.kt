@@ -17,6 +17,7 @@
  */
 package com.wire.android.ui.common.datetime
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -26,9 +27,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.material3.TimePicker
+import androidx.compose.material3.TimePickerDefaults
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -37,6 +38,7 @@ import com.wire.android.ui.common.R
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.button.WireSecondaryButton
+import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.common.typography
@@ -79,17 +81,12 @@ private fun TimePickerDialogContent(
     onTimeSelected: (TimePickerResult) -> Unit,
     onDismiss: () -> Unit,
 ) {
+    val timePickerState = rememberTimePickerState(
+        initialHour = selectedTime?.hour ?: 0,
+        initialMinute = selectedTime?.minute ?: 0,
+    )
 
-    val timePickerState = rememberTimePickerState()
-
-    selectedTime?.let {
-        LaunchedEffect(Unit) {
-            timePickerState.hour = selectedTime.hour
-            timePickerState.minute = selectedTime.minute
-        }
-    }
-
-    Column {
+    Column(modifier = Modifier.background(color = colorsScheme().surface)) {
         Text(
             modifier = Modifier.padding(horizontal = dimensions().spacing16x),
             text = title,
@@ -99,6 +96,14 @@ private fun TimePickerDialogContent(
         TimePicker(
             modifier = Modifier.align(Alignment.CenterHorizontally),
             state = timePickerState,
+            colors = TimePickerDefaults.colors(
+                containerColor = colorsScheme().surface,
+                clockDialColor = colorsScheme().primaryVariant,
+                periodSelectorBorderColor = colorsScheme().outline,
+                periodSelectorSelectedContainerColor = colorsScheme().primaryVariant,
+                periodSelectorSelectedContentColor = colorsScheme().onPrimaryVariant,
+                timeSelectorUnselectedContainerColor = colorsScheme().surfaceContainer,
+            )
         )
         Row(
             modifier = Modifier

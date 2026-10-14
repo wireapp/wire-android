@@ -28,6 +28,7 @@ import com.wire.android.di.KaliumConfigsModule
 import com.wire.android.di.LogWriterModule
 import com.wire.android.di.ManagedConfigurationsModule
 import com.wire.android.di.UseCaseModule
+import com.wire.android.notification.broadcastreceivers.DriveUploadActionReceiver
 import com.wire.android.notification.broadcastreceivers.EndOngoingCallReceiver
 import com.wire.android.notification.broadcastreceivers.IncomingCallActionReceiver
 import com.wire.android.notification.broadcastreceivers.NomadLogoutReceiver
@@ -93,6 +94,7 @@ interface WireApplicationGraph : ViewModelGraph {
     fun inject(receiver: StopAudioMessageReceiver)
     fun inject(receiver: NotificationReplyReceiver)
     fun inject(receiver: PlayPauseAudioMessageReceiver)
+    fun inject(receiver: DriveUploadActionReceiver)
 
     @DependencyGraph.Factory
     interface Factory {

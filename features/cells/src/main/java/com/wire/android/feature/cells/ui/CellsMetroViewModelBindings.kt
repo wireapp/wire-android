@@ -40,10 +40,12 @@ import com.wire.android.feature.cells.ui.search.SearchScreenViewModel
 import com.wire.android.feature.cells.ui.search.SearchNavArgs
 import com.wire.android.feature.cells.ui.tags.AddRemoveTagsNavArgs
 import com.wire.android.feature.cells.ui.tags.AddRemoveTagsViewModel
+import com.wire.android.feature.cells.ui.upload.UploadStatusViewModel
 import com.wire.android.feature.cells.ui.versioning.VersionHistoryViewModel
 import com.wire.android.feature.cells.ui.versioning.VersionHistoryNavArgs
 import dev.zacsweers.metro.BindingContainer
 import dev.zacsweers.metro.IntoMap
+import dev.zacsweers.metro.Provider
 import dev.zacsweers.metro.Provides
 import dev.zacsweers.metrox.viewmodel.ManualViewModelAssistedFactory
 import dev.zacsweers.metrox.viewmodel.ManualViewModelAssistedFactoryKey
@@ -62,6 +64,7 @@ internal interface CellsManualViewModelFactory : ManualViewModelAssistedFactory 
     fun addRemoveTags(navArgs: AddRemoveTagsNavArgs): AddRemoveTagsViewModel
     fun versionHistory(navArgs: VersionHistoryNavArgs): VersionHistoryViewModel
     fun imageViewer(navArgs: CellImageViewerNavArgs): CellImageViewerViewModel
+    fun uploadStatus(): UploadStatusViewModel
 }
 
 @BindingContainer
@@ -84,6 +87,7 @@ object CellsMetroViewModelBindings {
         addRemoveTagsFactory: AddRemoveTagsViewModel.Factory,
         versionHistoryFactory: VersionHistoryViewModel.Factory,
         imageViewerFactory: CellImageViewerViewModel.Factory,
+        uploadStatusProvider: Provider<UploadStatusViewModel>,
     ): ManualViewModelAssistedFactory =
         object : CellsManualViewModelFactory {
             override fun cell(navArgs: CellFilesNavArgs) = cellFactory.create(navArgs, null)
@@ -101,5 +105,6 @@ object CellsMetroViewModelBindings {
             override fun addRemoveTags(navArgs: AddRemoveTagsNavArgs) = addRemoveTagsFactory.create(navArgs)
             override fun versionHistory(navArgs: VersionHistoryNavArgs) = versionHistoryFactory.create(navArgs)
             override fun imageViewer(navArgs: CellImageViewerNavArgs) = imageViewerFactory.create(navArgs)
+            override fun uploadStatus() = uploadStatusProvider()
         }
 }

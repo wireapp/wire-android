@@ -90,7 +90,7 @@ enum class CommentResId(@StringRes val value: Int) {
     LOCATION(R.string.notification_shared_location),
 }
 
-fun LocalNotification.Conversation.intoNotificationConversation(): NotificationConversation {
+fun LocalNotification.Conversation.NewMessages.intoNotificationConversation(): NotificationConversation {
 
     val notificationMessages = this.messages.map { it.intoNotificationMessage() }.sortedBy { it.time }
     val lastMessageTime = this.messages.maxOfOrNull { it.time.toEpochMilliseconds() } ?: 0

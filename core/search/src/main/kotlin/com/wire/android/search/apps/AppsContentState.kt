@@ -26,5 +26,4 @@ enum class AppsContentState {
     EMPTY_INITIAL,
     EMPTY_SEARCH,
     SHOW_RESULTS,
-    APPS_NOT_ENABLED_FOR_CONVERSATION
 }

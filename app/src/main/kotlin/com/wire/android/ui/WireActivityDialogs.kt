@@ -110,6 +110,7 @@ internal data class WireActivityDialogActions(
     val openJoinedConversation: (ConversationId) -> Unit,
     val startTeamAppLock: () -> Unit,
     val hardLogout: () -> Unit,
+    val logout: (Boolean) -> Unit,
     val recoverFromLoggedOutSession: () -> Unit,
 )
 
@@ -147,6 +148,16 @@ internal fun WireActivityDialogs(
             onDismiss = viewModel::dismissCrossBackendLoginBlockedDialog,
         )
         return
+    }
+
+    val startupAccountLimitState = viewModel.globalAppState
+
+    if (startupAccountLimitState.currentUserId != null && !startupAccountLimitState.isSessionTransitionInProgress) {
+        com.wire.android.ui.common.dialogs.StartupAccountLimitDialogFlow(
+            visible = startupAccountLimitState.startupAccountLimitDialog,
+            onDismiss = viewModel::dismissStartupAccountLimitDialog,
+            logout = actions.logout,
+        )
     }
 
     val callFeedbackViewModel = activityViewModels.callFeedbackViewModel

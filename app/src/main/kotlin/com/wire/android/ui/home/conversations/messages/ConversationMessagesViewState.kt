@@ -32,6 +32,7 @@ import kotlinx.datetime.Instant
 data class ConversationMessagesViewState(
     val messages: Flow<PagingData<UIMessage>> = emptyFlow(),
     val firstUnreadInstant: Instant? = null,
+    val adminlessGroupDeletionTimestamp: Instant? = null,
     val firstUnreadEventIndex: Int = 0,
     val downloadedAssetDialogState: DownloadedAssetDialogVisibilityState = DownloadedAssetDialogVisibilityState.Hidden,
     val playingAudioMessage: PlayingAudioMessage = PlayingAudioMessage.None,

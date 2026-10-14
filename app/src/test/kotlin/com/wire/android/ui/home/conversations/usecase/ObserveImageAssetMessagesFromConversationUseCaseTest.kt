@@ -22,7 +22,7 @@ import androidx.paging.testing.asSnapshot
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.mapper.UIAssetMapper
-import com.wire.android.util.time.TimeZoneProvider
+import com.wire.android.util.time.CurrentTimeZoneProvider
 import com.wire.kalium.logic.data.asset.AssetMessage
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.feature.asset.ObservePaginatedAssetImageMessages
@@ -77,7 +77,7 @@ class ObserveImageAssetMessagesFromConversationUseCaseTest {
         lateinit var getAssetMessages: ObservePaginatedAssetImageMessages
 
         @MockK
-        lateinit var timeZoneProvider: TimeZoneProvider
+        lateinit var timeZoneProvider: CurrentTimeZoneProvider
 
         private val useCase: ObserveImageAssetMessagesFromConversationUseCase by lazy {
             ObserveImageAssetMessagesFromConversationUseCase(
@@ -90,7 +90,7 @@ class ObserveImageAssetMessagesFromConversationUseCaseTest {
 
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
-            every { timeZoneProvider.currentSystemDefault() } returns TimeZone.of("UTC")
+            every { timeZoneProvider.invoke() } returns TimeZone.of("UTC")
         }
 
         suspend fun sendPagingData(pagingItems: List<AssetMessage>) = apply {

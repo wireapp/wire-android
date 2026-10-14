@@ -104,6 +104,13 @@ internal fun navigation3DialogActions(
                 switchAccountActions = switchAccountActions,
             )
         },
+        logout = { wipeData ->
+            dependencies.viewModel.doHardLogout(
+                clearUserData = { UserDataStore(dependencies.context, it) },
+                switchAccountActions = switchAccountActions,
+                wipeData = wipeData,
+            )
+        },
         recoverFromLoggedOutSession = {
             dependencies.viewModel.tryToSwitchAccount(switchAccountActions)
         },

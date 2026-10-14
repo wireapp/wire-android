@@ -45,6 +45,7 @@ allprojects {
     repositories {
         google()
         mavenCentral()
+        maven(url = "https://maven.wire.com")
         maven(url = "https://jitpack.io")
         maven(url = "https://oss.sonatype.org/content/repositories/snapshots")
     }

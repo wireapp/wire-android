@@ -168,9 +168,10 @@ private fun UploadStatusHeader(
 }
 
 /**
- * "Uploading N files" while nothing has finished yet, "Upload complete" once every file succeeded,
- * and "X of Y uploaded" otherwise — while some are still running/queued after others finished, or
- * once the batch ended with a failure.
+ * "Uploading N files" while nothing has finished yet (which also covers a batch that is still only being
+ * staged, since a [CellUploadState.Preparing] item does not count as finished either), "Upload complete"
+ * once every file succeeded, and "X of Y uploaded" otherwise — while some are still running/queued after
+ * others finished, or once the batch ended with a failure.
  */
 @Composable
 internal fun uploadStatusTitle(uploads: List<CellUploadItem>): String {
@@ -262,7 +263,7 @@ private fun UploadStatusRowIcon(state: CellUploadState, fileName: String) {
                     .padding(dimensions().spacing6x),
             )
 
-            CellUploadState.Queued, CellUploadState.Completed, CellUploadState.Cancelled -> {
+            is CellUploadState.Preparing, CellUploadState.Queued, CellUploadState.Completed, CellUploadState.Cancelled -> {
                 val fileType = remember(fileName) {
                     fileName.fileExtension()?.let(AttachmentFileType::fromExtension) ?: AttachmentFileType.OTHER
                 }
@@ -279,7 +280,7 @@ private fun UploadStatusRowIcon(state: CellUploadState, fileName: String) {
 @Composable
 private fun UploadStatusRowSubtitle(item: CellUploadItem) {
     when (item.state) {
-        CellUploadState.Queued -> UploadStatusSubtitleText(
+        is CellUploadState.Preparing, CellUploadState.Queued -> UploadStatusSubtitleText(
             text = stringResource(R.string.cells_upload_status_subtitle_queued),
             color = colorsScheme().secondaryText,
         )
@@ -368,6 +369,6 @@ private fun UploadStatusRowActions(
             }
         }
 
-        CellUploadState.Completed -> Unit
+        is CellUploadState.Preparing, CellUploadState.Completed -> Unit
     }
 }

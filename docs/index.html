@@ -970,6 +970,57 @@ be maintained if diagnostic log naming changes.</p>
                 </div>
             </div>
             
+            <div class="panel panel-default">
+                <div class="panel-heading adr-accepted">
+                    <h4 class="panel-title">
+                        <a data-toggle="collapse" href="#collapse16">16. Beta releases from release-cycle branch tips</a>
+
+                        
+                        <i class="adr-icon fas fa-fw fa-check"></i>
+                        
+
+                    </h4>
+                </div>
+                <div id="collapse16" class="panel-collapse collapse">
+                    <div class="panel-body"><h1>16. Beta releases from release-cycle branch tips</h1>
+<p>Date: 2026-10-14</p>
+<h2>Status</h2>
+<p>Accepted</p>
+<h2>Context</h2>
+<p>Release-cycle branches stabilize a selected Wire Android release while develop
+continues independently. Requiring beta commits to be ancestors of develop
+blocks stabilization fixes created or cherry-picked onto a release-cycle branch.
+Cherry-picking the same changes back produces different commits and does not
+satisfy that requirement.</p>
+<p>Allowing every historical release-cycle commit would enable a newly numbered
+beta to omit fixes already selected for the release. Restricting sources to the
+latest tip avoids that mistake, but reduces retry flexibility.</p>
+<h2>Decision</h2>
+<p>Beta releases originate only from live remote tips of <code>release/cycle-*</code> branches.
+Pushed tags must match at least one such tip; manual releases must match the
+selected release-cycle branch's tip. Develop ancestry is not required.</p>
+<p>Both workflows use one source-validation command through Make, following ADR
+0012. Existing tag format, app-version matching, numbering, checks, and
+distribution remain unchanged. Release/candidate retains its separate RC flow.</p>
+<p>Each executed source validation applies the tip rule anew. Successful validation
+pins the tagged commit for downstream jobs; no historical eligibility record is
+introduced.</p>
+<h2>Consequences</h2>
+<ul>
+<li>Release-cycle fixes can reach successive betas independently of develop.</li>
+<li>Older commits fail fresh validation after their branch advances or is deleted.</li>
+<li>Failed downstream jobs can reuse successful validation through ordinary
+failed-job reruns; rerunning validation may require a new beta at the latest tip.</li>
+<li>A branch moving before validation can cause rejection; moving afterward does
+not change the commit being built.</li>
+<li>This policy does not enforce monotonically newer deployments across retries.</li>
+<li>Existing release-cycle branches need the workflows and validation command
+before they can use this process.</li>
+</ul>
+</div>
+                </div>
+            </div>
+            
         </div>
         <footer>
             Generated with &lt;3 using ADR Viewer

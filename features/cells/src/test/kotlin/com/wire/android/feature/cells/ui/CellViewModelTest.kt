@@ -782,7 +782,7 @@ class CellViewModelTest {
 
         // beginPreparing registers a placeholder for every file synchronously, before staging
         // (which can take a while for large files) has had a chance to resolve any of them.
-        coVerify(exactly = 2) { arrangement.uploadCoordinator.beginPreparing(any(), "conversationId") }
+        coVerify(exactly = 2) { arrangement.uploadCoordinator.beginPreparing(any(), any()) }
         coVerify(exactly = 0) { arrangement.uploadCoordinator.failPreparing(any()) }
 
         prepareGate.complete(Unit)

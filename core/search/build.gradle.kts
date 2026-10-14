@@ -44,6 +44,7 @@ dependencies {
     testImplementation(libs.junit5.params)
     testImplementation(libs.mockk.core)
     testImplementation(libs.coroutines.test)
+    testImplementation(libs.androidx.paging.testing)
     testImplementation(testFixtures(projects.core.uiCommon))
     testRuntimeOnly(libs.junit5.engine)
     androidTestImplementation(libs.androidx.test.extJunit)

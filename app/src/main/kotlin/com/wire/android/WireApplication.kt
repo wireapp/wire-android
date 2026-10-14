@@ -131,9 +131,7 @@ class WireApplication : BaseApp() {
             .build()
 
     override fun onCreate() {
-        // Android creates an Application in the separate :restart process too. That process only
-        // relaunches Wire, so skip dependency injection, sync, and other normal app initialization.
-        // Calling super still performs the base Application initialization.
+        // The :restart helper only replaces the main process. Avoid initializing DI, sync, and databases there.
         val processName = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             getProcessName()
         } else {

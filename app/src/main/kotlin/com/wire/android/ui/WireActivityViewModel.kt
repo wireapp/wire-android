@@ -180,7 +180,6 @@ class WireActivityViewModel @Inject constructor(
     private lateinit var validSessions: StateFlow<List<AccountInfo>>
 
     init {
-        observeApiVersionChange()
         observeSyncState()
         observeUpdateAppState()
         observeNewClientState()
@@ -244,30 +243,6 @@ class WireActivityViewModel @Inject constructor(
                 SupportUrlResolver.setBaseUrl(websiteUrl)
             }
         }
-    }
-
-    private fun observeApiVersionChange() {
-        viewModelScope.launch {
-            observeCurrentValidUserId.flatMapLatest { userId ->
-                userId?.let { coreLogic.value.getSessionScope(it).observeApiVersionChange() } ?: flowOf(false)
-            }.flowOn(dispatchers.io()).collect { changed ->
-                globalAppState = globalAppState.copy(restartAppDialog = changed || globalAppState.isRestarting)
-            }
-        }
-    }
-
-    fun restartApp() {
-        if (globalAppState.isRestarting) return
-        globalAppState = globalAppState.copy(restartAppDialog = true, isRestarting = true)
-        viewModelScope.launch {
-            withContext(dispatchers.io()) { coreLogic.value.stopSyncForRestart() }
-            sendAction(OnRestartApp)
-        }
-    }
-
-    fun dismissRestartAppDialog() {
-        if (globalAppState.isRestarting) return
-        globalAppState = globalAppState.copy(restartAppDialog = false)
     }
 
     private fun observeSyncState() {
@@ -1034,8 +1009,6 @@ data class GlobalAppState(
     val crossBackendLoginBlockedDialog: Boolean = false,
     val blockUserUI: CurrentSessionErrorState? = null,
     val updateAppDialog: Boolean = false,
-    val restartAppDialog: Boolean = false,
-    val isRestarting: Boolean = false,
     val conversationJoinedDialog: JoinConversationViaCodeState? = null,
     val newClientDialog: NewClientsData? = null,
     val screenshotCensoringEnabled: Boolean = true,
@@ -1098,7 +1071,6 @@ internal data class OpenConversation(val result: DeepLinkResult.OpenConversation
 internal data class OpenMeetings(val result: DeepLinkResult.OpenMeetings) : WireActivityViewAction
 internal data class OpenDriveFiles(val result: DeepLinkResult.OpenDriveFiles) : WireActivityViewAction
 internal data object OnShowImportMediaScreen : WireActivityViewAction
-internal data object OnRestartApp : WireActivityViewAction
 internal data object OnAuthorizationNeeded : WireActivityViewAction
 internal data object OnUnknownDeepLink : WireActivityViewAction
 internal data class OnMigrationLogin(val result: DeepLinkResult.MigrationLogin) : WireActivityViewAction

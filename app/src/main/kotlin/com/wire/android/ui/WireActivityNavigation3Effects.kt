@@ -77,7 +77,6 @@ internal fun HandleNavigation3ViewActions(
                     )
             }
         }
-        if (resolution.restartApp) RestartActivity.restart(context)
         resolution.toastMessageResId?.let { showNavigation3Toast(context, it) }
     }
 }
@@ -85,7 +84,6 @@ internal fun HandleNavigation3ViewActions(
 internal data class WireActivityNavigation3EffectResolution(
     val mutations: List<WireActivityNavigation3Mutation> = emptyList(),
     val toastMessageResId: Int? = null,
-    val restartApp: Boolean = false,
 )
 
 internal sealed interface WireActivityNavigation3Mutation {
@@ -102,7 +100,6 @@ internal object WireActivityNavigation3EffectResolver {
         currentSessionId: WireSessionId?,
         canUseNewLogin: Boolean,
     ): WireActivityNavigation3EffectResolution = when (action) {
-        OnRestartApp -> WireActivityNavigation3EffectResolution(restartApp = true)
         OnAuthorizationNeeded -> authorizationNeeded(routes)
         is OnMigrationLogin -> migration(action, routes, canUseNewLogin)
         is OnAutomaticLogin -> automaticLogin(action, routes)

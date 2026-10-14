@@ -25,6 +25,7 @@ import com.wire.kalium.logic.data.conversation.ResetMLSConversationUseCase
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.conversation.AddMemberToConversationUseCase
 import com.wire.kalium.logic.feature.conversation.AddServiceToConversationUseCase
+import com.wire.kalium.logic.feature.conversation.CheckConversationLeaveConditionsUseCase
 import com.wire.kalium.logic.feature.conversation.CheckOneToOneConversationIsReadyUseCase
 import com.wire.kalium.logic.feature.conversation.ClearConversationContentUseCase
 import com.wire.kalium.logic.feature.conversation.ClearUsersTypingEventsUseCase
@@ -34,15 +35,15 @@ import com.wire.kalium.logic.feature.conversation.GetConversationUnreadEventsCou
 import com.wire.kalium.logic.feature.conversation.GetOneToOneConversationDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.GetOrCreateOneToOneConversationUseCase
 import com.wire.kalium.logic.feature.conversation.GetPaginatedFlowOfConversationDetailsWithEventsBySearchQueryUseCase
+import com.wire.kalium.logic.feature.conversation.GetPaginatedFlowOfConversationDetailsWithMembersBySearchQueryUseCase
 import com.wire.kalium.logic.feature.conversation.IsOneToOneConversationCreatedUseCase
-import com.wire.kalium.logic.feature.conversation.JoinConversationViaCodeUseCase
-import com.wire.kalium.logic.feature.conversation.CheckConversationLeaveConditionsUseCase
-import com.wire.kalium.logic.feature.conversation.LeaveConversationUseCase
-import com.wire.kalium.logic.feature.conversation.MembersToMentionUseCase
-import com.wire.kalium.logic.feature.conversation.ObserveEligibleMembersForConversationAdminRoleUseCase
-import com.wire.kalium.logic.feature.conversation.PromoteAdminAndLeaveConversationUseCase
-import com.wire.kalium.logic.feature.conversation.NotifyConversationIsOpenUseCase
 import com.wire.kalium.logic.feature.conversation.IsSelfUserViewerOnConversationUseCase
+import com.wire.kalium.logic.feature.conversation.JoinConversationViaCodeUseCase
+import com.wire.kalium.logic.feature.conversation.LeaveConversationUseCase
+import com.wire.kalium.logic.feature.conversation.MarkConversationAsReadLocallyUseCase
+import com.wire.kalium.logic.feature.conversation.MembersToMentionUseCase
+import com.wire.kalium.logic.feature.conversation.MigrateConversationToMLSUseCase
+import com.wire.kalium.logic.feature.conversation.NotifyConversationIsOpenUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveArchivedUnreadConversationsCountUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationInteractionAvailabilityUseCase
@@ -51,9 +52,11 @@ import com.wire.kalium.logic.feature.conversation.ObserveConversationListDetails
 import com.wire.kalium.logic.feature.conversation.ObserveConversationMembersUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationUnderLegalHoldNotifiedUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveDegradedConversationNotifiedUseCase
+import com.wire.kalium.logic.feature.conversation.ObserveEligibleMembersForConversationAdminRoleUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveIsSelfUserMemberUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveUserListByIdUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveUsersTypingUseCase
+import com.wire.kalium.logic.feature.conversation.PromoteAdminAndLeaveConversationUseCase
 import com.wire.kalium.logic.feature.conversation.RefreshConversationsWithoutMetadataUseCase
 import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUseCase
 import com.wire.kalium.logic.feature.conversation.RenameConversationUseCase
@@ -65,8 +68,6 @@ import com.wire.kalium.logic.feature.conversation.UpdateConversationAccessRoleUs
 import com.wire.kalium.logic.feature.conversation.UpdateConversationArchivedStatusUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMemberRoleUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
-import com.wire.kalium.logic.feature.conversation.MarkConversationAsReadLocallyUseCase
-import com.wire.kalium.logic.feature.conversation.MigrateConversationToMLSUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationReadDateUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationReceiptModeUseCase
 import com.wire.kalium.logic.feature.conversation.apps.ChangeAccessForAppsInConversationUseCase
@@ -82,6 +83,7 @@ import com.wire.kalium.logic.feature.conversation.folder.ObserveUserFoldersUseCa
 import com.wire.kalium.logic.feature.conversation.folder.RemoveConversationFromFavoritesUseCase
 import com.wire.kalium.logic.feature.conversation.folder.RemoveConversationFromFolderUseCase
 import com.wire.kalium.logic.feature.conversation.getPaginatedFlowOfConversationDetailsWithEventsBySearchQuery
+import com.wire.kalium.logic.feature.conversation.getPaginatedFlowOfConversationDetailsWithMembersBySearchQuery
 import com.wire.kalium.logic.feature.conversation.guestroomlink.CanCreatePasswordProtectedLinksUseCase
 import com.wire.kalium.logic.feature.conversation.guestroomlink.GenerateGuestRoomLinkUseCase
 import com.wire.kalium.logic.feature.conversation.guestroomlink.ObserveGuestRoomLinkUseCase
@@ -319,6 +321,12 @@ class ConversationModule {
     @Provides
     fun provideGetConversationProtocolInfoUseCase(conversationScope: ConversationScope): GetConversationProtocolInfoUseCase =
         conversationScope.getConversationProtocolInfo
+
+    @Provides
+    fun provideGetPaginatedFlowOfConversationDetailsWithMembersBySearchQueryUseCase(
+        conversationScope: ConversationScope
+    ): GetPaginatedFlowOfConversationDetailsWithMembersBySearchQueryUseCase =
+        conversationScope.getPaginatedFlowOfConversationDetailsWithMembersBySearchQuery
 
     @Provides
     fun provideGetPaginatedFlowOfConversationDetailsWithEventsBySearchQueryUseCase(

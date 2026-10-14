@@ -24,10 +24,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
-import com.wire.android.R
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
-import com.wire.android.util.ui.PreviewMultipleThemes
+import com.wire.android.ui.common.preview.MultipleThemePreviews
 
 @Composable
 fun LegalHoldIndicator(modifier: Modifier = Modifier.size(dimensions().spacing12x)) {
@@ -39,7 +38,7 @@ fun LegalHoldIndicator(modifier: Modifier = Modifier.size(dimensions().spacing12
     )
 }
 
-@PreviewMultipleThemes
+@MultipleThemePreviews
 @Composable
 fun PreviewLegalHoldIndicator() {
     WireTheme {

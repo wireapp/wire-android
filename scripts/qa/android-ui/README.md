@@ -1,11 +1,10 @@
-# QA Android UI Test CI Scripts
+# QA Android Critical Flow CI
 
-These scripts back the Android UI test workflows:
+These Android UI test scripts back **QA Android Critical Flow Tests**:
 
 - `.github/workflows/qa-android-critical-flow-tests.yml`
-- `.github/workflows/qa-android-ui-test-manual-deflake.yml`
 
-The workflows call a small set of phase-oriented scripts instead of many tiny one-off files.
+The workflow calls a small set of phase-oriented scripts instead of many tiny one-off files.
 
 ## Test Service URL
 
@@ -51,29 +50,65 @@ precedence, followed by the Gradle property and then `local.properties`.
 
 ### `qa-android-critical-flow-tests.yml`
 
-Main critical-flow workflow.
+One Critical Flow workflow for normal tests, automatic failed-test retries,
+and manual deflake.
 
 - Supports `workflow_dispatch`.
-- Runs nightly on `schedule` at `04:00 UTC`.
+- Offers `runMode`: **Normal tests** (default) or **Deflake failed tests**.
+- Manual normal runs default to `@criticalFlow`; replace `TAGS` with another
+  category or test case ID when needed.
+- Runs nightly on `schedule` at `04:00 UTC` (06:00 in Berlin in summer,
+  05:00 in winter).
 - Uses built-in defaults for non-manual runs:
   - latest APK
-  - upgrade mode enabled
+  - upgrade mode disabled (upgrade tests are not part of the nightly suite)
   - `alpha release candidate`
   - `@criticalFlow`
   - `criticalFlow` device group
   - failed-test rerun enabled with count `1`
 - Exports one standard deflake artifact for later manual reruns.
+- Publishes normal and manual deflake reports on the same Critical Flow
+  reports page (`qa-ui-tests`), with a separate report for each run.
+- Sends both modes to the same Wire conversation with distinct headings:
+  `android critical flows` and `android critical flows manual deflake`.
 
-### `qa-android-ui-test-manual-deflake.yml`
+### Deflake Mode
 
-Manual workflow for rerunning only the leftover failed tests from an earlier run.
+Deflake is an option in **QA Android Critical Flow Tests**, rather than a
+separate workflow. To launch it:
 
-- Triggered with a `sourceRunId`.
-- Accepts a previous critical-flow run or a previous manual deflake run.
+1. Open **Run workflow** on `develop` and choose **Deflake failed tests**.
+2. Enter the previous run's `manual deflake id` into `sourceRunId`.
+3. Select the source run's `androidDeviceGroup`.
+4. Leave **Use original run settings** selected for retries, or choose
+   **Use settings entered below** and set the existing retry checkbox and count.
+5. Click **Run workflow**.
+
+- Accepts a previous normal or deflake run from this workflow, while its artifact
+  is still available.
 - Downloads the standard deflake artifact from that selected run.
 - Runs only the failed tests listed in the artifact.
-- Publishes a fresh Allure report for the manual deflake run only.
+- Publishes its own Allure report on the shared Critical Flow reports page (`qa-ui-tests`), without merging results into the source run.
+- Sends results and the report link to the same Wire conversation with an `android critical flows manual deflake` heading.
 - Exports a fresh deflake artifact again so a deflake run can be deflaked later.
+
+Deflake always inherits the source build, flavor, test revision, selector,
+upgrade settings, and device selection. It also inherits the Testiny run name:
+if the source had a name, deflake updates that same run; if it had no name,
+Testiny reporting stays disabled. The normal-run `testinyRunName` input cannot
+override this behavior.
+
+GitHub displays all inputs in both modes, so normal-only fields are labeled
+accordingly and ignored during deflake. `sourceRunId` is optional in the form
+but mandatory in deflake mode. Normal mode rejects a nonempty `sourceRunId`
+to avoid accidentally starting normal tests when a deflake was intended.
+
+The retry count means **additional attempts after the first execution**.
+With custom retries enabled, `0` executes the source failures once; `1`
+allows one extra attempt; `2` allows two; `3` allows three. Turning retries off
+executes them once regardless of the count. Each additional attempt runs only the tests
+that still fail. The effective settings are saved into the new artifact so
+a later deflake can inherit them. Scheduled runs always use normal mode.
 
 ## Manual Deflake ID
 
@@ -81,7 +116,8 @@ Every workflow run that exports the standard deflake bundle writes a copy-friend
 
 - `manual deflake id: <github.run_id>`
 
-This is the GitHub Actions run ID to paste into the manual deflake workflow input.
+This is the GitHub Actions run ID to paste into `sourceRunId` after selecting
+**Deflake failed tests** in **QA Android Critical Flow Tests**.
 
 ## Standard Deflake Artifact
 
@@ -98,7 +134,8 @@ Bundle contents:
 `metadata.json` carries the run context needed by later manual deflake runs, including:
 
 - workflow name and file
-- run ID, run number, run attempt, branch, and commit
+- run ID, run number, run attempt, branch, and triggering commit
+- actual checked-out test commit, preserved through chained deflake runs
 - flavor and selector
 - effective Test Service URL
 - build inputs and resolved build info
@@ -161,8 +198,8 @@ device groups were introduced, select the appropriate group manually.
 Both secret-bearing jobs use the GitHub environment `android-e2e`. Configure
 that environment with required reviewers and restrict deployment branches to
 the repository default branch. Store the AWS, 1Password, and notification
-secrets used by these workflows as environment secrets rather than repository
-secrets. The workflows also reject manual runs from other refs and check out
+secrets used by this workflow as environment secrets rather than repository
+secrets. The workflow also rejects manual runs from other refs and checks out
 the default branch without persisting credentials, but environment protection
 is the enforcement boundary that a modified branch workflow cannot remove.
 
@@ -194,6 +231,9 @@ The rerun feature is controlled by workflow inputs:
 
 - `rerunFailedEnabled`: turn failed-test reruns on or off for this workflow run
 - `rerunFailedCount`: maximum number of rerun attempts after attempt `0` completes; default is `1`
+
+For deflake these controls apply only when `deflakeRetrySettings` is **Use
+settings entered below**; the default inherits both values from the source run.
 
 Execution flow:
 
@@ -227,9 +267,12 @@ Reporting behavior:
 The selector decides which tests are in scope. Upgrade mode decides how the
 selected upgrade-tagged subset is executed.
 
-- `@criticalFlow` runs only `criticalFlow` tests.
-- `@regression` runs only `regression` tests.
+- `@criticalFlow` is the manual default and runs only `criticalFlow` tests.
 - `@TC-1234` runs only that test case.
+
+Manual runs can override the default; nightly runs always use `@criticalFlow`.
+Only the first nonempty comma-separated selector is used. Clearing `TAGS`
+removes the selector and selects the full suite, not just Critical Flow tests.
 
 When `isUpgrade=true` and the selector is a broad category run:
 
@@ -241,9 +284,6 @@ Examples:
 - `@criticalFlow` + `isUpgrade=true`:
   - normal phase: `criticalFlow` tests except `criticalFlow + upgrade`
   - upgrade phase: only `criticalFlow + upgrade`
-- `@regression` + `isUpgrade=true`:
-  - normal phase: `regression` tests except `regression + upgrade`
-  - upgrade phase: only `regression + upgrade`
 
 When `isUpgrade=false` and the selector is a category run:
 
@@ -259,12 +299,20 @@ When the selector is left empty and `isUpgrade=true`:
 
 1. Critical flow or an earlier manual deflake run uploads `android-ui-test-deflake-input`.
 2. A user copies the `manual deflake id` from the workflow summary.
-3. GitHub API metadata must identify a completed allowed workflow run from this repository's default branch.
-4. The downloaded artifact's repository, run, workflow, and SHA must match that API response.
-5. The recorded `testsCore` and `testsSupport` source revision is overlaid onto the current hardened harness.
+   They choose **Deflake failed tests** in the critical-flow workflow, enter
+   that ID, and select the source device group and retry-settings option.
+3. GitHub API metadata must identify a completed normal or deflake run of
+   `qa-android-critical-flow-tests.yml` from this repository's default branch.
+4. The downloaded artifact's repository, run, workflow, and triggering SHA must
+   match that API response.
+5. The actual test commit saved by the source run is used to overlay
+   `testsCore` and `testsSupport` sources onto the current hardened harness.
+   Deflake does not substitute newer test changes from `develop`.
 6. Only the leftover failed tests are executed.
 7. A fresh sanitized Allure report is published for that manual deflake run.
 8. A fresh deflake artifact is uploaded again for the next round if needed.
+9. Results and the report link are sent to the same Wire conversation with the
+   `android critical flows manual deflake` heading.
 
 ## Python Helpers
 
@@ -275,3 +323,7 @@ When the selector is left empty and `isUpgrade=true`:
 - `extract_failed_tests.py`: extract failed test IDs (`Class#method`) from one attempt's Allure result files.
 - `prepare_deflake_bundle.py`: build the standard deflake artifact and append the manual deflake ID summary.
 - `inspect_deflake_bundle.py`: validate a downloaded deflake artifact and expose its resolved values to later workflow steps.
+- `validate_source_run.py`: verify that the selected source run belongs to this
+  Critical Flow workflow and the repository's default branch.
+- `build_wire_notification.py`: build the normal or manual deflake message using
+  the explicit Critical Flow title supplied by the workflow.

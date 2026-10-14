@@ -98,6 +98,7 @@ class UploadStatusViewModelTest {
 
     private fun uploadItem(id: String) = CellUploadItem(
         id = id,
+        conversationId = "cellName",
         request = CellUploadRequest(
             localPath = "/path/to/file$id.txt".toPath(),
             fileName = "file$id.txt",

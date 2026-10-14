@@ -20,6 +20,7 @@ package com.wire.android.ui.home.meetings
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.di.CurrentAccount
 import com.wire.android.ui.common.visbility.VisibilityState
 import com.wire.android.ui.home.conversations.call.JoinOrStartCallManager
@@ -37,11 +38,13 @@ import com.wire.kalium.logic.feature.meeting.EnsureMeetingIsMLSEstablishedUseCas
 import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
 import com.wire.kalium.logic.sync.ObserveSyncStateUseCase
 import dev.zacsweers.metro.Inject
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 @Suppress("LongParameterList", "TooManyFunctions")
 class MeetingsCallViewModel @Inject constructor(
     @CurrentAccount currentAccount: UserId,
+    private val globalDataStore: Lazy<GlobalDataStore>,
     private val observeEstablishedCalls: ObserveEstablishedCallsUseCase,
     private val observeParticipantsForConversation: ObserveParticipantsForConversationUseCase,
     private val answerCall: AnswerCallUseCase,
@@ -54,6 +57,10 @@ class MeetingsCallViewModel @Inject constructor(
     private val ensureMeetingIsMLSEstablished: EnsureMeetingIsMLSEstablishedUseCase,
 ) : ViewModel() {
     val notEstablishedDialogState: VisibilityState<Unit> = VisibilityState()
+
+    suspend fun isExactAlarmAccessDialogSeen(): Boolean = globalDataStore.value.isExactAlarmAccessDialogSeen().first()
+
+    suspend fun markExactAlarmAccessDialogSeen() = globalDataStore.value.setExactAlarmAccessDialogSeen(true)
 
     val callManager = JoinOrStartCallManager(
         scope = viewModelScope,

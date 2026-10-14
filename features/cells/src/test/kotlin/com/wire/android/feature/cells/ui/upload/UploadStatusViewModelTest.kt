@@ -25,17 +25,35 @@ import io.mockk.MockKAnnotations
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.verify
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.setMain
 import okio.Path.Companion.toPath
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
 class UploadStatusViewModelTest {
 
+    private val dispatcher = UnconfinedTestDispatcher()
+
+    @BeforeEach
+    fun beforeEach() {
+        Dispatchers.setMain(dispatcher)
+    }
+
+    @AfterEach
+    fun afterEach() {
+        Dispatchers.resetMain()
+    }
+
     @Test
-    fun `given coordinator uploads, when observed, then it exposes the same value`() {
-        val uploads = listOf(uploadItem("1"), uploadItem("2"))
-        val (_, viewModel) = Arrangement()
+    fun `given coordinator uploads in this conversation, when observed, then they are exposed`() {
+        val uploads = listOf(uploadItem("1", conversationId = "convA"), uploadItem("2", conversationId = "convA"))
+        val (_, viewModel) = Arrangement(conversationId = "convA")
             .withUploads(uploads)
             .arrange()
 
@@ -43,8 +61,18 @@ class UploadStatusViewModelTest {
     }
 
     @Test
+    fun `given coordinator uploads in another conversation, when observed, then they are filtered out`() {
+        val uploads = listOf(uploadItem("1", conversationId = "convA"), uploadItem("2", conversationId = "convB"))
+        val (_, viewModel) = Arrangement(conversationId = "convA")
+            .withUploads(uploads)
+            .arrange()
+
+        assertEquals(listOf(uploads[0]), viewModel.uploads.value)
+    }
+
+    @Test
     fun `given an id, when cancel is called, then it forwards to the coordinator`() {
-        val (arrangement, viewModel) = Arrangement().arrange()
+        val (arrangement, viewModel) = Arrangement(conversationId = "convA").arrange()
 
         viewModel.cancel("id1")
 
@@ -52,17 +80,18 @@ class UploadStatusViewModelTest {
     }
 
     @Test
-    fun `when cancelAll is called, then it forwards to the coordinator`() {
-        val (arrangement, viewModel) = Arrangement().arrange()
+    fun `when cancelAll is called, then it forwards to the coordinator scoped to this conversation`() {
+        val (arrangement, viewModel) = Arrangement(conversationId = "convA").arrange()
 
         viewModel.cancelAll()
 
-        verify(exactly = 1) { arrangement.coordinator.cancelAll() }
+        verify(exactly = 1) { arrangement.coordinator.cancelAll("convA") }
+        verify(exactly = 0) { arrangement.coordinator.cancelAll() }
     }
 
     @Test
     fun `given an id, when retry is called, then it forwards to the coordinator`() {
-        val (arrangement, viewModel) = Arrangement().arrange()
+        val (arrangement, viewModel) = Arrangement(conversationId = "convA").arrange()
 
         viewModel.retry("id1")
 
@@ -70,17 +99,18 @@ class UploadStatusViewModelTest {
     }
 
     @Test
-    fun `when retryAllFailed is called, then it forwards to the coordinator`() {
-        val (arrangement, viewModel) = Arrangement().arrange()
+    fun `when retryAllFailed is called, then it forwards to the coordinator scoped to this conversation`() {
+        val (arrangement, viewModel) = Arrangement(conversationId = "convA").arrange()
 
         viewModel.retryAllFailed()
 
-        verify(exactly = 1) { arrangement.coordinator.retryAllFailed() }
+        verify(exactly = 1) { arrangement.coordinator.retryAllFailed("convA") }
+        verify(exactly = 0) { arrangement.coordinator.retryAllFailed() }
     }
 
     @Test
     fun `given an id, when dismiss is called, then it forwards to the coordinator`() {
-        val (arrangement, viewModel) = Arrangement().arrange()
+        val (arrangement, viewModel) = Arrangement(conversationId = "convA").arrange()
 
         viewModel.dismiss("id1")
 
@@ -88,26 +118,41 @@ class UploadStatusViewModelTest {
     }
 
     @Test
-    fun `when dismissAll is called, then it forwards to the coordinator`() {
-        val (arrangement, viewModel) = Arrangement().arrange()
+    fun `when dismissAll is called, then it forwards to the coordinator scoped to this conversation`() {
+        val (arrangement, viewModel) = Arrangement(conversationId = "convA").arrange()
 
         viewModel.dismissAll()
 
-        verify(exactly = 1) { arrangement.coordinator.dismissAll() }
+        verify(exactly = 1) { arrangement.coordinator.dismissAll("convA") }
+        verify(exactly = 0) { arrangement.coordinator.dismissAll() }
     }
 
-    private fun uploadItem(id: String) = CellUploadItem(
+    @Test
+    fun `given no conversation context, when bulk actions are called, then nothing is forwarded to the coordinator`() {
+        val (arrangement, viewModel) = Arrangement(conversationId = null).arrange()
+
+        viewModel.cancelAll()
+        viewModel.retryAllFailed()
+        viewModel.dismissAll()
+
+        verify(exactly = 0) { arrangement.coordinator.cancelAll(any()) }
+        verify(exactly = 0) { arrangement.coordinator.retryAllFailed(any()) }
+        verify(exactly = 0) { arrangement.coordinator.dismissAll(any()) }
+    }
+
+    private fun uploadItem(id: String, conversationId: String) = CellUploadItem(
         id = id,
+        conversationId = conversationId,
         request = CellUploadRequest(
             localPath = "/path/to/file$id.txt".toPath(),
             fileName = "file$id.txt",
             sizeBytes = 1024,
-            destinationFolderPath = "cellName/folder",
+            destinationFolderPath = "$conversationId/folder",
         ),
         state = CellUploadState.Queued,
     )
 
-    private class Arrangement {
+    private class Arrangement(private val conversationId: String?) {
 
         @MockK
         lateinit var coordinator: CellUploadCoordinator
@@ -117,7 +162,7 @@ class UploadStatusViewModelTest {
             every { coordinator.uploads } returns MutableStateFlow(emptyList())
         }
 
-        private val viewModel by lazy { UploadStatusViewModel(coordinator) }
+        private val viewModel by lazy { UploadStatusViewModel(conversationId, coordinator) }
 
         fun withUploads(uploads: List<CellUploadItem>) = apply {
             every { coordinator.uploads } returns MutableStateFlow(uploads)

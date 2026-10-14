@@ -1013,7 +1013,8 @@ jobs:
         if: ${{ success() || failure() }}
         uses: ./.github/actions/report-to-wire
         with:
-          webhook-url: ${{ secrets.WIRE_ANDROID_CHARON_WEBHOOK }}
+          webhook-url: ${{ secrets.WIRE_QA_AUTOMATION_CHANNEL_URL }}
+          webhook-token: ${{ secrets.WIRE_QA_AUTOMATION_CHANNEL_TOKEN }}
           body: ${{ steps.build_wire_notification.outputs.body }}
 
       - name: Cleanup (remove secrets + build outputs)

@@ -220,6 +220,14 @@ internal object WireActivityNavigation3EffectResolver {
                     )
                 )
             )
+        } else if (current is LoginRoute) {
+            WireActivityNavigation3EffectResolution(
+                mutations = listOf(
+                    WireActivityNavigation3Mutation.ReplaceCurrent(
+                        current.copy(args = current.args.copy(ssoLoginResult = typedResult))
+                    )
+                )
+            )
         } else {
             singleNavigation(
                 LoginRoute(

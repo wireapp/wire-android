@@ -149,7 +149,6 @@ write_output("resolvedBuildNumber", str(metadata.get("resolved_build_number", ""
 write_output("newApkName", str(metadata.get("new_apk_name", "")))
 write_output("isUpgrade", str(metadata.get("is_upgrade", False)).lower())
 write_output("oldBuildNumber", str(metadata.get("old_build_number", "")))
-write_output("enforceAppInstall", str(metadata.get("enforce_app_install", False)).lower())
 write_output("androidDeviceId", str(metadata.get("android_device_id", "")))
 write_output("androidDeviceGroup", str(metadata.get("android_device_group", "")))
 write_output("rerunFailedEnabled", str(metadata.get("rerun_failed_enabled", False)).lower())

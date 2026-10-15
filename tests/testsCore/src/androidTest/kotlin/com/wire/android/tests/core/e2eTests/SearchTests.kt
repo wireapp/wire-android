@@ -50,7 +50,7 @@ class SearchTests : BaseUiTest() {
 
     @Suppress("LongMethod")
     @TestCaseId("TC-4505")
-    @Category("regression", "RC", "search", "smoke")
+    @Category("regression", "RC", "search", "fdroid")
     @Test
     fun givenTeamOwnerWithTeamMember_whenISearchByUsername_thenMemberIsDisplayed() {
         step("Given There is a team owner user1Name with team Search") {

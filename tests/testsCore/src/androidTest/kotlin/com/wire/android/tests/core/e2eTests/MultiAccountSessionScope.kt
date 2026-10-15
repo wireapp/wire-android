@@ -315,7 +315,9 @@ class MultiAccountSessionScope : BaseUiTest() {
             }
             pages.registrationPage.apply {
                 waitUntilLoginFlowIsCompleted()
-                waitUntilConversationPageVisibleDismissingPostLoginPrompts(timeout = POST_REMOVE_DEVICE_LOGIN_TIMEOUT)
+                clickAllowNotificationButton()
+                clickDeclineShareDataAlert(timeout = POST_REMOVE_DEVICE_LOGIN_TIMEOUT)
+                assertConversationPageVisible(timeout = POST_REMOVE_DEVICE_LOGIN_TIMEOUT)
             }
         }
     }

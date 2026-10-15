@@ -64,6 +64,9 @@ internal fun NewMeetingParticipantsRouteContent(
         onOpenUserProfile = { contact ->
             onOpenUserProfile(UserId(contact.id, contact.domain))
         },
+        isGroupsTabVisible = true,
+        selectedGroups = newMeetingViewModel.state.selectedGroups,
+        onGroupChecked = newMeetingViewModel::updateSelectedGroup,
         peopleBottomActions = { focusRequester ->
             SelectButton(
                 onClick = {

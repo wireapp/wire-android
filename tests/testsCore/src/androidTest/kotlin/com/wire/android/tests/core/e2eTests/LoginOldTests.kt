@@ -383,7 +383,7 @@ class LoginOldTests : BaseUiTest() {
 
         step("And I wait until I am fully logged in and decline share data alert") {
             pages.registrationPage.apply {
-                waitUntilLoginFlowIsCompleted()
+                waitUntilSsoLoginFlowIsCompleted()
                 clickAllowNotificationButton()
                 clickDeclineShareDataAlert()
             }

@@ -1,0 +1,134 @@
+name: QA Android F-Droid Tests
+run-name: ${{ inputs.runMode == 'Deflake failed tests' && format('QA Android F-Droid Tests - Manual Deflake from {0}', inputs.sourceRunId || 'latest completed run') || 'QA Android F-Droid Tests' }}
+
+# The reused pipeline owns the device-group lock.
+on:
+  # GitHub schedules use UTC. 03:00 UTC is 05:00 in Berlin in summer, 04:00 in winter.
+  schedule:
+    - cron: "0 3 * * *"
+  workflow_dispatch:
+    inputs:
+      runMode:
+        description: "Run tests (default '@fdroid') or deflake failures from this workflow."
+        required: true
+        default: "Normal tests"
+        type: choice
+        options:
+          - Normal tests
+          - Deflake failed tests
+
+      sourceRunId:
+        description: "Deflake only: leave empty for the latest completed F-Droid run, or enter a specific 'manual deflake id'."
+        required: false
+        default: ""
+        type: string
+
+      testServiceUrl:
+        description: "Test Service HTTP(S) origin. Empty uses TEST_SERVICE_URL for normal runs or the source run URL for deflake."
+        required: false
+        default: ""
+        type: string
+
+      deflakeRetrySettings:
+        description: "Deflake only: inherit retries or use the retry checkbox and count below."
+        required: true
+        default: "Use original run settings"
+        type: choice
+        options:
+          - Use original run settings
+          - Use settings entered below
+
+      appBuildNumber:
+        description: "Normal runs only: 'latest' or build number (e.g. 71389). Deflake reuses the source build."
+        required: true
+        default: "latest"
+        type: string
+
+      isUpgrade:
+        description: "Normal runs only: upgrade test? oldBuildNumber defaults to the previous APK."
+        required: true
+        default: false
+        type: boolean
+
+      oldBuildNumber:
+        description: "Normal upgrade runs only: optional old build number. Empty auto-picks the previous APK."
+        required: false
+        default: ""
+        type: string
+
+      flavor:
+        description: "F-Droid app flavor. Deflake reuses the source build."
+        required: true
+        type: choice
+        options:
+          - fdroid
+        default: fdroid
+
+      TAGS:
+        description: "Normal runs: defaults to '@fdroid'. Replace with another tag or test ID, e.g. '@regression' or '@TC-8143'. Deflake reruns only source failures."
+        required: false
+        default: "@fdroid"
+        type: string
+
+      testinyRunName:
+        description: "Normal runs only: TESTINY_RUN_NAME. Deflake automatically reuses the source run's setting."
+        required: false
+        default: ""
+        type: string
+
+      androidDeviceId:
+        description: "Normal runs only: target one device from the group. Deflake reuses the source selection."
+        required: false
+        default: ""
+        type: string
+
+      androidDeviceGroup:
+        description: "F-Droid tests run only on the GrapheneOS device group."
+        required: true
+        default: "GrapheneOS"
+        type: choice
+        options:
+          - GrapheneOS
+
+      rerunFailedEnabled:
+        description: "Automatically retry failed tests. For deflake, applies only with 'Use settings entered below'."
+        required: true
+        default: true
+        type: boolean
+
+      rerunFailedCount:
+        description: "Additional retries after the first execution (0-3). Deflake uses this only with 'Use settings entered below'."
+        required: true
+        default: "1"
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  run-tests:
+    uses: ./.github/workflows/qa-android-critical-flow-tests.yml
+    permissions:
+      contents: write
+      actions: read
+    with:
+      workflowTitle: QA Android F-Droid Tests
+      sourceWorkflowFile: .github/workflows/qa-android-fdroid-tests.yml
+      reportTitle: android fdroid tests
+      reportDirectory: qa-fdroid-tests
+      requiredDeviceGroup: GrapheneOS
+      runMode: ${{ inputs.runMode || 'Normal tests' }}
+      sourceRunId: ${{ inputs.sourceRunId || '' }}
+      testServiceUrl: ${{ inputs.testServiceUrl || '' }}
+      deflakeRetrySettings: ${{ inputs.deflakeRetrySettings || 'Use original run settings' }}
+      appBuildNumber: ${{ inputs.appBuildNumber || 'latest' }}
+      isUpgrade: ${{ inputs.isUpgrade || false }}
+      oldBuildNumber: ${{ inputs.oldBuildNumber || '' }}
+      flavor: fdroid
+      TAGS: ${{ github.event_name == 'schedule' && '@fdroid' || inputs.TAGS }}
+      testinyRunName: ${{ inputs.testinyRunName || '' }}
+      androidDeviceId: ${{ inputs.androidDeviceId || '' }}
+      androidDeviceGroup: GrapheneOS
+      rerunFailedEnabled: ${{ github.event_name == 'schedule' || inputs.rerunFailedEnabled }}
+      rerunFailedCount: ${{ inputs.rerunFailedCount || '1' }}
+    secrets: inherit

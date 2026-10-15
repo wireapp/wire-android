@@ -1104,20 +1104,23 @@ data class ConversationViewPage(private val device: UiDevice) {
         val params = conversationDetailsGroup(userName)
         UiWaitUtils.waitElement(backButton, timeout = UiWaitUtils.MEDIUM_TIMEOUT)
 
-        val clicked = UiWaitUtils.clickWhenClickable(
-            params = params,
+        val detailsOpened = UiWaitUtils.retryUntilTimeout(
             timeout = UiWaitUtils.MEDIUM_TIMEOUT,
-            pollingInterval = UiWaitUtils.POLLING_FAST
-        )
-
-        if (!clicked) {
-            throw AssertionError("Group conversation details for user '$userName' was not clickable.")
+            pollingInterval = UiWaitUtils.POLLING_DEFAULT
+        ) {
+            if (findElementOrNull(conversationOptionsButton)?.let { !it.visibleBounds.isEmpty } == true) {
+                return@retryUntilTimeout true
+            }
+            UiWaitUtils.clickWhenClickable(
+                params = params,
+                timeout = UiWaitUtils.POLLING_DEFAULT,
+                pollingInterval = UiWaitUtils.POLLING_FAST
+            )
+            findElementOrNull(conversationOptionsButton)?.let { !it.visibleBounds.isEmpty } == true
         }
 
-        try {
-            UiWaitUtils.waitElement(conversationOptionsButton, timeout = UiWaitUtils.MEDIUM_TIMEOUT)
-        } catch (e: AssertionError) {
-            throw AssertionError("Group conversation details for user '$userName' did not open.", e)
+        if (!detailsOpened) {
+            throw AssertionError("Group conversation details for user '$userName' did not open.")
         }
         return this
     }

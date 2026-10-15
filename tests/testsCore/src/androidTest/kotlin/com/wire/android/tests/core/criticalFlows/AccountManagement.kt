@@ -127,6 +127,7 @@ class AccountManagement : BaseUiTest() {
             step("Assert conversation name and open Settings from conversation menu entry") {
                 pages.conversationListPage.apply {
                     assertGroupConversationVisible("MyTeam")
+                    waitUntilWireServiceNotificationDisappears()
                     clickConversationsMenuEntry()
                     clickSettingsButtonOnMenuEntry()
                 }

@@ -154,7 +154,7 @@ internal fun WireActivityDialogs(
 
     if (startupAccountLimitState.currentUserId != null && !startupAccountLimitState.isSessionTransitionInProgress) {
         com.wire.android.ui.common.dialogs.StartupAccountLimitDialogFlow(
-            visible = startupAccountLimitState.startupAccountLimitDialog,
+            excessAccounts = startupAccountLimitState.startupAccountLimitExcessAccounts,
             onDismiss = viewModel::dismissStartupAccountLimitDialog,
             logout = actions.logout,
         )

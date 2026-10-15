@@ -112,11 +112,9 @@ failed_tests = [
 if not failed_tests:
     raise SystemExit("ERROR: No leftover failed tests found in failed-tests.txt. Nothing to deflake.")
 
-# Let the manual workflow override the inherited Testiny run name, but keep the
-# selected-run value when the override input is left empty.
-effective_testiny_run_name = env("TESTINY_RUN_NAME_OVERRIDE") or str(
-    metadata.get("testiny_run_name", "")
-).strip()
+# Deflake updates the source Testiny run. An empty source name keeps reporting
+# disabled, even if a normal-run name was entered in the dispatch form.
+effective_testiny_run_name = str(metadata.get("testiny_run_name", "")).strip()
 
 print(f"Deflake bundle directory: {bundle_dir}")
 print(f"Selected workflow name: {metadata['source_workflow_name']}")
@@ -151,7 +149,6 @@ write_output("resolvedBuildNumber", str(metadata.get("resolved_build_number", ""
 write_output("newApkName", str(metadata.get("new_apk_name", "")))
 write_output("isUpgrade", str(metadata.get("is_upgrade", False)).lower())
 write_output("oldBuildNumber", str(metadata.get("old_build_number", "")))
-write_output("enforceAppInstall", str(metadata.get("enforce_app_install", False)).lower())
 write_output("androidDeviceId", str(metadata.get("android_device_id", "")))
 write_output("androidDeviceGroup", str(metadata.get("android_device_group", "")))
 write_output("rerunFailedEnabled", str(metadata.get("rerun_failed_enabled", False)).lower())

@@ -24,6 +24,7 @@ import com.wire.android.tests.support.UiAutomatorSetup
 import com.wire.android.tests.support.tags.Category
 import com.wire.android.tests.support.tags.TestCaseId
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import uiautomatorutils.UiWaitUtils
@@ -31,6 +32,7 @@ import user.utils.ClientUser
 import kotlin.time.Duration.Companion.seconds
 
 @RunWith(AndroidJUnit4::class)
+@Ignore("Temporarily disabled until read receipts are supported for MLS conversations.")
 @Suppress("LargeClass")
 class ReadReceiptsTests : BaseUiTest() {
     private var teamOwner: ClientUser? = null

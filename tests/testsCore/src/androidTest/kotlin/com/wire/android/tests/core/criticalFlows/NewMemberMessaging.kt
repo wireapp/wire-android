@@ -87,60 +87,18 @@ class NewMemberMessaging : BaseUiTest() {
                     conversationName = "MyTeam",
                     deviceName = "Device1"
                 )
-            }
-        }
 
-        step("Login as team owner in Android app") {
-            pages.registrationPage.apply {
-                assertEmailWelcomePage()
+                userXAddedContactsToGroupChat(
+                    userAsNameAlias = "user1Name",
+                    contactsToAddNameAliases = "user2Name",
+                    chatName = "MyTeam",
+                    deviceName = "Device1"
+                )
             }
-            pages.loginPage.apply {
-                clickStagingDeepLink()
-                clickProceedButtonOnDeeplinkOverlay()
-                clickContinueButtonOnBackendConfigSuccess()
-            }
-            pages.loginPage.apply {
-                enterTeamOwnerLoggingEmail(teamOwner?.email ?: "")
-                clickLoginButton()
-                enterTeamOwnerLoggingPassword(teamOwner?.password ?: "")
-                clickLoginButton()
-            }
-            pages.registrationPage.apply {
-                waitUntilLoginFlowIsCompleted()
-                clickAllowNotificationButton()
-                clickDeclineShareDataAlert()
-            }
-        }
-
-        step("Add the new team member to the existing MLS group through the UI") {
-            pages.conversationListPage.clickGroupConversation("MyTeam")
-            pages.conversationViewPage.clickOnGroupConversationDetails("MyTeam")
-            pages.groupConversationDetailsPage.apply {
-                tapOnParticipantsTab()
-                tapAddParticipantsButton()
-                assertUsernameInSuggestionsListIs(member1?.name ?: "")
-                selectUserInSuggestionList(member1?.name ?: "")
-                tapContinueButton()
-                assertUsernameIsAddedToParticipantsList(member1?.name ?: "")
-                tapCloseButtonOnGroupConversationDetailsPage()
-            }
-            pages.conversationViewPage.apply {
-                assertSystemMessageVisible("You added ${member1?.name ?: ""} to the conversation")
-                tapBackButtonToCloseConversationViewPage()
-            }
-        }
-
-        step("Log out the team owner") {
-            pages.conversationListPage.clickUserProfileButton()
-            pages.selfUserProfilePage.apply {
-                iSeeUserProfilePage()
-                tapLogoutButton()
-                tapLogoutButton()
-            }
-            pages.registrationPage.assertEmailWelcomePage(timeout = UiWaitUtils.MEDIUM_TIMEOUT)
         }
 
         step("Login as the new team member in Android app") {
+            pages.registrationPage.assertEmailWelcomePage()
             pages.loginPage.apply {
                 clickStagingDeepLink()
                 clickProceedButtonOnDeeplinkOverlay()
@@ -152,6 +110,7 @@ class NewMemberMessaging : BaseUiTest() {
             }
             pages.registrationPage.apply {
                 waitUntilLoginFlowIsCompleted()
+                clickAllowNotificationButton()
                 clickDeclineShareDataAlert()
             }
         }

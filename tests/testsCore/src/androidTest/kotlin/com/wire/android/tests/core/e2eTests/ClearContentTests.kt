@@ -215,6 +215,10 @@ class ClearContentTests : BaseUiTest() {
             }
         }
 
+        step("And I wait until the notification popup disappears") {
+            pages.notificationsPage.waitUntilNotificationPopUpGone()
+        }
+
         step("And I close the conversation view through the back arrow") {
             pages.conversationViewPage.tapBackButtonToCloseConversationViewPage()
         }

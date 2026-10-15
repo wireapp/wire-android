@@ -22,6 +22,7 @@ package com.wire.android.search
 import androidx.compose.runtime.Composable
 import com.wire.android.di.metro.wireAssistedMetroViewModel
 import com.wire.android.search.apps.SearchAppsViewModel
+import com.wire.android.search.groups.SearchGroupsToAddMembersViewModel
 import com.wire.android.search.users.SearchUserViewModel
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.ConversationId
@@ -29,6 +30,14 @@ import com.wire.android.di.metro.WireAssistedViewModelFactoryGroup
 
 @WireAssistedViewModelFactoryGroup
 object SearchManualViewModelFactoryGroup
+
+@Composable
+fun searchGroupsToAddMembersViewModel(onlySelfTeamAndDomain: Boolean = false): SearchGroupsToAddMembersViewModel =
+    wireAssistedMetroViewModel<SearchGroupsToAddMembersViewModel, SearchManualViewModelFactory>(
+        instanceKey = "search_groups_$onlySelfTeamAndDomain"
+    ) {
+        searchGroupsToAddMembersViewModel(onlySelfTeamAndDomain)
+    }
 
 @Composable
 fun searchUserViewModel(

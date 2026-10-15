@@ -33,7 +33,7 @@ internal fun ConversationFilesSlideRouteScreen(
     animatedVisibilityScope: AnimatedVisibilityScope,
     viewModel: CellViewModel,
 ) {
-    val uploadStatusViewModel = uploadStatusViewModel()
+    val uploadStatusViewModel = uploadStatusViewModel(viewModel.currentNodeUuid()?.substringBefore("/"))
     val uploads by uploadStatusViewModel.uploads.collectAsState()
     val uploadConfirmation by viewModel.uploadConfirmation.collectAsState()
 
@@ -79,6 +79,7 @@ internal fun ConversationFilesSlideRouteScreen(
         onRetryUpload = uploadStatusViewModel::retry,
         onRetryAllFailedUploads = uploadStatusViewModel::retryAllFailed,
         onDismissUpload = uploadStatusViewModel::dismiss,
+        onDismissAllUploads = uploadStatusViewModel::dismissAll,
         uploadConfirmation = uploadConfirmation,
         onConfirmUpload = viewModel::confirmUpload,
         onCancelUploadConfirmation = viewModel::cancelUploadConfirmation,

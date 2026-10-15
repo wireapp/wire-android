@@ -1,0 +1,2 @@
+"Status","Start Time","Stop Time","Duration in ms","Parent Suite","Suite","Sub Suite","Test Class","Test Method","Name","Description"
+"passed","Thu Oct 15 15:07:31 CEST 2026","Thu Oct 15 15:09:28 CEST 2026","117346","","com.wire.android.tests.core.criticalFlows.GroupMessaging","","com.wire.android.tests.core.criticalFlows.GroupMessaging","givenGroupConversation_whenMessagesAreExchangedAndSelfDeletingMessageIsSent_thenMessageIsVisibleAndExpires","givenGroupConversation_whenMessagesAreExchangedAndSelfDeletingMessageIsSent_thenMessageIsVisibleAndExpires",""

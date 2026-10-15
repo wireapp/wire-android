@@ -29,6 +29,8 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import uiautomatorutils.UiSelectorParams
+import uiautomatorutils.UiWaitUtils
 import user.utils.ClientUser
 
 @RunWith(AndroidJUnit4::class)
@@ -133,10 +135,12 @@ class LargeTeamTests : BaseUiTest() {
             pages.searchPage.apply {
                 tapSearchPeopleField()
                 typeUserNameInSearchField(clientUserManager, "Solomon Conroy")
+                UiWaitUtils.waitElement(UiSelectorParams(text = "@881d169258"))
                 assertUsernameInSearchResultIs("@881d169258")
                 tapUsernameInSearchResult("@881d169258")
                 clearSearchInputField()
                 typeUserNameInSearchField(clientUserManager, "Florencio Larkin")
+                UiWaitUtils.waitElement(UiSelectorParams(text = "@9d966fc182"))
                 assertUsernameInSearchResultIs("@9d966fc182")
                 tapUsernameInSearchResult("@9d966fc182")
                 clearSearchInputField()

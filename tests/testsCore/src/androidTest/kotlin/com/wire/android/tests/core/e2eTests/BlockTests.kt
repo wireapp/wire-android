@@ -63,6 +63,7 @@ class BlockTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "Blocking", backendClient)
         }
 
         step("And User TeamOwner adds user Member1 to team Blocking with role Member") {
@@ -184,6 +185,10 @@ class BlockTests : BaseUiTest() {
             runBlocking {
                 backendSetupHelper.usersSetUniqueUsername("user1Name")
             }
+        }
+
+        step("And User user2Name registers an MLS device") {
+            testServiceHelper.addDevice("user2Name", null, "Device1")
         }
 
         step("And User Contact1 is connected to Member") {
@@ -346,6 +351,10 @@ class BlockTests : BaseUiTest() {
             }
         }
 
+        step("And User user2Name registers an MLS device") {
+            testServiceHelper.addDevice("user2Name", null, "Device1")
+        }
+
         step("And User Contact1 is connected to Member") {
             backendSetupHelper.userIsConnectedTo("user2Name", "user1Name")
         }
@@ -451,6 +460,7 @@ class BlockTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "Blocking", backendClient)
         }
 
         step("And there is TeamOwnerB with team ToBeBlocked on Staging backend") {
@@ -462,6 +472,7 @@ class BlockTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user2Name", "ToBeBlocked", backendClient)
         }
 
         step("And User TeamOwnerA is connected to TeamOwnerB") {

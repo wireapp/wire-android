@@ -486,6 +486,7 @@ run_attempt_on_devices() {
       args+=(-e filter "com.wire.android.tests.support.suite.TaggedFilter")
       # The tests must launch the exact app flavor CI installed for this run.
       args+=(-e appPackage "${APP_ID}")
+      args+=(-e isCountlyAvailable "${IS_COUNTLY_AVAILABLE:-true}")
 
       # Only Testiny-enabled runs need the reporting config and secret.
       if [[ -n "${TESTINY_RUN_NAME_TRIMMED}" ]]; then

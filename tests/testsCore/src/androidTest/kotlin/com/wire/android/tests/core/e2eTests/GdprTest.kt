@@ -60,6 +60,7 @@ class GdprTest : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "GDPR", backendClient)
             backendSetupHelper.userXAddsUsersToTeam(
                 "user1Name",
                 "user2Name",
@@ -224,6 +225,7 @@ class GdprTest : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "GDPR", backendClient)
             backendSetupHelper.userXAddsUsersToTeam(
                 "user1Name",
                 "user2Name",

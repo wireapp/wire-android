@@ -52,6 +52,7 @@ class SelfUserProfileTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "StatusChange", backendClient)
             teamOwner = clientUserManager.findUserByNameOrNameAlias("user1Name")
         }
 

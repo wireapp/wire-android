@@ -53,6 +53,7 @@ class GroupDetailsTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "GroupDeletion", backendClient)
             backendSetupHelper.userXAddsUsersToTeam(
                 "user1Name",
                 "user2Name,user3Name",
@@ -65,12 +66,20 @@ class GroupDetailsTests : BaseUiTest() {
             teamOwner = clientUserManager.findUserByNameOrNameAlias("user1Name")
         }
 
+        step("And MLS devices are registered for all participants") {
+            testServiceHelper.apply {
+                addDevice("user1Name", null, "Device1")
+                addDevice("user2Name", null, "Device1")
+                addDevice("user3Name", null, "Device1")
+            }
+        }
+
         step("And User user1Name has group conversation MyTeam with user2Name,user3Name") {
-            backendSetupHelper.userHasGroupConversationInTeam(
-                "user1Name",
-                "MyTeam",
-                "user2Name,user3Name",
-                "GroupDeletion"
+            testServiceHelper.userCreatesMLSGroupConversation(
+                ownerAlias = "user1Name",
+                participantAliases = "user2Name,user3Name",
+                conversationName = "MyTeam",
+                deviceName = "Device1"
             )
         }
 
@@ -116,15 +125,26 @@ class GroupDetailsTests : BaseUiTest() {
             pages.groupConversationDetailsPage.assertGroupDetailsPageVisible()
         }
 
-        step("Then I see Guests and Apps options are ON") {
+        step("Then I see Guests options are OFF and Apps options are ON") {
             pages.groupConversationDetailsPage.apply {
-                assertGuestOptionsState("ON")
+                assertGuestOptionsState("OFF")
                 assertAppsOptionsState("ON")
             }
         }
 
-        step("When I open Guests options and disable guest access") {
+        step("When I open Guests options and enable guest access") {
             pages.groupConversationDetailsPage.tapGuestOptions()
+            pages.groupAccessOptionsPage.apply {
+                assertGuestSwitchState("OFF")
+                tapGuestSwitch()
+            }
+        }
+
+        step("Then I see the Guests switch is ON") {
+            pages.groupAccessOptionsPage.assertGuestSwitchState("ON")
+        }
+
+        step("When I disable guest access") {
             pages.groupAccessOptionsPage.apply {
                 assertGuestSwitchState("ON")
                 tapGuestSwitch()
@@ -172,6 +192,7 @@ class GroupDetailsTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "GroupDeletion", backendClient)
             backendSetupHelper.userXAddsUsersToTeam(
                 "user1Name",
                 "user2Name,user3Name",
@@ -184,12 +205,20 @@ class GroupDetailsTests : BaseUiTest() {
             teamOwner = clientUserManager.findUserByNameOrNameAlias("user1Name")
         }
 
+        step("And MLS devices are registered for all participants") {
+            testServiceHelper.apply {
+                addDevice("user1Name", null, "Device1")
+                addDevice("user2Name", null, "Device1")
+                addDevice("user3Name", null, "Device1")
+            }
+        }
+
         step("And User user1Name has group conversation GroupName with user2Name,user3Name") {
-            backendSetupHelper.userHasGroupConversationInTeam(
-                "user1Name",
-                "GroupName",
-                "user2Name,user3Name",
-                "GroupDeletion"
+            testServiceHelper.userCreatesMLSGroupConversation(
+                ownerAlias = "user1Name",
+                participantAliases = "user2Name,user3Name",
+                conversationName = "GroupName",
+                deviceName = "Device1"
             )
         }
 

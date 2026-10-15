@@ -52,6 +52,7 @@ class FileSharingRestrictionsTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user2Name", "File sharing", backendClient)
         }
 
         step("And TeamOwner adds Member1 to team File sharing with role Member") {
@@ -256,6 +257,7 @@ class FileSharingRestrictionsTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "FileSharing", backendClient)
         }
 
         step("And TeamOwner adds Member1 to team FileSharing with role Member") {
@@ -283,16 +285,20 @@ class FileSharingRestrictionsTests : BaseUiTest() {
             clientUserManager.setSelfUser(member1)
         }
 
-        step("And Contact adds new device Device1 with label Device1") {
-            testServiceHelper.addDevice("user3Name", null, "Device1")
+        step("And MLS devices are registered for all participants") {
+            testServiceHelper.apply {
+                addDevice("user1Name", null, "Device1")
+                addDevice("user2Name", null, "Device1")
+                addDevice("user3Name", null, "Device1")
+            }
         }
 
-        step("And TeamOwner has group conversation SendFilesHere with Member1 and Contact") {
-            backendSetupHelper.userHasGroupConversationInTeam(
-                "user1Name",
-                "SendFilesHere",
-                "user2Name,user3Name",
-                "FileSharing"
+        step("And TeamOwner creates MLS group conversation SendFilesHere with Member1 and Contact") {
+            testServiceHelper.userCreatesMLSGroupConversation(
+                ownerAlias = "user1Name",
+                participantAliases = "user2Name,user3Name",
+                conversationName = "SendFilesHere",
+                deviceName = "Device1"
             )
         }
 

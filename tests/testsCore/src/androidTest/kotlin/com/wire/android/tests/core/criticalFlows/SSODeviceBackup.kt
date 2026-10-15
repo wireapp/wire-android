@@ -151,6 +151,7 @@ class SSODeviceBackup : BaseUiTest() {
         step("And I decline the share data alert after login") {
             pages.registrationPage.apply {
                 UiWaitUtils.waitFor(1.seconds)
+                clickAllowNotificationButton()
                 clickDeclineShareDataAlert()
             }
         }
@@ -296,7 +297,12 @@ class SSODeviceBackup : BaseUiTest() {
         }
 
         step("And I complete post-login privacy prompt after logout") {
-            pages.registrationPage.waitUntilConversationPageVisibleDismissingPostLoginPrompts()
+            pages.registrationPage.apply {
+                waitUntilSsoLoginFlowIsCompleted()
+                clickAllowNotificationButton()
+                clickDeclineShareDataAlert()
+                assertConversationPageVisible()
+            }
         }
 
         step("And I open the conversation with TeamOwner before restoring the backup") {

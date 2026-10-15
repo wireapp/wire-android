@@ -63,6 +63,7 @@ class MessagingTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "Messaging", backendClient)
         }
 
         step("And User TeamOwner adds Member1 to team Messaging with role Member") {
@@ -171,6 +172,7 @@ class MessagingTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "Messaging", backendClient)
         }
 
         step("And User TeamOwner adds Member1 to team Messaging with role Member") {
@@ -279,6 +281,7 @@ class MessagingTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "Messaging", backendClient)
         }
 
         step("And User TeamOwner adds Member1 to team Messaging with role Member") {
@@ -293,12 +296,19 @@ class MessagingTests : BaseUiTest() {
             )
         }
 
-        step("And User TeamOwner has group conversation LongMessage with Member1 in team Messaging") {
-            backendSetupHelper.userHasGroupConversationInTeam(
-                "user1Name",
-                "LongMessage",
-                "user2Name",
-                "Messaging"
+        step("And MLS devices are registered for all participants") {
+            testServiceHelper.apply {
+                addDevice("user1Name", null, "Device1")
+                addDevice("user2Name", null, "Device1")
+            }
+        }
+
+        step("And User TeamOwner creates MLS group conversation LongMessage with Member1 in team Messaging") {
+            testServiceHelper.userCreatesMLSGroupConversation(
+                ownerAlias = "user1Name",
+                participantAliases = "user2Name",
+                conversationName = "LongMessage",
+                deviceName = "Device1"
             )
         }
 
@@ -306,10 +316,6 @@ class MessagingTests : BaseUiTest() {
             teamOwner = clientUserManager.findUserByNameOrNameAlias("user1Name")
             member1 = clientUserManager.findUserByNameOrNameAlias("user2Name")
             clientUserManager.setSelfUser(teamOwner)
-        }
-
-        step("And User Member1 adds a new device Device1 with label Device1") {
-            testServiceHelper.addDevice("user2Name", null, "Device1")
         }
 
         step("And I see email verification Welcome Page") {
@@ -388,6 +394,7 @@ class MessagingTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "Messaging", backendClient)
         }
 
         step("And User TeamOwner adds Member1 to team Messaging with role Member") {
@@ -402,12 +409,19 @@ class MessagingTests : BaseUiTest() {
             )
         }
 
-        step("And User TeamOwner has group conversation LongMessage with Member1 in team Messaging") {
-            backendSetupHelper.userHasGroupConversationInTeam(
-                "user1Name",
-                "LongMessage",
-                "user2Name",
-                "Messaging"
+        step("And MLS devices are registered for all participants") {
+            testServiceHelper.apply {
+                addDevice("user1Name", null, "Device1")
+                addDevice("user2Name", null, "Device1")
+            }
+        }
+
+        step("And User TeamOwner creates MLS group conversation LongMessage with Member1 in team Messaging") {
+            testServiceHelper.userCreatesMLSGroupConversation(
+                ownerAlias = "user1Name",
+                participantAliases = "user2Name",
+                conversationName = "LongMessage",
+                deviceName = "Device1"
             )
         }
 
@@ -415,10 +429,6 @@ class MessagingTests : BaseUiTest() {
             teamOwner = clientUserManager.findUserByNameOrNameAlias("user1Name")
             member1 = clientUserManager.findUserByNameOrNameAlias("user2Name")
             clientUserManager.setSelfUser(teamOwner)
-        }
-
-        step("And User Member1 adds a new device Device1 with label Device1") {
-            testServiceHelper.addDevice("user2Name", null, "Device1")
         }
 
         step("And I see email verification Welcome Page") {
@@ -500,6 +510,7 @@ class MessagingTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "Messaging", backendClient)
         }
 
         step("And User TeamOwner adds Member1 to team Messaging with role Member") {
@@ -514,12 +525,19 @@ class MessagingTests : BaseUiTest() {
             )
         }
 
-        step("And User TeamOwner has group conversation GoingOffline with Member1 in team Messaging") {
-            backendSetupHelper.userHasGroupConversationInTeam(
-                "user1Name",
-                "GoingOffline",
-                "user2Name",
-                "Messaging"
+        step("And MLS devices are registered for all participants") {
+            testServiceHelper.apply {
+                addDevice("user1Name", null, "Device1")
+                addDevice("user2Name", null, "Device1")
+            }
+        }
+
+        step("And User TeamOwner creates MLS group conversation GoingOffline with Member1 in team Messaging") {
+            testServiceHelper.userCreatesMLSGroupConversation(
+                ownerAlias = "user1Name",
+                participantAliases = "user2Name",
+                conversationName = "GoingOffline",
+                deviceName = "Device1"
             )
         }
 
@@ -527,10 +545,6 @@ class MessagingTests : BaseUiTest() {
             teamOwner = clientUserManager.findUserByNameOrNameAlias("user1Name")
             member1 = clientUserManager.findUserByNameOrNameAlias("user2Name")
             clientUserManager.setSelfUser(teamOwner)
-        }
-
-        step("And User Member1 adds a new device Device1 with label Device1") {
-            testServiceHelper.addDevice("user2Name", null, "Device1")
         }
 
         step("And I see email verification Welcome Page") {
@@ -658,6 +672,7 @@ class MessagingTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "Messaging", backendClient)
         }
 
         step("And User TeamOwner adds Member1 to team Messaging with role Member") {
@@ -672,12 +687,19 @@ class MessagingTests : BaseUiTest() {
             )
         }
 
-        step("And User TeamOwner has group conversation GoingOffline with Member1 in team Messaging") {
-            backendSetupHelper.userHasGroupConversationInTeam(
-                "user1Name",
-                "GoingOffline",
-                "user2Name",
-                "Messaging"
+        step("And MLS devices are registered for all participants") {
+            testServiceHelper.apply {
+                addDevice("user1Name", null, "Device1")
+                addDevice("user2Name", null, "Device1")
+            }
+        }
+
+        step("And User TeamOwner creates MLS group conversation GoingOffline with Member1 in team Messaging") {
+            testServiceHelper.userCreatesMLSGroupConversation(
+                ownerAlias = "user1Name",
+                participantAliases = "user2Name",
+                conversationName = "GoingOffline",
+                deviceName = "Device1"
             )
         }
 
@@ -685,10 +707,6 @@ class MessagingTests : BaseUiTest() {
             teamOwner = clientUserManager.findUserByNameOrNameAlias("user1Name")
             member1 = clientUserManager.findUserByNameOrNameAlias("user2Name")
             clientUserManager.setSelfUser(teamOwner)
-        }
-
-        step("And User Member1 adds a new device Device1 with label Device1") {
-            testServiceHelper.addDevice("user2Name", null, "Device1")
         }
 
         step("And I see email verification Welcome Page") {

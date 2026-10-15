@@ -23,7 +23,7 @@ private fun com.wire.android.search.SearchAllPeopleOrContactsScreen(searchQuery:
     - nextFocusRequester: STABLE (marked @Stable or @Immutable)
 
 @Composable
-public fun com.wire.android.search.SearchUsersAndAppsScreen(searchTitle: kotlin.String, selectedContacts: kotlinx.collections.immutable.ImmutableSet<com.wire.android.model.Contact>, onContactChecked: kotlin.Function2<kotlin.Boolean, com.wire.android.model.Contact, kotlin.Unit>, onClose: kotlin.Function0<kotlin.Unit>, navigationIconType: com.wire.android.ui.common.topappbar.NavigationIconType, itemActionType: com.wire.android.model.ItemActionType, modifier: androidx.compose.ui.Modifier, conversationId: com.wire.kalium.logic.data.id.QualifiedID?, onlySelfTeamAndDomain: kotlin.Boolean, shouldHideBottomActionForSearch: kotlin.Boolean, shouldHideBottomActionForServices: kotlin.Boolean, isAppsTabVisible: kotlin.Boolean, isConversationAppsEnabled: kotlin.Boolean, initialPage: com.wire.android.search.SearchPeopleTabItem, conversationProtocol: com.wire.kalium.logic.data.conversation.Conversation.ProtocolInfo?, peopleBottomActions: @[Composable] androidx.compose.runtime.internal.ComposableFunction1<androidx.compose.ui.focus.FocusRequester, kotlin.Unit>?, onOpenUserProfile: kotlin.Function1<com.wire.android.model.Contact, kotlin.Unit>, onAppClicked: kotlin.Function1<com.wire.android.model.Contact, kotlin.Unit>): kotlin.Unit
+public fun com.wire.android.search.SearchUsersAndAppsScreen(searchTitle: kotlin.String, selectedContacts: kotlinx.collections.immutable.ImmutableSet<com.wire.android.model.Contact>, onContactChecked: kotlin.Function2<kotlin.Boolean, com.wire.android.model.Contact, kotlin.Unit>, onClose: kotlin.Function0<kotlin.Unit>, navigationIconType: com.wire.android.ui.common.topappbar.NavigationIconType, itemActionType: com.wire.android.model.ItemActionType, modifier: androidx.compose.ui.Modifier, conversationId: com.wire.kalium.logic.data.id.QualifiedID?, onlySelfTeamAndDomain: kotlin.Boolean, shouldHideBottomActionForSearch: kotlin.Boolean, shouldHideBottomActionForServices: kotlin.Boolean, isAppsTabVisible: kotlin.Boolean, isConversationAppsEnabled: kotlin.Boolean, initialPage: com.wire.android.search.SearchPeopleTabItem, conversationProtocol: com.wire.kalium.logic.data.conversation.Conversation.ProtocolInfo?, peopleBottomActions: @[Composable] androidx.compose.runtime.internal.ComposableFunction1<androidx.compose.ui.focus.FocusRequester, kotlin.Unit>?, onOpenUserProfile: kotlin.Function1<com.wire.android.model.Contact, kotlin.Unit>, onAppClicked: kotlin.Function1<com.wire.android.model.Contact, kotlin.Unit>, isGroupsTabVisible: kotlin.Boolean, selectedGroups: kotlin.collections.Set<com.wire.android.search.groups.SearchGroup>, onGroupChecked: kotlin.Function2<kotlin.Boolean, com.wire.android.search.groups.SearchGroup, kotlin.Unit>): kotlin.Unit
   skippable: false
   restartable: true
   params:
@@ -45,6 +45,9 @@ public fun com.wire.android.search.SearchUsersAndAppsScreen(searchTitle: kotlin.
     - peopleBottomActions: STABLE (composable function type)
     - onOpenUserProfile: STABLE (function type)
     - onAppClicked: STABLE (function type)
+    - isGroupsTabVisible: STABLE (primitive type)
+    - selectedGroups: RUNTIME (requires runtime check)
+    - onGroupChecked: STABLE (function type)
 
 @Composable
 private fun com.wire.android.search.apps.AppsList(searchQuery: kotlin.String, apps: kotlin.collections.List<com.wire.android.model.Contact>, onServiceClicked: kotlin.Function1<com.wire.android.model.Contact, kotlin.Unit>, lazyListState: androidx.compose.foundation.lazy.LazyListState): kotlin.Unit
@@ -106,11 +109,51 @@ private fun com.wire.android.search.apps.rememberAppsContentState(isLoading: kot
     - result: STABLE (known stable type)
 
 @Composable
+internal fun com.wire.android.search.groups.SearchGroupsContent(query: kotlin.String, groups: androidx.paging.compose.LazyPagingItems<com.wire.android.search.groups.SearchGroup>, selectedGroups: kotlin.collections.Set<com.wire.android.search.groups.SearchGroup>, onGroupChecked: kotlin.Function2<kotlin.Boolean, com.wire.android.search.groups.SearchGroup, kotlin.Unit>, lazyListState: androidx.compose.foundation.lazy.LazyListState): kotlin.Unit
+  skippable: false
+  restartable: true
+  params:
+    - query: STABLE (String is immutable)
+    - groups: UNSTABLE (has mutable properties or unstable members)
+    - selectedGroups: RUNTIME (requires runtime check)
+    - onGroupChecked: STABLE (function type)
+    - lazyListState: STABLE (marked @Stable or @Immutable)
+
+@Composable
+public fun com.wire.android.search.groups.SearchGroupsScreen(query: kotlin.String, selectedGroups: kotlin.collections.Set<com.wire.android.search.groups.SearchGroup>, onGroupChecked: kotlin.Function2<kotlin.Boolean, com.wire.android.search.groups.SearchGroup, kotlin.Unit>, viewModel: com.wire.android.search.groups.SearchGroupsToAddMembersViewModel, lazyListState: androidx.compose.foundation.lazy.LazyListState): kotlin.Unit
+  skippable: false
+  restartable: true
+  params:
+    - query: STABLE (String is immutable)
+    - selectedGroups: RUNTIME (requires runtime check)
+    - onGroupChecked: STABLE (function type)
+    - viewModel: UNSTABLE (has mutable properties or unstable members)
+    - lazyListState: STABLE (marked @Stable or @Immutable)
+
+@Composable
+private fun com.wire.android.search.groups.SelectableGroupItem(group: com.wire.android.search.groups.SearchGroup, query: kotlin.String, selected: kotlin.Boolean, onGroupChecked: kotlin.Function2<kotlin.Boolean, com.wire.android.search.groups.SearchGroup, kotlin.Unit>, modifier: androidx.compose.ui.Modifier): kotlin.Unit
+  skippable: false
+  restartable: true
+  params:
+    - group: UNSTABLE (has mutable properties or unstable members)
+    - query: STABLE (String is immutable)
+    - selected: STABLE (primitive type)
+    - onGroupChecked: STABLE (function type)
+    - modifier: STABLE (marked @Stable or @Immutable)
+
+@Composable
 public fun com.wire.android.search.searchAppsViewModel(protocolInfo: com.wire.kalium.logic.data.conversation.Conversation.ProtocolInfo?): com.wire.android.search.apps.SearchAppsViewModel
   skippable: false
   restartable: true
   params:
     - protocolInfo: UNSTABLE (has mutable properties or unstable members)
+
+@Composable
+public fun com.wire.android.search.searchGroupsToAddMembersViewModel(onlySelfTeamAndDomain: kotlin.Boolean): com.wire.android.search.groups.SearchGroupsToAddMembersViewModel
+  skippable: true
+  restartable: true
+  params:
+    - onlySelfTeamAndDomain: STABLE (primitive type)
 
 @Composable
 public fun com.wire.android.search.searchUserViewModel(conversationId: com.wire.kalium.logic.data.id.QualifiedID?, onlySelfTeamAndDomain: kotlin.Boolean): com.wire.android.search.users.SearchUserViewModel
@@ -257,4 +300,15 @@ public fun com.wire.android.ui.home.conversations.search.rememberSearchPeopleScr
   restartable: true
   params:
     - coroutineScope: RUNTIME (requires runtime check)
+
+@Composable
+public fun com.wire.android.ui.home.conversationslist.common.ConversationTitle(name: kotlin.String, searchQuery: kotlin.String, modifier: androidx.compose.ui.Modifier, showLegalHoldIndicator: kotlin.Boolean, badges: @[Composable] androidx.compose.runtime.internal.ComposableFunction0<kotlin.Unit>): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - name: STABLE (String is immutable)
+    - searchQuery: STABLE (String is immutable)
+    - modifier: STABLE (marked @Stable or @Immutable)
+    - showLegalHoldIndicator: STABLE (primitive type)
+    - badges: STABLE (composable function type)
 

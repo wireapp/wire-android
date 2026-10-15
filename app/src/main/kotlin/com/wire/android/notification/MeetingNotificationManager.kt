@@ -25,6 +25,7 @@ import android.content.pm.PackageManager
 import android.os.Build
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
+import com.wire.kalium.logic.data.meeting.MeetingReminder
 import com.wire.kalium.logic.data.notification.LocalNotification
 import com.wire.kalium.logic.data.user.UserId
 import dev.zacsweers.metro.AppScope
@@ -51,6 +52,19 @@ class MeetingNotificationManager @Inject constructor(
             }
         }
     }
+
+    fun showReminder(reminder: MeetingReminder, userId: UserId) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU ||
+            ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED
+        ) {
+            notificationManagerCompat.notify(
+                NotificationConstants.getMeetingTag(userId, reminder.meetingId.toString(), "${reminder.occurrenceId}$REMINDER_SUFFIX"),
+                NotificationIds.MEETING_NOTIFICATION_ID.ordinal,
+                builder.buildReminder(reminder, userId),
+            )
+        }
+    }
+
     fun hideAllNotificationsForUser(userId: UserId) = hideMatching(NotificationConstants.getMeetingsGroupKey(userId))
     fun hideAllNotifications() = hideMatching()
     private fun hideMatching(groupKey: String? = null) {
@@ -58,5 +72,9 @@ class MeetingNotificationManager @Inject constructor(
             .filter { it.id == NotificationIds.MEETING_NOTIFICATION_ID.ordinal }
             .filter { groupKey == null || it.notification.group == groupKey }
             .forEach { notificationManagerCompat.cancel(it.tag, it.id) }
+    }
+
+    companion object {
+        private const val REMINDER_SUFFIX = "_10mins_before_reminder"
     }
 }

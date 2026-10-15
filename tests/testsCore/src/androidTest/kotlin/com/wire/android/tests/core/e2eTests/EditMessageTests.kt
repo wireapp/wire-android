@@ -43,7 +43,7 @@ class EditMessageTests : BaseUiTest() {
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
     @TestCaseId("TC-4330", "TC-4331", "TC-4332", "TC-4333")
-    @Category("regression", "RC", "editMessage", "smoke",)
+    @Category("regression", "RC", "editMessage", "fdroid",)
     @Test
     fun givenOneOnOneConversation_whenIEditSentMessageAndReceiveEditedMessage_thenEditsAndTimestampsAreDisplayed() {
         step("Given There is a team owner TeamOwner with team Messaging") {
@@ -228,7 +228,7 @@ class EditMessageTests : BaseUiTest() {
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
     @TestCaseId("TC-4334", "TC-4335", "TC-4336", "TC-4337")
-    @Category("regression", "RC", "editMessage", "smoke")
+    @Category("regression", "RC", "editMessage", "fdroid")
     @Test
     fun givenGroupConversation_whenIEditSentMessageAndReceiveEditedMessage_thenEditsAndTimestampsAreDisplayed() {
         prepareGroupConversationAndLogin()

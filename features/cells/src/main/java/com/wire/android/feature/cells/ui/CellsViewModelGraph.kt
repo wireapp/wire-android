@@ -111,5 +111,5 @@ internal fun cellImageViewerViewModel(navArgs: CellImageViewerNavArgs): CellImag
     wireAssistedMetroViewModel<CellImageViewerViewModel, CellsManualViewModelFactory> { imageViewer(navArgs) }
 
 @Composable
-internal fun uploadStatusViewModel(): UploadStatusViewModel =
-    wireAssistedMetroViewModel<UploadStatusViewModel, CellsManualViewModelFactory> { uploadStatus() }
+internal fun uploadStatusViewModel(conversationId: String?): UploadStatusViewModel =
+    wireAssistedMetroViewModel<UploadStatusViewModel, CellsManualViewModelFactory> { uploadStatus(conversationId) }

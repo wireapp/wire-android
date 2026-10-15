@@ -15,6 +15,22 @@ from build_wire_notification import build_body, resolve_status_icon
 
 
 class BuildWireNotificationTest(unittest.TestCase):
+    def test_labels_fdroid_without_changing_result_reporting(self) -> None:
+        with patch.dict(os.environ, {
+            "REPORT_TITLE": "android fdroid tests",
+            "RUN_NUMBER": "123",
+            "EVENT_NAME": "schedule",
+            "RESOLVED_TAGS": "@fdroid",
+            "TESTS_FAILED": "0",
+            "TESTS_TOTAL": "13",
+            "PASSED_ON_RERUN_COUNT": "1",
+        }, clear=True):
+            body = build_body()
+
+        self.assertTrue(body.startswith("✅ android fdroid tests #123"))
+        self.assertIn("@fdroid", body)
+        self.assertIn("Failed: 0 / -1", body)
+
     def test_uses_success_icon_when_failed_job_has_recovered_test_results(self) -> None:
         with patch.dict(
             os.environ,
@@ -25,6 +41,7 @@ class BuildWireNotificationTest(unittest.TestCase):
                 "RUN_NUMBER": "123",
                 "EVENT_NAME": "workflow_dispatch",
                 "PASSED_ON_RERUN_COUNT": "2",
+                "REPORT_TITLE": "android critical flows",
             },
             clear=True,
         ):
@@ -32,6 +49,14 @@ class BuildWireNotificationTest(unittest.TestCase):
 
         self.assertTrue(body.startswith("✅ android critical flows #123"))
         self.assertIn("Failed: 0 / -2", body)
+
+    def test_rejects_missing_or_blank_title(self) -> None:
+        for title in (None, "", " \t\n "):
+            with self.subTest(title=title):
+                values = {} if title is None else {"REPORT_TITLE": title}
+                with patch.dict(os.environ, values, clear=True):
+                    with self.assertRaisesRegex(RuntimeError, "REPORT_TITLE is required"):
+                        build_body()
 
     def test_uses_failure_icon_when_final_test_results_have_failures(self) -> None:
         with patch.dict(

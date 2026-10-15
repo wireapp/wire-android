@@ -23,7 +23,6 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -31,7 +30,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
@@ -46,11 +44,8 @@ import com.wire.android.model.Clickable
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.calling.controlbuttons.JoinButton
 import com.wire.android.ui.common.R as commonR
-import com.wire.android.ui.common.WireRadioButton
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.common.rowitem.RowItemTemplate
-import com.wire.android.ui.home.conversations.info.ConversationAvatar
 import com.wire.android.ui.home.conversations.model.MessageBody
 import com.wire.android.ui.home.conversations.model.UILastMessageContent
 import com.wire.android.ui.home.conversationslist.showLegalHoldIndicator
@@ -62,7 +57,6 @@ import com.wire.android.ui.home.conversationslist.model.toUserInfoLabel
 import com.wire.android.ui.markdown.MarkdownConstants
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
-import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.toUIText
@@ -78,9 +72,9 @@ private const val DISABLED_CONVERSATION_ITEM_ALPHA = 0.5f
 fun ConversationItemFactory(
     conversation: ConversationItem,
     modifier: Modifier = Modifier,
-    isSelectableItem: Boolean = false,
+    selectionMode: ConversationItemSelectionMode = ConversationItemSelectionMode.NONE,
     isChecked: Boolean = false,
-    onConversationSelectedOnRadioGroup: () -> Unit = {},
+    onConversationSelectionChanged: (Boolean) -> Unit = {},
     openConversation: (ConversationItem) -> Unit = {},
     openMenu: (ConversationItem) -> Unit = {},
     openUserProfile: (UserId) -> Unit = {},
@@ -133,12 +127,12 @@ fun ConversationItemFactory(
             .alpha(if (isEnabled) 1f else DISABLED_CONVERSATION_ITEM_ALPHA)
             .semantics(mergeDescendants = true) { },
         conversation = conversation,
-        isSelectable = isSelectableItem,
+        selectionMode = selectionMode,
         isChecked = isChecked,
         isEnabled = isEnabled,
-        selectOnRadioGroup = onConversationSelectedOnRadioGroup,
+        onSelectionChanged = onConversationSelectionChanged,
         subTitle = {
-            if (!isSelectableItem) {
+            if (selectionMode == ConversationItemSelectionMode.NONE) {
                 when (val messageContent = conversation.lastMessageContent) {
                     is UILastMessageContent.TextMessage -> LastMessageSubtitle(
                         messageContent.messageBody.message,
@@ -180,45 +174,33 @@ fun ConversationItemFactory(
 private fun GeneralConversationItem(
     conversation: ConversationItem,
     isChecked: Boolean,
-    isSelectable: Boolean,
+    selectionMode: ConversationItemSelectionMode,
     onConversationItemClick: Clickable,
     onJoinCallClick: () -> Unit,
     onAudioPermissionPermanentlyDenied: () -> Unit,
     showLegalHoldIndicator: Boolean,
     modifier: Modifier = Modifier,
     isEnabled: Boolean = true,
-    selectOnRadioGroup: () -> Unit = {},
+    onSelectionChanged: (Boolean) -> Unit = {},
     subTitle: @Composable () -> Unit = {},
     searchQuery: String = "",
     playingAudio: PlayingAudioInConversation? = null,
     onPlayPauseCurrentAudio: () -> Unit = { },
     onStopCurrentAudio: () -> Unit = {}
 ) {
+    val isSelectable = selectionMode != ConversationItemSelectionMode.NONE
     when (conversation) {
         is ConversationItem.Group -> {
             with(conversation) {
-                RowItemTemplate(
-                    modifier = modifier.padding(start = dimensions().spacing8x),
-                    titleStartPadding = dimensions().spacing0x,
-                    leadingIcon = {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            if (isSelectable) {
-                                WireRadioButton(
-                                    checked = isChecked,
-                                    enabled = isEnabled,
-                                    onButtonChecked = { selectOnRadioGroup() }
-                                )
-                            }
-                            val avatar = if (conversation is ConversationItem.Group.Channel) {
-                                ConversationAvatar.Group.Channel(conversationId, conversation.isPrivate)
-                            } else {
-                                ConversationAvatar.Group.Regular(conversationId)
-                            }
-                            ConversationLeadingAvatar {
-                                GroupConversationAvatar(avatar)
-                            }
-                        }
-                    },
+                ConversationItemTemplate(
+                    conversationId = conversationId,
+                    modifier = modifier,
+                    isChannel = conversation is ConversationItem.Group.Channel,
+                    isPrivateChannel = (conversation as? ConversationItem.Group.Channel)?.isPrivate == true,
+                    selectionMode = selectionMode,
+                    isChecked = isChecked,
+                    isEnabled = isEnabled,
+                    onSelectionChanged = onSelectionChanged,
                     title = {
                         ConversationTitle(
                             name = groupName.ifEmpty { stringResource(id = R.string.member_name_deleted_label) },
@@ -259,23 +241,14 @@ private fun GeneralConversationItem(
 
         is ConversationItem.PrivateConversation -> {
             with(conversation) {
-                RowItemTemplate(
-                    modifier = modifier.padding(start = dimensions().spacing8x),
-                    titleStartPadding = dimensions().spacing0x,
-                    leadingIcon = {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            if (isSelectable) {
-                                WireRadioButton(
-                                    checked = isChecked,
-                                    enabled = isEnabled,
-                                    onButtonChecked = { selectOnRadioGroup() }
-                                )
-                            }
-                            ConversationLeadingAvatar {
-                                ConversationUserAvatar(userAvatarData)
-                            }
-                        }
-                    },
+                ConversationItemTemplate(
+                    conversationId = conversationId,
+                    modifier = modifier,
+                    selectionMode = selectionMode,
+                    isChecked = isChecked,
+                    isEnabled = isEnabled,
+                    onSelectionChanged = onSelectionChanged,
+                    avatar = { ConversationUserAvatar(userAvatarData) },
                     title = {
                         UserLabel(
                             userInfoLabel = toUserInfoLabel(showLegalHoldIndicator),
@@ -315,14 +288,14 @@ private fun GeneralConversationItem(
 
         is ConversationItem.ConnectionConversation -> {
             with(conversation) {
-                RowItemTemplate(
-                    modifier = modifier.padding(start = dimensions().spacing8x),
-                    titleStartPadding = dimensions().spacing0x,
-                    leadingIcon = {
-                        ConversationLeadingAvatar {
-                            ConversationUserAvatar(userAvatarData)
-                        }
-                    },
+                ConversationItemTemplate(
+                    conversationId = conversationId,
+                    modifier = modifier,
+                    selectionMode = selectionMode,
+                    isChecked = isChecked,
+                    isEnabled = isEnabled,
+                    onSelectionChanged = onSelectionChanged,
+                    avatar = { ConversationUserAvatar(userAvatarData) },
                     title = {
                         UserLabel(
                             userInfoLabel = toUserInfoLabel(showLegalHoldIndicator),
@@ -337,21 +310,6 @@ private fun GeneralConversationItem(
                 )
             }
         }
-    }
-}
-
-@Composable
-private fun ConversationLeadingAvatar(
-    modifier: Modifier = Modifier,
-    content: @Composable () -> Unit
-) {
-    val leadingSize = MaterialTheme.wireDimensions.avatarDefaultSize +
-            (MaterialTheme.wireDimensions.avatarClickablePadding * 2)
-    Box(
-        modifier = modifier.size(leadingSize),
-        contentAlignment = Alignment.Center
-    ) {
-        content()
     }
 }
 
@@ -423,7 +381,7 @@ fun PreviewGroupConversationItemWithUnreadCount() = WireTheme {
             folder = null
         ),
         modifier = Modifier,
-        isSelectableItem = false,
+        selectionMode = ConversationItemSelectionMode.NONE,
         isChecked = false,
         {}, {}, {}, {}, {}, {},
     )
@@ -452,7 +410,7 @@ fun PreviewChannelGroupConversationItemWithUnreadCount() = WireTheme {
             isPrivate = false
         ),
         modifier = Modifier,
-        isSelectableItem = false,
+        selectionMode = ConversationItemSelectionMode.NONE,
         isChecked = false,
         {}, {}, {}, {}, {}, {},
     )
@@ -481,7 +439,7 @@ fun PreviewPrivateChannelGroupConversationItemWithUnreadCount() = WireTheme {
             isPrivate = true
         ),
         modifier = Modifier,
-        isSelectableItem = false,
+        selectionMode = ConversationItemSelectionMode.NONE,
         isChecked = false,
         {}, {}, {}, {}, {}, {},
     )
@@ -509,7 +467,7 @@ fun PreviewGroupConversationItemWithNoBadges() = WireTheme {
             folder = null
         ),
         modifier = Modifier,
-        isSelectableItem = false,
+        selectionMode = ConversationItemSelectionMode.NONE,
         isChecked = false,
         {}, {}, {}, {}, {}, {},
     )
@@ -539,7 +497,7 @@ fun PreviewGroupConversationItemWithLastDeletedMessage() = WireTheme {
             folder = null
         ),
         modifier = Modifier,
-        isSelectableItem = false,
+        selectionMode = ConversationItemSelectionMode.NONE,
         isChecked = false,
         {}, {}, {}, {}, {}, {},
     )
@@ -567,7 +525,7 @@ fun PreviewGroupConversationItemWithMutedBadgeAndUnreadMentionBadge() = WireThem
             folder = null
         ),
         modifier = Modifier,
-        isSelectableItem = false,
+        selectionMode = ConversationItemSelectionMode.NONE,
         isChecked = false,
         {}, {}, {}, {}, {}, {},
     )
@@ -596,7 +554,7 @@ fun PreviewGroupConversationItemWithOngoingCall() = WireTheme {
             folder = null
         ),
         modifier = Modifier,
-        isSelectableItem = false,
+        selectionMode = ConversationItemSelectionMode.NONE,
         isChecked = false,
         {}, {}, {}, {}, {}, {},
     )
@@ -615,7 +573,7 @@ fun PreviewConnectionConversationItemWithReceivedConnectionRequestBadge() = Wire
             conversationInfo = ConversationInfo("Name")
         ),
         modifier = Modifier,
-        isSelectableItem = false,
+        selectionMode = ConversationItemSelectionMode.NONE,
         isChecked = false,
         {}, {}, {}, {}, {}, {}
     )
@@ -634,7 +592,7 @@ fun PreviewConnectionConversationItemWithSentConnectRequestBadge() = WireTheme {
             conversationInfo = ConversationInfo("Name")
         ),
         modifier = Modifier,
-        isSelectableItem = false,
+        selectionMode = ConversationItemSelectionMode.NONE,
         isChecked = false,
         {}, {}, {}, {}, {}, {}
     )
@@ -653,7 +611,7 @@ fun PreviewConnectionConversationItemWithSentConnectRequestBadgeWithUnknownSende
             conversationInfo = ConversationInfo("", isSenderUnavailable = true)
         ),
         modifier = Modifier,
-        isSelectableItem = false,
+        selectionMode = ConversationItemSelectionMode.NONE,
         isChecked = false,
         {}, {}, {}, {}, {}, {}
     )
@@ -681,7 +639,7 @@ fun PreviewPrivateConversationItemWithBlockedBadge() = WireTheme {
             folder = null
         ),
         modifier = Modifier,
-        isSelectableItem = false,
+        selectionMode = ConversationItemSelectionMode.NONE,
         isChecked = false,
         {}, {}, {}, {}, {}, {}
     )
@@ -709,7 +667,7 @@ fun PreviewPrivateConversationItemWithPlayingAudio() = WireTheme {
             folder = null
         ),
         modifier = Modifier,
-        isSelectableItem = false,
+        selectionMode = ConversationItemSelectionMode.NONE,
         isChecked = false,
         {}, {}, {}, {}, {}, {},
         playingAudio = PlayingAudioInConversation(QualifiedID("value", "domain"), "some_id", true)

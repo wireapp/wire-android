@@ -5,12 +5,17 @@
 
 package com.wire.android.ui
 
+import com.wire.android.navigation.routes.auth.AuthenticationLoginArguments
+import com.wire.android.navigation.routes.auth.AuthenticationLoginPasswordPath
 import com.wire.android.navigation.routes.auth.AuthenticationPrefilledUserIdentifier
+import com.wire.android.navigation.routes.auth.AuthenticationSsoCodeAutoLogin
+import com.wire.android.navigation.routes.auth.AuthenticationSsoFailureCode
 import com.wire.android.navigation.routes.auth.AuthenticationSsoLoginResult
 import com.wire.android.navigation.routes.auth.LoginRoute
 import com.wire.android.navigation.routes.auth.NewLoginRoute
 import com.wire.android.navigation.routes.auth.NewWelcomeEmptyStartRoute
 import com.wire.android.navigation.routes.auth.WelcomeRoute
+import com.wire.android.navigation.routes.auth.toAuthenticationServerLinks
 import com.wire.android.navigation.routes.media.AuthenticatedImportMediaRoute
 import com.wire.android.navigation.routes.media.LoggedOutImportMediaRoute
 import com.wire.android.navigation.runtime.startup.HomeRoute
@@ -149,6 +154,46 @@ class WireActivityNavigation3EffectsTest {
     }
 
     @Test
+    fun givenSsoSuccessOnLegacyLogin_whenResolving_thenCurrentEntryFlowAndArgumentsArePreserved() {
+        val current = legacyLoginRoute()
+        val result = resolve(
+            OnSSOLogin(DeepLinkResult.SSOLogin.Success("cookie", "server")),
+            listOf(WelcomeRoute(flowId = current.flowId), current),
+        )
+        val replacement = assertInstanceOf(
+            WireActivityNavigation3Mutation.ReplaceCurrent::class.java,
+            result.mutations.single(),
+        ).route as LoginRoute
+
+        assertEquals(current.entryId, replacement.entryId)
+        assertEquals(current.flowId, replacement.flowId)
+        assertEquals(
+            current.args.copy(ssoLoginResult = AuthenticationSsoLoginResult.Success("cookie", "server")),
+            replacement.args,
+        )
+    }
+
+    @Test
+    fun givenSsoFailureOnLegacyLogin_whenResolving_thenCurrentEntryFlowAndArgumentsArePreserved() {
+        val current = legacyLoginRoute()
+        val result = resolve(
+            OnSSOLogin(DeepLinkResult.SSOLogin.Failure(SSOFailureCodes.Forbidden)),
+            listOf(WelcomeRoute(flowId = current.flowId), current),
+        )
+        val replacement = assertInstanceOf(
+            WireActivityNavigation3Mutation.ReplaceCurrent::class.java,
+            result.mutations.single(),
+        ).route as LoginRoute
+
+        assertEquals(current.entryId, replacement.entryId)
+        assertEquals(current.flowId, replacement.flowId)
+        assertEquals(
+            current.args.copy(ssoLoginResult = AuthenticationSsoLoginResult.Failure(AuthenticationSsoFailureCode.FORBIDDEN)),
+            replacement.args,
+        )
+    }
+
+    @Test
     fun givenConversationAfterAccountSwitch_whenResolving_thenHomeIsClearedBeforeTypedConversationUpdate() {
         val targetSession = QualifiedID("switched-user", "wire.example")
         val result = resolve(
@@ -227,6 +272,21 @@ class WireActivityNavigation3EffectsTest {
         )
         assertEquals(WireBackStackMode.UPDATE_EXISTING, command.backStackMode)
     }
+
+    private fun legacyLoginRoute() = LoginRoute(
+        flowId = "legacy-login:owner",
+        entryId = WireNavEntryId("legacy-login-entry"),
+        args = AuthenticationLoginArguments(
+            userHandle = AuthenticationPrefilledUserIdentifier("alice"),
+            loginPasswordPath = AuthenticationLoginPasswordPath(customServerConfig = serverLinks().toAuthenticationServerLinks()),
+            ssoCodeAutoLogin = AuthenticationSsoCodeAutoLogin(
+                ssoCode = "code",
+                nomadServiceUrl = "https://nomad.example",
+                cookieLabel = "cookie-label",
+            ),
+            showBackendConfigSuccess = true,
+        ),
+    )
 
     private fun resolve(
         action: WireActivityViewAction,

@@ -31,6 +31,11 @@ jobs:
       - android-qa
     timeout-minutes: 90
 
+    env:
+      # Set BASELINE_PROFILE_DEVICE_SERIAL to a phone verified to generate nonempty profiles.
+      # An unset or unavailable selection must fail, never fall back to all connected phones.
+      ANDROID_SERIAL: ${{ vars.BASELINE_PROFILE_DEVICE_SERIAL }}
+
     defaults:
       run:
         shell: bash
@@ -66,17 +71,33 @@ jobs:
       - name: Disable production signing
         run: echo "ENABLE_SIGNING=FALSE" >> "$GITHUB_ENV"
 
-      - name: Verify at least one device connected
+      - name: Verify selected baseline profile device
         run: |
-          adb devices
-          DEVICE_COUNT="$(adb devices | awk '$2 == "device" { count++ } END { print count + 0 }')"
-          test "$DEVICE_COUNT" -ge 1
+          if [[ -z "$ANDROID_SERIAL" || "$ANDROID_SERIAL" =~ [[:space:],] ]]; then
+            echo "::error::Set BASELINE_PROFILE_DEVICE_SERIAL to exactly one device serial without whitespace or commas."
+            exit 1
+          fi
+
+          if ! DEVICE_STATE="$(adb -s "$ANDROID_SERIAL" get-state | tr -d '\r')" || [[ "$DEVICE_STATE" != "device" ]]; then
+            echo "::error::The selected baseline profile device is not online. Check BASELINE_PROFILE_DEVICE_SERIAL and its ADB connection."
+            exit 1
+          fi
+
+          if ! DEVICE_SDK="$(adb -s "$ANDROID_SERIAL" shell getprop ro.build.version.sdk | tr -d '\r')" || [[ ! "$DEVICE_SDK" =~ ^[0-9]+$ ]]; then
+            echo "::error::Could not read a valid Android API level from the selected baseline profile device."
+            exit 1
+          fi
+
+          if (( 10#$DEVICE_SDK < 33 )); then
+            echo "::error::Baseline profile generation requires API 33+ without root; the selected device uses API $DEVICE_SDK."
+            exit 1
+          fi
 
       - name: Capture device metadata
         id: device
         run: |
-          echo "model=$(adb shell getprop ro.product.model | tr -d '\r')" >> "$GITHUB_OUTPUT"
-          echo "sdk=$(adb shell getprop ro.build.version.sdk | tr -d '\r')" >> "$GITHUB_OUTPUT"
+          echo "model=$(adb -s "$ANDROID_SERIAL" shell getprop ro.product.model | tr -d '\r')" >> "$GITHUB_OUTPUT"
+          echo "sdk=$(adb -s "$ANDROID_SERIAL" shell getprop ro.build.version.sdk | tr -d '\r')" >> "$GITHUB_OUTPUT"
 
       - name: Generate baseline + startup profile
         run: |

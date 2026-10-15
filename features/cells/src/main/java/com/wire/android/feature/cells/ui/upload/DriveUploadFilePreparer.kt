@@ -51,7 +51,14 @@ class DriveUploadFilePreparer @Inject constructor(
         val source = runCatching { context.contentResolver.openInputStream(uri)?.source() }.getOrNull()
             ?: return@withContext null
         val localPath = kaliumFileSystem.tempFilePath(UUID.randomUUID().toString())
-        val sizeBytes = source.use { kaliumFileSystem.writeData(kaliumFileSystem.sink(localPath), it) }
+        val sizeBytes = runCatching {
+            source.use { kaliumFileSystem.writeData(kaliumFileSystem.sink(localPath), it) }
+        }.getOrElse {
+            // e.g. out of disk space: whatever got written is incomplete and would otherwise never be
+            // cleaned up, since a failed prepare() never hands this path to the coordinator.
+            kaliumFileSystem.delete(localPath)
+            return@withContext null
+        }
         CellUploadRequest(
             localPath = localPath,
             fileName = fileName,

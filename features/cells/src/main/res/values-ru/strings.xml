@@ -64,6 +64,8 @@
     <string name="error_create_public_link">Не удается создать общедоступную ссылку.</string>
     <string name="cell_files_download_failure_message">Загрузка не удалась.</string>
     <string name="no_space_left_error">Недостаточно места для загрузки файла.</string>
+    <string name="cells_upload_preparation_failed">Не удалось загрузить выбранные файлы.</string>
+    <string name="cells_upload_preparation_partially_failed">Некоторые файлы не могут быть загружены.</string>
     <string name="download_file_message">Этот файл еще не скачан. Скачать сейчас?</string>
     <string name="download">Скачать</string>
     <string name="downloading_file_message">Загрузка файла…</string>

@@ -60,6 +60,8 @@ import com.wire.android.model.Contact
 import com.wire.android.model.ItemActionType
 import com.wire.android.search.apps.EmptySearchDisabledByConversationContent
 import com.wire.android.search.apps.SearchAppsScreen
+import com.wire.android.search.groups.SearchGroup
+import com.wire.android.search.groups.SearchGroupsScreen
 import com.wire.android.search.users.SearchAllPeopleScreen
 import com.wire.android.search.users.SearchUserViewModel
 import com.wire.android.ui.common.CollapsingTopBarScaffold
@@ -100,12 +102,19 @@ fun SearchUsersAndAppsScreen(
     peopleBottomActions: (@Composable (FocusRequester) -> Unit)? = null,
     onOpenUserProfile: (Contact) -> Unit = {},
     onAppClicked: (Contact) -> Unit = {},
+    isGroupsTabVisible: Boolean = false,
+    selectedGroups: Set<SearchGroup> = emptySet(),
+    onGroupChecked: (Boolean, SearchGroup) -> Unit = { _, _ -> },
 ) {
     val searchBarState = rememberSearchbarState()
     val scope = rememberCoroutineScope()
     val focusManager = LocalFocusManager.current
-    val tabs = remember(isAppsTabVisible) {
-        if (isAppsTabVisible) SearchPeopleTabItem.entries else listOf(SearchPeopleTabItem.PEOPLE)
+    val tabs = remember(isAppsTabVisible, isGroupsTabVisible) {
+        buildList {
+            add(SearchPeopleTabItem.PEOPLE)
+            if (isGroupsTabVisible) add(SearchPeopleTabItem.GROUPS)
+            if (isAppsTabVisible) add(SearchPeopleTabItem.SERVICES)
+        }
     }
     val pagerState = rememberPagerState(
         initialPage = tabs.indexOf(initialPage),
@@ -126,13 +135,15 @@ fun SearchUsersAndAppsScreen(
 
     val searchBarTitle = if (isAppsTabVisible) {
         stringResource(R.string.label_search_people_or_apps)
+    } else if (isGroupsTabVisible) {
+        stringResource(R.string.label_search_people_groups)
     } else {
         stringResource(R.string.label_search_people)
     }
     val isBottomActionVisible = peopleBottomActions != null
             && !(shouldHideBottomActionForServices && tabs[pagerState.currentPage] == SearchPeopleTabItem.SERVICES)
             && !(searchBarState.isSearchActive && shouldHideBottomActionForSearch)
-    val searchNextFocusRequester = if (isAppsTabVisible) peopleTabFocusRequester else firstContactFocusRequester
+    val searchNextFocusRequester = if (tabs.size > 1) peopleTabFocusRequester else firstContactFocusRequester
     val tabModifiers = tabs.map { tab ->
         when (tab) {
             SearchPeopleTabItem.PEOPLE ->
@@ -154,7 +165,7 @@ fun SearchUsersAndAppsScreen(
                         }
                     }
 
-            SearchPeopleTabItem.SERVICES -> Modifier
+            SearchPeopleTabItem.SERVICES, SearchPeopleTabItem.GROUPS -> Modifier
         }
     }
 
@@ -194,9 +205,9 @@ fun SearchUsersAndAppsScreen(
             )
         },
         topBarFooter = {
-            if (isAppsTabVisible) {
+            if (tabs.size > 1) {
                 WireTabRow(
-                    tabs = SearchPeopleTabItem.entries,
+                    tabs = tabs,
                     selectedTabIndex = currentTabState,
                     onTabChange = { scope.launch { pagerState.animateScrollToPage(it) } },
                     tabModifiers = tabModifiers,
@@ -209,6 +220,7 @@ fun SearchUsersAndAppsScreen(
             CompositionLocalProvider(LocalOverscrollConfiguration provides null) {
                 HorizontalPager(
                     state = pagerState,
+                    beyondViewportPageCount = tabs.size,
                     modifier = Modifier
                         .fillMaxWidth()
                 ) { pageIndex ->
@@ -241,6 +253,13 @@ fun SearchUsersAndAppsScreen(
                                 EmptySearchDisabledByConversationContent()
                             }
                         }
+                        SearchPeopleTabItem.GROUPS -> SearchGroupsScreen(
+                            query = searchBarState.searchQueryTextState.text.toString(),
+                            selectedGroups = selectedGroups,
+                            onGroupChecked = onGroupChecked,
+                            viewModel = searchGroupsToAddMembersViewModel(onlySelfTeamAndDomain),
+                            lazyListState = lazyListStates[pageIndex],
+                        )
                     }
                 }
             }
@@ -264,6 +283,7 @@ fun SearchUsersAndAppsScreen(
 
 enum class SearchPeopleTabItem(@StringRes val titleResId: Int) : TabItem {
     PEOPLE(R.string.label_add_member_people),
+    GROUPS(R.string.label_add_member_groups),
     SERVICES(R.string.label_add_member_services);
 
     override val title: UIText = UIText.StringResource(titleResId)

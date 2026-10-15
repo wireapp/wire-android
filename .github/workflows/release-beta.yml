@@ -1,13 +1,9 @@
 name: "Release beta"
-run-name: "Release beta from ${{ inputs.commit || github.sha }}"
+run-name: "Release beta from ${{ github.ref_name }} at ${{ github.sha }}"
 
 on:
   workflow_dispatch:
     inputs:
-      commit:
-        description: "Commit SHA on develop. Leave blank to use the selected develop commit."
-        required: false
-        type: string
       beta-number:
         description: "Beta number, such as 1. Leave blank to choose the next number."
         required: false
@@ -24,7 +20,6 @@ concurrency:
 jobs:
   create-tag:
     name: Create beta tag
-    if: github.ref == 'refs/heads/develop'
     runs-on: ubuntu-latest
     permissions:
       contents: write # create an annotated beta tag
@@ -40,15 +35,16 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           REPOSITORY: ${{ github.repository }}
-          SOURCE_COMMIT: ${{ inputs.commit || github.sha }}
+          SOURCE_COMMIT: ${{ github.sha }}
+          SOURCE_BRANCH: ${{ github.ref_name }}
+          SOURCE_REF: ${{ github.ref }}
           BETA_NUMBER: ${{ inputs.beta-number }}
         run: |
-          if [[ ! "$SOURCE_COMMIT" =~ ^[0-9a-fA-F]{7,40}$ ]]; then
-            echo "Commit must be a Git commit SHA on develop"
+          if [[ "$SOURCE_REF" != refs/heads/release/cycle-* ]]; then
+            echo "Select a release-cycle branch named release/cycle-*"
             exit 1
           fi
-          commit=$(git rev-parse --verify "${SOURCE_COMMIT}^{commit}")
-          git merge-base --is-ancestor "$commit" origin/develop
+          commit=$(make -s beta-release/validate-source)
           version=$(git show "$commit:build-logic/plugins/src/main/kotlin/AndroidCoordinates.kt" | sed -nE 's/^[[:space:]]*const val versionName = "([^"]+)".*/\1/p')
           if [[ -z "$BETA_NUMBER" ]]; then
             previous=$(git tag --list "v${version}-beta.*" | sed -nE 's/.*-beta\.([1-9][0-9]*)$/\1/p' | sort -n | tail -n1)

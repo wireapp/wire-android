@@ -519,7 +519,9 @@ private fun ImportMediaContent(
             isSelectableList = true,
             isConversationEnabled = state::isConversationSelectable,
             searchQuery = searchQuery,
-            onConversationSelectedOnRadioGroup = onConversationClicked,
+            onConversationSelectionChanged = { selected, conversation ->
+                if (selected) onConversationClicked(conversation)
+            },
             onOpenConversation = onConversationClicked,
             onEditConversation = {},
             onOpenUserProfile = {},

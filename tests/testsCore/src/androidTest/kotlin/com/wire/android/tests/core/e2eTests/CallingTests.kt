@@ -617,7 +617,7 @@ class CallingTests : BaseCallUiTest() {
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
     @TestCaseId("TC-4263")
-    @Category("regression", "RC", "calling", "groupCalling", "fdroid", "smokeSTACKIT")
+    @Category("regression", "RC", "calling", "groupCalling", "fdroid")
     @Test
     fun givenAppIsInForeground_whenIAcceptIncomingGroupCall_thenGroupCallIsEstablished() {
         givenTeamOwnerMembersAndGroupConversationArePrepared()

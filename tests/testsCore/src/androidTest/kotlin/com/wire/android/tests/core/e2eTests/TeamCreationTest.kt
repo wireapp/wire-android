@@ -190,6 +190,7 @@ class TeamCreationTest : BaseUiTest() {
 
         step("And I decline share data alert after username confirmation") {
             pages.registrationPage.apply {
+                clickAllowNotificationButton()
                 clickDeclineShareDataAlert()
             }
         }

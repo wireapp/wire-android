@@ -143,7 +143,7 @@ class SSOTests : BaseUiTest() {
 
         step("And I wait until I am fully logged in") {
             pages.registrationPage.apply {
-                waitUntilLoginFlowIsCompleted()
+                waitUntilSsoLoginFlowIsCompleted()
                 clickAllowNotificationButton()
             }
         }
@@ -374,7 +374,9 @@ class SSOTests : BaseUiTest() {
         }
 
         step("And I dismiss post-login prompts") {
-            pages.registrationPage.waitUntilConversationPageVisibleDismissingPostLoginPrompts()
+            pages.registrationPage.waitUntilSsoLoginFlowIsCompleted()
+            pages.registrationPage.clickAllowNotificationButton()
+            pages.registrationPage.clickDeclineShareDataAlert()
         }
 
         step("Then I see the conversation list") {

@@ -33,7 +33,6 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import uiautomatorutils.KeyboardUtils.closeKeyboardIfOpened
-import uiautomatorutils.UiWaitUtils
 import user.utils.ClientUser
 
 @RunWith(AndroidJUnit4::class)
@@ -420,9 +419,9 @@ class LoginTests : BaseUiTest() {
 
         step("And I wait until I am fully logged in and decline share data alert") {
             pages.registrationPage.apply {
-                waitUntilLoginFlowIsCompleted()
+                waitUntilSsoLoginFlowIsCompleted()
                 clickAllowNotificationButton()
-                clickDeclineShareDataAlert(timeout = UiWaitUtils.SHORT_WAIT)
+                clickDeclineShareDataAlert()
             }
         }
 

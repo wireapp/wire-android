@@ -84,7 +84,7 @@ private const val DEFAULT_SEARCH_RESULT_ITEM_SIZE = 4
  * NoResults - no results found
  * ShowResults - search results are found
  */
-private sealed interface SearchUiState {
+sealed interface SearchUiState {
     object Loading : SearchUiState
     object EmptyQuery : SearchUiState
     object NoResults : SearchUiState

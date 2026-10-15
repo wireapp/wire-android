@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build the Wire notification body for critical flow workflow runs."""
+"""Build the Wire notification body for Critical Flow and F-Droid runs."""
 
 from __future__ import annotations
 
@@ -87,7 +87,10 @@ def build_body() -> str:
     icon = resolve_status_icon()
     event_name = env("EVENT_NAME")
 
-    header = f"{icon} android critical flows #{env('RUN_NUMBER')}"
+    title = env("REPORT_TITLE")
+    if not title:
+        raise RuntimeError("REPORT_TITLE is required for Wire notifications")
+    header = f"{icon} {title} #{env('RUN_NUMBER')}"
     pr_number = resolve_pr_number()
     if pr_number:
         header = f"{header} (PR #{pr_number})"

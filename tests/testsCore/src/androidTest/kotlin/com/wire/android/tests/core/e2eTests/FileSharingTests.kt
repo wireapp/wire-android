@@ -267,7 +267,7 @@ class FileSharingTests : BaseUiTest() {
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
     @TestCaseId("TC-4343")
-    @Category("regression", "RC", "smoke", "fileSharing", "smokeSchwarz", "smokeSTACKIT")
+    @Category("regression", "RC", "fdroid", "fileSharing")
     @Test
     fun givenTeamMember_whenSendingFileInGroupConversation_thenFileIsSent() {
         givenTeamMemberIsPreparedForFileSharing()

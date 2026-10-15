@@ -176,7 +176,7 @@ class CallingTests : BaseCallUiTest() {
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
     @TestCaseId("TC-4258", "TC-4268")
-    @Category("regression", "calling", "RC", "smoke", "smokeSchwarz", "TEMP")
+    @Category("regression", "calling", "RC", "fdroid", "TEMP")
     @Test
     fun givenMemberCallsMeInForeground_whenIAccept_thenOneOnOneCallIsEstablished() {
         givenTeamOwnerMemberAndOneOnOneConversationArePrepared()
@@ -345,7 +345,7 @@ class CallingTests : BaseCallUiTest() {
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
     @TestCaseId("TC-4261")
-    @Category("regression", "calling", "smoke", "TEMP")
+    @Category("regression", "calling", "fdroid", "TEMP")
     @Test
     fun givenMemberCallsMeWithAppInBackground_whenIAccept_thenOneOnOneCallIsEstablished() {
         givenTeamOwnerMemberAndOneOnOneConversationArePrepared()
@@ -607,7 +607,7 @@ class CallingTests : BaseCallUiTest() {
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
     @TestCaseId("TC-4263")
-    @Category("regression", "RC", "calling", "groupCalling", "smoke", "smokeSchwarz", "smokeSTACKIT")
+    @Category("regression", "RC", "calling", "groupCalling", "fdroid")
     @Test
     fun givenAppIsInForeground_whenIAcceptIncomingGroupCall_thenGroupCallIsEstablished() {
         givenTeamOwnerMembersAndGroupConversationArePrepared()
@@ -799,7 +799,7 @@ class CallingTests : BaseCallUiTest() {
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
     @TestCaseId("TC-4266")
-    @Category("regression", "calling", "groupCalling", "smoke")
+    @Category("regression", "calling", "groupCalling", "fdroid")
     @Test
     fun givenAppIsInBackground_whenIAcceptIncomingGroupCall_thenGroupCallIsEstablished() {
         givenTeamOwnerMembersAndGroupConversationArePrepared()
@@ -972,7 +972,7 @@ class CallingTests : BaseCallUiTest() {
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
     @TestCaseId("TC-4265")
-    @Category("regression", "RC", "calling", "groupCalling", "smoke", "smokeSchwarz")
+    @Category("regression", "RC", "calling", "groupCalling", "fdroid")
     @Test
     fun givenIAmInGroupCall_whenIEnableVideo_thenGroupVideoIsVisible() {
         givenTeamOwnerMembersAndGroupConversationArePrepared()

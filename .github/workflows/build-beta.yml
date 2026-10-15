@@ -32,6 +32,7 @@ jobs:
         env:
           TAG: ${{ github.ref_name }}
           BETA_TRACK: ${{ vars.BETA_APP_TRACK_INTERNAL }}
+          GH_TOKEN: ${{ github.token }}
         run: |
           pattern='^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)-beta\.[1-9][0-9]*$'
           if [[ ! "$TAG" =~ $pattern ]]; then
@@ -43,7 +44,7 @@ jobs:
             echo "Tag must match the app version: v${version}-beta.N"
             exit 1
           fi
-          git merge-base --is-ancestor HEAD origin/develop
+          make beta-release/validate-source
           if [[ -z "$BETA_TRACK" ]]; then
             echo "Set the BETA_APP_TRACK_INTERNAL repository variable"
             exit 1

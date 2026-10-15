@@ -4,7 +4,7 @@ set -euo pipefail
 # Validation and selector utilities used by qa-android-ui-tests workflow.
 
 usage() {
-  echo "Usage: $0 {validate-upgrade-inputs|validate-rerun-inputs|resolve-selector-from-tags|print-resolved-values}" >&2
+  echo "Usage: $0 {validate-run-mode|validate-upgrade-inputs|validate-rerun-inputs|resolve-selector-from-tags|print-resolved-values}" >&2
   exit 2
 }
 
@@ -17,6 +17,42 @@ validate_upgrade_inputs() {
   # oldBuildNumber is optional for upgrade runs. When empty, APK selection uses
   # the previous APK as the old version and the selected appBuildNumber as new.
   :
+}
+
+validate_run_mode() {
+  local mode="${RUN_MODE:-Normal tests}"
+  local source_run_id="${SOURCE_RUN_ID:-}"
+  local resolved_mode=""
+  # Match source-run validation, which accepts surrounding whitespace in IDs.
+  source_run_id="${source_run_id#"${source_run_id%%[![:space:]]*}"}"
+  source_run_id="${source_run_id%"${source_run_id##*[![:space:]]}"}"
+
+  case "${mode}" in
+    "Normal tests")
+      if [[ -n "${source_run_id}" ]]; then
+        echo "ERROR: sourceRunId is only valid in 'Deflake failed tests' mode."
+        exit 1
+      fi
+      resolved_mode="normal"
+      ;;
+    "Deflake failed tests")
+      if [[ -z "${source_run_id}" && "${ALLOW_LATEST_SOURCE_RUN:-false}" == "true" ]]; then
+        : # The source-run validator resolves the latest completed run.
+      elif [[ ! "${source_run_id}" =~ ^[0-9]+$ ]]; then
+        echo "ERROR: Deflake mode requires a numeric sourceRunId. Copy the 'manual deflake id' from the previous run summary."
+        exit 1
+      fi
+      case "${DEFLAKE_RETRY_SETTINGS:-Use original run settings}" in
+        "Use original run settings"|"Use settings entered below") ;;
+        *) echo "ERROR: Invalid deflakeRetrySettings."; exit 1 ;;
+      esac
+      resolved_mode="deflake"
+      ;;
+    *) echo "ERROR: runMode must be 'Normal tests' or 'Deflake failed tests'."; exit 1 ;;
+  esac
+
+  : "${GITHUB_OUTPUT:?GITHUB_OUTPUT not set}"
+  echo "runMode=${resolved_mode}" >> "${GITHUB_OUTPUT}"
 }
 
 validate_rerun_inputs() {
@@ -94,6 +130,9 @@ print_resolved_values() {
 }
 
 case "${1:-}" in
+  validate-run-mode)
+    validate_run_mode
+    ;;
   validate-upgrade-inputs)
     validate_upgrade_inputs
     ;;

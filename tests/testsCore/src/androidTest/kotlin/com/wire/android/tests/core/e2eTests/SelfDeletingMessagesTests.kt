@@ -56,7 +56,7 @@ class SelfDeletingMessagesTests : BaseUiTest() {
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
     @TestCaseId("TC-4517", "TC-4523")
-    @Category("regression", "RC", "selfDeletingMessages", "smoke")
+    @Category("regression", "RC", "selfDeletingMessages", "fdroid")
     @Test
     fun givenGroupConversation_whenISendTenSecondSelfDeletingMessage_thenMessageExpires() {
         step("Given There is a team owner TeamOwner with team Deleting") {

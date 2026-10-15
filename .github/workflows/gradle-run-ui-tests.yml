@@ -47,7 +47,7 @@ jobs:
           enable-kvm: true
 
       - name: AVD cache
-        uses: WarpBuilds/cache@40f3443ae7b70e568d6e2070ea897f3df94d7553 # v1
+        uses: WarpBuilds/cache@dad44e2487e9dc889ad6e6bd198e77bb2d828eee # v2
         id: avd-cache
         with:
           path: |

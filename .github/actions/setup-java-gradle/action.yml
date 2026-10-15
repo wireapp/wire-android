@@ -128,7 +128,7 @@ runs:
 
     - name: Restore and save Warp Gradle state
       if: ${{ steps.cache_policy.outputs.enabled == 'true' && steps.cache_policy.outputs.read_only != 'true' && steps.cache_backend.outputs.warp == 'true' }}
-      uses: WarpBuilds/cache@40f3443ae7b70e568d6e2070ea897f3df94d7553 # v1
+      uses: WarpBuilds/cache@dad44e2487e9dc889ad6e6bd198e77bb2d828eee # v2
       with:
         path: |
           ~/.gradle/caches/*/generated-gradle-jars
@@ -144,7 +144,7 @@ runs:
 
     - name: Restore read-only Warp Gradle state
       if: ${{ steps.cache_policy.outputs.enabled == 'true' && steps.cache_policy.outputs.read_only == 'true' && steps.cache_backend.outputs.warp == 'true' }}
-      uses: WarpBuilds/cache/restore@40f3443ae7b70e568d6e2070ea897f3df94d7553 # v1
+      uses: WarpBuilds/cache/restore@dad44e2487e9dc889ad6e6bd198e77bb2d828eee # v2
       with:
         path: |
           ~/.gradle/caches/*/generated-gradle-jars
@@ -160,7 +160,7 @@ runs:
 
     - name: Restore and save Warp Gradle task outputs
       if: ${{ steps.cache_policy.outputs.enabled == 'true' && steps.cache_policy.outputs.read_only != 'true' && steps.cache_backend.outputs.warp == 'true' }}
-      uses: WarpBuilds/cache@40f3443ae7b70e568d6e2070ea897f3df94d7553 # v1
+      uses: WarpBuilds/cache@dad44e2487e9dc889ad6e6bd198e77bb2d828eee # v2
       with:
         path: ~/.gradle/caches/build-cache-*
         key: warp-gradle-build-${{ runner.os }}-${{ runner.arch }}-${{ github.job }}-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties', '**/gradle.properties', '**/*.versions.toml', '**/buildSrc/**/*.kt', '**/build-logic/**/*.kt') }}-${{ github.sha }}
@@ -170,7 +170,7 @@ runs:
 
     - name: Restore read-only Warp Gradle task outputs
       if: ${{ steps.cache_policy.outputs.enabled == 'true' && steps.cache_policy.outputs.read_only == 'true' && steps.cache_backend.outputs.warp == 'true' }}
-      uses: WarpBuilds/cache/restore@40f3443ae7b70e568d6e2070ea897f3df94d7553 # v1
+      uses: WarpBuilds/cache/restore@dad44e2487e9dc889ad6e6bd198e77bb2d828eee # v2
       with:
         path: ~/.gradle/caches/build-cache-*
         key: warp-gradle-build-${{ runner.os }}-${{ runner.arch }}-${{ github.job }}-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties', '**/gradle.properties', '**/*.versions.toml', '**/buildSrc/**/*.kt', '**/build-logic/**/*.kt') }}-${{ github.sha }}

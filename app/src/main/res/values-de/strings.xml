@@ -1886,4 +1886,5 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
         <item quantity="other">Auf diesem Gerät können Sie jeweils nur %1$d Benutzerkonten verwenden. Melden Sie sich von diesem Konto ab oder wählen Sie Später, um sich von den anderen Konten abzumelden.\nErstellen Sie eine Datensicherung, um Ihren Gesprächsverlauf zu erhalten.</item>
     </plurals>
     <string name="startup_account_limit_logout">Von diesem Konto abmelden</string>
+    <string name="startup_account_limit_later">Später</string>
 </resources>

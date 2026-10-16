@@ -1,0 +1,2 @@
+"Status","Start Time","Stop Time","Duration in ms","Parent Suite","Suite","Sub Suite","Test Class","Test Method","Name","Description"
+"broken","Fri Oct 16 17:39:45 CEST 2026","Fri Oct 16 17:40:46 CEST 2026","60234","","com.wire.android.tests.core.e2eTests.BackupTest","","com.wire.android.tests.core.e2eTests.BackupTest","givenIWantToImportABackupCreatedOnPreviousVersion_whenIImportIt_thenMessagesAreRestored","givenIWantToImportABackupCreatedOnPreviousVersion_whenIImportIt_thenMessagesAreRestored",""

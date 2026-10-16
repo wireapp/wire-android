@@ -129,6 +129,13 @@ private fun com.wire.android.ui.common.LeadingIcon(convent: @[Composable] androi
     - convent: STABLE (composable function type)
 
 @Composable
+public fun com.wire.android.ui.common.LegalHoldIndicator(modifier: androidx.compose.ui.Modifier): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - modifier: STABLE (marked @Stable or @Immutable)
+
+@Composable
 public fun com.wire.android.ui.common.LoadingWireTabRow(modifier: androidx.compose.ui.Modifier): kotlin.Unit
   skippable: true
   restartable: true
@@ -2445,6 +2452,35 @@ public fun com.wire.android.ui.home.conversationslist.common.ConnectRequestBadge
     - modifier: STABLE (marked @Stable or @Immutable)
 
 @Composable
+public fun com.wire.android.ui.home.conversationslist.common.ConversationItemTemplate(conversationId: com.wire.kalium.logic.data.id.QualifiedID, title: @[Composable] androidx.compose.runtime.internal.ComposableFunction0<kotlin.Unit>, modifier: androidx.compose.ui.Modifier, isChannel: kotlin.Boolean, isPrivateChannel: kotlin.Boolean, selectionMode: com.wire.android.ui.home.conversationslist.common.ConversationItemSelectionMode, isChecked: kotlin.Boolean, isEnabled: kotlin.Boolean, onSelectionChanged: kotlin.Function1<kotlin.Boolean, kotlin.Unit>, subtitle: @[Composable] androidx.compose.runtime.internal.ComposableFunction0<kotlin.Unit>, actions: @[Composable] androidx.compose.runtime.internal.ComposableFunction0<kotlin.Unit>, clickable: com.wire.android.model.Clickable, avatar: @[Composable] androidx.compose.runtime.internal.ComposableFunction0<kotlin.Unit>): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - conversationId: STABLE (matched by stability configuration)
+    - title: STABLE (composable function type)
+    - modifier: STABLE (marked @Stable or @Immutable)
+    - isChannel: STABLE (primitive type)
+    - isPrivateChannel: STABLE (primitive type)
+    - selectionMode: STABLE (class with no mutable properties)
+    - isChecked: STABLE (primitive type)
+    - isEnabled: STABLE (primitive type)
+    - onSelectionChanged: STABLE (function type)
+    - subtitle: STABLE (composable function type)
+    - actions: STABLE (composable function type)
+    - clickable: STABLE (class with no mutable properties)
+    - avatar: STABLE (composable function type)
+
+@Composable
+private fun com.wire.android.ui.home.conversationslist.common.ConversationSelectionControl(selectionMode: com.wire.android.ui.home.conversationslist.common.ConversationItemSelectionMode, isChecked: kotlin.Boolean, isEnabled: kotlin.Boolean, onSelectionChanged: kotlin.Function1<kotlin.Boolean, kotlin.Unit>): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - selectionMode: STABLE (class with no mutable properties)
+    - isChecked: STABLE (primitive type)
+    - isEnabled: STABLE (primitive type)
+    - onSelectionChanged: STABLE (function type)
+
+@Composable
 public fun com.wire.android.ui.home.conversationslist.common.CustomGroupAvatarDrawing(rightSideShapeColor: androidx.compose.ui.graphics.Color, middleSideShapeColor: androidx.compose.ui.graphics.Color, leftSideShapeColor: androidx.compose.ui.graphics.Color, modifier: androidx.compose.ui.Modifier): kotlin.Unit
   skippable: true
   restartable: true
@@ -2518,6 +2554,17 @@ private fun com.wire.android.ui.home.conversationslist.common.UnreadReplyBadge(m
   restartable: true
   params:
     - modifier: STABLE (marked @Stable or @Immutable)
+
+@Composable
+private fun com.wire.android.ui.home.conversationslist.common.conversationItemClickable(selectionMode: com.wire.android.ui.home.conversationslist.common.ConversationItemSelectionMode, isChecked: kotlin.Boolean, isEnabled: kotlin.Boolean, onSelectionChanged: kotlin.Function1<kotlin.Boolean, kotlin.Unit>, clickable: com.wire.android.model.Clickable): com.wire.android.model.Clickable
+  skippable: true
+  restartable: true
+  params:
+    - selectionMode: STABLE (class with no mutable properties)
+    - isChecked: STABLE (primitive type)
+    - isEnabled: STABLE (primitive type)
+    - onSelectionChanged: STABLE (function type)
+    - clickable: STABLE (class with no mutable properties)
 
 @Composable
 public fun com.wire.android.ui.theme.OrientationDependent.currentOrientation(): T of com.wire.android.ui.theme.OrientationDependent

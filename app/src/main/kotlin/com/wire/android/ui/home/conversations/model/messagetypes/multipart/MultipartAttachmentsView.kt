@@ -26,12 +26,21 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onVisibilityChanged
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.decode.Decoder
 import coil3.request.ImageRequest
@@ -117,14 +126,7 @@ fun MultipartAttachmentsView(
             localPath = readyLocalPath ?: attachment.toUiModel().localPath,
         )
         AssetPreview(
-            modifier = modifier
-                .onVisibilityChanged { visible ->
-                    if (visible) {
-                        viewModel.onAttachmentsVisible(attachments)
-                    } else {
-                        viewModel.onAttachmentsHidden(attachments)
-                    }
-                },
+            modifier = modifier.trackAttachmentsVisibility(attachments, viewModel),
             item = uiModel,
             messageStyle = messageStyle,
             onClick = { handleClick(uiModel) },
@@ -137,14 +139,7 @@ fun MultipartAttachmentsView(
         )
 
         Column(
-            modifier = modifier
-                .onVisibilityChanged { visible ->
-                    if (visible) {
-                        viewModel.onAttachmentsVisible(attachments)
-                    } else {
-                        viewModel.onAttachmentsHidden(attachments)
-                    }
-                },
+            modifier = modifier.trackAttachmentsVisibility(attachments, viewModel),
             verticalArrangement = Arrangement.spacedBy(dimensions().spacing8x)
         ) {
             groups.forEach { group ->
@@ -166,6 +161,38 @@ fun MultipartAttachmentsView(
             }
         }
     }
+}
+
+/**
+ * Reports [attachments] as visible only while they are laid out on screen *and* the screen is
+ * resumed, and as hidden once they leave the composition.
+ *
+ * [onVisibilityChanged] alone is not enough: it only looks at the layout, so attachments stay
+ * "visible" while another screen — such as the PDF viewer opened from them — covers the
+ * conversation, and it reports nothing when they are disposed. Editable attachments are refreshed
+ * from the backend every 30 seconds while visible, so those refreshes kept running underneath.
+ */
+@Composable
+private fun Modifier.trackAttachmentsVisibility(
+    attachments: List<MessageAttachment>,
+    viewModel: MultipartAttachmentsViewModel,
+): Modifier {
+    var isOnScreen by remember { mutableStateOf(false) }
+    val lifecycleState by LocalLifecycleOwner.current.lifecycle.currentStateFlow.collectAsState()
+    val isVisible = isOnScreen && lifecycleState.isAtLeast(Lifecycle.State.RESUMED)
+
+    val attachmentIds = remember(attachments) { attachments.map { it.assetId() } }
+    val currentAttachments by rememberUpdatedState(attachments)
+
+    DisposableEffect(isVisible, attachmentIds) {
+        val reported = currentAttachments
+        if (isVisible) viewModel.onAttachmentsVisible(reported)
+        onDispose {
+            if (isVisible) viewModel.onAttachmentsHidden(reported)
+        }
+    }
+
+    return onVisibilityChanged { visible -> isOnScreen = visible }
 }
 
 @Composable

@@ -18,7 +18,6 @@
 
 package com.wire.android.ui.home.messagecomposer
 
-import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -28,7 +27,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.wire.android.ui.common.colorsScheme
-import com.wire.android.ui.home.conversations.ConversationActionPermissionType
 import com.wire.android.ui.home.conversations.model.UriAsset
 import com.wire.android.ui.home.messagecomposer.recordaudio.RecordAudioComponent
 import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionMenuState
@@ -96,44 +94,30 @@ fun AdditionalOptionsMenu(
 }
 
 @Composable
-fun AdditionalOptionSubMenu(
-    isFileSharingEnabled: Boolean,
-    areAttachmentOptionsEnabled: Boolean,
+internal fun AdditionalOptionSubMenu(
+    attachmentOptions: List<AttachmentOptionItem>,
     optionsVisible: Boolean,
-    onPermissionPermanentlyDenied: (type: ConversationActionPermissionType) -> Unit,
-    onLocationPickerClicked: () -> Unit,
     onCloseAdditionalAttachment: () -> Unit,
-    onRecordAudioMessageClicked: () -> Unit,
     additionalOptionsState: AdditionalOptionSubMenuState,
-    onImagesPicked: (List<Uri>) -> Unit,
-    onAttachmentPicked: (UriAsset) -> Unit,
     onAudioRecorded: (UriAsset) -> Unit,
-    tempWritableImageUri: Uri?,
-    tempWritableVideoUri: Uri?,
     modifier: Modifier = Modifier,
     useKeyboardNavigation: Boolean = false,
 ) {
-    AttachmentOptionsComponent(
-        modifier = modifier,
-        optionsVisible = optionsVisible,
-        onImagesPicked = onImagesPicked,
-        onAttachmentPicked = onAttachmentPicked,
-        tempWritableImageUri = tempWritableImageUri,
-        tempWritableVideoUri = tempWritableVideoUri,
-        isFileSharingEnabled = isFileSharingEnabled,
-        areAttachmentOptionsEnabled = areAttachmentOptionsEnabled,
-        onRecordAudioMessageClicked = onRecordAudioMessageClicked,
-        onLocationPickerClicked = onLocationPickerClicked,
-        onPermissionPermanentlyDenied = onPermissionPermanentlyDenied,
-        useKeyboardNavigation = useKeyboardNavigation,
-    )
     when (additionalOptionsState) {
-        AdditionalOptionSubMenuState.Default -> {}
+        AdditionalOptionSubMenuState.Default -> {
+            AttachmentOptionsComponent(
+                modifier = modifier,
+                optionsVisible = optionsVisible,
+                attachmentOptions = attachmentOptions,
+                useKeyboardNavigation = useKeyboardNavigation,
+            )
+        }
 
         AdditionalOptionSubMenuState.RecordAudio -> {
             RecordAudioComponent(
                 onAudioRecorded = onAudioRecorded,
-                onCloseRecordAudio = onCloseAdditionalAttachment
+                onCloseRecordAudio = onCloseAdditionalAttachment,
+                modifier = modifier,
             )
         }
     }

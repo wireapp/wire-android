@@ -22,12 +22,13 @@ import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.EnterExitState
 import androidx.compose.animation.SharedTransitionLayout
+import androidx.compose.animation.SharedTransitionScope.ResizeMode.Companion.RemeasureToBounds
+import androidx.compose.animation.core.animateDp
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.scaleIn
-import androidx.compose.animation.scaleOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
@@ -38,6 +39,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.material3.MaterialTheme
@@ -55,6 +57,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
@@ -150,6 +153,7 @@ internal fun ConversationFilesRouteScreen(
         onViewerAccessBannerCloseClick = viewModel::onViewerAccessBannerDismissed,
         selectedNodes = viewModel.selectedNodes.collectAsState().value,
         isBulkSelectionEnabled = viewModel.isBulkSelectionEnabled.collectAsState().value,
+        offlineFilesEnabled = viewModel.offlineFilesEnabled,
     )
 
     LaunchedEffect(Unit) {
@@ -199,9 +203,11 @@ internal fun ConversationFilesScreenContent(
     onCancelUploadConfirmation: () -> Unit = {},
     selectedNodes: Map<String, CellNodeUi> = emptyMap(),
     isBulkSelectionEnabled: Boolean = false,
+    offlineFilesEnabled: Boolean = false,
 ) {
     val sharedScope = LocalSharedTransitionScope.current
     val isSelectionMode = selectedNodes.isNotEmpty()
+    val fabToBulkActionsKey = "$FAB_TO_BULK_ACTIONS_KEY-$currentNodeUuid"
 
     BackHandler(enabled = isSelectionMode) {
         sendIntent(CellViewIntent.OnClearSelection)
@@ -398,14 +404,24 @@ internal fun ConversationFilesScreenContent(
             floatingActionButton = {
                 AnimatedVisibility(
                     visible = isFabVisible,
-                    enter = scaleIn() + fadeIn(),
-                    exit = scaleOut() + fadeOut(),
+                    enter = fadeIn(),
+                    exit = fadeOut(),
                 ) {
+                    val fabCornerRadius by transition.animateDp(label = "FabCornerRadius") { state ->
+                        if (state == EnterExitState.Visible) FAB_CORNER_RADIUS else PILL_CORNER_RADIUS
+                    }
                     FloatingActionButton(
-                        modifier = Modifier.padding(
-                            bottom = if (uploads.isNotEmpty()) dimensions().spacing72x else dimensions().spacing0x
-                        ),
+                        modifier = Modifier
+                            .padding(
+                                bottom = if (uploads.isNotEmpty()) dimensions().spacing72x else dimensions().spacing0x
+                            )
+                            .sharedBounds(
+                                sharedContentState = rememberSharedContentState(key = fabToBulkActionsKey),
+                                animatedVisibilityScope = this@AnimatedVisibility,
+                                resizeMode = RemeasureToBounds,
+                            ),
                         text = stringResource(R.string.cells_new_label),
+                        shape = RoundedCornerShape(fabCornerRadius),
                         icon = {
                             Image(
                                 painter = painterResource(id = com.wire.android.ui.common.R.drawable.ic_plus),
@@ -477,10 +493,73 @@ internal fun ConversationFilesScreenContent(
                     onClick = { uploadStatusSheetState.show() },
                     modifier = Modifier.align(Alignment.BottomCenter),
                 )
+                // Drawn over the list rather than as the scaffold's bottom bar, so showing or hiding it
+                // doesn't resize the content and relayout the whole list on every animation frame.
+                // Shares its bounds with the FAB, so the FAB morphs into the bar when selection starts and back when it ends.
+                AnimatedVisibility(
+                    visible = isSelectionMode,
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .padding(
+                            bottom = if (uploads.isNotEmpty()) dimensions().spacing72x else dimensions().spacing16x
+                        ),
+                    enter = fadeIn(),
+                    exit = fadeOut(),
+                ) {
+                    // Mirrors the FAB: starts from the FAB corners and rounds up to a pill as it takes the FAB's place.
+                    val barCornerRadius by transition.animateDp(label = "BulkActionsBarCornerRadius") { state ->
+                        if (state == EnterExitState.Visible) PILL_CORNER_RADIUS else FAB_CORNER_RADIUS
+                    }
+                    CellBulkActionsBar(
+                        actions = bulkActions(offlineFilesEnabled = offlineFilesEnabled, sendIntent = sendIntent),
+                        shape = RoundedCornerShape(barCornerRadius),
+                        modifier = Modifier.sharedBounds(
+                            sharedContentState = rememberSharedContentState(key = fabToBulkActionsKey),
+                            animatedVisibilityScope = this@AnimatedVisibility,
+                            resizeMode = RemeasureToBounds,
+                        ),
+                    )
+                }
             }
         }
     }
 }
+
+private const val FAB_TO_BULK_ACTIONS_KEY = "cells_fab_to_bulk_actions"
+
+// Extended FAB default corners (Material3 ShapeDefaults.Large).
+private val FAB_CORNER_RADIUS = 16.dp
+
+// Larger than half of the bar height, so RoundedCornerShape clamps it to a full pill.
+private val PILL_CORNER_RADIUS = 32.dp
+
+private fun bulkActions(offlineFilesEnabled: Boolean, sendIntent: (CellViewIntent) -> Unit): List<CellBulkAction> =
+    buildList {
+        add(
+            CellBulkAction(
+                iconRes = R.drawable.ic_folder,
+                labelRes = R.string.cells_bulk_action_move,
+                onClick = { sendIntent(CellViewIntent.OnMoveSelectedNodesClick) },
+            )
+        )
+        add(
+            CellBulkAction(
+                iconRes = com.wire.android.ui.common.R.drawable.ic_delete,
+                labelRes = R.string.cells_bulk_action_delete,
+                onClick = { sendIntent(CellViewIntent.OnDeleteSelectedNodesClick) },
+            )
+        )
+        if (offlineFilesEnabled) {
+            add(
+                CellBulkAction(
+                    iconRes = R.drawable.ic_arrow_down_circle,
+                    labelRes = R.string.cells_bulk_action_offline,
+                    onClick = { sendIntent(CellViewIntent.OnMakeSelectedNodesAvailableOfflineClick) },
+                    contentDescriptionRes = R.string.make_available_offline_label,
+                )
+            )
+        }
+    }
 
 /**
  * Rolls the title up when the selection count grows and down when it shrinks, so entering selection mode

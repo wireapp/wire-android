@@ -32,7 +32,7 @@ kover = "0.9.11"
 
 # AndroidX
 androidx-appcompat = "1.8.0"
-androidx-core = "1.16.0"
+androidx-core = "1.19.1"
 androidx-dataStore = "1.2.1"
 androidx-exif = "1.4.2"
 androidx-emoji = "1.7.0"

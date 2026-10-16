@@ -134,6 +134,7 @@ class CellViewModel @AssistedInject constructor(
     @Named("inAppImageViewerEnabled") private val inAppImageViewerEnabled: Boolean,
     @Named("drivePermissionsEnabled") val drivePermissionsEnabled: Boolean,
     @Named("driveDirectUploadEnabled") val driveDirectUploadEnabled: Boolean,
+    @Named("driveBulkActionsEnabled") private val driveBulkActionsEnabled: Boolean,
 ) : ActionsViewModel<CellViewAction>() {
 
     @AssistedFactory
@@ -173,6 +174,10 @@ class CellViewModel @AssistedInject constructor(
     internal val uploadConfirmation: StateFlow<UploadConfirmation?> = _uploadConfirmation.asStateFlow()
 
     private var pendingUploadUris: List<Uri> = emptyList()
+
+    // Nodes picked for a bulk action, keyed by uuid in selection order. Selection mode is active while it is not empty.
+    private val _selectedNodes = MutableStateFlow<Map<String, CellNodeUi>>(emptyMap())
+    internal val selectedNodes: StateFlow<Map<String, CellNodeUi>> = _selectedNodes.asStateFlow()
 
     // AllFiles context (no conversationId, not recycle bin) defaults to newest-first;
     // ConversationFiles and RecycleBin default to folders-first.
@@ -219,8 +224,21 @@ class CellViewModel @AssistedInject constructor(
         initialValue = false,
     )
 
+    /**
+     * Bulk selection is only offered in a shared drive the self user can edit, while online.
+     * Search results, the recycle bin and All Files keep the single-item flow.
+     */
+    internal val isBulkSelectionEnabled: StateFlow<Boolean> = combine(isOnline, isSelfUserViewerOnly) { online, viewerOnly ->
+        driveBulkActionsEnabled && searchNavArgs == null && isConversationFiles() && online && !viewerOnly
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.Eagerly,
+        initialValue = false,
+    )
+
     init {
         loadWireCellConfig()
+        clearSelectionWhenBulkSelectionDisabled()
         checkCellAvailabilityAndRefresh()
         checkViewerAccess()
         refreshOnUploadsCompletedInThisFolder()
@@ -242,6 +260,12 @@ class CellViewModel @AssistedInject constructor(
                 val hasNewlyCompleted = completedHere.count { refreshedIds.add(it.id) } > 0
                 if (hasNewlyCompleted) refreshNodes()
             }
+        }
+    }
+
+    private fun clearSelectionWhenBulkSelectionDisabled() = viewModelScope.launch {
+        isBulkSelectionEnabled.collect { enabled ->
+            if (!enabled) clearSelection()
         }
     }
 
@@ -381,10 +405,14 @@ class CellViewModel @AssistedInject constructor(
 
     internal fun sendIntent(intent: CellViewIntent) {
         when (intent) {
-            is CellViewIntent.OnItemClick -> when (intent.file) {
-                is CellNodeUi.File -> onFileClick(intent.file)
-                is CellNodeUi.Folder -> onFolderClick(intent.file)
+            is CellViewIntent.OnItemClick -> when {
+                _selectedNodes.value.isNotEmpty() -> toggleSelection(intent.file)
+                intent.file is CellNodeUi.File -> onFileClick(intent.file)
+                intent.file is CellNodeUi.Folder -> onFolderClick(intent.file)
             }
+
+            is CellViewIntent.OnItemLongClick -> onItemLongClick(intent.cellNode)
+            is CellViewIntent.OnClearSelection -> clearSelection()
 
             is CellViewIntent.OnItemMenuClick -> onItemMenuClick(intent.cellNode)
             is CellViewIntent.OnMenuItemActionSelected -> onMenuItemAction(intent.node, intent.action)
@@ -452,6 +480,17 @@ class CellViewModel @AssistedInject constructor(
         _uploadConfirmation.value = null
         pendingUploadUris = emptyList()
     }
+
+    private fun onItemLongClick(node: CellNodeUi) {
+        if (!isBulkSelectionEnabled.value) return
+        toggleSelection(node)
+    }
+
+    private fun toggleSelection(node: CellNodeUi) = _selectedNodes.update { selected ->
+        if (node.uuid in selected) selected - node.uuid else selected + (node.uuid to node)
+    }
+
+    private fun clearSelection() = _selectedNodes.update { emptyMap() }
 
     internal fun currentNodeUuid(): String? = navArgs.conversationId
     internal fun isRecycleBin(): Boolean = navArgs.isRecycleBin ?: false
@@ -853,6 +892,8 @@ class CellViewModel @AssistedInject constructor(
 sealed interface CellViewIntent {
     data class OnItemClick(val file: CellNodeUi) : CellViewIntent
     data class OnItemMenuClick(val cellNode: CellNodeUi) : CellViewIntent
+    data class OnItemLongClick(val cellNode: CellNodeUi) : CellViewIntent
+    data object OnClearSelection : CellViewIntent
     data class OnMenuItemActionSelected(val node: CellNodeUi, val action: NodeBottomSheetAction) : CellViewIntent
     data class OnNodeDeleteConfirmed(val node: CellNodeUi) : CellViewIntent
     data class OnNodeRestoreConfirmed(val node: CellNodeUi) : CellViewIntent

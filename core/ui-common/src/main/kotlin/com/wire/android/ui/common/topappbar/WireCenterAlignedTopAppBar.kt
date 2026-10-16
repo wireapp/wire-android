@@ -101,6 +101,7 @@ fun WireCenterAlignedTopAppBar(
     navigationIconType: NavigationIconType? = NavigationIconType.Back(),
     elevation: Dp = MaterialTheme.wireDimensions.topBarShadowElevation,
     actions: @Composable RowScope.() -> Unit = {},
+    animateNavigationIcon: Boolean = false,
     bottomContent: @Composable ColumnScope.() -> Unit = {}
 ) {
     Surface(
@@ -121,7 +122,8 @@ fun WireCenterAlignedTopAppBar(
                         NavigationIconButton(
                             iconType = it,
                             onClick = onNavigationPressed,
-                            modifier = navigationIconModifier
+                            modifier = navigationIconModifier,
+                            animateIconChange = animateNavigationIcon,
                         )
                     }
                 },

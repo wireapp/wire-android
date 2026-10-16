@@ -20,10 +20,13 @@
 package com.wire.android.feature.cells.ui
 
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandHorizontally
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
+import androidx.compose.animation.shrinkHorizontally
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -100,6 +103,8 @@ internal fun CellListItem(
     showConversationName: Boolean = true,
     showViewerOnlyIcon: Boolean = false,
     sortBy: SortBy = SortBy.Default,
+    isSelectionMode: Boolean = false,
+    isSelected: Boolean = false,
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     var showReadyState by remember { mutableStateOf(false) }
@@ -121,6 +126,19 @@ internal fun CellListItem(
             .fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
     ) {
+        AnimatedVisibility(
+            visible = isSelectionMode,
+            enter = expandHorizontally(expandFrom = Alignment.Start) + fadeIn(),
+            exit = shrinkHorizontally(shrinkTowards = Alignment.Start) + fadeOut(),
+            label = "CellListItemSelectionIndicator",
+        ) {
+            // The whole row toggles the selection, so the indicator only reflects it.
+            CircularSelectionIndicator(
+                isSelected = isSelected,
+                modifier = Modifier.padding(start = dimensions().spacing16x),
+            )
+        }
+
         CellItemIcon(cell = cell, showReadyState = showReadyState, showViewerOnlyIcon = showViewerOnlyIcon)
 
         Column(
@@ -146,22 +164,64 @@ internal fun CellListItem(
             }
         }
 
-        Icon(
-            painter = painterResource(commonR.drawable.ic_more_vert),
-            contentDescription = null,
-            modifier = Modifier
-                .padding(end = dimensions().spacing16x)
-                .clickable(
-                    onClick = { onMenuClick() },
-                    interactionSource = interactionSource,
-                    indication = ripple(
-                        bounded = false,
-                        radius = dimensions().spacing24x,
-                        color = Color.Transparent
+        AnimatedVisibility(
+            visible = !isSelectionMode,
+            enter = expandHorizontally(expandFrom = Alignment.End) + fadeIn(),
+            exit = shrinkHorizontally(shrinkTowards = Alignment.End) + fadeOut(),
+            label = "CellListItemMenuIcon",
+        ) {
+            Icon(
+                painter = painterResource(commonR.drawable.ic_more_vert),
+                contentDescription = null,
+                modifier = Modifier
+                    .padding(end = dimensions().spacing16x)
+                    .clickable(
+                        onClick = { onMenuClick() },
+                        interactionSource = interactionSource,
+                        indication = ripple(
+                            bounded = false,
+                            radius = dimensions().spacing24x,
+                            color = Color.Transparent
+                        )
                     )
+                    .then(Modifier.size(dimensions().spacing24x))
+            )
+        }
+    }
+}
+
+@Composable
+private fun CircularSelectionIndicator(isSelected: Boolean, modifier: Modifier = Modifier) {
+    AnimatedContent(
+        targetState = isSelected,
+        modifier = modifier,
+        transitionSpec = { (scaleIn() + fadeIn()).togetherWith(fadeOut()) },
+        label = "CircularSelectionIndicator",
+    ) { selected ->
+        val shapeModifier = Modifier
+            .size(dimensions().spacing24x)
+            .clip(CircleShape)
+        if (selected) {
+            Box(
+                modifier = shapeModifier.background(colorsScheme().primary),
+                contentAlignment = Alignment.Center,
+            ) {
+                Icon(
+                    painter = painterResource(commonR.drawable.ic_check),
+                    contentDescription = null,
+                    tint = colorsScheme().onPrimary,
+                    modifier = Modifier.size(dimensions().spacing12x),
                 )
-                .then(Modifier.size(dimensions().spacing24x))
-        )
+            }
+        } else {
+            Box(
+                modifier = shapeModifier.border(
+                    width = dimensions().spacing2x,
+                    color = colorsScheme().onPrimaryButtonDisabled,
+                    shape = CircleShape,
+                ),
+            )
+        }
     }
 }
 

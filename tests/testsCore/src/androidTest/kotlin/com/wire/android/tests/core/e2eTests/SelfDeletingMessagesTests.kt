@@ -68,6 +68,7 @@ class SelfDeletingMessagesTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "Deleting", backendClient)
         }
 
         step("And User TeamOwner adds user Member1 to team Deleting with role Member") {
@@ -82,17 +83,20 @@ class SelfDeletingMessagesTests : BaseUiTest() {
             )
         }
 
-        step("And User TeamOwner has group conversation SelfDeleting with Member1 in team Deleting") {
-            backendSetupHelper.userHasGroupConversationInTeam(
-                "user1Name",
-                "SelfDeleting",
-                "user2Name",
-                "Deleting"
-            )
+        step("And MLS devices are registered for all participants") {
+            testServiceHelper.apply {
+                addDevice("user1Name", null, "Device1")
+                addDevice("user2Name", null, "Device1")
+            }
         }
 
-        step("And User TeamOwner adds a new device Device1 with label Device1") {
-            testServiceHelper.addDevice("user1Name", null, "Device1")
+        step("And User TeamOwner creates MLS group conversation SelfDeleting with Member1 in team Deleting") {
+            testServiceHelper.userCreatesMLSGroupConversation(
+                ownerAlias = "user1Name",
+                participantAliases = "user2Name",
+                conversationName = "SelfDeleting",
+                deviceName = "Device1"
+            )
         }
 
         step("And User Member1 is me") {
@@ -206,6 +210,7 @@ class SelfDeletingMessagesTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "Deleting", backendClient)
         }
 
         step("And User TeamOwner adds user Member1 to team Deleting with role Member") {
@@ -220,17 +225,20 @@ class SelfDeletingMessagesTests : BaseUiTest() {
             )
         }
 
-        step("And User TeamOwner has group conversation SelfDeleting with Member1 in team Deleting") {
-            backendSetupHelper.userHasGroupConversationInTeam(
-                "user1Name",
-                "SelfDeleting",
-                "user2Name",
-                "Deleting"
-            )
+        step("And MLS devices are registered for all participants") {
+            testServiceHelper.apply {
+                addDevice("user1Name", null, "Device1")
+                addDevice("user2Name", null, "Device1")
+            }
         }
 
-        step("And User TeamOwner adds a new device Device1 with label Device1") {
-            testServiceHelper.addDevice("user1Name", null, "Device1")
+        step("And User TeamOwner creates MLS group conversation SelfDeleting with Member1 in team Deleting") {
+            testServiceHelper.userCreatesMLSGroupConversation(
+                ownerAlias = "user1Name",
+                participantAliases = "user2Name",
+                conversationName = "SelfDeleting",
+                deviceName = "Device1"
+            )
         }
 
         step("And User Member1 is me") {
@@ -330,6 +338,7 @@ class SelfDeletingMessagesTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "Deleting", backendClient)
         }
 
         step("And User TeamOwner adds user Member1 to team Deleting with role Member") {
@@ -344,17 +353,20 @@ class SelfDeletingMessagesTests : BaseUiTest() {
             )
         }
 
-        step("And User TeamOwner has group conversation SelfDeleting with Member1 in team Deleting") {
-            backendSetupHelper.userHasGroupConversationInTeam(
-                "user1Name",
-                "SelfDeleting",
-                "user2Name",
-                "Deleting"
-            )
+        step("And MLS devices are registered for all participants") {
+            testServiceHelper.apply {
+                addDevice("user1Name", null, "Device1")
+                addDevice("user2Name", null, "Device1")
+            }
         }
 
-        step("And User TeamOwner adds a new device Device1 with label Device1") {
-            testServiceHelper.addDevice("user1Name", null, "Device1")
+        step("And User TeamOwner creates MLS group conversation SelfDeleting with Member1 in team Deleting") {
+            testServiceHelper.userCreatesMLSGroupConversation(
+                ownerAlias = "user1Name",
+                participantAliases = "user2Name",
+                conversationName = "SelfDeleting",
+                deviceName = "Device1"
+            )
         }
 
         step("And User Member1 is me") {
@@ -431,6 +443,7 @@ class SelfDeletingMessagesTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "Deleting", backendClient)
         }
 
         step("And User TeamOwner adds user Member1 to team Deleting with role Member") {
@@ -558,6 +571,7 @@ class SelfDeletingMessagesTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "Deleting", backendClient)
         }
 
         step("And User TeamOwner adds user Member1 to team Deleting with role Member") {
@@ -659,6 +673,7 @@ class SelfDeletingMessagesTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "Deleting", backendClient)
         }
 
         step("And User TeamOwner adds user Member1 to team Deleting with role Member") {
@@ -673,17 +688,20 @@ class SelfDeletingMessagesTests : BaseUiTest() {
             )
         }
 
-        step("And User TeamOwner has group conversation SelfDeleting with Member1 in team Deleting") {
-            backendSetupHelper.userHasGroupConversationInTeam(
-                "user1Name",
-                "SelfDeleting",
-                "user2Name",
-                "Deleting"
-            )
+        step("And MLS devices are registered for all participants") {
+            testServiceHelper.apply {
+                addDevice("user1Name", null, "Device1")
+                addDevice("user2Name", null, "Device1")
+            }
         }
 
-        step("And User TeamOwner adds a new device Device1 with label Device1") {
-            testServiceHelper.addDevice("user1Name", null, "Device1")
+        step("And User TeamOwner creates MLS group conversation SelfDeleting with Member1 in team Deleting") {
+            testServiceHelper.userCreatesMLSGroupConversation(
+                ownerAlias = "user1Name",
+                participantAliases = "user2Name",
+                conversationName = "SelfDeleting",
+                deviceName = "Device1"
+            )
         }
 
         step("And User Member1 is me") {
@@ -789,6 +807,7 @@ class SelfDeletingMessagesTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "Deleting", backendClient)
         }
 
         step("And User TeamOwner adds user Member1 to team Deleting with role Member") {
@@ -803,17 +822,20 @@ class SelfDeletingMessagesTests : BaseUiTest() {
             )
         }
 
-        step("And User TeamOwner has group conversation SelfDeleting with Member1 in team Deleting") {
-            backendSetupHelper.userHasGroupConversationInTeam(
-                "user1Name",
-                "SelfDeleting",
-                "user2Name",
-                "Deleting"
-            )
+        step("And MLS devices are registered for all participants") {
+            testServiceHelper.apply {
+                addDevice("user1Name", null, "Device1")
+                addDevice("user2Name", null, "Device1")
+            }
         }
 
-        step("And User TeamOwner adds a new device Device1 with label Device1") {
-            testServiceHelper.addDevice("user1Name", null, "Device1")
+        step("And User TeamOwner creates MLS group conversation SelfDeleting with Member1 in team Deleting") {
+            testServiceHelper.userCreatesMLSGroupConversation(
+                ownerAlias = "user1Name",
+                participantAliases = "user2Name",
+                conversationName = "SelfDeleting",
+                deviceName = "Device1"
+            )
         }
 
         step("And User Member1 is me") {
@@ -906,6 +928,7 @@ class SelfDeletingMessagesTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "Deleting", backendClient)
         }
 
         step("And User TeamOwner adds user Member1 to team Deleting with role Member") {
@@ -920,12 +943,19 @@ class SelfDeletingMessagesTests : BaseUiTest() {
             )
         }
 
-        step("And User TeamOwner has group conversation SelfDeleting with Member1 in team Deleting") {
-            backendSetupHelper.userHasGroupConversationInTeam(
-                "user1Name",
-                "SelfDeleting",
-                "user2Name",
-                "Deleting"
+        step("And MLS devices are registered for all participants") {
+            testServiceHelper.apply {
+                addDevice("user1Name", null, "Device1")
+                addDevice("user2Name", null, "Device1")
+            }
+        }
+
+        step("And User TeamOwner creates MLS group conversation SelfDeleting with Member1 in team Deleting") {
+            testServiceHelper.userCreatesMLSGroupConversation(
+                ownerAlias = "user1Name",
+                participantAliases = "user2Name",
+                conversationName = "SelfDeleting",
+                deviceName = "Device1"
             )
         }
 
@@ -1000,6 +1030,7 @@ class SelfDeletingMessagesTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "Deleting", backendClient)
         }
 
         step("And User TeamOwner adds user Member1 to team Deleting with role Member") {
@@ -1014,17 +1045,20 @@ class SelfDeletingMessagesTests : BaseUiTest() {
             )
         }
 
-        step("And User TeamOwner has group conversation SelfDeleting with Member1 in team Deleting") {
-            backendSetupHelper.userHasGroupConversationInTeam(
-                "user1Name",
-                "SelfDeleting",
-                "user2Name",
-                "Deleting"
-            )
+        step("And MLS devices are registered for all participants") {
+            testServiceHelper.apply {
+                addDevice("user1Name", null, "Device1")
+                addDevice("user2Name", null, "Device1")
+            }
         }
 
-        step("And User TeamOwner adds a new device Device1 with label Device1") {
-            testServiceHelper.addDevice("user1Name", null, "Device1")
+        step("And User TeamOwner creates MLS group conversation SelfDeleting with Member1 in team Deleting") {
+            testServiceHelper.userCreatesMLSGroupConversation(
+                ownerAlias = "user1Name",
+                participantAliases = "user2Name",
+                conversationName = "SelfDeleting",
+                deviceName = "Device1"
+            )
         }
 
         step("And User Member1 is me") {
@@ -1159,6 +1193,7 @@ class SelfDeletingMessagesTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "Deleting", backendClient)
         }
 
         step("And User TeamOwner adds user Member1 to team Deleting with role Member") {
@@ -1173,12 +1208,19 @@ class SelfDeletingMessagesTests : BaseUiTest() {
             )
         }
 
-        step("And User TeamOwner has group conversation SelfDeleting with Member1 in team Deleting") {
-            backendSetupHelper.userHasGroupConversationInTeam(
-                "user1Name",
-                "SelfDeleting",
-                "user2Name",
-                "Deleting"
+        step("And MLS devices are registered for all participants") {
+            testServiceHelper.apply {
+                addDevice("user1Name", null, "Device1")
+                addDevice("user2Name", null, "Device1")
+            }
+        }
+
+        step("And User TeamOwner creates MLS group conversation SelfDeleting with Member1 in team Deleting") {
+            testServiceHelper.userCreatesMLSGroupConversation(
+                ownerAlias = "user1Name",
+                participantAliases = "user2Name",
+                conversationName = "SelfDeleting",
+                deviceName = "Device1"
             )
         }
 
@@ -1273,6 +1315,7 @@ class SelfDeletingMessagesTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "Deleting", backendClient)
         }
 
         step("And User TeamOwner adds user Member1 to team Deleting with role Member") {
@@ -1287,12 +1330,19 @@ class SelfDeletingMessagesTests : BaseUiTest() {
             )
         }
 
-        step("And User TeamOwner has group conversation SelfDeleting with Member1 in team Deleting") {
-            backendSetupHelper.userHasGroupConversationInTeam(
-                "user1Name",
-                "SelfDeleting",
-                "user2Name",
-                "Deleting"
+        step("And MLS devices are registered for all participants") {
+            testServiceHelper.apply {
+                addDevice("user1Name", null, "Device1")
+                addDevice("user2Name", null, "Device1")
+            }
+        }
+
+        step("And User TeamOwner creates MLS group conversation SelfDeleting with Member1 in team Deleting") {
+            testServiceHelper.userCreatesMLSGroupConversation(
+                ownerAlias = "user1Name",
+                participantAliases = "user2Name",
+                conversationName = "SelfDeleting",
+                deviceName = "Device1"
             )
         }
 
@@ -1417,6 +1467,7 @@ class SelfDeletingMessagesTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "Deleting", backendClient)
         }
 
         step("And User TeamOwner adds user Member1 to team Deleting with role Member") {
@@ -1431,12 +1482,19 @@ class SelfDeletingMessagesTests : BaseUiTest() {
             )
         }
 
-        step("And User TeamOwner has group conversation SelfDeleting with Member1 in team Deleting") {
-            backendSetupHelper.userHasGroupConversationInTeam(
-                "user1Name",
-                "SelfDeleting",
-                "user2Name",
-                "Deleting"
+        step("And MLS devices are registered for all participants") {
+            testServiceHelper.apply {
+                addDevice("user1Name", null, "Device1")
+                addDevice("user2Name", null, "Device1")
+            }
+        }
+
+        step("And User TeamOwner creates MLS group conversation SelfDeleting with Member1 in team Deleting") {
+            testServiceHelper.userCreatesMLSGroupConversation(
+                ownerAlias = "user1Name",
+                participantAliases = "user2Name",
+                conversationName = "SelfDeleting",
+                deviceName = "Device1"
             )
         }
 

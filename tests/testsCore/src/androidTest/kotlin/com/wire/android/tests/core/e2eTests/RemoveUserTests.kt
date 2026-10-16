@@ -60,6 +60,7 @@ class RemoveUserTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "RemoveUser", backendClient)
         }
 
         step("And User TeamOwner adds Member1 and Member2 to team RemoveUser with role Member") {
@@ -208,6 +209,7 @@ class RemoveUserTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "RemoveGroup", backendClient)
         }
 
         step("And User TeamOwner adds Member1, Member2 and Member3 to team RemoveGroup with role Member") {
@@ -236,12 +238,22 @@ class RemoveUserTests : BaseUiTest() {
             backendSetupHelper.userIsConnectedTo("user1Name", "user5Name")
         }
 
+        step("And MLS devices are registered for all participants") {
+            testServiceHelper.apply {
+                addDevice("user1Name", null, "Device1")
+                addDevice("user2Name", null, "Device1")
+                addDevice("user3Name", null, "Device1")
+                addDevice("user4Name", null, "Device1")
+                addDevice("user5Name", null, "Device1")
+            }
+        }
+
         step("And User TeamOwner has group conversation MyTeam with Member1, Member2, Member3 and User") {
-            backendSetupHelper.userHasGroupConversationInTeam(
-                "user1Name",
-                "MyTeam",
-                "user2Name,user3Name,user4Name,user5Name",
-                "RemoveGroup"
+            testServiceHelper.userCreatesMLSGroupConversation(
+                ownerAlias = "user1Name",
+                participantAliases = "user2Name,user3Name,user4Name,user5Name",
+                conversationName = "MyTeam",
+                deviceName = "Device1"
             )
         }
 
@@ -280,6 +292,7 @@ class RemoveUserTests : BaseUiTest() {
         }
     }
 
+    @Suppress("LongMethod")
     @TestCaseId("TC-4363")
     @Category("regression", "RC", "groups", "removeUser")
     @Test
@@ -293,6 +306,7 @@ class RemoveUserTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "RemoveGroup", backendClient)
         }
 
         step("And User TeamOwner adds Member1, Member2 and Member3 to team RemoveGroup with role Member") {
@@ -307,12 +321,21 @@ class RemoveUserTests : BaseUiTest() {
             )
         }
 
+        step("And MLS devices are registered for all participants") {
+            testServiceHelper.apply {
+                addDevice("user1Name", null, "Device1")
+                addDevice("user2Name", null, "Device1")
+                addDevice("user3Name", null, "Device1")
+                addDevice("user4Name", null, "Device1")
+            }
+        }
+
         step("And User TeamOwner has group conversation MyTeam with Member1, Member2 and Member3") {
-            backendSetupHelper.userHasGroupConversationInTeam(
-                "user1Name",
-                "MyTeam",
-                "user2Name,user3Name,user4Name",
-                "RemoveGroup"
+            testServiceHelper.userCreatesMLSGroupConversation(
+                ownerAlias = "user1Name",
+                participantAliases = "user2Name,user3Name,user4Name",
+                conversationName = "MyTeam",
+                deviceName = "Device1"
             )
         }
 
@@ -350,6 +373,7 @@ class RemoveUserTests : BaseUiTest() {
         }
     }
 
+    @Suppress("LongMethod")
     @TestCaseId("TC-4365")
     @Category("regression", "RC", "groups", "removeUser")
     @Test
@@ -363,6 +387,7 @@ class RemoveUserTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "RemoveGroup", backendClient)
         }
 
         step("And User TeamOwner adds Member1, Member2 and Member3 to team RemoveGroup with role Member") {
@@ -377,12 +402,21 @@ class RemoveUserTests : BaseUiTest() {
             )
         }
 
+        step("And MLS devices are registered for all participants") {
+            testServiceHelper.apply {
+                addDevice("user1Name", null, "Device1")
+                addDevice("user2Name", null, "Device1")
+                addDevice("user3Name", null, "Device1")
+                addDevice("user4Name", null, "Device1")
+            }
+        }
+
         step("And User TeamOwner has group conversation MyTeam with Member1, Member2 and Member3") {
-            backendSetupHelper.userHasGroupConversationInTeam(
-                "user1Name",
-                "MyTeam",
-                "user2Name,user3Name,user4Name",
-                "RemoveGroup"
+            testServiceHelper.userCreatesMLSGroupConversation(
+                ownerAlias = "user1Name",
+                participantAliases = "user2Name,user3Name,user4Name",
+                conversationName = "MyTeam",
+                deviceName = "Device1"
             )
         }
 

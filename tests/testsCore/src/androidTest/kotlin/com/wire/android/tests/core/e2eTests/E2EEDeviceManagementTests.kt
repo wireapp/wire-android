@@ -55,6 +55,7 @@ class E2EEDeviceManagementTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "DeviceManagement", backendClient)
         }
 
         step("And User TeamOwner adds Member1 to team DeviceManagement with role Member") {
@@ -102,6 +103,7 @@ class E2EEDeviceManagementTests : BaseUiTest() {
 
         step("When I open Settings from the conversation list") {
             pages.conversationListPage.apply {
+                waitUntilWireServiceNotificationDisappears()
                 clickConversationsMenuEntry()
                 clickSettingsButtonOnMenuEntry()
             }
@@ -158,6 +160,7 @@ class E2EEDeviceManagementTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "DeviceManagement", backendClient)
         }
 
         step("And User TeamOwner adds Member1 to team DeviceManagement with role Member") {
@@ -181,6 +184,7 @@ class E2EEDeviceManagementTests : BaseUiTest() {
 
         step("When I open Manage your Devices from Settings") {
             pages.conversationListPage.apply {
+                waitUntilWireServiceNotificationDisappears()
                 clickConversationsMenuEntry()
                 clickSettingsButtonOnMenuEntry()
             }
@@ -209,6 +213,7 @@ class E2EEDeviceManagementTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "DeviceManagement", backendClient)
         }
 
         step("And User TeamOwner adds Member1 to team DeviceManagement with role Member") {
@@ -292,6 +297,7 @@ class E2EEDeviceManagementTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "DeviceManagement", backendClient)
         }
 
         step("And User TeamOwner adds Member1 to team DeviceManagement with role Member") {
@@ -354,6 +360,7 @@ class E2EEDeviceManagementTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "DeviceManagement", backendClient)
         }
 
         step("And User TeamOwner adds Member1 to team DeviceManagement with role Member") {

@@ -57,6 +57,7 @@ class CallingTests : BaseCallUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "WeLikeCalls", backendClient)
             teamOwner = clientUserManager.findUserBy(
                 "user1Name",
                 ClientUserManager.FindBy.NAME_ALIAS
@@ -96,6 +97,7 @@ class CallingTests : BaseCallUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "WeLikeCalls", backendClient)
             teamOwner = clientUserManager.findUserBy(
                 "user1Name",
                 ClientUserManager.FindBy.NAME_ALIAS
@@ -105,12 +107,20 @@ class CallingTests : BaseCallUiTest() {
         andTeamOwnerAddsMembersToTeam()
         andTeamOwnerEnablesConferenceCallingFeature()
 
-        step("And TeamOwner has group conversation GroupCall with Member1 and Member2") {
-            backendSetupHelper.userHasGroupConversationInTeam(
-                "user1Name",
-                "GroupCall",
-                "user2Name,user3Name",
-                "WeLikeCalls"
+        step("And MLS devices are registered for all participants") {
+            testServiceHelper.apply {
+                addDevice("user1Name", null, "Device1")
+                addDevice("user2Name", null, "Device1")
+                addDevice("user3Name", null, "Device1")
+            }
+        }
+
+        step("And TeamOwner has MLS group conversation GroupCall with Member1 and Member2") {
+            testServiceHelper.userCreatesMLSGroupConversation(
+                ownerAlias = "user1Name",
+                participantAliases = "user2Name,user3Name",
+                conversationName = "GroupCall",
+                deviceName = "Device1"
             )
         }
     }

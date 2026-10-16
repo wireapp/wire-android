@@ -1465,6 +1465,7 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="cancel_login_button_label">Cancel</string>
     <string name="cancel_login_dialog_description">If you cancel now, you will be logged out.</string>
     <string name="cancel_login_dialog_title">Are you sure you want to cancel?</string>
+    <!-- Restart App dialog -->
     <!-- Analytics Usage dialog -->
     <string name="analytics_usage_dialog_title">Consent to share user data</string>
     <string name="analytics_usage_dialog_text">Help to improve Wire by sharing your usage data via a pseudonymous ID. The data is neither linked to your personal information nor shared with third parties besides Wire Group. It includes, for example, when you use a feature, your app version, device type, or your operating system. This data will be deleted at the latest after 365 days.\n\nFind further details in our Privacy Policy. You can revoke your consent at any time.</string>

@@ -353,6 +353,11 @@
         </receiver>
 
         <service
+            android:name=".services.RestartService"
+            android:exported="false"
+            android:process=":restart" />
+
+        <service
             android:name=".services.PersistentWebSocketService"
             android:exported="false"
             android:foregroundServiceType="specialUse" />

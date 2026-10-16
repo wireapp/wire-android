@@ -131,6 +131,18 @@ class WireApplication : BaseApp() {
             .build()
 
     override fun onCreate() {
+        // The :restart helper only replaces the main process. Avoid initializing DI, sync, and databases there.
+        val processName = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            getProcessName()
+        } else {
+            (getSystemService(ACTIVITY_SERVICE) as android.app.ActivityManager).runningAppProcesses
+                ?.firstOrNull { it.pid == android.os.Process.myPid() }
+                ?.processName
+        }
+        if (processName == "$packageName:restart") {
+            super.onCreate()
+            return
+        }
         val startupAt = SystemClock.elapsedRealtime()
         traceStartup("application.onCreate.begin")
         appGraph.inject(this)

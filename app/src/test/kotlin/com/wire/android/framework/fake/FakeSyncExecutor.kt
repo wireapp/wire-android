@@ -42,6 +42,8 @@ open class FakeSyncExecutor : SyncExecutor() {
 
     override fun startAndStopSyncAsNeeded() = Unit
 
+    override suspend fun stopForRestart() = Unit
+
     override suspend fun <T> request(executorAction: suspend SyncRequest.() -> T): T {
         onRequest()
         activeRequestCount++

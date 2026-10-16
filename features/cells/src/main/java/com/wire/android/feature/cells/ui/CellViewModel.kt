@@ -399,6 +399,9 @@ class CellViewModel @AssistedInject constructor(
 
             is CellViewIntent.OnItemLongClick -> bulkSelection.onLongClick(intent.cellNode)
             is CellViewIntent.OnClearSelection -> bulkSelection.clear()
+            is CellViewIntent.OnMoveSelectedNodesClick,
+            is CellViewIntent.OnDeleteSelectedNodesClick,
+            is CellViewIntent.OnMakeSelectedNodesAvailableOfflineClick -> Unit
 
             is CellViewIntent.OnItemMenuClick -> onItemMenuClick(intent.cellNode)
             is CellViewIntent.OnMenuItemActionSelected -> onMenuItemAction(intent.node, intent.action)
@@ -825,6 +828,9 @@ sealed interface CellViewIntent {
     data class OnItemMenuClick(val cellNode: CellNodeUi) : CellViewIntent
     data class OnItemLongClick(val cellNode: CellNodeUi) : CellViewIntent
     data object OnClearSelection : CellViewIntent
+    data object OnMoveSelectedNodesClick : CellViewIntent
+    data object OnDeleteSelectedNodesClick : CellViewIntent
+    data object OnMakeSelectedNodesAvailableOfflineClick : CellViewIntent
     data class OnMenuItemActionSelected(val node: CellNodeUi, val action: NodeBottomSheetAction) : CellViewIntent
     data class OnNodeDeleteConfirmed(val node: CellNodeUi) : CellViewIntent
     data class OnNodeRestoreConfirmed(val node: CellNodeUi) : CellViewIntent

@@ -36,7 +36,9 @@ validate_run_mode() {
       resolved_mode="normal"
       ;;
     "Deflake failed tests")
-      if [[ ! "${source_run_id}" =~ ^[0-9]+$ ]]; then
+      if [[ -z "${source_run_id}" && "${ALLOW_LATEST_SOURCE_RUN:-false}" == "true" ]]; then
+        : # The source-run validator resolves the latest completed run.
+      elif [[ ! "${source_run_id}" =~ ^[0-9]+$ ]]; then
         echo "ERROR: Deflake mode requires a numeric sourceRunId. Copy the 'manual deflake id' from the previous run summary."
         exit 1
       fi

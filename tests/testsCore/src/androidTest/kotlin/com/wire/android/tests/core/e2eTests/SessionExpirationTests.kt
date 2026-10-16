@@ -61,6 +61,7 @@ class SessionExpirationTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "SessionExpiration", backendClient)
         }
 
         step("And User TeamOwner adds Member1 to team SessionExpiration with role Member") {
@@ -155,6 +156,7 @@ class SessionExpirationTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "TeamStaging", backendClient)
         }
 
         step("And User TeamOwnerStaging adds MemberStaging to team TeamStaging with role Member") {
@@ -178,6 +180,7 @@ class SessionExpirationTests : BaseUiTest() {
                 antaBackend,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user2Name", "TeamAnta", antaBackend)
         }
 
         step("And User TeamOwnerAnta adds MemberAnta to team TeamAnta with role Member") {
@@ -201,6 +204,7 @@ class SessionExpirationTests : BaseUiTest() {
                 bellaBackend,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user3Name", "TeamBella", bellaBackend)
         }
 
         step("And User TeamOwnerBella adds MemberBella to team TeamBella with role Member") {
@@ -370,6 +374,7 @@ class SessionExpirationTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "SessionExpiration", backendClient)
         }
 
         step("And User TeamOwner adds Member1 to team SessionExpiration with role Member") {

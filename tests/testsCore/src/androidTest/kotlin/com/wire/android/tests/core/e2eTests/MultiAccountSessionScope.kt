@@ -315,7 +315,9 @@ class MultiAccountSessionScope : BaseUiTest() {
             }
             pages.registrationPage.apply {
                 waitUntilLoginFlowIsCompleted()
-                waitUntilConversationPageVisibleDismissingPostLoginPrompts(timeout = POST_REMOVE_DEVICE_LOGIN_TIMEOUT)
+                clickAllowNotificationButton()
+                clickDeclineShareDataAlert(timeout = POST_REMOVE_DEVICE_LOGIN_TIMEOUT)
+                assertConversationPageVisible(timeout = POST_REMOVE_DEVICE_LOGIN_TIMEOUT)
             }
         }
     }
@@ -329,6 +331,7 @@ class MultiAccountSessionScope : BaseUiTest() {
             backendClient,
             context
         )
+        backendSetupHelper.userConfiguresMLSForTeam("user1Name", teamName, backendClient)
         backendSetupHelper.userXAddsUsersToTeam(
             "user1Name",
             "user2Name",

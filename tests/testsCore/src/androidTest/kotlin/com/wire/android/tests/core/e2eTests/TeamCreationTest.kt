@@ -150,6 +150,7 @@ class TeamCreationTest : BaseUiTest() {
                 assertTeamCreatedPageVisible()
             }
             registerTeamOwnerForCleanup(userInfo)
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "SuperTeam", backendClient)
         }
 
         step("When I close team created page") {
@@ -189,6 +190,7 @@ class TeamCreationTest : BaseUiTest() {
 
         step("And I decline share data alert after username confirmation") {
             pages.registrationPage.apply {
+                clickAllowNotificationButton()
                 clickDeclineShareDataAlert()
             }
         }

@@ -39,6 +39,7 @@ class GroupsTests : BaseUiTest() {
     private lateinit var member3: ClientUser
     private lateinit var guest: ClientUser
     private lateinit var external: ClientUser
+    private val pollAppId = "14969de0-76ae-486a-b3e9-7960b1c7f5b2"
 
     @Before
     fun setUp() {
@@ -60,6 +61,7 @@ class GroupsTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "GroupCreation", backendClient)
             backendSetupHelper.userXAddsUsersToTeam(
                 "user1Name",
                 "user2Name,user3Name",
@@ -74,8 +76,11 @@ class GroupsTests : BaseUiTest() {
             member2 = clientUserManager.findUserByNameOrNameAlias("user3Name")
         }
 
-        step("And User user3Name has Device1 for backend messaging") {
-            testServiceHelper.addDevice("user3Name", null, "Device1")
+        step("And MLS devices are registered for the other group participants") {
+            testServiceHelper.apply {
+                addDevice("user1Name", null, "Device1")
+                addDevice("user3Name", null, "Device1")
+            }
         }
 
         givenILoginAsTeamMemberThroughStagingDeepLink()
@@ -154,6 +159,7 @@ class GroupsTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "GroupCreation", backendClient)
             backendSetupHelper.userXAddsUsersToTeam(
                 "user1Name",
                 "user2Name",
@@ -191,6 +197,7 @@ class GroupsTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "GroupDeletion", backendClient)
             backendSetupHelper.userXAddsUsersToTeam(
                 "user1Name",
                 "user2Name,user3Name",
@@ -203,12 +210,20 @@ class GroupsTests : BaseUiTest() {
             teamOwner = clientUserManager.findUserByNameOrNameAlias("user1Name")
         }
 
+        step("And MLS devices are registered for all participants") {
+            testServiceHelper.apply {
+                addDevice("user1Name", null, "Device1")
+                addDevice("user2Name", null, "Device1")
+                addDevice("user3Name", null, "Device1")
+            }
+        }
+
         step("And User user1Name has group conversation MyTeam with user2Name,user3Name") {
-            backendSetupHelper.userHasGroupConversationInTeam(
-                "user1Name",
-                "MyTeam",
-                "user2Name,user3Name",
-                "GroupDeletion"
+            testServiceHelper.userCreatesMLSGroupConversation(
+                ownerAlias = "user1Name",
+                participantAliases = "user2Name,user3Name",
+                conversationName = "MyTeam",
+                deviceName = "Device1"
             )
         }
 
@@ -259,6 +274,7 @@ class GroupsTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "GroupDeletion", backendClient)
             backendSetupHelper.userXAddsUsersToTeam(
                 "user1Name",
                 "user2Name,user3Name",
@@ -271,12 +287,20 @@ class GroupsTests : BaseUiTest() {
             teamOwner = clientUserManager.findUserByNameOrNameAlias("user1Name")
         }
 
+        step("And MLS devices are registered for all participants") {
+            testServiceHelper.apply {
+                addDevice("user1Name", null, "Device1")
+                addDevice("user2Name", null, "Device1")
+                addDevice("user3Name", null, "Device1")
+            }
+        }
+
         step("And User user1Name has group conversation MyTeam with user2Name,user3Name") {
-            backendSetupHelper.userHasGroupConversationInTeam(
-                "user1Name",
-                "MyTeam",
-                "user2Name,user3Name",
-                "GroupDeletion"
+            testServiceHelper.userCreatesMLSGroupConversation(
+                ownerAlias = "user1Name",
+                participantAliases = "user2Name,user3Name",
+                conversationName = "MyTeam",
+                deviceName = "Device1"
             )
         }
 
@@ -325,6 +349,7 @@ class GroupsTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "GroupDeletion", backendClient)
             backendSetupHelper.userXAddsUsersToTeam(
                 "user1Name",
                 "user2Name,user3Name",
@@ -337,12 +362,20 @@ class GroupsTests : BaseUiTest() {
             member1 = clientUserManager.findUserByNameOrNameAlias("user2Name")
         }
 
+        step("And MLS devices are registered for all participants") {
+            testServiceHelper.apply {
+                addDevice("user1Name", null, "Device1")
+                addDevice("user2Name", null, "Device1")
+                addDevice("user3Name", null, "Device1")
+            }
+        }
+
         step("And User user1Name has group conversation MyTeam with user2Name,user3Name") {
-            backendSetupHelper.userHasGroupConversationInTeam(
-                "user1Name",
-                "MyTeam",
-                "user2Name,user3Name",
-                "GroupDeletion"
+            testServiceHelper.userCreatesMLSGroupConversation(
+                ownerAlias = "user1Name",
+                participantAliases = "user2Name,user3Name",
+                conversationName = "MyTeam",
+                deviceName = "Device1"
             )
         }
 
@@ -382,6 +415,7 @@ class GroupsTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "GroupDeletion", backendClient)
             backendSetupHelper.userXAddsUsersToTeam(
                 "user1Name",
                 "user2Name,user3Name",
@@ -394,22 +428,26 @@ class GroupsTests : BaseUiTest() {
             teamOwner = clientUserManager.findUserByNameOrNameAlias("user1Name")
         }
 
-        step("And User user2Name has Device1 for backend messaging") {
-            testServiceHelper.addDevice("user2Name", null, "Device1")
+        step("And MLS devices are registered for all participants") {
+            testServiceHelper.apply {
+                addDevice("user1Name", null, "Device1")
+                addDevice("user2Name", null, "Device1")
+                addDevice("user3Name", null, "Device1")
+            }
         }
 
         step("And User user1Name has group conversations DeleteTeam and StaysTeam with user2Name,user3Name") {
-            backendSetupHelper.userHasGroupConversationInTeam(
-                "user1Name",
-                "DeleteTeam",
-                "user2Name,user3Name",
-                "GroupDeletion"
+            testServiceHelper.userCreatesMLSGroupConversation(
+                ownerAlias = "user1Name",
+                participantAliases = "user2Name,user3Name",
+                conversationName = "DeleteTeam",
+                deviceName = "Device1"
             )
-            backendSetupHelper.userHasGroupConversationInTeam(
-                "user1Name",
-                "StaysTeam",
-                "user2Name,user3Name",
-                "GroupDeletion"
+            testServiceHelper.userCreatesMLSGroupConversation(
+                ownerAlias = "user1Name",
+                participantAliases = "user2Name,user3Name",
+                conversationName = "StaysTeam",
+                deviceName = "Device1"
             )
         }
 
@@ -507,6 +545,7 @@ class GroupsTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "GroupDeletion", backendClient)
             backendSetupHelper.userXAddsUsersToTeam(
                 "user1Name",
                 "user2Name,user3Name",
@@ -518,26 +557,27 @@ class GroupsTests : BaseUiTest() {
             )
         }
 
-        step("And User user1Name has group conversations DeleteMe and Stay with user2Name,user3Name") {
-            backendSetupHelper.userHasGroupConversationInTeam(
-                "user1Name",
-                "DeleteMe",
-                "user2Name,user3Name",
-                "GroupDeletion"
-            )
-            backendSetupHelper.userHasGroupConversationInTeam(
-                "user1Name",
-                "Stay",
-                "user2Name,user3Name",
-                "GroupDeletion"
-            )
-        }
-
-        step("And Users user1Name and user3Name have devices for backend messaging") {
+        step("And MLS devices are registered for all participants") {
             testServiceHelper.apply {
                 addDevice("user1Name", null, "Device1")
+                addDevice("user2Name", null, "Device1")
                 addDevice("user3Name", null, "Device2")
             }
+        }
+
+        step("And User user1Name has group conversations DeleteMe and Stay with user2Name,user3Name") {
+            testServiceHelper.userCreatesMLSGroupConversation(
+                ownerAlias = "user1Name",
+                participantAliases = "user2Name,user3Name",
+                conversationName = "DeleteMe",
+                deviceName = "Device1"
+            )
+            testServiceHelper.userCreatesMLSGroupConversation(
+                ownerAlias = "user1Name",
+                participantAliases = "user2Name,user3Name",
+                conversationName = "Stay",
+                deviceName = "Device1"
+            )
         }
 
         step("And User user2Name is me") {
@@ -652,6 +692,7 @@ class GroupsTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "LeaveGroup", backendClient)
             backendSetupHelper.userXAddsUsersToTeam(
                 "user1Name",
                 "user2Name,user3Name",
@@ -667,17 +708,21 @@ class GroupsTests : BaseUiTest() {
             teamOwner = clientUserManager.findUserByNameOrNameAlias("user1Name")
         }
 
-        step("And User user1Name has group conversation MyTeam with user2Name,user3Name") {
-            backendSetupHelper.userHasGroupConversationInTeam(
-                "user1Name",
-                "MyTeam",
-                "user2Name,user3Name",
-                "LeaveGroup"
-            )
+        step("And MLS devices are registered for all participants") {
+            testServiceHelper.apply {
+                addDevice("user1Name", null, "Device1")
+                addDevice("user2Name", null, "Device1")
+                addDevice("user3Name", null, "Device1")
+            }
         }
 
-        step("And User user2Name has Device1 for backend messaging") {
-            testServiceHelper.addDevice("user2Name", null, "Device1")
+        step("And User user1Name has group conversation MyTeam with user2Name,user3Name") {
+            testServiceHelper.userCreatesMLSGroupConversation(
+                ownerAlias = "user1Name",
+                participantAliases = "user2Name,user3Name",
+                conversationName = "MyTeam",
+                deviceName = "Device1"
+            )
         }
 
         givenILoginAsTeamOwnerThroughStagingDeepLink()
@@ -767,6 +812,7 @@ class GroupsTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "LeaveGroup", backendClient)
             backendSetupHelper.userXAddsUsersToTeam(
                 "user1Name",
                 "user2Name,user3Name",
@@ -782,12 +828,20 @@ class GroupsTests : BaseUiTest() {
             teamOwner = clientUserManager.findUserByNameOrNameAlias("user1Name")
         }
 
+        step("And MLS devices are registered for all participants") {
+            testServiceHelper.apply {
+                addDevice("user1Name", null, "Device1")
+                addDevice("user2Name", null, "Device1")
+                addDevice("user3Name", null, "Device1")
+            }
+        }
+
         step("And User user1Name has group conversation MyTeam with user2Name,user3Name") {
-            backendSetupHelper.userHasGroupConversationInTeam(
-                "user1Name",
-                "MyTeam",
-                "user2Name,user3Name",
-                "LeaveGroup"
+            testServiceHelper.userCreatesMLSGroupConversation(
+                ownerAlias = "user1Name",
+                participantAliases = "user2Name,user3Name",
+                conversationName = "MyTeam",
+                deviceName = "Device1"
             )
         }
 
@@ -836,6 +890,7 @@ class GroupsTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "LeaveGroup", backendClient)
             backendSetupHelper.userXAddsUsersToTeam(
                 "user1Name",
                 "user2Name,user3Name",
@@ -852,17 +907,21 @@ class GroupsTests : BaseUiTest() {
             teamOwner = clientUserManager.findUserByNameOrNameAlias("user1Name")
         }
 
-        step("And User user1Name has group conversation MyTeam with user2Name,user3Name") {
-            backendSetupHelper.userHasGroupConversationInTeam(
-                "user1Name",
-                "MyTeam",
-                "user2Name,user3Name",
-                "LeaveGroup"
-            )
+        step("And MLS devices are registered for all participants") {
+            testServiceHelper.apply {
+                addDevice("user1Name", null, "Device1")
+                addDevice("user2Name", null, "Device1")
+                addDevice("user3Name", null, "Device1")
+            }
         }
 
-        step("And User user2Name has Device1 for backend messaging") {
-            testServiceHelper.addDevice("user2Name", null, "Device1")
+        step("And User user1Name has group conversation MyTeam with user2Name,user3Name") {
+            testServiceHelper.userCreatesMLSGroupConversation(
+                ownerAlias = "user1Name",
+                participantAliases = "user2Name,user3Name",
+                conversationName = "MyTeam",
+                deviceName = "Device1"
+            )
         }
 
         givenILoginAsTeamOwnerThroughStagingDeepLink()
@@ -888,10 +947,10 @@ class GroupsTests : BaseUiTest() {
         }
 
         step("When user3Name leaves group conversation MyTeam") {
-            backendSetupHelper.userRemovesUserFromGroupConversation(
-                "user3Name",
-                "user3Name",
-                "MyTeam"
+            testServiceHelper.userLeavesGroupConversation(
+                userAlias = "user3Name",
+                chatName = "MyTeam",
+                deviceName = "Device1"
             )
         }
 
@@ -922,6 +981,7 @@ class GroupsTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "LeaveGroup", backendClient)
             backendSetupHelper.userXAddsUsersToTeam(
                 "user1Name",
                 "user2Name,user3Name",
@@ -938,17 +998,21 @@ class GroupsTests : BaseUiTest() {
             member1 = clientUserManager.findUserByNameOrNameAlias("user2Name")
         }
 
-        step("And User user1Name has group conversation MyTeam with user2Name,user3Name") {
-            backendSetupHelper.userHasGroupConversationInTeam(
-                "user1Name",
-                "MyTeam",
-                "user2Name,user3Name",
-                "LeaveGroup"
-            )
+        step("And MLS devices are registered for all participants") {
+            testServiceHelper.apply {
+                addDevice("user1Name", null, "Device1")
+                addDevice("user2Name", null, "Device1")
+                addDevice("user3Name", null, "Device1")
+            }
         }
 
-        step("And User user1Name has Device1 for backend messaging") {
-            testServiceHelper.addDevice("user1Name", null, "Device1")
+        step("And User user1Name has group conversation MyTeam with user2Name,user3Name") {
+            testServiceHelper.userCreatesMLSGroupConversation(
+                ownerAlias = "user1Name",
+                participantAliases = "user2Name,user3Name",
+                conversationName = "MyTeam",
+                deviceName = "Device1"
+            )
         }
 
         givenILoginAsTeamMemberThroughStagingDeepLink()
@@ -974,10 +1038,10 @@ class GroupsTests : BaseUiTest() {
         }
 
         step("When user3Name leaves group conversation MyTeam") {
-            backendSetupHelper.userRemovesUserFromGroupConversation(
-                "user3Name",
-                "user3Name",
-                "MyTeam"
+            testServiceHelper.userLeavesGroupConversation(
+                userAlias = "user3Name",
+                chatName = "MyTeam",
+                deviceName = "Device1"
             )
         }
 
@@ -1008,6 +1072,7 @@ class GroupsTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "LeaveGroup", backendClient)
             backendSetupHelper.userXAddsUsersToTeam(
                 "user1Name",
                 "user2Name,user3Name",
@@ -1034,21 +1099,26 @@ class GroupsTests : BaseUiTest() {
             backendSetupHelper.userIsConnectedTo("user1Name", "user4Name")
         }
 
+        step("And MLS devices are registered for all participants") {
+            testServiceHelper.apply {
+                addDevice("user1Name", null, "Device1")
+                addDevice("user2Name", null, "Device1")
+                addDevice("user3Name", null, "Device1")
+                addDevice("user4Name", null, "Device1")
+            }
+        }
+
         step("And User user1Name has group conversation MyTeam with user2Name,user3Name,user4Name") {
-            backendSetupHelper.userHasGroupConversationInTeam(
-                "user1Name",
-                "MyTeam",
-                "user2Name,user3Name,user4Name",
-                "LeaveGroup"
+            testServiceHelper.userCreatesMLSGroupConversation(
+                ownerAlias = "user1Name",
+                participantAliases = "user2Name,user3Name,user4Name",
+                conversationName = "MyTeam",
+                deviceName = "Device1"
             )
         }
 
         step("And User user4Name is me") {
             guest = clientUserManager.findUserByNameOrNameAlias("user4Name")
-        }
-
-        step("And User user2Name has Device1 for backend messaging") {
-            testServiceHelper.addDevice("user2Name", null, "Device1")
         }
 
         givenILoginAsGuestThroughStagingDeepLink()
@@ -1074,10 +1144,10 @@ class GroupsTests : BaseUiTest() {
         }
 
         step("When user3Name leaves group conversation MyTeam") {
-            backendSetupHelper.userRemovesUserFromGroupConversation(
-                "user3Name",
-                "user3Name",
-                "MyTeam"
+            testServiceHelper.userLeavesGroupConversation(
+                userAlias = "user3Name",
+                chatName = "MyTeam",
+                deviceName = "Device1"
             )
         }
 
@@ -1100,6 +1170,7 @@ class GroupsTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "RemoveGroup", backendClient)
             backendSetupHelper.userXAddsUsersToTeam(
                 "user1Name",
                 "user2Name,user3Name,user4Name",
@@ -1112,21 +1183,26 @@ class GroupsTests : BaseUiTest() {
             member3 = clientUserManager.findUserByNameOrNameAlias("user4Name")
         }
 
+        step("And MLS devices are registered for all participants") {
+            testServiceHelper.apply {
+                addDevice("user1Name", null, "Device1")
+                addDevice("user2Name", null, "Device1")
+                addDevice("user3Name", null, "Device1")
+                addDevice("user4Name", null, "Device1")
+            }
+        }
+
         step("And User user1Name has group conversation MyTeam with user2Name,user3Name,user4Name") {
-            backendSetupHelper.userHasGroupConversationInTeam(
-                "user1Name",
-                "MyTeam",
-                "user2Name,user3Name,user4Name",
-                "RemoveGroup"
+            testServiceHelper.userCreatesMLSGroupConversation(
+                ownerAlias = "user1Name",
+                participantAliases = "user2Name,user3Name,user4Name",
+                conversationName = "MyTeam",
+                deviceName = "Device1"
             )
         }
 
         step("And User user1Name is me") {
             teamOwner = clientUserManager.findUserByNameOrNameAlias("user1Name")
-        }
-
-        step("And User user2Name has Device1 for backend messaging") {
-            testServiceHelper.addDevice("user2Name", null, "Device1")
         }
 
         givenILoginAsTeamOwnerThroughStagingDeepLink()
@@ -1226,6 +1302,7 @@ class GroupsTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "RemoveGroup", backendClient)
             backendSetupHelper.userXAddsUsersToTeam(
                 "user1Name",
                 "user2Name,user3Name,user4Name",
@@ -1239,12 +1316,21 @@ class GroupsTests : BaseUiTest() {
             member3 = clientUserManager.findUserByNameOrNameAlias("user4Name")
         }
 
+        step("And MLS devices are registered for all participants") {
+            testServiceHelper.apply {
+                addDevice("user1Name", null, "Device1")
+                addDevice("user2Name", null, "Device1")
+                addDevice("user3Name", null, "Device1")
+                addDevice("user4Name", null, "Device1")
+            }
+        }
+
         step("And User user1Name has group conversation MyTeam with user2Name,user3Name,user4Name") {
-            backendSetupHelper.userHasGroupConversationInTeam(
-                "user1Name",
-                "MyTeam",
-                "user2Name,user3Name,user4Name",
-                "RemoveGroup"
+            testServiceHelper.userCreatesMLSGroupConversation(
+                ownerAlias = "user1Name",
+                participantAliases = "user2Name,user3Name,user4Name",
+                conversationName = "MyTeam",
+                deviceName = "Device1"
             )
         }
 
@@ -1263,10 +1349,11 @@ class GroupsTests : BaseUiTest() {
         }
 
         step("When User user1Name removes user user4Name from group conversation MyTeam") {
-            backendSetupHelper.userRemovesUserFromGroupConversation(
-                "user1Name",
-                "user4Name",
-                "MyTeam"
+            testServiceHelper.userRemovesUserFromGroupConversation(
+                userWhoRemovesAlias = "user1Name",
+                userToRemoveAlias = "user4Name",
+                chatName = "MyTeam",
+                deviceName = "Device1"
             )
         }
 
@@ -1291,6 +1378,7 @@ class GroupsTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "RemoveGroup", backendClient)
             backendSetupHelper.userXAddsUsersToTeam(
                 "user1Name",
                 "user2Name,user3Name,user4Name",
@@ -1318,12 +1406,22 @@ class GroupsTests : BaseUiTest() {
             backendSetupHelper.userIsConnectedTo("user1Name", "user5Name")
         }
 
+        step("And MLS devices are registered for all participants") {
+            testServiceHelper.apply {
+                addDevice("user1Name", null, "Device1")
+                addDevice("user2Name", null, "Device1")
+                addDevice("user3Name", null, "Device1")
+                addDevice("user4Name", null, "Device1")
+                addDevice("user5Name", null, "Device1")
+            }
+        }
+
         step("And User user1Name has group conversation MyTeam with user2Name,user3Name,user4Name,user5Name") {
-            backendSetupHelper.userHasGroupConversationInTeam(
-                "user1Name",
-                "MyTeam",
-                "user2Name,user3Name,user4Name,user5Name",
-                "RemoveGroup"
+            testServiceHelper.userCreatesMLSGroupConversation(
+                ownerAlias = "user1Name",
+                participantAliases = "user2Name,user3Name,user4Name,user5Name",
+                conversationName = "MyTeam",
+                deviceName = "Device1"
             )
         }
 
@@ -1342,10 +1440,11 @@ class GroupsTests : BaseUiTest() {
         }
 
         step("When User user1Name removes user user4Name from group conversation MyTeam") {
-            backendSetupHelper.userRemovesUserFromGroupConversation(
-                "user1Name",
-                "user4Name",
-                "MyTeam"
+            testServiceHelper.userRemovesUserFromGroupConversation(
+                userWhoRemovesAlias = "user1Name",
+                userToRemoveAlias = "user4Name",
+                chatName = "MyTeam",
+                deviceName = "Device1"
             )
         }
 
@@ -1370,6 +1469,7 @@ class GroupsTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "AddGroup", backendClient)
             backendSetupHelper.userXAddsUsersToTeam(
                 "user1Name",
                 "user2Name,user3Name,user4Name",
@@ -1382,21 +1482,26 @@ class GroupsTests : BaseUiTest() {
             member3 = clientUserManager.findUserByNameOrNameAlias("user4Name")
         }
 
+        step("And MLS devices are registered for all participants") {
+            testServiceHelper.apply {
+                addDevice("user1Name", null, "Device1")
+                addDevice("user2Name", null, "Device1")
+                addDevice("user3Name", null, "Device1")
+                addDevice("user4Name", null, "Device1")
+            }
+        }
+
         step("And User user1Name has group conversation MyTeam with user2Name,user3Name") {
-            backendSetupHelper.userHasGroupConversationInTeam(
-                "user1Name",
-                "MyTeam",
-                "user2Name,user3Name",
-                "AddGroup"
+            testServiceHelper.userCreatesMLSGroupConversation(
+                ownerAlias = "user1Name",
+                participantAliases = "user2Name,user3Name",
+                conversationName = "MyTeam",
+                deviceName = "Device1"
             )
         }
 
         step("And User user1Name is me") {
             teamOwner = clientUserManager.findUserByNameOrNameAlias("user1Name")
-        }
-
-        step("And User user4Name has Device1 for backend messaging") {
-            testServiceHelper.addDevice("user4Name", null, "Device1")
         }
 
         givenILoginAsTeamOwnerThroughStagingDeepLink()
@@ -1480,6 +1585,7 @@ class GroupsTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "AddGroup", backendClient)
             backendSetupHelper.userXAddsUsersToTeam(
                 "user1Name",
                 "user2Name,user3Name,user4Name",
@@ -1493,12 +1599,21 @@ class GroupsTests : BaseUiTest() {
             member3 = clientUserManager.findUserByNameOrNameAlias("user4Name")
         }
 
+        step("And MLS devices are registered for all participants") {
+            testServiceHelper.apply {
+                addDevice("user1Name", null, "Device1")
+                addDevice("user2Name", null, "Device1")
+                addDevice("user3Name", null, "Device1")
+                addDevice("user4Name", null, "Device1")
+            }
+        }
+
         step("And User user1Name has group conversation MyTeam with user2Name,user3Name") {
-            backendSetupHelper.userHasGroupConversationInTeam(
-                "user1Name",
-                "MyTeam",
-                "user2Name,user3Name",
-                "AddGroup"
+            testServiceHelper.userCreatesMLSGroupConversation(
+                ownerAlias = "user1Name",
+                participantAliases = "user2Name,user3Name",
+                conversationName = "MyTeam",
+                deviceName = "Device1"
             )
         }
 
@@ -1517,10 +1632,11 @@ class GroupsTests : BaseUiTest() {
         }
 
         step("When User user1Name adds user user4Name to group conversation MyTeam") {
-            backendSetupHelper.userXAddedContactsToGroupChat(
-                "user1Name",
-                "user4Name",
-                "MyTeam"
+            testServiceHelper.userXAddedContactsToGroupChat(
+                userAsNameAlias = "user1Name",
+                contactsToAddNameAliases = "user4Name",
+                chatName = "MyTeam",
+                deviceName = "Device1"
             )
         }
 
@@ -1545,6 +1661,7 @@ class GroupsTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "AddGroup", backendClient)
             backendSetupHelper.userXAddsUsersToTeam(
                 "user1Name",
                 "user2Name,user3Name,user4Name",
@@ -1572,12 +1689,22 @@ class GroupsTests : BaseUiTest() {
             backendSetupHelper.userIsConnectedTo("user1Name", "user5Name")
         }
 
+        step("And MLS devices are registered for all participants") {
+            testServiceHelper.apply {
+                addDevice("user1Name", null, "Device1")
+                addDevice("user2Name", null, "Device1")
+                addDevice("user3Name", null, "Device1")
+                addDevice("user4Name", null, "Device1")
+                addDevice("user5Name", null, "Device1")
+            }
+        }
+
         step("And User user1Name has group conversation MyTeam with user2Name,user3Name,user5Name") {
-            backendSetupHelper.userHasGroupConversationInTeam(
-                "user1Name",
-                "MyTeam",
-                "user2Name,user3Name,user5Name",
-                "AddGroup"
+            testServiceHelper.userCreatesMLSGroupConversation(
+                ownerAlias = "user1Name",
+                participantAliases = "user2Name,user3Name,user5Name",
+                conversationName = "MyTeam",
+                deviceName = "Device1"
             )
         }
 
@@ -1596,10 +1723,11 @@ class GroupsTests : BaseUiTest() {
         }
 
         step("When User user1Name adds user user4Name to group conversation MyTeam") {
-            backendSetupHelper.userXAddedContactsToGroupChat(
-                "user1Name",
-                "user4Name",
-                "MyTeam"
+            testServiceHelper.userXAddedContactsToGroupChat(
+                userAsNameAlias = "user1Name",
+                contactsToAddNameAliases = "user4Name",
+                chatName = "MyTeam",
+                deviceName = "Device1"
             )
         }
 
@@ -1624,6 +1752,7 @@ class GroupsTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "AddGroup", backendClient)
             backendSetupHelper.userXAddsUsersToTeam(
                 "user1Name",
                 "user2Name,user3Name,user4Name",
@@ -1638,12 +1767,21 @@ class GroupsTests : BaseUiTest() {
             member3 = clientUserManager.findUserByNameOrNameAlias("user4Name")
         }
 
+        step("And MLS devices are registered for all participants") {
+            testServiceHelper.apply {
+                addDevice("user1Name", null, "Device1")
+                addDevice("user2Name", null, "Device1")
+                addDevice("user3Name", null, "Device1")
+                addDevice("user4Name", null, "Device1")
+            }
+        }
+
         step("And User user1Name has group conversation MyTeam with user2Name") {
-            backendSetupHelper.userHasGroupConversationInTeam(
-                "user1Name",
-                "MyTeam",
-                "user2Name",
-                "AddGroup"
+            testServiceHelper.userCreatesMLSGroupConversation(
+                ownerAlias = "user1Name",
+                participantAliases = "user2Name",
+                conversationName = "MyTeam",
+                deviceName = "Device1"
             )
         }
 
@@ -1668,10 +1806,11 @@ class GroupsTests : BaseUiTest() {
 
         step("When I close group details and User TeamOwner adds Member2 to group conversation MyTeam") {
             pages.groupConversationDetailsPage.tapCloseButtonOnGroupConversationDetailsPage()
-            backendSetupHelper.userXAddedContactsToGroupChat(
-                "user1Name",
-                "user3Name",
-                "MyTeam"
+            testServiceHelper.userXAddedContactsToGroupChat(
+                userAsNameAlias = "user1Name",
+                contactsToAddNameAliases = "user3Name",
+                chatName = "MyTeam",
+                deviceName = "Device1"
             )
         }
 
@@ -1692,10 +1831,11 @@ class GroupsTests : BaseUiTest() {
 
         step("When I close group details and User TeamOwner removes Member2 from group conversation MyTeam") {
             pages.groupConversationDetailsPage.tapCloseButtonOnGroupConversationDetailsPage()
-            backendSetupHelper.userRemovesUserFromGroupConversation(
-                "user1Name",
-                "user3Name",
-                "MyTeam"
+            testServiceHelper.userRemovesUserFromGroupConversation(
+                userWhoRemovesAlias = "user1Name",
+                userToRemoveAlias = "user3Name",
+                chatName = "MyTeam",
+                deviceName = "Device1"
             )
         }
 
@@ -1706,10 +1846,11 @@ class GroupsTests : BaseUiTest() {
         }
 
         step("When User TeamOwner adds Member3 to group conversation MyTeam") {
-            backendSetupHelper.userXAddedContactsToGroupChat(
-                "user1Name",
-                "user4Name",
-                "MyTeam"
+            testServiceHelper.userXAddedContactsToGroupChat(
+                userAsNameAlias = "user1Name",
+                contactsToAddNameAliases = "user4Name",
+                chatName = "MyTeam",
+                deviceName = "Device1"
             )
         }
 
@@ -1733,10 +1874,11 @@ class GroupsTests : BaseUiTest() {
 
         step("When I close group details and User TeamOwner adds Member2 to group conversation MyTeam") {
             pages.groupConversationDetailsPage.tapCloseButtonOnGroupConversationDetailsPage()
-            backendSetupHelper.userXAddedContactsToGroupChat(
-                "user1Name",
-                "user3Name",
-                "MyTeam"
+            testServiceHelper.userXAddedContactsToGroupChat(
+                userAsNameAlias = "user1Name",
+                contactsToAddNameAliases = "user3Name",
+                chatName = "MyTeam",
+                deviceName = "Device1"
             )
         }
 
@@ -1767,6 +1909,7 @@ class GroupsTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "Guests", backendClient)
             backendSetupHelper.userXAddsUsersToTeam(
                 "user1Name",
                 "user2Name",
@@ -1790,12 +1933,20 @@ class GroupsTests : BaseUiTest() {
             backendSetupHelper.userIsConnectedTo("user1Name", "user3Name")
         }
 
+        step("And MLS devices are registered for all participants") {
+            testServiceHelper.apply {
+                addDevice("user1Name", null, "Device1")
+                addDevice("user2Name", null, "Device1")
+                addDevice("user3Name", null, "Device1")
+            }
+        }
+
         step("And User TeamOwner has group conversation GuestConversation with Member1 and User") {
-            backendSetupHelper.userHasGroupConversationInTeam(
-                "user1Name",
-                "GuestConversation",
-                "user2Name,user3Name",
-                "Guests"
+            testServiceHelper.userCreatesMLSGroupConversation(
+                ownerAlias = "user1Name",
+                participantAliases = "user2Name,user3Name",
+                conversationName = "GuestConversation",
+                deviceName = "Device1"
             )
         }
 
@@ -1854,6 +2005,7 @@ class GroupsTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "External", backendClient)
             backendSetupHelper.userXAddsUsersToTeam(
                 "user1Name",
                 "user2Name",
@@ -1886,12 +2038,20 @@ class GroupsTests : BaseUiTest() {
             )
         }
 
+        step("And MLS devices are registered for all participants") {
+            testServiceHelper.apply {
+                addDevice("user1Name", null, "Device1")
+                addDevice("user2Name", null, "Device1")
+                addDevice("user3Name", null, "Device1")
+            }
+        }
+
         step("And User TeamOwner has group conversation ExternalConversation with Member1 and External") {
-            backendSetupHelper.userHasGroupConversationInTeam(
-                "user1Name",
-                "ExternalConversation",
-                "user2Name,user3Name",
-                "External"
+            testServiceHelper.userCreatesMLSGroupConversation(
+                ownerAlias = "user1Name",
+                participantAliases = "user2Name,user3Name",
+                conversationName = "ExternalConversation",
+                deviceName = "Device1"
             )
         }
 
@@ -1950,6 +2110,7 @@ class GroupsTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "Bots", backendClient)
             backendSetupHelper.userXAddsUsersToTeam(
                 "user1Name",
                 "user2Name",
@@ -1961,21 +2122,30 @@ class GroupsTests : BaseUiTest() {
             )
         }
 
-        step("And User TeamOwner enables Poll Bot service for team Bots") {
-            backendSetupHelper.userEnablesServiceForTeam("user1Name", "Poll Bot", "Bots")
-        }
-
-        step("And User TeamOwner has group conversation BotsConversation with Member1") {
-            backendSetupHelper.userHasGroupConversationInTeam(
+        step("And User TeamOwner enables apps and adds Poll App as a team collaborator") {
+            backendSetupHelper.userEnablesAppsForTeam("user1Name", "Bots", backendClient)
+            backendSetupHelper.userAddsAppAsTeamCollaborator(
                 "user1Name",
-                "BotsConversation",
-                "user2Name",
-                "Bots"
+                "Bots",
+                pollAppId,
+                backendClient
             )
         }
 
-        step("And User TeamOwner adds Poll Bot to conversation BotsConversation") {
-            backendSetupHelper.userAddsBotToConversation("user1Name", "Poll Bot", "BotsConversation")
+        step("And MLS devices are registered for all participants") {
+            testServiceHelper.apply {
+                addDevice("user1Name", null, "Device1")
+                addDevice("user2Name", null, "Device1")
+            }
+        }
+
+        step("And User TeamOwner creates MLS group conversation BotsConversation with Member1") {
+            testServiceHelper.userCreatesMLSGroupConversation(
+                ownerAlias = "user1Name",
+                participantAliases = "user2Name",
+                conversationName = "BotsConversation",
+                deviceName = "Device1"
+            )
         }
 
         step("And User TeamOwner is me") {
@@ -1983,6 +2153,35 @@ class GroupsTests : BaseUiTest() {
         }
 
         givenILoginAsTeamOwnerThroughStagingDeepLink()
+
+        step("And I open BotsConversation participants list and Apps tab") {
+            pages.conversationListPage.clickGroupConversation("BotsConversation")
+            pages.conversationViewPage.clickOnGroupConversationDetails("BotsConversation")
+            pages.groupConversationDetailsPage.apply {
+                assertGroupDetailsPageVisible()
+                tapOnParticipantsTab()
+                tapAddParticipantsButton()
+                tapOnAppsTab()
+            }
+        }
+
+        step("And I add Poll App Staging to BotsConversation") {
+            pages.groupConversationDetailsPage.apply {
+                assertAppInSearchResultsVisible("Poll App (Staging)")
+                tapAppInSearchResults("Poll App (Staging)")
+                tapAddToConversationButton()
+            }
+            waitUntilToastIsDisplayed("App added to conversation")
+        }
+
+        step("And I return to the conversation list") {
+            pages.groupConversationDetailsPage.apply {
+                tapBackButton()
+                tapBackButton()
+                tapBackButton()
+            }
+            pages.conversationViewPage.tapBackButtonToCloseConversationViewPage()
+        }
 
         step("When I open group conversation BotsConversation and see it in foreground") {
             pages.conversationListPage.clickGroupConversation("BotsConversation")
@@ -2008,6 +2207,7 @@ class GroupsTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "AllAtOnce", backendClient)
             backendSetupHelper.userXAddsUsersToTeam(
                 "user1Name",
                 "user2Name",
@@ -2031,8 +2231,14 @@ class GroupsTests : BaseUiTest() {
             )
         }
 
-        step("And User TeamOwner enables Poll Bot service for team AllAtOnce") {
-            backendSetupHelper.userEnablesServiceForTeam("user1Name", "Poll Bot", "AllAtOnce")
+        step("And User TeamOwner enables apps and adds Poll App as a team collaborator") {
+            backendSetupHelper.userEnablesAppsForTeam("user1Name", "AllAtOnce", backendClient)
+            backendSetupHelper.userAddsAppAsTeamCollaborator(
+                "user1Name",
+                "AllAtOnce",
+                pollAppId,
+                backendClient
+            )
         }
 
         step("And There is a personal user User with a unique username") {
@@ -2046,17 +2252,21 @@ class GroupsTests : BaseUiTest() {
             backendSetupHelper.userIsConnectedTo("user1Name", "user3Name")
         }
 
-        step("And User TeamOwner has group conversation EverythingAtOnce with User and External") {
-            backendSetupHelper.userHasGroupConversationInTeam(
-                "user1Name",
-                "EverythingAtOnce",
-                "user3Name,user4Name",
-                "AllAtOnce"
-            )
+        step("And MLS devices are registered for all participants") {
+            testServiceHelper.apply {
+                addDevice("user1Name", null, "Device1")
+                addDevice("user3Name", null, "Device1")
+                addDevice("user4Name", null, "Device1")
+            }
         }
 
-        step("And User TeamOwner adds Poll Bot to conversation EverythingAtOnce") {
-            backendSetupHelper.userAddsBotToConversation("user1Name", "Poll Bot", "EverythingAtOnce")
+        step("And User TeamOwner creates MLS group conversation EverythingAtOnce with User and External") {
+            testServiceHelper.userCreatesMLSGroupConversation(
+                ownerAlias = "user1Name",
+                participantAliases = "user3Name,user4Name",
+                conversationName = "EverythingAtOnce",
+                deviceName = "Device1"
+            )
         }
 
         step("And User TeamOwner is me") {
@@ -2064,6 +2274,35 @@ class GroupsTests : BaseUiTest() {
         }
 
         givenILoginAsTeamOwnerThroughStagingDeepLink()
+
+        step("And I open EverythingAtOnce participants list and Apps tab") {
+            pages.conversationListPage.clickGroupConversation("EverythingAtOnce")
+            pages.conversationViewPage.clickOnGroupConversationDetails("EverythingAtOnce")
+            pages.groupConversationDetailsPage.apply {
+                assertGroupDetailsPageVisible()
+                tapOnParticipantsTab()
+                tapAddParticipantsButton()
+                tapOnAppsTab()
+            }
+        }
+
+        step("And I add Poll App Staging to EverythingAtOnce") {
+            pages.groupConversationDetailsPage.apply {
+                assertAppInSearchResultsVisible("Poll App (Staging)")
+                tapAppInSearchResults("Poll App (Staging)")
+                tapAddToConversationButton()
+            }
+            waitUntilToastIsDisplayed("App added to conversation")
+        }
+
+        step("And I return to the conversation list") {
+            pages.groupConversationDetailsPage.apply {
+                tapBackButton()
+                tapBackButton()
+                tapBackButton()
+            }
+            pages.conversationViewPage.tapBackButtonToCloseConversationViewPage()
+        }
 
         step("When I open group conversation EverythingAtOnce and see it in foreground") {
             pages.conversationListPage.clickGroupConversation("EverythingAtOnce")
@@ -2091,6 +2330,7 @@ class GroupsTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "AddGroup", backendClient)
             backendSetupHelper.userXAddsUsersToTeam(
                 "user1Name",
                 "user2Name,user3Name,user4Name",
@@ -2102,16 +2342,30 @@ class GroupsTests : BaseUiTest() {
             )
         }
 
-        step("And User TeamOwner enables Poll Bot service for team AddGroup") {
-            backendSetupHelper.userEnablesServiceForTeam("user1Name", "Poll Bot", "AddGroup")
+        step("And User TeamOwner enables apps and adds Poll App as a team collaborator") {
+            backendSetupHelper.userEnablesAppsForTeam("user1Name", "AddGroup", backendClient)
+            backendSetupHelper.userAddsAppAsTeamCollaborator(
+                "user1Name",
+                "AddGroup",
+                pollAppId,
+                backendClient
+            )
         }
 
-        step("And User TeamOwner has group conversation MyTeam with Member1 and Member2") {
-            backendSetupHelper.userHasGroupConversationInTeam(
-                "user1Name",
-                "MyTeam",
-                "user2Name,user3Name",
-                "AddGroup"
+        step("And MLS devices are registered for all participants") {
+            testServiceHelper.apply {
+                addDevice("user1Name", null, "Device1")
+                addDevice("user2Name", null, "Device1")
+                addDevice("user3Name", null, "Device1")
+            }
+        }
+
+        step("And User TeamOwner creates MLS group conversation MyTeam with Member1 and Member2") {
+            testServiceHelper.userCreatesMLSGroupConversation(
+                ownerAlias = "user1Name",
+                participantAliases = "user2Name,user3Name",
+                conversationName = "MyTeam",
+                deviceName = "Device1"
             )
         }
 
@@ -2140,19 +2394,19 @@ class GroupsTests : BaseUiTest() {
             }
         }
 
-        step("And I see and open Poll Bot in Apps search results") {
+        step("And I see and open Poll App (Staging) in Apps search results") {
             pages.groupConversationDetailsPage.apply {
-                assertAppInSearchResultsVisible("Poll Bot")
-                tapAppInSearchResults("Poll Bot")
+                assertAppInSearchResultsVisible("Poll App (Staging)")
+                tapAppInSearchResults("Poll App (Staging)")
             }
         }
 
-        step("When I add Poll Bot and see App added to conversation toast message") {
+        step("When I add Poll App (Staging) and see App added to conversation toast message") {
             pages.groupConversationDetailsPage.tapAddToConversationButton()
             waitUntilToastIsDisplayed("App added to conversation")
         }
 
-        step("Then I see Remove From Conversation button for Poll Bot") {
+        step("Then I see Remove From Conversation button for Poll App (Staging)") {
             pages.groupConversationDetailsPage.assertRemoveFromConversationButtonForAppVisible()
         }
 
@@ -2167,8 +2421,8 @@ class GroupsTests : BaseUiTest() {
             }
         }
 
-        step("Then I see Poll Bot in participants list") {
-            pages.groupConversationDetailsPage.assertUsernameIsAddedToParticipantsList("Poll Bot")
+        step("Then I see Poll App (Staging) in participants list") {
+            pages.groupConversationDetailsPage.assertUsernameIsAddedToParticipantsList("Poll App (Staging)")
         }
 
         step("When I close the group conversation details") {
@@ -2176,21 +2430,21 @@ class GroupsTests : BaseUiTest() {
         }
 
         // TC-4364 - I want to see a system message when a service gets added to a group conversation
-        step("Then I see system message You added Poll Bot to the conversation") {
-            pages.conversationViewPage.assertSystemMessageVisible("You added Poll Bot to the conversation")
+        step("Then I see system message You added Poll App (Staging) to the conversation") {
+            pages.conversationViewPage.assertSystemMessageVisible("You added Poll App (Staging) to the conversation")
         }
 
-        step("When I open Poll Bot from the participants list") {
+        step("When I open Poll App (Staging) from the participants list") {
             pages.conversationViewPage.clickOnGroupConversationDetails("MyTeam")
             pages.groupConversationDetailsPage.apply {
                 assertGroupDetailsPageVisible()
                 tapOnParticipantsTab()
-                assertUsernameIsAddedToParticipantsList("Poll Bot")
-                tapUserInParticipantsList("Poll Bot")
+                assertUsernameIsAddedToParticipantsList("Poll App (Staging)")
+                tapUserInParticipantsList("Poll App (Staging)")
             }
         }
 
-        step("When I remove Poll Bot and see App removed from conversation toast message") {
+        step("When I remove Poll App (Staging) and see App removed from conversation toast message") {
             pages.groupConversationDetailsPage.apply {
                 assertRemoveFromConversationButtonForAppVisible()
                 tapRemoveFromConversationButton()
@@ -2199,16 +2453,16 @@ class GroupsTests : BaseUiTest() {
             pages.groupConversationDetailsPage.assertRemoveFromConversationButtonNotVisible()
         }
 
-        step("Then I return to the participants list and do not see Poll Bot") {
+        step("Then I return to the participants list and do not see Poll App (Staging)") {
             pages.groupConversationDetailsPage.apply {
                 tapBackButton()
-                assertUserIsNotInParticipantsList("Poll Bot")
+                assertUserIsNotInParticipantsList("Poll App (Staging)")
             }
         }
 
-        step("And I close group details and see Poll Bot removal system message") {
+        step("And I close group details and see Poll App (Staging) removal system message") {
             pages.groupConversationDetailsPage.tapCloseButtonOnGroupConversationDetailsPage()
-            pages.conversationViewPage.assertSystemMessageVisible("You removed Poll Bot from the conversation")
+            pages.conversationViewPage.assertSystemMessageVisible("You removed Poll App (Staging) from the conversation")
         }
     }
 

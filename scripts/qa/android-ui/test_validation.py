@@ -63,5 +63,16 @@ class ValidationTest(unittest.TestCase):
                 self.assertIn("numeric sourceRunId", result.stdout)
                 self.assertEqual("", outputs)
 
+    def test_latest_source_is_opt_in_and_still_rejects_invalid_ids(self) -> None:
+        for source_id in ("", "  ", "12345", "abc", "123\n456"):
+            with self.subTest(source_id=source_id):
+                result, outputs = self.validate(
+                    RUN_MODE="Deflake failed tests", SOURCE_RUN_ID=source_id,
+                    ALLOW_LATEST_SOURCE_RUN="true",
+                )
+                accepted = source_id.strip() in ("", "12345")
+                self.assertEqual(accepted, result.returncode == 0)
+                self.assertEqual("runMode=deflake\n" if accepted else "", outputs)
+
 if __name__ == "__main__":
     unittest.main()

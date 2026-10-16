@@ -33,7 +33,6 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import uiautomatorutils.KeyboardUtils.closeKeyboardIfOpened
-import uiautomatorutils.UiWaitUtils
 import user.utils.ClientUser
 
 @RunWith(AndroidJUnit4::class)
@@ -229,7 +228,7 @@ class LoginTests : BaseUiTest() {
 
         step("When I tap OK button on the alert and see email verification Welcome Page") {
             pages.commonAppPage.confirmRemovedDeviceDialog()
-            pages.registrationPage.assertEmailWelcomePage()
+            pages.loginPage.assertEmailInputPageVisible()
         }
 
         step("And I open staging backend deep link") {
@@ -374,6 +373,7 @@ class LoginTests : BaseUiTest() {
                     keycloakApiClient
                 )
             }
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "SSO", backendClient)
             SSOServiceHelper.setCurrentSsoUser("user2Name")
             teamMember = clientUserManager.findUserByNameOrNameAlias("user2Name")
         }
@@ -419,9 +419,9 @@ class LoginTests : BaseUiTest() {
 
         step("And I wait until I am fully logged in and decline share data alert") {
             pages.registrationPage.apply {
-                waitUntilLoginFlowIsCompleted()
+                waitUntilSsoLoginFlowIsCompleted()
                 clickAllowNotificationButton()
-                clickDeclineShareDataAlert(timeout = UiWaitUtils.SHORT_WAIT)
+                clickDeclineShareDataAlert()
             }
         }
 
@@ -441,6 +441,7 @@ class LoginTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", teamName, backendClient)
             backendSetupHelper.userXAddsUsersToTeam(
                 "user1Name",
                 "user2Name",

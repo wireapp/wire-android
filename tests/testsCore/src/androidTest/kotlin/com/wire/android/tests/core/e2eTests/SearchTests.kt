@@ -50,7 +50,7 @@ class SearchTests : BaseUiTest() {
 
     @Suppress("LongMethod")
     @TestCaseId("TC-4505")
-    @Category("regression", "RC", "search", "smoke")
+    @Category("regression", "RC", "search", "fdroid")
     @Test
     fun givenTeamOwnerWithTeamMember_whenISearchByUsername_thenMemberIsDisplayed() {
         step("Given There is a team owner user1Name with team Search") {
@@ -62,6 +62,7 @@ class SearchTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "Search", backendClient)
         }
 
         step("And User user1Name adds user user2Name to team Search with role Member") {
@@ -111,9 +112,12 @@ class SearchTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "Search", backendClient)
         }
 
         step("And User user1Name adds user user2Name to team Search with role Member") {
+            member1 = clientUserManager.findUserByNameOrNameAlias("user2Name")
+            member1.uniqueUsername = ClientUser.sanitizedRandomizedHandle("emailsearch")
             backendSetupHelper.userXAddsUsersToTeam(
                 "user1Name",
                 "user2Name",
@@ -127,7 +131,6 @@ class SearchTests : BaseUiTest() {
 
         step("And User user1Name is me") {
             teamOwner = clientUserManager.findUserByNameOrNameAlias("user1Name")
-            member1 = clientUserManager.findUserByNameOrNameAlias("user2Name")
             clientUserManager.setSelfUser(teamOwner)
         }
 
@@ -163,6 +166,7 @@ class SearchTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "Search", backendClient)
         }
 
         step("And User user1Name adds user user2Name to team Search with role Member") {
@@ -263,6 +267,7 @@ class SearchTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "AddGroup", backendClient)
         }
 
         step("And User user1Name adds users user2Name,user3Name,user4Name to team AddGroup with role Member") {
@@ -277,12 +282,21 @@ class SearchTests : BaseUiTest() {
             )
         }
 
+        step("And MLS devices are registered for all participants") {
+            testServiceHelper.apply {
+                addDevice("user1Name", null, "Device1")
+                addDevice("user2Name", null, "Device1")
+                addDevice("user3Name", null, "Device1")
+                addDevice("user4Name", null, "Device1")
+            }
+        }
+
         step("And User user1Name has group conversation MyTeam with user2Name,user3Name,user4Name in team AddGroup") {
-            backendSetupHelper.userHasGroupConversationInTeam(
-                "user1Name",
-                "MyTeam",
-                "user2Name,user3Name,user4Name",
-                "AddGroup"
+            testServiceHelper.userCreatesMLSGroupConversation(
+                ownerAlias = "user1Name",
+                participantAliases = "user2Name,user3Name,user4Name",
+                conversationName = "MyTeam",
+                deviceName = "Device1"
             )
         }
 
@@ -350,6 +364,7 @@ class SearchTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "Searchers", backendClient)
         }
 
         step("And User user1Name adds users user3Name to team Searchers with role Member") {
@@ -373,6 +388,7 @@ class SearchTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user2Name", "SearchEnabled", backendClient)
         }
 
         step("And User user3Name is me") {
@@ -437,6 +453,7 @@ class SearchTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "Searchers", backendClient)
         }
 
         step("And User user1Name adds users user3Name to team Searchers with role Member") {
@@ -460,6 +477,7 @@ class SearchTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user2Name", "SearchDisabled", backendClient)
         }
 
         step("And User user3Name is me") {
@@ -537,6 +555,7 @@ class SearchTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "Searchers", backendClient)
         }
 
         step("And User user1Name adds users user3Name to team Searchers with role Member") {
@@ -560,6 +579,7 @@ class SearchTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user2Name", "ToSearch", backendClient)
         }
 
         step("And User user3Name is me") {
@@ -627,6 +647,7 @@ class SearchTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "Searchers", backendClient)
         }
 
         step("And User user1Name adds users user2Name to team Searchers with role Member") {
@@ -714,6 +735,7 @@ class SearchTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "Searchers", backendClient)
             teamOwner = clientUserManager.findUserByNameOrNameAlias("user1Name")
         }
 
@@ -806,7 +828,12 @@ class SearchTests : BaseUiTest() {
         }
 
         step("And I wait until I am fully logged in and decline share data alert") {
-            pages.registrationPage.waitUntilConversationPageVisibleDismissingPostLoginPrompts()
+            pages.registrationPage.apply {
+                waitUntilLoginFlowIsCompleted()
+                clickAllowNotificationButton()
+                clickDeclineShareDataAlert()
+                assertConversationPageVisible()
+            }
         }
     }
 }

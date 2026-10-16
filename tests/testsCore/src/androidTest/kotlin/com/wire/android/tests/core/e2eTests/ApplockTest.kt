@@ -60,6 +60,7 @@ class ApplockTest : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "AppLock", backendClient)
             backendSetupHelper.userXAddsUsersToTeam(
                 "user1Name",
                 "user2Name,user3Name,user4Name,user5Name",
@@ -191,6 +192,7 @@ class ApplockTest : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "AppLockInvalidPassphrase", backendClient)
 
             backendSetupHelper.userXAddsUsersToTeam(
                 "user1Name",
@@ -354,6 +356,7 @@ class ApplockTest : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", teamName, backendClient)
             teamOwner = clientUserManager.findUserBy("user1Name", ClientUserManager.FindBy.NAME_ALIAS)
         }
 
@@ -441,6 +444,7 @@ class ApplockTest : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "AppLockEnforced", backendClient)
 
             backendSetupHelper.userXAddsUsersToTeam(
                 "user1Name",

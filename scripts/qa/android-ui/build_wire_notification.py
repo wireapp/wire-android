@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build the Wire notification body for critical flow workflow runs."""
+"""Build the Wire notification body for Critical Flow and F-Droid runs."""
 
 from __future__ import annotations
 

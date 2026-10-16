@@ -57,6 +57,7 @@ class CallingTests : BaseCallUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "WeLikeCalls", backendClient)
             teamOwner = clientUserManager.findUserBy(
                 "user1Name",
                 ClientUserManager.FindBy.NAME_ALIAS
@@ -96,6 +97,7 @@ class CallingTests : BaseCallUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "WeLikeCalls", backendClient)
             teamOwner = clientUserManager.findUserBy(
                 "user1Name",
                 ClientUserManager.FindBy.NAME_ALIAS
@@ -105,12 +107,20 @@ class CallingTests : BaseCallUiTest() {
         andTeamOwnerAddsMembersToTeam()
         andTeamOwnerEnablesConferenceCallingFeature()
 
-        step("And TeamOwner has group conversation GroupCall with Member1 and Member2") {
-            backendSetupHelper.userHasGroupConversationInTeam(
-                "user1Name",
-                "GroupCall",
-                "user2Name,user3Name",
-                "WeLikeCalls"
+        step("And MLS devices are registered for all participants") {
+            testServiceHelper.apply {
+                addDevice("user1Name", null, "Device1")
+                addDevice("user2Name", null, "Device1")
+                addDevice("user3Name", null, "Device1")
+            }
+        }
+
+        step("And TeamOwner has MLS group conversation GroupCall with Member1 and Member2") {
+            testServiceHelper.userCreatesMLSGroupConversation(
+                ownerAlias = "user1Name",
+                participantAliases = "user2Name,user3Name",
+                conversationName = "GroupCall",
+                deviceName = "Device1"
             )
         }
     }
@@ -176,7 +186,7 @@ class CallingTests : BaseCallUiTest() {
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
     @TestCaseId("TC-4258", "TC-4268")
-    @Category("regression", "calling", "RC", "smoke", "smokeSchwarz", "TEMP")
+    @Category("regression", "calling", "RC", "fdroid", "TEMP")
     @Test
     fun givenMemberCallsMeInForeground_whenIAccept_thenOneOnOneCallIsEstablished() {
         givenTeamOwnerMemberAndOneOnOneConversationArePrepared()
@@ -345,7 +355,7 @@ class CallingTests : BaseCallUiTest() {
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
     @TestCaseId("TC-4261")
-    @Category("regression", "calling", "smoke", "TEMP")
+    @Category("regression", "calling", "fdroid", "TEMP")
     @Test
     fun givenMemberCallsMeWithAppInBackground_whenIAccept_thenOneOnOneCallIsEstablished() {
         givenTeamOwnerMemberAndOneOnOneConversationArePrepared()
@@ -607,7 +617,7 @@ class CallingTests : BaseCallUiTest() {
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
     @TestCaseId("TC-4263")
-    @Category("regression", "RC", "calling", "groupCalling", "smoke", "smokeSchwarz", "smokeSTACKIT")
+    @Category("regression", "RC", "calling", "groupCalling", "fdroid")
     @Test
     fun givenAppIsInForeground_whenIAcceptIncomingGroupCall_thenGroupCallIsEstablished() {
         givenTeamOwnerMembersAndGroupConversationArePrepared()
@@ -799,7 +809,7 @@ class CallingTests : BaseCallUiTest() {
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
     @TestCaseId("TC-4266")
-    @Category("regression", "calling", "groupCalling", "smoke")
+    @Category("regression", "calling", "groupCalling", "fdroid")
     @Test
     fun givenAppIsInBackground_whenIAcceptIncomingGroupCall_thenGroupCallIsEstablished() {
         givenTeamOwnerMembersAndGroupConversationArePrepared()
@@ -972,7 +982,7 @@ class CallingTests : BaseCallUiTest() {
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
     @TestCaseId("TC-4265")
-    @Category("regression", "RC", "calling", "groupCalling", "smoke", "smokeSchwarz")
+    @Category("regression", "RC", "calling", "groupCalling", "fdroid")
     @Test
     fun givenIAmInGroupCall_whenIEnableVideo_thenGroupVideoIsVisible() {
         givenTeamOwnerMembersAndGroupConversationArePrepared()

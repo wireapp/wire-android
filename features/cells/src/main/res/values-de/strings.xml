@@ -62,6 +62,8 @@
     <string name="error_create_public_link">Öffentlicher Link kann nicht erstellt werden.</string>
     <string name="cell_files_download_failure_message">Download fehlgeschlagen.</string>
     <string name="no_space_left_error">Nicht genügend Speicherplatz, um die Datei herunterzuladen.</string>
+    <string name="cells_upload_preparation_failed">Ausgewählten Dateien nicht hochladen.</string>
+    <string name="cells_upload_preparation_partially_failed">Einige Dateien nicht hochgeladen.</string>
     <string name="download_file_message">Diese Datei wurde noch nicht heruntergeladen. Jetzt herunterladen?</string>
     <string name="download">Herunterladen</string>
     <string name="downloading_file_message">Datei wird heruntergeladen…</string>

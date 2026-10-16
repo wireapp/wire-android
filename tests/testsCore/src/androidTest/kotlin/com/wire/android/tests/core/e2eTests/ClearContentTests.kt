@@ -43,7 +43,7 @@ class ClearContentTests : BaseUiTest() {
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
     @TestCaseId("TC-4271", "TC-4272")
-    @Category("regression", "RC", "groups", "clearContent", "smoke", "smokeSchwarz")
+    @Category("regression", "RC", "groups", "clearContent", "fdroid")
     @Test
     fun givenGroupConversation_whenIClearContentViaGroupDetailsAndConversationList_thenContentIsCleared() {
         step("Given There is a team owner user1Name with team Clearing") {
@@ -55,6 +55,7 @@ class ClearContentTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "Clearing", backendClient)
         }
 
         step("And User user1Name adds users user2Name,user3Name to team Clearing with role Member") {
@@ -73,20 +74,21 @@ class ClearContentTests : BaseUiTest() {
             teamOwner = clientUserManager.findUserByNameOrNameAlias("user1Name")
         }
 
-        step("And User user1Name has group conversation ClearContent with user2Name,user3Name in team Clearing") {
-            backendSetupHelper.userHasGroupConversationInTeam(
-                "user1Name",
-                "ClearContent",
-                "user2Name,user3Name",
-                "Clearing"
-            )
-        }
-
-        step("And User user2Name and user3Name have devices for sending messages") {
+        step("And MLS devices are registered for all participants") {
             testServiceHelper.apply {
+                addDevice("user1Name", null, "Device1")
                 addDevice("user2Name", null, "Device1")
                 addDevice("user3Name", null, "Device2")
             }
+        }
+
+        step("And User user1Name has group conversation ClearContent with user2Name,user3Name in team Clearing") {
+            testServiceHelper.userCreatesMLSGroupConversation(
+                ownerAlias = "user1Name",
+                participantAliases = "user2Name,user3Name",
+                conversationName = "ClearContent",
+                deviceName = "Device1"
+            )
         }
 
         step("And I see email verification Welcome Page") {
@@ -213,6 +215,10 @@ class ClearContentTests : BaseUiTest() {
             }
         }
 
+        step("And I wait until the notification popup disappears") {
+            pages.notificationsPage.waitUntilNotificationPopUpGone()
+        }
+
         step("And I close the conversation view through the back arrow") {
             pages.conversationViewPage.tapBackButtonToCloseConversationViewPage()
         }
@@ -260,6 +266,7 @@ class ClearContentTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "Clearing", backendClient)
         }
 
         step("And User user1Name adds users user2Name,user3Name to team Clearing with role Member") {
@@ -278,20 +285,21 @@ class ClearContentTests : BaseUiTest() {
             teamOwner = clientUserManager.findUserByNameOrNameAlias("user1Name")
         }
 
-        step("And User user1Name has group conversation ClearContent with user2Name,user3Name in team Clearing") {
-            backendSetupHelper.userHasGroupConversationInTeam(
-                "user1Name",
-                "ClearContent",
-                "user2Name,user3Name",
-                "Clearing"
-            )
-        }
-
-        step("And User user2Name and user3Name have devices for sending messages") {
+        step("And MLS devices are registered for all participants") {
             testServiceHelper.apply {
+                addDevice("user1Name", null, "Device1")
                 addDevice("user2Name", null, "Device1")
                 addDevice("user3Name", null, "Device2")
             }
+        }
+
+        step("And User user1Name has group conversation ClearContent with user2Name,user3Name in team Clearing") {
+            testServiceHelper.userCreatesMLSGroupConversation(
+                ownerAlias = "user1Name",
+                participantAliases = "user2Name,user3Name",
+                conversationName = "ClearContent",
+                deviceName = "Device1"
+            )
         }
 
         step("And I see email verification Welcome Page") {
@@ -438,6 +446,7 @@ class ClearContentTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "Clearing", backendClient)
         }
 
         step("And User user1Name adds users user2Name,user3Name to team Clearing with role Member") {
@@ -456,20 +465,21 @@ class ClearContentTests : BaseUiTest() {
             member1 = clientUserManager.findUserByNameOrNameAlias("user2Name")
         }
 
-        step("And User user1Name has group conversation ClearContent with user2Name,user3Name in team Clearing") {
-            backendSetupHelper.userHasGroupConversationInTeam(
-                "user1Name",
-                "ClearContent",
-                "user2Name,user3Name",
-                "Clearing"
-            )
-        }
-
-        step("And User user1Name and user3Name have devices for sending messages") {
+        step("And MLS devices are registered for all participants") {
             testServiceHelper.apply {
                 addDevice("user1Name", null, "Device1")
+                addDevice("user2Name", null, "Device1")
                 addDevice("user3Name", null, "Device2")
             }
+        }
+
+        step("And User user1Name has group conversation ClearContent with user2Name,user3Name in team Clearing") {
+            testServiceHelper.userCreatesMLSGroupConversation(
+                ownerAlias = "user1Name",
+                participantAliases = "user2Name,user3Name",
+                conversationName = "ClearContent",
+                deviceName = "Device1"
+            )
         }
 
         step("And I see email verification Welcome Page") {
@@ -536,10 +546,11 @@ class ClearContentTests : BaseUiTest() {
         }
 
         step("When User user1Name removes user user2Name from group conversation ClearContent") {
-            backendSetupHelper.userRemovesUserFromGroupConversation(
-                "user1Name",
-                "user2Name",
-                "ClearContent"
+            testServiceHelper.userRemovesUserFromGroupConversation(
+                userWhoRemovesAlias = "user1Name",
+                userToRemoveAlias = "user2Name",
+                chatName = "ClearContent",
+                deviceName = "Device1"
             )
         }
 
@@ -602,6 +613,7 @@ class ClearContentTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "Clearing", backendClient)
         }
 
         step("And User user1Name adds users user2Name,user3Name to team Clearing with role Member") {
@@ -620,20 +632,21 @@ class ClearContentTests : BaseUiTest() {
             teamOwner = clientUserManager.findUserByNameOrNameAlias("user1Name")
         }
 
-        step("And User user1Name has group conversation ClearContent with user2Name,user3Name in team Clearing") {
-            backendSetupHelper.userHasGroupConversationInTeam(
-                "user1Name",
-                "ClearContent",
-                "user2Name,user3Name",
-                "Clearing"
-            )
-        }
-
-        step("And User user2Name and user3Name have devices for sending messages and assets") {
+        step("And MLS devices are registered for all participants") {
             testServiceHelper.apply {
+                addDevice("user1Name", null, "Device1")
                 addDevice("user2Name", null, "Device1")
                 addDevice("user3Name", null, "Device2")
             }
+        }
+
+        step("And User user1Name has group conversation ClearContent with user2Name,user3Name in team Clearing") {
+            testServiceHelper.userCreatesMLSGroupConversation(
+                ownerAlias = "user1Name",
+                participantAliases = "user2Name,user3Name",
+                conversationName = "ClearContent",
+                deviceName = "Device1"
+            )
         }
 
         step("And I see email verification Welcome Page") {

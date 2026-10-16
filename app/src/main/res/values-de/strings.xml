@@ -1214,12 +1214,12 @@ Bei Gruppenunterhaltungen kann der Gruppen-Admin diese Einstellung überschreibe
     <string name="unblock_user_dialog_confirm_button">Freigeben</string>
     <!--max account reached dialog-->
     <plurals name="max_account_reached_dialog_title">
-        <item quantity="one">ein aktives Konto</item>
+        <item quantity="one">Ein aktives Konto</item>
         <item quantity="other">%1$d aktive Konten</item>
     </plurals>
     <plurals name="max_account_reached_dialog_message">
-        <item quantity="one">Sie können nur mit einem Konto angemeldet sein. Melden Sie sich von einem Konto ab, um ein anderes hinzuzufügen.</item>
-        <item quantity="other">Sie können nur mit %1$d Konten gleichzeitig angemeldet sein. Melden Sie sich von einem ab, um ein anderes hinzuzufügen.</item>
+        <item quantity="one">Sie können nur mit einem Benutzerkonto angemeldet sein. Melden Sie sich von diesem Konto ab, um ein anderes hinzuzufügen.</item>
+        <item quantity="other">Sie können nur mit %1$d Benutzerkonten gleichzeitig angemeldet sein. Melden Sie sich von einem ab, um ein anderes hinzuzufügen.</item>
     </plurals>
     <string name="max_account_reached_dialog_button_open_profile">Profil öffnen</string>
     <string name="cant_switch_account_in_call">Sie können während eines Anrufs nicht das Konto wechseln</string>

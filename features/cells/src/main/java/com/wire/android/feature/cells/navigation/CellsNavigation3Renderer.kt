@@ -12,7 +12,6 @@
 
 package com.wire.android.feature.cells.navigation
 
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -23,7 +22,6 @@ import androidx.compose.runtime.setValue
 import com.wire.android.audioplayer.AudioPlayer
 import com.wire.android.feature.cells.ui.CellsFilesNavigation
 import com.wire.android.feature.cells.ui.ConversationFilesRouteScreen
-import com.wire.android.feature.cells.ui.ConversationFilesSlideRouteScreen
 import com.wire.android.feature.cells.ui.addRemoveTagsViewModel
 import com.wire.android.feature.cells.ui.cellViewModel
 import com.wire.android.feature.cells.ui.create.file.CreateFileRouteScreen
@@ -57,6 +55,7 @@ import com.wire.android.pdfviewer.PdfDocumentSource
 import com.wire.android.pdfviewer.PdfViewer
 import com.wire.android.navigation.navigation3.WireNavigation3ResultType
 import com.wire.android.navigation.navigation3.WireNavigation3Runtime
+import com.wire.android.navigation.transition.currentNavAnimatedContentScope
 import com.wire.android.videoplayer.VideoPlayer
 import com.wire.navigation.WireBackStackMode
 import com.wire.navigation.WireNavResult
@@ -90,42 +89,22 @@ internal fun CellsNavigation3RouteScreen(
     }
 
     when (route) {
-        is ConversationFilesRoute -> {
-            val viewModel = cellViewModel(route.args.toScreenArgs())
-            ConsumeNavigation3Result(
-                runtime = runtime,
-                requestIdValue = booleanRequestIdValue,
-                resultType = CellsBooleanNavigation3ResultType,
-                onConsumed = { booleanRequestIdValue = null },
-                onResult = { if (it.value) viewModel.onNodeCreated() },
-            )
-            AnimatedVisibility(visible = true) {
-                ConversationFilesRouteScreen(
-                    navigation = filesNavigation,
-                    animatedVisibilityScope = this,
-                    viewModel = viewModel,
-                )
-            }
-        }
+        // Root and sub folders share the screen; only the entry transition differs.
+        is ConversationFilesRoute -> ConversationFilesEntry(
+            args = route.args,
+            runtime = runtime,
+            navigation = filesNavigation,
+            createRequestIdValue = booleanRequestIdValue,
+            onCreateRequestConsumed = { booleanRequestIdValue = null },
+        )
 
-        is ConversationFilesSlideRoute -> {
-            val viewModel = cellViewModel(route.args.toScreenArgs())
-            ConsumeNavigation3Result(
-                runtime = runtime,
-                requestIdValue = booleanRequestIdValue,
-                resultType = CellsBooleanNavigation3ResultType,
-                onConsumed = { booleanRequestIdValue = null },
-                onResult = { if (it.value) viewModel.onNodeCreated() },
-            )
-            AnimatedVisibility(visible = true) {
-                ConversationFilesSlideRouteScreen(
-                    navigation = filesNavigation,
-                    cellFilesNavArgs = route.args.toScreenArgs(),
-                    animatedVisibilityScope = this,
-                    viewModel = viewModel,
-                )
-            }
-        }
+        is ConversationFilesSlideRoute -> ConversationFilesEntry(
+            args = route.args,
+            runtime = runtime,
+            navigation = filesNavigation,
+            createRequestIdValue = booleanRequestIdValue,
+            onCreateRequestConsumed = { booleanRequestIdValue = null },
+        )
 
         is RecycleBinRoute -> RecycleBinRouteScreen(
             navigation = filesNavigation,
@@ -293,15 +272,36 @@ internal fun CellsNavigation3RouteScreen(
             ),
             onNavigateBack = navigateBack,
         )
-        is SearchRoute -> AnimatedVisibility(visible = true) {
-            SearchRouteScreen(
-                navigation = filesNavigation,
-                animatedVisibilityScope = this,
-                cellViewModel = searchCellViewModel(route.toScreenArgs()),
-                searchScreenViewModel = searchScreenViewModel(route.toScreenArgs()),
-            )
-        }
+        is SearchRoute -> SearchRouteScreen(
+            navigation = filesNavigation,
+            animatedVisibilityScope = currentNavAnimatedContentScope,
+            cellViewModel = searchCellViewModel(route.toScreenArgs()),
+            searchScreenViewModel = searchScreenViewModel(route.toScreenArgs()),
+        )
     }
+}
+
+@Composable
+private fun ConversationFilesEntry(
+    args: CellsFilesArguments,
+    runtime: WireNavigation3Runtime,
+    navigation: CellsFilesNavigation,
+    createRequestIdValue: String?,
+    onCreateRequestConsumed: () -> Unit,
+) {
+    val viewModel = cellViewModel(args.toScreenArgs())
+    ConsumeNavigation3Result(
+        runtime = runtime,
+        requestIdValue = createRequestIdValue,
+        resultType = CellsBooleanNavigation3ResultType,
+        onConsumed = onCreateRequestConsumed,
+        onResult = { if (it.value) viewModel.onNodeCreated() },
+    )
+    ConversationFilesRouteScreen(
+        navigation = navigation,
+        animatedVisibilityScope = currentNavAnimatedContentScope,
+        viewModel = viewModel,
+    )
 }
 
 private class Navigation3CellsFilesNavigation(

@@ -1,10 +1,11 @@
 name: QA Android Regression Tests
 run-name: ${{ inputs.runMode == 'Deflake failed tests' && format('QA Android Regression Tests - Manual Deflake from {0}', inputs.sourceRunId || 'latest completed run') || 'QA Android Regression Tests' }}
 
-# Lock each configured device group independently. Groups must be disjoint, so
-# criticalFlow, e2eTests, GrapheneOS, and future pools can run concurrently.
+# Lock each device group across callers. Execution jobs also share the office
+# runner lock so builds and physical tests cannot compete with four emulators.
 concurrency:
   group: qa-android-ui-tests-office-${{ inputs.androidDeviceGroup || 'e2eTests' }}
+  queue: max
   cancel-in-progress: false
 
 on:
@@ -63,14 +64,19 @@ on:
         description: "Report directory under gh-pages/docs."
         type: string
         required: true
+      jobTimeoutMinutes:
+        description: "Maximum execution-job duration, including setup, tests, retries, and reporting."
+        type: number
+        default: 150
+      emulatorPool:
+        description: "Manage the four pre-provisioned critical-flow emulators; upgrade tests are excluded."
+        type: boolean
+        default: false
       requiredDeviceGroup:
         description: Optional device-group restriction for the calling suite.
         type: string
         default: ""
 
-  # Uncomment merge_group when the team is ready to enable automatic merge queue runs.
-  # merge_group:
-  #   types: [checks_requested]
   schedule:
     - cron: "0 13 * * *"
       timezone: "Europe/Berlin"
@@ -178,7 +184,7 @@ jobs:
       sourceHeadSha: ${{ steps.validate_source_run.outputs.sourceHeadSha }}
       sourceHeadBranch: ${{ steps.validate_source_run.outputs.sourceHeadBranch }}
       resolvedAppBuildNumber: ${{ steps.resolve_run_inputs.outputs.appBuildNumber }}
-      resolvedIsUpgrade: ${{ steps.resolve_run_inputs.outputs.isUpgrade == 'true' || steps.resolve_selector.outputs.category == 'upgrade' }}
+      resolvedIsUpgrade: ${{ !inputs.emulatorPool && (steps.resolve_run_inputs.outputs.isUpgrade == 'true' || steps.resolve_selector.outputs.category == 'upgrade') }}
       resolvedOldBuildNumber: ${{ steps.resolve_run_inputs.outputs.oldBuildNumber }}
       resolvedFlavor: ${{ steps.resolve_run_inputs.outputs.flavor }}
       resolvedTags: ${{ steps.resolve_run_inputs.outputs.TAGS }}
@@ -322,6 +328,14 @@ jobs:
           TAGS_RAW: ${{ steps.resolve_run_inputs.outputs.TAGS }}
         run: make qa-ui-validate cmd=resolve-selector-from-tags
 
+      - name: Validate emulator suite inputs
+        if: inputs.emulatorPool && steps.validate_run_mode.outputs.runMode == 'normal'
+        env:
+          IS_UPGRADE: ${{ steps.resolve_run_inputs.outputs.isUpgrade }}
+          RESOLVED_CATEGORY: ${{ steps.resolve_selector.outputs.category }}
+          TARGET_DEVICE_GROUP: ${{ steps.resolve_run_inputs.outputs.androidDeviceGroup }}
+        run: make qa-ui-validate cmd=validate-emulator-inputs
+
       # Print resolved values for traceability in workflow logs.
       - name: Print resolved values
         if: steps.validate_run_mode.outputs.runMode == 'normal'
@@ -342,6 +356,11 @@ jobs:
     # rule limited to the default branch. Move the workflow secrets into it so a
     # modified workflow on another ref cannot bypass this trust boundary.
     environment: android-e2e
+    timeout-minutes: ${{ inputs.jobTimeoutMinutes || 150 }}
+    concurrency:
+      group: qa-android-ui-tests-office-runner
+      queue: max
+      cancel-in-progress: false
     runs-on:
       - self-hosted
       - Linux
@@ -356,6 +375,7 @@ jobs:
     env:
       FLAVORS_CONFIG_PATH: "/etc/android-qa/flavors.json"
       DEVICE_GROUPS_JSON: ${{ vars.ANDROID_DEVICE_GROUPS_JSON }}
+      EXCLUDE_CATEGORY: ${{ inputs.emulatorPool && 'upgrade' || '' }}
 
     defaults:
       run:
@@ -421,24 +441,6 @@ jobs:
           S3_FOLDER: ${{ steps.resolve_flavor.outputs.s3Folder }}
         run: make qa-ui-setup cmd=download-apks
 
-      # Select device(s): use input device when provided, otherwise auto-pick.
-      - name: Detect target device(s)
-        env:
-          TARGET_DEVICE_ID: ${{ needs.validate-and-resolve-inputs.outputs.resolvedAndroidDeviceId }}
-          TARGET_DEVICE_GROUP: ${{ needs.validate-and-resolve-inputs.outputs.resolvedAndroidDeviceGroup }}
-          RESOLVED_TESTCASE_ID: ${{ needs.validate-and-resolve-inputs.outputs.resolvedTestCaseId }}
-        run: make qa-ui-setup cmd=detect-target-devices
-
-      # Clear stale device-side Allure files early so setup failures cannot publish old reports.
-      - name: Clear stale Allure results on device(s)
-        run: make qa-ui-setup cmd=clear-allure-results-on-devices
-
-      # Install app/test prerequisites on each selected device.
-      - name: Install APK(s) on device(s)
-        env:
-          IS_UPGRADE: ${{ needs.validate-and-resolve-inputs.outputs.resolvedIsUpgrade }}
-        run: make qa-ui-setup cmd=install-apks-on-devices
-
       - name: Install 1Password CLI
         uses: 1password/install-cli-action@1a3160d5e9de1ae0803eaa08a88746f5ae3daa50 # v4
 
@@ -463,6 +465,33 @@ jobs:
       # Resolve AndroidX Test Services APKs required for TestStorage/Allure.
       - name: Resolve AndroidX Test Services APKs (for Allure TestStorage)
         run: make qa-ui-setup cmd=resolve-test-services-apks
+
+      - name: Stop Gradle daemons before emulator startup
+        if: inputs.emulatorPool
+        run: ./gradlew --stop
+
+      - name: Start and wait for four emulators
+        if: inputs.emulatorPool
+        timeout-minutes: 15
+        run: python3 scripts/qa/android-ui/emulator_pool.py start
+
+      # Select device(s): use input device when provided, otherwise auto-pick.
+      - name: Detect target device(s)
+        env:
+          TARGET_DEVICE_ID: ${{ needs.validate-and-resolve-inputs.outputs.resolvedAndroidDeviceId }}
+          TARGET_DEVICE_GROUP: ${{ needs.validate-and-resolve-inputs.outputs.resolvedAndroidDeviceGroup }}
+          RESOLVED_TESTCASE_ID: ${{ needs.validate-and-resolve-inputs.outputs.resolvedTestCaseId }}
+        run: make qa-ui-setup cmd=detect-target-devices
+
+      # Clear stale device-side Allure files early so setup failures cannot publish old reports.
+      - name: Clear stale Allure results on device(s)
+        run: make qa-ui-setup cmd=clear-allure-results-on-devices
+
+      # Install app/test prerequisites on each selected device.
+      - name: Install APK(s) on device(s)
+        env:
+          IS_UPGRADE: ${{ needs.validate-and-resolve-inputs.outputs.resolvedIsUpgrade }}
+        run: make qa-ui-setup cmd=install-apks-on-devices
 
       # Run attempt 0, pull results immediately, then rerun only the still-failing tests.
       - name: Run UI tests (auto-rerun failed tests)
@@ -581,9 +610,16 @@ jobs:
       # Fallback pull: keep this as a safety net in case per-attempt pull was interrupted.
       - name: Pull Allure results from device(s) (fallback)
         if: always()
+        timeout-minutes: 2
         env:
           OUT_DIR: ${{ runner.temp }}/allure-results
         run: make qa-ui-report cmd=pull-allure-results
+
+      - name: Collect emulator diagnostics and check for ANRs or crashes
+        id: emulator_diagnostics
+        if: always() && inputs.emulatorPool
+        timeout-minutes: 4
+        run: python3 scripts/qa/android-ui/emulator_pool.py collect
 
       # Merge all attempts into one final dataset and stamp passed_on_rerun=true where needed.
       - name: Merge Allure results (add device label)
@@ -595,6 +631,29 @@ jobs:
           NEW_APK_NAME: ${{ env.NEW_APK_NAME }}
           INPUT_TAGS: ${{ needs.validate-and-resolve-inputs.outputs.resolvedTags }}
         run: make qa-ui-report cmd=merge-allure-results
+
+      - name: Remove app and test packages from emulators
+        if: always() && inputs.emulatorPool
+        timeout-minutes: 2
+        run: make qa-ui-report cmd=cleanup-devices
+
+      - name: Stop job-owned emulators
+        if: always() && inputs.emulatorPool
+        timeout-minutes: 2
+        run: python3 scripts/qa/android-ui/emulator_pool.py stop
+
+      - name: Upload emulator diagnostic logs
+        if: always() && inputs.emulatorPool && env.EMULATOR_DIAGNOSTICS_DIR != ''
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: android-emulator-critical-flow-diagnostics
+          retention-days: 14
+          path: |
+            ${{ env.EMULATOR_DIAGNOSTICS_DIR }}/**/*.txt
+            ${{ env.EMULATOR_DIAGNOSTICS_DIR }}/**/*.log
+            ${{ env.EMULATOR_DIAGNOSTICS_DIR }}/**/anr/**
+            ${{ runner.temp }}/instrumentation-logs/*.log
+          if-no-files-found: warn
 
       # Generate static Allure HTML from merged results.
       - name: Generate Allure HTML report
@@ -650,6 +709,7 @@ jobs:
           TESTS_SKIPPED: ${{ steps.summarize_allure_results.outputs.skipped }}
           TESTS_TOTAL: ${{ steps.summarize_allure_results.outputs.total }}
           TESTS_SUCCESS_PERCENT: ${{ steps.summarize_allure_results.outputs.success_percent }}
+          EMULATOR_CHECK_FAILED: ${{ steps.emulator_diagnostics.outcome == 'failure' }}
           JOB_STATUS: ${{ job.status }}
         run: python3 scripts/qa/android-ui/build_wire_notification.py
 
@@ -664,7 +724,9 @@ jobs:
       # Clean temporary artifacts on the runner, even after failures.
       - name: Cleanup (remove secrets + build outputs)
         if: always()
+        timeout-minutes: 3
         env:
+          SKIP_DEVICE_CLEANUP: ${{ inputs.emulatorPool }}
           ALLURE_RESULTS_DIR: ${{ runner.temp }}/allure-results
           ALLURE_RESULTS_MERGED_DIR: ${{ runner.temp }}/allure-results-merged
           ALLURE_REPORT_DIR: ${{ runner.temp }}/allure-report
@@ -684,6 +746,11 @@ jobs:
     # rule limited to the default branch. Move the workflow secrets into it so a
     # modified workflow on another ref cannot bypass this trust boundary.
     environment: android-e2e
+    timeout-minutes: ${{ inputs.jobTimeoutMinutes || 150 }}
+    concurrency:
+      group: qa-android-ui-tests-office-runner
+      queue: max
+      cancel-in-progress: false
     runs-on:
       - self-hosted
       - Linux
@@ -698,6 +765,7 @@ jobs:
     env:
       FLAVORS_CONFIG_PATH: "/etc/android-qa/flavors.json"
       DEVICE_GROUPS_JSON: ${{ vars.ANDROID_DEVICE_GROUPS_JSON }}
+      EXCLUDE_CATEGORY: ${{ inputs.emulatorPool && 'upgrade' || '' }}
 
     defaults:
       run:
@@ -746,6 +814,7 @@ jobs:
         id: validate_deflake_input
         env:
           DEFLAKE_BUNDLE_ROOT: ${{ runner.temp }}/deflake-input
+          EXCLUDE_UPGRADE_TESTS: ${{ inputs.emulatorPool }}
           TEST_SERVICE_URL_OVERRIDE: ${{ inputs.testServiceUrl }}
           EXPECTED_SOURCE_REPOSITORY: ${{ needs.validate-and-resolve-inputs.outputs.sourceRepository }}
           EXPECTED_SOURCE_RUN_ID: ${{ needs.validate-and-resolve-inputs.outputs.sourceRunId }}
@@ -813,23 +882,6 @@ jobs:
           S3_FOLDER: ${{ steps.resolve_flavor.outputs.s3Folder }}
         run: make qa-ui-setup cmd=download-apks
 
-      # Keep device selection and app installation identical to the selected run
-      # contract so deflake executes against the same kind of target setup.
-      - name: Detect target device(s)
-        env:
-          TARGET_DEVICE_ID: ${{ steps.validate_deflake_input.outputs.androidDeviceId }}
-          TARGET_DEVICE_GROUP: ${{ inputs.androidDeviceGroup }}
-          RESOLVED_TESTCASE_ID: ${{ steps.validate_deflake_input.outputs.selectorType == 'testCaseId' && steps.validate_deflake_input.outputs.selectorValue || '' }}
-        run: make qa-ui-setup cmd=detect-target-devices
-
-      - name: Clear stale Allure results on device(s)
-        run: make qa-ui-setup cmd=clear-allure-results-on-devices
-
-      - name: Install APK(s) on device(s)
-        env:
-          IS_UPGRADE: ${{ steps.validate_deflake_input.outputs.isUpgrade }}
-        run: make qa-ui-setup cmd=install-apks-on-devices
-
       - name: Install 1Password CLI
         uses: 1password/install-cli-action@1a3160d5e9de1ae0803eaa08a88746f5ae3daa50 # v4
 
@@ -850,6 +902,32 @@ jobs:
 
       - name: Resolve AndroidX Test Services APKs (for Allure TestStorage)
         run: make qa-ui-setup cmd=resolve-test-services-apks
+
+      - name: Stop Gradle daemons before emulator startup
+        if: inputs.emulatorPool
+        run: ./gradlew --stop
+
+      - name: Start and wait for four emulators
+        if: inputs.emulatorPool
+        timeout-minutes: 15
+        run: python3 scripts/qa/android-ui/emulator_pool.py start
+
+      # Keep device selection and app installation identical to the selected run
+      # contract so deflake executes against the same kind of target setup.
+      - name: Detect target device(s)
+        env:
+          TARGET_DEVICE_ID: ${{ steps.validate_deflake_input.outputs.androidDeviceId }}
+          TARGET_DEVICE_GROUP: ${{ inputs.androidDeviceGroup }}
+          RESOLVED_TESTCASE_ID: ${{ steps.validate_deflake_input.outputs.selectorType == 'testCaseId' && steps.validate_deflake_input.outputs.selectorValue || '' }}
+        run: make qa-ui-setup cmd=detect-target-devices
+
+      - name: Clear stale Allure results on device(s)
+        run: make qa-ui-setup cmd=clear-allure-results-on-devices
+
+      - name: Install APK(s) on device(s)
+        env:
+          IS_UPGRADE: ${{ steps.validate_deflake_input.outputs.isUpgrade }}
+        run: make qa-ui-setup cmd=install-apks-on-devices
 
       # Start execution from the downloaded failed-tests.txt list, then let the
       # existing rerun logic handle any failures that remain in this run.
@@ -958,9 +1036,16 @@ jobs:
 
       - name: Pull Allure results from device(s) (fallback)
         if: always()
+        timeout-minutes: 2
         env:
           OUT_DIR: ${{ runner.temp }}/allure-results
         run: make qa-ui-report cmd=pull-allure-results
+
+      - name: Collect emulator diagnostics and check for ANRs or crashes
+        id: emulator_diagnostics
+        if: always() && inputs.emulatorPool
+        timeout-minutes: 4
+        run: python3 scripts/qa/android-ui/emulator_pool.py collect
 
       # Publish a fresh Allure report for this manual deflake run only. The
       # report does not merge results back into the selected previous run.
@@ -974,6 +1059,29 @@ jobs:
           NEW_APK_NAME: ${{ env.NEW_APK_NAME }}
           INPUT_TAGS: ${{ steps.validate_deflake_input.outputs.tags }}
         run: make qa-ui-report cmd=merge-allure-results
+
+      - name: Remove app and test packages from emulators
+        if: always() && inputs.emulatorPool
+        timeout-minutes: 2
+        run: make qa-ui-report cmd=cleanup-devices
+
+      - name: Stop job-owned emulators
+        if: always() && inputs.emulatorPool
+        timeout-minutes: 2
+        run: python3 scripts/qa/android-ui/emulator_pool.py stop
+
+      - name: Upload emulator diagnostic logs
+        if: always() && inputs.emulatorPool && env.EMULATOR_DIAGNOSTICS_DIR != ''
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: android-emulator-critical-flow-diagnostics
+          retention-days: 14
+          path: |
+            ${{ env.EMULATOR_DIAGNOSTICS_DIR }}/**/*.txt
+            ${{ env.EMULATOR_DIAGNOSTICS_DIR }}/**/*.log
+            ${{ env.EMULATOR_DIAGNOSTICS_DIR }}/**/anr/**
+            ${{ runner.temp }}/instrumentation-logs/*.log
+          if-no-files-found: warn
 
       - name: Generate Allure HTML report
         if: always()
@@ -1031,6 +1139,7 @@ jobs:
           TESTS_SKIPPED: ${{ steps.summarize_allure_results.outputs.skipped }}
           TESTS_TOTAL: ${{ steps.summarize_allure_results.outputs.total }}
           TESTS_SUCCESS_PERCENT: ${{ steps.summarize_allure_results.outputs.success_percent }}
+          EMULATOR_CHECK_FAILED: ${{ steps.emulator_diagnostics.outcome == 'failure' }}
           JOB_STATUS: ${{ job.status }}
         run: python3 scripts/qa/android-ui/build_wire_notification.py
 
@@ -1044,7 +1153,9 @@ jobs:
 
       - name: Cleanup (remove secrets + build outputs)
         if: always()
+        timeout-minutes: 3
         env:
+          SKIP_DEVICE_CLEANUP: ${{ inputs.emulatorPool }}
           ALLURE_RESULTS_DIR: ${{ runner.temp }}/allure-results
           ALLURE_RESULTS_MERGED_DIR: ${{ runner.temp }}/allure-results-merged
           ALLURE_REPORT_DIR: ${{ runner.temp }}/allure-report

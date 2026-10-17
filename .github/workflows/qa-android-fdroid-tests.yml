@@ -101,6 +101,7 @@ jobs:
       sourceWorkflowFile: .github/workflows/qa-android-fdroid-tests.yml
       reportTitle: android fdroid tests
       reportDirectory: qa-fdroid-tests
+      jobTimeoutMinutes: 40
       requiredDeviceGroup: GrapheneOS
       runMode: ${{ inputs.runMode || 'Normal tests' }}
       sourceRunId: ${{ inputs.sourceRunId || '' }}

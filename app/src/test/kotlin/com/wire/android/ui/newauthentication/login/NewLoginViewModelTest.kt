@@ -1365,6 +1365,82 @@ class NewLoginViewModelTest {
         }
 
     @Test
+    fun `given managed SSO code config provided, when initializing view model without prefilled user, then user identifier is read-only`() =
+        runTest(dispatchers.main()) {
+            val (_, viewModel) = Arrangement()
+                .withEmptyUserIdentifierAndNoPreFilledIdentifier()
+                .withDefaultSSOCodeConfig("fd994b20-b9af-11ec-ae36-00163e9b33ca")
+                .arrange()
+
+            assertEquals(true, viewModel.state.isUserIdentifierReadOnly)
+        }
+
+    @Test
+    fun `given managed SSO code config provided, when initializing with prefilled user, then user identifier is editable`() =
+        runTest(dispatchers.main()) {
+            val (_, viewModel) = Arrangement()
+                .withPreFilledUserIdentifier("prefilled@user.com")
+                .withDefaultSSOCodeConfig("fd994b20-b9af-11ec-ae36-00163e9b33ca")
+                .arrange()
+
+            assertEquals(false, viewModel.state.isUserIdentifierReadOnly)
+        }
+
+    @Test
+    fun `given managed SSO code config provided, when initializing with custom server deep link, then user identifier is editable`() =
+        runTest(dispatchers.main()) {
+            val (_, viewModel) = Arrangement()
+                .withEmptyUserIdentifierAndNoPreFilledIdentifier()
+                .withCustomServerConfigDeepLink()
+                .withDefaultSSOCodeConfig("fd994b20-b9af-11ec-ae36-00163e9b33ca")
+                .arrange()
+
+            assertEquals(false, viewModel.state.isUserIdentifierReadOnly)
+        }
+
+    @Test
+    fun `given empty managed SSO code config, when initializing view model, then user identifier is editable`() =
+        runTest(dispatchers.main()) {
+            val (_, viewModel) = Arrangement()
+                .withEmptyUserIdentifierAndNoPreFilledIdentifier()
+                .withDefaultSSOCodeConfig("")
+                .arrange()
+
+            assertEquals(false, viewModel.state.isUserIdentifierReadOnly)
+        }
+
+    @Test
+    fun `given managed SSO code applied, when navigation pre-fills user identifier, then user identifier becomes editable`() =
+        runTest(dispatchers.main()) {
+            val (_, viewModel) = Arrangement()
+                .withEmptyUserIdentifierAndNoPreFilledIdentifier()
+                .withDefaultSSOCodeConfig("fd994b20-b9af-11ec-ae36-00163e9b33ca")
+                .arrange()
+
+            viewModel.onNavigationArgumentsChanged(
+                LoginNavArgs(userHandle = PreFilledUserIdentifierType.PreFilled(email))
+            )
+
+            assertEquals(email, viewModel.userIdentifierTextState.text.toString())
+            assertEquals(false, viewModel.state.isUserIdentifierReadOnly)
+        }
+
+    @Test
+    fun `given managed SSO code applied, when navigation changes backend, then user identifier becomes editable`() =
+        runTest(dispatchers.main()) {
+            val (_, viewModel) = Arrangement()
+                .withEmptyUserIdentifierAndNoPreFilledIdentifier()
+                .withDefaultSSOCodeConfig("fd994b20-b9af-11ec-ae36-00163e9b33ca")
+                .arrange()
+
+            viewModel.onNavigationArgumentsChanged(
+                LoginNavArgs(loginPasswordPath = LoginPasswordPath(newServerConfig(2).links))
+            )
+
+            assertEquals(false, viewModel.state.isUserIdentifierReadOnly)
+        }
+
+    @Test
     fun `when onDismissDialog is called, then reset state to default`() =
         runTest(dispatchers.main()) {
             val (arrangement, viewModel) = Arrangement()

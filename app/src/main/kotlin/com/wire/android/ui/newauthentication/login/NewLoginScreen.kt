@@ -225,7 +225,7 @@ private fun LoginContent(
 
                         else -> null
                     }
-                    EmailOrSSOCodeInput(userIdentifierState, error)
+                    EmailOrSSOCodeInput(userIdentifierState, error, loginEmailSSOState.isUserIdentifierReadOnly)
                     VerticalSpace.x8()
                     LoginNextButton(
                         loading = loginEmailSSOState.flowState is NewLoginFlowState.Loading,
@@ -263,11 +263,13 @@ private fun LoginNextButton(
 @Composable
 private fun EmailOrSSOCodeInput(
     userIdentifierState: TextFieldState,
-    error: String?
+    error: String?,
+    readOnly: Boolean,
 ) {
     WireTextField(
         autoFillType = WireAutoFillType.Login,
         textState = userIdentifierState,
+        readOnly = readOnly,
         placeholderText = stringResource(R.string.enterprise_login_user_identifier_label_placeholder),
         labelText = stringResource(R.string.enterprise_login_user_identifier_label),
         state = when {
@@ -308,6 +310,25 @@ fun PreviewNewLoginScreenCustomConfig() = WireTheme {
             LoginContent(
                 loginEmailSSOState = NewLoginScreenState(),
                 userIdentifierState = TextFieldState(),
+                serverConfig = ServerConfig.DEFAULT.copy(isOnPremises = true),
+                onNextClicked = {},
+                onBackendConfigLinkEntered = {},
+                onBackendConfigSuccessContinue = {},
+                canNavigateBack = false,
+                navigateBack = {},
+            )
+        }
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewNewLoginScreenReadOnlySSOCode() = WireTheme {
+    EdgeToEdgePreview(useDarkIcons = false) {
+        WireAuthBackgroundLayout {
+            LoginContent(
+                loginEmailSSOState = NewLoginScreenState(isUserIdentifierReadOnly = true, nextEnabled = true),
+                userIdentifierState = TextFieldState("wire-fd994b20-b9af-11ec-ae36-00163e9b33ca"),
                 serverConfig = ServerConfig.DEFAULT.copy(isOnPremises = true),
                 onNextClicked = {},
                 onBackendConfigLinkEntered = {},

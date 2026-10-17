@@ -27,8 +27,10 @@ import backendUtils.user.deleteUser
 import backendUtils.user.removeBackendClients
 import com.wire.android.tests.core.di.testModule
 import com.wire.android.tests.core.pages.AllPages
+import com.wire.android.tests.support.UiAutomatorSetup
 import com.wire.android.tests.support.suite.AllureFailureScreenshotRule
 import com.wire.android.tests.support.suite.AllureLabelsRule
+import com.wire.android.tests.support.tags.Category
 import com.wire.android.tests.support.testiny.TestinySyncRule
 import io.qameta.allure.kotlin.Allure
 import org.junit.Rule
@@ -63,10 +65,13 @@ abstract class BaseUiTest : KoinTest {
 
     // RuleChain order: failure screenshots run first, then this rule performs cleanup.
     private val failureScreenshotRule = AllureFailureScreenshotRule()
-    private val commonCleanupRule = TestRule { base, _: Description ->
+    private val commonLifecycleRule = TestRule { base, description: Description ->
         object : Statement() {
             override fun evaluate() {
                 try {
+                    if (description.getAnnotation(Category::class.java)?.value?.contains("upgrade") == true) {
+                        UiAutomatorSetup.installOldWireApkIfProvided()
+                    }
                     base.evaluate()
                 } finally {
                     tearDownAfterAllureScreenshot()
@@ -78,7 +83,7 @@ abstract class BaseUiTest : KoinTest {
     // Screenshots must run before backend cleanup changes the app state.
     @get:Rule
     val failureScreenshotAndCleanupRule: RuleChain = RuleChain
-        .outerRule(commonCleanupRule)
+        .outerRule(commonLifecycleRule)
         .around(failureScreenshotRule)
 
     // Report each finished test to Testiny.

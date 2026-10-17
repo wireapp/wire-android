@@ -171,9 +171,10 @@ validate_explicit_attempt_coverage() {
   for serial in "${devices[@]}"; do
     cat "$(rerun_list_file_for_device "${attempt}" "${serial}")" >> "${expected_file}"
   done
-  sort -u "${expected_file}" -o "${expected_file}"
+  # Match the Python-extracted test IDs regardless of the runner's locale.
+  LC_ALL=C sort -u "${expected_file}" -o "${expected_file}"
 
-  comm -3 "${expected_file}" "${executed_file}" > "${difference_file}"
+  LC_ALL=C comm -3 "${expected_file}" "${executed_file}" > "${difference_file}"
   if [[ -s "${difference_file}" ]]; then
     echo "ERROR: Attempt ${attempt} Allure results do not match the explicitly assigned test IDs."
     echo "Coverage difference: ${difference_file}"
@@ -548,6 +549,7 @@ run_attempt_on_devices() {
 
       if [[ "${IS_UPGRADE:-}" == "true" ]]; then
         args+=(-e newApkPath "${NEW_APK_DEVICE_PATH}")
+        args+=(-e oldApkPath "${OLD_APK_DEVICE_PATH:-/data/local/tmp/Wire.old.apk}")
       fi
 
       local log_file="${LOG_DIR}/attempt-${attempt}-instrument-${serial}.log"
@@ -749,7 +751,7 @@ if [[ -n "${GITHUB_ENV:-}" ]]; then
   } >> "${GITHUB_ENV}"
 fi
 
-if [[ -n "${GITHUB_STEP_SUMMARY:-}" ]]; then
+if [[ -n "${GITHUB_STEP_SUMMARY:-}" && -z "${NORMALIZED_INITIAL_FAILED_TESTS_FILE}" ]]; then
   {
     echo "### UI Test Retry Summary"
     echo "- rerun enabled: ${RERUN_FAILED_ENABLED}"

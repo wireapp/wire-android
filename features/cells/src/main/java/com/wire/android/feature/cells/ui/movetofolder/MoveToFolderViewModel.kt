@@ -24,6 +24,7 @@ import com.wire.android.ui.common.ActionsViewModel
 import com.wire.kalium.cells.domain.model.NodeLocator
 import com.wire.kalium.cells.domain.usecase.GetFoldersUseCase
 import com.wire.kalium.cells.domain.usecase.MoveNodesUseCase
+import com.wire.kalium.common.error.NetworkFailure
 import com.wire.kalium.common.functional.onFailure
 import com.wire.kalium.common.functional.onSuccess
 import dev.zacsweers.metro.Assisted
@@ -115,9 +116,17 @@ class MoveToFolderViewModel @AssistedInject constructor(
                     )
                 )
             }
-            .onFailure {
-                updateState { copy(screenState = MoveToFolderScreenState.ERROR) }
-                sendAction(MoveToFolderViewAction.Failure(totalCount = nodesToMove.size))
+            .onFailure { failure ->
+                // Kept in the state, not sent as an action, so the error dialog survives configuration changes.
+                updateState {
+                    copy(
+                        screenState = MoveToFolderScreenState.ERROR,
+                        moveFailure = MoveFailure(
+                            totalCount = nodesToMove.size,
+                            isNoNetworkConnection = failure is NetworkFailure.NoNetworkConnection,
+                        ),
+                    )
+                }
             }
     }
 
@@ -162,14 +171,21 @@ data class MoveToFolderViewState(
     val breadcrumbs: List<String> = emptyList(),
     val isAllowedToMoveToCurrentPath: Boolean = false,
     val isInRootFolder: Boolean = false,
+    val moveFailure: MoveFailure? = null,
+)
+
+/**
+ * The move of [totalCount] nodes failed. Without rollback, some of them may still have been moved.
+ * @param isNoNetworkConnection the device was offline, as opposed to a server side error.
+ */
+data class MoveFailure(
+    val totalCount: Int,
+    val isNoNetworkConnection: Boolean,
 )
 
 sealed interface MoveToFolderViewAction {
     /** @param destinationFolderName null when moved into the conversation root, which has no folder name. */
     data class Success(val movedCount: Int, val destinationFolderName: String?) : MoveToFolderViewAction
-
-    /** The move of [totalCount] nodes failed; without rollback, some of them may still have been moved. */
-    data class Failure(val totalCount: Int) : MoveToFolderViewAction
     data class NavigateToBreadcrumb(val steps: Int) : MoveToFolderViewAction
     data class OpenCreateFolderScreen(val currentPath: String) : MoveToFolderViewAction
     data class OpenFolder(

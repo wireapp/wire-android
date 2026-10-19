@@ -24,6 +24,7 @@ import com.wire.kalium.cells.domain.model.NodeLocator
 import com.wire.kalium.cells.domain.usecase.GetFoldersUseCase
 import com.wire.kalium.cells.domain.usecase.MoveNodesUseCase
 import com.wire.kalium.common.error.CoreFailure
+import com.wire.kalium.common.error.NetworkFailure
 import com.wire.kalium.common.functional.Either
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
@@ -111,16 +112,30 @@ class MoveToFolderViewModelTest {
     }
 
     @Test
-    fun `given moveNodesUseCase failure, when moveToFolder is called, then send failure action`() = runTest {
+    fun `given moveNodesUseCase failure, when moveToFolder is called, then expose the move failure`() = runTest {
         val (_, viewModel) = Arrangement()
             .withGetFoldersUseCaseReturning(Either.Right(listOf()))
             .withMoveNodesUseCaseReturning(Either.Left(CoreFailure.InvalidEventSenderID))
             .arrange()
 
-        viewModel.actions.test {
-            viewModel.onMoveToFolderClick()
-            assertEquals(MoveToFolderViewAction.Failure(totalCount = 1), awaitItem())
-        }
+        viewModel.onMoveToFolderClick()
+        advanceUntilIdle()
+
+        assertEquals(MoveFailure(totalCount = 1, isNoNetworkConnection = false), viewModel.state.value.moveFailure)
+        assertFalse(viewModel.isMoving())
+    }
+
+    @Test
+    fun `given no network connection, when moveToFolder fails, then expose it as a no network move failure`() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withGetFoldersUseCaseReturning(Either.Right(listOf()))
+            .withMoveNodesUseCaseReturning(Either.Left(NetworkFailure.NoNetworkConnection(null)))
+            .arrange()
+
+        viewModel.onMoveToFolderClick()
+        advanceUntilIdle()
+
+        assertEquals(MoveFailure(totalCount = 1, isNoNetworkConnection = true), viewModel.state.value.moveFailure)
     }
 
     @Test
@@ -256,19 +271,18 @@ class MoveToFolderViewModelTest {
     }
 
     @Test
-    fun `given several nodes, when the move fails, then send failure and still report the folders as changed`() = runTest {
+    fun `given several nodes, when the move fails, then expose the failure and still report the folders as changed`() = runTest {
         val (arrangement, viewModel) = Arrangement(bulkNodes())
             .withGetFoldersUseCaseReturning(Either.Right(listOf()))
             .withMoveNodesUseCaseReturning(Either.Left(CoreFailure.InvalidEventSenderID))
             .arrange()
 
         arrangement.nodeMoveEvents.changedFolderPaths.test {
-            viewModel.actions.test {
-                viewModel.onMoveToFolderClick()
-                assertEquals(MoveToFolderViewAction.Failure(totalCount = 3), awaitItem())
-            }
+            viewModel.onMoveToFolderClick()
             assertEquals(setOf("$CURRENT_PATH/parent", CURRENT_PATH), awaitItem())
         }
+        advanceUntilIdle()
+        assertEquals(MoveFailure(totalCount = 3, isNoNetworkConnection = false), viewModel.state.value.moveFailure)
     }
 
     @Test

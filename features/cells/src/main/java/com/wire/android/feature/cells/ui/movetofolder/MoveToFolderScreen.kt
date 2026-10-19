@@ -52,6 +52,9 @@ import com.wire.android.feature.cells.ui.common.Breadcrumbs
 import com.wire.android.feature.cells.ui.common.LoadingScreen
 import com.wire.android.model.ClickBlockParams
 import com.wire.android.ui.common.HandleActions
+import com.wire.android.ui.common.WireDialog
+import com.wire.android.ui.common.WireDialogButtonProperties
+import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.button.WireSecondaryButton
@@ -134,15 +137,15 @@ internal fun MoveToFolderRouteScreen(
         }
     }
 
+    viewState.moveFailure?.let { failure ->
+        // Folder lists were already refreshed by the ViewModel, so closing the flow shows the actual result.
+        MoveFailureDialog(failure = failure, onDismiss = onCloseFlow)
+    }
+
     HandleActions(moveToFolderViewModel.actions) { action ->
         when (action) {
             is MoveToFolderViewAction.Success -> {
                 Toast.makeText(context, context.moveSuccessMessage(action.movedCount, action.destinationFolderName), Toast.LENGTH_SHORT).show()
-                onCloseFlow()
-            }
-
-            is MoveToFolderViewAction.Failure -> {
-                Toast.makeText(context, context.moveFailureMessage(action.totalCount), Toast.LENGTH_LONG).show()
                 onCloseFlow()
             }
 
@@ -168,8 +171,32 @@ private fun Context.moveSuccessMessage(movedCount: Int, folderName: String?): St
     else -> resources.getQuantityString(R.plurals.cells_items_move_success_to_folder, movedCount, movedCount, folderName)
 }
 
-private fun Context.moveFailureMessage(totalCount: Int): String =
-    getString(if (totalCount == 1) R.string.item_move_failure else R.string.cells_items_move_failure)
+@Composable
+private fun MoveFailureDialog(
+    failure: MoveFailure,
+    onDismiss: () -> Unit,
+) {
+    val isSingleItem = failure.totalCount == 1
+    WireDialog(
+        title = stringResource(
+            if (isSingleItem) R.string.cells_move_failure_dialog_title_one else R.string.cells_move_failure_dialog_title_many
+        ),
+        text = stringResource(
+            when {
+                isSingleItem && failure.isNoNetworkConnection -> R.string.cells_move_failure_dialog_message_one_no_network
+                isSingleItem -> R.string.cells_move_failure_dialog_message_one
+                failure.isNoNetworkConnection -> R.string.cells_move_failure_dialog_message_many_no_network
+                else -> R.string.cells_move_failure_dialog_message_many
+            }
+        ),
+        onDismiss = onDismiss,
+        optionButton1Properties = WireDialogButtonProperties(
+            onClick = onDismiss,
+            text = stringResource(R.string.ok_label),
+            type = WireDialogButtonType.Primary,
+        ),
+    )
+}
 
 @Composable
 private fun TopScreenBar(

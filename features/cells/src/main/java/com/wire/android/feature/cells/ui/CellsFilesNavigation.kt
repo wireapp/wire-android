@@ -7,6 +7,7 @@ package com.wire.android.feature.cells.ui
 
 import com.wire.android.feature.cells.ui.create.file.FileType
 import com.wire.android.feature.cells.ui.model.CellNodeUi
+import com.wire.android.feature.cells.ui.movetofolder.NodeToMove
 import com.wire.android.feature.cells.ui.publiclink.PublicLinkScreenData
 import com.wire.android.feature.cells.ui.search.sort.SortCriteriaNavArg
 
@@ -19,7 +20,8 @@ internal interface CellsFilesNavigation {
     fun search(conversationId: String, sortCriteria: SortCriteriaNavArg? = null)
     fun folder(args: CellFilesNavArgs)
     fun publicLink(data: PublicLinkScreenData)
-    fun move(currentPath: String, nodePath: String, uuid: String)
+    fun move(currentPath: String, nodePath: String, uuid: String) = moveNodes(currentPath, listOf(NodeToMove(uuid, nodePath)))
+    fun moveNodes(currentPath: String, nodes: List<NodeToMove>)
     fun rename(node: CellNodeUi)
     fun tags(node: CellNodeUi)
     fun versionHistory(uuid: String, fileName: String)
@@ -38,7 +40,7 @@ internal object NoOpCellsFilesNavigation : CellsFilesNavigation {
     override fun search(conversationId: String, sortCriteria: SortCriteriaNavArg?) = Unit
     override fun folder(args: CellFilesNavArgs) = Unit
     override fun publicLink(data: PublicLinkScreenData) = Unit
-    override fun move(currentPath: String, nodePath: String, uuid: String) = Unit
+    override fun moveNodes(currentPath: String, nodes: List<NodeToMove>) = Unit
     override fun rename(node: CellNodeUi) = Unit
     override fun tags(node: CellNodeUi) = Unit
     override fun versionHistory(uuid: String, fileName: String) = Unit

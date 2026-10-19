@@ -18,6 +18,7 @@
 package com.wire.android.feature.cells.ui
 
 import com.wire.android.feature.cells.ui.model.CellNodeUi
+import com.wire.android.feature.cells.ui.movetofolder.NodeToMove
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -74,4 +75,8 @@ internal class CellBulkSelection(
     }
 
     fun clear() = _selectedNodes.update { emptyMap() }
+
+    /** The selected nodes as move targets, [folderPath] being the folder they are all listed in. */
+    fun toNodesToMove(folderPath: String): List<NodeToMove> =
+        _selectedNodes.value.values.map { node -> NodeToMove(uuid = node.uuid, path = "$folderPath/${node.name}") }
 }

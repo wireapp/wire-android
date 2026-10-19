@@ -37,6 +37,7 @@ import com.wire.android.feature.cells.ui.model.canOpenWithUrl
 import com.wire.android.feature.cells.ui.model.pdfRenditionUrl
 import com.wire.android.feature.cells.ui.model.localFileAvailable
 import com.wire.android.feature.cells.ui.model.toUiModel
+import com.wire.android.feature.cells.ui.movetofolder.CellNodeMoveEvents
 import com.wire.android.feature.cells.ui.search.DriveSearchScreenType
 import com.wire.android.feature.cells.ui.upload.DriveUploadFilePreparer
 import com.wire.android.feature.cells.ui.search.SearchNavArgs
@@ -128,6 +129,7 @@ class CellViewModel @AssistedInject constructor(
     private val qualifiedIdMapper: QualifiedIdMapper,
     private val uploadFilePreparer: DriveUploadFilePreparer,
     private val uploadCoordinator: CellUploadCoordinator,
+    private val nodeMoveEvents: CellNodeMoveEvents,
     /** When disabled, all offline-files UI (save actions, offline banner, offline browsing) is hidden. */
     @Named("offlineFilesEnabled") val offlineFilesEnabled: Boolean,
     @Named("inAppImageViewerEnabled") private val inAppImageViewerEnabled: Boolean,
@@ -234,6 +236,7 @@ class CellViewModel @AssistedInject constructor(
         checkCellAvailabilityAndRefresh()
         checkViewerAccess()
         refreshOnUploadsCompletedInThisFolder()
+        refreshOnNodesMovedFromOrIntoThisFolder()
     }
 
     /**
@@ -252,6 +255,13 @@ class CellViewModel @AssistedInject constructor(
                 val hasNewlyCompleted = completedHere.count { refreshedIds.add(it.id) } > 0
                 if (hasNewlyCompleted) refreshNodes()
             }
+        }
+    }
+
+    private fun refreshOnNodesMovedFromOrIntoThisFolder() {
+        val folderPath = currentNodeUuid()?.trim('/') ?: return
+        viewModelScope.launch {
+            nodeMoveEvents.changedFolderPaths.collect { paths -> if (paths.any { it.trim('/') == folderPath }) refreshNodes() }
         }
     }
 
@@ -399,7 +409,7 @@ class CellViewModel @AssistedInject constructor(
 
             is CellViewIntent.OnItemLongClick -> bulkSelection.onLongClick(intent.cellNode)
             is CellViewIntent.OnClearSelection -> bulkSelection.clear()
-            is CellViewIntent.OnMoveSelectedNodesClick,
+            is CellViewIntent.OnMoveSelectedNodesClick -> moveSelectedNodes()
             is CellViewIntent.OnDeleteSelectedNodesClick,
             is CellViewIntent.OnMakeSelectedNodesAvailableOfflineClick -> Unit
 
@@ -468,6 +478,14 @@ class CellViewModel @AssistedInject constructor(
     internal fun cancelUploadConfirmation() {
         _uploadConfirmation.value = null
         pendingUploadUris = emptyList()
+    }
+
+    private fun moveSelectedNodes() {
+        val folderPath = currentNodeUuid() ?: return
+        val nodes = bulkSelection.toNodesToMove(folderPath)
+        // Selection mode ends as the destination picker opens; the moved nodes leave this folder anyway.
+        bulkSelection.clear()
+        sendAction(ShowBulkMoveToFolderScreen(currentPath = folderPath.substringBefore("/"), nodes = nodes))
     }
 
     internal fun currentNodeUuid(): String? = navArgs.conversationId

@@ -127,6 +127,16 @@
     <string name="no_subfolders_message">There are no subfolders in this folder.</string>
     <string name="item_move_success">Item was moved to folder.</string>
     <string name="item_move_failure">Unable to move the item.</string>
+    <plurals name="cells_items_move_success">
+        <item quantity="one">%1$d item was moved to folder.</item>
+        <item quantity="other">%1$d items were moved to folder.</item>
+    </plurals>
+    <string name="cells_item_move_success_to_folder">Item was moved to \"%1$s\".</string>
+    <plurals name="cells_items_move_success_to_folder">
+        <item quantity="one">%1$d item was moved to \"%2$s\".</item>
+        <item quantity="other">%1$d items were moved to \"%2$s\".</item>
+    </plurals>
+    <string name="cells_items_move_failure">Unable to move all the items. Some of them may have been moved.</string>
     <string name="content_description_conversation_files_more_button">Open files options</string>
     <string name="recycle_bin">Recycle Bin</string>
     <string name="open_recycle_bin">Open Recycle Bin</string>

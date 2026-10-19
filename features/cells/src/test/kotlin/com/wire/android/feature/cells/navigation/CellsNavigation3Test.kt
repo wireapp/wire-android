@@ -11,6 +11,7 @@
 package com.wire.android.feature.cells.navigation
 
 import com.wire.android.feature.cells.ui.CellFilesNavArgs
+import com.wire.android.feature.cells.ui.movetofolder.NodeToMove
 import com.wire.android.feature.cells.ui.search.DriveSearchScreenType
 import com.wire.android.feature.cells.ui.search.sort.SortCriteriaNavArg
 import com.wire.navigation.WireSessionId
@@ -31,7 +32,7 @@ class CellsNavigation3Test {
             RecycleBinRoute(sessionId, CellsFilesArguments(isRecycleBin = true)),
             CreateFolderRoute(sessionId, null),
             CreateFileRoute(sessionId, "parent", CellsFileType.DOCUMENT),
-            MoveToFolderRoute(sessionId, "current", "node", "uuid"),
+            MoveToFolderRoute(sessionId, "current", listOf(NodeToMove("uuid", "node"))),
             PublicLinkRoute(sessionId, "asset", "name", null, false),
             PublicLinkExpirationRoute(sessionId, "link", null),
             PublicLinkPasswordRoute(sessionId, "link", false),

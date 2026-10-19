@@ -32,6 +32,7 @@ import com.wire.android.feature.cells.ui.model.pdfRenditionUrl
 import com.wire.android.feature.cells.ui.model.NodeBottomSheetAction
 import com.wire.android.feature.cells.ui.model.OpenLoadState
 import com.wire.android.feature.cells.ui.model.toUiModel
+import com.wire.android.feature.cells.ui.movetofolder.CellNodeMoveEvents
 import com.wire.android.feature.cells.ui.search.DriveSearchScreenType
 import com.wire.android.feature.cells.ui.search.SearchNavArgs
 import com.wire.android.feature.cells.ui.search.sort.SortCriteriaNavArg
@@ -957,6 +958,7 @@ class CellViewModelTest {
         lateinit var fileHelper: FileHelper
 
         val sharedPathCache = CellFileLocalPathCache()
+        val nodeMoveEvents = CellNodeMoveEvents()
 
         @MockK
         lateinit var getEditorUrlUseCase: GetEditorUrlUseCase
@@ -1164,6 +1166,7 @@ class CellViewModelTest {
                 qualifiedIdMapper = qualifiedIdMapper,
                 uploadFilePreparer = uploadFilePreparer,
                 uploadCoordinator = uploadCoordinator,
+                nodeMoveEvents = nodeMoveEvents,
                 offlineFilesEnabled = true,
                 inAppImageViewerEnabled = inAppImageViewerEnabled,
                 drivePermissionsEnabled = true,

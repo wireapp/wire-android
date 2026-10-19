@@ -1280,10 +1280,11 @@ internal fun com.wire.android.feature.cells.ui.upload.uploadStatusTitle(uploads:
     - uploads: RUNTIME (requires runtime check)
 
 @Composable
-internal fun com.wire.android.feature.cells.ui.uploadStatusViewModel(): com.wire.android.feature.cells.ui.upload.UploadStatusViewModel
+internal fun com.wire.android.feature.cells.ui.uploadStatusViewModel(conversationId: kotlin.String?): com.wire.android.feature.cells.ui.upload.UploadStatusViewModel
   skippable: true
   restartable: true
   params:
+    - conversationId: STABLE (class with no mutable properties)
 
 @Composable
 internal fun com.wire.android.feature.cells.ui.versionHistoryViewModel(navArgs: com.wire.android.feature.cells.ui.versioning.VersionHistoryNavArgs): com.wire.android.feature.cells.ui.versioning.VersionHistoryViewModel

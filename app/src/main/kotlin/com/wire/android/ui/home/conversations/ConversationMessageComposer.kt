@@ -42,7 +42,7 @@ import com.wire.kalium.logic.data.user.UserId
 import kotlinx.collections.immutable.PersistentMap
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
-import kotlinx.datetime.Instant
+import kotlin.time.Instant
 
 @Suppress("LongParameterList")
 @Composable

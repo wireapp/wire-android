@@ -19,7 +19,7 @@
 package com.wire.android.util
 
 import android.app.Application
-import kotlinx.datetime.Instant
+import kotlin.time.Instant
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Before

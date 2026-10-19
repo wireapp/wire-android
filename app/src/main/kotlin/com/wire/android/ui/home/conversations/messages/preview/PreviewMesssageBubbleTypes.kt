@@ -50,7 +50,7 @@ import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.asset.AssetTransferStatus
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.message.linkpreview.MessageLinkPreview
-import kotlinx.datetime.Instant
+import kotlin.time.Instant
 import kotlin.time.DurationUnit
 import kotlin.time.toDuration
 

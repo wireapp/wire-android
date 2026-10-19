@@ -87,7 +87,7 @@ lint-compose = "1.4.3"
 openIdAppAuth = "0.11.1"
 
 # Other Tools
-aboutLibraries = "14.2.1"
+aboutLibraries = "15.2.0"
 cyclonedx = "3.1.0"
 leakCanary = "2.14"
 ksp = "2.3.11"

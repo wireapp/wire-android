@@ -117,7 +117,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
-import kotlinx.datetime.Instant
+import kotlin.time.Instant
 import kotlin.time.Duration.Companion.milliseconds
 import com.wire.android.ui.common.R as commonR
 import com.wire.android.pdfviewer.PdfDocumentSource

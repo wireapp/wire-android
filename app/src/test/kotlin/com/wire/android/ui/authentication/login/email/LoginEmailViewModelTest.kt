@@ -350,7 +350,7 @@ class LoginEmailViewModelTest {
         val email = "some.email@example.org"
         val (arrangement, loginViewModel) = Arrangement()
             .withLoginReturning(AuthenticationResult.Failure.InvalidCredentials.Missing2FA)
-            .withRequestSecondFactorVerificationCodeReturning(RequestSecondFactorVerificationCodeUseCase.Result.Failure.TooManyRequests)
+            .withRequestSecondFactorVerificationCodeReturning(RequestSecondFactorVerificationCodeUseCase.Result.Failure.TooManyRequests())
             .arrange()
 
         loginViewModel.userIdentifierTextState.setTextAndPlaceCursorAtEnd(email)

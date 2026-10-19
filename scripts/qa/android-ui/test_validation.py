@@ -42,16 +42,12 @@ class ValidationTest(unittest.TestCase):
         self.assertIn("only valid", result.stdout)
         self.assertEqual("", outputs)
 
-    def test_deflake_accepts_both_retry_options(self) -> None:
-        for setting in ("Use original run settings", "Use settings entered below"):
-            with self.subTest(setting=setting):
-                result, outputs = self.validate(
-                    RUN_MODE="Deflake failed tests",
-                    SOURCE_RUN_ID=" 12345 ",
-                    DEFLAKE_RETRY_SETTINGS=setting,
-                )
-                self.assertEqual(0, result.returncode, result.stdout)
-                self.assertEqual("runMode=deflake\n", outputs)
+    def test_deflake_accepts_source_id_with_surrounding_whitespace(self) -> None:
+        result, outputs = self.validate(
+            RUN_MODE="Deflake failed tests", SOURCE_RUN_ID=" 12345 "
+        )
+        self.assertEqual(0, result.returncode, result.stdout)
+        self.assertEqual("runMode=deflake\n", outputs)
 
     def test_deflake_rejects_missing_or_invalid_source_id(self) -> None:
         for source_id in ("", "abc", "123\n456"):

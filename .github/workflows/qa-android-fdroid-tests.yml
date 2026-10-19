@@ -24,19 +24,10 @@ on:
         type: string
 
       testServiceUrl:
-        description: "Test Service HTTP(S) origin. Empty uses TEST_SERVICE_URL for normal runs or the source run URL for deflake."
+        description: "Test Service URL. Leave empty to use the default test service."
         required: false
         default: ""
         type: string
-
-      deflakeRetrySettings:
-        description: "Deflake only: inherit retries or use the retry checkbox and count below."
-        required: true
-        default: "Use original run settings"
-        type: choice
-        options:
-          - Use original run settings
-          - Use settings entered below
 
       appBuildNumber:
         description: "Normal runs only: 'latest' or build number (e.g. 71389). Deflake reuses the source build."
@@ -51,7 +42,7 @@ on:
         type: boolean
 
       oldBuildNumber:
-        description: "Normal upgrade runs only: optional old build number. Empty auto-picks the previous APK."
+        description: "Old build number (optional). Upgrade tests use the previous build unless specified."
         required: false
         default: ""
         type: string
@@ -65,7 +56,7 @@ on:
         default: fdroid
 
       TAGS:
-        description: "Normal runs: defaults to '@fdroid'. Replace with another tag or test ID, e.g. '@regression' or '@TC-8143'. Deflake reruns only source failures."
+        description: "Defaults to '@fdroid'. Enter another tag or test ID, e.g. '@regression' or '@TC-8143'."
         required: false
         default: "@fdroid"
         type: string
@@ -77,7 +68,7 @@ on:
         type: string
 
       androidDeviceId:
-        description: "Normal runs only: target one device from the group. Deflake reuses the source selection."
+        description: "Device ID (optional). Enter a device serial to run on one device instead of the whole group."
         required: false
         default: ""
         type: string
@@ -90,16 +81,10 @@ on:
         options:
           - GrapheneOS
 
-      rerunFailedEnabled:
-        description: "Automatically retry failed tests. For deflake, applies only with 'Use settings entered below'."
-        required: true
-        default: true
-        type: boolean
-
       rerunFailedCount:
-        description: "Additional retries after the first execution (0-3). Deflake uses this only with 'Use settings entered below'."
-        required: true
-        default: "1"
+        description: "Retry count (0–3). Leave blank to use the default. Normal runs: 1 retry · Deflake: 0 retries."
+        required: false
+        default: ""
         type: string
 
 permissions:
@@ -107,7 +92,7 @@ permissions:
 
 jobs:
   run-tests:
-    uses: ./.github/workflows/qa-android-critical-flow-tests.yml
+    uses: ./.github/workflows/qa-android-regression-tests.yml
     permissions:
       contents: write
       actions: read
@@ -116,11 +101,11 @@ jobs:
       sourceWorkflowFile: .github/workflows/qa-android-fdroid-tests.yml
       reportTitle: android fdroid tests
       reportDirectory: qa-fdroid-tests
+      jobTimeoutMinutes: 40
       requiredDeviceGroup: GrapheneOS
       runMode: ${{ inputs.runMode || 'Normal tests' }}
       sourceRunId: ${{ inputs.sourceRunId || '' }}
       testServiceUrl: ${{ inputs.testServiceUrl || '' }}
-      deflakeRetrySettings: ${{ inputs.deflakeRetrySettings || 'Use original run settings' }}
       appBuildNumber: ${{ inputs.appBuildNumber || 'latest' }}
       isUpgrade: ${{ inputs.isUpgrade || false }}
       oldBuildNumber: ${{ inputs.oldBuildNumber || '' }}
@@ -129,6 +114,5 @@ jobs:
       testinyRunName: ${{ inputs.testinyRunName || '' }}
       androidDeviceId: ${{ inputs.androidDeviceId || '' }}
       androidDeviceGroup: GrapheneOS
-      rerunFailedEnabled: ${{ github.event_name == 'schedule' || inputs.rerunFailedEnabled }}
-      rerunFailedCount: ${{ inputs.rerunFailedCount || '1' }}
+      rerunFailedCount: ${{ inputs.rerunFailedCount || '' }}
     secrets: inherit

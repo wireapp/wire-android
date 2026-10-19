@@ -58,7 +58,7 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
-import kotlinx.datetime.Instant
+import kotlin.time.Instant
 import okio.Path.Companion.toPath
 import com.wire.android.assertions.shouldBeEqualTo
 import com.wire.android.ui.home.conversations.messages.item.withOfflineIndicator

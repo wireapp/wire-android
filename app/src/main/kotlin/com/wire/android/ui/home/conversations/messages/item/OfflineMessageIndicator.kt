@@ -31,7 +31,7 @@ import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.id.ConversationId
-import kotlinx.datetime.Clock
+import kotlin.time.Clock
 
 internal fun PagingData<UIMessage>.withOfflineIndicator(
     conversationId: ConversationId,

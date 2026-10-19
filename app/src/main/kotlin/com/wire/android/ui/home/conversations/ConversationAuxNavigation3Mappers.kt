@@ -20,7 +20,7 @@ import com.wire.kalium.logic.data.id.GroupID
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.mls.CipherSuite
 import com.wire.navigation.WireSessionId
-import kotlinx.datetime.Instant
+import kotlin.time.Instant
 
 internal fun ConversationAuxId.toQualifiedId() = QualifiedID(value, domain)
 internal fun QualifiedID.toConversationAuxId() = ConversationAuxId(value, domain)

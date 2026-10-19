@@ -88,7 +88,7 @@ import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
-import kotlinx.datetime.Instant
+import kotlin.time.Instant
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import kotlin.time.Duration.Companion.minutes
@@ -424,9 +424,10 @@ class WireNotificationManagerTest {
 
     @Test
     fun givenSomeNotifications_whenObserveCalled_thenCallNotificationShowed() = runTestWithCancellation(dispatcherProvider.main()) {
-        val messageNotifications = listOf<LocalNotification.Conversation>(
+        val messageNotifications = listOf<LocalNotification>(
             provideLocalNotificationConversation(messages = listOf(provideLocalNotificationMessage())),
-            provideLocalNotificationUpdateMessage()
+            provideLocalNotificationUpdateMessage(),
+            LocalNotification.ConversationSeen(ConversationId("seen_value", "conversation_domain")),
         )
         val (arrangement, manager) = Arrangement()
             .withMessageNotifications(messageNotifications)
@@ -1591,7 +1592,7 @@ class WireNotificationManagerTest {
         private fun provideLocalNotificationConversation(
             id: ConversationId = ConversationId("conversation_value", "conversation_domain"),
             messages: List<LocalNotificationMessage> = listOf()
-        ) = LocalNotification.Conversation.NewMessages(
+        ) = LocalNotification.Conversation(
             id,
             "name_${id.value}",
             messages,
@@ -1601,8 +1602,8 @@ class WireNotificationManagerTest {
         private fun provideLocalNotificationUpdateMessage(
             id: ConversationId = ConversationId("conversation_value", "conversation_domain"),
             action: LocalNotificationUpdateMessageAction = LocalNotificationUpdateMessageAction.Edit("new text", "new_name_${id.value}")
-        ): LocalNotification.Conversation.UpdateMessage {
-            return LocalNotification.Conversation.UpdateMessage(id, "name_${id.value}", action)
+        ): LocalNotification.UpdateMessage {
+            return LocalNotification.UpdateMessage(id, "name_${id.value}", action)
         }
 
         private fun provideLocalNotificationMessage(): LocalNotificationMessage = LocalNotificationMessage.Text(

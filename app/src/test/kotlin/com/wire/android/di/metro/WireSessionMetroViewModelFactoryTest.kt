@@ -227,6 +227,7 @@ class WireSessionMetroViewModelFactoryTest {
     }
 
     @Test
+    @Suppress("LongMethod") // Keep the concurrent creation, drain barrier and cleanup assertions together.
     fun givenInvalidationDuringBlockedViewModelAssembly_whenAssemblyReturns_thenUnpublishedViewModelIsCleared() = runBlocking {
         val arrangement = Arrangement()
         val entered = CountDownLatch(1)
@@ -651,7 +652,9 @@ internal class TerminalActions {
 
     init {
         coEvery { currentSession() } returns CurrentSessionResult.Success(AccountInfo.Valid(userId))
-        coEvery { switchAccount(SwitchAccountParam.TryToSwitchToNextAccount) } returns SwitchAccountResult.SwitchedToAnotherAccount
+        coEvery {
+            switchAccount(SwitchAccountParam.TryToSwitchToNextAccount)
+        } returns SwitchAccountResult.SwitchedToAnotherAccount
     }
 }
 

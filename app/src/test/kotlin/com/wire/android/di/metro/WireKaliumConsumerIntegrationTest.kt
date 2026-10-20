@@ -106,6 +106,7 @@ import kotlin.time.Instant
 @SQLiteMode(SQLiteMode.Mode.NATIVE)
 class WireKaliumConsumerIntegrationTest {
     @Test
+    @Suppress("LongMethod") // One retained-owner scenario spans disposal, replacement and final teardown.
     fun givenRealSdkConsumers_whenRetainingClearingAndReplacingAccount_thenFactoryPreservesOwnersAndGenerations() = runBlocking {
         val owner = IntegrationOwner()
         val independentOwner = IntegrationOwner()
@@ -372,15 +373,7 @@ class WireKaliumConsumerIntegrationTest {
                 )
                 val date = Instant.parse("2026-10-20T10:00:00Z")
                 try {
-                    database.userDAO.upsertUser(
-                        UserEntity(
-                            id = self, name = "Integration user", handle = null, email = null, phone = null,
-                            accentId = 0, team = null, previewAssetId = null, completeAssetId = null,
-                            availabilityStatus = UserAvailabilityStatusEntity.NONE, userType = UserTypeEntity.FEDERATED,
-                            botService = null, deleted = false, expiresAt = null, defederated = false,
-                            supportedProtocols = setOf(SupportedProtocolEntity.PROTEUS), activeOneOnOneConversationId = null,
-                        ),
-                    )
+                    database.userDAO.upsertUser(persistedUser(self))
                     val conversation = ConversationEntity(
                         id = UserIDEntity(conversationId.value, conversationId.domain),
                         name = CONVERSATION_NAME,
@@ -425,6 +418,14 @@ class WireKaliumConsumerIntegrationTest {
                     database.close()
                 }
             }
+
+            private fun persistedUser(self: UserIDEntity): UserEntity = UserEntity(
+                id = self, name = "Integration user", handle = null, email = null, phone = null,
+                accentId = 0, team = null, previewAssetId = null, completeAssetId = null,
+                availabilityStatus = UserAvailabilityStatusEntity.NONE, userType = UserTypeEntity.FEDERATED,
+                botService = null, deleted = false, expiresAt = null, defederated = false,
+                supportedProtocols = setOf(SupportedProtocolEntity.PROTEUS), activeOneOnOneConversationId = null,
+            )
         }
     }
 
@@ -471,6 +472,7 @@ internal object WireKaliumIntegrationBindings {
 
 /** CoreLogic eagerly creates AudioEffect; its static initializer calls AVSystem.load even with calling disabled. */
 @Implements(className = "com.waz.audioeffect.AudioEffect", isInAndroidSdk = false)
+@Suppress("UtilityClassWithPublicConstructor") // Robolectric instantiates shadows through a public constructor.
 class WireKaliumIntegrationAudioEffectShadow {
     companion object {
         @JvmStatic

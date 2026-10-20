@@ -18,6 +18,11 @@
 package com.wire.android.di.metro
 
 import androidx.lifecycle.ViewModel
+import com.wire.android.di.CurrentAccount
+import com.wire.android.di.KaliumCoreLogic
+import com.wire.android.navigation.runtime.WireNavigationDiagnostics
+import com.wire.kalium.logic.CoreLogic
+import com.wire.kalium.logic.data.user.UserId
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.ContributesBinding
 import dev.zacsweers.metro.Inject
@@ -26,7 +31,7 @@ import dev.zacsweers.metro.binding
 import dev.zacsweers.metrox.viewmodel.ManualViewModelAssistedFactory
 import dev.zacsweers.metrox.viewmodel.MetroViewModelFactory
 import dev.zacsweers.metrox.viewmodel.ViewModelAssistedFactory
-import com.wire.android.navigation.runtime.WireNavigationDiagnostics
+import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.reflect.KClass
 
 abstract class WireMetroViewModelFactory(
@@ -56,11 +61,26 @@ class WireApplicationMetroViewModelFactory(
     manualAssistedFactoryProviders,
 )
 
-/** Session graph factory. It must be built from the selected session graph's binding maps. */
+/** Session dispatcher. Only the factory is retained; every new ViewModel gets a child graph. */
 @Inject
 @SingleIn(MetroSessionScope::class)
 @ContributesBinding(MetroSessionScope::class, binding = binding<MetroViewModelFactory>())
 class WireSessionMetroViewModelFactory(
+    private val graphFactory: AppViewModelGraph.Factory,
+    @KaliumCoreLogic private val coreLogic: CoreLogic,
+    @CurrentAccount private val currentAccount: UserId,
+) : WireConsumerMetroViewModelFactory() {
+    override fun <VM : ViewModel> createInGraph(create: (MetroViewModelFactory) -> VM): VM =
+        createConsumerViewModel(
+            createConsumer = { coreLogic.getSessionScope(currentAccount).createConsumer() },
+        ) { consumer ->
+            create(graphFactory.createViewModelGraph(consumer).consumerViewModelFactory)
+        }
+}
+
+/** Constructed in AppViewModelGraph so all provider maps and manual factories belong to that child. */
+@Inject
+class WireViewModelGraphFactory(
     viewModelProviders: Map<KClass<out ViewModel>, () -> ViewModel>,
     assistedFactoryProviders: Map<KClass<out ViewModel>, () -> ViewModelAssistedFactory>,
     manualAssistedFactoryProviders:
@@ -70,6 +90,33 @@ class WireSessionMetroViewModelFactory(
     assistedFactoryProviders,
     manualAssistedFactoryProviders,
 )
+
+/** Transfer only the consumer to the ViewModel; session/global resources keep their existing owner. */
+internal fun <Consumer : AutoCloseable, VM : ViewModel> createConsumerViewModel(
+    createConsumer: () -> Consumer,
+    create: (Consumer) -> VM,
+): VM {
+    val consumer = createConsumer()
+    val closeable = CloseOnce(consumer)
+    try {
+        return create(consumer).also { it.addCloseable(closeable) }
+    } catch (failure: Throwable) {
+        try {
+            closeable.close()
+        } catch (cleanupFailure: Throwable) {
+            if (cleanupFailure !== failure) failure.addSuppressed(cleanupFailure)
+        }
+        throw failure
+    }
+}
+
+private class CloseOnce(private val consumer: AutoCloseable) : AutoCloseable {
+    private val closed = AtomicBoolean()
+
+    override fun close() {
+        if (closed.compareAndSet(false, true)) consumer.close()
+    }
+}
 
 private fun <K : Any, V : Any> Map<KClass<out K>, () -> V>.withDiagnostics(
     factory: String,

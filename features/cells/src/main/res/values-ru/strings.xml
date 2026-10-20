@@ -93,6 +93,7 @@
     </plurals>
     <string name="cells_upload_status_subtitle_queued">Ожидание…</string>
     <string name="cells_upload_status_subtitle_uploading">Отправка…</string>
+    <string name="cells_upload_status_subtitle_paused">Ожидание сети…</string>
     <string name="cells_upload_status_subtitle_completed_with_size">Загружено %1$s</string>
     <string name="cells_upload_status_subtitle_failed">Не удалось загрузить файл</string>
     <string name="cells_upload_status_subtitle_cancelled">Отменено</string>

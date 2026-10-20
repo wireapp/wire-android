@@ -20,7 +20,6 @@ package com.wire.android.ui.newauthentication.login
 data class NewLoginScreenState(
     val isThereActiveSession: Boolean = false,
     val userIdentifierEnabled: Boolean = true,
-    val isUserIdentifierReadOnly: Boolean = false,
     val nextEnabled: Boolean = false,
     val flowState: NewLoginFlowState = NewLoginFlowState.Default,
 )

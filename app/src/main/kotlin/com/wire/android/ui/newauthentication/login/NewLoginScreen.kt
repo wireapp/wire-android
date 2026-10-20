@@ -225,7 +225,7 @@ private fun LoginContent(
 
                         else -> null
                     }
-                    EmailOrSSOCodeInput(userIdentifierState, error, loginEmailSSOState.isUserIdentifierReadOnly)
+                    EmailOrSSOCodeInput(userIdentifierState, error, loginEmailSSOState.userIdentifierEnabled)
                     VerticalSpace.x8()
                     LoginNextButton(
                         loading = loginEmailSSOState.flowState is NewLoginFlowState.Loading,
@@ -264,15 +264,15 @@ private fun LoginNextButton(
 private fun EmailOrSSOCodeInput(
     userIdentifierState: TextFieldState,
     error: String?,
-    readOnly: Boolean,
+    enabled: Boolean,
 ) {
     WireTextField(
-        autoFillType = if (readOnly) WireAutoFillType.None else WireAutoFillType.Login,
+        autoFillType = if (enabled) WireAutoFillType.Login else WireAutoFillType.None,
         textState = userIdentifierState,
         placeholderText = stringResource(R.string.enterprise_login_user_identifier_label_placeholder),
         labelText = stringResource(R.string.enterprise_login_user_identifier_label),
         state = when {
-            readOnly -> WireTextFieldState.Disabled
+            !enabled -> WireTextFieldState.Disabled
             error != null -> WireTextFieldState.Error(error)
             else -> WireTextFieldState.Default
         },
@@ -323,11 +323,11 @@ fun PreviewNewLoginScreenCustomConfig() = WireTheme {
 
 @PreviewMultipleThemes
 @Composable
-fun PreviewNewLoginScreenReadOnlySSOCode() = WireTheme {
+fun PreviewNewLoginScreenDisabledSSOCode() = WireTheme {
     EdgeToEdgePreview(useDarkIcons = false) {
         WireAuthBackgroundLayout {
             LoginContent(
-                loginEmailSSOState = NewLoginScreenState(isUserIdentifierReadOnly = true, nextEnabled = true),
+                loginEmailSSOState = NewLoginScreenState(userIdentifierEnabled = false, nextEnabled = true),
                 userIdentifierState = TextFieldState("wire-fd994b20-b9af-11ec-ae36-00163e9b33ca"),
                 serverConfig = ServerConfig.DEFAULT.copy(isOnPremises = true),
                 onNextClicked = {},

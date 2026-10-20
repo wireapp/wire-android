@@ -1365,14 +1365,14 @@ class NewLoginViewModelTest {
         }
 
     @Test
-    fun `given managed SSO code config provided, when initializing view model without prefilled user, then user identifier is read-only`() =
+    fun `given managed SSO code config provided, when initializing view model without prefilled user, then user identifier is disabled`() =
         runTest(dispatchers.main()) {
             val (_, viewModel) = Arrangement()
                 .withEmptyUserIdentifierAndNoPreFilledIdentifier()
                 .withDefaultSSOCodeConfig("fd994b20-b9af-11ec-ae36-00163e9b33ca")
                 .arrange()
 
-            assertEquals(true, viewModel.state.isUserIdentifierReadOnly)
+            assertEquals(false, viewModel.state.userIdentifierEnabled)
         }
 
     @Test
@@ -1383,7 +1383,7 @@ class NewLoginViewModelTest {
                 .withDefaultSSOCodeConfig("fd994b20-b9af-11ec-ae36-00163e9b33ca")
                 .arrange()
 
-            assertEquals(false, viewModel.state.isUserIdentifierReadOnly)
+            assertEquals(true, viewModel.state.userIdentifierEnabled)
         }
 
     @Test
@@ -1395,7 +1395,7 @@ class NewLoginViewModelTest {
                 .withDefaultSSOCodeConfig("fd994b20-b9af-11ec-ae36-00163e9b33ca")
                 .arrange()
 
-            assertEquals(false, viewModel.state.isUserIdentifierReadOnly)
+            assertEquals(true, viewModel.state.userIdentifierEnabled)
         }
 
     @Test
@@ -1406,7 +1406,7 @@ class NewLoginViewModelTest {
                 .withDefaultSSOCodeConfig("")
                 .arrange()
 
-            assertEquals(false, viewModel.state.isUserIdentifierReadOnly)
+            assertEquals(true, viewModel.state.userIdentifierEnabled)
         }
 
     @Test
@@ -1422,7 +1422,7 @@ class NewLoginViewModelTest {
             )
 
             assertEquals(email, viewModel.userIdentifierTextState.text.toString())
-            assertEquals(false, viewModel.state.isUserIdentifierReadOnly)
+            assertEquals(true, viewModel.state.userIdentifierEnabled)
         }
 
     @Test
@@ -1437,7 +1437,7 @@ class NewLoginViewModelTest {
                 LoginNavArgs(loginPasswordPath = LoginPasswordPath(newServerConfig(2).links))
             )
 
-            assertEquals(false, viewModel.state.isUserIdentifierReadOnly)
+            assertEquals(true, viewModel.state.userIdentifierEnabled)
         }
 
     @Test

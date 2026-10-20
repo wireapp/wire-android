@@ -179,7 +179,7 @@ class NewLoginViewModel(
             }
         )
         // SSO code provided by managed configuration is the only valid login path, so the user cannot edit it
-        state = state.copy(isUserIdentifierReadOnly = isManagedSSOCodeApplied)
+        state = state.copy(userIdentifierEnabled = !isManagedSSOCodeApplied)
         viewModelScope.launch {
             userIdentifierTextState.textAsFlow().distinctUntilChanged().onEach {
                 savedStateHandle[USER_IDENTIFIER_SAVED_STATE_KEY] = it.toString()
@@ -234,7 +234,7 @@ class NewLoginViewModel(
 
         val updatedCustomServerConfig = loginNavArgs.loginPasswordPath?.customServerConfig
         if (preFilledUserIdentifier is PreFilledUserIdentifierType.PreFilled || updatedCustomServerConfig != null) {
-            state = state.copy(isUserIdentifierReadOnly = false)
+            state = state.copy(userIdentifierEnabled = true)
         }
         serverConfig = updatedCustomServerConfig ?: defaultServerConfig
         canUseBackend = if (updatedCustomServerConfig != null) {

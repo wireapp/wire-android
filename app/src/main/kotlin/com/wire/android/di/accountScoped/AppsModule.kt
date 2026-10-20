@@ -20,7 +20,7 @@ package com.wire.android.di.accountScoped
 import com.wire.android.di.CurrentAccount
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.kalium.logic.CoreLogic
-import com.wire.kalium.logic.feature.app.AppScope
+import com.wire.kalium.logic.di.KaliumAppApi
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.app.GetAppByIdUseCase
 import com.wire.kalium.logic.feature.app.ObserveAllAppsUseCase
@@ -34,28 +34,28 @@ import dev.zacsweers.metro.Provides
 class AppsModule {
 
     @Provides
-    fun provideAppScope(
+    fun provideAppApi(
         @CurrentAccount currentAccount: UserId,
         @KaliumCoreLogic coreLogic: CoreLogic
-    ): AppScope = coreLogic.getSessionScope(currentAccount).apps
+    ): KaliumAppApi = coreLogic.getSessionScope(currentAccount).appApiFactory.create()
 
     @Provides
-    fun provideGetAppByIdUseCase(appScope: AppScope): GetAppByIdUseCase =
-        appScope.getAppById
+    fun provideGetAppByIdUseCase(api: KaliumAppApi): GetAppByIdUseCase =
+        api.appGetAppById
 
     @Provides
-    fun provideObserveIsAppMemberUseCase(appScope: AppScope): ObserveIsAppMemberUseCase =
-        appScope.observeIsAppMember
+    fun provideObserveIsAppMemberUseCase(api: KaliumAppApi): ObserveIsAppMemberUseCase =
+        api.appObserveIsAppMember
 
     @Provides
-    fun provideSearchAppsByNameUseCase(appScope: AppScope): SearchAppsByNameUseCase =
-        appScope.searchAppsByName
+    fun provideSearchAppsByNameUseCase(api: KaliumAppApi): SearchAppsByNameUseCase =
+        api.appSearchAppsByName
 
     @Provides
-    fun provideObserveAllAppsUseCase(appScope: AppScope): ObserveAllAppsUseCase =
-        appScope.observeAllApps
+    fun provideObserveAllAppsUseCase(api: KaliumAppApi): ObserveAllAppsUseCase =
+        api.appObserveAllApps
 
     @Provides
-    fun provideSyncAppsUseCase(appScope: AppScope): SyncAppsUseCase =
-        appScope.syncApps
+    fun provideSyncAppsUseCase(api: KaliumAppApi): SyncAppsUseCase =
+        api.appSyncApps
 }

@@ -23,7 +23,7 @@ import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.connection.AcceptConnectionRequestUseCase
 import com.wire.kalium.logic.feature.connection.CancelConnectionRequestUseCase
-import com.wire.kalium.logic.feature.connection.ConnectionScope
+import com.wire.kalium.logic.di.KaliumConnectionApi
 import com.wire.kalium.logic.feature.connection.IgnoreConnectionRequestUseCase
 import com.wire.kalium.logic.feature.connection.SendConnectionRequestUseCase
 import dev.zacsweers.metro.BindingContainer
@@ -33,24 +33,24 @@ import dev.zacsweers.metro.Provides
 class ConnectionModule {
 
     @Provides
-    fun provideConnectionScope(
+    fun provideConnectionApi(
         @CurrentAccount currentAccount: UserId,
         @KaliumCoreLogic coreLogic: CoreLogic
-    ): ConnectionScope = coreLogic.getSessionScope(currentAccount).connection
+    ): KaliumConnectionApi = coreLogic.getSessionScope(currentAccount).connectionApiFactory.create()
 
     @Provides
-    fun provideSendConnectionRequestUseCase(connectionScope: ConnectionScope): SendConnectionRequestUseCase =
-        connectionScope.sendConnectionRequest
+    fun provideSendConnectionRequestUseCase(api: KaliumConnectionApi): SendConnectionRequestUseCase =
+        api.connectionSendConnectionRequest
 
     @Provides
-    fun provideCancelConnectionRequestUseCase(connectionScope: ConnectionScope): CancelConnectionRequestUseCase =
-        connectionScope.cancelConnectionRequest
+    fun provideCancelConnectionRequestUseCase(api: KaliumConnectionApi): CancelConnectionRequestUseCase =
+        api.connectionCancelConnectionRequest
 
     @Provides
-    fun provideIgnoreConnectionRequestUseCase(connectionScope: ConnectionScope): IgnoreConnectionRequestUseCase =
-        connectionScope.ignoreConnectionRequest
+    fun provideIgnoreConnectionRequestUseCase(api: KaliumConnectionApi): IgnoreConnectionRequestUseCase =
+        api.connectionIgnoreConnectionRequest
 
     @Provides
-    fun provideAcceptConnectionRequestUseCase(connectionScope: ConnectionScope): AcceptConnectionRequestUseCase =
-        connectionScope.acceptConnectionRequest
+    fun provideAcceptConnectionRequestUseCase(api: KaliumConnectionApi): AcceptConnectionRequestUseCase =
+        api.connectionAcceptConnectionRequest
 }

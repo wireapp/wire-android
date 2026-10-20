@@ -21,6 +21,7 @@ import com.wire.android.di.CurrentAccount
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.di.KaliumMessageApi
 import com.wire.kalium.logic.feature.asset.GetImageAssetMessagesForConversationUseCase
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.GetPaginatedFlowOfAssetMessageByConversationIdUseCase
@@ -38,7 +39,6 @@ import com.wire.kalium.logic.feature.message.GetPaginatedFlowOfMessagesBySearchQ
 import com.wire.kalium.logic.feature.message.GetSearchedConversationMessagePositionUseCase
 import com.wire.kalium.logic.feature.message.GetSenderNameByMessageIdUseCase
 import com.wire.kalium.logic.feature.message.MarkMessagesAsNotifiedUseCase
-import com.wire.kalium.logic.feature.message.MessageScope
 import com.wire.kalium.logic.feature.message.ObserveMessageReactionsUseCase
 import com.wire.kalium.logic.feature.message.ObserveMessageReceiptsUseCase
 import com.wire.kalium.logic.feature.message.RetryFailedMessageUseCase
@@ -54,13 +54,8 @@ import com.wire.kalium.logic.feature.message.draft.GetMessageDraftUseCase
 import com.wire.kalium.logic.feature.message.draft.RemoveMessageDraftUseCase
 import com.wire.kalium.logic.feature.message.draft.SaveMessageDraftUseCase
 import com.wire.kalium.logic.feature.message.ephemeral.EnqueueMessageSelfDeletionUseCase
-import com.wire.kalium.logic.feature.message.fetchOlderMessagesByConversationId
-import com.wire.kalium.logic.feature.message.getPaginatedFlowOfAssetMessageByConversationId
-import com.wire.kalium.logic.feature.message.getPaginatedFlowOfMessagesByConversation
-import com.wire.kalium.logic.feature.message.getPaginatedFlowOfMessagesBySearchQueryAndConversation
 import com.wire.kalium.logic.feature.message.linkpreview.DetectLinkPreviewTargetUseCase
 import com.wire.kalium.logic.feature.message.linkpreview.GenerateLinkPreviewUseCase
-import com.wire.kalium.logic.feature.message.observePaginatedImageAssetMessageByConversationId
 import com.wire.kalium.logic.feature.sessionreset.ResetSessionUseCase
 import dev.zacsweers.metro.BindingContainer
 import dev.zacsweers.metro.Provides
@@ -70,153 +65,153 @@ import dev.zacsweers.metro.Provides
 class MessageModule {
 
     @Provides
-    fun provideMessageScope(
+    fun provideMessageApi(
         @CurrentAccount currentAccount: UserId,
         @KaliumCoreLogic coreLogic: CoreLogic
-    ): MessageScope = coreLogic.getSessionScope(currentAccount).messages
+    ): KaliumMessageApi = coreLogic.getSessionScope(currentAccount).messageApi
 
     @Provides
-    fun provideSendButtonActionMessageUseCase(messageScope: MessageScope): SendButtonActionMessageUseCase =
-        messageScope.sendButtonActionMessage
+    fun provideSendButtonActionMessageUseCase(api: KaliumMessageApi): SendButtonActionMessageUseCase =
+        api.messageSendButtonActionMessage
 
     @Provides
-    fun provideEnqueueMessageSelfDeletionUseCase(messageScope: MessageScope): EnqueueMessageSelfDeletionUseCase =
-        messageScope.enqueueMessageSelfDeletion
+    fun provideEnqueueMessageSelfDeletionUseCase(api: KaliumMessageApi): EnqueueMessageSelfDeletionUseCase =
+        api.messageEnqueueMessageSelfDeletion
 
     @Provides
-    fun provideResetSessionUseCase(messageScope: MessageScope): ResetSessionUseCase =
-        messageScope.resetSession
+    fun provideResetSessionUseCase(api: KaliumMessageApi): ResetSessionUseCase =
+        api.messageResetSession
 
     @Provides
-    fun provideDeleteMessageUseCase(messageScope: MessageScope): DeleteMessageUseCase =
-        messageScope.deleteMessage
+    fun provideDeleteMessageUseCase(api: KaliumMessageApi): DeleteMessageUseCase =
+        api.messageDeleteMessage
 
     @Provides
-    fun provideMarkMessagesAsNotifiedUseCase(messageScope: MessageScope): MarkMessagesAsNotifiedUseCase =
-        messageScope.markMessagesAsNotified
+    fun provideMarkMessagesAsNotifiedUseCase(api: KaliumMessageApi): MarkMessagesAsNotifiedUseCase =
+        api.messageMarkMessagesAsNotified
 
     @Provides
-    fun provideUpdateAssetMessageTransferStatusUseCase(messageScope: MessageScope): UpdateAssetMessageTransferStatusUseCase =
-        messageScope.updateAssetMessageTransferStatus
+    fun provideUpdateAssetMessageTransferStatusUseCase(api: KaliumMessageApi): UpdateAssetMessageTransferStatusUseCase =
+        api.messageUpdateAssetMessageTransferStatus
 
     @Provides
-    fun provideSendTextMessageUseCase(messageScope: MessageScope): SendTextMessageUseCase = messageScope.sendTextMessage
+    fun provideSendTextMessageUseCase(api: KaliumMessageApi): SendTextMessageUseCase = api.messageSendTextMessage
 
     @Provides
-    fun provideGenerateLinkPreviewUseCase(messageScope: MessageScope): GenerateLinkPreviewUseCase =
-        messageScope.generateLinkPreview
+    fun provideGenerateLinkPreviewUseCase(api: KaliumMessageApi): GenerateLinkPreviewUseCase =
+        api.messageGenerateLinkPreview
 
     @Provides
-    fun provideDetectLinkPreviewTargetUseCase(messageScope: MessageScope): DetectLinkPreviewTargetUseCase =
-        messageScope.detectLinkPreviewTarget
+    fun provideDetectLinkPreviewTargetUseCase(api: KaliumMessageApi): DetectLinkPreviewTargetUseCase =
+        api.messageDetectLinkPreviewTarget
 
     @Provides
-    fun provideSendEditTextMessageUseCase(messageScope: MessageScope): SendEditTextMessageUseCase =
-        messageScope.sendEditTextMessage
+    fun provideSendEditTextMessageUseCase(api: KaliumMessageApi): SendEditTextMessageUseCase =
+        api.messageSendEditTextMessage
 
     @Provides
-    fun provideSendEditMultipartMessageUseCase(messageScope: MessageScope): SendEditMultipartMessageUseCase =
-        messageScope.sendEditMultipartMessage
+    fun provideSendEditMultipartMessageUseCase(api: KaliumMessageApi): SendEditMultipartMessageUseCase =
+        api.messageSendEditMultipartMessage
 
     @Provides
-    fun provideRetryFailedMessageUseCase(messageScope: MessageScope): RetryFailedMessageUseCase =
-        messageScope.retryFailedMessage
+    fun provideRetryFailedMessageUseCase(api: KaliumMessageApi): RetryFailedMessageUseCase =
+        api.messageRetryFailedMessage
 
     @Provides
-    fun provideSendKnockUseCase(messageScope: MessageScope): SendKnockUseCase =
-        messageScope.sendKnock
+    fun provideSendKnockUseCase(api: KaliumMessageApi): SendKnockUseCase =
+        api.messageSendKnock
 
     @Provides
-    fun provideToggleReactionUseCase(messageScope: MessageScope): ToggleReactionUseCase =
-        messageScope.toggleReaction
+    fun provideToggleReactionUseCase(api: KaliumMessageApi): ToggleReactionUseCase =
+        api.messageToggleReaction
 
     @Provides
-    fun provideObserveMessageReactionsUseCase(messageScope: MessageScope): ObserveMessageReactionsUseCase =
-        messageScope.observeMessageReactions
+    fun provideObserveMessageReactionsUseCase(api: KaliumMessageApi): ObserveMessageReactionsUseCase =
+        api.messageObserveMessageReactions
 
     @Provides
-    fun provideObserveMessageReceiptsUseCase(messageScope: MessageScope): ObserveMessageReceiptsUseCase =
-        messageScope.observeMessageReceipts
+    fun provideObserveMessageReceiptsUseCase(api: KaliumMessageApi): ObserveMessageReceiptsUseCase =
+        api.messageObserveMessageReceipts
 
     @Provides
-    fun providesSendAssetMessageUseCase(messageScope: MessageScope): ScheduleNewAssetMessageUseCase =
-        messageScope.sendAssetMessage
+    fun providesSendAssetMessageUseCase(api: KaliumMessageApi): ScheduleNewAssetMessageUseCase =
+        api.messageSendAssetMessage
 
     @Provides
-    fun provideGetPrivateAssetUseCase(messageScope: MessageScope): GetMessageAssetUseCase =
-        messageScope.getAssetMessage
+    fun provideGetPrivateAssetUseCase(api: KaliumMessageApi): GetMessageAssetUseCase =
+        api.messageGetAssetMessage
 
     @Provides
-    fun provideGetNotificationsUseCase(messageScope: MessageScope): GetNotificationsUseCase =
-        messageScope.getNotifications
+    fun provideGetNotificationsUseCase(api: KaliumMessageApi): GetNotificationsUseCase =
+        api.messageGetNotifications
 
     @Provides
-    fun provideGetPaginatedMessagesUseCase(messageScope: MessageScope): GetPaginatedFlowOfMessagesByConversationUseCase =
-        messageScope.getPaginatedFlowOfMessagesByConversation
+    fun provideGetPaginatedMessagesUseCase(api: KaliumMessageApi): GetPaginatedFlowOfMessagesByConversationUseCase =
+        api.messageGetPaginatedFlowOfMessagesByConversation
 
     @Provides
-    fun provideFetchOlderMessagesUseCase(messageScope: MessageScope): FetchOlderNomadMessagesByConversationUseCase =
-        messageScope.fetchOlderMessagesByConversationId
+    fun provideFetchOlderMessagesUseCase(api: KaliumMessageApi): FetchOlderNomadMessagesByConversationUseCase =
+        api.messageFetchOlderMessagesByConversationId
 
     @Provides
-    fun provideGetImageAssetMessagesByConversationUseCase(messageScope: MessageScope): GetImageAssetMessagesForConversationUseCase =
-        messageScope.getImageAssetMessagesByConversation
+    fun provideGetImageAssetMessagesByConversationUseCase(api: KaliumMessageApi): GetImageAssetMessagesForConversationUseCase =
+        api.messageGetImageAssetMessagesByConversation
 
     @Provides
     fun provideGetPaginatedFlowOfAssetMessageByConversationId(
-        messageScope: MessageScope
+        api: KaliumMessageApi
     ): GetPaginatedFlowOfAssetMessageByConversationIdUseCase =
-        messageScope.getPaginatedFlowOfAssetMessageByConversationId
+        api.messageGetPaginatedFlowOfAssetMessageByConversationId
 
     @Provides
     fun provideGetPaginatedFlowOfImageAssetMessageByConversationId(
-        messageScope: MessageScope
+        api: KaliumMessageApi
     ): ObservePaginatedAssetImageMessages =
-        messageScope.observePaginatedImageAssetMessageByConversationId
+        api.messageObservePaginatedImageAssetMessageByConversationId
 
     @Provides
     fun provideGetPaginatedFlowOfMessagesBySearchQueryAndConversation(
-        messageScope: MessageScope
+        api: KaliumMessageApi
     ): GetPaginatedFlowOfMessagesBySearchQueryAndConversationIdUseCase =
-        messageScope.getPaginatedFlowOfMessagesBySearchQueryAndConversation
+        api.messageGetPaginatedFlowOfMessagesBySearchQueryAndConversation
 
     @Provides
-    fun provideGetSearchedConversationMessagePositionUseCase(messageScope: MessageScope): GetSearchedConversationMessagePositionUseCase =
-        messageScope.getSearchedConversationMessagePosition
+    fun provideGetSearchedConversationMessagePositionUseCase(api: KaliumMessageApi): GetSearchedConversationMessagePositionUseCase =
+        api.messageGetSearchedConversationMessagePosition
 
     @Provides
-    fun provideSendLocationUseCase(messageScope: MessageScope): SendLocationUseCase =
-        messageScope.sendLocation
+    fun provideSendLocationUseCase(api: KaliumMessageApi): SendLocationUseCase =
+        api.messageSendLocation
 
     @Provides
-    fun provideObserveAssetStatusesUseCase(messageScope: MessageScope): ObserveAssetStatusesUseCase =
-        messageScope.observeAssetStatuses
+    fun provideObserveAssetStatusesUseCase(api: KaliumMessageApi): ObserveAssetStatusesUseCase =
+        api.messageObserveAssetStatuses
 
     @Provides
-    fun provideSaveMessageDraftUseCase(messageScope: MessageScope): SaveMessageDraftUseCase =
-        messageScope.saveMessageDraftUseCase
+    fun provideSaveMessageDraftUseCase(api: KaliumMessageApi): SaveMessageDraftUseCase =
+        api.messageSaveMessageDraftUseCase
 
     @Provides
-    fun provideGetMessageDraftUseCase(messageScope: MessageScope): GetMessageDraftUseCase =
-        messageScope.getMessageDraftUseCase
+    fun provideGetMessageDraftUseCase(api: KaliumMessageApi): GetMessageDraftUseCase =
+        api.messageGetMessageDraftUseCase
 
     @Provides
-    fun provideRemoveMessageDraftUseCase(messageScope: MessageScope): RemoveMessageDraftUseCase =
-        messageScope.removeMessageDraftUseCase
+    fun provideRemoveMessageDraftUseCase(api: KaliumMessageApi): RemoveMessageDraftUseCase =
+        api.messageRemoveMessageDraftUseCase
 
     @Provides
-    fun provideSendInCallReactionUseCase(messageScope: MessageScope): SendInCallReactionUseCase =
-        messageScope.sendInCallReactionUseCase
+    fun provideSendInCallReactionUseCase(api: KaliumMessageApi): SendInCallReactionUseCase =
+        api.messageSendInCallReactionUseCase
 
     @Provides
-    fun provideGetSenderNameByMessageIdUseCase(messageScope: MessageScope): GetSenderNameByMessageIdUseCase =
-        messageScope.getSenderNameByMessageId
+    fun provideGetSenderNameByMessageIdUseCase(api: KaliumMessageApi): GetSenderNameByMessageIdUseCase =
+        api.messageGetSenderNameByMessageId
 
     @Provides
-    fun provideSendMultipartMessageUseCase(messageScope: MessageScope): SendMultipartMessageUseCase =
-        messageScope.sendMultipartMessage
+    fun provideSendMultipartMessageUseCase(api: KaliumMessageApi): SendMultipartMessageUseCase =
+        api.messageSendMultipartMessage
 
     @Provides
-    fun provideUpdateAudioMessageNormalizedLoudnessUseCase(messageScope: MessageScope): UpdateAudioMessageNormalizedLoudnessUseCase =
-        messageScope.updateAudioMessageNormalizedLoudnessUseCase
+    fun provideUpdateAudioMessageNormalizedLoudnessUseCase(api: KaliumMessageApi): UpdateAudioMessageNormalizedLoudnessUseCase =
+        api.messageUpdateAudioMessageNormalizedLoudnessUseCase
 }

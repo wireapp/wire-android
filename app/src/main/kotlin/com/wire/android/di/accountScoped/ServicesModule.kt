@@ -26,7 +26,7 @@ import com.wire.kalium.logic.feature.service.GetServiceByIdUseCase
 import com.wire.kalium.logic.feature.service.ObserveAllServicesUseCase
 import com.wire.kalium.logic.feature.service.ObserveIsServiceMemberUseCase
 import com.wire.kalium.logic.feature.service.SearchServicesByNameUseCase
-import com.wire.kalium.logic.feature.service.ServiceScope
+import com.wire.kalium.logic.di.KaliumServiceApi
 import com.wire.kalium.logic.feature.service.SyncServicesUseCase
 import dev.zacsweers.metro.BindingContainer
 import dev.zacsweers.metro.Provides
@@ -35,32 +35,32 @@ import dev.zacsweers.metro.Provides
 class ServicesModule {
 
     @Provides
-    fun provideServiceScope(
+    fun provideServiceApi(
         @CurrentAccount currentAccount: UserId,
         @KaliumCoreLogic coreLogic: CoreLogic
-    ): ServiceScope = coreLogic.getSessionScope(currentAccount).service
+    ): KaliumServiceApi = coreLogic.getSessionScope(currentAccount).serviceApiFactory.create()
 
     @Provides
-    fun provideObserveIsServiceMemberUseCase(serviceScope: ServiceScope): ObserveIsServiceMemberUseCase =
-        serviceScope.observeIsServiceMember
+    fun provideObserveIsServiceMemberUseCase(api: KaliumServiceApi): ObserveIsServiceMemberUseCase =
+        api.serviceObserveIsServiceMember
 
     @Provides
-    fun provideGetServiceByIdUseCase(serviceScope: ServiceScope): GetServiceByIdUseCase =
-        serviceScope.getServiceById
+    fun provideGetServiceByIdUseCase(api: KaliumServiceApi): GetServiceByIdUseCase =
+        api.serviceGetServiceById
 
     @Provides
-    fun provideObserveAllServicesUseCase(serviceScope: ServiceScope): ObserveAllServicesUseCase =
-        serviceScope.observeAllServices
+    fun provideObserveAllServicesUseCase(api: KaliumServiceApi): ObserveAllServicesUseCase =
+        api.serviceObserveAllServices
 
     @Provides
-    fun provideSyncServicesUseCase(serviceScope: ServiceScope): SyncServicesUseCase =
-        serviceScope.syncServices
+    fun provideSyncServicesUseCase(api: KaliumServiceApi): SyncServicesUseCase =
+        api.serviceSyncServices
 
     @Provides
-    fun provideSearchServicesByNameUseCase(serviceScope: ServiceScope): SearchServicesByNameUseCase =
-        serviceScope.searchServicesByName
+    fun provideSearchServicesByNameUseCase(api: KaliumServiceApi): SearchServicesByNameUseCase =
+        api.serviceSearchServicesByName
 
     @Provides
-    fun provideObserveIsAppsAllowedForUsage(serviceScope: ServiceScope): ObserveIsAppsAllowedForUsageUseCase =
-        serviceScope.observeIsAppsAllowedForUsage
+    fun provideObserveIsAppsAllowedForUsage(api: KaliumServiceApi): ObserveIsAppsAllowedForUsageUseCase =
+        api.serviceObserveIsAppsAllowedForUsage
 }

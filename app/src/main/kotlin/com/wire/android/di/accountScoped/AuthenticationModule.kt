@@ -21,7 +21,7 @@ import com.wire.android.di.CurrentAccount
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.user.UserId
-import com.wire.kalium.logic.feature.auth.AuthenticationScope
+import com.wire.kalium.logic.di.KaliumAuthenticationVerificationApi
 import com.wire.kalium.logic.feature.auth.verification.RequestSecondFactorVerificationCodeUseCase
 import dev.zacsweers.metro.BindingContainer
 import dev.zacsweers.metro.Provides
@@ -30,12 +30,12 @@ import dev.zacsweers.metro.Provides
 class AuthenticationModule {
 
     @Provides
-    fun provideAuthenticationScope(
+    fun provideAuthenticationVerificationApi(
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId
-    ): AuthenticationScope = coreLogic.getSessionScope(currentAccount).authenticationScope
+    ): KaliumAuthenticationVerificationApi = coreLogic.getSessionScope(currentAccount).authenticationScope.individualVerificationApi
 
     @Provides
-    fun provideRequest2FACodeUseCase(authenticationScope: AuthenticationScope): RequestSecondFactorVerificationCodeUseCase =
-        authenticationScope.requestSecondFactorVerificationCode
+    fun provideRequest2FACodeUseCase(api: KaliumAuthenticationVerificationApi): RequestSecondFactorVerificationCodeUseCase =
+        api.requestSecondFactorVerificationCode
 }

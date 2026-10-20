@@ -21,10 +21,10 @@ import com.wire.android.di.CurrentAccount
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.di.KaliumSearchApi
 import com.wire.kalium.logic.feature.search.FederatedSearchParser
 import com.wire.kalium.logic.feature.search.IsFederationSearchAllowedUseCase
 import com.wire.kalium.logic.feature.search.SearchUsersByHandleUseCase
-import com.wire.kalium.logic.feature.search.SearchScope
 import com.wire.kalium.logic.feature.search.SearchUsersByNameUseCase
 import dev.zacsweers.metro.BindingContainer
 import dev.zacsweers.metro.Provides
@@ -33,21 +33,21 @@ import dev.zacsweers.metro.Provides
 class SearchModule {
 
     @Provides
-    fun provideSearchScope(
+    fun provideSearchApi(
         @CurrentAccount currentAccount: UserId,
         @KaliumCoreLogic coreLogic: CoreLogic
-    ): SearchScope = coreLogic.getSessionScope(currentAccount).search
+    ): KaliumSearchApi = coreLogic.getSessionScope(currentAccount).searchApi
 
     @Provides
-    fun provideSearchUsersByNameUseCase(searchScope: SearchScope): SearchUsersByNameUseCase = searchScope.searchUsersByName
+    fun provideSearchUsersByNameUseCase(api: KaliumSearchApi): SearchUsersByNameUseCase = api.searchSearchUsersByName
 
     @Provides
-    fun provideSearchUsersByHandleUseCase(searchScope: SearchScope): SearchUsersByHandleUseCase = searchScope.searchUsersByHandle
+    fun provideSearchUsersByHandleUseCase(api: KaliumSearchApi): SearchUsersByHandleUseCase = api.searchSearchUsersByHandle
 
     @Provides
-    fun provideFederatedSearchParser(searchScope: SearchScope): FederatedSearchParser = searchScope.federatedSearchParser
+    fun provideFederatedSearchParser(api: KaliumSearchApi): FederatedSearchParser = api.searchFederatedSearchParser
 
     @Provides
-    fun provideIsFederationSearchAllowedUseCase(searchScope: SearchScope): IsFederationSearchAllowedUseCase =
-        searchScope.isFederationSearchAllowedUseCase
+    fun provideIsFederationSearchAllowedUseCase(api: KaliumSearchApi): IsFederationSearchAllowedUseCase =
+        api.searchIsFederationSearchAllowedUseCase
 }

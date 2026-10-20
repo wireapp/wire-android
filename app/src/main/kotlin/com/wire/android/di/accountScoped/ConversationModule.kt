@@ -23,13 +23,13 @@ import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.conversation.FetchConversationUseCase
 import com.wire.kalium.logic.data.conversation.ResetMLSConversationUseCase
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.di.KaliumConversationApi
 import com.wire.kalium.logic.feature.conversation.AddMemberToConversationUseCase
 import com.wire.kalium.logic.feature.conversation.AddServiceToConversationUseCase
 import com.wire.kalium.logic.feature.conversation.CheckConversationLeaveConditionsUseCase
 import com.wire.kalium.logic.feature.conversation.CheckOneToOneConversationIsReadyUseCase
 import com.wire.kalium.logic.feature.conversation.ClearConversationContentUseCase
 import com.wire.kalium.logic.feature.conversation.ClearUsersTypingEventsUseCase
-import com.wire.kalium.logic.feature.conversation.ConversationScope
 import com.wire.kalium.logic.feature.conversation.GetConversationProtocolInfoUseCase
 import com.wire.kalium.logic.feature.conversation.GetConversationUnreadEventsCountUseCase
 import com.wire.kalium.logic.feature.conversation.GetOneToOneConversationDetailsUseCase
@@ -81,8 +81,6 @@ import com.wire.kalium.logic.feature.conversation.folder.ObserveConversationsFro
 import com.wire.kalium.logic.feature.conversation.folder.ObserveUserFoldersUseCase
 import com.wire.kalium.logic.feature.conversation.folder.RemoveConversationFromFavoritesUseCase
 import com.wire.kalium.logic.feature.conversation.folder.RemoveConversationFromFolderUseCase
-import com.wire.kalium.logic.feature.conversation.getPaginatedFlowOfConversationDetailsWithEventsBySearchQuery
-import com.wire.kalium.logic.feature.conversation.getPaginatedFlowOfConversationDetailsWithMembersBySearchQuery
 import com.wire.kalium.logic.feature.conversation.guestroomlink.CanCreatePasswordProtectedLinksUseCase
 import com.wire.kalium.logic.feature.conversation.guestroomlink.GenerateGuestRoomLinkUseCase
 import com.wire.kalium.logic.feature.conversation.guestroomlink.ObserveGuestRoomLinkUseCase
@@ -97,269 +95,269 @@ import dev.zacsweers.metro.Provides
 class ConversationModule {
 
     @Provides
-    fun provideConversationScope(
+    fun provideConversationApi(
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId
-    ): ConversationScope = coreLogic.getSessionScope(currentAccount).conversations
+    ): KaliumConversationApi = coreLogic.getSessionScope(currentAccount).conversationApi
 
     @Provides
-    fun provideObserveConversationListDetails(conversationScope: ConversationScope): ObserveConversationListDetailsUseCase =
-        conversationScope.observeConversationListDetails
+    fun provideObserveConversationListDetails(api: KaliumConversationApi): ObserveConversationListDetailsUseCase =
+        api.conversationObserveConversationListDetails
 
     @Provides
     fun provideObserveConversationListDetailsWithEvents(
-        conversationScope: ConversationScope
+        api: KaliumConversationApi
     ): ObserveConversationListDetailsWithEventsUseCase =
-        conversationScope.observeConversationListDetailsWithEvents
+        api.conversationObserveConversationListDetailsWithEvents
 
     @Provides
-    fun provideObserveConversationUseCase(conversationScope: ConversationScope): GetOneToOneConversationDetailsUseCase =
-        conversationScope.getOneToOneConversation
+    fun provideObserveConversationUseCase(api: KaliumConversationApi): GetOneToOneConversationDetailsUseCase =
+        api.conversationGetOneToOneConversation
 
     @Provides
-    fun provideNotifyConversationIsOpenUseCase(conversationScope: ConversationScope): NotifyConversationIsOpenUseCase =
-        conversationScope.notifyConversationIsOpen
+    fun provideNotifyConversationIsOpenUseCase(api: KaliumConversationApi): NotifyConversationIsOpenUseCase =
+        api.conversationNotifyConversationIsOpen
 
     @Provides
-    fun provideDeleteTeamConversationUseCase(conversationScope: ConversationScope): DeleteTeamConversationUseCase =
-        conversationScope.deleteTeamConversation
+    fun provideDeleteTeamConversationUseCase(api: KaliumConversationApi): DeleteTeamConversationUseCase =
+        api.conversationDeleteTeamConversation
 
     @Provides
-    fun provideMarkConversationAsDeletedLocallyUseCase(conversationScope: ConversationScope): MarkConversationAsDeletedLocallyUseCase =
-        conversationScope.markConversationAsDeletedLocallyUseCase
+    fun provideMarkConversationAsDeletedLocallyUseCase(api: KaliumConversationApi): MarkConversationAsDeletedLocallyUseCase =
+        api.conversationMarkConversationAsDeletedLocallyUseCase
 
     @Provides
-    fun provideObserveIsSelfConversationMemberUseCase(conversationScope: ConversationScope): ObserveIsSelfUserMemberUseCase =
-        conversationScope.observeIsSelfUserMemberUseCase
+    fun provideObserveIsSelfConversationMemberUseCase(api: KaliumConversationApi): ObserveIsSelfUserMemberUseCase =
+        api.conversationObserveIsSelfUserMemberUseCase
 
     @Provides
     fun provideObserveConversationInteractionAvailability(
-        conversationScope: ConversationScope
+        api: KaliumConversationApi
     ): ObserveConversationInteractionAvailabilityUseCase =
-        conversationScope.observeConversationInteractionAvailabilityUseCase
+        api.conversationObserveConversationInteractionAvailabilityUseCase
 
     @Provides
-    fun provideObserveConversationMembersUseCase(conversationScope: ConversationScope): ObserveConversationMembersUseCase =
-        conversationScope.observeConversationMembers
+    fun provideObserveConversationMembersUseCase(api: KaliumConversationApi): ObserveConversationMembersUseCase =
+        api.conversationObserveConversationMembers
 
     @Provides
-    fun provideMembersToMentionUseCase(conversationScope: ConversationScope): MembersToMentionUseCase =
-        conversationScope.getMembersToMention
+    fun provideMembersToMentionUseCase(api: KaliumConversationApi): MembersToMentionUseCase =
+        api.conversationGetMembersToMention
 
     @Provides
-    fun provideObserveUserListByIdUseCase(conversationScope: ConversationScope): ObserveUserListByIdUseCase =
-        conversationScope.observeUserListById
+    fun provideObserveUserListByIdUseCase(api: KaliumConversationApi): ObserveUserListByIdUseCase =
+        api.conversationObserveUserListById
 
     @Provides
-    fun providesJoinConversationViaCodeUseCase(conversationScope: ConversationScope): JoinConversationViaCodeUseCase =
-        conversationScope.joinConversationViaCode
+    fun providesJoinConversationViaCodeUseCase(api: KaliumConversationApi): JoinConversationViaCodeUseCase =
+        api.conversationJoinConversationViaCode
 
     @Provides
-    fun providesCanCreatePasswordProtectedLinksUseCase(conversationScope: ConversationScope): CanCreatePasswordProtectedLinksUseCase =
-        conversationScope.canCreatePasswordProtectedLinks
+    fun providesCanCreatePasswordProtectedLinksUseCase(api: KaliumConversationApi): CanCreatePasswordProtectedLinksUseCase =
+        api.conversationCanCreatePasswordProtectedLinks
 
     @Provides
     fun provideRefreshConversationsWithoutMetadataUseCase(
-        conversationScope: ConversationScope
+        api: KaliumConversationApi
     ): RefreshConversationsWithoutMetadataUseCase =
-        conversationScope.refreshConversationsWithoutMetadata
+        api.conversationRefreshConversationsWithoutMetadata
 
     @Provides
-    fun provideGetConversationUnreadEventsCountUseCase(conversationScope: ConversationScope): GetConversationUnreadEventsCountUseCase =
-        conversationScope.getConversationUnreadEventsCountUseCase
+    fun provideGetConversationUnreadEventsCountUseCase(api: KaliumConversationApi): GetConversationUnreadEventsCountUseCase =
+        api.conversationGetConversationUnreadEventsCountUseCase
 
     @Provides
-    fun provideUpdateMessageTimerUseCase(conversationScope: ConversationScope): UpdateMessageTimerUseCase =
-        conversationScope.updateMessageTimer
+    fun provideUpdateMessageTimerUseCase(api: KaliumConversationApi): UpdateMessageTimerUseCase =
+        api.conversationUpdateMessageTimer
 
     @Provides
-    fun provideRenameConversation(conversationScope: ConversationScope): RenameConversationUseCase =
-        conversationScope.renameConversation
+    fun provideRenameConversation(api: KaliumConversationApi): RenameConversationUseCase =
+        api.conversationRenameConversation
 
     @Provides
-    fun provideUpdateConversationReadDateUseCase(conversationScope: ConversationScope): UpdateConversationReadDateUseCase =
-        conversationScope.updateConversationReadDateUseCase
+    fun provideUpdateConversationReadDateUseCase(api: KaliumConversationApi): UpdateConversationReadDateUseCase =
+        api.conversationUpdateConversationReadDateUseCase
 
     @Provides
-    fun provideMarkConversationAsReadLocallyUseCase(conversationScope: ConversationScope): MarkConversationAsReadLocallyUseCase =
-        conversationScope.markConversationAsReadLocally
+    fun provideMarkConversationAsReadLocallyUseCase(api: KaliumConversationApi): MarkConversationAsReadLocallyUseCase =
+        api.conversationMarkConversationAsReadLocally
 
     @Provides
-    fun provideUpdateConversationAccessUseCase(conversationScope: ConversationScope): UpdateConversationAccessRoleUseCase =
-        conversationScope.updateConversationAccess
+    fun provideUpdateConversationAccessUseCase(api: KaliumConversationApi): UpdateConversationAccessRoleUseCase =
+        api.conversationUpdateConversationAccess
 
     @Provides
-    fun provideLeaveConversationUseCase(conversationScope: ConversationScope): LeaveConversationUseCase =
-        conversationScope.leaveConversation
+    fun provideLeaveConversationUseCase(api: KaliumConversationApi): LeaveConversationUseCase =
+        api.conversationLeaveConversation
 
     @Provides
-    fun providePromoteAdminAndLeaveConversationUseCase(conversationScope: ConversationScope): PromoteAdminAndLeaveConversationUseCase =
-        conversationScope.promoteAdminAndLeaveConversation
+    fun providePromoteAdminAndLeaveConversationUseCase(api: KaliumConversationApi): PromoteAdminAndLeaveConversationUseCase =
+        api.conversationPromoteAdminAndLeaveConversation
 
     @Provides
-    fun provideCheckConversationLeaveConditionsUseCase(conversationScope: ConversationScope): CheckConversationLeaveConditionsUseCase =
-        conversationScope.checkConversationLeaveConditions
+    fun provideCheckConversationLeaveConditionsUseCase(api: KaliumConversationApi): CheckConversationLeaveConditionsUseCase =
+        api.conversationCheckConversationLeaveConditions
 
     @Provides
     fun provideObserveEligibleMembersForConversationAdminRoleUseCase(
-        conversationScope: ConversationScope
+        api: KaliumConversationApi
     ): ObserveEligibleMembersForConversationAdminRoleUseCase =
-        conversationScope.observeEligibleMembersForConversationAdminRole
+        api.conversationObserveEligibleMembersForConversationAdminRole
 
     @Provides
-    fun provideUpdateConversationMutedStatusUseCase(conversationScope: ConversationScope): UpdateConversationMutedStatusUseCase =
-        conversationScope.updateConversationMutedStatus
+    fun provideUpdateConversationMutedStatusUseCase(api: KaliumConversationApi): UpdateConversationMutedStatusUseCase =
+        api.conversationUpdateConversationMutedStatus
 
     @Provides
-    fun provideUpdateConversationReceiptModeUseCase(conversationScope: ConversationScope): UpdateConversationReceiptModeUseCase =
-        conversationScope.updateConversationReceiptMode
+    fun provideUpdateConversationReceiptModeUseCase(api: KaliumConversationApi): UpdateConversationReceiptModeUseCase =
+        api.conversationUpdateConversationReceiptMode
 
     @Provides
-    fun provideAddServiceToConversationUseCase(conversationScope: ConversationScope): AddServiceToConversationUseCase =
-        conversationScope.addServiceToConversationUseCase
+    fun provideAddServiceToConversationUseCase(api: KaliumConversationApi): AddServiceToConversationUseCase =
+        api.conversationAddServiceToConversationUseCase
 
     @Provides
-    fun provideRemoveMemberFromConversationUseCase(conversationScope: ConversationScope): RemoveMemberFromConversationUseCase =
-        conversationScope.removeMemberFromConversation
+    fun provideRemoveMemberFromConversationUseCase(api: KaliumConversationApi): RemoveMemberFromConversationUseCase =
+        api.conversationRemoveMemberFromConversation
 
     @Provides
-    fun provideCreateRegularGroupUseCase(conversationScope: ConversationScope): CreateRegularGroupUseCase =
-        conversationScope.createRegularGroup
+    fun provideCreateRegularGroupUseCase(api: KaliumConversationApi): CreateRegularGroupUseCase =
+        api.conversationCreateRegularGroup
 
     @Provides
-    fun provideCreateChannelUseCase(conversationScope: ConversationScope): CreateChannelUseCase =
-        conversationScope.createChannel
+    fun provideCreateChannelUseCase(api: KaliumConversationApi): CreateChannelUseCase =
+        api.conversationCreateChannel
 
     @Provides
-    fun provideAddMemberToConversationUseCase(conversationScope: ConversationScope): AddMemberToConversationUseCase =
-        conversationScope.addMemberToConversationUseCase
+    fun provideAddMemberToConversationUseCase(api: KaliumConversationApi): AddMemberToConversationUseCase =
+        api.conversationAddMemberToConversationUseCase
 
     @Provides
-    fun provideGetOrCreateOneToOneConversationUseCase(conversationScope: ConversationScope): GetOrCreateOneToOneConversationUseCase =
-        conversationScope.getOrCreateOneToOneConversationUseCase
+    fun provideGetOrCreateOneToOneConversationUseCase(api: KaliumConversationApi): GetOrCreateOneToOneConversationUseCase =
+        api.conversationGetOrCreateOneToOneConversationUseCase
 
     @Provides
-    fun provideGenerateGuestRoomLinkUseCase(conversationScope: ConversationScope): GenerateGuestRoomLinkUseCase =
-        conversationScope.generateGuestRoomLink
+    fun provideGenerateGuestRoomLinkUseCase(api: KaliumConversationApi): GenerateGuestRoomLinkUseCase =
+        api.conversationGenerateGuestRoomLink
 
     @Provides
-    fun provideRevokeGuestRoomLinkUseCase(conversationScope: ConversationScope): RevokeGuestRoomLinkUseCase =
-        conversationScope.revokeGuestRoomLink
+    fun provideRevokeGuestRoomLinkUseCase(api: KaliumConversationApi): RevokeGuestRoomLinkUseCase =
+        api.conversationRevokeGuestRoomLink
 
     @Provides
-    fun provideObserveGuestRoomLinkUseCase(conversationScope: ConversationScope): ObserveGuestRoomLinkUseCase =
-        conversationScope.observeGuestRoomLink
+    fun provideObserveGuestRoomLinkUseCase(api: KaliumConversationApi): ObserveGuestRoomLinkUseCase =
+        api.conversationObserveGuestRoomLink
 
     @Provides
-    fun provideClearConversationContentUseCase(conversationScope: ConversationScope): ClearConversationContentUseCase =
-        conversationScope.clearConversationContent
+    fun provideClearConversationContentUseCase(api: KaliumConversationApi): ClearConversationContentUseCase =
+        api.conversationClearConversationContent
 
     @Provides
-    fun provideUpdateConversationArchivedStatusUseCase(conversationScope: ConversationScope): UpdateConversationArchivedStatusUseCase =
-        conversationScope.updateConversationArchivedStatus
+    fun provideUpdateConversationArchivedStatusUseCase(api: KaliumConversationApi): UpdateConversationArchivedStatusUseCase =
+        api.conversationUpdateConversationArchivedStatus
 
     @Provides
-    fun provideUpdateConversationMemberRoleUseCase(conversationScope: ConversationScope): UpdateConversationMemberRoleUseCase =
-        conversationScope.updateConversationMemberRole
+    fun provideUpdateConversationMemberRoleUseCase(api: KaliumConversationApi): UpdateConversationMemberRoleUseCase =
+        api.conversationUpdateConversationMemberRole
 
     @Provides
     fun provideObserveArchivedUnreadConversationsCountUseCase(
-        conversationScope: ConversationScope
-    ): ObserveArchivedUnreadConversationsCountUseCase = conversationScope.observeArchivedUnreadConversationsCount
+        api: KaliumConversationApi
+    ): ObserveArchivedUnreadConversationsCountUseCase = api.conversationObserveArchivedUnreadConversationsCount
 
     @Provides
-    fun provideObserveUsersTypingUseCase(conversationScope: ConversationScope): ObserveUsersTypingUseCase =
-        conversationScope.observeUsersTyping
+    fun provideObserveUsersTypingUseCase(api: KaliumConversationApi): ObserveUsersTypingUseCase =
+        api.conversationObserveUsersTyping
 
     @Provides
-    fun provideSendTypingEventUseCase(conversationScope: ConversationScope): SendTypingEventUseCase = conversationScope.sendTypingEvent
+    fun provideSendTypingEventUseCase(api: KaliumConversationApi): SendTypingEventUseCase = api.conversationSendTypingEvent
 
     @Provides
-    fun provideClearTypingEventsUseCase(conversationScope: ConversationScope): ClearUsersTypingEventsUseCase =
-        conversationScope.clearUsersTypingEvents
+    fun provideClearTypingEventsUseCase(api: KaliumConversationApi): ClearUsersTypingEventsUseCase =
+        api.conversationClearUsersTypingEvents
 
     @Provides
     fun provideSetUserInformedAboutVerificationBeforeMessagingUseCase(
-        conversationScope: ConversationScope
+        api: KaliumConversationApi
     ): SetUserInformedAboutVerificationUseCase =
-        conversationScope.setUserInformedAboutVerificationBeforeMessagingUseCase
+        api.conversationSetUserInformedAboutVerificationBeforeMessagingUseCase
 
     @Provides
     fun provideObserveInformAboutVerificationBeforeMessagingFlagUseCase(
-        conversationScope: ConversationScope
+        api: KaliumConversationApi
     ): ObserveDegradedConversationNotifiedUseCase =
-        conversationScope.observeInformAboutVerificationBeforeMessagingFlagUseCase
+        api.conversationObserveInformAboutVerificationBeforeMessagingFlagUseCase
 
     @Provides
     fun provideSetUserNotifiedAboutConversationUnderLegalHoldUseCase(
-        conversationScope: ConversationScope,
-    ): SetNotifiedAboutConversationUnderLegalHoldUseCase = conversationScope.setNotifiedAboutConversationUnderLegalHold
+        api: KaliumConversationApi,
+    ): SetNotifiedAboutConversationUnderLegalHoldUseCase = api.conversationSetNotifiedAboutConversationUnderLegalHold
 
     @Provides
     fun provideObserveLegalHoldWithChangeNotifiedForConversationUseCase(
-        conversationScope: ConversationScope,
-    ): ObserveConversationUnderLegalHoldNotifiedUseCase = conversationScope.observeConversationUnderLegalHoldNotified
+        api: KaliumConversationApi,
+    ): ObserveConversationUnderLegalHoldNotifiedUseCase = api.conversationObserveConversationUnderLegalHoldNotified
 
     @Provides
-    fun provideSyncConversationCodeUseCase(conversationScope: ConversationScope): SyncConversationCodeUseCase =
-        conversationScope.syncConversationCode
+    fun provideSyncConversationCodeUseCase(api: KaliumConversationApi): SyncConversationCodeUseCase =
+        api.conversationSyncConversationCode
 
     @Provides
-    fun provideIsOneToOneConversationCreatedUseCase(conversationScope: ConversationScope): IsOneToOneConversationCreatedUseCase =
-        conversationScope.isOneToOneConversationCreatedUseCase
+    fun provideIsOneToOneConversationCreatedUseCase(api: KaliumConversationApi): IsOneToOneConversationCreatedUseCase =
+        api.conversationIsOneToOneConversationCreatedUseCase
 
     @Provides
     fun provideCheckOneToOneConversationIsReadyUseCase(
-        conversationScope: ConversationScope
-    ): CheckOneToOneConversationIsReadyUseCase = conversationScope.checkOneToOneConversationIsReadyUseCase
+        api: KaliumConversationApi
+    ): CheckOneToOneConversationIsReadyUseCase = api.conversationCheckOneToOneConversationIsReadyUseCase
 
     @Provides
-    fun provideGetConversationProtocolInfoUseCase(conversationScope: ConversationScope): GetConversationProtocolInfoUseCase =
-        conversationScope.getConversationProtocolInfo
+    fun provideGetConversationProtocolInfoUseCase(api: KaliumConversationApi): GetConversationProtocolInfoUseCase =
+        api.conversationGetConversationProtocolInfo
 
     @Provides
     fun provideGetPaginatedFlowOfConversationDetailsWithMembersBySearchQueryUseCase(
-        conversationScope: ConversationScope
+        api: KaliumConversationApi
     ): GetPaginatedFlowOfConversationDetailsWithMembersBySearchQueryUseCase =
-        conversationScope.getPaginatedFlowOfConversationDetailsWithMembersBySearchQuery
+        api.conversationGetPaginatedFlowOfConversationDetailsWithMembersBySearchQuery
 
     @Provides
     fun provideGetPaginatedFlowOfConversationDetailsWithEventsBySearchQueryUseCase(
-        conversationScope: ConversationScope
+        api: KaliumConversationApi
     ): GetPaginatedFlowOfConversationDetailsWithEventsBySearchQueryUseCase =
-        conversationScope.getPaginatedFlowOfConversationDetailsWithEventsBySearchQuery
+        api.conversationGetPaginatedFlowOfConversationDetailsWithEventsBySearchQuery
 
     @Provides
-    fun provideObserveConversationsFromFolderUseCase(conversationScope: ConversationScope): ObserveConversationsFromFolderUseCase =
-        conversationScope.observeConversationsFromFolder
+    fun provideObserveConversationsFromFolderUseCase(api: KaliumConversationApi): ObserveConversationsFromFolderUseCase =
+        api.conversationObserveConversationsFromFolder
 
     @Provides
-    fun provideGetFavoriteFolderUseCase(conversationScope: ConversationScope): GetFavoriteFolderUseCase =
-        conversationScope.getFavoriteFolder
+    fun provideGetFavoriteFolderUseCase(api: KaliumConversationApi): GetFavoriteFolderUseCase =
+        api.conversationGetFavoriteFolder
 
     @Provides
-    fun provideAddConversationToFavoritesUseCase(conversationScope: ConversationScope): AddConversationToFavoritesUseCase =
-        conversationScope.addConversationToFavorites
+    fun provideAddConversationToFavoritesUseCase(api: KaliumConversationApi): AddConversationToFavoritesUseCase =
+        api.conversationAddConversationToFavorites
 
     @Provides
-    fun provideRemoveConversationFromFavoritesUseCase(conversationScope: ConversationScope): RemoveConversationFromFavoritesUseCase =
-        conversationScope.removeConversationFromFavorites
+    fun provideRemoveConversationFromFavoritesUseCase(api: KaliumConversationApi): RemoveConversationFromFavoritesUseCase =
+        api.conversationRemoveConversationFromFavorites
 
     @Provides
-    fun provideObserveUserFoldersUseCase(conversationScope: ConversationScope): ObserveUserFoldersUseCase =
-        conversationScope.observeUserFolders
+    fun provideObserveUserFoldersUseCase(api: KaliumConversationApi): ObserveUserFoldersUseCase =
+        api.conversationObserveUserFolders
 
     @Provides
-    fun provideMoveConversationToFolderUseCase(conversationScope: ConversationScope): MoveConversationToFolderUseCase =
-        conversationScope.moveConversationToFolder
+    fun provideMoveConversationToFolderUseCase(api: KaliumConversationApi): MoveConversationToFolderUseCase =
+        api.conversationMoveConversationToFolder
 
     @Provides
-    fun provideRemoveConversationFromFolderUseCase(conversationScope: ConversationScope): RemoveConversationFromFolderUseCase =
-        conversationScope.removeConversationFromFolder
+    fun provideRemoveConversationFromFolderUseCase(api: KaliumConversationApi): RemoveConversationFromFolderUseCase =
+        api.conversationRemoveConversationFromFolder
 
     @Provides
-    fun provideCreateConversationFolderUseCase(conversationScope: ConversationScope): CreateConversationFolderUseCase =
-        conversationScope.createConversationFolder
+    fun provideCreateConversationFolderUseCase(api: KaliumConversationApi): CreateConversationFolderUseCase =
+        api.conversationCreateConversationFolder
 
     @Provides
     fun provideResetMlsConversationUseCase(
@@ -381,12 +379,12 @@ class ConversationModule {
 
     @Provides
     fun provideChangeAccessForAppsInConversationUseCase(
-        conversationScope: ConversationScope
+        api: KaliumConversationApi
     ): ChangeAccessForAppsInConversationUseCase =
-        conversationScope.changeAccessForAppsInConversation
+        api.conversationChangeAccessForAppsInConversation
 
     @Provides
     fun provideIsSelfUserViewerOnConversationUseCase(
-        conversationScope: ConversationScope
-    ): IsSelfUserViewerOnConversationUseCase = conversationScope.isSelfUserViewerOnConversation
+        api: KaliumConversationApi
+    ): IsSelfUserViewerOnConversationUseCase = api.conversationIsSelfUserViewerOnConversation
 }

@@ -21,8 +21,8 @@ import com.wire.android.di.CurrentAccount
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.di.KaliumClientApi
 import com.wire.kalium.logic.feature.client.ClientFingerprintUseCase
-import com.wire.kalium.logic.feature.client.ClientScope
 import com.wire.kalium.logic.feature.client.DeleteClientUseCase
 import com.wire.kalium.logic.feature.client.FetchSelfClientsFromRemoteUseCase
 import com.wire.kalium.logic.feature.client.FetchUsersClientsFromRemoteUseCase
@@ -41,54 +41,54 @@ import dev.zacsweers.metro.Provides
 class ClientModule {
 
     @Provides
-    fun provideClientScopeProvider(
+    fun provideClientApi(
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId
-    ): ClientScope = coreLogic.getSessionScope(currentAccount).client
+    ): KaliumClientApi = coreLogic.getSessionScope(currentAccount).clientApi
 
     @Provides
-    fun provideMlsKeyPackageCountUseCase(clientScope: ClientScope): MLSKeyPackageCountUseCase =
-        clientScope.mlsKeyPackageCountUseCase
+    fun provideMlsKeyPackageCountUseCase(api: KaliumClientApi): MLSKeyPackageCountUseCase =
+        api.clientMlsKeyPackageCountUseCase
 
     @Provides
-    fun provideRestartSlowSyncProcessForRecoveryUseCase(clientScope: ClientScope): RestartSlowSyncProcessForRecoveryUseCase =
-        clientScope.restartSlowSyncProcessForRecoveryUseCase
+    fun provideRestartSlowSyncProcessForRecoveryUseCase(api: KaliumClientApi): RestartSlowSyncProcessForRecoveryUseCase =
+        api.clientRestartSlowSyncProcessForRecoveryUseCase
 
     @Provides
-    fun provideDeleteClientUseCase(clientScope: ClientScope): DeleteClientUseCase = clientScope.deleteClient
+    fun provideDeleteClientUseCase(api: KaliumClientApi): DeleteClientUseCase = api.clientDeleteClient
 
     @Provides
-    fun provideGetOrRegisterClientUseCase(clientScope: ClientScope): GetOrRegisterClientUseCase =
-        clientScope.getOrRegister
+    fun provideGetOrRegisterClientUseCase(api: KaliumClientApi): GetOrRegisterClientUseCase =
+        api.clientGetOrRegister
 
     @Provides
-    fun provideFetchUsersClientsFromRemoteUseCase(clientScope: ClientScope): FetchUsersClientsFromRemoteUseCase =
-        clientScope.fetchUsersClients
+    fun provideFetchUsersClientsFromRemoteUseCase(api: KaliumClientApi): FetchUsersClientsFromRemoteUseCase =
+        api.clientFetchUsersClients
 
     @Provides
-    fun provideGetOtherUsersClients(clientScope: ClientScope): ObserveClientsByUserIdUseCase =
-        clientScope.getOtherUserClients
+    fun provideGetOtherUsersClients(api: KaliumClientApi): ObserveClientsByUserIdUseCase =
+        api.clientGetOtherUserClients
 
     @Provides
-    fun provideFetchSelfClientsFromRemoteUseCase(clientScope: ClientScope): FetchSelfClientsFromRemoteUseCase =
-        clientScope.fetchSelfClients
+    fun provideFetchSelfClientsFromRemoteUseCase(api: KaliumClientApi): FetchSelfClientsFromRemoteUseCase =
+        api.clientFetchSelfClients
 
     @Provides
-    fun provideClientFingerPrintUseCase(clientScope: ClientScope): ClientFingerprintUseCase =
-        clientScope.remoteClientFingerPrint
+    fun provideClientFingerPrintUseCase(api: KaliumClientApi): ClientFingerprintUseCase =
+        api.clientRemoteClientFingerPrint
 
     @Provides
-    fun provideUpdateClientVerificationStatusUseCase(clientScope: ClientScope): UpdateClientVerificationStatusUseCase =
-        clientScope.updateClientVerificationStatus
+    fun provideUpdateClientVerificationStatusUseCase(api: KaliumClientApi): UpdateClientVerificationStatusUseCase =
+        api.clientUpdateClientVerificationStatus
 
     @Provides
-    fun provideGetClientDetailsUseCase(clientScope: ClientScope): ObserveClientDetailsUseCase = clientScope.observeClientDetailsUseCase
+    fun provideGetClientDetailsUseCase(api: KaliumClientApi): ObserveClientDetailsUseCase = api.clientObserveClientDetailsUseCase
 
     @Provides
-    fun provideObserveCurrentClientUseCase(clientScope: ClientScope): ObserveCurrentClientIdUseCase =
-        clientScope.observeCurrentClientId
+    fun provideObserveCurrentClientUseCase(api: KaliumClientApi): ObserveCurrentClientIdUseCase =
+        api.clientObserveCurrentClientId
 
     @Provides
-    fun provideNeedsToRegisterClientUseCase(clientScope: ClientScope): NeedsToRegisterClientUseCase =
-        clientScope.needsToRegisterClient
+    fun provideNeedsToRegisterClientUseCase(api: KaliumClientApi): NeedsToRegisterClientUseCase =
+        api.clientNeedsToRegisterClient
 }

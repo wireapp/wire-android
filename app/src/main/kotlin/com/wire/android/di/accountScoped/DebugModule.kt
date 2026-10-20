@@ -21,10 +21,10 @@ import com.wire.android.di.CurrentAccount
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.di.KaliumDebugApi
 import com.wire.kalium.logic.feature.debug.BreakSessionUseCase
 import com.wire.kalium.logic.feature.debug.ChangeProfilingUseCase
 import com.wire.kalium.logic.feature.debug.DebugFeedConversationUseCase
-import com.wire.kalium.logic.feature.debug.DebugScope
 import com.wire.kalium.logic.feature.debug.DisableEventProcessingUseCase
 import com.wire.kalium.logic.feature.debug.GetConversationCryptoStatsUseCase
 import com.wire.kalium.logic.feature.debug.GetConversationEpochFromCCUseCase
@@ -46,74 +46,74 @@ import dev.zacsweers.metro.Provides
 class DebugModule {
 
     @Provides
-    fun providesDebugScope(
+    fun provideDebugApi(
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId
-    ): DebugScope = coreLogic.getSessionScope(currentAccount).debug
+    ): KaliumDebugApi = coreLogic.getSessionScope(currentAccount).debugApi
 
     @Provides
-    fun provideDisableEventProcessing(debugScope: DebugScope): DisableEventProcessingUseCase =
-        debugScope.disableEventProcessing
+    fun provideDisableEventProcessing(api: KaliumDebugApi): DisableEventProcessingUseCase =
+        api.debugDisableEventProcessing
 
     @Provides
-    fun provideBreakSessionUseCase(debugScope: DebugScope): BreakSessionUseCase =
-        debugScope.breakSession
+    fun provideBreakSessionUseCase(api: KaliumDebugApi): BreakSessionUseCase =
+        api.debugBreakSession
 
     @Provides
-    fun provideSendFCMTokenToAPIUseCase(debugScope: DebugScope): SendFCMTokenUseCase =
-        debugScope.sendFCMTokenToServer
+    fun provideSendFCMTokenToAPIUseCase(api: KaliumDebugApi): SendFCMTokenUseCase =
+        api.debugSendFCMTokenToServer
 
     @Provides
-    fun provideChangeProfilingUseCase(debugScope: DebugScope): ChangeProfilingUseCase =
-        debugScope.changeProfiling
+    fun provideChangeProfilingUseCase(api: KaliumDebugApi): ChangeProfilingUseCase =
+        api.debugChangeProfiling
 
     @Provides
-    fun provideObserveDatabaseLoggerState(debugScope: DebugScope): ObserveDatabaseLoggerStateUseCase =
-        debugScope.observeDatabaseLoggerState
+    fun provideObserveDatabaseLoggerState(api: KaliumDebugApi): ObserveDatabaseLoggerStateUseCase =
+        api.debugObserveDatabaseLoggerState
 
     @Provides
-    fun provideFeatureConfigUseCase(debugScope: DebugScope): GetFeatureConfigUseCase = debugScope.getFeatureConfig
+    fun provideFeatureConfigUseCase(api: KaliumDebugApi): GetFeatureConfigUseCase = api.debugGetFeatureConfig
 
     @Provides
-    fun provideGetSqlCipherVersionUseCase(debugScope: DebugScope): GetSqlCipherVersionUseCase = debugScope.getSqlCipherVersion
+    fun provideGetSqlCipherVersionUseCase(api: KaliumDebugApi): GetSqlCipherVersionUseCase = api.debugGetSqlCipherVersion
 
     @Provides
-    fun provideGetCryptoServiceReportUseCase(debugScope: DebugScope): GetCryptoServiceReportUseCase =
-        debugScope.getCryptoServiceReport
+    fun provideGetCryptoServiceReportUseCase(api: KaliumDebugApi): GetCryptoServiceReportUseCase =
+        api.debugGetCryptoServiceReport
 
     @Provides
-    fun provideGetDebugE2EICertificateExpirationUseCase(debugScope: DebugScope): GetDebugE2EICertificateExpirationUseCase =
-        debugScope.getDebugE2EICertificateExpiration
+    fun provideGetDebugE2EICertificateExpirationUseCase(api: KaliumDebugApi): GetDebugE2EICertificateExpirationUseCase =
+        api.debugGetDebugE2EICertificateExpiration
 
     @Provides
-    fun provideSetDebugE2EICertificateExpirationUseCase(debugScope: DebugScope): SetDebugE2EICertificateExpirationUseCase =
-        debugScope.setDebugE2EICertificateExpiration
+    fun provideSetDebugE2EICertificateExpirationUseCase(api: KaliumDebugApi): SetDebugE2EICertificateExpirationUseCase =
+        api.debugSetDebugE2EICertificateExpiration
 
     @Provides
     fun provideObserveDebugCRLExpirationAfterOneMinuteUseCase(
-        debugScope: DebugScope
+        api: KaliumDebugApi
     ): ObserveDebugCRLExpirationAfterOneMinuteUseCase =
-        debugScope.observeDebugCRLExpirationAfterOneMinute
+        api.debugObserveDebugCRLExpirationAfterOneMinute
 
     @Provides
     fun provideSetDebugCRLExpirationAfterOneMinuteUseCase(
-        debugScope: DebugScope
+        api: KaliumDebugApi
     ): SetDebugCRLExpirationAfterOneMinuteUseCase =
-        debugScope.setDebugCRLExpirationAfterOneMinute
+        api.debugSetDebugCRLExpirationAfterOneMinute
 
     @Provides
-    fun provideGetConversationEpochFromCCUseCase(debugScope: DebugScope): GetConversationEpochFromCCUseCase =
-        debugScope.getConversationEpochFromCC
+    fun provideGetConversationEpochFromCCUseCase(api: KaliumDebugApi): GetConversationEpochFromCCUseCase =
+        api.debugGetConversationEpochFromCC
 
     @Provides
-    fun provideDebugFeedConversationUseCase(debugScope: DebugScope): DebugFeedConversationUseCase =
-        debugScope.debugFeedConversationUseCase
+    fun provideDebugFeedConversationUseCase(api: KaliumDebugApi): DebugFeedConversationUseCase =
+        api.debugDebugFeedConversationUseCase
 
     @Provides
-    fun provideRepairFaultyRemovalKeysUseCase(debugScope: DebugScope): RepairFaultyRemovalKeysUseCase =
-        debugScope.repairFaultyRemovalKeysUseCase
+    fun provideRepairFaultyRemovalKeysUseCase(api: KaliumDebugApi): RepairFaultyRemovalKeysUseCase =
+        api.debugRepairFaultyRemovalKeysUseCase
 
     @Provides
-    fun provideGetConversationCryptoStatsUseCase(debugScope: DebugScope): GetConversationCryptoStatsUseCase =
-        debugScope.getConversationCryptoStats
+    fun provideGetConversationCryptoStatsUseCase(api: KaliumDebugApi): GetConversationCryptoStatsUseCase =
+        api.debugGetConversationCryptoStats
 }

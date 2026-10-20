@@ -22,7 +22,7 @@ import com.wire.android.di.KaliumCoreLogic
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.team.SyncSelfTeamInfoUseCase
-import com.wire.kalium.logic.feature.team.TeamScope
+import com.wire.kalium.logic.di.KaliumTeamApi
 import com.wire.kalium.logic.feature.user.IsSelfATeamMemberUseCase
 import dev.zacsweers.metro.BindingContainer
 import dev.zacsweers.metro.Provides
@@ -31,16 +31,16 @@ import dev.zacsweers.metro.Provides
 class TeamModule {
 
     @Provides
-    fun provideTeamScope(
+    fun provideTeamApi(
         @CurrentAccount currentAccount: UserId,
         @KaliumCoreLogic coreLogic: CoreLogic
-    ): TeamScope = coreLogic.getSessionScope(currentAccount).team
+    ): KaliumTeamApi = coreLogic.getSessionScope(currentAccount).teamApiFactory.create()
 
     @Provides
-    fun provideSyncSelfTeamInfoUseCase(teamScope: TeamScope): SyncSelfTeamInfoUseCase =
-        teamScope.syncSelfTeamInfoUseCase
+    fun provideSyncSelfTeamInfoUseCase(api: KaliumTeamApi): SyncSelfTeamInfoUseCase =
+        api.teamSyncSelfTeamInfoUseCase
 
     @Provides
-    fun provideIsSelfATeamMemberUseCase(teamScope: TeamScope): IsSelfATeamMemberUseCase =
-        teamScope.isSelfATeamMember
+    fun provideIsSelfATeamMemberUseCase(api: KaliumTeamApi): IsSelfATeamMemberUseCase =
+        api.teamIsSelfATeamMember
 }

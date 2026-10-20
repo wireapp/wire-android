@@ -133,27 +133,27 @@ class CoreLogicModule {
 
     @Provides
     fun provideCurrentSessionUseCase(@KaliumCoreLogic coreLogic: CoreLogic): CurrentSessionUseCase =
-        coreLogic.getGlobalScope().session.currentSession
+        coreLogic.sessionSelectionApiFactory.create().currentSession
 
     @Provides
     fun deleteSessionUseCase(@KaliumCoreLogic coreLogic: CoreLogic): DeleteSessionUseCase =
-        coreLogic.getGlobalScope().deleteSession
+        coreLogic.globalAccountsApi.globalDeleteSession
 
     @Provides
     fun provideUpdateCurrentSessionUseCase(@KaliumCoreLogic coreLogic: CoreLogic): UpdateCurrentSessionUseCase =
-        coreLogic.getGlobalScope().session.updateCurrentSession
+        coreLogic.sessionSelectionApiFactory.create().updateCurrentSession
 
     @Provides
     fun provideGetAllSessionsUseCase(@KaliumCoreLogic coreLogic: CoreLogic): GetSessionsUseCase =
-        coreLogic.getGlobalScope().session.allSessions
+        coreLogic.sessionSelectionApiFactory.create().allSessions
 
     @Provides
     fun provideObserveAllSessionsUseCase(@KaliumCoreLogic coreLogic: CoreLogic): ObserveSessionsUseCase =
-        coreLogic.getGlobalScope().session.allSessionsFlow
+        coreLogic.sessionSelectionApiFactory.create().allSessionsFlow
 
     @Provides
     fun provideServerConfigForAccountUseCase(@KaliumCoreLogic coreLogic: CoreLogic): ServerConfigForAccountUseCase =
-        coreLogic.getGlobalScope().serverConfigForAccounts
+        coreLogic.globalAccountsApi.globalServerConfigForAccounts
 
     @NoSession
     @SingleIn(AppScope::class)
@@ -206,36 +206,36 @@ class UseCaseModule {
 
     @Provides
     fun provideValidateEmailUseCase(@KaliumCoreLogic coreLogic: CoreLogic): ValidateEmailUseCase =
-        coreLogic.getGlobalScope().validateEmailUseCase
+        coreLogic.globalValidationApi.globalValidateEmailUseCase
 
     @Provides
     fun provideValidateSSOCodeUseCase(@KaliumCoreLogic coreLogic: CoreLogic): ValidateSSOCodeUseCase =
-        coreLogic.getGlobalScope().validateSSOCodeUseCase
+        coreLogic.globalValidationApi.globalValidateSSOCodeUseCase
 
     @Provides
     fun provideValidatePasswordUseCase(@KaliumCoreLogic coreLogic: CoreLogic): ValidatePasswordUseCase =
-        coreLogic.getGlobalScope().validatePasswordUseCase
+        coreLogic.globalValidationApi.globalValidatePasswordUseCase
 
     @Provides
     fun provideValidateUserHandleUseCase(@KaliumCoreLogic coreLogic: CoreLogic): ValidateUserHandleUseCase =
-        coreLogic.getGlobalScope().validateUserHandleUseCase
+        coreLogic.globalValidationApi.globalValidateUserHandleUseCase
 
     @Provides
     fun provideGetServerConfigUserCase(@KaliumCoreLogic coreLogic: CoreLogic): GetServerConfigUseCase =
-        coreLogic.getGlobalScope().fetchServerConfigFromDeepLink
+        coreLogic.globalValidationApi.globalFetchServerConfigFromDeepLink
 
     @Provides
     fun provideCurrentSessionFlowUseCase(@KaliumCoreLogic coreLogic: CoreLogic): CurrentSessionFlowUseCase =
-        coreLogic.getGlobalScope().session.currentSessionFlow
+        coreLogic.sessionSelectionApiFactory.create().currentSessionFlow
 
     @Provides
     fun provideAddAuthenticatedUserUseCase(@KaliumCoreLogic coreLogic: CoreLogic): AddAuthenticatedUserUseCase =
-        coreLogic.getGlobalScope().addAuthenticatedAccount
+        coreLogic.globalAccountsApi.globalAddAuthenticatedAccount
 
     @Provides
     fun provideObservePersistentWebSocketConnectionStatusUseCase(
         @KaliumCoreLogic coreLogic: CoreLogic
-    ): ObservePersistentWebSocketConnectionStatusUseCase = coreLogic.getGlobalScope().observePersistentWebSocketConnectionStatus
+    ): ObservePersistentWebSocketConnectionStatusUseCase = coreLogic.globalRuntimeApi.globalObservePersistentWebSocketConnectionStatus
 
     @Provides
     fun providePersistPersistentWebSocketConnectionStatusUseCase(
@@ -314,26 +314,26 @@ class UseCaseModule {
     fun provideBlockUserUseCase(
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId
-    ): BlockUserUseCase = coreLogic.getSessionScope(currentAccount).connection.blockUser
+    ): BlockUserUseCase = coreLogic.getSessionScope(currentAccount).connectionApiFactory.create().connectionBlockUser
 
     @Provides
     fun provideUnblockUserUseCase(
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId
     ): UnblockUserUseCase =
-        coreLogic.getSessionScope(currentAccount).connection.unblockUser
+        coreLogic.getSessionScope(currentAccount).connectionApiFactory.create().connectionUnblockUser
 
     @Provides
     fun provideObserveValidAccountsUseCase(@KaliumCoreLogic coreLogic: CoreLogic): ObserveValidAccountsUseCase =
-        coreLogic.getGlobalScope().observeValidAccounts
+        coreLogic.globalAccountsApi.globalObserveValidAccounts
 
     @Provides
     fun provideDoesValidSessionExistsUseCase(@KaliumCoreLogic coreLogic: CoreLogic): DoesValidSessionExistUseCase =
-        coreLogic.getGlobalScope().doesValidSessionExist
+        coreLogic.globalAccountsApi.globalDoesValidSessionExist
 
     @Provides
     fun provideDoesValidNomadAccountExistUseCase(@KaliumCoreLogic coreLogic: CoreLogic): DoesValidNomadAccountExistUseCase =
-        coreLogic.getGlobalScope().doesValidNomadAccountExist
+        coreLogic.globalAccountsApi.globalDoesValidNomadAccountExist
 
     @Provides
     fun observeSecurityClassificationLabelUseCase(
@@ -347,22 +347,22 @@ class UseCaseModule {
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId
     ): CreateMPBackupUseCase =
-        coreLogic.getSessionScope(currentAccount).multiPlatformBackup.create
+        coreLogic.getSessionScope(currentAccount).multiPlatformBackupApiFactory.create().mpBackupCreate
 
     @Provides
     fun provideRestoreMpBackupUseCase(
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId
     ): RestoreMPBackupUseCase =
-        coreLogic.getSessionScope(currentAccount).multiPlatformBackup.restore
+        coreLogic.getSessionScope(currentAccount).multiPlatformBackupApiFactory.create().mpBackupRestore
 
     @Provides
     fun provideUpdateApiVersionsScheduler(@KaliumCoreLogic coreLogic: CoreLogic): UpdateApiVersionsScheduler =
-        coreLogic.getGlobalScope().updateApiVersionsScheduler
+        coreLogic.globalRuntimeApi.globalUpdateApiVersionsScheduler
 
     @Provides
     fun provideObserveIfAppFreshEnoughUseCase(@KaliumCoreLogic coreLogic: CoreLogic): ObserveIfAppUpdateRequiredUseCase =
-        coreLogic.getGlobalScope().observeIfAppUpdateRequired
+        coreLogic.globalRuntimeApi.globalObserveIfAppUpdateRequired
 
     @Provides
     fun provideMarkFileSharingStatusAsNotified(
@@ -427,11 +427,11 @@ class UseCaseModule {
 
     @Provides
     fun provideObserveNewClientsUseCaseUseCase(@KaliumCoreLogic coreLogic: CoreLogic): ObserveNewClientsUseCase =
-        coreLogic.getGlobalScope().observeNewClientsUseCase
+        coreLogic.globalAccountsApi.globalObserveNewClientsUseCase
 
     @Provides
     fun provideClearNewClientsForUser(@KaliumCoreLogic coreLogic: CoreLogic): ClearNewClientsForUserUseCase =
-        coreLogic.getGlobalScope().clearNewClientsForUser
+        coreLogic.globalAccountsApi.globalClearNewClientsForUser
 
     @Provides
     fun providePersistScreenshotCensoringConfigUseCase(
@@ -448,7 +448,7 @@ class UseCaseModule {
     @Provides
     fun provideObserveIsAppLockEditableUseCase(
         @KaliumCoreLogic coreLogic: CoreLogic
-    ): ObserveIsAppLockEditableUseCase = coreLogic.getGlobalScope().observeIsAppLockEditableUseCase
+    ): ObserveIsAppLockEditableUseCase = coreLogic.globalRuntimeApi.globalObserveIsAppLockEditableUseCase
 
     @Provides
     fun provideObserveLegalHoldRequestUseCase(

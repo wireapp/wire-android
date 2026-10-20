@@ -21,6 +21,7 @@ import com.wire.android.di.CurrentAccount
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.di.KaliumUserApi
 import com.wire.kalium.logic.feature.asset.DeleteAssetUseCase
 import com.wire.kalium.logic.feature.asset.GetAssetSizeLimitUseCase
 import com.wire.kalium.logic.feature.asset.GetAvatarAssetUseCase
@@ -55,7 +56,6 @@ import com.wire.kalium.logic.feature.user.UpdateDisplayNameUseCase
 import com.wire.kalium.logic.feature.user.UpdateEmailUseCase
 import com.wire.kalium.logic.feature.user.UpdateSelfAvailabilityStatusUseCase
 import com.wire.kalium.logic.feature.user.UploadUserAvatarUseCase
-import com.wire.kalium.logic.feature.user.UserScope
 import com.wire.kalium.logic.feature.user.linkPreviews.ObserveLinkPreviewsEnabledUseCase
 import com.wire.kalium.logic.feature.user.linkPreviews.PersistLinkPreviewsStatusConfigUseCase
 import com.wire.kalium.logic.feature.user.readReceipts.ObserveReadReceiptsEnabledUseCase
@@ -71,88 +71,88 @@ import dev.zacsweers.metro.Provides
 class UserModule {
 
     @Provides
-    fun provideUserScope(
+    fun provideUserApi(
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId
-    ): UserScope = coreLogic.getSessionScope(currentAccount).users
+    ): KaliumUserApi = coreLogic.getSessionScope(currentAccount).userApi
 
     @Provides
     fun provideRefreshUsersWithoutMetadataUseCase(
-        userScope: UserScope
-    ): RefreshUsersWithoutMetadataUseCase = userScope.refreshUsersWithoutMetadata
+        api: KaliumUserApi
+    ): RefreshUsersWithoutMetadataUseCase = api.userRefreshUsersWithoutMetadata
 
     @Provides
     fun provideDeleteAccountUseCase(
-        userScope: UserScope
+        api: KaliumUserApi
     ): DeleteAccountUseCase =
-        userScope.deleteAccount
+        api.userDeleteAccount
 
     @Provides
     fun provideUpdateEmailUseCase(
-        userScope: UserScope
+        api: KaliumUserApi
     ): UpdateEmailUseCase =
-        userScope.updateEmail
+        api.userUpdateEmail
 
     @Provides
     fun provideUpdateDisplayNameUseCase(
-        userScope: UserScope
+        api: KaliumUserApi
     ): UpdateDisplayNameUseCase =
-        userScope.updateDisplayName
+        api.userUpdateDisplayName
 
     @Provides
     fun provideUpdateAccentColorUseCase(
-        userScope: UserScope
+        api: KaliumUserApi
     ): UpdateAccentColorUseCase =
-        userScope.updateAccentColor
+        api.userUpdateAccentColor
 
     @Provides
     fun provideGetAssetSizeLimitUseCase(
-        userScope: UserScope
+        api: KaliumUserApi
     ): GetAssetSizeLimitUseCase =
-        userScope.getAssetSizeLimit
+        api.userGetAssetSizeLimit
 
     @Provides
-    fun provideObserveReadReceiptsEnabled(userScope: UserScope): ObserveReadReceiptsEnabledUseCase =
-        userScope.observeReadReceiptsEnabled
+    fun provideObserveReadReceiptsEnabled(api: KaliumUserApi): ObserveReadReceiptsEnabledUseCase =
+        api.userObserveReadReceiptsEnabled
 
     @Provides
-    fun providePersistReadReceiptsStatusConfig(userScope: UserScope): PersistReadReceiptsStatusConfigUseCase =
-        userScope.persistReadReceiptsStatusConfig
+    fun providePersistReadReceiptsStatusConfig(api: KaliumUserApi): PersistReadReceiptsStatusConfigUseCase =
+        api.userPersistReadReceiptsStatusConfig
 
     @Provides
-    fun provideObserveLinkPreviewsEnabled(userScope: UserScope): ObserveLinkPreviewsEnabledUseCase =
-        userScope.observeLinkPreviewsEnabled
+    fun provideObserveLinkPreviewsEnabled(api: KaliumUserApi): ObserveLinkPreviewsEnabledUseCase =
+        api.userObserveLinkPreviewsEnabled
 
     @Provides
-    fun providePersistLinkPreviewsStatusConfig(userScope: UserScope): PersistLinkPreviewsStatusConfigUseCase =
-        userScope.persistLinkPreviewsStatusConfig
+    fun providePersistLinkPreviewsStatusConfig(api: KaliumUserApi): PersistLinkPreviewsStatusConfigUseCase =
+        api.userPersistLinkPreviewsStatusConfig
 
     @Provides
-    fun provideFinalizeMLSClientAfterE2EIEnrollmentUseCase(userScope: UserScope): FinalizeMLSClientAfterE2EIEnrollmentUseCase =
-        userScope.finalizeMLSClientAfterE2EIEnrollment
+    fun provideFinalizeMLSClientAfterE2EIEnrollmentUseCase(api: KaliumUserApi): FinalizeMLSClientAfterE2EIEnrollmentUseCase =
+        api.userFinalizeMLSClientAfterE2EIEnrollment
 
     @Provides
-    fun provideObserveTypingIndicatorEnabled(userScope: UserScope): ObserveTypingIndicatorEnabledUseCase =
-        userScope.observeTypingIndicatorEnabled
+    fun provideObserveTypingIndicatorEnabled(api: KaliumUserApi): ObserveTypingIndicatorEnabledUseCase =
+        api.userObserveTypingIndicatorEnabled
 
     @Provides
-    fun providePersistTypingIndicatorStatusConfig(userScope: UserScope): PersistTypingIndicatorStatusConfigUseCase =
-        userScope.persistTypingIndicatorStatusConfig
+    fun providePersistTypingIndicatorStatusConfig(api: KaliumUserApi): PersistTypingIndicatorStatusConfigUseCase =
+        api.userPersistTypingIndicatorStatusConfig
 
     @Provides
     fun provideSelfServerConfig(
-        userScope: UserScope
-    ): SelfServerConfigUseCase = userScope.serverLinks
+        api: KaliumUserApi
+    ): SelfServerConfigUseCase = api.userServerLinks
 
     @Provides
     fun provideObserveUserInfoUseCase(
-        userScope: UserScope
-    ): ObserveUserInfoUseCase = userScope.observeUserInfo
+        api: KaliumUserApi
+    ): ObserveUserInfoUseCase = api.userObserveUserInfo
 
     @Provides
     fun provideIsPasswordRequiredUseCase(
-        userScope: UserScope
-    ): IsPasswordRequiredUseCase = userScope.isPasswordRequired
+        api: KaliumUserApi
+    ): IsPasswordRequiredUseCase = api.userIsPasswordRequired
 
     @Provides
     fun provideIsPreventAdminlessGroupsEnabledUseCase(
@@ -163,101 +163,101 @@ class UserModule {
 
     @Provides
     fun provideIsReadOnlyAccountUseCase(
-        userScope: UserScope
-    ): IsReadOnlyAccountUseCase = userScope.isReadOnlyAccount
+        api: KaliumUserApi
+    ): IsReadOnlyAccountUseCase = api.userIsReadOnlyAccount
 
     @Provides
     fun provideGetAllContactsNotInTheConversationUseCase(
-        userScope: UserScope
+        api: KaliumUserApi
     ): GetAllContactsNotInConversationUseCase =
-        userScope.getAllContactsNotInConversation
+        api.userGetAllContactsNotInConversation
 
     @Provides
-    fun provideGetUserInfoUseCase(userScope: UserScope): GetUserInfoUseCase =
-        userScope.getUserInfo
+    fun provideGetUserInfoUseCase(api: KaliumUserApi): GetUserInfoUseCase =
+        api.userGetUserInfo
 
     @Provides
-    fun provideUpdateSelfAvailabilityStatusUseCase(userScope: UserScope): UpdateSelfAvailabilityStatusUseCase =
-        userScope.updateSelfAvailabilityStatus
+    fun provideUpdateSelfAvailabilityStatusUseCase(api: KaliumUserApi): UpdateSelfAvailabilityStatusUseCase =
+        api.userUpdateSelfAvailabilityStatus
 
     @Provides
     fun provideGetAllContactsUseCase(
-        userScope: UserScope
+        api: KaliumUserApi
     ): GetAllContactsUseCase =
-        userScope.getAllKnownUsers
+        api.userGetAllKnownUsers
 
     @Provides
     fun provideGetKnownUserUseCase(
-        userScope: UserScope
+        api: KaliumUserApi
     ): GetKnownUserUseCase =
-        userScope.getKnownUser
+        api.userGetKnownUser
 
     @Provides
-    fun provideGetSelfUseCase(userScope: UserScope): GetSelfUserUseCase =
-        userScope.getSelfUser
+    fun provideGetSelfUseCase(api: KaliumUserApi): GetSelfUserUseCase =
+        api.userGetSelfUser
 
     @Provides
-    fun provideGetSelfTeamIdUseCase(userScope: UserScope): GetSelfTeamIdUseCase =
-        userScope.getSelfTeamId
+    fun provideGetSelfTeamIdUseCase(api: KaliumUserApi): GetSelfTeamIdUseCase =
+        api.userGetSelfTeamId
 
     @Provides
-    fun provideObserveSelfUseCase(userScope: UserScope): ObserveSelfUserUseCase =
-        userScope.observeSelfUser
+    fun provideObserveSelfUseCase(api: KaliumUserApi): ObserveSelfUserUseCase =
+        api.userObserveSelfUser
 
     @Provides
-    fun provideObserveSelfUserWithTeamUseCase(userScope: UserScope): ObserveSelfUserWithTeamUseCase =
-        userScope.observeSelfUserWithTeam
+    fun provideObserveSelfUserWithTeamUseCase(api: KaliumUserApi): ObserveSelfUserWithTeamUseCase =
+        api.userObserveSelfUserWithTeam
 
     @Provides
-    fun provideGetAvatarAssetUseCase(userScope: UserScope): GetAvatarAssetUseCase =
-        userScope.getPublicAsset
+    fun provideGetAvatarAssetUseCase(api: KaliumUserApi): GetAvatarAssetUseCase =
+        api.userGetPublicAsset
 
     @Provides
-    fun provideDeleteAssetUseCase(userScope: UserScope): DeleteAssetUseCase =
-        userScope.deleteAsset
+    fun provideDeleteAssetUseCase(api: KaliumUserApi): DeleteAssetUseCase =
+        api.userDeleteAsset
 
     @Provides
-    fun provideUploadUserAvatarUseCase(userScope: UserScope): UploadUserAvatarUseCase =
-        userScope.uploadUserAvatar
+    fun provideUploadUserAvatarUseCase(api: KaliumUserApi): UploadUserAvatarUseCase =
+        api.userUploadUserAvatar
 
     @Provides
-    fun provideSetUserHandleUseCase(userScope: UserScope): SetUserHandleUseCase =
-        userScope.setUserHandle
+    fun provideSetUserHandleUseCase(api: KaliumUserApi): SetUserHandleUseCase =
+        api.userSetUserHandle
 
     @Provides
-    fun provideGetE2EICertificateUseCase(userScope: UserScope): GetMLSClientIdentityUseCase =
-        userScope.getE2EICertificate
+    fun provideGetE2EICertificateUseCase(api: KaliumUserApi): GetMLSClientIdentityUseCase =
+        api.userGetE2EICertificate
 
     @Provides
-    fun provideGetUserE2eiCertificateStatusUseCase(userScope: UserScope): IsOtherUserE2EIVerifiedUseCase =
-        userScope.getUserE2eiCertificateStatus
+    fun provideGetUserE2eiCertificateStatusUseCase(api: KaliumUserApi): IsOtherUserE2EIVerifiedUseCase =
+        api.userGetUserE2eiCertificateStatus
 
     @Provides
-    fun provideGetMembersE2EICertificateStatusesUseCase(userScope: UserScope): GetMembersE2EICertificateStatusesUseCase =
-        userScope.getMembersE2EICertificateStatuses
+    fun provideGetMembersE2EICertificateStatusesUseCase(api: KaliumUserApi): GetMembersE2EICertificateStatusesUseCase =
+        api.userGetMembersE2EICertificateStatuses
 
     @Provides
-    fun provideGetUserMlsClientIdentities(userScope: UserScope): GetUserMlsClientIdentitiesUseCase =
-        userScope.getUserMlsClientIdentities
+    fun provideGetUserMlsClientIdentities(api: KaliumUserApi): GetUserMlsClientIdentitiesUseCase =
+        api.userGetUserMlsClientIdentities
 
     @Provides
-    fun provideIsPersonalToTeamAccountSupportedByBackendUseCase(userScope: UserScope): CanMigrateFromPersonalToTeamUseCase =
-        userScope.isPersonalToTeamAccountSupportedByBackend
+    fun provideIsPersonalToTeamAccountSupportedByBackendUseCase(api: KaliumUserApi): CanMigrateFromPersonalToTeamUseCase =
+        api.userIsPersonalToTeamAccountSupportedByBackend
 
     @Provides
-    fun provideForegroundActionsUseCase(userScope: UserScope): ForegroundActionsUseCase = userScope.foregroundActions
+    fun provideForegroundActionsUseCase(api: KaliumUserApi): ForegroundActionsUseCase = api.userForegroundActions
 
     @Provides
-    fun provideCellsConfigUseCase(userScope: UserScope): IsWireCellsEnabledUseCase = userScope.isWireCellsEnabled
+    fun provideCellsConfigUseCase(api: KaliumUserApi): IsWireCellsEnabledUseCase = api.userIsWireCellsEnabled
 
     @Provides
-    fun provideObserveCellsConfigUseCase(userScope: UserScope): ObserveIsWireCellsEnabledUseCase = userScope.observeIsWireCellsEnabled
+    fun provideObserveCellsConfigUseCase(api: KaliumUserApi): ObserveIsWireCellsEnabledUseCase = api.userObserveIsWireCellsEnabled
 
     @Provides
-    fun provideIsWireCellsEnabledForConversationUseCase(userScope: UserScope): IsWireCellsEnabledForConversationUseCase =
-        userScope.isWireCellsEnabledForConversation
+    fun provideIsWireCellsEnabledForConversationUseCase(api: KaliumUserApi): IsWireCellsEnabledForConversationUseCase =
+        api.userIsWireCellsEnabledForConversation
 
     @Provides
-    fun provideProfileQRCodeConfigUseCase(userScope: UserScope): IsProfileQRCodeEnabledUseCase =
-        userScope.isProfileQRCodeEnabled
+    fun provideProfileQRCodeConfigUseCase(api: KaliumUserApi): IsProfileQRCodeEnabledUseCase =
+        api.userIsProfileQRCodeEnabled
 }

@@ -22,7 +22,7 @@ import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.ui.home.conversations.model.messagetypes.multipart.CellAssetRefreshHelper
 import com.wire.android.pdfviewer.PdfPreSignedLoader
 import com.wire.android.pdfviewer.PdfRemoteLoader
-import com.wire.kalium.cells.CellsScope
+import com.wire.kalium.cells.KaliumCellsApi
 import com.wire.kalium.cells.domain.CellUploadCoordinator
 import com.wire.kalium.cells.domain.CellUploadManager
 import com.wire.kalium.cells.domain.usecase.AddAttachmentDraftUseCase
@@ -90,179 +90,179 @@ import okio.sink
 class CellsModule {
 
     @Provides
-    fun provideCellsScope(
+    fun provideCellsApi(
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount accountId: UserId,
-    ): CellsScope = coreLogic.getSessionScope(accountId).cells
+    ): KaliumCellsApi = coreLogic.getSessionScope(accountId).cells.individualApi
 
     @Provides
-    fun provideAddAttachmentUseCase(cellsScope: CellsScope): AddAttachmentDraftUseCase = cellsScope.addAttachment
+    fun provideAddAttachmentUseCase(api: KaliumCellsApi): AddAttachmentDraftUseCase = api.cellsAddAttachment
 
     @Provides
-    fun provideRemoveAttachmentUseCase(cellsScope: CellsScope): RemoveAttachmentDraftUseCase = cellsScope.removeAttachment
+    fun provideRemoveAttachmentUseCase(api: KaliumCellsApi): RemoveAttachmentDraftUseCase = api.cellsRemoveAttachment
 
     @Provides
-    fun provideRemoveAttachmentsUseCase(cellsScope: CellsScope): RemoveAttachmentDraftsUseCase = cellsScope.removeAttachments
+    fun provideRemoveAttachmentsUseCase(api: KaliumCellsApi): RemoveAttachmentDraftsUseCase = api.cellsRemoveAttachments
 
     @Provides
-    fun provideObserveAttachmentsUseCase(cellsScope: CellsScope): ObserveAttachmentDraftsUseCase = cellsScope.observeAttachments
+    fun provideObserveAttachmentsUseCase(api: KaliumCellsApi): ObserveAttachmentDraftsUseCase = api.cellsObserveAttachments
 
     @Provides
-    fun providePublishAttachmentsUseCase(cellsScope: CellsScope): PublishAttachmentsUseCase = cellsScope.publishAttachments
+    fun providePublishAttachmentsUseCase(api: KaliumCellsApi): PublishAttachmentsUseCase = api.cellsPublishAttachments
 
     @Provides
-    fun provideCellUploadManager(cellsScope: CellsScope): CellUploadManager = cellsScope.uploadManager
+    fun provideCellUploadManager(api: KaliumCellsApi): CellUploadManager = api.cellsUploadManager
 
     @Provides
-    fun provideCellUploadCoordinator(cellsScope: CellsScope): CellUploadCoordinator = cellsScope.uploadCoordinator
+    fun provideCellUploadCoordinator(api: KaliumCellsApi): CellUploadCoordinator = api.cellsUploadCoordinator
 
     @Provides
-    fun provideObserveFilesUseCase(cellsScope: CellsScope): GetPaginatedNodesUseCase = cellsScope.observeFiles
+    fun provideObserveFilesUseCase(api: KaliumCellsApi): GetPaginatedNodesUseCase = api.cellsObserveFiles
 
     @Provides
-    fun provideObservePagedFilesUseCase(cellsScope: CellsScope): GetPaginatedFilesFlowUseCase = cellsScope.paginatedFilesFlowUseCase
+    fun provideObservePagedFilesUseCase(api: KaliumCellsApi): GetPaginatedFilesFlowUseCase = api.paginatedFilesFlowUseCase
 
     @Provides
-    fun provideDownloadUseCase(cellsScope: CellsScope): DownloadCellFileUseCase = cellsScope.downloadCellFile
+    fun provideDownloadUseCase(api: KaliumCellsApi): DownloadCellFileUseCase = api.cellsDownloadCellFile
 
     @Provides
-    fun provideRefreshAssetUseCase(cellsScope: CellsScope): RefreshCellAssetStateUseCase = cellsScope.refreshAsset
+    fun provideRefreshAssetUseCase(api: KaliumCellsApi): RefreshCellAssetStateUseCase = api.cellsRefreshAsset
 
     @Provides
-    fun provideDeleteCellAssetUseCase(cellsScope: CellsScope): DeleteCellAssetUseCase = cellsScope.deleteCellAssetUseCase
+    fun provideDeleteCellAssetUseCase(api: KaliumCellsApi): DeleteCellAssetUseCase = api.cellsDeleteCellAssetUseCase
 
     @Provides
-    fun provideCreatePublicUrlUseCase(cellsScope: CellsScope): CreatePublicLinkUseCase = cellsScope.createPublicLinkUseCase
+    fun provideCreatePublicUrlUseCase(api: KaliumCellsApi): CreatePublicLinkUseCase = api.cellsCreatePublicLinkUseCase
 
     @Provides
-    fun provideGetPublicUrlUseCase(cellsScope: CellsScope): GetPublicLinkUseCase = cellsScope.getPublicLinkUseCase
+    fun provideGetPublicUrlUseCase(api: KaliumCellsApi): GetPublicLinkUseCase = api.cellsGetPublicLinkUseCase
 
     @Provides
-    fun provideDeletePublicUrlUseCase(cellsScope: CellsScope): DeletePublicLinkUseCase = cellsScope.deletePublicLinkUseCase
+    fun provideDeletePublicUrlUseCase(api: KaliumCellsApi): DeletePublicLinkUseCase = api.cellsDeletePublicLinkUseCase
 
     @Provides
-    fun provideRetryAttachmentUploadUseCase(cellsScope: CellsScope): RetryAttachmentUploadUseCase = cellsScope.retryAttachmentUpload
+    fun provideRetryAttachmentUploadUseCase(api: KaliumCellsApi): RetryAttachmentUploadUseCase = api.cellsRetryAttachmentUpload
 
     @Provides
-    fun provideCreateFolderUseCase(cellsScope: CellsScope): CreateFolderUseCase = cellsScope.createFolderUseCase
+    fun provideCreateFolderUseCase(api: KaliumCellsApi): CreateFolderUseCase = api.cellsCreateFolderUseCase
 
     @Provides
-    fun provideCreateSpreadsheetFileUseCase(cellsScope: CellsScope): CreateSpreadsheetFileUseCase = cellsScope.createSpreadsheetFileUseCase
+    fun provideCreateSpreadsheetFileUseCase(api: KaliumCellsApi): CreateSpreadsheetFileUseCase = api.cellsCreateSpreadsheetFileUseCase
 
     @Provides
-    fun provideCreateDocumentFileUseCase(cellsScope: CellsScope): CreateDocumentFileUseCase = cellsScope.createDocumentFileUseCase
+    fun provideCreateDocumentFileUseCase(api: KaliumCellsApi): CreateDocumentFileUseCase = api.cellsCreateDocumentFileUseCase
 
     @Provides
-    fun provideCreatePresentationFileUseCase(cellsScope: CellsScope): CreatePresentationFileUseCase =
-        cellsScope.createPresentationFileUseCase
+    fun provideCreatePresentationFileUseCase(api: KaliumCellsApi): CreatePresentationFileUseCase =
+        api.cellsCreatePresentationFileUseCase
 
     @Provides
-    fun provideMoveNodeUseCase(cellsScope: CellsScope): MoveNodeUseCase = cellsScope.moveNodeUseCase
+    fun provideMoveNodeUseCase(api: KaliumCellsApi): MoveNodeUseCase = api.cellsMoveNodeUseCase
 
     @Provides
-    fun provideGetFoldersUseCase(cellsScope: CellsScope): GetFoldersUseCase = cellsScope.getFoldersUseCase
+    fun provideGetFoldersUseCase(api: KaliumCellsApi): GetFoldersUseCase = api.cellsGetFoldersUseCase
 
     @Provides
-    fun provideRestoreNodeFromRecycleBinUseCase(cellsScope: CellsScope): RestoreNodeFromRecycleBinUseCase =
-        cellsScope.restoreNodeFromRecycleBin
+    fun provideRestoreNodeFromRecycleBinUseCase(api: KaliumCellsApi): RestoreNodeFromRecycleBinUseCase =
+        api.cellsRestoreNodeFromRecycleBin
 
     @Provides
-    fun provideRenameNodeUseCase(cellsScope: CellsScope): RenameNodeUseCase =
-        cellsScope.renameNodeUseCase
+    fun provideRenameNodeUseCase(api: KaliumCellsApi): RenameNodeUseCase =
+        api.cellsRenameNodeUseCase
 
     @Provides
-    fun provideGetAllTagsUseCase(cellsScope: CellsScope): GetAllTagsUseCase = cellsScope.getAllTags
+    fun provideGetAllTagsUseCase(api: KaliumCellsApi): GetAllTagsUseCase = api.cellsGetAllTags
 
     @Provides
-    fun provideUpdateNodeTagsUseCase(cellsScope: CellsScope): UpdateNodeTagsUseCase = cellsScope.updateNodeTagsUseCase
+    fun provideUpdateNodeTagsUseCase(api: KaliumCellsApi): UpdateNodeTagsUseCase = api.cellsUpdateNodeTagsUseCase
 
     @Provides
-    fun provideRemoveNodeTagsUseCase(cellsScope: CellsScope): RemoveNodeTagsUseCase = cellsScope.removeNodeTagsUseCase
+    fun provideRemoveNodeTagsUseCase(api: KaliumCellsApi): RemoveNodeTagsUseCase = api.cellsRemoveNodeTagsUseCase
 
     @Provides
-    fun provideCellAvailableUseCase(cellsScope: CellsScope): IsAtLeastOneCellAvailableUseCase = cellsScope.isCellAvailable
+    fun provideCellAvailableUseCase(api: KaliumCellsApi): IsAtLeastOneCellAvailableUseCase = api.cellsIsCellAvailable
 
     @Provides
-    fun provideObserveCellAvailableUseCase(cellsScope: CellsScope): ObserveIsAtLeastOneCellAvailableUseCase =
-        cellsScope.observeIsCellAvailable
+    fun provideObserveCellAvailableUseCase(api: KaliumCellsApi): ObserveIsAtLeastOneCellAvailableUseCase =
+        api.cellsObserveIsCellAvailable
 
     @Provides
-    fun provideGetAttachmentUseCase(cellsScope: CellsScope): GetMessageAttachmentUseCase = cellsScope.getMessageAttachmentUseCase
+    fun provideGetAttachmentUseCase(api: KaliumCellsApi): GetMessageAttachmentUseCase = api.cellsGetMessageAttachmentUseCase
 
     @Provides
-    fun provideGetOwnersUseCase(cellsScope: CellsScope): GetOwnersUseCase = cellsScope.getOwnersUseCase
+    fun provideGetOwnersUseCase(api: KaliumCellsApi): GetOwnersUseCase = api.cellsGetOwnersUseCase
 
     @Provides
-    fun provideGetCellNodeUseCase(cellsScope: CellsScope): GetCellFileUseCase = cellsScope.getCellFileUseCase
+    fun provideGetCellNodeUseCase(api: KaliumCellsApi): GetCellFileUseCase = api.cellsGetCellFileUseCase
 
     @Provides
-    fun provideCreatePublicLinkPasswordUseCase(cellsScope: CellsScope): CreatePublicLinkPasswordUseCase =
-        cellsScope.createPublicLinkPasswordUseCase
+    fun provideCreatePublicLinkPasswordUseCase(api: KaliumCellsApi): CreatePublicLinkPasswordUseCase =
+        api.cellsCreatePublicLinkPasswordUseCase
 
     @Provides
-    fun provideUpdatePublicLinkPasswordUseCase(cellsScope: CellsScope): UpdatePublicLinkPasswordUseCase =
-        cellsScope.updatePublicLinkPasswordUseCase
+    fun provideUpdatePublicLinkPasswordUseCase(api: KaliumCellsApi): UpdatePublicLinkPasswordUseCase =
+        api.cellsUpdatePublicLinkPasswordUseCase
 
     @Provides
-    fun provideGetPublicLinkPasswordUseCase(cellsScope: CellsScope): GetPublicLinkPasswordUseCase =
-        cellsScope.getPublicLinkPassword
+    fun provideGetPublicLinkPasswordUseCase(api: KaliumCellsApi): GetPublicLinkPasswordUseCase =
+        api.cellsGetPublicLinkPassword
 
     @Provides
-    fun provideSetPublicLinkExpirationUseCase(cellsScope: CellsScope): SetPublicLinkExpirationUseCase =
-        cellsScope.setPublicLinkExpiration
+    fun provideSetPublicLinkExpirationUseCase(api: KaliumCellsApi): SetPublicLinkExpirationUseCase =
+        api.cellsSetPublicLinkExpiration
 
     @Provides
-    fun provideEditorUrlUseCase(cellsScope: CellsScope): GetEditorUrlUseCase = cellsScope.getEditorUrl
+    fun provideEditorUrlUseCase(api: KaliumCellsApi): GetEditorUrlUseCase = api.cellsGetEditorUrl
 
     @Provides
-    fun provideGetPdfPreviewUrlUseCase(cellsScope: CellsScope): GetPdfPreviewUrlUseCase = cellsScope.getPdfPreviewUrl
+    fun provideGetPdfPreviewUrlUseCase(api: KaliumCellsApi): GetPdfPreviewUrlUseCase = api.cellsGetPdfPreviewUrl
 
     @Provides
-    fun provideGetNodeVersionsUseCase(cellsScope: CellsScope): GetNodeVersionsUseCase =
-        cellsScope.getNodeVersions
+    fun provideGetNodeVersionsUseCase(api: KaliumCellsApi): GetNodeVersionsUseCase =
+        api.cellsGetNodeVersions
 
     @Provides
-    fun provideRestoreNodeVersionUseCase(cellsScope: CellsScope): RestoreNodeVersionUseCase =
-        cellsScope.restoreNodeVersion
+    fun provideRestoreNodeVersionUseCase(api: KaliumCellsApi): RestoreNodeVersionUseCase =
+        api.cellsRestoreNodeVersion
 
     @Provides
-    fun provideDownloadCellVersionUseCase(cellsScope: CellsScope): DownloadCellVersionUseCase =
-        cellsScope.downloadCellVersion
+    fun provideDownloadCellVersionUseCase(api: KaliumCellsApi): DownloadCellVersionUseCase =
+        api.cellsDownloadCellVersion
 
     @Provides
-    fun provideRefreshHelper(cellsScope: CellsScope, kaliumConfigs: KaliumConfigs): CellAssetRefreshHelper = CellAssetRefreshHelper(
-        refreshAsset = cellsScope.refreshAsset,
+    fun provideRefreshHelper(api: KaliumCellsApi, kaliumConfigs: KaliumConfigs): CellAssetRefreshHelper = CellAssetRefreshHelper(
+        refreshAsset = api.cellsRefreshAsset,
         featureFlags = kaliumConfigs
     )
 
     @Provides
-    fun provideGetCellsConfigUseCase(cellsScope: CellsScope): GetWireCellConfigurationUseCase = cellsScope.getCellConfig
+    fun provideGetCellsConfigUseCase(api: KaliumCellsApi): GetWireCellConfigurationUseCase = api.cellsGetCellConfig
 
     @Provides
-    fun provideGetPaginatedConversationsFlowUseCase(cellsScope: CellsScope): GetPaginatedCellConversationsFlowUseCase =
-        cellsScope.paginatedConversationsFlowUseCase
+    fun provideGetPaginatedConversationsFlowUseCase(api: KaliumCellsApi): GetPaginatedCellConversationsFlowUseCase =
+        api.paginatedConversationsFlowUseCase
 
     @Provides
-    fun provideSaveOfflineFileUseCase(cellsScope: CellsScope): SaveOfflineFileUseCase = cellsScope.saveOfflineFile
+    fun provideSaveOfflineFileUseCase(api: KaliumCellsApi): SaveOfflineFileUseCase = api.cellsSaveOfflineFile
 
     @Provides
-    fun provideDeleteOfflineFileUseCase(cellsScope: CellsScope): DeleteOfflineFileUseCase = cellsScope.deleteOfflineFile
+    fun provideDeleteOfflineFileUseCase(api: KaliumCellsApi): DeleteOfflineFileUseCase = api.cellsDeleteOfflineFile
 
     @Provides
-    fun provideObserveOfflineFilesUseCase(cellsScope: CellsScope): ObserveOfflineFilesUseCase = cellsScope.observeOfflineFiles
+    fun provideObserveOfflineFilesUseCase(api: KaliumCellsApi): ObserveOfflineFilesUseCase = api.cellsObserveOfflineFiles
 
     @Provides
-    fun provideObserveOfflineFilesByConversationUseCase(cellsScope: CellsScope): ObserveOfflineFilesByConversationUseCase =
-        cellsScope.observeOfflineFilesByConversation
+    fun provideObserveOfflineFilesByConversationUseCase(api: KaliumCellsApi): ObserveOfflineFilesByConversationUseCase =
+        api.cellsObserveOfflineFilesByConversation
 
     @Provides
-    fun provideGetOfflineFileUseCase(cellsScope: CellsScope): GetOfflineFileUseCase = cellsScope.getOfflineFile
+    fun provideGetOfflineFileUseCase(api: KaliumCellsApi): GetOfflineFileUseCase = api.cellsGetOfflineFile
 
     @Provides
-    fun provideGetConversationNamesUseCase(cellsScope: CellsScope): GetConversationNameUseCase = cellsScope.getConversationName
+    fun provideGetConversationNamesUseCase(api: KaliumCellsApi): GetConversationNameUseCase = api.cellsGetConversationName
 
     @Provides
-    fun provideGetUserNamesUseCase(cellsScope: CellsScope): GetUserNameUseCase = cellsScope.getUserName
+    fun provideGetUserNamesUseCase(api: KaliumCellsApi): GetUserNameUseCase = api.cellsGetUserName
 
     @Provides
     fun providePdfPreSignedLoader(download: DownloadCellVersionUseCase): PdfPreSignedLoader =

@@ -24,7 +24,7 @@ import com.wire.android.ui.home.settings.backup.MPBackupSettings
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.backup.BackupAndUploadCryptoStateUseCase
-import com.wire.kalium.logic.feature.backup.BackupScope
+import com.wire.kalium.logic.di.KaliumBackupApi
 import com.wire.kalium.logic.feature.backup.CreateBackupUseCase
 import com.wire.kalium.logic.feature.backup.CreateObfuscatedCopyUseCase
 import com.wire.kalium.logic.feature.backup.RestoreBackupUseCase
@@ -38,20 +38,20 @@ import dev.zacsweers.metro.Provides
 class BackupModule {
 
     @Provides
-    fun provideBackupScope(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId): BackupScope =
-        coreLogic.getSessionScope(currentAccount).backup
+    fun provideBackupApi(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId): KaliumBackupApi =
+        coreLogic.getSessionScope(currentAccount).backupApiFactory.create()
 
     @Provides
-    fun provideCreateBackupUseCase(backupScope: BackupScope): CreateBackupUseCase =
-        backupScope.create
+    fun provideCreateBackupUseCase(api: KaliumBackupApi): CreateBackupUseCase =
+        api.backupCreate
 
     @Provides
-    fun provideVerifyBackupUseCase(backupScope: BackupScope): VerifyBackupUseCase =
-        backupScope.verify
+    fun provideVerifyBackupUseCase(api: KaliumBackupApi): VerifyBackupUseCase =
+        api.backupVerify
 
     @Provides
-    fun provideRestoreBackupUseCase(backupScope: BackupScope): RestoreBackupUseCase =
-        backupScope.restore
+    fun provideRestoreBackupUseCase(api: KaliumBackupApi): RestoreBackupUseCase =
+        api.backupRestore
 
     @Provides
     fun provideMpBackupSettings(): MPBackupSettings = if (BuildConfig.ENABLE_CROSSPLATFORM_BACKUP) {
@@ -62,14 +62,14 @@ class BackupModule {
 
     @OptIn(DelicateKaliumApi::class)
     @Provides
-    fun provideOnboardingBackupUseCase(backupScope: BackupScope): CreateObfuscatedCopyUseCase =
-        backupScope.createUnEncryptedCopy
+    fun provideOnboardingBackupUseCase(api: KaliumBackupApi): CreateObfuscatedCopyUseCase =
+        api.backupCreateUnEncryptedCopy
 
     @Provides
-    fun provideBackupAndUploadCryptoState(backupScope: BackupScope): BackupAndUploadCryptoStateUseCase =
-        backupScope.backupAndUploadCryptoState
+    fun provideBackupAndUploadCryptoState(api: KaliumBackupApi): BackupAndUploadCryptoStateUseCase =
+        api.backupBackupAndUploadCryptoState
 
     @Provides
-    fun provideSetLastDeviceIdUseCase(backupScope: BackupScope): SetLastDeviceIdUseCase =
-        backupScope.setLastDeviceId
+    fun provideSetLastDeviceIdUseCase(api: KaliumBackupApi): SetLastDeviceIdUseCase =
+        api.backupSetLastDeviceId
 }

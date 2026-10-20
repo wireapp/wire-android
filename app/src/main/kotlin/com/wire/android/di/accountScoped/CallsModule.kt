@@ -21,7 +21,7 @@ import com.wire.android.di.CurrentAccount
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.user.UserId
-import com.wire.kalium.logic.feature.call.CallsScope
+import com.wire.kalium.logic.di.KaliumCallsApi
 import com.wire.kalium.logic.feature.call.usecase.EndCallOnConversationChangeUseCase
 import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.FlipToBackCameraUseCase
@@ -63,161 +63,161 @@ import dev.zacsweers.metro.Provides
 class CallsModule {
 
     @Provides
-    fun providesCallsScope(
+    fun provideCallsApi(
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId
-    ): CallsScope = coreLogic.getSessionScope(currentAccount).calls
+    ): KaliumCallsApi = coreLogic.getSessionScope(currentAccount).callsApiFactory.create()
 
     @Provides
-    fun provideGetIncomingCallsUseCase(callsScope: CallsScope): GetIncomingCallsUseCase =
-        callsScope.getIncomingCalls
+    fun provideGetIncomingCallsUseCase(api: KaliumCallsApi): GetIncomingCallsUseCase =
+        api.callsGetIncomingCalls
 
     @Provides
-    fun provideRequestVideoStreamsUseCase(callsScope: CallsScope): RequestVideoStreamsUseCase =
-        callsScope.requestVideoStreams
+    fun provideRequestVideoStreamsUseCase(api: KaliumCallsApi): RequestVideoStreamsUseCase =
+        api.callsRequestVideoStreams
 
     @Provides
-    fun provideIsLastCallClosedUseCase(callsScope: CallsScope): IsLastCallClosedUseCase =
-        callsScope.isLastCallClosed
+    fun provideIsLastCallClosedUseCase(api: KaliumCallsApi): IsLastCallClosedUseCase =
+        api.callsIsLastCallClosed
 
     @Provides
-    fun provideObserveOngoingCallsUseCase(callsScope: CallsScope): ObserveOngoingCallsUseCase =
-        callsScope.observeOngoingCalls
+    fun provideObserveOngoingCallsUseCase(api: KaliumCallsApi): ObserveOngoingCallsUseCase =
+        api.callsObserveOngoingCalls
 
     @Provides
-    fun provideObserveJoinableCallsUseCase(callsScope: CallsScope): ObserveJoinableCallsUseCase =
-        callsScope.observeJoinableCalls
+    fun provideObserveJoinableCallsUseCase(api: KaliumCallsApi): ObserveJoinableCallsUseCase =
+        api.callsObserveJoinableCalls
 
     @Provides
     fun provideObserveEstablishedCallWithSortedParticipantsUseCase(
-        callsScope: CallsScope
+        api: KaliumCallsApi
     ): ObserveEstablishedCallWithSortedParticipantsUseCase =
-        callsScope.observeEstablishedCallWithSortedParticipants
+        api.callsObserveEstablishedCallWithSortedParticipants
 
     @Provides
     fun provideObserveLastActiveCallWithSortedParticipantsUseCase(
-        callsScope: CallsScope
+        api: KaliumCallsApi
     ): ObserveLastActiveCallWithSortedParticipantsUseCase =
-        callsScope.observeLastActiveCallWithSortedParticipants
+        api.callsObserveLastActiveCallWithSortedParticipants
 
     @Provides
-    fun provideRejectCallUseCase(callsScope: CallsScope): RejectCallUseCase =
-        callsScope.rejectCall
+    fun provideRejectCallUseCase(api: KaliumCallsApi): RejectCallUseCase =
+        api.callsRejectCall
 
     @Provides
-    fun provideAcceptCallUseCase(callsScope: CallsScope): AnswerCallUseCase =
-        callsScope.answerCall
+    fun provideAcceptCallUseCase(api: KaliumCallsApi): AnswerCallUseCase =
+        api.callsAnswerCall
 
     @Provides
     fun provideOnGoingCallUseCase(
-        callsScope: CallsScope
+        api: KaliumCallsApi
     ): ObserveEstablishedCallsUseCase =
-        callsScope.establishedCall
+        api.callsEstablishedCall
 
     @Provides
     fun provideObserveOutgoingCallUseCase(
-        callsScope: CallsScope
+        api: KaliumCallsApi
     ): ObserveOutgoingCallUseCase =
-        callsScope.observeOutgoingCall
+        api.callsObserveOutgoingCall
 
     @Provides
-    fun provideActiveCallsUseCase(callsScope: CallsScope): ObserveActiveCallsUseCase =
-        callsScope.observeActiveCalls
+    fun provideActiveCallsUseCase(api: KaliumCallsApi): ObserveActiveCallsUseCase =
+        api.callsObserveActiveCalls
 
     @Provides
-    fun provideStartCallUseCase(callsScope: CallsScope): StartCallUseCase =
-        callsScope.startCall
+    fun provideStartCallUseCase(api: KaliumCallsApi): StartCallUseCase =
+        api.callsStartCall
 
     @Provides
-    fun provideEndCallUseCase(callsScope: CallsScope): EndCallUseCase =
-        callsScope.endCall
+    fun provideEndCallUseCase(api: KaliumCallsApi): EndCallUseCase =
+        api.callsEndCall
 
     @Provides
     fun provideEndCallOnConversationChangeUseCase(
-        callsScope: CallsScope
+        api: KaliumCallsApi
     ): EndCallOnConversationChangeUseCase =
-        callsScope.endCallOnConversationChange
+        api.callsEndCallOnConversationChange
 
     @Provides
-    fun provideMuteCallUseCase(callsScope: CallsScope): MuteCallUseCase =
-        callsScope.muteCall
+    fun provideMuteCallUseCase(api: KaliumCallsApi): MuteCallUseCase =
+        api.callsMuteCall
 
     @Provides
-    fun provideUnMuteCallUseCase(callsScope: CallsScope): UnMuteCallUseCase =
-        callsScope.unMuteCall
+    fun provideUnMuteCallUseCase(api: KaliumCallsApi): UnMuteCallUseCase =
+        api.callsUnMuteCall
 
     @Provides
     fun provideSetVideoPreviewUseCase(
-        callsScope: CallsScope
-    ): SetVideoPreviewUseCase = callsScope.setVideoPreview
+        api: KaliumCallsApi
+    ): SetVideoPreviewUseCase = api.callsSetVideoPreview
 
     @Provides
     fun provideSetUIRotationUseCase(
-        callsScope: CallsScope
-    ): SetUIRotationUseCase = callsScope.setUIRotation
+        api: KaliumCallsApi
+    ): SetUIRotationUseCase = api.callsSetUIRotation
 
     @Provides
     fun provideFlipToBackCameraUseCase(
-        callsScope: CallsScope
-    ): FlipToBackCameraUseCase = callsScope.flipToBackCamera
+        api: KaliumCallsApi
+    ): FlipToBackCameraUseCase = api.callsFlipToBackCamera
 
     @Provides
     fun provideFlipToFrontCameraUseCase(
-        callsScope: CallsScope
-    ): FlipToFrontCameraUseCase = callsScope.flipToFrontCamera
+        api: KaliumCallsApi
+    ): FlipToFrontCameraUseCase = api.callsFlipToFrontCamera
 
     @Provides
     fun turnLoudSpeakerOffUseCaseProvider(
-        callsScope: CallsScope
-    ): TurnLoudSpeakerOffUseCase = callsScope.turnLoudSpeakerOff
+        api: KaliumCallsApi
+    ): TurnLoudSpeakerOffUseCase = api.callsTurnLoudSpeakerOff
 
     @Provides
     fun provideTurnLoudSpeakerOnUseCase(
-        callsScope: CallsScope
-    ): TurnLoudSpeakerOnUseCase = callsScope.turnLoudSpeakerOn
+        api: KaliumCallsApi
+    ): TurnLoudSpeakerOnUseCase = api.callsTurnLoudSpeakerOn
 
     @Provides
     fun provideObserveSpeakerUseCase(
-        callsScope: CallsScope
-    ): ObserveSpeakerUseCase = callsScope.observeSpeaker
+        api: KaliumCallsApi
+    ): ObserveSpeakerUseCase = api.callsObserveSpeaker
 
     @Provides
     fun provideUpdateVideoStateUseCase(
-        callsScope: CallsScope
+        api: KaliumCallsApi
     ): UpdateVideoStateUseCase =
-        callsScope.updateVideoState
+        api.callsUpdateVideoState
 
     @Provides
     fun provideSetVideoSendStateUseCase(
-        callsScope: CallsScope
+        api: KaliumCallsApi
     ): SetVideoSendStateUseCase =
-        callsScope.setVideoSendState
+        api.callsSetVideoSendState
 
     @Provides
-    fun provideIsCallRunningUseCase(callsScope: CallsScope): IsCallRunningUseCase =
-        callsScope.isCallRunning
+    fun provideIsCallRunningUseCase(api: KaliumCallsApi): IsCallRunningUseCase =
+        api.callsIsCallRunning
 
     @Provides
-    fun provideIsEligibleToStartCall(callsScope: CallsScope): IsEligibleToStartCallUseCase =
-        callsScope.isEligibleToStartCall
+    fun provideIsEligibleToStartCall(api: KaliumCallsApi): IsEligibleToStartCallUseCase =
+        api.callsIsEligibleToStartCall
 
     @Provides
-    fun provideObserveConferenceCallingEnabledUseCase(callsScope: CallsScope): ObserveConferenceCallingEnabledUseCase =
-        callsScope.observeConferenceCallingEnabled
+    fun provideObserveConferenceCallingEnabledUseCase(api: KaliumCallsApi): ObserveConferenceCallingEnabledUseCase =
+        api.callsObserveConferenceCallingEnabled
 
     @Provides
-    fun provideObserveInCallReactionsUseCase(callsScope: CallsScope): ObserveInCallReactionsUseCase =
-        callsScope.observeInCallReactions
+    fun provideObserveInCallReactionsUseCase(api: KaliumCallsApi): ObserveInCallReactionsUseCase =
+        api.callsObserveInCallReactions
 
     @Provides
-    fun provideObserveCallQualityDataUseCase(callsScope: CallsScope): ObserveCallQualityDataUseCase =
-        callsScope.observeCallQualityData
+    fun provideObserveCallQualityDataUseCase(api: KaliumCallsApi): ObserveCallQualityDataUseCase =
+        api.callsObserveCallQualityData
 
     @Provides
-    fun provideSetCallQualityIntervalUseCase(callsScope: CallsScope): SetCallQualityIntervalUseCase =
-        callsScope.setCallQualityInterval
+    fun provideSetCallQualityIntervalUseCase(api: KaliumCallsApi): SetCallQualityIntervalUseCase =
+        api.callsSetCallQualityInterval
 
     @Provides
-    fun provideObserveCallModerationActionsUseCase(callsScope: CallsScope): ObserveCallModerationActionsUseCase =
-        callsScope.observeCallModerationActions
+    fun provideObserveCallModerationActionsUseCase(api: KaliumCallsApi): ObserveCallModerationActionsUseCase =
+        api.callsObserveCallModerationActions
 }

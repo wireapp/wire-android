@@ -21,7 +21,7 @@ import com.wire.android.di.CurrentAccount
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.user.UserId
-import com.wire.kalium.logic.feature.channels.ChannelsScope
+import com.wire.kalium.logic.di.KaliumChannelsApi
 import com.wire.kalium.logic.feature.channels.ObserveChannelsCreationPermissionUseCase
 import com.wire.kalium.logic.feature.conversation.channel.UpdateChannelAddPermissionUseCase
 import dev.zacsweers.metro.BindingContainer
@@ -31,16 +31,16 @@ import dev.zacsweers.metro.Provides
 class ChannelsModule {
 
     @Provides
-    fun provideChannelsScope(
+    fun provideChannelsApi(
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId
-    ): ChannelsScope = coreLogic.getSessionScope(currentAccount).channels
+    ): KaliumChannelsApi = coreLogic.getSessionScope(currentAccount).channelsApi
 
     @Provides
-    fun provideUpdateChannelAddPermission(channelsScope: ChannelsScope): UpdateChannelAddPermissionUseCase =
-        channelsScope.updateChannelAddPermission
+    fun provideUpdateChannelAddPermission(api: KaliumChannelsApi): UpdateChannelAddPermissionUseCase =
+        api.channelsUpdateChannelAddPermission
 
     @Provides
-    fun provideChannelCreationPermissionUseCase(channelsScope: ChannelsScope): ObserveChannelsCreationPermissionUseCase =
-        channelsScope.observeChannelsCreationPermissionUseCase
+    fun provideChannelCreationPermissionUseCase(api: KaliumChannelsApi): ObserveChannelsCreationPermissionUseCase =
+        api.channelsObserveChannelsCreationPermissionUseCase
 }

@@ -21,13 +21,13 @@ import com.wire.android.di.CurrentAccount
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.di.KaliumMeetingApi
 import com.wire.kalium.logic.feature.meeting.CreateNewMeetingUseCase
 import com.wire.kalium.logic.feature.meeting.DeleteMeetingForEveryoneUseCase
 import com.wire.kalium.logic.feature.meeting.DeleteMeetingForMeUseCase
 import com.wire.kalium.logic.feature.meeting.EnsureMeetingIsMLSEstablishedUseCase
 import com.wire.kalium.logic.feature.meeting.GetNextUnfinishedMeetingOccurrenceUseCase
 import com.wire.kalium.logic.feature.meeting.GetPaginatedMeetingOccurrencesUseCase
-import com.wire.kalium.logic.feature.meeting.MeetingScope
 import com.wire.kalium.logic.feature.meeting.ObserveMeetingOccurrenceUseCase
 import com.wire.kalium.logic.feature.meeting.SyncMeetingsUseCase
 import dev.zacsweers.metro.BindingContainer
@@ -37,42 +37,42 @@ import dev.zacsweers.metro.Provides
 class MeetingModule {
 
     @Provides
-    fun provideMeetingScope(
+    fun provideMeetingApi(
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount accountId: UserId,
-    ): MeetingScope = coreLogic.getSessionScope(accountId).meetings
+    ): KaliumMeetingApi = coreLogic.getSessionScope(accountId).meetingApi
 
     @Provides
-    fun provideGetPaginatedMeetingOccurrencesUseCase(meetingScope: MeetingScope): GetPaginatedMeetingOccurrencesUseCase =
-        meetingScope.getPaginatedMeetingOccurrenceDetails
+    fun provideGetPaginatedMeetingOccurrencesUseCase(api: KaliumMeetingApi): GetPaginatedMeetingOccurrencesUseCase =
+        api.meetingGetPaginatedMeetingOccurrenceDetails
 
     @Provides
-    fun provideObserveMeetingOccurrenceDetailsUseCase(meetingScope: MeetingScope): ObserveMeetingOccurrenceUseCase =
-        meetingScope.observeMeetingOccurrence
+    fun provideObserveMeetingOccurrenceDetailsUseCase(api: KaliumMeetingApi): ObserveMeetingOccurrenceUseCase =
+        api.meetingObserveMeetingOccurrence
 
     @Provides
-    fun provideDeleteMeetingForEveryoneUseCase(meetingScope: MeetingScope): DeleteMeetingForEveryoneUseCase =
-        meetingScope.deleteMeetingForEveryone
+    fun provideDeleteMeetingForEveryoneUseCase(api: KaliumMeetingApi): DeleteMeetingForEveryoneUseCase =
+        api.meetingDeleteMeetingForEveryone
 
     @Provides
-    fun provideDeleteMeetingForMeUseCase(meetingScope: MeetingScope): DeleteMeetingForMeUseCase =
-        meetingScope.deleteMeetingForMe
+    fun provideDeleteMeetingForMeUseCase(api: KaliumMeetingApi): DeleteMeetingForMeUseCase =
+        api.meetingDeleteMeetingForMe
 
     @Provides
-    fun provideCreateNewMeetingUseCase(meetingScope: MeetingScope): CreateNewMeetingUseCase =
-        meetingScope.createNewMeeting
+    fun provideCreateNewMeetingUseCase(api: KaliumMeetingApi): CreateNewMeetingUseCase =
+        api.meetingCreateNewMeeting
 
     @Provides
-    fun provideUpdateMeetingUseCase(meetingScope: MeetingScope): com.wire.kalium.logic.feature.meeting.UpdateMeetingUseCase =
-        meetingScope.updateMeeting
+    fun provideUpdateMeetingUseCase(api: KaliumMeetingApi): com.wire.kalium.logic.feature.meeting.UpdateMeetingUseCase =
+        api.meetingUpdateMeeting
 
     @Provides
-    fun provideGetNextUnfinishedMeetingOccurrenceUseCase(meetingScope: MeetingScope): GetNextUnfinishedMeetingOccurrenceUseCase =
-        meetingScope.getNextUnfinishedMeetingOccurrence
+    fun provideGetNextUnfinishedMeetingOccurrenceUseCase(api: KaliumMeetingApi): GetNextUnfinishedMeetingOccurrenceUseCase =
+        api.meetingGetNextUnfinishedMeetingOccurrence
 
     @Provides
-    fun ensureMeetingIsMLSEstablishedUseCase(meetingScope: MeetingScope): EnsureMeetingIsMLSEstablishedUseCase =
-        meetingScope.ensureMeetingIsMLSEstablished
+    fun ensureMeetingIsMLSEstablishedUseCase(api: KaliumMeetingApi): EnsureMeetingIsMLSEstablishedUseCase =
+        api.meetingEnsureMeetingIsMLSEstablished
 
     @Provides
     fun provideSyncMeetingsUseCase(

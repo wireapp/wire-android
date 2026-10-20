@@ -26,7 +26,6 @@ import androidx.paging.cachedIn
 import androidx.paging.filter
 import androidx.paging.map
 import com.wire.android.datastore.UserDataStore
-import com.wire.android.feature.cells.R
 import com.wire.android.feature.cells.domain.model.AttachmentFileType
 import com.wire.android.feature.cells.ui.edit.OnlineEditor
 import com.wire.android.feature.cells.ui.model.CellNodeUi
@@ -34,18 +33,18 @@ import com.wire.android.feature.cells.ui.model.NodeBottomSheetAction
 import com.wire.android.feature.cells.ui.model.NodeMenuItem
 import com.wire.android.feature.cells.ui.model.OpenLoadState
 import com.wire.android.feature.cells.ui.model.canOpenWithUrl
-import com.wire.android.feature.cells.ui.model.pdfRenditionUrl
 import com.wire.android.feature.cells.ui.model.localFileAvailable
+import com.wire.android.feature.cells.ui.model.pdfRenditionUrl
 import com.wire.android.feature.cells.ui.model.toUiModel
 import com.wire.android.feature.cells.ui.movetofolder.CellNodeMoveEvents
 import com.wire.android.feature.cells.ui.search.DriveSearchScreenType
-import com.wire.android.feature.cells.ui.upload.DriveUploadFilePreparer
 import com.wire.android.feature.cells.ui.search.SearchNavArgs
 import com.wire.android.feature.cells.ui.search.defaultCriteriaFor
 import com.wire.android.feature.cells.ui.search.sort.SortBy
 import com.wire.android.feature.cells.ui.search.sort.SortingCriteria
 import com.wire.android.feature.cells.ui.search.sort.toKaliumCriteria
 import com.wire.android.feature.cells.ui.search.sort.toSortingCriteria
+import com.wire.android.feature.cells.ui.upload.DriveUploadFilePreparer
 import com.wire.android.feature.cells.util.FileHelper
 import com.wire.android.ui.common.ActionsViewModel
 import com.wire.kalium.cells.data.FileFilters
@@ -393,12 +392,15 @@ class CellViewModel @AssistedInject constructor(
         refreshNodes()
     }
 
+    fun onNodeCreated() = refreshNodes()
+
     private fun refreshNodes() {
         viewModelScope.launch {
             refreshTrigger.tryEmit(Unit)
         }
     }
 
+    @Suppress("CyclomaticComplexMethod")
     internal fun sendIntent(intent: CellViewIntent) {
         when (intent) {
             is CellViewIntent.OnItemClick -> when {
@@ -408,6 +410,8 @@ class CellViewModel @AssistedInject constructor(
             }
 
             is CellViewIntent.OnItemLongClick -> bulkSelection.onLongClick(intent.cellNode)
+            is CellViewIntent.OnDragSelection -> bulkSelection.onDragSelection(intent.nodes)
+            is CellViewIntent.OnDragSelectionEnd -> bulkSelection.onDragSelectionEnd()
             is CellViewIntent.OnClearSelection -> bulkSelection.clear()
             is CellViewIntent.OnMoveSelectedNodesClick -> moveSelectedNodes()
             is CellViewIntent.OnDeleteSelectedNodesClick,
@@ -845,6 +849,10 @@ sealed interface CellViewIntent {
     data class OnItemClick(val file: CellNodeUi) : CellViewIntent
     data class OnItemMenuClick(val cellNode: CellNodeUi) : CellViewIntent
     data class OnItemLongClick(val cellNode: CellNodeUi) : CellViewIntent
+
+    /** @param nodes the nodes from the long pressed one to the one under the finger, the long pressed one first. */
+    data class OnDragSelection(val nodes: List<CellNodeUi>) : CellViewIntent
+    data object OnDragSelectionEnd : CellViewIntent
     data object OnClearSelection : CellViewIntent
     data object OnMoveSelectedNodesClick : CellViewIntent
     data object OnDeleteSelectedNodesClick : CellViewIntent

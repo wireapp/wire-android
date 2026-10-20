@@ -21,8 +21,8 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.AnimatedVisibilityScope
-import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.EnterExitState
+import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.animation.SharedTransitionScope.ResizeMode.Companion.RemeasureToBounds
 import androidx.compose.animation.core.animateDp
@@ -39,8 +39,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -96,6 +96,8 @@ import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.permission.rememberChooseMultipleFilesFlow
 import com.wire.kalium.cells.domain.CellUploadItem
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.toPersistentList
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -115,6 +117,20 @@ internal fun ConversationFilesRouteScreen(
     val uploadStatusViewModel = uploadStatusViewModel(viewModel.currentNodeUuid()?.substringBefore("/"))
     val uploads by uploadStatusViewModel.uploads.collectAsState()
     val uploadConfirmation by viewModel.uploadConfirmation.collectAsState()
+
+    // Sub folders of the recycle bin are opened with this screen too: after restoring their parent
+    // folder, go back to the recycle bin root.
+    LaunchedEffect(viewModel.navigateToRecycleBinRoot.collectAsState().value) {
+        if (viewModel.navigateToRecycleBinRoot.value) {
+            navigation.recycleBin(
+                CellFilesNavArgs(
+                    conversationId = viewModel.currentNodeUuid()?.substringBefore("/"),
+                    isRecycleBin = true,
+                ),
+                popConsecutive = true,
+            )
+        }
+    }
 
     ConversationFilesScreenContent(
         animatedVisibilityScope = animatedVisibilityScope,
@@ -139,6 +155,7 @@ internal fun ConversationFilesRouteScreen(
         isRestoreInProgress = viewModel.isRestoreInProgress.collectAsState().value,
         isDeleteInProgress = viewModel.isDeleteInProgress.collectAsState().value,
         isRefreshing = viewModel.isPullToRefresh.collectAsState(),
+        screenTitle = viewModel.screenTitle(),
         breadcrumbs = viewModel.breadcrumbs(),
         sendIntent = viewModel::sendIntent,
         onRefresh = viewModel::onPullToRefresh,
@@ -512,7 +529,8 @@ internal fun ConversationFilesScreenContent(
                         if (state == EnterExitState.Visible) PILL_CORNER_RADIUS else FAB_CORNER_RADIUS
                     }
                     CellBulkActionsBar(
-                        actions = bulkActions(offlineFilesEnabled = offlineFilesEnabled, sendIntent = sendIntent),
+                        actions = remember(offlineFilesEnabled) { bulkActions(offlineFilesEnabled) },
+                        onActionClick = { action -> sendIntent(action.toIntent()) },
                         shape = RoundedCornerShape(barCornerRadius),
                         modifier = Modifier.sharedBounds(
                             sharedContentState = rememberSharedContentState(key = fabToBulkActionsKey),
@@ -534,33 +552,16 @@ private val FAB_CORNER_RADIUS = 16.dp
 // Larger than half of the bar height, so RoundedCornerShape clamps it to a full pill.
 private val PILL_CORNER_RADIUS = 32.dp
 
-private fun bulkActions(offlineFilesEnabled: Boolean, sendIntent: (CellViewIntent) -> Unit): List<CellBulkAction> =
-    buildList {
-        add(
-            CellBulkAction(
-                iconRes = R.drawable.ic_folder,
-                labelRes = R.string.cells_bulk_action_move,
-                onClick = { sendIntent(CellViewIntent.OnMoveSelectedNodesClick) },
-            )
-        )
-        add(
-            CellBulkAction(
-                iconRes = com.wire.android.ui.common.R.drawable.ic_delete,
-                labelRes = R.string.cells_bulk_action_delete,
-                onClick = { sendIntent(CellViewIntent.OnDeleteSelectedNodesClick) },
-            )
-        )
-        if (offlineFilesEnabled) {
-            add(
-                CellBulkAction(
-                    iconRes = R.drawable.ic_arrow_down_circle,
-                    labelRes = R.string.cells_bulk_action_offline,
-                    onClick = { sendIntent(CellViewIntent.OnMakeSelectedNodesAvailableOfflineClick) },
-                    contentDescriptionRes = R.string.make_available_offline_label,
-                )
-            )
-        }
-    }
+private fun bulkActions(offlineFilesEnabled: Boolean): ImmutableList<CellBulkAction> =
+    CellBulkAction.entries
+        .filter { it != CellBulkAction.MakeAvailableOffline || offlineFilesEnabled }
+        .toPersistentList()
+
+private fun CellBulkAction.toIntent(): CellViewIntent = when (this) {
+    CellBulkAction.Move -> CellViewIntent.OnMoveSelectedNodesClick
+    CellBulkAction.Delete -> CellViewIntent.OnDeleteSelectedNodesClick
+    CellBulkAction.MakeAvailableOffline -> CellViewIntent.OnMakeSelectedNodesAvailableOfflineClick
+}
 
 /**
  * Rolls the title up when the selection count grows and down when it shrinks, so entering selection mode

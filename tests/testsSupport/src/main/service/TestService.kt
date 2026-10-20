@@ -31,6 +31,7 @@ import org.json.JSONObject
 import service.HttpStatus
 import service.enums.TypingStatus
 import service.models.Mentions
+import service.models.QualifiedID
 import service.models.SendFileParams
 import service.models.SendLocationParams
 import service.models.SendTextParams
@@ -365,6 +366,62 @@ class TestService(private val baseUri: String, private val testName: String) {
             if (convoDomain != ZINFRA) {
                 put("conversationDomain", convoDomain)
             }
+        }
+        sendHttpRequest(connection, requestBody)
+    }
+
+    fun addMembersToConversation(
+        owner: ClientUser,
+        deviceName: String?,
+        convoId: String,
+        convoDomain: String,
+        users: List<QualifiedID>
+    ) {
+        val instanceId = getInstanceId(owner, deviceName)
+        val connection = buildRequest("api/v1/instance/$instanceId/conversation/members/add", "POST")
+        val requestBody = JSONObject().apply {
+            put("conversationId", convoId)
+            put("conversationDomain", convoDomain)
+            put("users", JSONArray(users.map { it.toJSON() }))
+        }
+        sendHttpRequest(connection, requestBody)
+    }
+
+    fun removeMemberFromConversation(
+        owner: ClientUser,
+        deviceName: String?,
+        convoId: String,
+        convoDomain: String,
+        userId: String,
+        userDomain: String
+    ) {
+        val instanceId = getInstanceId(owner, deviceName)
+        val connection = buildRequest("api/v1/instance/$instanceId/conversation/members/remove", "POST")
+        val requestBody = JSONObject().apply {
+            put("conversationId", convoId)
+            put("conversationDomain", convoDomain)
+            put(
+                "user",
+                JSONObject().apply {
+                    put("id", userId)
+                    put("domain", userDomain)
+                }
+            )
+        }
+        sendHttpRequest(connection, requestBody)
+    }
+
+    fun leaveConversation(
+        owner: ClientUser,
+        deviceName: String?,
+        convoId: String,
+        convoDomain: String
+    ) {
+        val instanceId = getInstanceId(owner, deviceName)
+        val connection = buildRequest("api/v1/instance/$instanceId/conversation/leave", "POST")
+        val requestBody = JSONObject().apply {
+            put("conversationId", convoId)
+            put("conversationDomain", convoDomain)
         }
         sendHttpRequest(connection, requestBody)
     }

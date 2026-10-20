@@ -314,6 +314,7 @@ class NetworkQualityTests : BaseCallUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "NetworkQuality", backendClient)
             teamOwner = clientUserManager.findUserBy(
                 "user1Name",
                 ClientUserManager.FindBy.NAME_ALIAS

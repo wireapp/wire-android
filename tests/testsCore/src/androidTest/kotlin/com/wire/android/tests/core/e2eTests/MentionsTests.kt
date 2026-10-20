@@ -37,7 +37,7 @@ class MentionsTests : BaseUiTest() {
     @Before
     fun setUp() {
         initCommonTestHelpers()
-        device = UiAutomatorSetup.start(UiAutomatorSetup.APP_BETA)
+        device = UiAutomatorSetup.start(UiAutomatorSetup.APP_ALPHA)
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
@@ -54,6 +54,7 @@ class MentionsTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "Notification", backendClient)
         }
 
         step("And User TeamOwner adds Member1 and Member2 to team Notification with role Member") {
@@ -68,12 +69,20 @@ class MentionsTests : BaseUiTest() {
             )
         }
 
-        step("And User TeamOwner has group conversation MyTeam with Member1 and Member2 in team Notification") {
-            backendSetupHelper.userHasGroupConversationInTeam(
-                "user1Name",
-                "MyTeam",
-                "user2Name,user3Name",
-                "Notification"
+        step("And MLS devices are registered for all participants") {
+            testServiceHelper.apply {
+                addDevice("user1Name", null, "Device1")
+                addDevice("user2Name", null, "Device1")
+                addDevice("user3Name", null, "Device1")
+            }
+        }
+
+        step("And User TeamOwner creates MLS group conversation MyTeam with Member1 and Member2 in team Notification") {
+            testServiceHelper.userCreatesMLSGroupConversation(
+                ownerAlias = "user1Name",
+                participantAliases = "user2Name,user3Name",
+                conversationName = "MyTeam",
+                deviceName = "Device1"
             )
         }
 

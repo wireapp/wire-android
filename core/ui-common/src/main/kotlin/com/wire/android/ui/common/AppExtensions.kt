@@ -32,10 +32,11 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.flowWithLifecycle
 import com.wire.android.model.Clickable
 import kotlinx.coroutines.flow.Flow
-import kotlinx.datetime.Instant
+import kotlin.time.Instant
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
+import kotlinx.datetime.toJavaMonth
 import java.time.format.TextStyle
 import java.util.Locale
 
@@ -74,7 +75,7 @@ fun monthYearHeader(month: Int, year: Int): String {
     val currentYear = Instant.fromEpochMilliseconds(System.currentTimeMillis()).toLocalDateTime(TimeZone.currentSystemDefault()).year
     val monthYearInstant = LocalDateTime(year = year, monthNumber = month, 1, 0, 0, 0)
 
-    val monthName = monthYearInstant.month.getDisplayName(TextStyle.FULL_STANDALONE, Locale.getDefault())
+    val monthName = monthYearInstant.month.toJavaMonth().getDisplayName(TextStyle.FULL_STANDALONE, Locale.getDefault())
     return if (year == currentYear) {
         // If it's the current year, display only the month name
         monthName

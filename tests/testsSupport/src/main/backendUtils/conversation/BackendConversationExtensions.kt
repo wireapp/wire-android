@@ -146,6 +146,30 @@ suspend fun BackendClient.createGroupConversation(
     return JSONObject(response).getJSONObject("qualified_id").getString("id")
 }
 
+suspend fun BackendClient.setConversationAccess(
+    asUser: ClientUser,
+    conversation: Conversation,
+    access: List<String>,
+    accessRoles: List<String>
+) {
+    val token = getAuthToken(asUser)
+    val url = "conversations/${conversation.qualifiedID.domain}/${conversation.id}/access".composePublicApiUrl()
+    val headers = defaultheaders.toMutableMap().apply {
+        put(BackendClient.AUTHORIZATION, "${token?.type} ${token?.value}")
+    }
+    val requestBody = JSONObject().apply {
+        put("access", JSONArray(access))
+        put("access_role", JSONArray(accessRoles))
+    }
+    NetworkBackendClient.sendJsonRequestWithCookies(
+        url = URI(url).toURL(),
+        method = "PUT",
+        body = requestBody.toString(),
+        headers = headers,
+        options = RequestOptions(accessToken = token)
+    )
+}
+
 suspend fun BackendClient.createInviteLink(
     user: ClientUser,
     conversation: Conversation,

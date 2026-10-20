@@ -56,6 +56,7 @@ class FilterTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "Filters", backendClient)
             backendSetupHelper.createTeamOwnerByAlias(
                 "user5Name",
                 "ConnectedFriend",
@@ -64,6 +65,7 @@ class FilterTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user5Name", "ConnectedFriend", backendClient)
             backendSetupHelper.createTeamOwnerByAlias(
                 "user2Name",
                 "ConnectedFriend2",
@@ -72,6 +74,7 @@ class FilterTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user2Name", "ConnectedFriend2", backendClient)
         }
 
         step("And TeamOwner adds Member1 to team Filters with role Member") {
@@ -91,12 +94,19 @@ class FilterTests : BaseUiTest() {
             backendSetupHelper.userIsConnectedTo("user1Name", "user2Name")
         }
 
+        step("And MLS devices are registered for all participants") {
+            testServiceHelper.apply {
+                addDevice("user1Name", null, "Device1")
+                addDevice("user3Name", null, "Device1")
+            }
+        }
+
         step("And TeamOwner has group conversation Filter Group with Member1") {
-            backendSetupHelper.userHasGroupConversationInTeam(
-                "user1Name",
-                "Filter Group",
-                "user3Name",
-                "Filters"
+            testServiceHelper.userCreatesMLSGroupConversation(
+                ownerAlias = "user1Name",
+                participantAliases = "user3Name",
+                conversationName = "Filter Group",
+                deviceName = "Device1"
             )
         }
 
@@ -463,6 +473,7 @@ class FilterTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "folderFilter", backendClient)
             backendSetupHelper.createTeamOwnerByAlias(
                 "user2Name",
                 "ConnectedFriend",
@@ -471,6 +482,7 @@ class FilterTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user2Name", "ConnectedFriend", backendClient)
         }
 
         step("And TeamOwner adds Member1 to team folderFilter with role Member") {
@@ -931,6 +943,7 @@ class FilterTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "Folder", backendClient)
             backendSetupHelper.createTeamOwnerByAlias(
                 "user2Name",
                 "ConnectedFriend",
@@ -939,6 +952,7 @@ class FilterTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user2Name", "ConnectedFriend", backendClient)
         }
 
         step("And TeamOwner adds Member1 to team Folder with role Member") {
@@ -957,12 +971,19 @@ class FilterTests : BaseUiTest() {
             backendSetupHelper.userIsConnectedTo("user1Name", "user2Name")
         }
 
+        step("And MLS devices are registered for all participants") {
+            testServiceHelper.apply {
+                addDevice("user1Name", null, "Device1")
+                addDevice("user3Name", null, "Device1")
+            }
+        }
+
         step("And TeamOwner has group conversation Folder Group with Member1") {
-            backendSetupHelper.userHasGroupConversationInTeam(
-                "user1Name",
-                "Folder Group",
-                "user3Name",
-                "Folder"
+            testServiceHelper.userCreatesMLSGroupConversation(
+                ownerAlias = "user1Name",
+                participantAliases = "user3Name",
+                conversationName = "Folder Group",
+                deviceName = "Device1"
             )
         }
 

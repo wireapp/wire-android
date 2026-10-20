@@ -55,6 +55,7 @@ class LogoutTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "Logout", backendClient)
             teamOwner = clientUserManager.findUserByNameOrNameAlias("user1Name")
         }
 
@@ -93,7 +94,10 @@ class LogoutTests : BaseUiTest() {
         }
 
         step("And I tap User Profile Button and see User Profile Page") {
-            pages.conversationListPage.clickUserProfileButton()
+            pages.conversationListPage.apply {
+                waitUntilWireServiceNotificationDisappears()
+                clickUserProfileButton()
+            }
             pages.selfUserProfilePage.iSeeUserProfilePage()
         }
 
@@ -300,6 +304,7 @@ class LogoutTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "Logout", backendClient)
         }
 
         step("And User TeamOwner adds Member1 and Member2 to team Logout with role Member") {

@@ -75,7 +75,9 @@ internal fun UploadStatusBottomSheetContent(
 ) {
     val failedCount = uploads.count { it.state is CellUploadState.Failed }
 
-    val activeCount = uploads.count { it.state is CellUploadState.Queued || it.state is CellUploadState.Uploading }
+    val activeCount = uploads.count {
+        it.state is CellUploadState.Queued || it.state is CellUploadState.Uploading || it.state is CellUploadState.Paused
+    }
 
     Column(modifier = modifier.fillMaxWidth()) {
         UploadStatusHeader(
@@ -263,7 +265,11 @@ private fun UploadStatusRowIcon(state: CellUploadState, fileName: String) {
                     .padding(dimensions().spacing6x),
             )
 
-            is CellUploadState.Preparing, CellUploadState.Queued, CellUploadState.Completed, CellUploadState.Cancelled -> {
+            is CellUploadState.Preparing,
+            CellUploadState.Queued,
+            CellUploadState.Paused,
+            CellUploadState.Completed,
+            CellUploadState.Cancelled -> {
                 val fileType = remember(fileName) {
                     fileName.fileExtension()?.let(AttachmentFileType::fromExtension) ?: AttachmentFileType.OTHER
                 }
@@ -287,6 +293,11 @@ private fun UploadStatusRowSubtitle(item: CellUploadItem) {
 
         is CellUploadState.Uploading -> UploadStatusSubtitleText(
             text = stringResource(R.string.cells_upload_status_subtitle_uploading),
+            color = colorsScheme().secondaryText,
+        )
+
+        CellUploadState.Paused -> UploadStatusSubtitleText(
+            text = stringResource(R.string.cells_upload_status_subtitle_paused),
             color = colorsScheme().secondaryText,
         )
 
@@ -338,7 +349,7 @@ private fun UploadStatusRowActions(
     onDismiss: () -> Unit,
 ) {
     when (state) {
-        CellUploadState.Queued, is CellUploadState.Uploading -> IconButton(
+        CellUploadState.Queued, is CellUploadState.Uploading, CellUploadState.Paused -> IconButton(
             onClick = onCancel,
             modifier = Modifier.size(dimensions().spacing32x),
         ) {

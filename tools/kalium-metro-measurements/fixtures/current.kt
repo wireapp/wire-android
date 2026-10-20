@@ -781,6 +781,12 @@ class WireKaliumMeasurementNetworkObserverTest {
 @Suppress("LongMethod", "MagicNumber")
 @OptIn(ExperimentalCoroutinesApi::class)
 class WireKaliumMeasurementOwnerDrainTest {
+    // These synthetic failures test exact propagation identity through coroutine boundaries.
+    private class MeasurementRegressionFailure(message: String) :
+        IllegalStateException(message), kotlinx.coroutines.CopyableThrowable<MeasurementRegressionFailure> {
+        override fun createCopy(): MeasurementRegressionFailure? = null
+    }
+
     @Test
     fun cancelOnlyEvictionCannotOutrunRetainedSessionChild() = heldOwnerBarrier(providerWaits = false)
 
@@ -901,7 +907,7 @@ class WireKaliumMeasurementOwnerDrainTest {
 
     @Test
     fun evictionFailureRemainsFatalAfterSafeResourceCleanup() = runTest {
-        val failure = IllegalStateException("metadata deletion failed")
+        val failure = MeasurementRegressionFailure("metadata deletion failed")
         var closed = false
         val result = runCatching {
             MeasurementOwnerDrain(Job(), Job(), { null }, {}, { throw failure }, { closed = true }, {}).close()
@@ -912,7 +918,7 @@ class WireKaliumMeasurementOwnerDrainTest {
 
     @Test
     fun resourceCloseFailureCannotReportSuccessfulCleanup() = runTest {
-        val failure = IllegalStateException("captured network close failed")
+        val failure = MeasurementRegressionFailure("captured network close failed")
         var globalClosed = false
         val result = runCatching {
             MeasurementOwnerDrain(Job(), Job(), { null }, {}, {}, { throw failure }, { globalClosed = true }).close()

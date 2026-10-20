@@ -34,7 +34,7 @@ import com.wire.kalium.logic.data.id.GroupID
 import com.wire.kalium.logic.data.mls.CipherSuite
 import com.wire.kalium.logic.data.user.SelfUser
 import com.wire.kalium.logic.data.user.type.isTeamAdmin
-import kotlinx.datetime.Instant
+import kotlin.time.Instant
 
 data class ConversationOptionsData(
     val title: UIText,

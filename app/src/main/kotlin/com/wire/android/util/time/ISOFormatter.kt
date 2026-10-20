@@ -18,8 +18,8 @@
 
 package com.wire.android.util.time
 
-import kotlinx.datetime.Instant
-import kotlinx.datetime.toJavaInstant
+import kotlin.time.Instant
+import kotlin.time.toJavaInstant
 import java.text.DateFormat
 import java.util.Date
 import dev.zacsweers.metro.Inject

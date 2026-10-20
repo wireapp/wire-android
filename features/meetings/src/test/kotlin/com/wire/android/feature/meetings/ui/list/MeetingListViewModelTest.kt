@@ -61,7 +61,7 @@ import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
-import kotlinx.datetime.Instant
+import kotlin.time.Instant
 import kotlinx.datetime.TimeZone
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -459,24 +459,54 @@ class MeetingListViewModelTest {
     }
 
     @Test
-    fun givenEmptyList_whenLoadedRepeatedly_thenSyncOnlyOnce() = runTest(dispatcher) {
+    fun givenInitialEmptyList_whenSyncing_thenShowInitialLoadingInsteadOfRefreshIndicator() = runTest(dispatcher) {
         val (arrangement, scenario) = Arrangement(dispatcher).arrange()
         scenario.use {
-            it.viewModel.onEmptyListLoaded()
-            it.viewModel.onEmptyListLoaded()
+            assertEquals(MeetingListLoadingState.INITIAL_LOADING, it.viewModel.loadingState.value)
+            it.viewModel.onInitialListLoaded(shouldMakeInitialSync = true)
+            it.viewModel.onInitialListLoaded(shouldMakeInitialSync = true)
+            assertEquals(MeetingListLoadingState.INITIAL_SYNCING, it.viewModel.loadingState.value)
+
             runCurrent()
+            assertEquals(MeetingListLoadingState.READY, it.viewModel.loadingState.value)
             coVerify(exactly = 1) { arrangement.syncMeetings() }
         }
     }
 
     @Test
-    fun givenViewModel_whenNoEmptyListReported_thenDoNotSync() = runTest(dispatcher) {
+    fun givenInitialNonEmptyList_whenLoaded_thenReadyWithoutSync() = runTest(dispatcher) {
+        val (arrangement, scenario) = Arrangement(dispatcher).arrange()
+        scenario.use {
+            assertEquals(MeetingListLoadingState.INITIAL_LOADING, it.viewModel.loadingState.value)
+            it.viewModel.onInitialListLoaded(shouldMakeInitialSync = false)
+            assertEquals(MeetingListLoadingState.READY, it.viewModel.loadingState.value)
+            runCurrent()
+            coVerify(exactly = 0) { arrangement.syncMeetings() }
+        }
+    }
+
+    @Test
+    fun givenRefreshRequestedRepeatedly_thenSyncEachTime() = runTest(dispatcher) {
+        val (arrangement, scenario) = Arrangement(dispatcher).arrange()
+        scenario.use {
+            it.viewModel.onRefreshList()
+            assertEquals(MeetingListLoadingState.REFRESHING, it.viewModel.loadingState.value)
+            runCurrent()
+            assertEquals(MeetingListLoadingState.READY, it.viewModel.loadingState.value)
+            it.viewModel.onRefreshList()
+            runCurrent()
+            coVerify(exactly = 2) { arrangement.syncMeetings() }
+        }
+    }
+
+    @Test
+    fun givenViewModel_whenNoRefreshRequested_thenDoNotSync() = runTest(dispatcher) {
         val (arrangement, scenario) = Arrangement(dispatcher).arrange()
         scenario.use {
             runCurrent()
             coVerify(exactly = 0) { arrangement.syncMeetings() }
 
-            it.viewModel.onEmptyListLoaded()
+            it.viewModel.onRefreshList()
             runCurrent()
             coVerify(exactly = 1) { arrangement.syncMeetings() }
         }

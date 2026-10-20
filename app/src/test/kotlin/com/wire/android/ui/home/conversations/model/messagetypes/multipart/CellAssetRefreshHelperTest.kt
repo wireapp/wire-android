@@ -94,7 +94,7 @@ class CellAssetRefreshHelperTest {
         var count = 0
 
         val (_, refreshHelper) = Arrangement()
-            .withRefreshAsset { _, _ ->
+            .withRefreshAsset { _ ->
                 count++
                 testNode.right()
             }
@@ -114,7 +114,7 @@ class CellAssetRefreshHelperTest {
         var count = 0
 
         val (_, refreshHelper) = Arrangement()
-            .withRefreshAsset { _, _ ->
+            .withRefreshAsset { _ ->
                 count++
                 testNode.right()
             }
@@ -136,7 +136,7 @@ class CellAssetRefreshHelperTest {
         var count = 0
 
         val (_, refreshHelper) = Arrangement()
-            .withRefreshAsset { _, _ ->
+            .withRefreshAsset { _ ->
                 count++
                 testNode.right()
             }
@@ -176,7 +176,7 @@ class CellAssetRefreshHelperTest {
             collaboraIntegration = true
         )
 
-        var refreshAsset = RefreshCellAssetStateUseCase { _, _ -> testNode.right() }
+        var refreshAsset = RefreshCellAssetStateUseCase { _ -> testNode.right() }
 
         fun withRefreshAsset(useCase: RefreshCellAssetStateUseCase) = apply {
             refreshAsset = useCase

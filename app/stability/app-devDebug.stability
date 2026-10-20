@@ -8216,23 +8216,15 @@ private fun com.wire.android.ui.home.messagecomposer.AddMentionAction(isActive: 
     - onButtonClicked: STABLE (function type)
 
 @Composable
-public fun com.wire.android.ui.home.messagecomposer.AdditionalOptionSubMenu(isFileSharingEnabled: kotlin.Boolean, areAttachmentOptionsEnabled: kotlin.Boolean, optionsVisible: kotlin.Boolean, onPermissionPermanentlyDenied: kotlin.Function1<@[ParameterName(name = \, onLocationPickerClicked: kotlin.Function0<kotlin.Unit>, onCloseAdditionalAttachment: kotlin.Function0<kotlin.Unit>, onRecordAudioMessageClicked: kotlin.Function0<kotlin.Unit>, additionalOptionsState: com.wire.android.ui.home.messagecomposer.state.AdditionalOptionSubMenuState, onImagesPicked: kotlin.Function1<kotlin.collections.List<android.net.Uri>, kotlin.Unit>, onAttachmentPicked: kotlin.Function1<com.wire.android.ui.home.conversations.model.UriAsset, kotlin.Unit>, onAudioRecorded: kotlin.Function1<com.wire.android.ui.home.conversations.model.UriAsset, kotlin.Unit>, tempWritableImageUri: android.net.Uri?, tempWritableVideoUri: android.net.Uri?, modifier: androidx.compose.ui.Modifier, useKeyboardNavigation: kotlin.Boolean): kotlin.Unit
+internal fun com.wire.android.ui.home.messagecomposer.AdditionalOptionSubMenu(attachmentOptions: kotlin.collections.List<com.wire.android.ui.home.messagecomposer.AttachmentOptionItem>, optionsVisible: kotlin.Boolean, onCloseAdditionalAttachment: kotlin.Function0<kotlin.Unit>, additionalOptionsState: com.wire.android.ui.home.messagecomposer.state.AdditionalOptionSubMenuState, onAudioRecorded: kotlin.Function1<com.wire.android.ui.home.conversations.model.UriAsset, kotlin.Unit>, modifier: androidx.compose.ui.Modifier, useKeyboardNavigation: kotlin.Boolean): kotlin.Unit
   skippable: false
   restartable: true
   params:
-    - isFileSharingEnabled: STABLE (primitive type)
-    - areAttachmentOptionsEnabled: STABLE (primitive type)
+    - attachmentOptions: RUNTIME (requires runtime check)
     - optionsVisible: STABLE (primitive type)
-    - onPermissionPermanentlyDenied: STABLE (function type)
-    - onLocationPickerClicked: STABLE (function type)
     - onCloseAdditionalAttachment: STABLE (function type)
-    - onRecordAudioMessageClicked: STABLE (function type)
     - additionalOptionsState: STABLE (class with no mutable properties)
-    - onImagesPicked: STABLE (function type)
-    - onAttachmentPicked: STABLE (function type)
     - onAudioRecorded: STABLE (function type)
-    - tempWritableImageUri: RUNTIME (requires runtime check)
-    - tempWritableVideoUri: RUNTIME (requires runtime check)
     - modifier: STABLE (marked @Stable or @Immutable)
     - useKeyboardNavigation: STABLE (primitive type)
 
@@ -8283,20 +8275,12 @@ public fun com.wire.android.ui.home.messagecomposer.AttachmentAndAdditionalOptio
     - onDrawingModeClicked: STABLE (function type)
 
 @Composable
-public fun com.wire.android.ui.home.messagecomposer.AttachmentOptionsComponent(optionsVisible: kotlin.Boolean, onImagesPicked: kotlin.Function1<kotlin.collections.List<android.net.Uri>, kotlin.Unit>, onAttachmentPicked: kotlin.Function1<com.wire.android.ui.home.conversations.model.UriAsset, kotlin.Unit>, onRecordAudioMessageClicked: kotlin.Function0<kotlin.Unit>, tempWritableImageUri: android.net.Uri?, tempWritableVideoUri: android.net.Uri?, isFileSharingEnabled: kotlin.Boolean, areAttachmentOptionsEnabled: kotlin.Boolean, onLocationPickerClicked: kotlin.Function0<kotlin.Unit>, onPermissionPermanentlyDenied: kotlin.Function1<@[ParameterName(name = \, modifier: androidx.compose.ui.Modifier, useKeyboardNavigation: kotlin.Boolean): kotlin.Unit
+internal fun com.wire.android.ui.home.messagecomposer.AttachmentOptionsComponent(optionsVisible: kotlin.Boolean, attachmentOptions: kotlin.collections.List<com.wire.android.ui.home.messagecomposer.AttachmentOptionItem>, modifier: androidx.compose.ui.Modifier, useKeyboardNavigation: kotlin.Boolean): kotlin.Unit
   skippable: false
   restartable: true
   params:
     - optionsVisible: STABLE (primitive type)
-    - onImagesPicked: STABLE (function type)
-    - onAttachmentPicked: STABLE (function type)
-    - onRecordAudioMessageClicked: STABLE (function type)
-    - tempWritableImageUri: RUNTIME (requires runtime check)
-    - tempWritableVideoUri: RUNTIME (requires runtime check)
-    - isFileSharingEnabled: STABLE (primitive type)
-    - areAttachmentOptionsEnabled: STABLE (primitive type)
-    - onLocationPickerClicked: STABLE (function type)
-    - onPermissionPermanentlyDenied: STABLE (function type)
+    - attachmentOptions: RUNTIME (requires runtime check)
     - modifier: STABLE (marked @Stable or @Immutable)
     - useKeyboardNavigation: STABLE (primitive type)
 
@@ -8708,7 +8692,7 @@ public fun com.wire.android.ui.home.messagecomposer.attachments.AdditionalOption
     - viewModel: RUNTIME (requires runtime check)
 
 @Composable
-private fun com.wire.android.ui.home.messagecomposer.buildAttachmentOptionItems(isFileSharingEnabled: kotlin.Boolean, areAttachmentOptionsEnabled: kotlin.Boolean, tempWritableImageUri: android.net.Uri?, tempWritableVideoUri: android.net.Uri?, onImagesPicked: kotlin.Function1<kotlin.collections.List<android.net.Uri>, kotlin.Unit>, onFilePicked: kotlin.Function1<com.wire.android.ui.home.conversations.model.UriAsset, kotlin.Unit>, onRecordAudioMessageClicked: kotlin.Function0<kotlin.Unit>, onLocationPickerClicked: kotlin.Function0<kotlin.Unit>, onPermissionPermanentlyDenied: kotlin.Function1<@[ParameterName(name = \): kotlin.collections.List<com.wire.android.ui.home.messagecomposer.AttachmentOptionItem>
+internal fun com.wire.android.ui.home.messagecomposer.buildAttachmentOptionItems(isFileSharingEnabled: kotlin.Boolean, areAttachmentOptionsEnabled: kotlin.Boolean, tempWritableImageUri: android.net.Uri?, tempWritableVideoUri: android.net.Uri?, onImagesPicked: kotlin.Function1<kotlin.collections.List<android.net.Uri>, kotlin.Unit>, onFilePicked: kotlin.Function1<com.wire.android.ui.home.conversations.model.UriAsset, kotlin.Unit>, onDismissAttachmentOptions: kotlin.Function0<kotlin.Unit>, onRecordAudioMessageClicked: kotlin.Function0<kotlin.Unit>, onLocationPickerClicked: kotlin.Function0<kotlin.Unit>, onPermissionPermanentlyDenied: kotlin.Function1<@[ParameterName(name = \): kotlin.collections.List<com.wire.android.ui.home.messagecomposer.AttachmentOptionItem>
   skippable: false
   restartable: true
   params:
@@ -8718,6 +8702,7 @@ private fun com.wire.android.ui.home.messagecomposer.buildAttachmentOptionItems(
     - tempWritableVideoUri: RUNTIME (requires runtime check)
     - onImagesPicked: STABLE (function type)
     - onFilePicked: STABLE (function type)
+    - onDismissAttachmentOptions: STABLE (function type)
     - onRecordAudioMessageClicked: STABLE (function type)
     - onLocationPickerClicked: STABLE (function type)
     - onPermissionPermanentlyDenied: STABLE (function type)
@@ -8786,6 +8771,12 @@ internal fun com.wire.android.ui.home.messagecomposer.messageComposerSecondaryBu
 
 @Composable
 internal fun com.wire.android.ui.home.messagecomposer.messageComposerTertiaryButtonColors(): com.wire.android.ui.common.button.WireButtonColors
+  skippable: true
+  restartable: true
+  params:
+
+@Composable
+private fun com.wire.android.ui.home.messagecomposer.previewAttachmentOptionItems(): kotlin.collections.List<com.wire.android.ui.home.messagecomposer.AttachmentOptionItem>
   skippable: true
   restartable: true
   params:

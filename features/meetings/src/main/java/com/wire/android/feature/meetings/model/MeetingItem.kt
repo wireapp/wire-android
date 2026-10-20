@@ -27,7 +27,7 @@ import com.wire.kalium.logic.data.meeting.Meeting
 import com.wire.kalium.logic.data.meeting.Meeting.Recurrence.Frequency
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toPersistentList
-import kotlinx.datetime.Instant
+import kotlin.time.Instant
 import kotlin.time.Duration
 
 sealed interface MeetingListItem

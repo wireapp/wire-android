@@ -267,7 +267,7 @@ private fun EmailOrSSOCodeInput(
     readOnly: Boolean,
 ) {
     WireTextField(
-        autoFillType = WireAutoFillType.Login,
+        autoFillType = if (readOnly) WireAutoFillType.None else WireAutoFillType.Login,
         textState = userIdentifierState,
         placeholderText = stringResource(R.string.enterprise_login_user_identifier_label_placeholder),
         labelText = stringResource(R.string.enterprise_login_user_identifier_label),

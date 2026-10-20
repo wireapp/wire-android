@@ -12,9 +12,13 @@ gradle.beforeProject { p ->
             p.tasks.withType(Test).configureEach { t ->
                 if (t.name == 'testDevDebugUnitTest') {
                     t.outputs.upToDateWhen { false }
+                    t.outputs.cacheIf { false }
                     t.maxParallelForks = 1
                     t.forkEvery = 1
-                    t.filter { includeTestsMatching('com.wire.android.di.metro.WireKaliumMeasurementOwnerDrainTest') }
+                    t.filter {
+                        includeTestsMatching('com.wire.android.di.metro.WireKaliumMeasurementOwnerDrainTest')
+                        includeTestsMatching('com.wire.android.di.metro.WireKaliumMeasurementNetworkObserverTest')
+                    }
                 }
             }
         }

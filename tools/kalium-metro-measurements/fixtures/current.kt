@@ -8,6 +8,7 @@ package com.wire.android.di.metro
 
 import android.app.Application
 import android.content.Context
+import android.net.ConnectivityManager
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStore
@@ -58,6 +59,8 @@ import io.mockk.mockk
 import io.mockk.mockkObject
 import io.mockk.unmockkObject
 import java.lang.reflect.InvocationTargetException
+import java.util.Collections
+import java.util.IdentityHashMap
 import java.util.UUID
 import java.util.function.Supplier
 import kotlin.coroutines.Continuation
@@ -92,6 +95,7 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.Shadows
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.Implementation
 import org.robolectric.annotation.Implements
@@ -119,7 +123,7 @@ class WireKaliumMeasurementTest {
         val startupOnly = System.getProperty("metro.measure.scenario", "vm") == "startup-only"
         Meter.provenance()
         mockkObject(WorkManager.Companion)
-        try {
+        measurementFinally({
             every { WorkManager.getInstance(any<Context>()) } returns mockk(relaxed = true)
             repeat(warmups + repetitions) { iteration ->
                 val warming = iteration < warmups
@@ -127,7 +131,7 @@ class WireKaliumMeasurementTest {
                 var fixture: MeasurementFixture? = null
                 var factory: MeasurementFactory? = null
                 var firstConsumer: KaliumConsumer? = null
-                try {
+                measurementFinally({
                     withTimeout(90_000) {
                         // Seed/global CoreLogic/account registration excluded from SESSION measurement.
                         val sdk = MeasurementFixture.create().also { fixture = it }
@@ -189,9 +193,9 @@ class WireKaliumMeasurementTest {
                             assertSame(session, sdk.logic.getSessionScope(sdk.userId))
                         }
                     }
-                } finally {
+                }) {
                     withContext(NonCancellable) {
-                        try {
+                        measurementFinally({
                             withTimeout(30_000) {
                                 try {
                                     owners.forEach { it.viewModelStore.clear() }
@@ -203,15 +207,15 @@ class WireKaliumMeasurementTest {
                                     }
                                 }
                             }
-                        } finally {
+                        }) {
                             firstConsumer = null
                             fixture?.close() // Own independent deadline/NonCancellable context even after consumer failure.
                         }
                     }
                 }
             }
-        } finally {
-            try { Meter.finish() } finally { unmockkObject(WorkManager.Companion) }
+        }) {
+            measurementFinally({ Meter.finish() }) { unmockkObject(WorkManager.Companion) }
         }
     }
 
@@ -259,7 +263,14 @@ class WireKaliumMeasurementTest {
         suspend fun drainCreatedConsumer() { takeCreatedConsumer()?.closeAndJoin() }
     }
 
-    private class MeasurementFixture(val logic: CoreLogic, val userId: UserId, val conversationId: ConversationId, val configId: String) {
+    internal class MeasurementFixture private constructor(
+        val logic: CoreLogic,
+        val userId: UserId,
+        val conversationId: ConversationId,
+        val configId: String,
+        private val networkObserver: MeasurementNetworkObserver,
+    ) {
+        internal val networkObserverJob: Job = requireNotNull(networkObserver.job)
         var sessionResolutionStarted = false
         private var retainedSession: UserSessionScope? = null
 
@@ -285,31 +296,39 @@ class WireKaliumMeasurementTest {
         }
 
         suspend fun close() = withContext(NonCancellable + Dispatchers.Default) {
-            // A failed cold resolution may have acquired resources without returning its owner.
-            // Do not create a replacement owner or close storage whose quiescence cannot be proved.
-            check(!sessionResolutionStarted || retainedSession != null) {
-                "Cold session resolution did not return a retainable owner"
+            measurementFinally({
+                // A failed cold resolution may have acquired resources without returning its owner.
+                // Do not create a replacement owner or close storage whose quiescence cannot be proved.
+                check(!sessionResolutionStarted || retainedSession != null) {
+                    "Cold session resolution did not return a retainable owner"
+                }
+                val session = retainedSession?.let(::RetainedMeasurementSession)
+                val globalJob = logic.getGlobalScope().coroutineContext.job
+                val getter = CoreLogic::class.java.getDeclaredMethod("getGlobalDatabaseBuilder")
+                getter.isAccessible = true
+                val globalDatabase = getter.invoke(logic) as GlobalDatabaseBuilder
+                // Capture actual session resources BEFORE deleteSession evicts provider entries.
+                MeasurementOwnerDrain(
+                    globalJob = globalJob,
+                    sessionJob = session?.job,
+                    initializedCellsJob = { session?.initializedCellsJob() },
+                    stopAccountWork = { session?.stopAccountWork() },
+                    evict = { assertEquals(DeleteSessionUseCase.Result.Success, logic.getGlobalScope().deleteSession(userId)) },
+                    closeUserResources = {
+                        networkObserver.close()
+                        session?.closeResources()
+                    },
+                    closeGlobalResource = { globalDatabase.close() },
+                ).close()
+            }) {
+                // Also release the observer after failed resource capture/eviction/drain; never close live storage.
+                networkObserver.close()
             }
-            val session = retainedSession?.let(::RetainedMeasurementSession)
-            val globalJob = logic.getGlobalScope().coroutineContext.job
-            val getter = CoreLogic::class.java.getDeclaredMethod("getGlobalDatabaseBuilder")
-            getter.isAccessible = true
-            val globalDatabase = getter.invoke(logic) as GlobalDatabaseBuilder
-            // Capture actual session resources BEFORE deleteSession evicts provider entries.
-            MeasurementOwnerDrain(
-                globalJob = globalJob,
-                sessionJob = session?.job,
-                initializedCellsJob = { session?.initializedCellsJob() },
-                stopAccountWork = { session?.stopAccountWork() },
-                evict = { assertEquals(DeleteSessionUseCase.Result.Success, logic.getGlobalScope().deleteSession(userId)) },
-                closeUserResources = { session?.closeResources() },
-                closeGlobalResource = { globalDatabase.close() },
-            ).close()
         }
 
         companion object {
-            // Login failure, including cancellation, must close the fixture before rethrowing.
-            @Suppress("TooGenericExceptionCaught")
+            // Setup failure, including cancellation, must drain captured owners before rethrowing.
+            @Suppress("LongMethod", "TooGenericExceptionCaught")
             suspend fun create(): MeasurementFixture {
                 val context = ApplicationProvider.getApplicationContext<Application>()
                 val userId = UserId(UUID.randomUUID().toString(), "consumer-integration.invalid")
@@ -342,22 +361,30 @@ class WireKaliumMeasurementTest {
                     global.close()
                 }
                 seedMessages(platform, userId, conversationId)
-                val logic = CoreLogic(
-                    userAgent = "wire-consumer-integration-test",
-                    appContext = context,
-                    rootPath = context.filesDir.absolutePath,
-                    kaliumConfigs = KaliumConfigs(
-                        enableCalling = false,
-                        shouldEncryptData = { false },
-                        mockedRequests = emptyList(),
-                    ),
-                )
-                return MeasurementFixture(logic, userId, conversationId, configId).also {
-                    try {
-                        it.login()
-                    } catch (failure: Throwable) {
-                        withContext(NonCancellable) { it.close() }
-                        throw failure
+                val networkObserver = MeasurementNetworkObserver(context)
+                var fixture: MeasurementFixture? = null
+                try {
+                    val logic = networkObserver.createLogic {
+                        CoreLogic(
+                            userAgent = "wire-consumer-integration-test",
+                            appContext = context,
+                            rootPath = context.filesDir.absolutePath,
+                            kaliumConfigs = KaliumConfigs(
+                                enableCalling = false,
+                                shouldEncryptData = { false },
+                                mockedRequests = emptyList(),
+                            ),
+                        )
+                    }
+                    val created = MeasurementFixture(logic, userId, conversationId, configId, networkObserver)
+                        .also { fixture = it }
+                    created.login()
+                    return created
+                } catch (failure: Throwable) {
+                    return measurementFinally({ throw failure }) {
+                        withContext(NonCancellable + Dispatchers.Default) {
+                            fixture?.close() ?: networkObserver.close()
+                        }
                     }
                 }
             }
@@ -595,6 +622,159 @@ private suspend fun measurementSuspend(owner: Any, baseName: String): Unit =
             throw failure.targetException
         }
     }
+
+private const val MEASUREMENT_NETWORK_OBSERVER_CLASS = "com.wire.kalium.logic.network.NetworkStateObserverImpl"
+
+/** Snapshots are detached identity sets; never mutate Robolectric's static callback registry. */
+private fun measurementNetworkCallbacks(manager: ConnectivityManager): Set<ConnectivityManager.NetworkCallback> =
+    Collections.newSetFromMap(IdentityHashMap<ConnectivityManager.NetworkCallback, Boolean>()).apply {
+        addAll(Shadows.shadowOf(manager).networkCallbacks)
+    }
+
+/** Both inspected SDK callback classes capture this exact observer in the synthetic this$0 field. */
+private fun measurementCallbackObserver(callback: ConnectivityManager.NetworkCallback): Any? =
+    if (callback.javaClass.name == "$MEASUREMENT_NETWORK_OBSERVER_CLASS\$callback\$1") {
+        measurementField(callback, "this\$0")
+    } else {
+        null
+    }
+
+/** Own only the observer eagerly created during this fixture's CoreLogic constructor. */
+private class MeasurementNetworkObserver(context: Context) {
+    private val manager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+    private var initialCallbacks = emptySet<ConnectivityManager.NetworkCallback>()
+    private var callback: ConnectivityManager.NetworkCallback? = null
+    private var released = false
+    var job: Job? = null
+        private set
+
+    fun createLogic(create: () -> CoreLogic): CoreLogic {
+        // No session/account setup belongs between these two snapshots.
+        initialCallbacks = measurementNetworkCallbacks(manager)
+        var logic: CoreLogic? = null
+        return measurementFinally({
+            create().also { logic = it }
+        }) {
+            capture(logic)
+        }
+    }
+
+    private fun capture(logic: CoreLogic?) {
+        val after = measurementNetworkCallbacks(manager)
+        val added = after.filterNot(initialCallbacks::contains)
+        // A later CoreLogic initializer (e.g. AVS) can throw after callback registration.
+        // Recover only the new callback's inspected outer observer in that failure case.
+        val observer = logic?.networkStateObserver ?: added.singleOrNull()?.let(::measurementCallbackObserver)
+        if (observer != null) {
+            check(observer.javaClass.name == MEASUREMENT_NETWORK_OBSERVER_CLASS) { "Unexpected eager network observer" }
+            job = (measurementField(observer, "scope") as CoroutineScope).coroutineContext.job
+            callback = added.singleOrNull { measurementCallbackObserver(it) === observer }
+        }
+        check(after.containsAll(initialCallbacks) && added.size == 1 && callback != null && job != null) {
+            "Cannot prove exact CoreLogic network callback/scope ownership"
+        }
+    }
+
+    suspend fun close(): Unit = withTimeout(MEASUREMENT_CLEANUP_TIMEOUT_MS) {
+        if (!released) {
+            // Even unregister failure must attempt the independent scope drain, retaining both failures.
+            measurementFinally({
+                callback?.let {
+                    manager.unregisterNetworkCallback(it)
+                    callback = null
+                }
+            }) {
+                job?.cancelAndJoin()
+                job?.let(::requireMeasurementQuiescence)
+                check(measurementNetworkCallbacks(manager) == initialCallbacks) {
+                    "Network callbacks differ from the pre-CoreLogic snapshot"
+                }
+            }
+            check(job != null) { "Eager network observer scope was not captured" }
+            // Do not retain callbacks (including unrelated initial callbacks) across fixture cycles.
+            initialCallbacks = emptySet()
+            released = true
+        }
+    }
+}
+
+/** Cleanup remains fatal without replacing an earlier setup, measurement or drain failure. */
+@Suppress("TooGenericExceptionCaught")
+private inline fun <T> measurementFinally(action: () -> T, cleanup: () -> Unit): T {
+    var primary: Throwable? = null
+    try {
+        return action()
+    } catch (failure: Throwable) {
+        primary = failure
+        throw failure
+    } finally {
+        try {
+            cleanup()
+        } catch (failure: Throwable) {
+            val original = primary ?: throw failure
+            if (original !== failure) original.addSuppressed(failure)
+        }
+    }
+}
+
+/** Separate invocation: real CoreLogic/session adapter cycles, with no Meter or bootstrap Probe. */
+@RunWith(RobolectricTestRunner::class)
+@Config(
+    application = Application::class,
+    sdk = [34],
+    instrumentedPackages = ["com.waz.audioeffect"],
+    shadows = [WireKaliumMeasurementAudioEffectShadow::class],
+)
+@SQLiteMode(SQLiteMode.Mode.NATIVE)
+class WireKaliumMeasurementNetworkObserverTest {
+    @Suppress("LongMethod", "MagicNumber")
+    @Test
+    fun twoOrdinaryFixtureCyclesDrainTheEagerNetworkObserver() = runBlocking {
+        mockkObject(WorkManager.Companion)
+        measurementFinally({
+            every { WorkManager.getInstance(any<Context>()) } returns mockk(relaxed = true)
+            val context = ApplicationProvider.getApplicationContext<Application>()
+            val manager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+            val originalCallbacks = measurementNetworkCallbacks(manager)
+            // A foreign registration proves fixture cleanup cannot clear/reset the callback registry.
+            val unrelated = object : ConnectivityManager.NetworkCallback() {}
+            manager.registerDefaultNetworkCallback(unrelated)
+            measurementFinally({
+                val cycleCallbacks = measurementNetworkCallbacks(manager)
+                assertTrue(cycleCallbacks.contains(unrelated))
+                var previousJob: Job? = null
+                repeat(2) {
+                    var fixture: WireKaliumMeasurementTest.MeasurementFixture? = null
+                    var observerJob: Job? = null
+                    measurementFinally({
+                        withTimeout(90_000L) {
+                            val sdk = WireKaliumMeasurementTest.MeasurementFixture.create().also { fixture = it }
+                            val capturedJob = sdk.networkObserverJob.also { observerJob = it }
+                            assertTrue(capturedJob.isActive)
+                            assertTrue(capturedJob !== previousJob)
+                            assertEquals(cycleCallbacks.size + 1, measurementNetworkCallbacks(manager).size)
+                            sdk.sessionResolutionStarted = true
+                            val session = sdk.logic.getSessionScope(sdk.userId)
+                            sdk.retainSession(session)
+                            assertSame(session, sdk.logic.getSessionScope(sdk.userId))
+                        }
+                    }) {
+                        fixture?.close()
+                    }
+                    val capturedJob = requireNotNull(observerJob)
+                    requireMeasurementQuiescence(capturedJob)
+                    assertEquals(cycleCallbacks, measurementNetworkCallbacks(manager))
+                    previousJob = capturedJob
+                }
+            }) {
+                manager.unregisterNetworkCallback(unrelated)
+                assertEquals(originalCallbacks, measurementNetworkCallbacks(manager))
+            }
+        }) {
+            unmockkObject(WorkManager.Companion)
+        }
+    }
+}
 
 /** Run separately BEFORE cohorts. Uses the exact MeasurementOwnerDrain embedded in either fixture. */
 // Virtual deadlines and the held-owner orchestration are intentional regression fixtures.

@@ -18,11 +18,13 @@
 package com.wire.android.di.metro
 
 import androidx.lifecycle.ViewModel
-import com.wire.android.di.CurrentAccount
-import com.wire.android.di.KaliumCoreLogic
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelStore
+import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.CreationExtras
 import com.wire.android.navigation.runtime.WireNavigationDiagnostics
-import com.wire.kalium.logic.CoreLogic
-import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.di.KaliumConsumer
+import com.wire.kalium.logic.feature.UserSessionScope
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.ContributesBinding
 import dev.zacsweers.metro.Inject
@@ -32,7 +34,9 @@ import dev.zacsweers.metrox.viewmodel.ManualViewModelAssistedFactory
 import dev.zacsweers.metrox.viewmodel.MetroViewModelFactory
 import dev.zacsweers.metrox.viewmodel.ViewModelAssistedFactory
 import java.util.concurrent.atomic.AtomicBoolean
+import kotlinx.coroutines.Job
 import kotlin.reflect.KClass
+import kotlin.reflect.cast
 
 abstract class WireMetroViewModelFactory(
     viewModelProviders: Map<KClass<out ViewModel>, () -> ViewModel>,
@@ -67,12 +71,13 @@ class WireApplicationMetroViewModelFactory(
 @ContributesBinding(MetroSessionScope::class, binding = binding<MetroViewModelFactory>())
 class WireSessionMetroViewModelFactory(
     private val graphFactory: AppViewModelGraph.Factory,
-    @KaliumCoreLogic private val coreLogic: CoreLogic,
-    @CurrentAccount private val currentAccount: UserId,
+    private val session: UserSessionScope,
 ) : WireConsumerMetroViewModelFactory() {
+    // Parent providers can still look up by account. The captured consumer guards the entire
+    // assembly, rejecting publication if those providers cross into a replacement generation.
     override fun <VM : ViewModel> createInGraph(create: (MetroViewModelFactory) -> VM): VM =
         createConsumerViewModel(
-            createConsumer = { coreLogic.getSessionScope(currentAccount).createConsumer() },
+            createConsumer = session::createConsumer,
         ) { consumer ->
             create(graphFactory.createViewModelGraph(consumer).consumerViewModelFactory)
         }
@@ -92,14 +97,18 @@ class WireViewModelGraphFactory(
 )
 
 /** Transfer only the consumer to the ViewModel; session/global resources keep their existing owner. */
-internal fun <Consumer : AutoCloseable, VM : ViewModel> createConsumerViewModel(
-    createConsumer: () -> Consumer,
-    create: (Consumer) -> VM,
+internal fun <VM : ViewModel> createConsumerViewModel(
+    createConsumer: () -> KaliumConsumer,
+    create: (KaliumConsumer) -> VM,
 ): VM {
     val consumer = createConsumer()
     val closeable = CloseOnce(consumer)
     try {
-        return create(consumer).also { it.addCloseable(closeable) }
+        return consumer.assemble(
+            create = { create(consumer).also { it.addCloseable(closeable) } },
+            onDiscard = ::clearUnpublishedViewModel,
+            ownedJob = { it.viewModelScope.coroutineContext[Job] },
+        )
     } catch (failure: Throwable) {
         try {
             closeable.close()
@@ -108,6 +117,16 @@ internal fun <Consumer : AutoCloseable, VM : ViewModel> createConsumerViewModel(
         }
         throw failure
     }
+}
+
+/** Clear through public lifecycle APIs, including onCleared and resources beyond viewModelScope. */
+private fun clearUnpublishedViewModel(viewModel: ViewModel) {
+    val store = ViewModelStore()
+    val factory = object : ViewModelProvider.Factory {
+        override fun <T : ViewModel> create(modelClass: KClass<T>, extras: CreationExtras): T = modelClass.cast(viewModel)
+    }
+    ViewModelProvider.create(store, factory)["unpublished", viewModel::class]
+    store.clear()
 }
 
 private class CloseOnce(private val consumer: AutoCloseable) : AutoCloseable {

@@ -41,6 +41,7 @@ import com.wire.android.ui.debug.DebugInfoViewModelGraph
 import com.wire.android.ui.home.HomeViewModelGraph
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.UserSessionScope
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.ContributesTo
 import dev.zacsweers.metro.GraphExtension
@@ -90,10 +91,15 @@ interface AppSessionViewModelGraph :
     @ContributesTo(AppScope::class)
     @GraphExtension.Factory
     interface Factory {
-        fun createAppSessionViewModelGraph(@Provides @CurrentAccount currentAccount: UserId): AppSessionViewModelGraph
+        fun createAppSessionViewModelGraph(
+            @Provides @CurrentAccount currentAccount: UserId,
+            @Provides session: UserSessionScope,
+        ): AppSessionViewModelGraph
     }
 }
 
 fun WireApplicationGraph.createSessionViewModelGraph(currentAccount: UserId): AppSessionViewModelGraph {
-    return asContribution<AppSessionViewModelGraph.Factory>().createAppSessionViewModelGraph(currentAccount)
+    // Capture this generation now. A retained graph must never open a later same-account session.
+    val session = coreLogic.getSessionScope(currentAccount)
+    return asContribution<AppSessionViewModelGraph.Factory>().createAppSessionViewModelGraph(currentAccount, session)
 }

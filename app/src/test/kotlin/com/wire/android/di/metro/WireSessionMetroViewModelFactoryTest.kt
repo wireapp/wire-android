@@ -13,6 +13,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.ViewModelStoreOwner
+import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.MutableCreationExtras
 import com.wire.android.config.CoroutineTestExtension
@@ -41,22 +42,164 @@ import dev.zacsweers.metrox.viewmodel.MetroViewModelMultibindings
 import dev.zacsweers.metrox.viewmodel.ViewModelAssistedFactory
 import dev.zacsweers.metrox.viewmodel.ViewModelAssistedFactoryKey
 import dev.zacsweers.metrox.viewmodel.ViewModelKey
-import io.mockk.every
 import io.mockk.coEvery
 import io.mockk.coVerify
+import io.mockk.every
 import io.mockk.mockk
+import io.mockk.verify
+import java.util.concurrent.Callable
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertNotSame
 import org.junit.jupiter.api.Assertions.assertSame
 import org.junit.jupiter.api.Assertions.assertThrows
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(CoroutineTestExtension::class)
 class WireSessionMetroViewModelFactoryTest {
+    @Test
+    fun givenSameAccountRelogin_whenUsingRetainedSessionFactory_thenItCannotSwitchToTheNewGeneration() {
+        val arrangement = Arrangement()
+        val owner = Owner()
+        val provider = ViewModelProvider(owner, arrangement.factory)
+        val retained = provider["retained", DirectConsumerViewModel::class.java]
+        arrangement.relogin()
+
+        assertSame(retained, provider["retained", DirectConsumerViewModel::class.java])
+        assertThrows(IllegalStateException::class.java) {
+            provider["new-key", DirectConsumerViewModel::class.java]
+        }
+        assertEquals(1, arrangement.consumers.size)
+        assertEquals(0, arrangement.replacementConsumers.size)
+        arrangement.verifySessionLookups(1)
+
+        val freshFactory = arrangement.createSessionFactory()
+        val fresh = ViewModelProvider(owner, freshFactory)["fresh-generation", DirectConsumerViewModel::class.java]
+        assertSame(arrangement.replacementConsumers.single().observeMessageById, fresh.message)
+        arrangement.verifySessionLookups(2)
+        owner.viewModelStore.clear()
+    }
+
+    @Test
+    fun givenInvalidationDuringChildGraphCreation_whenCreatingViewModel_thenConsumerCannotPublishIt() {
+        val arrangement = Arrangement()
+        arrangement.graphHook = arrangement::relogin
+
+        assertThrows(CancellationException::class.java) {
+            arrangement.factory.create(DirectConsumerViewModel::class, CreationExtras.Empty)
+        }
+
+        assertEquals(1, arrangement.childGraphs)
+        assertEquals(1, arrangement.consumers.single().closes)
+        assertTrue(arrangement.replacementConsumers.isEmpty())
+        assertEquals(0, arrangement.parent.closes)
+        arrangement.verifySessionLookups(1)
+    }
+
+    @Test
+    fun givenInvalidationDuringManualCallback_whenViewModelHasBeenConstructed_thenItIsClearedAndNotPublished() {
+        val arrangement = Arrangement()
+        val owner = Owner()
+        var unpublished: ManualConsumerViewModel? = null
+        val manualFactory = arrangement.factory.wireManualViewModelFactory(TestManualFactory::class) {
+            create("manual", null).also {
+                unpublished = it
+                arrangement.relogin()
+            }
+        }
+
+        assertThrows(CancellationException::class.java) {
+            ViewModelProvider(owner, manualFactory)["manual-key", ManualConsumerViewModel::class.java]
+        }
+
+        assertTrue(unpublished!!.cleared)
+        assertEquals(1, arrangement.consumers.single().closes)
+        assertTrue(arrangement.replacementConsumers.isEmpty())
+        assertEquals(0, arrangement.parent.closes)
+        owner.viewModelStore.clear()
+    }
+
+    @Test
+    fun givenInvalidationDuringBlockedViewModelAssembly_whenAssemblyReturns_thenUnpublishedViewModelIsCleared() = runBlocking {
+        val arrangement = Arrangement()
+        val entered = CountDownLatch(1)
+        val finishAssembly = CountDownLatch(1)
+        val finishCleanup = CompletableDeferred<Unit>()
+        val cleanupEntered = CompletableDeferred<Unit>()
+        val threads = Executors.newSingleThreadExecutor()
+        var assembled: DirectConsumerViewModel? = null
+        var ownedWork: Job? = null
+        arrangement.hooks.onDirectCreate = { viewModel ->
+            assembled = viewModel
+            ownedWork = viewModel.viewModelScope.launch(start = CoroutineStart.UNDISPATCHED) {
+                try {
+                    awaitCancellation()
+                } finally {
+                    withContext(NonCancellable) {
+                        cleanupEntered.complete(Unit)
+                        finishCleanup.await()
+                    }
+                }
+            }
+            entered.countDown()
+            check(finishAssembly.await(5, TimeUnit.SECONDS))
+        }
+        val owner = Owner()
+        try {
+            val result = threads.submit(Callable {
+                runCatching { ViewModelProvider(owner, arrangement.factory)["blocked", DirectConsumerViewModel::class.java] }
+            })
+            assertTrue(entered.await(5, TimeUnit.SECONDS))
+            arrangement.relogin()
+            val consumer = arrangement.consumers.single()
+            val drain = async(start = CoroutineStart.UNDISPATCHED) { consumer.closeAndJoin() }
+            assertFalse(drain.isCompleted)
+            finishAssembly.countDown()
+
+            assertTrue(result.get(5, TimeUnit.SECONDS).exceptionOrNull() is CancellationException)
+            cleanupEntered.await()
+            assertTrue(assembled!!.cleared)
+            assertEquals(1, assembled!!.ownedResource.closes)
+            assertTrue(ownedWork!!.isCancelled)
+            assertFalse(drain.isCompleted)
+            assertEquals(1, consumer.closes)
+            assertEquals(0, arrangement.parent.closes)
+            assertTrue(arrangement.replacementConsumers.isEmpty())
+            arrangement.verifySessionLookups(1)
+
+            finishCleanup.complete(Unit)
+            drain.await()
+            assertTrue(ownedWork!!.isCompleted)
+            // A failed factory result must not occupy the caller's key.
+            arrangement.hooks.onDirectCreate = {}
+            val fresh = ViewModelProvider(owner, arrangement.createSessionFactory())["blocked", DirectConsumerViewModel::class.java]
+            assertNotSame(assembled, fresh)
+        } finally {
+            finishAssembly.countDown()
+            finishCleanup.complete(Unit)
+            threads.shutdownNow()
+            owner.viewModelStore.clear()
+        }
+    }
+
     @Test
     fun givenRetainedViewModel_whenLookingUpWithSameOwnerAndKey_thenNoNewConsumerOrGraphIsCreated() {
         val arrangement = Arrangement()
@@ -231,13 +374,13 @@ class WireSessionMetroViewModelFactoryTest {
 
     @Test
     fun givenFailingCleanup_whenCreationFails_thenOriginalFailureIsPreserved() {
-        val consumer = CountingResource()
+        val consumer = TestKaliumConsumer()
         val failure = IllegalStateException("creation failed")
         val cleanupFailure = IllegalArgumentException("cleanup failed")
         consumer.closeFailure = cleanupFailure
 
         val thrown = assertThrows(IllegalStateException::class.java) {
-            createConsumerViewModel<CountingResource, ViewModel>({ consumer }) { throw failure }
+            createConsumerViewModel<ViewModel>({ consumer }) { throw failure }
         }
 
         assertSame(failure, thrown)
@@ -251,33 +394,69 @@ class WireSessionMetroViewModelFactoryTest {
 
     private class Arrangement {
         val parent = CountingResource()
+        val hooks = AssemblyHooks()
         private val audioPlayer = mockk<ConversationAudioMessagePlayer>(relaxed = true) {
             every { observableAudioMessagesState } returns emptyFlow()
             every { audioSpeed } returns emptyFlow()
         }
         val consumers = mutableListOf<TestKaliumConsumer>()
+        val replacementConsumers = mutableListOf<TestKaliumConsumer>()
         var childGraphs = 0
         var graphFailure: Throwable? = null
-        private val parentGraph = createGraphFactory<TestSessionGraph.Factory>().create(parent, audioPlayer)
+        var graphHook: () -> Unit = {}
+        private val parentGraph = createGraphFactory<TestSessionGraph.Factory>().create(parent, audioPlayer, hooks)
         private val userId = UserId("consumer-test", "wire.test")
         private val coreLogic = mockk<CoreLogic>()
         private val session = mockk<UserSessionScope>()
+        private val replacementSession = mockk<UserSessionScope>()
+        private var sessionActive = true
         private val graphFactory = mockk<AppViewModelGraph.Factory>()
-        val factory = WireSessionMetroViewModelFactory(graphFactory, coreLogic, userId)
+        private val applicationGraph = mockk<WireApplicationGraph>(
+            moreInterfaces = arrayOf(AppSessionViewModelGraph.Factory::class),
+        )
+        val factory: WireSessionMetroViewModelFactory
 
         init {
+            every { applicationGraph.coreLogic } returns coreLogic
             every { coreLogic.getSessionScope(userId) } returns session
             every { session.createConsumer() } answers {
+                check(sessionActive) { "The original generation is invalidated" }
                 TestKaliumConsumer().also { consumers += it }
+            }
+            every { replacementSession.createConsumer() } answers {
+                TestKaliumConsumer().also { replacementConsumers += it }
+            }
+            every {
+                (applicationGraph as AppSessionViewModelGraph.Factory).createAppSessionViewModelGraph(userId, any())
+            } answers {
+                val capturedSession = secondArg<UserSessionScope>()
+                mockk<AppSessionViewModelGraph> {
+                    every { metroViewModelFactory } returns WireSessionMetroViewModelFactory(graphFactory, capturedSession)
+                }
             }
             every { graphFactory.createViewModelGraph(any()) } answers {
                 childGraphs++
                 graphFailure?.let { throw it }
+                graphHook()
                 val child = parentGraph.childFactory.create(firstArg())
                 mockk<AppViewModelGraph> {
                     every { consumerViewModelFactory } returns child.factory
                 }
             }
+            factory = createSessionFactory()
+        }
+
+        fun createSessionFactory(): WireSessionMetroViewModelFactory =
+            applicationGraph.createSessionViewModelGraph(userId).metroViewModelFactory as WireSessionMetroViewModelFactory
+
+        fun relogin() {
+            sessionActive = false
+            consumers.forEach { it.close() }
+            every { coreLogic.getSessionScope(userId) } returns replacementSession
+        }
+
+        fun verifySessionLookups(count: Int) {
+            verify(exactly = count) { coreLogic.getSessionScope(userId) }
         }
     }
 }
@@ -300,8 +479,54 @@ private class TestKaliumConsumer : KaliumConsumer {
     init {
         coEvery { observeMessageById(any(), any()) } returns emptyFlow()
     }
+    private val lock = Any()
+    private var open = true
+    private val assemblies = mutableSetOf<CompletableDeferred<Unit>>()
+    private val jobs = mutableSetOf<Job>()
     var closes = 0
-    override fun close() { closes++ }
+    var closeFailure: Throwable? = null
+
+    override fun <T> assemble(create: () -> T, onDiscard: (T) -> Unit, ownedJob: (T) -> Job?): T {
+        val assembly = CompletableDeferred<Unit>()
+        synchronized(lock) {
+            if (!open) throw CancellationException("Consumer closed")
+            assemblies.add(assembly)
+        }
+        try {
+            val value = create()
+            val job = ownedJob(value)
+            val active = synchronized(lock) {
+                job?.let { jobs.add(it) }
+                open
+            }
+            if (!active) {
+                job?.cancel()
+                onDiscard(value)
+                throw CancellationException("Consumer invalidated during assembly")
+            }
+            return value
+        } finally {
+            assembly.complete(Unit)
+            synchronized(lock) { assemblies.remove(assembly) }
+        }
+    }
+
+    override fun close() {
+        val outgoing = synchronized(lock) {
+            if (!open) return
+            open = false
+            closes++
+            jobs.toList()
+        }
+        outgoing.forEach { it.cancel() }
+        closeFailure?.let { throw it }
+    }
+
+    override suspend fun closeAndJoin() {
+        close()
+        synchronized(lock) { assemblies.toList() }.forEach { it.await() }
+        synchronized(lock) { jobs.toList() }.forEach { it.join() }
+    }
 }
 
 internal class DirectConsumerViewModel @Inject constructor(
@@ -309,7 +534,18 @@ internal class DirectConsumerViewModel @Inject constructor(
     val message: ObserveMessageByIdUseCase,
     val getMessage: GetMessageByIdUseCase,
     val parent: CountingResource,
-) : ViewModel()
+) : ViewModel() {
+    val ownedResource = CountingResource()
+    var cleared = false
+    init {
+        addCloseable(ownedResource)
+    }
+    override fun onCleared() { cleared = true }
+}
+
+internal class AssemblyHooks {
+    var onDirectCreate: (DirectConsumerViewModel) -> Unit = {}
+}
 
 internal class AssistedConsumerViewModel(
     val argument: String,
@@ -322,7 +558,10 @@ internal class ManualConsumerViewModel(
     val extra: String?,
     val details: ObserveConversationDetailsUseCase,
     val message: ObserveMessageByIdUseCase,
-) : ViewModel()
+) : ViewModel() {
+    var cleared = false
+    override fun onCleared() { cleared = true }
+}
 
 internal class FailingConsumerViewModel @Inject constructor(val getMessage: GetMessageByIdUseCase) : ViewModel() {
     init {
@@ -351,6 +590,7 @@ internal interface TestSessionGraph : MetroViewModelMultibindings {
         fun create(
             @Provides parent: CountingResource,
             @Provides audioPlayer: ConversationAudioMessagePlayer,
+            @Provides hooks: AssemblyHooks,
         ): TestSessionGraph
     }
 }
@@ -385,7 +625,7 @@ internal object TestConsumerBindings {
     @Provides
     @IntoMap
     @ViewModelKey(DirectConsumerViewModel::class)
-    fun direct(viewModel: DirectConsumerViewModel): ViewModel = viewModel
+    fun direct(viewModel: DirectConsumerViewModel, hooks: AssemblyHooks): ViewModel = viewModel.also(hooks.onDirectCreate)
 
     @Provides
     @IntoMap

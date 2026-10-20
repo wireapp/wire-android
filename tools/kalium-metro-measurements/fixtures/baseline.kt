@@ -527,7 +527,7 @@ internal class MeasurementOwnerDrain(
     }
 }
 
-private const val MEASUREMENT_CLEANUP_TIMEOUT_MS = 30_000
+private const val MEASUREMENT_CLEANUP_TIMEOUT_MS = 30_000L
 
 private fun requireMeasurementQuiescence(job: Job) {
     check(job.isCompleted && job.children.none()) { "Measurement owner still retains work: $job" }

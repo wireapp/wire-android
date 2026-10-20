@@ -57,7 +57,7 @@ and manual deflake.
 - Offers `runMode`: **Normal tests** (default) or **Deflake failed tests**.
 - Manual normal runs default to `@regression`; replace `TAGS` with another
   category or test case ID when needed.
-- Runs daily on `schedule` at 13:00 in `Europe/Berlin`.
+- Runs nightly on `schedule` at 01:00 in `Europe/Berlin`.
 - Uses built-in defaults for non-manual runs:
   - latest APK
   - upgrade mode enabled

@@ -78,7 +78,7 @@ on:
         default: ""
 
   schedule:
-    - cron: "0 13 * * *"
+    - cron: "0 1 * * *"
       timezone: "Europe/Berlin"
   workflow_dispatch:
     inputs:

@@ -78,7 +78,7 @@ import com.wire.android.util.DateAndTimeParsers
 import com.wire.android.util.rememberCurrentTimeProvider
 import com.wire.kalium.logic.data.id.ConversationId
 import kotlinx.coroutines.delay
-import kotlinx.datetime.Instant
+import kotlin.time.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toJavaZoneId
 import kotlin.time.Duration.Companion.minutes

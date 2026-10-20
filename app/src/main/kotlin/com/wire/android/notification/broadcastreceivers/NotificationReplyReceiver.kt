@@ -33,7 +33,7 @@ import com.wire.kalium.common.functional.fold
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
-import kotlinx.datetime.Clock
+import kotlin.time.Clock
 import dev.zacsweers.metro.Inject
 
 class NotificationReplyReceiver : CoroutineReceiver() { // requires zero argument constructor

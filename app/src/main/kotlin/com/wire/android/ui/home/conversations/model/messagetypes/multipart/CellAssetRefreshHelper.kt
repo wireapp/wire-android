@@ -57,8 +57,8 @@ class CellAssetRefreshHelper(
     @VisibleForTesting(otherwise = PRIVATE)
     val regularAssets = expiringMap(
         expirationMs = DEFAULT_CONTENT_URL_EXPIRY_MS,
-        onExpired = { assetId, conversationId ->
-            coroutineScope.launch { refreshAsset(assetId, conversationId) }
+        onExpired = { assetId, _ ->
+            coroutineScope.launch { refreshAsset(assetId) }
         },
     )
 
@@ -71,7 +71,7 @@ class CellAssetRefreshHelper(
     val visibleEditableAssets: ExpiringMap<String, String?> = expiringMap(
         expirationMs = EDITABLE_CONTENT_EXPIRY_MS,
         onExpired = { assetId, conversationId ->
-            coroutineScope.launch { refreshAsset(assetId, conversationId) }
+            coroutineScope.launch { refreshAsset(assetId) }
 
             // Re-add to schedule next refresh
             visibleEditableAssets[assetId] = conversationId
@@ -106,7 +106,7 @@ class CellAssetRefreshHelper(
             visibleEditableAssets[attachment.uuid] = conversationId
 
             coroutineScope.launch {
-                refreshAsset(attachment.uuid, conversationId)
+                refreshAsset(attachment.uuid)
             }
         } else {
 
@@ -119,7 +119,7 @@ class CellAssetRefreshHelper(
             }
 
             coroutineScope.launch {
-                refreshAsset(attachment.uuid, conversationId)
+                refreshAsset(attachment.uuid)
                     .onSuccess { node ->
                         if (node.supportedEditors.isNotEmpty()) {
                             regularAssets.remove(attachment.uuid)
@@ -136,9 +136,9 @@ class CellAssetRefreshHelper(
         }
     }
 
-    fun refresh(uuid: String, conversationId: String?) {
+    fun refresh(uuid: String) {
         coroutineScope.launch {
-            refreshAsset(uuid, conversationId)
+            refreshAsset(uuid)
         }
     }
 

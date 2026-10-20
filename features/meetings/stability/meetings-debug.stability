@@ -117,7 +117,7 @@ private fun com.wire.android.feature.meetings.ui.create.SelectButton(onClick: ko
     - elevation: STABLE (marked @Stable or @Immutable)
 
 @Composable
-private fun com.wire.android.feature.meetings.ui.create.TimeInput(time: kotlinx.datetime.Instant, timeError: com.wire.android.feature.meetings.ui.create.NewMeetingState.TimeError?, onTimeChanged: kotlin.Function1<kotlinx.datetime.Instant, kotlin.Unit>, label: kotlin.String, datePlaceholder: kotlin.String, timePlaceholder: kotlin.String, dateInputDisabled: kotlin.Boolean): kotlin.Unit
+private fun com.wire.android.feature.meetings.ui.create.TimeInput(time: kotlin.time.Instant, timeError: com.wire.android.feature.meetings.ui.create.NewMeetingState.TimeError?, onTimeChanged: kotlin.Function1<kotlin.time.Instant, kotlin.Unit>, label: kotlin.String, datePlaceholder: kotlin.String, timePlaceholder: kotlin.String, dateInputDisabled: kotlin.Boolean): kotlin.Unit
   skippable: true
   restartable: true
   params:
@@ -215,6 +215,21 @@ private fun com.wire.android.feature.meetings.ui.list.MeetingItemDivider(): kotl
   params:
 
 @Composable
+private fun com.wire.android.feature.meetings.ui.list.MeetingItemsList(lazyPagingItems: androidx.paging.compose.LazyPagingItems<com.wire.android.feature.meetings.model.MeetingListItem>, displayTimeZone: kotlinx.datetime.TimeZone, lazyListState: androidx.compose.foundation.lazy.LazyListState, contentPadding: androidx.compose.foundation.layout.PaddingValues, openMeetingOptions: kotlin.Function1<@[ParameterName(name = \, startCall: kotlin.Function1<@[ParameterName(name = \, joinCall: kotlin.Function1<@[ParameterName(name = \, returnToCall: kotlin.Function1<@[ParameterName(name = \, modifier: androidx.compose.ui.Modifier): kotlin.Unit
+  skippable: false
+  restartable: true
+  params:
+    - lazyPagingItems: UNSTABLE (has mutable properties or unstable members)
+    - displayTimeZone: STABLE (matched by stability configuration)
+    - lazyListState: STABLE (marked @Stable or @Immutable)
+    - contentPadding: STABLE (marked @Stable or @Immutable)
+    - openMeetingOptions: STABLE (function type)
+    - startCall: STABLE (function type)
+    - joinCall: STABLE (function type)
+    - returnToCall: STABLE (function type)
+    - modifier: STABLE (marked @Stable or @Immutable)
+
+@Composable
 internal fun com.wire.android.feature.meetings.ui.list.MeetingLeadingIcon(padding: androidx.compose.foundation.layout.PaddingValues): kotlin.Unit
   skippable: true
   restartable: true
@@ -261,7 +276,7 @@ private fun com.wire.android.feature.meetings.ui.list.MeetingOngoingAttendingRow
     - returnToCall: STABLE (function type)
 
 @Composable
-private fun com.wire.android.feature.meetings.ui.list.MeetingStartingInPrimaryBodyText(startTime: kotlinx.datetime.Instant): kotlin.Unit
+private fun com.wire.android.feature.meetings.ui.list.MeetingStartingInPrimaryBodyText(startTime: kotlin.time.Instant): kotlin.Unit
   skippable: true
   restartable: true
   params:
@@ -306,7 +321,7 @@ internal fun com.wire.android.feature.meetings.ui.list.VideoCallIcon(tint: andro
     - modifier: STABLE (marked @Stable or @Immutable)
 
 @Composable
-private fun com.wire.android.feature.meetings.ui.list.getDateHeaderString(time: kotlinx.datetime.Instant, displayTimeZone: kotlinx.datetime.TimeZone): kotlin.String
+private fun com.wire.android.feature.meetings.ui.list.getDateHeaderString(time: kotlin.time.Instant, displayTimeZone: kotlinx.datetime.TimeZone): kotlin.String
   skippable: true
   restartable: true
   params:

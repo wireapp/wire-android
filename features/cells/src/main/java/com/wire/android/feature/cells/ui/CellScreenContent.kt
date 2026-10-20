@@ -164,6 +164,8 @@ internal fun CellScreenContent(
                 } else {
                     null
                 },
+                onDragSelection = { sendIntent(CellViewIntent.OnDragSelection(it)) },
+                onDragSelectionEnd = { sendIntent(CellViewIntent.OnDragSelectionEnd) },
             )
     }
 

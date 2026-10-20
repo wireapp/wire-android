@@ -398,6 +398,8 @@ class CellViewModel @AssistedInject constructor(
             }
 
             is CellViewIntent.OnItemLongClick -> bulkSelection.onLongClick(intent.cellNode)
+            is CellViewIntent.OnDragSelection -> bulkSelection.onDragSelection(intent.nodes)
+            is CellViewIntent.OnDragSelectionEnd -> bulkSelection.onDragSelectionEnd()
             is CellViewIntent.OnClearSelection -> bulkSelection.clear()
             is CellViewIntent.OnMoveSelectedNodesClick,
             is CellViewIntent.OnDeleteSelectedNodesClick,
@@ -827,6 +829,10 @@ sealed interface CellViewIntent {
     data class OnItemClick(val file: CellNodeUi) : CellViewIntent
     data class OnItemMenuClick(val cellNode: CellNodeUi) : CellViewIntent
     data class OnItemLongClick(val cellNode: CellNodeUi) : CellViewIntent
+
+    /** @param nodes the nodes from the long pressed one to the one under the finger, the long pressed one first. */
+    data class OnDragSelection(val nodes: List<CellNodeUi>) : CellViewIntent
+    data object OnDragSelectionEnd : CellViewIntent
     data object OnClearSelection : CellViewIntent
     data object OnMoveSelectedNodesClick : CellViewIntent
     data object OnDeleteSelectedNodesClick : CellViewIntent

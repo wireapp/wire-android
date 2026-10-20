@@ -73,5 +73,41 @@ internal class CellBulkSelection(
         if (node.uuid in selected) selected - node.uuid else selected + (node.uuid to node)
     }
 
-    fun clear() = _selectedNodes.update { emptyMap() }
+    private var dragSelection: DragSelection? = null
+
+    /**
+     * Applies a long press drag on top of the selection the drag started with.
+     *
+     * The long press itself already toggled the node it started on (see [onLongClick]): if that selected it, the drag
+     * selects the nodes it covers, if that deselected it, the drag deselects them.
+     *
+     * @param nodes the nodes from the long pressed one to the one under the finger, the long pressed one first.
+     */
+    fun onDragSelection(nodes: List<CellNodeUi>) {
+        val anchor = nodes.firstOrNull() ?: return
+        if (!isEnabled.value) return
+        val drag = dragSelection ?: _selectedNodes.value.let { selected ->
+            DragSelection(selectionBefore = selected, isDeselecting = anchor.uuid !in selected)
+        }.also { dragSelection = it }
+
+        _selectedNodes.value = if (drag.isDeselecting) {
+            drag.selectionBefore - nodes.map { it.uuid }.toSet()
+        } else {
+            drag.selectionBefore + nodes.associateBy { it.uuid }
+        }
+    }
+
+    fun onDragSelectionEnd() {
+        dragSelection = null
+    }
+
+    fun clear() {
+        dragSelection = null
+        _selectedNodes.update { emptyMap() }
+    }
+
+    private class DragSelection(
+        val selectionBefore: Map<String, CellNodeUi>,
+        val isDeselecting: Boolean,
+    )
 }

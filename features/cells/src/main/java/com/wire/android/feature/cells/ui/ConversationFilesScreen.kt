@@ -113,6 +113,20 @@ internal fun ConversationFilesRouteScreen(
     val uploads by uploadStatusViewModel.uploads.collectAsState()
     val uploadConfirmation by viewModel.uploadConfirmation.collectAsState()
 
+    // Sub folders of the recycle bin are opened with this screen too: after restoring their parent
+    // folder, go back to the recycle bin root.
+    LaunchedEffect(viewModel.navigateToRecycleBinRoot.collectAsState().value) {
+        if (viewModel.navigateToRecycleBinRoot.value) {
+            navigation.recycleBin(
+                CellFilesNavArgs(
+                    conversationId = viewModel.currentNodeUuid()?.substringBefore("/"),
+                    isRecycleBin = true,
+                ),
+                popConsecutive = true,
+            )
+        }
+    }
+
     ConversationFilesScreenContent(
         animatedVisibilityScope = animatedVisibilityScope,
         navigation = navigation,
@@ -136,6 +150,7 @@ internal fun ConversationFilesRouteScreen(
         isRestoreInProgress = viewModel.isRestoreInProgress.collectAsState().value,
         isDeleteInProgress = viewModel.isDeleteInProgress.collectAsState().value,
         isRefreshing = viewModel.isPullToRefresh.collectAsState(),
+        screenTitle = viewModel.screenTitle(),
         breadcrumbs = viewModel.breadcrumbs(),
         sendIntent = viewModel::sendIntent,
         onRefresh = viewModel::onPullToRefresh,

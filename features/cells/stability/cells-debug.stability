@@ -25,6 +25,17 @@ private fun com.wire.android.feature.cells.navigation.ConsumeNavigation3Result(r
     - onResult: STABLE (function type)
 
 @Composable
+private fun com.wire.android.feature.cells.navigation.ConversationFilesEntry(args: com.wire.android.feature.cells.navigation.CellsFilesArguments, runtime: com.wire.android.navigation.navigation3.WireNavigation3Runtime, navigation: com.wire.android.feature.cells.ui.CellsFilesNavigation, createRequestIdValue: kotlin.String?, onCreateRequestConsumed: kotlin.Function0<kotlin.Unit>): kotlin.Unit
+  skippable: false
+  restartable: true
+  params:
+    - args: RUNTIME (requires runtime check)
+    - runtime: STABLE (marked @Stable or @Immutable)
+    - navigation: RUNTIME (requires runtime check)
+    - createRequestIdValue: STABLE (class with no mutable properties)
+    - onCreateRequestConsumed: STABLE (function type)
+
+@Composable
 public fun com.wire.android.feature.cells.ui.AllFilesScreen(navigationActions: com.wire.android.feature.cells.ui.AllFilesNavigationActions, modifier: androidx.compose.ui.Modifier, viewModel: com.wire.android.feature.cells.ui.CellViewModel): kotlin.Unit
   skippable: false
   restartable: true
@@ -216,16 +227,6 @@ internal fun com.wire.android.feature.cells.ui.ConversationFilesScreenContent(an
     - selectedNodes: RUNTIME (requires runtime check)
     - isBulkSelectionEnabled: STABLE (primitive type)
     - offlineFilesEnabled: STABLE (primitive type)
-
-@Composable
-internal fun com.wire.android.feature.cells.ui.ConversationFilesSlideRouteScreen(navigation: com.wire.android.feature.cells.ui.CellsFilesNavigation, cellFilesNavArgs: com.wire.android.feature.cells.ui.CellFilesNavArgs, animatedVisibilityScope: androidx.compose.animation.AnimatedVisibilityScope, viewModel: com.wire.android.feature.cells.ui.CellViewModel): kotlin.Unit
-  skippable: false
-  restartable: true
-  params:
-    - navigation: RUNTIME (requires runtime check)
-    - cellFilesNavArgs: UNSTABLE (has mutable properties or unstable members)
-    - animatedVisibilityScope: RUNTIME (requires runtime check)
-    - viewModel: UNSTABLE (has mutable properties or unstable members)
 
 @Composable
 internal fun com.wire.android.feature.cells.ui.DownloadingIconPreview(progress: kotlin.Float?): kotlin.Unit

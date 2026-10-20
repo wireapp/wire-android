@@ -17,18 +17,31 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.MutableCreationExtras
 import com.wire.android.config.CoroutineTestExtension
+import com.wire.android.feature.AccountSwitchUseCase
+import com.wire.android.feature.SwitchAccountActions
+import com.wire.android.feature.SwitchAccountParam
+import com.wire.android.feature.SwitchAccountResult
 import com.wire.android.media.audiomessage.AudioMessageArgs
 import com.wire.android.media.audiomessage.AudioMessageViewModelImpl
 import com.wire.android.media.audiomessage.ConversationAudioMessagePlayer
+import com.wire.android.ui.authentication.SessionAuthenticationManualViewModelFactory
+import com.wire.android.ui.authentication.SessionAuthenticationViewModelFactory
+import com.wire.android.ui.authentication.devices.common.ClearSessionViewModel
 import com.wire.android.ui.home.conversations.ScopedMessageManualViewModelFactory
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.auth.AccountInfo
+import com.wire.kalium.logic.data.logout.LogoutReason
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.di.KaliumConsumer
 import com.wire.kalium.logic.feature.UserSessionScope
+import com.wire.kalium.logic.feature.auth.LogoutUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.message.GetMessageByIdUseCase
 import com.wire.kalium.logic.feature.message.ObserveMessageByIdUseCase
+import com.wire.kalium.logic.feature.session.CurrentSessionResult
+import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
+import com.wire.kalium.logic.feature.session.DeleteSessionUseCase
 import dev.zacsweers.metro.BindingContainer
 import dev.zacsweers.metro.DependencyGraph
 import dev.zacsweers.metro.GraphExtension
@@ -62,6 +75,8 @@ import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runCurrent
+import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withContext
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
@@ -75,6 +90,80 @@ import org.junit.jupiter.api.extension.ExtendWith
 @OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(CoroutineTestExtension::class)
 class WireSessionMetroViewModelFactoryTest {
+    @Test
+    fun givenPublishedViewModel_whenConsumerCloses_thenTerminalCallerAndFollowupContinue() = runTest {
+        val arrangement = Arrangement()
+        val owner = Owner()
+        val viewModel = ViewModelProvider(owner, arrangement.factory)[DirectConsumerViewModel::class.java]
+        val consumer = arrangement.consumers.single()
+        val teardown = backgroundScope.async(start = CoroutineStart.LAZY) { consumer.closeAndJoin() }
+        var continued = false
+        val terminal = viewModel.viewModelScope.launch {
+            // The SDK's global logout orchestration invalidates and drains the consumer, then the
+            // ordinary cancellable profile caller must resume its store/navigation work.
+            teardown.start()
+            teardown.await()
+            continued = true
+        }
+        try {
+            runCurrent()
+            assertTrue(terminal.isCompleted)
+            assertFalse(terminal.isCancelled)
+            assertTrue(continued)
+            assertTrue(viewModel.viewModelScope.coroutineContext[Job]!!.isActive)
+            assertFalse(viewModel.cleared)
+            assertEquals(0, viewModel.ownedResource.closes)
+            assertEquals(0, arrangement.parent.closes)
+        } finally {
+            owner.viewModelStore.clear()
+        }
+        assertTrue(viewModel.viewModelScope.coroutineContext[Job]!!.isCancelled)
+        assertEquals(1, viewModel.ownedResource.closes)
+        assertEquals(1, consumer.closes)
+    }
+
+    @Test
+    fun givenFactoryCreatedClearSessionViewModel_whenCancellingLogin_thenNonCancellableLogoutAndDeletionComplete() = runTest {
+        val arrangement = Arrangement()
+        val owner = Owner()
+        val manualFactory = arrangement.factory.wireManualViewModelFactory(SessionAuthenticationManualViewModelFactory::class) {
+            clearSessionViewModel(arrangement.terminalActions.userId)
+        }
+        val viewModel = ViewModelProvider(owner, manualFactory)[ClearSessionViewModel::class.java]
+        val consumer = arrangement.consumers.single()
+        val followedUp = CompletableDeferred<Unit>()
+        val teardown = backgroundScope.async(start = CoroutineStart.LAZY) { consumer.closeAndJoin() }
+        coEvery { arrangement.terminalActions.logout(LogoutReason.SELF_HARD_LOGOUT, true) } coAnswers {
+            // Mirror the actual LogoutUseCase's independent global orchestration; this test covers
+            // the actual Android factory and cancelLogin, not the real SDK provider (covered on JVM).
+            teardown.start()
+            teardown.await()
+        }
+        coEvery { arrangement.terminalActions.deleteSession(arrangement.terminalActions.userId) } answers {
+            followedUp.complete(Unit)
+            DeleteSessionUseCase.Result.Success
+        }
+        try {
+            viewModel.onCancelLoginClicked(arrangement.terminalActions.switchActions)
+            runCurrent()
+            assertTrue(teardown.isCompleted)
+            assertTrue(followedUp.isCompleted)
+            assertTrue(viewModel.viewModelScope.coroutineContext[Job]!!.isActive)
+            coVerify(exactly = 1) {
+                arrangement.terminalActions.logout(LogoutReason.SELF_HARD_LOGOUT, true)
+                arrangement.terminalActions.deleteSession(arrangement.terminalActions.userId)
+                arrangement.terminalActions.switchAccount(SwitchAccountParam.TryToSwitchToNextAccount)
+            }
+            arrangement.relogin()
+            val reopenedProvider = ViewModelProvider(owner, arrangement.createSessionFactory())
+            val reopened = reopenedProvider["reopened", DirectConsumerViewModel::class.java]
+            assertSame(arrangement.replacementConsumers.single().observeMessageById, reopened.message)
+            assertEquals(0, arrangement.parent.closes)
+        } finally {
+            owner.viewModelStore.clear()
+        }
+    }
+
     @Test
     fun givenSameAccountRelogin_whenUsingRetainedSessionFactory_thenItCannotSwitchToTheNewGeneration() {
         val arrangement = Arrangement()
@@ -164,9 +253,13 @@ class WireSessionMetroViewModelFactoryTest {
         }
         val owner = Owner()
         try {
-            val result = threads.submit(Callable {
-                runCatching { ViewModelProvider(owner, arrangement.factory)["blocked", DirectConsumerViewModel::class.java] }
-            })
+            val result = threads.submit(
+                Callable {
+                    runCatching {
+                        ViewModelProvider(owner, arrangement.factory)["blocked", DirectConsumerViewModel::class.java]
+                    }
+                }
+            )
             assertTrue(entered.await(5, TimeUnit.SECONDS))
             arrangement.relogin()
             val consumer = arrangement.consumers.single()
@@ -190,7 +283,8 @@ class WireSessionMetroViewModelFactoryTest {
             assertTrue(ownedWork!!.isCompleted)
             // A failed factory result must not occupy the caller's key.
             arrangement.hooks.onDirectCreate = {}
-            val fresh = ViewModelProvider(owner, arrangement.createSessionFactory())["blocked", DirectConsumerViewModel::class.java]
+            val freshProvider = ViewModelProvider(owner, arrangement.createSessionFactory())
+            val fresh = freshProvider["blocked", DirectConsumerViewModel::class.java]
             assertNotSame(assembled, fresh)
         } finally {
             finishAssembly.countDown()
@@ -395,6 +489,7 @@ class WireSessionMetroViewModelFactoryTest {
     private class Arrangement {
         val parent = CountingResource()
         val hooks = AssemblyHooks()
+        val terminalActions = TerminalActions()
         private val audioPlayer = mockk<ConversationAudioMessagePlayer>(relaxed = true) {
             every { observableAudioMessagesState } returns emptyFlow()
             every { audioSpeed } returns emptyFlow()
@@ -404,7 +499,7 @@ class WireSessionMetroViewModelFactoryTest {
         var childGraphs = 0
         var graphFailure: Throwable? = null
         var graphHook: () -> Unit = {}
-        private val parentGraph = createGraphFactory<TestSessionGraph.Factory>().create(parent, audioPlayer, hooks)
+        private val parentGraph = createGraphFactory<TestSessionGraph.Factory>().create(parent, audioPlayer, hooks, terminalActions)
         private val userId = UserId("consumer-test", "wire.test")
         private val coreLogic = mockk<CoreLogic>()
         private val session = mockk<UserSessionScope>()
@@ -486,7 +581,7 @@ private class TestKaliumConsumer : KaliumConsumer {
     var closes = 0
     var closeFailure: Throwable? = null
 
-    override fun <T> assemble(create: () -> T, onDiscard: (T) -> Unit, ownedJob: (T) -> Job?): T {
+    override fun <T> assemble(create: () -> T, onDiscard: (T) -> Unit, jobOnDiscard: (T) -> Job?): T {
         val assembly = CompletableDeferred<Unit>()
         synchronized(lock) {
             if (!open) throw CancellationException("Consumer closed")
@@ -494,10 +589,9 @@ private class TestKaliumConsumer : KaliumConsumer {
         }
         try {
             val value = create()
-            val job = ownedJob(value)
+            val job = jobOnDiscard(value)
             val active = synchronized(lock) {
-                job?.let { jobs.add(it) }
-                open
+                open.also { if (!it && job != null) jobs.add(job) }
             }
             if (!active) {
                 job?.cancel()
@@ -547,6 +641,20 @@ internal class AssemblyHooks {
     var onDirectCreate: (DirectConsumerViewModel) -> Unit = {}
 }
 
+internal class TerminalActions {
+    val userId = UserId("terminal-caller", "wire.test")
+    val currentSession = mockk<CurrentSessionUseCase>()
+    val deleteSession = mockk<DeleteSessionUseCase>()
+    val switchAccount = mockk<AccountSwitchUseCase>()
+    val switchActions = mockk<SwitchAccountActions>(relaxed = true)
+    val logout = mockk<LogoutUseCase>()
+
+    init {
+        coEvery { currentSession() } returns CurrentSessionResult.Success(AccountInfo.Valid(userId))
+        coEvery { switchAccount(SwitchAccountParam.TryToSwitchToNextAccount) } returns SwitchAccountResult.SwitchedToAnotherAccount
+    }
+}
+
 internal class AssistedConsumerViewModel(
     val argument: String,
     val message: ObserveMessageByIdUseCase,
@@ -591,6 +699,7 @@ internal interface TestSessionGraph : MetroViewModelMultibindings {
             @Provides parent: CountingResource,
             @Provides audioPlayer: ConversationAudioMessagePlayer,
             @Provides hooks: AssemblyHooks,
+            @Provides terminalActions: TerminalActions,
         ): TestSessionGraph
     }
 }
@@ -607,6 +716,32 @@ internal interface TestConsumerGraph : MetroViewModelMultibindings {
 
 @BindingContainer
 internal object TestConsumerBindings {
+    @Provides
+    @IntoMap
+    @ManualViewModelAssistedFactoryKey(SessionAuthenticationManualViewModelFactory::class)
+    fun sessionAuthentication(actions: TerminalActions): ManualViewModelAssistedFactory =
+        WireMetroViewModelBindings.sessionAuthenticationManualViewModelFactory(
+            SessionAuthenticationViewModelFactory(
+                currentAccount = actions.userId,
+                userDataStoreProvider = mockk(),
+                getOrRegisterClient = mockk(),
+                isPasswordRequired = mockk(),
+                getSelfUser = mockk(),
+                requestSecondFactorVerificationCode = mockk(),
+                countdownTimer = mockk(),
+                fetchSelfClientsFromRemote = mockk(),
+                deleteClient = mockk(),
+                currentSession = actions.currentSession,
+                deleteSession = actions.deleteSession,
+                switchAccount = actions.switchAccount,
+                logout = actions.logout,
+                validateUserHandle = mockk(),
+                setUserHandle = mockk(),
+                finalizeRegistrationAnalyticsMetadata = mockk(),
+                registrationAnalyticsManager = mockk(),
+            )
+        )
+
     @Provides
     @IntoMap
     @ManualViewModelAssistedFactoryKey(ScopedMessageManualViewModelFactory::class)

@@ -96,7 +96,12 @@ class WireViewModelGraphFactory(
     manualAssistedFactoryProviders,
 )
 
-/** Transfer only the consumer to the ViewModel; session/global resources keep their existing owner. */
+/**
+ * The ViewModel owns its consumer. Invalidation drains guarded SDK work, while the published
+ * ViewModel's own job can finish terminal account work and its follow-up. Only an unpublished,
+ * rejected ViewModel transfers its job to consumer drain so resources outlive its cleanup.
+ */
+@Suppress("TooGenericExceptionCaught") // Cleanup must preserve any original construction failure, including Errors.
 internal fun <VM : ViewModel> createConsumerViewModel(
     createConsumer: () -> KaliumConsumer,
     create: (KaliumConsumer) -> VM,
@@ -107,7 +112,7 @@ internal fun <VM : ViewModel> createConsumerViewModel(
         return consumer.assemble(
             create = { create(consumer).also { it.addCloseable(closeable) } },
             onDiscard = ::clearUnpublishedViewModel,
-            ownedJob = { it.viewModelScope.coroutineContext[Job] },
+            jobOnDiscard = { it.viewModelScope.coroutineContext[Job] },
         )
     } catch (failure: Throwable) {
         try {

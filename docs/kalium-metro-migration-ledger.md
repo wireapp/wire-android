@@ -16,7 +16,7 @@ Controller: this implementation thread. No merge or deployment is authorized.
 - [x] Initialize owned Kalium checkout and implementation branch on the explicit ADR base.
 - [x] Record getter declarations, constructor captures, identity aliases and runtime startup inventory (timing baseline still pending).
 - [ ] Add supported KMP Metro integration and global/user/consumer graph ownership.
-- [ ] Migrate individual conversation/message bindings and compatibility accessors.
+- [x] Migrate individual conversation/message bindings and compatibility accessors (account/consumer lifecycle review closure remains separate).
 - [ ] Migrate all remaining broad feature wiring and audit fresh scope factories.
 - [ ] Extract equivalent explicit runtime startup with individual worker dependencies.
 - [ ] Integrate consumer lifetime with actual Android ViewModel creation/disposal.
@@ -138,3 +138,63 @@ Implementation tasks (all complete, writers paused for review):
 - Initial full style check found 126 findings in the new binding/consumer files. Targeted formatting and unused-import cleanup resolved them. Declarative binding-interface size/parameter metrics and catch-all cleanup that preserves original failures have local documented suppressions; no style configuration or baseline was changed. A required HttpClient import removed during cleanup was restored before the passing compile/test run.
 - ABI validation now also generates an Android reference dump under Kotlin 2.4. JVM bridge mangling is preserved. All nine constants omitted by the new reporter remain public static fields in emitted JVM binaries; explicit javap evidence is in `/tmp/kalium-metro-jvm-constant-abi-evidence.log`. KLIB API delta remains additive.
 - Native linking/execution, Swift export, full JVM suite, Android style analysis, production resource/capture integration and measurements remain open. The remaining global/auth/user-owner and feature migration inventory is still required before ADR completion.
+
+### Fresh patch review round 2 — request changes
+
+- Exact reviewed Android: `8bca9a77e13a3dbf3cda417cea11f2e117910aad`; Kalium: `4fe0d0a44499e6211892287aa327fa01b17b13e7`. Both worktrees were committed and clean, writers paused.
+- Android toolchain commit full ID: `f274aa48efd1c3573222158b26d0b1e8bf389db9`.
+- Identity task: `node:delegated-task:command%3Amcp%3A4d3a1ef2-d977-4425-a27f-c1c03ed8c791%3Adelegate-task%3Ametro-patch-identity-r2-4fe0d0a-20261020`.
+- Platform task: `node:delegated-task:command%3Amcp%3A4d3a1ef2-d977-4425-a27f-c1c03ed8c791%3Adelegate-task%3Ametro-patch-platform-r2-4fe0d0a-20261020`.
+- Both reviewers confirm the R1 cancellation-order and fake `closeAndJoin` source fixes. No additional concrete conversation/message capture mismatch was found. This is not lifecycle or complete-migration approval.
+- P1 identity: draining the entire published `viewModelScope` can wait for logout's own non-cancellable caller in `ClearSessionViewModel.cancelLogin`; ordinary logout callers also lose required continuations. Consumer/creator ownership and terminal operation regression tests are being corrected.
+- P1 both reviewers: startup workers can legitimately request logout before the registry assigns its private owner. `isCurrent`/Apple's early `getRaw` then reject that request as stale.
+- P1 platform: synchronous startup failure after workers launch loses the scope because the private owner is assigned only after factory return. Common cleanup can remove resources or reopen without quiescing that owner. Separate construction/startup with gated publication and retained failed-start cleanup is required.
+- Consumer/terminal fix task: `node:delegated-task:command%3Amcp%3A4d3a1ef2-d977-4425-a27f-c1c03ed8c791%3Adelegate-task%3Ametro-consumer-terminal-owner-fix-r2-20261020`.
+- Startup-owner fix task: `node:delegated-task:command%3Amcp%3A4d3a1ef2-d977-4425-a27f-c1c03ed8c791%3Adelegate-task%3Ametro-startup-owner-fix-r2-20261020`.
+- Both are bounded non-overlapping implementation tasks; no delegated builds/commits. New source must receive a new independent closure review round after verification.
+
+### Broader verification at the reviewed checkpoint
+
+- Full JVM suite executed 4,167 tests: two architecture-check failures and twelve skips. Log `/tmp/kalium-metro-jvm-full-r2.log`. It is not a full-suite pass. Both failures involve composition code under feature package rules: Runtime's migration-worker import and LegacyMessageBindings' DAO input.
+- Parent moved internal runtime composition to `logic.di` and added a documented file-local composition exception for the DAO binding; the business layer assertions themselves remain unchanged. Verification pending after both writers finish.
+- Full Android `:app:detektAll` found four findings in the factory/test (two catch-all cleanup warnings and two wrapping findings). Terminal-owner writer owns their correction. Log `/tmp/kalium-metro-android-style-r2.log`.
+- Native `:logic:macosArm64Test` with consumer/runtime/shutdown/Apple-account filters is compiling/linking from the reviewed `4fe0d0a44499` snapshot; no execution pass claimed. Log `/tmp/kalium-metro-native-tests-r2.log`; parent build session `10385`. Later source fixes require fresh verification.
+- Platform reviewer independently confirmed the Native runtime ABI/compiler mismatch and root placement. Swift compatibility, real provider/capture integration and measurements remain open. The new Android ABI reference needs comparison with the previous AAR; its internal module-name bridge remains unpinned.
+
+### Published drafts
+
+- Kalium implementation layer: https://github.com/wireapp/kalium/pull/4563, branch `refactor/metro-di-consumer-lifetimes`, base `docs/adr-metro-di-consumer-lifetimes` (ADR PR 4558).
+- Android adapter: https://github.com/wireapp/wire-android/pull/5418, branch `refactor/kalium-metro-di-consumer-lifetimes`, base `develop`, depends on Kalium 4563 and pins its commit.
+- Both PRs registered immediately with `link_pull_request`; `list_thread_pull_requests` confirmed both links and draft/open status. Descriptions explicitly disclose the three P1 findings, incomplete checks and remaining full migration scope. Neither is ready; no merge/deployment authorized.
+
+### Verification follow-up while R2 fixes are in progress
+
+- macOS Native linking and filtered execution at Kalium `4fe0d0a44499e6211892287aa327fa01b17b13e7` completed with exit 0. Direct execution of that same emitted test executable confirmed 45 tests passed across six cases (consumer, legacy capture identity, runtime, shutdown and real Apple account/session resource tests). Logs `/tmp/kalium-metro-native-tests-r2.log` and `/tmp/kalium-metro-native-execution-r2.log`. This evidence predates the R2 lifecycle fixes.
+- Compiled exact ADR-base source (`92e54877ee318fe6c46aae3a3832e78b3b1adf8b`) with its original Kotlin 2.3.20 pins in an ignored source archive under owned `kalium/build/metro-verification/archives/adr-base`. Android `CoreLogic` bytecode confirms the existing `$logic` module suffix; revised unpinned Android bytecode used `$com_wire_kalium_logic`. Moved the module-name preservation into shared KMP build configuration for every JVM/Android library target, replacing the earlier logic-JVM-only fix. Regeneration, binary comparison and checks pending. No existing external checkout or shared Git configuration changed.
+
+### R2 lifecycle responses — writers paused for verification
+
+- Startup writer completed and paused: private owner registration now precedes explicit runtime startup, public access waits for success, and failed/cancelled startup cancels and retains the owner. Cleanup timeout/cancellation blocks replacement until successful explicit retry. Apple ownership remains quarantined; background handoff does not resolve sync for a failed start. Added real JVM-provider startup/logout/failure/cleanup-retry barriers.
+- Consumer writer completed and paused: the published ViewModel owns the consumer; only guarded SDK operations belong to consumer drain. Its caller job is not cancelled by consumer invalidation. An unpublished rejected ViewModel transfers only its discard job for cancellation/drain, including non-cancellable children and exceptional discard. Unreleased assemble parameter renamed `jobOnDiscard`. Added actual Android factory/manual `ClearSessionViewModel.cancelLogin` and continuation tests, plus real JVM provider/registry/logout deletion/reopen regressions. External logout effects remain stubbed in that JVM lifecycle fixture; Android factory tests still use a fake consumer. Full factory-plus-SDK Android integration remains open.
+- Both writers report `git diff --check` clean, no builds/commits/staging. Parent owns combined verification and fresh R3 tasks. All writers are paused; neither response constitutes review closure.
+- Parent running full `:logic:jvmTest detekt :logic:updateKotlinAbi :logic:compileAndroidMain` with command-scoped Android SDK after the shared JVM/Android module-name correction. Log `/tmp/kalium-metro-r2-fix-verification.log`; result pending.
+
+- Verification setup correction: the first combined attempt stopped during configuration because Kalium discovers nested `build.gradle.kts` files and included the shallow baseline archive as a project. Moved that ignored archive below discovery depth; no project settings were changed. The rerun is `/tmp/kalium-metro-r2-fix-verification-r2.log`. No tests passed in the configuration-failed attempt.
+
+- Added bounded Android real-factory/real-SDK integration task: `node:delegated-task:command%3Amcp%3A4d3a1ef2-d977-4425-a27f-c1c03ed8c791%3Adelegate-task%3Ametro-android-sdk-consumer-integration-r2-20261020`. Owns one new Android test file only; no production/SDK/config edits or delegated builds. It must report concrete platform limitations rather than substitute fake consumer coverage or skipped tests. Production writers remain paused.
+
+- Android classfile comparison after recompilation preserved all 4,461 existing Android members selected by the previous published JVM API, matching name and JVM linkage descriptor; no missing signatures. Android-specific `CoreLogic` constructors were also compared with `javap`, and existing `$logic` internal/bridge names are restored. This comparison does not cover Swift/Native ABI or infer semantic compatibility. Evidence `/tmp/kalium-metro-android-binary-api-r3.json`; reproducible comparison script `/tmp/kalium-metro-compare-binary-api.py` selects the old governed API against old/new emitted Android classfiles. Kotlin ABI validation remains a separate required check.
+
+- Combined full JVM execution reached 4,173 tests: two new lifecycle fixture failures, twelve existing skips; no architecture-check failures remain. First fixture asserted zero constructor children despite the inventoried existing LongWork monitor, then waited on a barrier never completed after that assertion failed. Removed that unsupported assertion; explicit runtime startup is still independently counted and asserted zero for invalidated construction. Second fixture mixed virtual cleanup timeout with real Default-dispatcher worker unwind; final unblocked drain/cleanup now runs on the real dispatcher while the blocked timeout assertion still uses virtual time. No production behavior changed to repair these fixtures. Focused provider/style/ABI rerun `/tmp/kalium-metro-r2-fix-targeted-r3.log` pending. Constructor-started LongWork work remains explicitly listed for its remaining migration slice; complete runtime extraction is not claimed.
+
+### Verified lifecycle fix snapshot
+
+- Kalium commit `c5e75810954fb6d664362561db08423bc5b95bd7`: startup-owner retention/public-ready gate, failed-start cleanup, creator/consumer ownership correction, composition architecture-check fixes and preserved JVM/Android module names. SDK worktree clean after commit.
+- Full logic JVM suite passed: 4,173 tests, zero failures/errors, twelve existing skips. `:logic:checkKotlinAbi` passed in the same invocation. LOCAL provider suites passed (storage 3, network 11); account resource access passed (15). Log `/tmp/kalium-metro-r2-fix-full-r4.log`. Focused provider suite passed 14/14; standalone full style and ABI regeneration passed in `/tmp/kalium-metro-r2-fix-targeted-r3.log`.
+- GLOBAL provider rerun `/tmp/kalium-metro-providers-global-r3.log` pending. New exact-commit Native execution, Android factory verification and fresh R3 review still required. Remaining migration/measurements/Swift work remains open.
+
+- GLOBAL provider rerun passed with revised compiler pins: storage 3/network 11 tests, zero failures/errors/skips. Log `/tmp/kalium-metro-providers-global-r3.log`. These provider tests continue to exercise configured process-global versus local behavior outside graph caching.
+- New Native filtered run started against exact SDK `c5e75810954fb6d664362561db08423bc5b95bd7`, log `/tmp/kalium-metro-native-tests-c5e7581-r3.log`, parent session `50452`; no new Native pass claimed yet.
+
+- Android integration writer completed and paused with one new Robolectric test file. It uses actual SQL-backed conversation/message observers and lookup through the production consumer factory adapter and a generated narrow Metro graph; checks owner/key retention, disposal, parent/sibling usability, account replacement/stale rejection and fresh generation. External ports substituted are AVS static loading, WorkManager and existing mock HTTP engine. Full application graph, registered-client crypto and actual logout orchestration are outside this fixture. Compilation/execution/style are pending; no pass claimed.
+- Checkpointing Android production adapter plus tests/pin for read-only R3 review while the exact SDK Native run continues. All writers are paused. Reviewers must treat Android verification as pending until its coordinated run finishes.

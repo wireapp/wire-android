@@ -382,6 +382,8 @@ class CellViewModel @AssistedInject constructor(
         refreshNodes()
     }
 
+    fun onNodeCreated() = refreshNodes()
+
     private fun refreshNodes() {
         viewModelScope.launch {
             refreshTrigger.tryEmit(Unit)

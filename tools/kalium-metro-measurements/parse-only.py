@@ -19,4 +19,5 @@ groovy = list((pathlib.Path.home()/'.gradle/wrapper/dists/gradle-9.4.1-all').glo
 if len(groovy) != 1: raise SystemExit('Expected cached Gradle Groovy parser JAR')
 classes=OUTPUT/'smoke/groovy-parser'; classes.mkdir(parents=True, exist_ok=True)
 subprocess.run([str(java/'bin/javac'),'-cp',str(groovy[0]),'-d',str(classes),str(HERE/'smoke/ParseGroovy.java')],check=True)
-subprocess.run([str(java/'bin/java'),'-cp',str(groovy[0])+os.pathsep+str(classes),'ParseGroovy',str(HERE/'measurement.init.gradle')],check=True)
+for name in ['measurement.init.gradle', 'owner-drain-regression.init.gradle']:
+    subprocess.run([str(java/'bin/java'),'-cp',str(groovy[0])+os.pathsep+str(classes),'ParseGroovy',str(HERE/name)],check=True)

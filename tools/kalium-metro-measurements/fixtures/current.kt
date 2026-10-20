@@ -1,6 +1,9 @@
 /* Ignored measurement fixture, derived from the verified WireKaliumConsumerIntegrationTest.
  * Parent stages exactly one API variant; this file has not been Gradle-compiled by its author.
  */
+// The harness and source manifest intentionally address this lowercase template filename.
+@file:Suppress("Filename")
+
 package com.wire.android.di.metro
 
 import android.app.Application
@@ -26,6 +29,7 @@ import com.wire.kalium.logic.feature.message.GetMessageByIdUseCase
 import com.wire.kalium.logic.feature.message.ObserveMessageByIdUseCase
 import com.wire.kalium.logic.feature.session.DeleteSessionUseCase
 import com.wire.kalium.logic.featureFlags.KaliumConfigs
+import com.wire.kalium.network.networkContainer.AuthenticatedNetworkContainer
 import com.wire.kalium.persistence.dao.SupportedProtocolEntity
 import com.wire.kalium.persistence.dao.UserAvailabilityStatusEntity
 import com.wire.kalium.persistence.dao.UserEntity
@@ -37,6 +41,7 @@ import com.wire.kalium.persistence.dao.message.MessageEntityContent
 import com.wire.kalium.persistence.daokaliumdb.ServerConfigurationDAO
 import com.wire.kalium.persistence.db.GlobalDatabaseBuilder
 import com.wire.kalium.persistence.db.PlatformDatabaseData
+import com.wire.kalium.persistence.db.UserDatabaseBuilder
 import com.wire.kalium.persistence.db.globalDatabaseProvider
 import com.wire.kalium.persistence.db.userDatabaseBuilder
 import dev.zacsweers.metro.BindingContainer
@@ -55,17 +60,35 @@ import io.mockk.unmockkObject
 import java.lang.reflect.InvocationTargetException
 import java.util.UUID
 import java.util.function.Supplier
+import kotlin.coroutines.Continuation
+import kotlin.coroutines.intrinsics.suspendCoroutineUninterceptedOrReturn
 import kotlin.time.Instant
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.TimeoutCancellationException
+import kotlinx.coroutines.async
 import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.job
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.advanceTimeBy
+import kotlinx.coroutines.test.runCurrent
+import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertSame
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -73,7 +96,6 @@ import org.robolectric.annotation.Config
 import org.robolectric.annotation.Implementation
 import org.robolectric.annotation.Implements
 import org.robolectric.annotation.SQLiteMode
-
 
 @RunWith(RobolectricTestRunner::class)
 @Config(
@@ -84,6 +106,9 @@ import org.robolectric.annotation.SQLiteMode
 )
 @SQLiteMode(SQLiteMode.Mode.NATIVE)
 class WireKaliumMeasurementTest {
+    // Keep measurement windows and failure-safe teardown in one orchestration method.
+    // Literal timeouts are fixed test limits; preserve their values and placement.
+    @Suppress("LongMethod", "MagicNumber")
     @Test
     fun measureSessionAndActualViewModels() = runBlocking {
         val warmups = System.getProperty("metro.measure.warmups", "3").toInt()
@@ -106,9 +131,12 @@ class WireKaliumMeasurementTest {
                     withTimeout(90_000) {
                         // Seed/global CoreLogic/account registration excluded from SESSION measurement.
                         val sdk = MeasurementFixture.create().also { fixture = it }
+                        sdk.sessionResolutionStarted = true
                         val session = Meter.measure("cold_session_get_or_create", iteration, warming) {
                             sdk.logic.getSessionScope(sdk.userId)
                         }
+                        // Assignment only, immediately AFTER the cold probe; never reopen an owner in cleanup.
+                        sdk.retainSession(session)
                         assertSame(session, sdk.logic.getSessionScope(sdk.userId))
                         if (startupOnly) {
                             Meter.measure("mandatory_startup_observation_no_vm", iteration, warming) {
@@ -148,8 +176,11 @@ class WireKaliumMeasurementTest {
                                     // Also drain failed construction/read paths, AFTER Meter has ended its window.
                                     withContext(NonCancellable) {
                                         withTimeout(30_000) {
-                                            try { nextOwner.viewModelStore.clear() }
-                                            finally { dispatcher.drainCreatedConsumer() }
+                                            try {
+                                                nextOwner.viewModelStore.clear()
+                                            } finally {
+                                                dispatcher.drainCreatedConsumer()
+                                            }
                                         }
                                     }
                                 }
@@ -162,15 +193,19 @@ class WireKaliumMeasurementTest {
                     withContext(NonCancellable) {
                         try {
                             withTimeout(30_000) {
-                                try { owners.forEach { it.viewModelStore.clear() } }
-                                finally {
-                                    try { firstConsumer?.closeAndJoin() }
-                                    finally { factory?.drainCreatedConsumer() }
+                                try {
+                                    owners.forEach { it.viewModelStore.clear() }
+                                } finally {
+                                    try {
+                                        firstConsumer?.closeAndJoin()
+                                    } finally {
+                                        factory?.drainCreatedConsumer()
+                                    }
                                 }
                             }
                         } finally {
                             firstConsumer = null
-                            withTimeout(30_000) { fixture?.close() }
+                            fixture?.close() // Own independent deadline/NonCancellable context even after consumer failure.
                         }
                     }
                 }
@@ -181,13 +216,16 @@ class WireKaliumMeasurementTest {
     }
 
     private suspend fun validateReads(vm: MeasurementViewModel, sdk: MeasurementFixture) {
-        val message = (vm.message(sdk.conversationId, MESSAGE_ID)
-            .first { it is ObserveMessageByIdUseCase.Result.Success } as ObserveMessageByIdUseCase.Result.Success).message
+        val message = (
+            vm.message(sdk.conversationId, MESSAGE_ID)
+                .first { it is ObserveMessageByIdUseCase.Result.Success } as ObserveMessageByIdUseCase.Result.Success
+        ).message
         assertEquals(MESSAGE_ID, message.id)
         assertEquals(MESSAGE_TEXT, (message.content as MessageContent.Text).value)
-        val details = (vm.details(sdk.conversationId)
-            .first { it is ObserveConversationDetailsUseCase.Result.Success } as ObserveConversationDetailsUseCase.Result.Success)
-            .conversationDetails.conversation
+        val details = (
+            vm.details(sdk.conversationId)
+                .first { it is ObserveConversationDetailsUseCase.Result.Success } as ObserveConversationDetailsUseCase.Result.Success
+        ).conversationDetails.conversation
         assertEquals(sdk.conversationId, details.id)
         assertEquals(CONVERSATION_NAME, details.name)
         val lookup = (vm.getMessage(sdk.conversationId, MESSAGE_ID) as GetMessageByIdUseCase.Result.Success).message
@@ -201,13 +239,17 @@ class WireKaliumMeasurementTest {
 
     private class MeasurementFactory(private val session: UserSessionScope) : WireConsumerMetroViewModelFactory() {
         private var created = 0
+
         // At most one in-flight creation; taken/drained outside measurement, including helper failure.
         private var createdConsumer: KaliumConsumer? = null
         private val graphFactory = createGraphFactory<MeasurementGraph.Factory>()
         override fun <VM : ViewModel> createInGraph(create: (MetroViewModelFactory) -> VM): VM {
             check(createdConsumer == null) { "Previous measured consumer has not been transferred/drained" }
             return createConsumerViewModel(createConsumer = {
-                session.createConsumer().also { createdConsumer = it; created++ }
+                session.createConsumer().also {
+                    createdConsumer = it
+                    created++
+                }
             }) { consumer ->
                 create(graphFactory.create(consumer).factory)
             }
@@ -218,6 +260,14 @@ class WireKaliumMeasurementTest {
     }
 
     private class MeasurementFixture(val logic: CoreLogic, val userId: UserId, val conversationId: ConversationId, val configId: String) {
+        var sessionResolutionStarted = false
+        private var retainedSession: UserSessionScope? = null
+
+        fun retainSession(session: UserSessionScope) {
+            check(retainedSession == null) { "Only one account generation is allowed per metric cycle" }
+            retainedSession = session
+        }
+
         suspend fun login(replace: Boolean = false) {
             assertEquals(
                 AddAuthenticatedUserUseCase.Result.Success(userId),
@@ -234,23 +284,32 @@ class WireKaliumMeasurementTest {
             )
         }
 
-        suspend fun close() {
-            try {
-                assertEquals(DeleteSessionUseCase.Result.Success, logic.getGlobalScope().deleteSession(userId))
-            } finally {
-                try {
-                    logic.getGlobalScope().coroutineContext.job.cancelAndJoin()
-                } finally {
-                    // Existing protected getter verified in both emitted Android CoreLogic classfiles.
-                    // Teardown only; no new production API. One CoreLogic/global DB owner per cycle.
-                    val getter = CoreLogic::class.java.getDeclaredMethod("getGlobalDatabaseBuilder")
-                    getter.isAccessible = true
-                    (getter.invoke(logic) as GlobalDatabaseBuilder).close()
-                }
+        suspend fun close() = withContext(NonCancellable + Dispatchers.Default) {
+            // A failed cold resolution may have acquired resources without returning its owner.
+            // Do not create a replacement owner or close storage whose quiescence cannot be proved.
+            check(!sessionResolutionStarted || retainedSession != null) {
+                "Cold session resolution did not return a retainable owner"
             }
+            val session = retainedSession?.let(::RetainedMeasurementSession)
+            val globalJob = logic.getGlobalScope().coroutineContext.job
+            val getter = CoreLogic::class.java.getDeclaredMethod("getGlobalDatabaseBuilder")
+            getter.isAccessible = true
+            val globalDatabase = getter.invoke(logic) as GlobalDatabaseBuilder
+            // Capture actual session resources BEFORE deleteSession evicts provider entries.
+            MeasurementOwnerDrain(
+                globalJob = globalJob,
+                sessionJob = session?.job,
+                initializedCellsJob = { session?.initializedCellsJob() },
+                stopAccountWork = { session?.stopAccountWork() },
+                evict = { assertEquals(DeleteSessionUseCase.Result.Success, logic.getGlobalScope().deleteSession(userId)) },
+                closeUserResources = { session?.closeResources() },
+                closeGlobalResource = { globalDatabase.close() },
+            ).close()
         }
 
         companion object {
+            // Login failure, including cancellation, must close the fixture before rethrowing.
+            @Suppress("TooGenericExceptionCaught")
             suspend fun create(): MeasurementFixture {
                 val context = ApplicationProvider.getApplicationContext<Application>()
                 val userId = UserId(UUID.randomUUID().toString(), "consumer-integration.invalid")
@@ -390,11 +449,15 @@ internal class MeasurementViewModel @Inject constructor(
 @DependencyGraph(bindingContainers = [KaliumConsumerModule::class, MeasurementBindings::class])
 internal interface MeasurementGraph : MetroViewModelMultibindings {
     val factory: WireViewModelGraphFactory
-    @DependencyGraph.Factory interface Factory {
+
+    @DependencyGraph.Factory
+    interface Factory {
         fun create(@Provides consumer: KaliumConsumer): MeasurementGraph
     }
 }
-@BindingContainer internal object MeasurementBindings {
+
+@BindingContainer
+internal object MeasurementBindings {
     @Provides @IntoMap @ViewModelKey(MeasurementViewModel::class)
     fun viewModel(vm: MeasurementViewModel): ViewModel = vm
 }
@@ -408,6 +471,7 @@ private object Meter {
         val installed = probe.getMethod("isInstalled").invoke(null) as Boolean
         check(installed == (System.getProperty("metro.measure.pass") == "constructors"))
     }
+
     @Suppress("UNCHECKED_CAST")
     fun <T> measure(phase: String, iteration: Int, warmup: Boolean, block: () -> T): T = try {
         measure.invoke(null, phase, iteration, warmup, Supplier { block() }) as T
@@ -417,8 +481,263 @@ private object Meter {
 }
 
 @Implements(className = "com.waz.audioeffect.AudioEffect", isInAndroidSdk = false)
+@Suppress("UtilityClassWithPublicConstructor") // Robolectric instantiates shadows through a public constructor.
 class WireKaliumMeasurementAudioEffectShadow {
     companion object {
-        @JvmStatic @Implementation fun __staticInitializer__() = Unit
+        @JvmStatic
+        @Implementation
+        @Suppress("FunctionNaming") // Robolectric requires this exact static-initializer hook name.
+        fun __staticInitializer__() = Unit
+    }
+}
+
+// Shared verbatim by the two fixture copies. This is measurement-fixture code, not an SDK hook.
+// Eviction failure must remain primary while safe cleanup is attempted.
+@Suppress("TooGenericExceptionCaught")
+internal class MeasurementOwnerDrain(
+    private val globalJob: Job,
+    private val sessionJob: Job?,
+    private val initializedCellsJob: () -> Job?,
+    private val stopAccountWork: suspend () -> Unit,
+    private val evict: suspend () -> Unit,
+    private val closeUserResources: suspend () -> Unit,
+    private val closeGlobalResource: () -> Unit,
+) {
+    suspend fun close(): Unit = withTimeout(MEASUREMENT_CLEANUP_TIMEOUT_MS) {
+        // Eviction failure still requires an attempt to drain the retained owners, and remains fatal.
+        var evictionFailure: Throwable? = null
+        try {
+            evict()
+        } catch (failure: Throwable) {
+            currentCoroutineContext().ensureActive()
+            evictionFailure = failure
+        }
+        try {
+            // No global observer may reopen account work while its captured resources are closing.
+            globalJob.cancelAndJoin()
+            try {
+                // Reuse the SDK's Cells -> session -> Cells join -> calling (/consumer) ordering.
+                stopAccountWork()
+            } catch (timeout: TimeoutCancellationException) {
+                // An SDK best-effort timeout is not quiescence. Do not swallow our own deadline.
+                currentCoroutineContext().ensureActive()
+            }
+            sessionJob?.cancelAndJoin()
+            initializedCellsJob()?.cancelAndJoin()
+            // The SDK timeout may have skipped calling or consumer drain. Finish those steps now
+            // that the independently retained session and Cells jobs have really completed.
+            stopAccountWork()
+            requireMeasurementQuiescence(globalJob)
+            sessionJob?.let(::requireMeasurementQuiescence)
+            initializedCellsJob()?.let(::requireMeasurementQuiescence)
+            // Deliberately not finally blocks: failed/timed-out drain must never close live storage.
+            closeUserResources()
+            closeGlobalResource()
+        } catch (failure: Throwable) {
+            val primary = evictionFailure ?: throw failure
+            if (primary !== failure) primary.addSuppressed(failure)
+            throw primary
+        }
+        evictionFailure?.let { throw it }
+    }
+}
+
+private const val MEASUREMENT_CLEANUP_TIMEOUT_MS = 30_000
+
+private fun requireMeasurementQuiescence(job: Job) {
+    check(job.isCompleted && job.children.none()) { "Measurement owner still retains work: $job" }
+}
+
+private class RetainedMeasurementSession(private val session: UserSessionScope) {
+    val job: Job = session.coroutineContext.job
+
+    // Both SDK versions acquire these fields eagerly in UserSessionScope construction. Reading
+    // their fields cannot resolve a new owner or initialize an unused API graph/lazy resource.
+    private val storage = measurementField(session, "userStorage")
+    private val database = storage.javaClass.getMethod("getDatabase").invoke(storage) as UserDatabaseBuilder
+    private val network = measurementField(session, "authenticatedNetworkContainer") as AuthenticatedNetworkContainer
+    private val cryptoDelegates = listOf("proteusClientProviderDelegate", "mlsClientProviderDelegate")
+        .map { measurementField(session, it) as Lazy<*> }
+
+    fun initializedCellsJob(): Job? =
+        if (session.isCellsInitialized) session.cells.coroutineContext.job else null
+
+    suspend fun stopAccountWork() = measurementSuspend(session, "stopAccountWork")
+
+    suspend fun closeResources() {
+        // Preserve closeAccountResources' native -> network -> database order without re-resolving
+        // resources after provider eviction. Never force an unused crypto/Cells/calling lazy.
+        cryptoDelegates.forEach { delegate ->
+            if (delegate.isInitialized()) measurementSuspend(requireNotNull(delegate.value), "close")
+        }
+        network.close()
+        database.close()
+    }
+}
+
+private fun measurementField(owner: Any, name: String): Any = owner.javaClass.getDeclaredField(name).let {
+    it.isAccessible = true
+    requireNotNull(it.get(owner)) { "Missing acquired measurement resource: $name" }
+}
+
+private suspend fun measurementSuspend(owner: Any, baseName: String): Unit =
+    suspendCoroutineUninterceptedOrReturn { continuation ->
+        // JVM internal suffixes belong to the emitting module, not the source API. Match only the
+        // inspected zero-argument suspend signature, with an optional internal module suffix.
+        val method = owner.javaClass.methods.single {
+            (it.name == baseName || it.name.startsWith(baseName + "$")) &&
+                it.parameterTypes.contentEquals(arrayOf(Continuation::class.java))
+        }
+        method.isAccessible = true
+        try {
+            method.invoke(owner, continuation)
+        } catch (failure: InvocationTargetException) {
+            throw failure.targetException
+        }
+    }
+
+/** Run separately BEFORE cohorts. Uses the exact MeasurementOwnerDrain embedded in either fixture. */
+// Virtual deadlines and the held-owner orchestration are intentional regression fixtures.
+@Suppress("LongMethod", "MagicNumber")
+@OptIn(ExperimentalCoroutinesApi::class)
+class WireKaliumMeasurementOwnerDrainTest {
+    @Test
+    fun cancelOnlyEvictionCannotOutrunRetainedSessionChild() = heldOwnerBarrier(providerWaits = false)
+
+    @Test
+    fun bestEffortProviderTimeoutCannotOutrunRetainedSessionChild() = heldOwnerBarrier(providerWaits = true)
+
+    @Test
+    fun independentlyOwnedInitializedCellsMustAlsoDrain() = heldOwnerBarrier(providerWaits = true, holdCells = true)
+
+    private fun heldOwnerBarrier(providerWaits: Boolean, holdCells: Boolean = false) = runTest {
+        val global = Job()
+        val session = Job() // Deliberately NOT a child of global: this is the SDK's actual topology.
+        val cells = if (holdCells) Job() else null
+        val heldOwner = cells ?: session
+        val entered = CompletableDeferred<Unit>()
+        val release = CompletableDeferred<Unit>()
+        val finished = CompletableDeferred<Unit>()
+        val evicted = CompletableDeferred<Unit>()
+        val closes = mutableListOf<String>()
+        var shutdownCalls = 0
+        val child = CoroutineScope(heldOwner + StandardTestDispatcher(testScheduler)).launch(start = CoroutineStart.UNDISPATCHED) {
+            withContext(NonCancellable) {
+                entered.complete(Unit)
+                release.await()
+                finished.complete(Unit)
+            }
+        }
+        val closing = async {
+            MeasurementOwnerDrain(
+                globalJob = global,
+                sessionJob = session,
+                initializedCellsJob = { cells },
+                stopAccountWork = {
+                    shutdownCalls++
+                    withTimeout(3_000) {
+                        cells?.cancel()
+                        session.cancelAndJoin()
+                        cells?.join()
+                    }
+                },
+                evict = {
+                    session.cancel()
+                    if (providerWaits) {
+                        try {
+                            withTimeout(3_000) { heldOwner.join() }
+                        } catch (_: TimeoutCancellationException) {
+                            // Reproduce the provider's legacy best-effort timeout, not the helper's.
+                        }
+                    }
+                    evicted.complete(Unit)
+                },
+                closeUserResources = {
+                    check(finished.isCompleted && heldOwner.isCompleted && child.isCompleted)
+                    closes.add("network")
+                    closes.add("user-database")
+                },
+                closeGlobalResource = { closes.add("global-database") },
+            ).close()
+        }
+        try {
+            entered.await()
+            // Pass BOTH the provider's and the first stopAccountWork's 3s virtual deadlines.
+            // No sleep/race window: the held NonCancellable child is the only release mechanism.
+            advanceTimeBy(6_001)
+            runCurrent()
+            assertTrue(evicted.isCompleted)
+            assertTrue(global.isCompleted)
+            assertFalse(child.isCompleted)
+            assertFalse("Close returned while an evicted owner still retained work", closing.isCompleted)
+            assertEquals(emptyList<String>(), closes)
+            release.complete(Unit)
+            closing.await()
+            assertTrue(child.isCompleted)
+            assertTrue(session.isCompleted)
+            assertTrue(cells == null || cells.isCompleted)
+            assertTrue("Post-timeout calling/consumer steps were not revisited", shutdownCalls >= 2)
+            assertEquals(listOf("network", "user-database", "global-database"), closes)
+        } finally {
+            release.complete(Unit)
+            withContext(NonCancellable) {
+                closing.cancelAndJoin()
+                session.cancelAndJoin()
+                cells?.cancelAndJoin()
+                global.cancelAndJoin()
+            }
+        }
+    }
+
+    @Test
+    fun cleanupDeadlineFailsWithoutClosingAnyCapturedResource() = runTest {
+        val global = Job()
+        val session = Job()
+        val release = CompletableDeferred<Unit>()
+        var closed = false
+        val child = CoroutineScope(session + StandardTestDispatcher(testScheduler)).launch(start = CoroutineStart.UNDISPATCHED) {
+            withContext(NonCancellable) { release.await() }
+        }
+        val closing = async {
+            runCatching {
+                MeasurementOwnerDrain(global, session, { null }, {}, { session.cancel() }, { closed = true }, { closed = true }).close()
+            }
+        }
+        try {
+            advanceTimeBy(30_001)
+            runCurrent()
+            assertTrue(closing.await().exceptionOrNull() is TimeoutCancellationException)
+            assertFalse(closed)
+            assertFalse(child.isCompleted)
+        } finally {
+            release.complete(Unit)
+            withContext(NonCancellable) {
+                closing.cancelAndJoin()
+                session.cancelAndJoin()
+                global.cancelAndJoin()
+            }
+        }
+    }
+
+    @Test
+    fun evictionFailureRemainsFatalAfterSafeResourceCleanup() = runTest {
+        val failure = IllegalStateException("metadata deletion failed")
+        var closed = false
+        val result = runCatching {
+            MeasurementOwnerDrain(Job(), Job(), { null }, {}, { throw failure }, { closed = true }, {}).close()
+        }
+        assertSame(failure, result.exceptionOrNull())
+        assertTrue(closed)
+    }
+
+    @Test
+    fun resourceCloseFailureCannotReportSuccessfulCleanup() = runTest {
+        val failure = IllegalStateException("captured network close failed")
+        var globalClosed = false
+        val result = runCatching {
+            MeasurementOwnerDrain(Job(), Job(), { null }, {}, {}, { throw failure }, { globalClosed = true }).close()
+        }
+        assertSame(failure, result.exceptionOrNull())
+        assertFalse(globalClosed)
     }
 }

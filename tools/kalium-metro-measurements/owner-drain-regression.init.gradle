@@ -1,0 +1,22 @@
+// Parent-only, separate invocation. Never combine with measurement.init.gradle or cohort outputs.
+import org.gradle.api.tasks.testing.Test
+
+gradle.beforeProject { p ->
+    if (p.path == ':app') {
+        p.plugins.withId('org.jetbrains.kotlinx.kover') {
+            p.extensions.getByName('kover').disable()
+        }
+        p.afterEvaluate {
+            // Existing public fixture seed API; baseline app has no direct persistence dependency.
+            p.dependencies.add('testImplementation', 'com.wire.kalium:kalium-persistence')
+            p.tasks.withType(Test).configureEach { t ->
+                if (t.name == 'testDevDebugUnitTest') {
+                    t.outputs.upToDateWhen { false }
+                    t.maxParallelForks = 1
+                    t.forkEvery = 1
+                    t.filter { includeTestsMatching('com.wire.android.di.metro.WireKaliumMeasurementOwnerDrainTest') }
+                }
+            }
+        }
+    }
+}

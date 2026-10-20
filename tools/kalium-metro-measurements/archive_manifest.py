@@ -8,10 +8,11 @@ rules. Required source entries are always checked first, including inside output
 import hashlib
 import os
 from pathlib import Path, PurePosixPath
+import re
 import stat
 
 
-SCHEMA = 2
+SCHEMA = 3
 # Deliberately narrower than .gitignore: local.properties, IDE state, arbitrary
 # *.log/*.class, etc. are not allowed source-tree mutations. Fail closed on new
 # output shapes until reviewed. These names apply ONLY directly below recorded
@@ -76,9 +77,26 @@ def output_policy(root, entries):
         lines = set(ignore.read_text().splitlines()) if ignore.is_file() else set()
         directories = sorted((PurePosixPath(project) / name).as_posix()
                              for project in projects for name in OUTPUT_DIRS if name + '/' in lines)
+        configured = []
+        # Kalium's committed protobuf project deliberately generates Kotlin outside build/.
+        # This is one exact, evidenced output; generated/ is never a basename exclusion.
+        script = 'data/protobuf/build.gradle.kts'
+        if (prefix == 'kalium' and 'data/protobuf' in projects and 'generated/' in lines
+                and local_entries.get(script, {}).get('kind') == 'file'
+                and local_entries.get('.gitignore', {}).get('kind') == 'file'):
+            text = (root / prefix / script).read_text()
+            markers = [r'^val generatedFilesBaseDir = file\("generated"\)$',
+                       r'^\s*kotlin\.srcDir\(generatedFilesBaseDir\)\s*$',
+                       r'^\s*val targetDirectory = File\(generatedFilesBaseDir, generatedDirectory\.name\)\s*$']
+            if all(re.search(marker, text, re.MULTILINE) for marker in markers):
+                directories = sorted(directories + ['data/protobuf/generated'])
+                configured.append({'directory': 'data/protobuf/generated', 'build_script': script,
+                                   'build_script_sha256': local_entries[script]['sha256'],
+                                   'ignore_file': '.gitignore', 'ignore_rule': 'generated/',
+                                   'ignore_sha256': local_entries['.gitignore']['sha256']})
         files = [name for name in ANDROID_OUTPUT_FILES if not prefix and name in lines]
         policy.append({'root': prefix, 'project_roots': projects, 'source_roots': source_roots,
-                       'directories': directories, 'files': files})
+                       'directories': directories, 'files': files, 'configured_outputs': configured})
     return policy
 
 

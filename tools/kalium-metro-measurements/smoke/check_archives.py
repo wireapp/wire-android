@@ -188,6 +188,63 @@ class ArchiveChecks(unittest.TestCase):
                     path = path.parent
                 harness.read_stage('baseline')
 
+    def protobuf_manifest(self, configured=True, ignored=True, required=False):
+        text = ('val generatedFilesBaseDir = file("generated")\n'
+                '        kotlin.srcDir(generatedFilesBaseDir)\n'
+                '        val targetDirectory = File(generatedFilesBaseDir, generatedDirectory.name)\n')
+        self.put('kalium/data/protobuf/build.gradle.kts', text if configured else '// no configured output\n')
+        if ignored:
+            self.put('kalium/.gitignore', self.sources['kalium/.gitignore'] + 'generated/\n')
+        if required:
+            self.put('kalium/data/protobuf/generated/Required.kt', '// required staged source\n')
+        return archive_manifest.capture(self.root, harness.BASE_ANDROID, harness.BASE_SDK)
+
+    def test_configured_protobuf_output_allowed_with_recorded_evidence(self):
+        manifest = self.protobuf_manifest()
+        self.put('kalium/data/protobuf/generated/pbandk/Messages.kt', '// generated Kotlin\n')
+        archive_manifest.verify(self.root, manifest)
+        configured = manifest['added_output_policy'][1]['configured_outputs']
+        self.assertEqual(configured[0]['directory'], 'data/protobuf/generated')
+        self.assertEqual(configured[0]['build_script_sha256'],
+                         manifest['entries']['kalium/data/protobuf/build.gradle.kts']['sha256'])
+
+    def test_protobuf_output_requires_both_configuration_and_ignore_evidence(self):
+        for configured, ignored in [(False, True), (True, False)]:
+            with self.subTest(configured=configured, ignored=ignored):
+                self.put('kalium/.gitignore', self.sources['kalium/.gitignore'])
+                manifest = self.protobuf_manifest(configured=configured, ignored=ignored)
+                self.put('kalium/data/protobuf/generated/New.kt', '// unapproved output\n')
+                with self.assertRaisesRegex(archive_manifest.SourceDrift, 'Unexpected baseline source entry'):
+                    archive_manifest.verify(self.root, manifest)
+                (self.root / 'kalium/data/protobuf/generated/New.kt').unlink()
+                (self.root / 'kalium/data/protobuf/generated').rmdir()
+
+    def test_protobuf_exception_does_not_hide_other_generated_source_paths(self):
+        manifest = self.protobuf_manifest()
+        for name in ['kalium/logic/generated/New.kt', 'kalium/data/protobuf/src/main/kotlin/generated/New.kt']:
+            with self.subTest(path=name):
+                self.put(name, '// unlisted source\n')
+                with self.assertRaisesRegex(archive_manifest.SourceDrift, 'Unexpected baseline source entry'):
+                    archive_manifest.verify(self.root, manifest)
+                path = self.root / name
+                path.unlink()
+                while path.parent.relative_to(self.root).as_posix() not in manifest['entries']:
+                    path.parent.rmdir()
+                    path = path.parent
+
+    def test_required_sources_and_new_links_inside_protobuf_output_still_checked(self):
+        manifest = self.protobuf_manifest(required=True)
+        required = 'kalium/data/protobuf/generated/Required.kt'
+        self.put(required, '// changed required source\n')
+        with self.assertRaisesRegex(archive_manifest.SourceDrift, 'source changed'):
+            archive_manifest.verify(self.root, manifest)
+        self.put(required, '// required staged source\n')
+        link = self.root / 'kalium/data/protobuf/generated/nested/external'
+        link.parent.mkdir()
+        link.symlink_to(self.output, target_is_directory=True)
+        with self.assertRaisesRegex(archive_manifest.SourceDrift, 'Unexpected baseline symlink'):
+            archive_manifest.verify(self.root, manifest)
+
     def test_parent_symlink_substitution_rejected(self):
         source_dir = self.root / 'kalium/logic'
         moved = self.output / 'moved-logic'

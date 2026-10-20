@@ -3,7 +3,7 @@
 import argparse, hashlib, json, re, shutil
 from repo_paths import SOURCE, OUTPUT
 FILES = ['.gitignore','README.md','build-tools.py','repo_paths.py','harness.py','archive_manifest.py','summarize.py',
-         'measurement.init.gradle','constructors.txt','parent-commands.sh','parse-only.py','package-review.py',
+         'measurement.init.gradle','owner-drain-regression.init.gradle','run-owner-drain-regression.py','constructors.txt','parent-commands.sh','parse-only.py','package-review.py',
          'fixtures/current.kt','fixtures/baseline.kt','src/com/wire/metro/measure/Probe.java',
          'src/com/wire/metro/measure/ConstructorAgent.java','smoke/Smoke.java',
          'smoke/ParseKotlin.java','smoke/ParseGroovy.java','smoke/check_reports.py','smoke/check_archives.py']

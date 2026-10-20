@@ -139,6 +139,10 @@ object AppModule {
     fun provideDriveDirectUploadEnabled(): Boolean = BuildConfig.DRIVE_DIRECT_UPLOAD_ENABLED
 
     @Provides
+    @Named("driveBulkActionsEnabled")
+    fun provideDriveBulkActionsEnabled(): Boolean = BuildConfig.DRIVE_BULK_ACTIONS_ENABLED
+
+    @Provides
     @Named("inAppImageViewerEnabled")
     fun provideInAppImageViewerEnabled(): Boolean = BuildConfig.IN_APP_IMAGE_VIEWER_ENABLED
 

@@ -111,10 +111,6 @@ class FileSharingTests : BaseUiTest() {
 
         givenTeamMemberIsPreparedForFileSharing()
 
-        step("And TeamOwner adds new device Device1 with label Device1") {
-            testServiceHelper.addDevice("user1Name", null, "Device1")
-        }
-
         loginAsTeamMemberAndOpenFileSharingConversation()
 
         step("When TeamOwner sends 1.00MB text file TextFile.txt via Device1 to conversation SendFilesHere") {
@@ -167,10 +163,6 @@ class FileSharingTests : BaseUiTest() {
 
         givenTeamMemberIsPreparedForFileSharing()
 
-        step("And TeamOwner adds new device Device1 with label Device1") {
-            testServiceHelper.addDevice("user1Name", null, "Device1")
-        }
-
         loginAsTeamMemberAndOpenFileSharingConversation()
 
         step("When TeamOwner sends video VideoFile.mp4 via Device1 to conversation SendFilesHere") {
@@ -221,10 +213,6 @@ class FileSharingTests : BaseUiTest() {
     fun givenTeamMember_whenSendingImageInGroupConversation_thenImageIsSent() {
         givenTeamMemberIsPreparedForFileSharing()
 
-        step("And TeamOwner adds new device Device1 with label Device1") {
-            testServiceHelper.addDevice("user1Name", null, "Device1")
-        }
-
         loginAsTeamMemberAndOpenFileSharingConversation()
 
         step("When I open the file sharing options") {
@@ -272,10 +260,6 @@ class FileSharingTests : BaseUiTest() {
     fun givenTeamMember_whenSendingFileInGroupConversation_thenFileIsSent() {
         givenTeamMemberIsPreparedForFileSharing()
 
-        step("And TeamOwner adds new device Device1 with label Device1") {
-            testServiceHelper.addDevice("user1Name", null, "Device1")
-        }
-
         loginAsTeamMemberAndOpenFileSharingConversation()
 
         step("And I open the file sharing options") {
@@ -314,6 +298,7 @@ class FileSharingTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "FileSharing", backendClient)
         }
 
         step("And TeamOwner adds Member1 to team FileSharing with role Member") {
@@ -328,12 +313,19 @@ class FileSharingTests : BaseUiTest() {
             )
         }
 
-        step("And TeamOwner has group conversation SendFilesHere with Member1 in team FileSharing") {
-            backendSetupHelper.userHasGroupConversationInTeam(
-                "user1Name",
-                "SendFilesHere",
-                "user2Name",
-                "FileSharing"
+        step("And MLS devices are registered for all participants") {
+            testServiceHelper.apply {
+                addDevice("user1Name", null, "Device1")
+                addDevice("user2Name", null, "Device1")
+            }
+        }
+
+        step("And TeamOwner creates MLS group conversation SendFilesHere with Member1 in team FileSharing") {
+            testServiceHelper.userCreatesMLSGroupConversation(
+                ownerAlias = "user1Name",
+                participantAliases = "user2Name",
+                conversationName = "SendFilesHere",
+                deviceName = "Device1"
             )
         }
 

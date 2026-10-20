@@ -56,6 +56,10 @@ class ConnectTests : BaseUiTest() {
             contact = clientUserManager.findUserByNameOrNameAlias("user2Name")
         }
 
+        step("And User user2Name registers an MLS device") {
+            testServiceHelper.addDevice("user2Name", null, "Device1")
+        }
+
         step("And users user1Name and user2Name set their unique usernames") {
             runBlocking {
                 backendSetupHelper.usersSetUniqueUsername("user2Name")
@@ -160,6 +164,7 @@ class ConnectTests : BaseUiTest() {
 
         step("When I send the message Hello!") {
             pages.conversationViewPage.apply {
+                waitUntilConversationTurnsMls()
                 typeMessageInInputField("Hello!")
                 clickSendButton()
             }
@@ -182,6 +187,10 @@ class ConnectTests : BaseUiTest() {
             )
             personalUser = clientUserManager.findUserByNameOrNameAlias("user1Name")
             contact = clientUserManager.findUserByNameOrNameAlias("user2Name")
+        }
+
+        step("And User user2Name registers an MLS device") {
+            testServiceHelper.addDevice("user2Name", null, "Device1")
         }
 
         step("And users user1Name and user2Name set their unique usernames") {
@@ -276,6 +285,10 @@ class ConnectTests : BaseUiTest() {
             )
             personalUser = clientUserManager.findUserByNameOrNameAlias("user1Name")
             contact = clientUserManager.findUserByNameOrNameAlias("user2Name")
+        }
+
+        step("And User user2Name registers an MLS device") {
+            testServiceHelper.addDevice("user2Name", null, "Device1")
         }
 
         step("And users user1Name and user2Name set their unique usernames") {

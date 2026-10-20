@@ -83,5 +83,7 @@ internal fun ConversationFilesSlideRouteScreen(
         uploadConfirmation = uploadConfirmation,
         onConfirmUpload = viewModel::confirmUpload,
         onCancelUploadConfirmation = viewModel::cancelUploadConfirmation,
+        selectedNodes = viewModel.selectedNodes.collectAsState().value,
+        isBulkSelectionEnabled = viewModel.isBulkSelectionEnabled.collectAsState().value,
     )
 }

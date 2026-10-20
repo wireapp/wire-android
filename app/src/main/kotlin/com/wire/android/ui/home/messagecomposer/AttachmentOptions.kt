@@ -64,34 +64,14 @@ import com.wire.android.util.permission.rememberChooseSingleFileFlow
 import com.wire.android.util.permission.rememberTakePictureFlow
 
 @Composable
-fun AttachmentOptionsComponent(
+internal fun AttachmentOptionsComponent(
     optionsVisible: Boolean,
-    onImagesPicked: (List<Uri>) -> Unit,
-    onAttachmentPicked: (UriAsset) -> Unit,
-    onRecordAudioMessageClicked: () -> Unit,
-    tempWritableImageUri: Uri?,
-    tempWritableVideoUri: Uri?,
-    isFileSharingEnabled: Boolean,
-    areAttachmentOptionsEnabled: Boolean,
-    onLocationPickerClicked: () -> Unit,
-    onPermissionPermanentlyDenied: (type: ConversationActionPermissionType) -> Unit,
+    attachmentOptions: List<AttachmentOptionItem>,
     modifier: Modifier = Modifier,
     useKeyboardNavigation: Boolean = false,
 ) {
     val density = LocalDensity.current
     val textMeasurer = rememberTextMeasurer()
-
-    val attachmentOptions = buildAttachmentOptionItems(
-        isFileSharingEnabled = isFileSharingEnabled,
-        areAttachmentOptionsEnabled = areAttachmentOptionsEnabled,
-        tempWritableImageUri = tempWritableImageUri,
-        tempWritableVideoUri = tempWritableVideoUri,
-        onImagesPicked = onImagesPicked,
-        onFilePicked = onAttachmentPicked,
-        onRecordAudioMessageClicked = onRecordAudioMessageClicked,
-        onLocationPickerClicked = onLocationPickerClicked,
-        onPermissionPermanentlyDenied = onPermissionPermanentlyDenied,
-    )
 
     val labelStyle = MaterialTheme.wireTypography.button03
 
@@ -303,13 +283,14 @@ private fun rememberCaptureVideoFlow(
     }
 
 @Composable
-private fun buildAttachmentOptionItems(
+internal fun buildAttachmentOptionItems(
     isFileSharingEnabled: Boolean,
     areAttachmentOptionsEnabled: Boolean,
     tempWritableImageUri: Uri?,
     tempWritableVideoUri: Uri?,
     onImagesPicked: (List<Uri>) -> Unit,
     onFilePicked: (UriAsset) -> Unit,
+    onDismissAttachmentOptions: () -> Unit,
     onRecordAudioMessageClicked: () -> Unit,
     onLocationPickerClicked: () -> Unit,
     onPermissionPermanentlyDenied: (type: ConversationActionPermissionType) -> Unit,
@@ -343,7 +324,10 @@ private fun buildAttachmentOptionItems(
                     isEnabled = areAttachmentOptionsEnabled,
                     text = R.string.attachment_share_file,
                     icon = R.drawable.ic_attach_file,
-                ) { fileFlow.launch() }
+                ) {
+                    onDismissAttachmentOptions()
+                    fileFlow.launch()
+                }
             )
             add(
                 AttachmentOptionItem(
@@ -351,7 +335,10 @@ private fun buildAttachmentOptionItems(
                     isEnabled = areAttachmentOptionsEnabled,
                     text = R.string.attachment_share_image,
                     icon = R.drawable.ic_gallery,
-                ) { galleryFlow.launch() }
+                ) {
+                    onDismissAttachmentOptions()
+                    galleryFlow.launch()
+                }
             )
             add(
                 AttachmentOptionItem(
@@ -359,7 +346,10 @@ private fun buildAttachmentOptionItems(
                     isEnabled = areAttachmentOptionsEnabled,
                     text = R.string.attachment_take_photo,
                     icon = R.drawable.ic_camera,
-                ) { takePictureFlow?.launch() }
+                ) {
+                    onDismissAttachmentOptions()
+                    takePictureFlow?.launch()
+                }
             )
             add(
                 AttachmentOptionItem(
@@ -367,7 +357,10 @@ private fun buildAttachmentOptionItems(
                     isEnabled = areAttachmentOptionsEnabled,
                     text = R.string.attachment_record_video,
                     icon = R.drawable.ic_video,
-                ) { captureVideoFlow?.launch() }
+                ) {
+                    onDismissAttachmentOptions()
+                    captureVideoFlow?.launch()
+                }
             )
             if (AudioMessagesIcon) {
                 add(
@@ -386,6 +379,7 @@ private fun buildAttachmentOptionItems(
                         text = R.string.attachment_share_location,
                         icon = R.drawable.ic_location
                     ) {
+                        onDismissAttachmentOptions()
                         onLocationPickerClicked()
                     }
                 )
@@ -408,15 +402,7 @@ fun PreviewAttachmentComponents() {
     WireTheme {
         AttachmentOptionsComponent(
             optionsVisible = true,
-            onImagesPicked = {},
-            onAttachmentPicked = {},
-            isFileSharingEnabled = true,
-            areAttachmentOptionsEnabled = true,
-            tempWritableImageUri = null,
-            tempWritableVideoUri = null,
-            onRecordAudioMessageClicked = {},
-            onLocationPickerClicked = {},
-            onPermissionPermanentlyDenied = {},
+            attachmentOptions = previewAttachmentOptionItems(),
         )
     }
 }
@@ -430,15 +416,7 @@ fun PreviewAttachmentOptionsComponentSmallScreen() {
         ) {
             AttachmentOptionsComponent(
                 optionsVisible = true,
-                onAttachmentPicked = {},
-                onImagesPicked = {},
-                isFileSharingEnabled = true,
-                areAttachmentOptionsEnabled = true,
-                tempWritableImageUri = null,
-                tempWritableVideoUri = null,
-                onRecordAudioMessageClicked = {},
-                onLocationPickerClicked = {},
-                onPermissionPermanentlyDenied = {},
+                attachmentOptions = previewAttachmentOptionItems(),
             )
         }
     }
@@ -453,15 +431,7 @@ fun PreviewAttachmentOptionsComponentNormalScreen() {
         ) {
             AttachmentOptionsComponent(
                 optionsVisible = true,
-                onAttachmentPicked = {},
-                onImagesPicked = {},
-                isFileSharingEnabled = true,
-                areAttachmentOptionsEnabled = true,
-                tempWritableImageUri = null,
-                tempWritableVideoUri = null,
-                onRecordAudioMessageClicked = {},
-                onLocationPickerClicked = {},
-                onPermissionPermanentlyDenied = {},
+                attachmentOptions = previewAttachmentOptionItems(),
             )
         }
     }
@@ -476,16 +446,22 @@ fun PreviewAttachmentOptionsComponentTabledScreen() {
         ) {
             AttachmentOptionsComponent(
                 optionsVisible = true,
-                onAttachmentPicked = {},
-                onImagesPicked = {},
-                isFileSharingEnabled = true,
-                areAttachmentOptionsEnabled = true,
-                tempWritableImageUri = null,
-                tempWritableVideoUri = null,
-                onRecordAudioMessageClicked = {},
-                onLocationPickerClicked = {},
-                onPermissionPermanentlyDenied = {},
+                attachmentOptions = previewAttachmentOptionItems(),
             )
         }
     }
 }
+
+@Composable
+private fun previewAttachmentOptionItems(): List<AttachmentOptionItem> = buildAttachmentOptionItems(
+    isFileSharingEnabled = true,
+    areAttachmentOptionsEnabled = true,
+    tempWritableImageUri = null,
+    tempWritableVideoUri = null,
+    onImagesPicked = {},
+    onFilePicked = {},
+    onDismissAttachmentOptions = {},
+    onRecordAudioMessageClicked = {},
+    onLocationPickerClicked = {},
+    onPermissionPermanentlyDenied = {},
+)

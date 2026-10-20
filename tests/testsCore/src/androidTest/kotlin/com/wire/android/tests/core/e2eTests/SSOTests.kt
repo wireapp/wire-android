@@ -79,6 +79,7 @@ class SSOTests : BaseUiTest() {
                     keycloakApiClient
                 )
             }
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "SSO", backendClient)
         }
 
         step("And User user1Name adds user user2Name to keycloak") {
@@ -142,7 +143,7 @@ class SSOTests : BaseUiTest() {
 
         step("And I wait until I am fully logged in") {
             pages.registrationPage.apply {
-                waitUntilLoginFlowIsCompleted()
+                waitUntilSsoLoginFlowIsCompleted()
                 clickAllowNotificationButton()
             }
         }
@@ -173,6 +174,7 @@ class SSOTests : BaseUiTest() {
                     keycloakApiClient
                 )
             }
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "SSO", backendClient)
         }
 
         step("And User user1Name adds user user2Name to keycloak") {
@@ -304,6 +306,7 @@ class SSOTests : BaseUiTest() {
                     keycloakApiClient
                 )
             }
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "ClaimedDomain", backendClient)
             ssoCode = SSOServiceHelper.getSsoCode()
         }
 
@@ -371,7 +374,9 @@ class SSOTests : BaseUiTest() {
         }
 
         step("And I dismiss post-login prompts") {
-            pages.registrationPage.waitUntilConversationPageVisibleDismissingPostLoginPrompts()
+            pages.registrationPage.waitUntilSsoLoginFlowIsCompleted()
+            pages.registrationPage.clickAllowNotificationButton()
+            pages.registrationPage.clickDeclineShareDataAlert()
         }
 
         step("Then I see the conversation list") {

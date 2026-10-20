@@ -485,7 +485,7 @@ class LoginEmailViewModel(
         )
         when (result) {
             is RequestSecondFactorVerificationCodeUseCase.Result.Success,
-            RequestSecondFactorVerificationCodeUseCase.Result.Failure.TooManyRequests -> {
+            is RequestSecondFactorVerificationCodeUseCase.Result.Failure.TooManyRequests -> {
                 secondFactorVerificationCodeState = secondFactorVerificationCodeState.copy(
                     isCodeInputNecessary = true,
                     emailUsed = email,

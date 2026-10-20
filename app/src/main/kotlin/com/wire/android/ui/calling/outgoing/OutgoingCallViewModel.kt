@@ -122,7 +122,8 @@ class OutgoingCallViewModel @AssistedInject constructor(
                         isIncomingCall = false
                     )
 
-                    StartCallUseCase.Result.SyncFailure -> {
+                    StartCallUseCase.Result.SyncFailure,
+                    StartCallUseCase.Result.StartFailure -> {
                         // TODO: handle case where start call fails
                         appLogger.i("Failed to start call")
                     }

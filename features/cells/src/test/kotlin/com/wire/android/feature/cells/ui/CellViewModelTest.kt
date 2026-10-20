@@ -1168,6 +1168,7 @@ class CellViewModelTest {
                 inAppImageViewerEnabled = inAppImageViewerEnabled,
                 drivePermissionsEnabled = true,
                 driveDirectUploadEnabled = true,
+                driveBulkActionsEnabled = true,
             )
         }
     }

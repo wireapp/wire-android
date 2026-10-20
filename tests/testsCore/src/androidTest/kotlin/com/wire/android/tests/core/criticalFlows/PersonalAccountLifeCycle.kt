@@ -18,8 +18,9 @@
 package com.wire.android.tests.core.criticalFlows
 
 import InbucketClient
-import android.view.KeyEvent
+import android.view.accessibility.AccessibilityWindowInfo
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.platform.app.InstrumentationRegistry
 import com.wire.android.tests.core.BaseUiTest
 import com.wire.android.tests.support.UiAutomatorSetup
 import com.wire.android.tests.support.tags.Category
@@ -237,12 +238,14 @@ class PersonalAccountLifeCycle : BaseUiTest() {
 
     private fun closeKeyboardIfVisible() {
         device.waitForIdle()
-        val keyboardShown = device.executeShellCommand("dumpsys window visible")
-            .lineSequence()
-            .any { it.contains("Window #") && it.contains("InputMethod") }
-        if (keyboardShown) {
-            device.pressKeyCode(KeyEvent.KEYCODE_ESCAPE)
-            device.waitForIdle()
+        val automation = InstrumentationRegistry.getInstrumentation().uiAutomation
+        fun isKeyboardVisible() = automation.windows.any { it.type == AccessibilityWindowInfo.TYPE_INPUT_METHOD }
+
+        if (!isKeyboardVisible()) return
+
+        device.pressBack()
+        check(UiWaitUtils.retryUntilTimeout(UiWaitUtils.SHORT_TIMEOUT) { !isKeyboardVisible() }) {
+            "Keyboard did not close after pressing Back."
         }
     }
 }

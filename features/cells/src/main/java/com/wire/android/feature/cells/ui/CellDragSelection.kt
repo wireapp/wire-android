@@ -15,6 +15,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
+
+@file:Suppress("MatchingDeclarationName")
+
 package com.wire.android.feature.cells.ui
 
 import androidx.compose.foundation.gestures.awaitEachGesture
@@ -114,12 +117,13 @@ internal class CellDragSelectionState(
     private fun autoScrollSpeedFor(distanceIntoEdge: Float): Float =
         (distanceIntoEdge / autoScrollEdgePx).coerceIn(0f, 1f) * autoScrollEdgePx * MAX_AUTO_SCROLL_SPEED_RATIO
 
+    @Suppress("ReturnCount")
     private fun updateSelection() {
         val anchor = anchorIndex ?: return
         // Clamped so that with the finger past the edge (auto scrolling), the selection follows the edge item.
         val viewport = lazyListState.layoutInfo
         if (viewport.viewportEndOffset <= viewport.viewportStartOffset) return
-        val y =pointerY.coerceIn(viewport.viewportStartOffset.toFloat(), viewport.viewportEndOffset - 1f)
+        val y = pointerY.coerceIn(viewport.viewportStartOffset.toFloat(), viewport.viewportEndOffset - 1f)
         val index = itemIndexAt(y) ?: return
         if (index == lastIndex) return
         lastIndex = index

@@ -15,11 +15,11 @@ Controller: this implementation thread. No merge or deployment is authorized.
 - [x] Read ADR 0017 in full and relevant ADRs 0011–0013 and architecture guidance.
 - [x] Initialize owned Kalium checkout and implementation branch on the explicit ADR base.
 - [x] Record getter declarations, constructor captures, identity aliases and runtime startup inventory (timing baseline still pending).
-- [ ] Add supported KMP Metro integration and global/user/consumer graph ownership.
+- [x] Add supported KMP Metro integration and foundational global/user/consumer graph ownership (remaining global/user binding migration is separate).
 - [x] Migrate individual conversation/message bindings and compatibility accessors (account/consumer lifecycle review closure remains separate).
 - [ ] Migrate all remaining broad feature wiring and audit fresh scope factories.
 - [ ] Extract equivalent explicit runtime startup with individual worker dependencies.
-- [ ] Integrate consumer lifetime with actual Android ViewModel creation/disposal.
+- [x] Integrate consumer lifetime with actual Android ViewModel creation/disposal; foundation verification and fresh exact-patch closure recorded below.
 - [ ] Verify identity, concurrency, generation invalidation, disposal and provider cache policies.
 - [ ] Measure cold startup, first/warm ViewModel construction and allocation counts.
 - [ ] Run affected Android/JVM/Apple, ABI, style and lifecycle/extension checks.
@@ -211,3 +211,17 @@ Implementation tasks (all complete, writers paused for review):
 - Parent added the explicit test-only persistence dependency and included-build substitution; corrected wrapping, extracted the user seed fixture, and documented method-local size exceptions for sequential/concurrent lifecycle scenarios plus Robolectric's required constructible shadow. No style configuration/baseline changes or skipped tests. Combined rerun `/tmp/kalium-metro-android-integration-r4.log` pending. These later Android test/build edits are outside R3's reviewed SHA and require exact-patch review with the next checkpoint.
 
 - Android combined rerun passed: production graph compilation remains current, unit-test compilation passed, full `:app:detektAll` passed, and all 26 selected tests passed with zero failures/errors/skips: factory 17, manual factory 8, real-SDK Robolectric integration 1. Log `/tmp/kalium-metro-android-integration-r4.log`. The integration fixture executed (not skipped) against real SQLite, SDK registry/consumer/repositories, public account replacement, and production consumer adapter/narrow generated graph. The external-port/full-application/crypto/logout limits above remain. No production source changed after the R3 review; only test fixture, test-only dependency/substitution and ledger changed. Exact final Android delta will receive fresh review before the next migration layer.
+
+### Fresh foundation patch review round 4 — foundation closure
+
+- Exact reviewed Android `671eddea26ec91686c534dd2456b8c94c120a33f`; unchanged SDK `c5e75810954fb6d664362561db08423bc5b95bd7`. Worktrees clean, production/test writers paused.
+- Identity task `node:delegated-task:command%3Amcp%3A4d3a1ef2-d977-4425-a27f-c1c03ed8c791%3Adelegate-task%3Ametro-patch-identity-r4-671edde-20261020`.
+- Platform task `node:delegated-task:command%3Amcp%3A4d3a1ef2-d977-4425-a27f-c1c03ed8c791%3Adelegate-task%3Ametro-patch-platform-r4-671edde-20261020`.
+- Both found no additional concrete foundation findings and closed prior findings on these exact snapshots. Both independently checked actual XML: Android 26 passed including the executed real-SDK SQLite fixture; SDK JVM 4,173 with 12 existing skips; supplied Native log 46 passes. Platform reviewer independently confirmed all 4,461 governed Android members retain descriptor and visibility/static/final/abstract flags, plus old CoreLogic constructors/bridges and Metro Native manifest ABI/compiler.
+- Closure is explicitly FOUNDATION ONLY: the fixture uses the shared production adapter/helper and consumer module through a narrow test graph, not the running full application graph. Distinct use cases alone do not establish repository identity (separate generated-graph counting tests do). Actual Android terminal logout remains separately fake/mocked while real SDK provider/SQL/logout orchestration is covered on JVM with external effects stubbed. Full migration, remaining startup extraction, Swift receiving-app compatibility and measurements remain required.
+- All ten Android stability checks passed again on the current SDK/compiler/factory snapshot. Log `/tmp/kalium-metro-android-stability-c5e7581-r4.log`. No further baseline refresh was needed.
+- Checkpoint pushed to the linked existing drafts. No merge/deployment authorized or performed.
+
+### Measurement harness task
+
+- Task `node:delegated-task:command%3Amcp%3A4d3a1ef2-d977-4425-a27f-c1c03ed8c791%3Adelegate-task%3Ametro-construction-measurement-harness-20261020` prepares runnable standalone counters/fixtures under ignored `kalium/build/metro-verification/measurements/20261020` only. It cannot mutate tracked source or run coordinated Gradle/Native builds. Exact constructor-entry counters and caller-thread allocated bytes must be distinguished; compiler/toolchain differences and asynchronous startup overlap remain explicit limits. Parent will execute after full migration.

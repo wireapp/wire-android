@@ -87,3 +87,9 @@ public fun com.wire.android.navigation.navigation3.wireViewModelStoreOwner(owner
   params:
     - owner: UNSTABLE (has mutable properties or unstable members)
 
+@Composable
+public fun com.wire.android.navigation.transition.currentNavAnimatedContentScope(): androidx.compose.animation.AnimatedContentScope
+  skippable: true
+  restartable: true
+  params:
+

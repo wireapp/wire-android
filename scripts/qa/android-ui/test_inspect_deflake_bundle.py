@@ -21,8 +21,8 @@ class InspectDeflakeBundleTest(unittest.TestCase):
             root = Path(directory)
             (root / "metadata.json").write_text(json.dumps({
                 "schema_version": 1,
-                "source_workflow_name": "QA Android Critical Flow Tests",
-                "source_workflow_file": ".github/workflows/qa-android-critical-flow-tests.yml",
+                "source_workflow_name": "QA Android Regression Tests",
+                "source_workflow_file": ".github/workflows/qa-android-regression-tests.yml",
                 "source_repository": "wireapp/wire-android",
                 "source_run_id": "123",
                 "source_ref_name": "develop",
@@ -43,7 +43,7 @@ class InspectDeflakeBundleTest(unittest.TestCase):
                     "EXPECTED_SOURCE_REPOSITORY": "wireapp/wire-android",
                     "EXPECTED_SOURCE_RUN_ID": "123",
                     "EXPECTED_SOURCE_SHA": "a" * 40,
-                    "EXPECTED_SOURCE_WORKFLOW_FILE": ".github/workflows/qa-android-critical-flow-tests.yml",
+                    "EXPECTED_SOURCE_WORKFLOW_FILE": ".github/workflows/qa-android-regression-tests.yml",
                     "EXPECTED_SOURCE_REF_NAME": "develop",
                 },
                 capture_output=True,

@@ -13,7 +13,7 @@ from typing import Any
 
 
 ALLOWED_WORKFLOW_FILES = {
-    ".github/workflows/qa-android-critical-flow-tests.yml",
+    ".github/workflows/qa-android-regression-tests.yml",
     ".github/workflows/qa-android-fdroid-tests.yml",
 }
 ALLOWED_CONCLUSIONS = {"success", "failure"}
@@ -27,7 +27,7 @@ def validate_run_metadata(
     data: dict[str, Any],
     expected_repository: str,
     expected_default_branch: str,
-    expected_workflow_file: str = ".github/workflows/qa-android-critical-flow-tests.yml",
+    expected_workflow_file: str = ".github/workflows/qa-android-regression-tests.yml",
 ) -> dict[str, str]:
     repository = str((data.get("repository") or {}).get("full_name") or "")
     workflow_file = str(data.get("path") or "").split("@", 1)[0]
@@ -75,7 +75,7 @@ def main() -> None:
     token = os.environ["GITHUB_TOKEN"]
     api_url = os.environ.get("GITHUB_API_URL", "https://api.github.com").rstrip("/")
     expected_workflow_file = os.environ.get(
-        "EXPECTED_SOURCE_WORKFLOW_FILE", ".github/workflows/qa-android-critical-flow-tests.yml"
+        "EXPECTED_SOURCE_WORKFLOW_FILE", ".github/workflows/qa-android-regression-tests.yml"
     )
     allow_latest = os.environ.get("ALLOW_LATEST_SOURCE_RUN", "false") == "true"
     if not run_id.isdigit() and (run_id or not allow_latest):

@@ -42,10 +42,6 @@ validate_run_mode() {
         echo "ERROR: Deflake mode requires a numeric sourceRunId. Copy the 'manual deflake id' from the previous run summary."
         exit 1
       fi
-      case "${DEFLAKE_RETRY_SETTINGS:-Use original run settings}" in
-        "Use original run settings"|"Use settings entered below") ;;
-        *) echo "ERROR: Invalid deflakeRetrySettings."; exit 1 ;;
-      esac
       resolved_mode="deflake"
       ;;
     *) echo "ERROR: runMode must be 'Normal tests' or 'Deflake failed tests'."; exit 1 ;;
@@ -56,14 +52,12 @@ validate_run_mode() {
 }
 
 validate_rerun_inputs() {
-  local enabled="${RERUN_FAILED_ENABLED:-true}"
-  local count="${RERUN_FAILED_COUNT:-1}"
-  local count_num=0
-
-  if [[ ! "${enabled}" =~ ^(true|false)$ ]]; then
-    echo "ERROR: rerunFailedEnabled must be true or false."
-    exit 1
+  local default_count=1
+  if [[ "${RUN_MODE:-Normal tests}" == "Deflake failed tests" ]]; then
+    default_count=0
   fi
+  local count="${RERUN_FAILED_COUNT:-${default_count}}"
+  local count_num=0
 
   if [[ ! "${count}" =~ ^[0-9]+$ ]]; then
     echo "ERROR: rerunFailedCount must be a whole number >= 0."
@@ -76,6 +70,16 @@ validate_rerun_inputs() {
     echo "ERROR: rerunFailedCount must be <= 3."
     exit 1
   fi
+
+  : "${GITHUB_OUTPUT:?GITHUB_OUTPUT not set}"
+  {
+    echo "rerunFailedCount=${count_num}"
+    if (( count_num > 0 )); then
+      echo "rerunFailedEnabled=true"
+    else
+      echo "rerunFailedEnabled=false"
+    fi
+  } >> "${GITHUB_OUTPUT}"
 }
 
 resolve_selector_from_tags() {

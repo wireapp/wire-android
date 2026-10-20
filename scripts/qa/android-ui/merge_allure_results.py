@@ -11,6 +11,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from allure_sanitization import sanitize_allure_payload
+from extract_failed_tests import resolve_test_id
+from summarize_allure_results import selected_deflake_tests, summarize_results
 
 out_dir = Path(os.environ["OUT_DIR"])
 merged_dir = Path(os.environ["MERGED_DIR"])
@@ -165,6 +167,7 @@ device_aliases = {
 
 first_status: dict[str, str] = {}
 latest_by_test: dict[str, dict] = {}
+selected_tests = selected_deflake_tests()
 # Keep the first and latest status for each logical test so the merged report
 # can mark recovered flakes without keeping duplicate test entries.
 
@@ -188,6 +191,8 @@ for attempt, device_dir in attempt_device_dirs:
                 continue
 
             data = sanitize_allure_payload(data)
+            if selected_tests is not None and resolve_test_id(data) not in selected_tests:
+                continue
             data = add_label(data, "device", label)
             data = add_label(data, "host", label)
             data = add_parameter(data, "device", label)
@@ -274,9 +279,17 @@ tags_input = os.environ.get("INPUT_TAGS", "").strip()
 if tags_input:
     env_lines.append(f"input_tags={tags_input}")
 
-env_lines.append(f"failed_first_attempt={failed_first_attempt}")
-env_lines.append(f"passed_on_rerun={passed_on_rerun_count}")
-env_lines.append(f"failed_after_retries={failed_after_retries}")
+if selected_tests is None:
+    env_lines.append(f"failed_first_attempt={failed_first_attempt}")
+    env_lines.append(f"passed_on_rerun={passed_on_rerun_count}")
+    env_lines.append(f"failed_after_retries={failed_after_retries}")
+else:
+    counts = summarize_results([info["data"] for info in latest_by_test.values()], selected_tests)
+    env_lines.extend([f"tests_selected={counts['selected']}", f"passed={counts['passed']}",
+                      f"still_unsuccessful={counts['failed']}"])
+    for name in ("skipped", "missing"):
+        if counts[name]:
+            env_lines.append(f"{name}={counts[name]}")
 
 if env_lines:
     (merged_dir / "environment.properties").write_text(

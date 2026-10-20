@@ -45,18 +45,10 @@ import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.typography
 import com.wire.android.ui.theme.WireTheme
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.toPersistentList
 import com.wire.android.ui.common.R as commonR
-
-/**
- * One entry of [CellBulkActionsBar]. [labelRes] must stay short (one word) so several actions fit on a phone;
- * [contentDescriptionRes] carries the full wording for accessibility when the label is abbreviated.
- */
-internal data class CellBulkAction(
-    @DrawableRes val iconRes: Int,
-    @StringRes val labelRes: Int,
-    val onClick: () -> Unit,
-    @StringRes val contentDescriptionRes: Int? = null,
-)
 
 /**
  * Floating pill with the actions applied to every node picked in selection mode.
@@ -64,7 +56,8 @@ internal data class CellBulkAction(
  */
 @Composable
 internal fun CellBulkActionsBar(
-    actions: List<CellBulkAction>,
+    actions: ImmutableList<CellBulkAction>,
+    onActionClick: (CellBulkAction) -> Unit,
     modifier: Modifier = Modifier,
     shape: Shape = CircleShape,
 ) {
@@ -79,18 +72,18 @@ internal fun CellBulkActionsBar(
             modifier = Modifier.padding(horizontal = dimensions().spacing12x, vertical = dimensions().spacing4x),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            actions.forEach { action -> BulkActionItem(action) }
+            actions.forEach { action -> BulkActionItem(action, onClick = { onActionClick(action) }) }
         }
     }
 }
 
 @Composable
-private fun BulkActionItem(action: CellBulkAction) {
+private fun BulkActionItem(action: CellBulkAction, onClick: () -> Unit) {
     val description = stringResource(action.contentDescriptionRes ?: action.labelRes)
     Column(
         modifier = Modifier
             .clip(CircleShape)
-            .clickable(onClick = action.onClick)
+            .clickable(onClick = onClick)
             .semantics(mergeDescendants = true) { contentDescription = description }
             .widthIn(min = dimensions().spacing64x)
             .padding(horizontal = dimensions().spacing8x, vertical = dimensions().spacing8x),
@@ -110,14 +103,29 @@ private fun BulkActionItem(action: CellBulkAction) {
     }
 }
 
+/**
+ * One entry of [CellBulkActionsBar]. [labelRes] must stay short (one word) so several actions fit on a phone;
+ * [contentDescriptionRes] carries the full wording for accessibility when the label is abbreviated.
+ *
+ * Only describes the action: what a click does is up to the screen, through `onActionClick`.
+ */
+internal enum class CellBulkAction(
+    @DrawableRes val iconRes: Int,
+    @StringRes val labelRes: Int,
+    @StringRes val contentDescriptionRes: Int? = null,
+) {
+    Move(R.drawable.ic_folder, R.string.cells_bulk_action_move),
+    Delete(commonR.drawable.ic_delete, R.string.cells_bulk_action_delete),
+    MakeAvailableOffline(R.drawable.ic_arrow_down_circle, R.string.cells_bulk_action_offline, R.string.make_available_offline_label),
+}
+
 @PreviewMultipleThemes
 @Composable
 private fun PreviewCellBulkActionsBar() {
     WireTheme {
         CellBulkActionsBar(
-            actions = listOf(
-                CellBulkAction(R.drawable.ic_folder, R.string.cells_bulk_action_move, onClick = {}),
-            )
+            actions = persistentListOf(CellBulkAction.Move),
+            onActionClick = {},
         )
     }
 }
@@ -127,16 +135,8 @@ private fun PreviewCellBulkActionsBar() {
 private fun PreviewCellBulkActionsBarAllActions() {
     WireTheme {
         CellBulkActionsBar(
-            actions = listOf(
-                CellBulkAction(R.drawable.ic_folder, R.string.cells_bulk_action_move, onClick = {}),
-                CellBulkAction(commonR.drawable.ic_delete, R.string.cells_bulk_action_delete, onClick = {}),
-                CellBulkAction(
-                    iconRes = R.drawable.ic_arrow_down_circle,
-                    labelRes = R.string.cells_bulk_action_offline,
-                    onClick = {},
-                    contentDescriptionRes = R.string.make_available_offline_label,
-                ),
-            )
+            actions = CellBulkAction.entries.toPersistentList(),
+            onActionClick = {},
         )
     }
 }

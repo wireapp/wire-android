@@ -12,7 +12,6 @@
 
 package com.wire.android.feature.cells.navigation
 
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -23,7 +22,6 @@ import androidx.compose.runtime.setValue
 import com.wire.android.audioplayer.AudioPlayer
 import com.wire.android.feature.cells.ui.CellsFilesNavigation
 import com.wire.android.feature.cells.ui.ConversationFilesRouteScreen
-import com.wire.android.feature.cells.ui.ConversationFilesSlideRouteScreen
 import com.wire.android.feature.cells.ui.addRemoveTagsViewModel
 import com.wire.android.feature.cells.ui.cellViewModel
 import com.wire.android.feature.cells.ui.create.file.CreateFileRouteScreen
@@ -57,6 +55,7 @@ import com.wire.android.pdfviewer.PdfDocumentSource
 import com.wire.android.pdfviewer.PdfViewer
 import com.wire.android.navigation.navigation3.WireNavigation3ResultType
 import com.wire.android.navigation.navigation3.WireNavigation3Runtime
+import com.wire.android.navigation.transition.currentNavAnimatedContentScope
 import com.wire.android.videoplayer.VideoPlayer
 import com.wire.navigation.WireBackStackMode
 import com.wire.navigation.WireNavResult
@@ -81,26 +80,31 @@ internal fun CellsNavigation3RouteScreen(
         if (!runtime.navigator.goBack()) onExitCells()
     }
     val filesNavigation = remember(route.entryId, runtime, onExitCells) {
-        Navigation3CellsFilesNavigation(runtime, route.sessionId, onExitCells)
+        Navigation3CellsFilesNavigation(
+            runtime = runtime,
+            sessionId = route.sessionId,
+            onExit = onExitCells,
+            onBooleanResultRequested = { booleanRequestIdValue = it?.value },
+        )
     }
 
     when (route) {
-        is ConversationFilesRoute -> AnimatedVisibility(visible = true) {
-            ConversationFilesRouteScreen(
-                navigation = filesNavigation,
-                animatedVisibilityScope = this,
-                viewModel = cellViewModel(route.args.toScreenArgs()),
-            )
-        }
+        // Root and sub folders share the screen; only the entry transition differs.
+        is ConversationFilesRoute -> ConversationFilesEntry(
+            args = route.args,
+            runtime = runtime,
+            navigation = filesNavigation,
+            createRequestIdValue = booleanRequestIdValue,
+            onCreateRequestConsumed = { booleanRequestIdValue = null },
+        )
 
-        is ConversationFilesSlideRoute -> AnimatedVisibility(visible = true) {
-            ConversationFilesSlideRouteScreen(
-                navigation = filesNavigation,
-                cellFilesNavArgs = route.args.toScreenArgs(),
-                animatedVisibilityScope = this,
-                viewModel = cellViewModel(route.args.toScreenArgs()),
-            )
-        }
+        is ConversationFilesSlideRoute -> ConversationFilesEntry(
+            args = route.args,
+            runtime = runtime,
+            navigation = filesNavigation,
+            createRequestIdValue = booleanRequestIdValue,
+            onCreateRequestConsumed = { booleanRequestIdValue = null },
+        )
 
         is RecycleBinRoute -> RecycleBinRouteScreen(
             navigation = filesNavigation,
@@ -268,44 +272,68 @@ internal fun CellsNavigation3RouteScreen(
             ),
             onNavigateBack = navigateBack,
         )
-        is SearchRoute -> AnimatedVisibility(visible = true) {
-            SearchRouteScreen(
-                navigation = filesNavigation,
-                animatedVisibilityScope = this,
-                cellViewModel = searchCellViewModel(route.toScreenArgs()),
-                searchScreenViewModel = searchScreenViewModel(route.toScreenArgs()),
-            )
-        }
+        is SearchRoute -> SearchRouteScreen(
+            navigation = filesNavigation,
+            animatedVisibilityScope = currentNavAnimatedContentScope,
+            cellViewModel = searchCellViewModel(route.toScreenArgs()),
+            searchScreenViewModel = searchScreenViewModel(route.toScreenArgs()),
+        )
     }
+}
+
+@Composable
+private fun ConversationFilesEntry(
+    args: CellsFilesArguments,
+    runtime: WireNavigation3Runtime,
+    navigation: CellsFilesNavigation,
+    createRequestIdValue: String?,
+    onCreateRequestConsumed: () -> Unit,
+) {
+    val viewModel = cellViewModel(args.toScreenArgs())
+    ConsumeNavigation3Result(
+        runtime = runtime,
+        requestIdValue = createRequestIdValue,
+        resultType = CellsBooleanNavigation3ResultType,
+        onConsumed = onCreateRequestConsumed,
+        onResult = { if (it.value) viewModel.onNodeCreated() },
+    )
+    ConversationFilesRouteScreen(
+        navigation = navigation,
+        animatedVisibilityScope = currentNavAnimatedContentScope,
+        viewModel = viewModel,
+    )
 }
 
 private class Navigation3CellsFilesNavigation(
     private val runtime: WireNavigation3Runtime,
     private val sessionId: WireSessionId,
     private val onExit: () -> Unit,
+    private val onBooleanResultRequested: (WireNavResultRequestId?) -> Unit,
 ) : CellsFilesNavigation {
     override fun back() {
         if (!runtime.navigator.goBack()) onExit()
     }
 
     override fun createFolder(parentUuid: String?) {
-        runtime.navigator.navigate(WireNavigationCommand(CreateFolderRoute(sessionId, parentUuid)))
+        runtime.navigateForResult(
+            CreateFolderRoute(sessionId, parentUuid),
+            CellsBooleanNavigation3ResultType,
+        ).also(onBooleanResultRequested)
     }
 
     override fun createFile(parentUuid: String, fileType: FileType) {
-        runtime.navigator.navigate(
-            WireNavigationCommand(
-                CreateFileRoute(
-                    sessionId,
-                    parentUuid,
-                    when (fileType) {
-                        FileType.DOCUMENT -> CellsFileType.DOCUMENT
-                        FileType.PRESENTATION -> CellsFileType.PRESENTATION
-                        FileType.SPREADSHEET -> CellsFileType.SPREADSHEET
-                    },
-                )
-            )
-        )
+        runtime.navigateForResult(
+            CreateFileRoute(
+                sessionId,
+                parentUuid,
+                when (fileType) {
+                    FileType.DOCUMENT -> CellsFileType.DOCUMENT
+                    FileType.PRESENTATION -> CellsFileType.PRESENTATION
+                    FileType.SPREADSHEET -> CellsFileType.SPREADSHEET
+                },
+            ),
+            CellsBooleanNavigation3ResultType,
+        ).also(onBooleanResultRequested)
     }
 
     override fun recycleBin(args: com.wire.android.feature.cells.ui.CellFilesNavArgs, popConsecutive: Boolean) {

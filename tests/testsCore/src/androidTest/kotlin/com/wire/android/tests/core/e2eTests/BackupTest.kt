@@ -534,7 +534,7 @@ class BackupTest : BaseUiTest() {
      */
     @Suppress("CyclomaticComplexMethod", "LongMethod")
     @TestCaseId("TC-4245")
-    @Category("regression", "RC", "backup")
+    @Category("regression", "RC", "backup", "upgrade")
     @Test
     fun givenIWantToImportABackupCreatedOnPreviousVersion_whenIImportIt_thenMessagesAreRestored() {
         val backupPassword = "A1a!".repeat(2)

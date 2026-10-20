@@ -48,17 +48,6 @@ import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.common.R as commonR
 
 /**
- * One entry of [CellBulkActionsBar]. [labelRes] must stay short (one word) so several actions fit on a phone;
- * [contentDescriptionRes] carries the full wording for accessibility when the label is abbreviated.
- */
-internal data class CellBulkAction(
-    @DrawableRes val iconRes: Int,
-    @StringRes val labelRes: Int,
-    val onClick: () -> Unit,
-    @StringRes val contentDescriptionRes: Int? = null,
-)
-
-/**
  * Floating pill with the actions applied to every node picked in selection mode.
  * Each action shows its icon above a short label, so up to ~5 actions fit on a phone.
  */
@@ -109,6 +98,17 @@ private fun BulkActionItem(action: CellBulkAction) {
         )
     }
 }
+
+/**
+ * One entry of [CellBulkActionsBar]. [labelRes] must stay short (one word) so several actions fit on a phone;
+ * [contentDescriptionRes] carries the full wording for accessibility when the label is abbreviated.
+ */
+internal data class CellBulkAction(
+    @DrawableRes val iconRes: Int,
+    @StringRes val labelRes: Int,
+    val onClick: () -> Unit,
+    @StringRes val contentDescriptionRes: Int? = null,
+)
 
 @PreviewMultipleThemes
 @Composable

@@ -21,17 +21,14 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.AnimatedVisibilityScope
-import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.EnterExitState
+import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionLayout
-import androidx.compose.animation.expandVertically
 import androidx.compose.animation.SharedTransitionScope.ResizeMode.Companion.RemeasureToBounds
 import androidx.compose.animation.core.animateDp
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.scaleIn
-import androidx.compose.animation.scaleOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
@@ -42,8 +39,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -563,29 +560,6 @@ private fun bulkActions(offlineFilesEnabled: Boolean, sendIntent: (CellViewInten
             )
         }
     }
-
-/**
- * Rolls the title up when the selection count grows and down when it shrinks, so entering selection mode
- * (0 -> 1), picking more items and leaving it (1 -> 0) all share one motion.
- */
-@Composable
-private fun SelectionAwareTitle(title: String, selectedCount: Int) {
-    AnimatedContent(
-        targetState = selectedCount,
-        contentAlignment = Alignment.Center,
-        transitionSpec = {
-            val direction = if (targetState > initialState) 1 else -1
-            (slideInVertically { height -> height * direction } + fadeIn())
-                .togetherWith(slideOutVertically { height -> -height * direction } + fadeOut())
-        },
-        label = "SelectionAwareTitle",
-    ) { count ->
-        WireTopAppBarTitle(
-            title = if (count > 0) pluralStringResource(R.plurals.cells_bulk_selection_count, count, count) else title,
-            style = MaterialTheme.wireTypography.title01,
-        )
-    }
-}
 
 /**
  * Rolls the title up when the selection count grows and down when it shrinks, so entering selection mode

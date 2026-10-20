@@ -388,6 +388,7 @@ class CellViewModel @AssistedInject constructor(
         }
     }
 
+    @Suppress("CyclomaticComplexMethod")
     internal fun sendIntent(intent: CellViewIntent) {
         when (intent) {
             is CellViewIntent.OnItemClick -> when {

@@ -29,3 +29,11 @@ Baseline: Kalium `92e54877ee318fe6c46aae3a3832e78b3b1adf8b` (ADR branch on inves
 Cross-feature paths also need individual bindings: asset audit to users; protocol/key managers to client/users; configuration sync to channels; calling handler to mute-call; logout to client/calls; loudness work to the message facade. Package names alone do not justify child graphs. A fresh facade/operation with its own captures, mutex or cached values is an actual ownership boundary.
 
 Storage and authenticated networking continue to use their existing LOCAL/GLOBAL provider policies and exact removal keys. Kotlin objects, configured external caches, Apple asynchronous preparation, background suspension, failed-cleanup quarantine and native calling shutdown keep their existing owners.
+
+## Construction wiring after simplification
+
+The internal root recipes now live in six groups: constructor aliases/cache adapters, resource factories, sync, events, deferred callbacks, and explicit factories. These are binding interfaces composed into the same user graph, not additional runtime graphs or owners. The ten numeric file groups are removed.
+
+Full-argument, exact-type constructors use `@Inject`. Only the original qualified API binding is cached where it was cached before; implicit implementation requests remain unscoped. Explicit recipes remain for omitted defaults, concrete-to-interface captures, repeated resource reads, callbacks, external/provider caches and order-sensitive construction. The four narrow owner resource/state APIs are composed through `@Includes` with their original qualified getter keys; raw function and `Lazy` values retain opaque wrappers.
+
+Unused internal entrypoints can be removed without deleting their construction bindings or changing public facades. The simplification ledger records the exact checkpoint, code reduction and fresh validation separately from the preceding migration reviews.

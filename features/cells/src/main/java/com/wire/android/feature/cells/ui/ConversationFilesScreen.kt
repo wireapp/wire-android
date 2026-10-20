@@ -17,12 +17,21 @@
  */
 package com.wire.android.feature.cells.ui
 
+import androidx.activity.compose.BackHandler
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionLayout
+import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
+import androidx.compose.animation.shrinkVertically
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -44,6 +53,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
@@ -77,8 +87,10 @@ import com.wire.android.ui.common.preview.MultipleThemePreviews
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
+import com.wire.android.ui.common.topappbar.WireTopAppBarTitle
 import com.wire.android.ui.common.topappbar.search.SearchTopBar
 import com.wire.android.ui.theme.WireTheme
+import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.permission.rememberChooseMultipleFilesFlow
 import com.wire.kalium.cells.domain.CellUploadItem
 import kotlinx.coroutines.flow.Flow
@@ -151,6 +163,8 @@ internal fun ConversationFilesRouteScreen(
         isSelfUserViewerOnly = viewModel.isSelfUserViewerOnly.collectAsState().value,
         driveDirectUploadEnabled = viewModel.driveDirectUploadEnabled,
         onViewerAccessBannerCloseClick = viewModel::onViewerAccessBannerDismissed,
+        selectedNodes = viewModel.selectedNodes.collectAsState().value,
+        isBulkSelectionEnabled = viewModel.isBulkSelectionEnabled.collectAsState().value,
     )
 
     LaunchedEffect(Unit) {
@@ -198,8 +212,15 @@ internal fun ConversationFilesScreenContent(
     uploadConfirmation: UploadConfirmation? = null,
     onConfirmUpload: () -> Unit = {},
     onCancelUploadConfirmation: () -> Unit = {},
+    selectedNodes: Map<String, CellNodeUi> = emptyMap(),
+    isBulkSelectionEnabled: Boolean = false,
 ) {
     val sharedScope = LocalSharedTransitionScope.current
+    val isSelectionMode = selectedNodes.isNotEmpty()
+
+    BackHandler(enabled = isSelectionMode) {
+        sendIntent(CellViewIntent.OnClearSelection)
+    }
 
     val newActionBottomSheetState = rememberWireModalSheetState<Unit>()
     val uploadStatusSheetState = rememberWireModalSheetState<Unit>()
@@ -221,6 +242,7 @@ internal fun ConversationFilesScreenContent(
     )
 
     val isFabVisible = when {
+        isSelectionMode -> false
         isSelfUserViewerOnly -> false
         pagingListItems.isLoading() -> false
         pagingListItems.isError() -> false
@@ -315,15 +337,30 @@ internal fun ConversationFilesScreenContent(
                             sharedContentState = rememberSharedContentState(key = SHARED_ELEMENT_TOP_APP_BAR_KEY),
                             animatedVisibilityScope = animatedVisibilityScope
                         ),
-                        onNavigationPressed = navigation::back,
-                        title = screenTitle ?: stringResource(R.string.conversation_files_title),
-                        navigationIconType = NavigationIconType.Back(),
+                        onNavigationPressed = if (isSelectionMode) {
+                            { sendIntent(CellViewIntent.OnClearSelection) }
+                        } else {
+                            navigation::back
+                        },
+                        titleContent = {
+                            SelectionAwareTitle(
+                                title = screenTitle ?: stringResource(R.string.conversation_files_title),
+                                selectedCount = selectedNodes.size,
+                            )
+                        },
+                        navigationIconType = if (isSelectionMode) {
+                            NavigationIconType.Close(R.string.cells_bulk_selection_cancel_content_description)
+                        } else {
+                            NavigationIconType.Back()
+                        },
                         elevation = dimensions().spacing0x,
+                        animateNavigationIcon = true,
                         actions = {
                             val shouldShowActionIcon =
                                 !isRecycleBin &&
                                         isOnline &&
-                                        !isSelfUserViewerOnly
+                                        !isSelfUserViewerOnly &&
+                                        !isSelectionMode
                             if (shouldShowActionIcon) {
                                 MoreOptionIcon(
                                     contentDescription = R.string.content_description_conversation_files_more_button,
@@ -333,7 +370,11 @@ internal fun ConversationFilesScreenContent(
                         }
                     )
 
-                    if (isOnline) {
+                    AnimatedVisibility(
+                        visible = isOnline && !isSelectionMode,
+                        enter = expandVertically(expandFrom = Alignment.Top) + fadeIn(),
+                        exit = shrinkVertically(shrinkTowards = Alignment.Top) + fadeOut(),
+                    ) {
                         SearchTopBar(
                             modifier = Modifier
                                 .sharedElement(
@@ -349,7 +390,9 @@ internal fun ConversationFilesScreenContent(
                                 }
                             },
                         )
+                    }
 
+                    if (isOnline) {
                         if (showViewerAccessBanner) {
                             ViewerAccessBanner(onCloseClick = onViewerAccessBannerCloseClick)
                         }
@@ -368,34 +411,32 @@ internal fun ConversationFilesScreenContent(
                 }
             },
             floatingActionButton = {
-                if (isFabVisible) {
-                    AnimatedVisibility(
-                        visible = true,
-                        enter = fadeIn(),
-                        exit = fadeOut(),
-                    ) {
-                        FloatingActionButton(
-                            modifier = Modifier.padding(
-                                bottom = if (uploads.isNotEmpty()) dimensions().spacing72x else dimensions().spacing0x
-                            ),
-                            text = stringResource(R.string.cells_new_label),
-                            icon = {
-                                Image(
-                                    painter = painterResource(id = com.wire.android.ui.common.R.drawable.ic_plus),
-                                    contentDescription = stringResource(R.string.cells_new_label_content_description),
-                                    contentScale = ContentScale.FillBounds,
-                                    colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onPrimary),
-                                    modifier = Modifier
-                                        .padding(
-                                            start = dimensions().spacing4x,
-                                            top = dimensions().spacing2x
-                                        )
-                                        .size(dimensions().fabIconSize)
-                                )
-                            },
-                            onClick = { newActionBottomSheetState.show() }
-                        )
-                    }
+                AnimatedVisibility(
+                    visible = isFabVisible,
+                    enter = scaleIn() + fadeIn(),
+                    exit = scaleOut() + fadeOut(),
+                ) {
+                    FloatingActionButton(
+                        modifier = Modifier.padding(
+                            bottom = if (uploads.isNotEmpty()) dimensions().spacing72x else dimensions().spacing0x
+                        ),
+                        text = stringResource(R.string.cells_new_label),
+                        icon = {
+                            Image(
+                                painter = painterResource(id = com.wire.android.ui.common.R.drawable.ic_plus),
+                                contentDescription = stringResource(R.string.cells_new_label_content_description),
+                                contentScale = ContentScale.FillBounds,
+                                colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onPrimary),
+                                modifier = Modifier
+                                    .padding(
+                                        start = dimensions().spacing4x,
+                                        top = dimensions().spacing2x
+                                    )
+                                    .size(dimensions().fabIconSize)
+                            )
+                        },
+                        onClick = { newActionBottomSheetState.show() }
+                    )
                 }
             },
         ) { innerPadding ->
@@ -442,6 +483,8 @@ internal fun ConversationFilesScreenContent(
                     onRefresh = onRefresh,
                     fileReadyFlow = fileReadyFlow,
                     sortBy = sortingCriteria.by,
+                    selectedNodeIds = selectedNodes.keys,
+                    isSelectionEnabled = isBulkSelectionEnabled,
                 )
                 UploadStatusIndicator(
                     uploads = uploads,
@@ -451,6 +494,29 @@ internal fun ConversationFilesScreenContent(
                 )
             }
         }
+    }
+}
+
+/**
+ * Rolls the title up when the selection count grows and down when it shrinks, so entering selection mode
+ * (0 -> 1), picking more items and leaving it (1 -> 0) all share one motion.
+ */
+@Composable
+private fun SelectionAwareTitle(title: String, selectedCount: Int) {
+    AnimatedContent(
+        targetState = selectedCount,
+        contentAlignment = Alignment.Center,
+        transitionSpec = {
+            val direction = if (targetState > initialState) 1 else -1
+            (slideInVertically { height -> height * direction } + fadeIn())
+                .togetherWith(slideOutVertically { height -> -height * direction } + fadeOut())
+        },
+        label = "SelectionAwareTitle",
+    ) { count ->
+        WireTopAppBarTitle(
+            title = if (count > 0) pluralStringResource(R.plurals.cells_bulk_selection_count, count, count) else title,
+            style = MaterialTheme.wireTypography.title01,
+        )
     }
 }
 

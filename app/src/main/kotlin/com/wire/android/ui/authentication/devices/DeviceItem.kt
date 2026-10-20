@@ -65,7 +65,7 @@ import com.wire.android.util.extension.formatAsFingerPrint
 import com.wire.android.util.extension.formatAsString
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.UIText
-import kotlinx.datetime.Instant
+import kotlin.time.Instant
 
 const val DEVICE_ITEM_TEST_TAG = "device_item"
 

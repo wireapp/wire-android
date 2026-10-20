@@ -18,6 +18,7 @@
 package com.wire.android.tests.core.criticalFlows
 
 import InbucketClient
+import android.view.KeyEvent
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.wire.android.tests.core.BaseUiTest
 import com.wire.android.tests.support.UiAutomatorSetup
@@ -91,13 +92,13 @@ class PersonalAccountLifeCycle : BaseUiTest() {
             pages.registrationPage.apply {
                 enterFirstName(personalUser?.name.orEmpty())
                 enterPassword(personalUser?.password.orEmpty())
-                closeKeyboardIfOpened()
+                closeKeyboardIfVisible()
                 enterConfirmPassword(personalUser?.password.orEmpty())
                 clickShowPasswordEyeIcon()
-                closeKeyboardIfOpened()
+                closeKeyboardIfVisible()
                 verifyConfirmPasswordIsCorrect(personalUser?.password.orEmpty())
                 clickHidePasswordEyeIcon()
-                closeKeyboardIfOpened()
+                closeKeyboardIfVisible()
                 checkIAgreeToShareAnonymousUsageData()
                 clickContinueButton()
 
@@ -231,6 +232,17 @@ class PersonalAccountLifeCycle : BaseUiTest() {
                 tapContinueButtonOnDeleteAccountConfirmationModal()
                 assertDeleteAccountConfirmationModalIsNoLongerVisible()
             }
+        }
+    }
+
+    private fun closeKeyboardIfVisible() {
+        device.waitForIdle()
+        val keyboardShown = device.executeShellCommand("dumpsys window visible")
+            .lineSequence()
+            .any { it.contains("Window #") && it.contains("InputMethod") }
+        if (keyboardShown) {
+            device.pressKeyCode(KeyEvent.KEYCODE_ESCAPE)
+            device.waitForIdle()
         }
     }
 }

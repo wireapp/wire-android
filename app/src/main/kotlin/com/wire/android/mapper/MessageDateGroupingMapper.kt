@@ -17,8 +17,8 @@
  */
 package com.wire.android.mapper
 
-import kotlinx.datetime.Instant
-import kotlinx.datetime.toJavaInstant
+import kotlin.time.Instant
+import kotlin.time.toJavaInstant
 import java.time.LocalDate
 import java.time.ZoneId
 import java.util.Calendar

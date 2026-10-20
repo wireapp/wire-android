@@ -233,6 +233,7 @@ class ConversationListFilterTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "Messaging", backendClient)
         }
 
         step("And User user1Name adds user2Name to team Messaging with role Member") {
@@ -247,12 +248,19 @@ class ConversationListFilterTests : BaseUiTest() {
             )
         }
 
+        step("And MLS devices are registered for all participants") {
+            testServiceHelper.apply {
+                addDevice("user1Name", null, "Device1")
+                addDevice("user2Name", null, "Device1")
+            }
+        }
+
         step("And User user1Name has group conversation $groupConversationName with user2Name") {
-            backendSetupHelper.userHasGroupConversationInTeam(
-                "user1Name",
-                groupConversationName,
-                "user2Name",
-                "Messaging"
+            testServiceHelper.userCreatesMLSGroupConversation(
+                ownerAlias = "user1Name",
+                participantAliases = "user2Name",
+                conversationName = groupConversationName,
+                deviceName = "Device1"
             )
         }
 

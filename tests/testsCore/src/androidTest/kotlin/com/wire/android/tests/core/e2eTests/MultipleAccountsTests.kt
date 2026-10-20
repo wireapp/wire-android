@@ -60,6 +60,7 @@ class MultipleAccountsTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "MultiAccount", backendClient)
         }
 
         step("And User TeamOwner adds users Member1 and Member2 to team MultiAccount with role Member") {
@@ -138,6 +139,7 @@ class MultipleAccountsTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "MultiAccount", backendClient)
         }
 
         step("And User TeamOwner adds users Member1 and Member2 to team MultiAccount with role Member") {
@@ -290,6 +292,7 @@ class MultipleAccountsTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "TeamStaging", backendClient)
         }
 
         step("And User TeamOwnerStaging adds MemberStaging to team TeamStaging with role Member") {
@@ -313,6 +316,7 @@ class MultipleAccountsTests : BaseUiTest() {
                 antaBackend,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user2Name", "TeamAnta", antaBackend)
         }
 
         step("And User TeamOwnerAnta adds MemberAnta to team TeamAnta with role Member") {
@@ -336,6 +340,7 @@ class MultipleAccountsTests : BaseUiTest() {
                 bellaBackend,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user3Name", "TeamBella", bellaBackend)
         }
 
         step("And User TeamOwnerBella adds MemberBella to team TeamBella with role Member") {

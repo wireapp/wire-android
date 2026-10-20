@@ -17,8 +17,9 @@
  */
 package com.wire.android.feature.cells.ui
 
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -36,6 +37,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -70,6 +72,8 @@ internal fun CellFilesScreen(
     showConversationName: Boolean = true,
     showViewerOnlyIcon: Boolean = false,
     sortBy: SortBy = SortBy.Default,
+    selectedNodeIds: Set<String> = emptySet(),
+    onItemLongClick: ((CellNodeUi) -> Unit)? = null,
     onItemMenuClick: (CellNodeUi) -> Unit
 ) {
     if (isPullToRefreshEnabled) {
@@ -86,6 +90,8 @@ internal fun CellFilesScreen(
                 showConversationName = showConversationName,
                 showViewerOnlyIcon = showViewerOnlyIcon,
                 sortBy = sortBy,
+                selectedNodeIds = selectedNodeIds,
+                onItemLongClick = onItemLongClick,
             )
         }
     } else {
@@ -98,6 +104,8 @@ internal fun CellFilesScreen(
             showConversationName = showConversationName,
             showViewerOnlyIcon = showViewerOnlyIcon,
             sortBy = sortBy,
+            selectedNodeIds = selectedNodeIds,
+            onItemLongClick = onItemLongClick,
         )
     }
 }
@@ -112,7 +120,10 @@ private fun ContentList(
     showConversationName: Boolean = true,
     showViewerOnlyIcon: Boolean = false,
     sortBy: SortBy = SortBy.Default,
+    selectedNodeIds: Set<String> = emptySet(),
+    onItemLongClick: ((CellNodeUi) -> Unit)? = null,
 ) {
+    val isSelectionMode = selectedNodeIds.isNotEmpty()
     LazyColumn(
         modifier = modifier.fillMaxWidth(),
         state = lazyListState,
@@ -125,15 +136,25 @@ private fun ContentList(
         ) { index ->
 
             cellNodes[index]?.let { item ->
+                val isSelected = item.uuid in selectedNodeIds
+                val backgroundColor by animateColorAsState(
+                    targetValue = if (isSelected) colorsScheme().primaryVariant else colorsScheme().surface,
+                    label = "CellListItemBackground",
+                )
                 CellListItem(
                     modifier = Modifier
                         .animateItem()
-                        .background(color = colorsScheme().surface)
-                        .clickable { onItemClick(item) },
+                        .background(color = backgroundColor)
+                        .combinedClickable(
+                            onClick = { onItemClick(item) },
+                            onLongClick = onItemLongClick?.let { { it(item) } },
+                        ),
                     cell = item,
                     showConversationName = showConversationName,
                     showViewerOnlyIcon = showViewerOnlyIcon,
                     sortBy = sortBy,
+                    isSelectionMode = isSelectionMode,
+                    isSelected = isSelected,
                     onMenuClick = { onItemMenuClick(item) }
                 )
                 WireDivider(modifier = Modifier.fillMaxWidth())

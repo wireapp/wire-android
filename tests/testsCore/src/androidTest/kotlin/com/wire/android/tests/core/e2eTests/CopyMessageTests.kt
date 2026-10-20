@@ -166,6 +166,7 @@ class CopyMessageTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "CopyCats", backendClient)
         }
 
         step("And User user1Name adds user user2Name to team CopyCats with role Member") {
@@ -180,17 +181,20 @@ class CopyMessageTests : BaseUiTest() {
             )
         }
 
-        step("And User user1Name has group conversation CopyMe with user2Name") {
-            backendSetupHelper.userHasGroupConversationInTeam(
-                "user1Name",
-                "CopyMe",
-                "user2Name",
-                "CopyCats"
-            )
+        step("And MLS devices are registered for all participants") {
+            testServiceHelper.apply {
+                addDevice("user1Name", null, "Device1")
+                addDevice("user2Name", null, "Device1")
+            }
         }
 
-        step("And User user2Name adds a new device Device1 with label Device1") {
-            testServiceHelper.addDevice("user2Name", null, "Device1")
+        step("And User user1Name creates MLS group conversation CopyMe with user2Name") {
+            testServiceHelper.userCreatesMLSGroupConversation(
+                ownerAlias = "user1Name",
+                participantAliases = "user2Name",
+                conversationName = "CopyMe",
+                deviceName = "Device1"
+            )
         }
 
         step("And User user1Name is me") {

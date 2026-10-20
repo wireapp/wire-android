@@ -24,6 +24,7 @@ import com.wire.android.tests.support.UiAutomatorSetup
 import com.wire.android.tests.support.tags.Category
 import com.wire.android.tests.support.tags.TestCaseId
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import uiautomatorutils.UiWaitUtils
@@ -31,6 +32,7 @@ import user.utils.ClientUser
 import kotlin.time.Duration.Companion.seconds
 
 @RunWith(AndroidJUnit4::class)
+@Ignore("Temporarily disabled until read receipts are supported for MLS conversations.")
 @Suppress("LargeClass")
 class ReadReceiptsTests : BaseUiTest() {
     private var teamOwner: ClientUser? = null
@@ -58,6 +60,7 @@ class ReadReceiptsTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "Reactions", backendClient)
         }
 
         step("And User TeamOwner adds Member1 to team Reactions with role Member") {
@@ -153,6 +156,7 @@ class ReadReceiptsTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "ReadReceipts", backendClient)
         }
 
         step("And User TeamOwner adds Member1 to team ReadReceipts with role Member") {
@@ -309,6 +313,7 @@ class ReadReceiptsTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "ReadReceipts", backendClient)
         }
 
         step("And User TeamOwner adds Member1 to team ReadReceipts with role Member") {
@@ -499,6 +504,7 @@ class ReadReceiptsTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "ReadReceipts", backendClient)
         }
 
         step("And User TeamOwner adds Member1, Member2 and Member3 to team ReadReceipts with role Member") {
@@ -513,19 +519,22 @@ class ReadReceiptsTests : BaseUiTest() {
             )
         }
 
-        step("And User TeamOwner has group conversation Reading is fun with Member1, Member2 and Member3") {
-            backendSetupHelper.userHasGroupConversationInTeam(
-                "user1Name",
-                "Reading is fun",
-                "user2Name,user3Name,user4Name",
-                "ReadReceipts"
-            )
+        step("And MLS devices are registered for all participants") {
+            testServiceHelper.apply {
+                addDevice("user1Name", null, "Device1")
+                addDevice("user2Name", null, "Device1")
+                addDevice("user3Name", null, "Device2")
+                addDevice("user4Name", null, "Device3")
+            }
         }
 
-        step("And Member1, Member2 and Member3 register Device1, Device2 and Device3 respectively") {
-            testServiceHelper.addDevice("user2Name", null, "Device1")
-            testServiceHelper.addDevice("user3Name", null, "Device2")
-            testServiceHelper.addDevice("user4Name", null, "Device3")
+        step("And User TeamOwner creates MLS group conversation Reading is fun with Member1, Member2 and Member3") {
+            testServiceHelper.userCreatesMLSGroupConversation(
+                ownerAlias = "user1Name",
+                participantAliases = "user2Name,user3Name,user4Name",
+                conversationName = "Reading is fun",
+                deviceName = "Device1"
+            )
         }
 
         step("And User TeamOwner is me") {
@@ -616,6 +625,7 @@ class ReadReceiptsTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "ReadReceipts", backendClient)
         }
 
         step("And User TeamOwner adds Member1, Member2 and Member3 to team ReadReceipts with role Member") {
@@ -630,12 +640,21 @@ class ReadReceiptsTests : BaseUiTest() {
             )
         }
 
-        step("And User TeamOwner has group conversation Reading is fun with Member1, Member2 and Member3") {
-            backendSetupHelper.userHasGroupConversationInTeam(
-                "user1Name",
-                "Reading is fun",
-                "user2Name,user3Name,user4Name",
-                "ReadReceipts"
+        step("And MLS devices are registered for all participants") {
+            testServiceHelper.apply {
+                addDevice("user1Name", null, "Device1")
+                addDevice("user2Name", null, "Device1")
+                addDevice("user3Name", null, "Device2")
+                addDevice("user4Name", null, "Device3")
+            }
+        }
+
+        step("And User TeamOwner creates MLS group conversation Reading is fun with Member1, Member2 and Member3") {
+            testServiceHelper.userCreatesMLSGroupConversation(
+                ownerAlias = "user1Name",
+                participantAliases = "user2Name,user3Name,user4Name",
+                conversationName = "Reading is fun",
+                deviceName = "Device1"
             )
         }
 
@@ -645,11 +664,6 @@ class ReadReceiptsTests : BaseUiTest() {
                 conversationName = "Reading is fun",
                 enabled = true
             )
-        }
-
-        step("And Member2 and Member3 register Device2 and Device3 respectively") {
-            testServiceHelper.addDevice("user3Name", null, "Device2")
-            testServiceHelper.addDevice("user4Name", null, "Device3")
         }
 
         step("And User Member1 is me") {

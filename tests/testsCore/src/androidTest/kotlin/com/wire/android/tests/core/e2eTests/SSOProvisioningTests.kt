@@ -69,6 +69,7 @@ class SSOProvisioningTests : BaseUiTest() {
                     keycloakApiClient
                 )
             }
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "ResetPassword", backendClient)
         }
 
         step("And User TeamOwner is available") {
@@ -136,7 +137,7 @@ class SSOProvisioningTests : BaseUiTest() {
 
         step("And I wait until I am fully logged in") {
             pages.registrationPage.apply {
-                waitUntilLoginFlowIsCompleted()
+                waitUntilSsoLoginFlowIsCompleted()
                 clickAllowNotificationButton()
             }
         }
@@ -177,6 +178,7 @@ class SSOProvisioningTests : BaseUiTest() {
                     keycloakApiClient
                 )
             }
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "ChangeUserName", backendClient)
         }
 
         step("And User TeamOwner is available") {
@@ -235,7 +237,12 @@ class SSOProvisioningTests : BaseUiTest() {
         }
 
         step("And I dismiss post-login prompts and wait for conversation list") {
-            pages.registrationPage.waitUntilConversationPageVisibleDismissingPostLoginPrompts()
+            pages.registrationPage.apply {
+                waitUntilSsoLoginFlowIsCompleted()
+                clickAllowNotificationButton()
+                clickDeclineShareDataAlert()
+                assertConversationPageVisible()
+            }
         }
 
         step("And I open Account Details from conversation list menu") {

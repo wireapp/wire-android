@@ -133,6 +133,7 @@ fun EnabledMessageComposer(
     val navBarHeight = bottomNavigationBarHeight()
     val isImeVisible = WindowInsets.isImeVisible
     val isHardwareKeyboardConnected = isHardwareKeyboardConnected()
+    val useAttachmentKeyboardNavigation = isHardwareKeyboardConnected && !isImeVisible
     val keyboardControlsVisible = isImeVisible || isHardwareKeyboardConnected
     val offsetY = WindowInsets.ime.getBottom(density)
     val imeAnimationTarget = WindowInsets.imeAnimationTarget.getBottom(density)
@@ -142,6 +143,27 @@ fun EnabledMessageComposer(
 
     with(messageComposerStateHolder) {
         val inputStateHolder = messageCompositionInputStateHolder
+        // Keep activity-result and permission launchers registered after the popup closes.
+        val attachmentOptions = buildAttachmentOptionItems(
+            isFileSharingEnabled = messageComposerViewState.value.isFileSharingEnabled,
+            areAttachmentOptionsEnabled = messageComposerViewState.value.areAttachmentOptionsEnabled ||
+                    !BuildConfig.DRIVE_PERMISSIONS_ENABLED,
+            tempWritableImageUri = tempWritableImageUri,
+            tempWritableVideoUri = tempWritableVideoUri,
+            onImagesPicked = { onImagesPicked(it, false) },
+            onFilePicked = onAttachmentPicked,
+            onDismissAttachmentOptions = { showAttachments(false) },
+            onRecordAudioMessageClicked = {
+                if (!messageComposerViewState.value.isCallOngoing) {
+                    toAudioRecording()
+                } else {
+                    showAttachments(false)
+                    showRecordNotAllowedMessage(context)
+                }
+            },
+            onLocationPickerClicked = onLocationClicked,
+            onPermissionPermanentlyDenied = onPermissionPermanentlyDenied,
+        )
         val mentionListFirstFocusRequester = remember { FocusRequester() }
         var focusMentionListOnOpen by remember { mutableStateOf(false) }
         val mentionSearchResult = messageComposerViewState.value.mentionSearchResult
@@ -191,6 +213,9 @@ fun EnabledMessageComposer(
                     targetValue = 0f,
                     animationSpec = tween(durationMillis = 400)
                 )
+                if (additionalOptionStateHolder.additionalOptionsSubMenuState == AdditionalOptionSubMenuState.RecordAudio) {
+                    toInitialAttachmentOptions()
+                }
                 hideRipple = false
             }
         }
@@ -462,7 +487,7 @@ fun EnabledMessageComposer(
                 Popup(
                     alignment = Alignment.BottomCenter,
                     properties = PopupProperties(
-                        focusable = isHardwareKeyboardConnected,
+                        focusable = useAttachmentKeyboardNavigation,
                         dismissOnBackPress = true,
                         dismissOnClickOutside = true
                     ),
@@ -516,27 +541,12 @@ fun EnabledMessageComposer(
 
                     ) {
                         AdditionalOptionSubMenu(
+                            attachmentOptions = attachmentOptions,
                             optionsVisible = inputStateHolder.optionsVisible,
-                            isFileSharingEnabled = messageComposerViewState.value.isFileSharingEnabled,
-                            areAttachmentOptionsEnabled = messageComposerViewState.value.areAttachmentOptionsEnabled ||
-                                    !BuildConfig.DRIVE_PERMISSIONS_ENABLED,
                             additionalOptionsState = additionalOptionStateHolder.additionalOptionsSubMenuState,
-                            onRecordAudioMessageClicked = {
-                                if (!messageComposerViewState.value.isCallOngoing) {
-                                    toAudioRecording()
-                                } else {
-                                    showRecordNotAllowedMessage(context)
-                                }
-                            },
-                            onCloseAdditionalAttachment = ::toInitialAttachmentOptions,
-                            onLocationPickerClicked = onLocationClicked,
-                            onImagesPicked = { onImagesPicked(it, false) },
-                            onAttachmentPicked = onAttachmentPicked,
+                            onCloseAdditionalAttachment = { showAttachments(false) },
                             onAudioRecorded = onAudioRecorded,
-                            onPermissionPermanentlyDenied = onPermissionPermanentlyDenied,
-                            tempWritableImageUri = tempWritableImageUri,
-                            tempWritableVideoUri = tempWritableVideoUri,
-                            useKeyboardNavigation = isHardwareKeyboardConnected,
+                            useKeyboardNavigation = useAttachmentKeyboardNavigation,
                             modifier = Modifier.fillMaxSize()
                         )
                     }

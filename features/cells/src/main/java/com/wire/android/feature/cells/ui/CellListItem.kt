@@ -87,7 +87,7 @@ import com.wire.android.util.FileSizeFormatter
 import com.wire.android.util.cellFileDateTime
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.filter
-import kotlinx.datetime.Instant
+import kotlin.time.Instant
 import okio.Path.Companion.toOkioPath
 import kotlin.io.path.Path
 import com.wire.android.ui.common.R as commonR

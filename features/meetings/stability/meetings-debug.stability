@@ -117,7 +117,7 @@ private fun com.wire.android.feature.meetings.ui.create.SelectButton(onClick: ko
     - elevation: STABLE (marked @Stable or @Immutable)
 
 @Composable
-private fun com.wire.android.feature.meetings.ui.create.TimeInput(time: kotlinx.datetime.Instant, timeError: com.wire.android.feature.meetings.ui.create.NewMeetingState.TimeError?, onTimeChanged: kotlin.Function1<kotlinx.datetime.Instant, kotlin.Unit>, label: kotlin.String, datePlaceholder: kotlin.String, timePlaceholder: kotlin.String, dateInputDisabled: kotlin.Boolean): kotlin.Unit
+private fun com.wire.android.feature.meetings.ui.create.TimeInput(time: kotlin.time.Instant, timeError: com.wire.android.feature.meetings.ui.create.NewMeetingState.TimeError?, onTimeChanged: kotlin.Function1<kotlin.time.Instant, kotlin.Unit>, label: kotlin.String, datePlaceholder: kotlin.String, timePlaceholder: kotlin.String, dateInputDisabled: kotlin.Boolean): kotlin.Unit
   skippable: true
   restartable: true
   params:
@@ -276,7 +276,7 @@ private fun com.wire.android.feature.meetings.ui.list.MeetingOngoingAttendingRow
     - returnToCall: STABLE (function type)
 
 @Composable
-private fun com.wire.android.feature.meetings.ui.list.MeetingStartingInPrimaryBodyText(startTime: kotlinx.datetime.Instant): kotlin.Unit
+private fun com.wire.android.feature.meetings.ui.list.MeetingStartingInPrimaryBodyText(startTime: kotlin.time.Instant): kotlin.Unit
   skippable: true
   restartable: true
   params:
@@ -321,7 +321,7 @@ internal fun com.wire.android.feature.meetings.ui.list.VideoCallIcon(tint: andro
     - modifier: STABLE (marked @Stable or @Immutable)
 
 @Composable
-private fun com.wire.android.feature.meetings.ui.list.getDateHeaderString(time: kotlinx.datetime.Instant, displayTimeZone: kotlinx.datetime.TimeZone): kotlin.String
+private fun com.wire.android.feature.meetings.ui.list.getDateHeaderString(time: kotlin.time.Instant, displayTimeZone: kotlinx.datetime.TimeZone): kotlin.String
   skippable: true
   restartable: true
   params:

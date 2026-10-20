@@ -88,6 +88,7 @@
     </plurals>
     <string name="cells_upload_status_subtitle_queued">Waiting…</string>
     <string name="cells_upload_status_subtitle_uploading">Uploading…</string>
+    <string name="cells_upload_status_subtitle_paused">Waiting for network…</string>
     <string name="cells_upload_status_subtitle_completed_with_size">Uploaded %1$s</string>
     <string name="cells_upload_status_subtitle_failed">Couldn\'t upload file</string>
     <string name="cells_upload_status_subtitle_cancelled">Canceled</string>
@@ -296,4 +297,9 @@
     <string name="cells_video_mute">Mute</string>
     <string name="cells_video_unmute">Unmute</string>
     <string name="cells_video_loading">Loading video</string>
+    <plurals name="cells_bulk_selection_count">
+        <item quantity="one">%1$d selected</item>
+        <item quantity="other">%1$d selected</item>
+    </plurals>
+    <string name="cells_bulk_selection_cancel_content_description">Cancel selection</string>
 </resources>

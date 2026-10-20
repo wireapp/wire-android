@@ -110,6 +110,8 @@ internal fun CellScreenContent(
     showUploadStatusBottomSheet: () -> Unit = {},
     fileReadyFlow: Flow<CellNodeUi.File>? = emptyFlow(),
     sortBy: SortBy = SortBy.Default,
+    selectedNodeIds: Set<String> = emptySet(),
+    isSelectionEnabled: Boolean = false,
 ) {
 
     val context = LocalContext.current
@@ -156,6 +158,12 @@ internal fun CellScreenContent(
                 showConversationName = showsConversationName(isOffline, isAllFiles, isRecycleBin, isSearchResult),
                 showViewerOnlyIcon = showViewerOnlyIcon,
                 sortBy = sortBy,
+                selectedNodeIds = selectedNodeIds,
+                onItemLongClick = if (isSelectionEnabled) {
+                    { sendIntent(CellViewIntent.OnItemLongClick(it)) }
+                } else {
+                    null
+                },
             )
     }
 

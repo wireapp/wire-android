@@ -14,6 +14,11 @@ public class Smoke {
     public static void main(String[] args) throws Exception {
         Probe.provenance();
         String test = System.getProperty("smoke.case", "normal");
+        if (test.equals("control")) {
+            Probe.verifyCallbacks(CallbackSubject.class, () -> new Object[] {new CallbackSubject(), new CallbackSubject()});
+            check(Probe.retainedIdentityReferences() == 0, "callback control retained identities");
+            Probe.finish(); return;
+        }
         if (test.equals("limit")) {
             boolean rejected = false;
             try { Probe.measure("standalone_identity_limit", 0, false, () -> { new Subject(); new Subject(); new Subject(); return null; }); }
@@ -68,6 +73,10 @@ public class Smoke {
         Probe.finish();
         rejected(() -> Probe.begin("after_finish", 4, false));
         check(Probe.retainedIdentityReferences() == 0, "finished probe retained references");
+    }
+    public static class CallbackSubject {
+        private CallbackSubject(int marker) { }
+        public CallbackSubject() { this(1); }
     }
     public static class Base {
         public Base() { }

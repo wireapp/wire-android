@@ -20,12 +20,14 @@ gradle.beforeProject { p ->
                     t.maxParallelForks = 1
                     t.forkEvery = 1
                     t.outputs.upToDateWhen { false }
+                    t.outputs.cacheIf { false }
                     t.filter { includeTestsMatching('com.wire.android.di.metro.WireKaliumMeasurementTest') }
                     t.jvmArgs('-Xbootclasspath/a:' + cfg.probe)
                     if (cfg.pass == 'constructors') t.jvmArgs('-javaagent:' + cfg.agent + '=' + cfg.selection)
                     t.systemProperty('metro.measure.output', cfg.output)
                     t.systemProperty('metro.measure.pass', cfg.pass)
                     t.systemProperty('metro.measure.scenario', cfg.scenario)
+                    t.systemProperty('metro.measure.controlOnly', (cfg.controlOnly ?: false).toString())
                     ['warmups', 'repetitions', 'warmVms', 'observationMs', 'identityLimit'].each { key ->
                         t.systemProperty('metro.measure.' + key, cfg[key].toString())
                     }

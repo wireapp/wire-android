@@ -50,6 +50,15 @@ def validate_sample_units(row):
     for field in ['constructor_entries_all_threads','constructor_entries_caller_thread']:
         require(isinstance(row.get(field),dict) and all(type(v) is int and v>=0 for v in row[field].values()), 'Invalid ENTRY callback counts')
 
+def validate_callback_control(row):
+    validate_sample_units(row)
+    if row.get('type')!='callback_control' or row.get('phase')!='robolectric_callback_control' or not row.get('success'):
+        raise ValueError('Missing/failed pre-setup callback control')
+    if row['pass']=='constructors' and (sum(row['constructor_entries_all_threads'].values())!=4
+            or sum(row['constructor_entries_caller_thread'].values())!=4
+            or row[IDENTITY_ALL]!=2 or row[IDENTITY_CALLER]!=2):
+        raise ValueError('Robolectric callback control counts/identities missing')
+
 def identity_report(rows):
     by_name=[]
     for row in rows:
@@ -75,6 +84,7 @@ def identity_report(rows):
 def summarize(root):
     root=pathlib.Path(root).resolve()
     run=json.loads((root/'run.json').read_text()); cfg=run['config']
+    if cfg.get('controlOnly'): raise ValueError('Callback-control-only execution is not a measurement cohort')
     phases=PHASES if cfg['scenario']=='vm' else ['cold_session_get_or_create','mandatory_startup_observation_no_vm']
     if not run.get('complete'): raise ValueError('Run did not complete: '+str(root))
     observations=[]; coverage=[]; jvms=[]
@@ -93,9 +103,15 @@ def summarize(root):
         meta=rows[-1]; jvms.append(meta)
         if meta.get('metric_schema')!=2 or not meta['bootstrap_probe'] or meta['pass']!=cfg['pass'] or meta['transform_errors'] or meta.get('counter_errors') or meta.get('retained_identity_references')!=0:
             raise ValueError('Probe/transform failure: '+str(fork))
+        if meta.get('callback_control_passed') is not True or meta.get('callback_control_loader')!='org.robolectric.internal.AndroidSandbox$SdkSandboxClassLoader':
+            raise ValueError('Missing successful real-Robolectric callback control: '+str(fork))
         coverage.append(meta['coverage'])
         if cfg['pass']=='constructors' and not any(x.startswith('com.wire.kalium.logic.feature.UserSessionScope#<init>') for x in meta['coverage']):
             raise ValueError('No instrumented UserSessionScope constructor: '+str(fork))
+        controls=[x for x in rows if x['type']=='callback_control']
+        if len(controls)!=1 or not controls[0]['success'] or controls[0]['pass']!=cfg['pass']:
+            raise ValueError('Expected one successful pre-setup Robolectric callback control: '+str(fork))
+        validate_callback_control(controls[0])
         samples=[x for x in rows if x['type']=='sample']
         for row in samples: validate_sample_units(row)
         expected_count=(cfg['warmups']+cfg['repetitions'])*(cfg['warmVms']+4 if cfg['scenario']=='vm' else 2)

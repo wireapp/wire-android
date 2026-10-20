@@ -26,10 +26,10 @@ hashfile = lambda p: hashlib.sha256(p.read_bytes()).hexdigest()
 if a.smoke:
     smoke = OUTPUT/'smoke'; smoke.mkdir(parents=True, exist_ok=True)
     selection = smoke/'selection.txt'
-    selection.write_text('\n'.join('smoke.Smoke$'+name for name in ['Base','Subject','PlainFail','OuterFail','DelegatingOuterFail','ThrowingBase','ChildOfThrowingBase'])+'\n')
+    selection.write_text('\n'.join('smoke.Smoke$'+name for name in ['Base','Subject','PlainFail','OuterFail','DelegatingOuterFail','ThrowingBase','ChildOfThrowingBase','CallbackSubject'])+'\n')
     subprocess.run([str(java_home/'bin/javac'), '--release', '17', '-cp', str(build/'probe.jar'), '-d', str(smoke/'classes'), str(HERE/'smoke/Smoke.java')], check=True)
     def execute(mode, case='normal'):
-        out = smoke/(mode if case == 'normal' else case)
+        out = smoke/(mode if case == 'normal' else mode+'-control' if case == 'control' else case)
         if out.exists(): shutil.rmtree(out) # ONLY generated standalone self-test outputs.
         cmd = [str(java_home/'bin/java'), '-Xverify:all', '-Xbootclasspath/a:'+str(build/'probe.jar'), '-Dmetro.measure.output='+str(out), '-Dsmoke.case='+case]
         if mode == 'constructors': cmd += ['-javaagent:'+str(build/'constructors-agent.jar')+'='+str(selection)]
@@ -40,6 +40,10 @@ if a.smoke:
         assert not rows[-1]['transform_errors']
         return rows
     for mode in ['timing', 'constructors']:
+        control = execute(mode, 'control')
+        check = next(r for r in control if r['type'] == 'callback_control')
+        assert check['success'] and check['retained_identity_references_after_end'] == 0
+        assert check['constructor_return_unique_identities_all_threads'] == (2 if mode == 'constructors' else None)
         rows = execute(mode)
         assert not rows[-1]['counter_errors']
         samples = {r['phase']:r for r in rows if r['type']=='sample'}

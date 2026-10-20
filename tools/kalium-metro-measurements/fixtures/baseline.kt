@@ -1,5 +1,5 @@
 /* Ignored measurement fixture, derived from the verified WireKaliumConsumerIntegrationTest.
- * Parent stages exactly one API variant; this file has not been Gradle-compiled by its author.
+ * Parent stages exactly one API variant; verification belongs to that exact staged snapshot.
  */
 // The harness and source manifest intentionally address this lowercase template filename.
 @file:Suppress("Filename")
@@ -92,14 +92,16 @@ import org.junit.Assert.assertSame
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.junit.runners.model.FrameworkMethod
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.Implementation
 import org.robolectric.annotation.Implements
 import org.robolectric.annotation.SQLiteMode
+import org.robolectric.internal.bytecode.InstrumentationConfiguration
 
-@RunWith(RobolectricTestRunner::class)
+@RunWith(WireKaliumMeasurementRunner::class)
 @Config(
     application = Application::class,
     sdk = [34],
@@ -120,6 +122,11 @@ class WireKaliumMeasurementTest {
         require(warmups >= 0 && repetitions > 0 && warmVms > 0 && observationMs >= 0)
         val startupOnly = System.getProperty("metro.measure.scenario", "vm") == "startup-only"
         Meter.provenance()
+        Meter.verifyCallbacks()
+        if (java.lang.Boolean.getBoolean("metro.measure.controlOnly")) {
+            Meter.finish()
+            return@runBlocking
+        }
         mockkObject(WorkManager.Companion)
         measurementFinally({
             every { WorkManager.getInstance(any<Context>()) } returns mockk(relaxed = true)
@@ -474,6 +481,19 @@ internal object MeasurementBindings {
     fun viewModel(vm: MeasurementViewModel): ViewModel = vm
 }
 
+/** Delegate only measurement scaffolding; SDK/test classes still belong to the real sandbox. */
+class WireKaliumMeasurementRunner(testClass: Class<*>) : RobolectricTestRunner(testClass) {
+    override fun createClassLoaderConfig(method: FrameworkMethod): InstrumentationConfiguration =
+        InstrumentationConfiguration.Builder(super.createClassLoaderConfig(method))
+            .doNotAcquirePackage("com.wire.metro.measure.")
+            .build()
+}
+
+/** Two constructor entries per instance, one identity despite the delegating RETURN. */
+private class MeasurementCallbackSubject private constructor(@Suppress("unused") val marker: Int) {
+    constructor() : this(1)
+}
+
 /** Calls the bootstrap API reflectively OUTSIDE its timed Supplier boundary. */
 private object Meter {
     private val probe = Class.forName("com.wire.metro.measure.Probe", true, null)
@@ -488,6 +508,14 @@ private object Meter {
     fun <T> measure(phase: String, iteration: Int, warmup: Boolean, block: () -> T): T = try {
         measure.invoke(null, phase, iteration, warmup, Supplier { block() }) as T
     } catch (failure: InvocationTargetException) { throw failure.targetException }
+    fun verifyCallbacks() {
+        val subject = MeasurementCallbackSubject::class.java
+        check(subject.classLoader.javaClass.name == "org.robolectric.internal.AndroidSandbox\$SdkSandboxClassLoader")
+        try {
+            probe.getMethod("verifyCallbacks", Class::class.java, Supplier::class.java)
+                .invoke(null, subject, Supplier { arrayOf(MeasurementCallbackSubject(), MeasurementCallbackSubject()) })
+        } catch (failure: InvocationTargetException) { throw failure.targetException }
+    }
     fun provenance() { probe.getMethod("provenance").invoke(null) }
     fun finish() { probe.getMethod("finish").invoke(null) }
 }

@@ -19,3 +19,6 @@ com.wire.kalium.logic.di.OwnedKaliumConsumer
 com.wire.kalium.logic.di.ConsumerWork
 com.wire.kalium.logic.di.ConsumerMessageRepository
 com.wire.kalium.logic.di.ConsumerConversationRepository
+
+# Fail-fast real-Robolectric callback control (outside all SDK measurement windows).
+com.wire.android.di.metro.MeasurementCallbackSubject

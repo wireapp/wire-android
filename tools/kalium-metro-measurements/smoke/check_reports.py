@@ -28,4 +28,17 @@ bad=copy.deepcopy(first);bad['metric_schema']=1;rejects(bad)
 bad=copy.deepcopy(first);bad[m.IDENTITY_CLASSES].append(copy.deepcopy(bad[m.IDENTITY_CLASSES][0]));rejects(bad)
 for row in rows('limit'):
     if row['type']=='sample': rejects(row)
+for mode in ['timing','constructors']:
+    control=next(r for r in rows(mode+'-control') if r['type']=='callback_control')
+    m.validate_callback_control(control)
+    for field in ['success','constructor_entries_all_threads','constructor_return_unique_identities_all_threads']:
+        bad=copy.deepcopy(control)
+        if field=='success': bad[field]=False
+        elif mode=='constructors':
+            if isinstance(bad[field],dict): bad[field]={k:0 for k in bad[field]}
+            else: bad[field]=0
+        else: continue
+        try: m.validate_callback_control(bad)
+        except ValueError: pass
+        else: raise AssertionError('failed callback control was accepted: '+field)
 print('Report checks passed using standalone Java data: units, loader distinction, totals, failure and legacy-schema rejection. No SDK results created.')

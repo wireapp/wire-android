@@ -332,7 +332,7 @@ class ArchiveChecks(unittest.TestCase):
             'sources': {}, 'jars': {name: harness.sha(tools / name) for name in ('probe.jar', 'constructors-agent.jar')}})
         return SimpleNamespace(variant='baseline', identity_limit=10, forks=2, warmups=0,
                                repetitions=1, warm_vms=1, observation_ms=0, label=label,
-                               pass_name='timing', scenario='vm', gradle_args=[])
+                               pass_name='timing', scenario='vm', control_only=False, gradle_args=[])
 
     def fake_gradle(self, *args, **kwargs):
         self.add_build_outputs()

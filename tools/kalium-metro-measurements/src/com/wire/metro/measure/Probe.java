@@ -17,7 +17,8 @@ public final class Probe {
     private static final List<String> TRANSFORM_ERRORS = new ArrayList<>(), COUNTER_ERRORS = new ArrayList<>();
     private static volatile long activeThread = -1;
     private static volatile boolean installed;
-    private static boolean finished;
+    private static boolean finished, callbackControlPassed;
+    private static String callbackControlLoader;
     private static Span active; // Guarded by LOCK; the ONLY root of retained measured identities.
     private static final com.sun.management.ThreadMXBean MEMORY = memoryBean();
     private static final Path OUTPUT = Path.of(System.getProperty("metro.measure.output", "."),
@@ -155,6 +156,9 @@ public final class Probe {
     }
     /** Strong identity/Class/ClassLoader references are cleared before row I/O, even on failure. */
     public static void end(Span s, boolean success) {
+        end(s, success, "sample");
+    }
+    private static void end(Span s, boolean success, String rowType) {
         long end = System.nanoTime(), allocated = installed ? -1 : bytes();
         Map<String,Object> row;
         boolean failed;
@@ -163,7 +167,7 @@ public final class Probe {
             if (Thread.currentThread().getId() != s.tid) throw new IllegalStateException("measurement changed threads");
             try {
                 row = new LinkedHashMap<>();
-                row.put("metric_schema", 2); row.put("type", "sample"); row.put("phase", s.phase); row.put("iteration", s.iteration);
+                row.put("metric_schema", 2); row.put("type", rowType); row.put("phase", s.phase); row.put("iteration", s.iteration);
                 row.put("warmup", s.warmup); row.put("success", success && !s.identityFailed);
                 row.put("pass", installed ? "constructors" : "timing"); row.put("caller_thread", s.tid);
                 row.put("start_monotonic_ns", s.start); row.put("end_monotonic_ns", end); row.put("elapsed_ns", end - s.start);
@@ -196,6 +200,40 @@ public final class Probe {
         write(row);
         if (failed) throw new AssertionError("constructor identity counter failed; see counter_errors");
     }
+    /** Before SDK setup: prove symbolic callbacks and the fixture reach this same bootstrap state. */
+    public static void verifyCallbacks(Class<?> subject, java.util.function.Supplier<Object[]> action) throws ClassNotFoundException {
+        if (Probe.class.getClassLoader() != null || Class.forName(Probe.class.getName(), false, subject.getClassLoader()) != Probe.class)
+            throw new AssertionError("constructor callbacks must resolve the fixture's bootstrap Probe");
+        Span s = begin("robolectric_callback_control", 0, false);
+        boolean success = false;
+        try {
+            Object[] values = action.get();
+            synchronized (LOCK) {
+                if (values == null || values.length != 2 || values[0] == values[1]
+                        || values[0] == null || values[1] == null
+                        || values[0].getClass() != subject || values[1].getClass() != subject)
+                    throw new AssertionError("callback control must construct two distinct instances of its selected class");
+                long entries = 0, caller = 0;
+                for (int i = 0; i < KEYS.size(); i++) {
+                    entries += TOTAL.get(i) - s.total[i]; caller += CALLER.get(i) - s.caller[i];
+                }
+                if (entries != (installed ? 4 : 0) || caller != entries)
+                    throw new AssertionError("callback control expected four constructor ENTRY calls (zero in timing mode): " + entries + "/" + caller);
+                if (installed && (s.identityFailed || s.allSeen.size() != 2 || s.callerSeen.size() != 2
+                        || !s.allSeen.containsKey(values[0]) || !s.allSeen.containsKey(values[1])
+                        || !s.callerSeen.containsKey(values[0]) || !s.callerSeen.containsKey(values[1])
+                        || s.byClass.size() != 1 || !s.byClass.containsKey(subject)))
+                    throw new AssertionError("callback control did not observe both exact normal-RETURN identities");
+                if (!TRANSFORM_ERRORS.isEmpty() || !COUNTER_ERRORS.isEmpty())
+                    throw new AssertionError("callback control transform/counter failure");
+                callbackControlPassed = true;
+                callbackControlLoader = subject.getClassLoader() == null ? "bootstrap" : subject.getClassLoader().getClass().getName();
+                success = true;
+            }
+        } finally {
+            end(s, success, "callback_control");
+        }
+    }
     public static <T> T measure(String phase, int iteration, boolean warmup, java.util.function.Supplier<T> action) {
         Span span = begin(phase, iteration, warmup);
         boolean success = false; Throwable original = null;
@@ -219,6 +257,7 @@ public final class Probe {
         row.put("identity_limit", IDENTITY_LIMIT); row.put("retained_identity_references", retainedIdentityReferences());
         row.put("identity_unit", "per-window unique references reaching selected constructor RETURN callbacks; not complete allocations or successful outermost constructions");
         synchronized (LOCK) {
+            row.put("callback_control_passed", callbackControlPassed); row.put("callback_control_loader", callbackControlLoader);
             row.put("coverage", new ArrayList<>(COVERAGE)); row.put("transform_errors", new ArrayList<>(TRANSFORM_ERRORS));
             row.put("counter_errors", new ArrayList<>(COUNTER_ERRORS));
             Map<String,Long> cumulative = new TreeMap<>();

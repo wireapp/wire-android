@@ -15,6 +15,10 @@ if [ ! -f "$WORK/baseline-stage.json" ]; then
     python3 "$DIR/harness.py" stage-baseline --android-commit "$AFTER_ANDROID" --sdk-commit "$AFTER_SDK"
 fi
 python3 "$DIR/harness.py" stage-current --android-commit "$AFTER_ANDROID" --sdk-commit "$AFTER_SDK"
+# Prove actual sandbox callback delivery BEFORE cleanup regressions or any timing/constructor cohorts.
+for variant in baseline current; do
+    python3 "$DIR/harness.py" run --variant "$variant" --pass constructors --control-only --forks 1 --label "$PREFIX-$variant-callback-control"
+done
 python3 "$DIR/run-owner-drain-regression.py" --variant baseline --label "$PREFIX-baseline-owner-drain"
 python3 "$DIR/run-owner-drain-regression.py" --variant current --label "$PREFIX-current-owner-drain"
 runs=()

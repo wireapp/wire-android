@@ -1,0 +1,44 @@
+// Parent-only command-scoped Test JVM wiring. No project/shared configuration edits.
+import groovy.json.JsonSlurper
+import groovy.json.JsonOutput
+import org.gradle.api.tasks.testing.Test
+
+def configPath = System.getProperty('metro.measure.config')
+if (!configPath) throw new GradleException('Set -Dmetro.measure.config=/absolute/fork-config.json')
+def cfg = new JsonSlurper().parse(new File(configPath))
+gradle.beforeProject { p ->
+    if (p.path == ':app' && p.rootDir.canonicalPath == new File(cfg.root as String).canonicalPath) {
+        p.plugins.withId('org.jetbrains.kotlinx.kover') {
+            // Existing plugin's public disable() API, command-scoped for measurement only.
+            p.extensions.getByName('kover').disable()
+        }
+        p.afterEvaluate {
+            // Baseline app lacks this existing public fixture seed dependency.
+            if (cfg.variant == 'baseline') p.dependencies.add('testImplementation', 'com.wire.kalium:kalium-persistence')
+            p.tasks.withType(Test).configureEach { t ->
+                if (t.name == 'testDevDebugUnitTest') {
+                    t.maxParallelForks = 1
+                    t.forkEvery = 1
+                    t.outputs.upToDateWhen { false }
+                    t.filter { includeTestsMatching('com.wire.android.di.metro.WireKaliumMeasurementTest') }
+                    t.jvmArgs('-Xbootclasspath/a:' + cfg.probe)
+                    if (cfg.pass == 'constructors') t.jvmArgs('-javaagent:' + cfg.agent + '=' + cfg.selection)
+                    t.systemProperty('metro.measure.output', cfg.output)
+                    t.systemProperty('metro.measure.pass', cfg.pass)
+                    t.systemProperty('metro.measure.scenario', cfg.scenario)
+                    ['warmups', 'repetitions', 'warmVms', 'observationMs', 'identityLimit'].each { key ->
+                        t.systemProperty('metro.measure.' + key, cfg[key].toString())
+                    }
+                    t.doFirst {
+                        // Actual resolved Test task classpath, independently of catalog version claims.
+                        def cp = t.classpath.files.collect { f -> [path:f.absolutePath, bytes:f.length(), modified:f.lastModified()] }
+                        new File(cfg.output as String, 'test-runtime-classpath.json').text = JsonOutput.prettyPrint(JsonOutput.toJson([
+                            javaExecutable:t.javaLauncher.get().executablePath.asFile.absolutePath,
+                            allJvmArgs:t.allJvmArgs, classpath:cp
+                        ])) + '\n'
+                    }
+                }
+            }
+        }
+    }
+}

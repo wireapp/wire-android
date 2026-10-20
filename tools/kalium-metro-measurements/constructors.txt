@@ -1,0 +1,21 @@
+# Exact binary names, shared selection for BEFORE/AFTER. Missing/unloaded types are NOT certified zero.
+com.wire.kalium.logic.CoreLogic
+com.wire.kalium.logic.CoreLogicCommon
+com.wire.kalium.logic.GlobalKaliumScope
+com.wire.kalium.logic.feature.UserSessionScope
+com.wire.kalium.logic.feature.conversation.ConversationScope
+com.wire.kalium.logic.feature.message.MessageScope
+com.wire.kalium.logic.data.conversation.ConversationDataSource
+com.wire.kalium.logic.data.message.MessageDataSource
+com.wire.kalium.logic.data.conversation.ConversationRepositoryExtensionsImpl
+com.wire.kalium.logic.data.message.MessageRepositoryExtensionsImpl
+com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
+com.wire.kalium.logic.feature.message.ObserveMessageByIdUseCase
+com.wire.kalium.logic.feature.message.GetMessageByIdUseCase
+com.wire.kalium.logic.feature.message.PendingProposalSchedulerImpl
+com.wire.kalium.work.LongWorkScope
+com.wire.kalium.logic.di.UserSessionRuntime
+com.wire.kalium.logic.di.OwnedKaliumConsumer
+com.wire.kalium.logic.di.ConsumerWork
+com.wire.kalium.logic.di.ConsumerMessageRepository
+com.wire.kalium.logic.di.ConsumerConversationRepository

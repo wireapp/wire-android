@@ -456,7 +456,7 @@ class CallServiceManagerTest {
         lateinit var coreLogic: CoreLogic
         val sessions = mutableMapOf<UserId, UserSessionScope>()
         val rawAccounts = MutableStateFlow<GetAllSessionsResult>(GetAllSessionsResult.Success(emptyList()))
-        val admission by lazy { FakeSessionAdmission(coreLogic) { sessions[it] } }
+        internal val admission by lazy { FakeSessionAdmission(coreLogic) { sessions[it] } }
         private val answerCallForUser: MutableMap<UserId, AnswerCallUseCase> = mutableMapOf()
         private val endCallForUser: MutableMap<UserId, EndCallUseCase> = mutableMapOf()
 

@@ -262,9 +262,13 @@ class EmulatorPool:
                 try:
                     result = adb(entry["serial"], *command, timeout=30)
                     content = result.stdout + result.stderr
+                    failed = result.returncode != 0
                 except subprocess.TimeoutExpired:
                     content = "Diagnostic command timed out.\n"
+                    failed = True
                 (directory / filename).write_text(content)
+                if filename == "logcat-final.txt" and failed:
+                    raise RuntimeError(f"Could not capture final logcat from {entry['serial']}; inspect the diagnostic logs.")
 
         with ThreadPoolExecutor(max_workers=4) as workers:
             list(workers.map(capture, self.state))

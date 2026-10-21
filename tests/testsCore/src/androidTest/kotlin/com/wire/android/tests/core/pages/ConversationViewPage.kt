@@ -86,7 +86,8 @@ data class ConversationViewPage(private val device: UiDevice) {
         var user: UiObject2? = null
         val visible = UiWaitUtils.retryUntilTimeout(UiWaitUtils.DEFAULT_TIMEOUT) {
             user = device.findObject(By.clazz("android.widget.Button").descStartsWith("$userName,"))
-            user != null
+                ?: device.findObject(By.clickable(true).hasChild(By.text(userName)))
+            user?.visibleBounds?.isEmpty == false
         }
         if (!visible) {
             throw AssertionError("User '$userName' is not visible in the mention list.")

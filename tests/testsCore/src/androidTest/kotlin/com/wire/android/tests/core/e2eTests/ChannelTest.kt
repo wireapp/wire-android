@@ -26,6 +26,7 @@ import com.wire.android.tests.support.tags.TestCaseId
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import uiautomatorutils.KeyboardUtils.closeKeyboardIfOpened
 import uiautomatorutils.UiWaitUtils
 import uiautomatorutils.UiWaitUtils.iSeeSystemMessageContainingAll
 import uiautomatorutils.UiWaitUtils.waitUntilToastIsDisplayed
@@ -1621,6 +1622,7 @@ class ChannelTest : BaseUiTest() {
 
         step("Then I see the message Hello from Member2 in current conversation") {
             pages.conversationViewPage.apply {
+                closeKeyboardIfOpened()
                 assertReceivedMessageIsVisibleInCurrentConversation("Hello from Member2")
             }
         }

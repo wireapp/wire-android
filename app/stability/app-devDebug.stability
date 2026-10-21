@@ -1367,13 +1367,12 @@ private fun com.wire.android.ui.authentication.welcome.WelcomeCarouselItem(pageI
     - pageText: STABLE (String is immutable)
 
 @Composable
-private fun com.wire.android.ui.authentication.welcome.WelcomeContent(isThereActiveSession: kotlin.Boolean, maxAccountsReached: kotlin.Boolean, nomadAccountBlocksLogin: kotlin.Boolean, state: com.wire.kalium.logic.configuration.server.ServerConfig.Links, navigateBack: kotlin.Function0<kotlin.Unit>, onAction: kotlin.Function1<com.wire.android.ui.authentication.welcome.WelcomeScreenAction, kotlin.Unit>): kotlin.Unit
+private fun com.wire.android.ui.authentication.welcome.WelcomeContent(isThereActiveSession: kotlin.Boolean, maxAccountsReached: kotlin.Boolean, state: com.wire.kalium.logic.configuration.server.ServerConfig.Links, navigateBack: kotlin.Function0<kotlin.Unit>, onAction: kotlin.Function1<com.wire.android.ui.authentication.welcome.WelcomeScreenAction, kotlin.Unit>): kotlin.Unit
   skippable: false
   restartable: true
   params:
     - isThereActiveSession: STABLE (primitive type)
     - maxAccountsReached: STABLE (primitive type)
-    - nomadAccountBlocksLogin: STABLE (primitive type)
     - state: UNSTABLE (has mutable properties or unstable members)
     - navigateBack: STABLE (function type)
     - onAction: STABLE (function type)
@@ -2858,14 +2857,6 @@ public fun com.wire.android.ui.common.dialogs.MaxAccountAllowedDialogContent(but
 
 @Composable
 public fun com.wire.android.ui.common.dialogs.MaxAccountsReachedDialog(dialogState: com.wire.android.ui.common.visbility.VisibilityState<com.wire.android.ui.common.dialogs.MaxAccountsReachedDialogState>, onActionButtonClicked: kotlin.Function0<kotlin.Unit>): kotlin.Unit
-  skippable: false
-  restartable: true
-  params:
-    - dialogState: UNSTABLE (has mutable properties or unstable members)
-    - onActionButtonClicked: STABLE (function type)
-
-@Composable
-public fun com.wire.android.ui.common.dialogs.NomadAccountBlocksLoginDialog(dialogState: com.wire.android.ui.common.visbility.VisibilityState<com.wire.android.ui.common.dialogs.NomadAccountBlocksLoginDialogState>, onActionButtonClicked: kotlin.Function0<kotlin.Unit>): kotlin.Unit
   skippable: false
   restartable: true
   params:

@@ -11,7 +11,6 @@ package com.wire.android.ui.home.conversations.messagelist
 
 import android.annotation.SuppressLint
 import android.text.format.DateUtils
-import androidx.annotation.VisibleForTesting
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
@@ -142,15 +141,11 @@ fun ConversationMessageList(
     modifier: Modifier = Modifier,
     currentTimeInMillisFlow: Flow<Long> = flow { },
     showHistoryLoadingIndicator: Boolean = false,
-    isFetchingOlderMessages: Boolean = false,
-    hasMoreRemoteMessages: Boolean = false,
     isBubbleUiEnabled: Boolean = false,
     isWireCellsEnabled: Boolean = false,
-    onReachedOldestMessage: () -> Unit = {},
 ) {
     val prevItemCount = remember { mutableStateOf(lazyPagingMessages.itemCount) }
     val readLastMessageAtStartTriggered = remember { mutableStateOf(false) }
-    val shouldTriggerOldestMessageFetch = remember { mutableStateOf(true) }
     val currentTime by currentTimeInMillisFlow.collectAsState(initial = System.currentTimeMillis())
     val isPrependLoading = lazyPagingMessages.loadState.prepend is LoadState.Loading
     val isPrependCompleted = lazyPagingMessages.loadState.prepend.endOfPaginationReached
@@ -163,19 +158,6 @@ fun ConversationMessageList(
             if (canScrollToLastMessage) {
                 lazyListState.stopScroll()
                 lazyListState.animateScrollToItem(0)
-            }
-            if (
-                shouldAutoTriggerOldestFetch(
-                    selectedMessageId = selectedMessageId,
-                    isScrollInProgress = lazyListState.isScrollInProgress,
-                    canScrollForward = lazyListState.canScrollForward,
-                    hasMoreRemoteMessages = hasMoreRemoteMessages,
-                    isFetchingOlderMessages = isFetchingOlderMessages,
-                )
-            ) {
-                onReachedOldestMessage()
-            } else {
-                shouldTriggerOldestMessageFetch.value = true
             }
             prevItemCount.value = lazyPagingMessages.itemCount
         }
@@ -198,18 +180,6 @@ fun ConversationMessageList(
                 readLastMessageAtStartTriggered.value = true
             }
             updateLastReadMessage(lastVisibleMessage, lastUnreadMessageInstant, onUpdateConversationReadDate)
-        }
-    }
-
-    LaunchedEffect(lazyListState.isScrollInProgress, lazyPagingMessages.itemCount) {
-        if (!lazyListState.isScrollInProgress && lazyPagingMessages.itemCount > 0) {
-            val reachedOldest = !lazyListState.canScrollForward
-            if (reachedOldest && shouldTriggerOldestMessageFetch.value) {
-                onReachedOldestMessage()
-                shouldTriggerOldestMessageFetch.value = false
-            } else if (!reachedOldest) {
-                shouldTriggerOldestMessageFetch.value = true
-            }
         }
     }
 
@@ -464,21 +434,6 @@ fun ConversationMessageList(
                         }
                     }
                 }
-                if (isFetchingOlderMessages && hasMoreRemoteMessages && lazyPagingMessages.itemCount > 0) {
-                    item(
-                        key = "nomad_prepend_loading_indicator",
-                        contentType = "nomad_prepend_loading_indicator",
-                    ) {
-                        Box(
-                            contentAlignment = Alignment.Center,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(dimensions().spacing16x),
-                        ) {
-                            PageLoadingIndicator(text = stringResource(R.string.conversation_history_loading))
-                        }
-                    }
-                }
             }
             ScrollDateOverlay(lazyListState = lazyListState, lazyPagingMessages = lazyPagingMessages)
             JumpToPlayingAudioButton(
@@ -490,20 +445,6 @@ fun ConversationMessageList(
         }
     }
 }
-
-@VisibleForTesting
-internal fun shouldAutoTriggerOldestFetch(
-    selectedMessageId: String?,
-    isScrollInProgress: Boolean,
-    canScrollForward: Boolean,
-    hasMoreRemoteMessages: Boolean,
-    isFetchingOlderMessages: Boolean,
-): Boolean =
-    selectedMessageId == null &&
-        !isScrollInProgress &&
-        !canScrollForward &&
-        hasMoreRemoteMessages &&
-        !isFetchingOlderMessages
 
 private fun UIMessage.audioMessageScopedKeyOrNull(): String? =
     (this as? UIMessage.Regular)

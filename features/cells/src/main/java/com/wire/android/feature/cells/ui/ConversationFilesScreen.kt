@@ -96,6 +96,8 @@ import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.permission.rememberChooseMultipleFilesFlow
 import com.wire.kalium.cells.domain.CellUploadItem
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.toPersistentList
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -526,7 +528,8 @@ internal fun ConversationFilesScreenContent(
                         if (state == EnterExitState.Visible) pillCornerRadius() else fabCornerRadius()
                     }
                     CellBulkActionsBar(
-                        actions = bulkActions(offlineFilesEnabled = offlineFilesEnabled, sendIntent = sendIntent),
+                        actions = remember(offlineFilesEnabled) { bulkActions(offlineFilesEnabled) },
+                        onActionClick = { action -> sendIntent(action.toIntent()) },
                         shape = RoundedCornerShape(barCornerRadius),
                         modifier = Modifier.sharedBounds(
                             sharedContentState = rememberSharedContentState(key = fabToBulkActionsKey),
@@ -550,33 +553,16 @@ private fun fabCornerRadius(): Dp = dimensions().corner16x
 @Composable
 private fun pillCornerRadius(): Dp = dimensions().spacing32x
 
-private fun bulkActions(offlineFilesEnabled: Boolean, sendIntent: (CellViewIntent) -> Unit): List<CellBulkAction> =
-    buildList {
-        add(
-            CellBulkAction(
-                iconRes = R.drawable.ic_folder,
-                labelRes = R.string.cells_bulk_action_move,
-                onClick = { sendIntent(CellViewIntent.OnMoveSelectedNodesClick) },
-            )
-        )
-        add(
-            CellBulkAction(
-                iconRes = com.wire.android.ui.common.R.drawable.ic_delete,
-                labelRes = R.string.cells_bulk_action_delete,
-                onClick = { sendIntent(CellViewIntent.OnDeleteSelectedNodesClick) },
-            )
-        )
-        if (offlineFilesEnabled) {
-            add(
-                CellBulkAction(
-                    iconRes = R.drawable.ic_arrow_down_circle,
-                    labelRes = R.string.cells_bulk_action_offline,
-                    onClick = { sendIntent(CellViewIntent.OnMakeSelectedNodesAvailableOfflineClick) },
-                    contentDescriptionRes = R.string.make_available_offline_label,
-                )
-            )
-        }
-    }
+private fun bulkActions(offlineFilesEnabled: Boolean): ImmutableList<CellBulkAction> =
+    CellBulkAction.entries
+        .filter { it != CellBulkAction.MakeAvailableOffline || offlineFilesEnabled }
+        .toPersistentList()
+
+private fun CellBulkAction.toIntent(): CellViewIntent = when (this) {
+    CellBulkAction.Move -> CellViewIntent.OnMoveSelectedNodesClick
+    CellBulkAction.Delete -> CellViewIntent.OnDeleteSelectedNodesClick
+    CellBulkAction.MakeAvailableOffline -> CellViewIntent.OnMakeSelectedNodesAvailableOfflineClick
+}
 
 /**
  * Rolls the title up when the selection count grows and down when it shrinks, so entering selection mode

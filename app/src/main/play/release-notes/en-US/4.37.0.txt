@@ -1,0 +1,15 @@
+New
+- Drive: Upload files to Shared Drive
+- Meetings: Add participants from groups / Notifications about new meetings and updates
+
+Improvements
+- Account limit info
+- Synchronization and faster "Meet Now" meetings
+
+Fixed
+- Missed call notifications
+- Issue with SSO
+- Conversation creation failed for people without registered devices
+- Some issues during migration of Proteus groups to MLS
+- Issue sending messages with Enter key
+- Issue with recurring meetings

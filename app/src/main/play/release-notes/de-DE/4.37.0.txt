@@ -1,0 +1,15 @@
+Neu
+- Drive: Dateien auf Geteiltes Drive hochladen
+- Meetings: Teilnehmer aus Gruppen hinzufügen / Benachrichtigungen
+
+Verbessert
+- Info über Konto-Limitierung
+- Schnellere spontane Meetings
+
+Behoben
+- Benachrichtigungen über verpasste Anrufe
+- Problem mit SSO
+- Neue Unterhaltung für Personen ohne registrierte Geräte fehlgeschlagen
+- Vereinzelte Fehler bei der Migration von Proteus-Gruppen zu MLS
+- Problem beim Senden von Nachrichten mit Eingabetaste
+- Problem mit wiederkehrenden Meetings

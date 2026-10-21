@@ -45,11 +45,11 @@ import kotlinx.coroutines.flow.onStart
 internal fun <T : Any> Flow<CurrentSessionResult>.observeCurrentValidSession(
     coreLogic: CoreLogic,
     waitForAdmission: Boolean = false,
-    observe: suspend UserSessionScope.() -> Flow<T>,
+    observe: suspend UserSessionScope.(UserId) -> Flow<T>,
 ): Flow<T?> = flatMapLatest { result ->
     val account = (result as? CurrentSessionResult.Success)?.accountInfo
     if (account?.isValid() == true) {
-        coreLogic.observeValidSession(account.userId, observe).let { admitted ->
+        coreLogic.observeValidSession<T>(account.userId) { observe(account.userId) }.let { admitted ->
             if (waitForAdmission) admitted.filterNotNull() else admitted
         }
     } else {

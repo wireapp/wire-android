@@ -98,7 +98,7 @@ class LegalHoldRequestedViewModel @Inject constructor(
                     appLogger.e("$TAG: Failed to get current session")
                 }
             }
-            .observeCurrentValidSession(coreLogic.value) { session(userId) }
+            .observeCurrentValidSession(coreLogic.value) { userId -> session(userId) }
             .map { it ?: noSession }
 
     fun observeLegalHoldRequest() {

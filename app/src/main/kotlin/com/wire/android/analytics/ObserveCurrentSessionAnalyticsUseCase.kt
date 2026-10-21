@@ -80,7 +80,7 @@ fun ObserveCurrentSessionAnalyticsUseCase(
             } else {
                 val account = (currentSession as? CurrentSessionResult.Success)?.accountInfo
                 if (account?.isValid() == true) {
-                    coreLogic.observeValidSession(account.userId) {
+                    coreLogic.observeValidSession<AnalyticsResult<AnalyticsIdentifierManager>>(account.userId) {
                         val session = this
                         channelFlow {
                             // Reset on each admitted generation, even if the identifier and AccountInfo are unchanged.

@@ -765,6 +765,7 @@ private fun retainedSession(logic: CoreLogic, userId: UserId): UserSessionScope?
     val provider = capture(logic, "userSessionScopeProvider") as Lazy<*>
     if (!provider.isInitialized()) return null
     val accounts = capture(capture(checkNotNull(provider.value), "sessions"), "accounts") as Map<*, *>
-    val account = accounts[userId] ?: return null
-    return account.javaClass.getMethod("getRaw").invoke(account) as UserSessionScope?
+    return accounts[userId]?.let { account ->
+        account.javaClass.getMethod("getRaw").invoke(account) as UserSessionScope?
+    }
 }

@@ -100,9 +100,8 @@ class CallServiceManager @Inject constructor(@KaliumCoreLogic val coreLogic: Cor
         var started = false
         sessions.flatMapLatest { result ->
             flow {
-                if (!started && result is CurrentSessionResult.Success && result.accountInfo.isValid() &&
-                    result.accountInfo.userId == account.userId
-                ) {
+                val current = (result as? CurrentSessionResult.Success)?.accountInfo
+                if (!started && current?.isValid() == true && current.userId == account.userId) {
                     coreLogic.runWithValidSession(account.userId) {
                         started = true
                         combine(calls.observeOutgoingCall(), calls.establishedCall()) { outgoing, established ->

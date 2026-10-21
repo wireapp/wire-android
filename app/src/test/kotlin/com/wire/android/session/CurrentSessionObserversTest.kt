@@ -136,7 +136,10 @@ class CurrentSessionObserversTest {
         val session = mockk<UserSessionScope>()
         val calls = mockk<CallsScope>(relaxed = true)
         var facadeReads = 0
-        every { session.calls } answers { facadeReads++; calls }
+        every { session.calls } answers {
+            facadeReads++
+            calls
+        }
         admission.publish(userId, session)
         val visibility = MutableStateFlow(false)
         val accounts = flowOf(GetAllSessionsResult.Success(listOf(AccountInfo.Valid(userId))))

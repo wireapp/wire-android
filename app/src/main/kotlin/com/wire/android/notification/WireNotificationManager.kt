@@ -26,6 +26,7 @@ import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.media.PingRinger
 import com.wire.android.services.ServicesManager
 import com.wire.android.session.observeCurrentValidSession
+import com.wire.android.session.runWithValidSession
 import com.wire.android.util.CurrentScreen
 import com.wire.android.util.CurrentScreenManager
 import com.wire.android.util.dispatchers.DispatcherProvider
@@ -186,24 +187,30 @@ class WireNotificationManager @Inject constructor(
         }
 
     private suspend fun triggerSyncForUserIfAuthenticated(userId: UserId) {
-        var observeLocalNotificationsJob: Job? = null
-        var observeCallsJob: Job? = null
-        try {
-            appLogger.d("$TAG checking the notifications once")
-            observeLocalNotificationsJob = observeLocalNotificationsOnceJob(userId)
-            observeCallsJob = observeCallNotificationsOnceJob(userId)
-            val stayAliveDuration = BuildConfig.BACKGROUND_NOTIFICATION_STAY_ALIVE_SECONDS.seconds
-
-            if (BuildConfig.BACKGROUND_NOTIFICATION_RETRY_ENABLED) {
-                appLogger.d("$TAG start syncing with retry logic and extended duration (${stayAliveDuration.inWholeSeconds}s)")
-                retrySync(userId, stayAliveDuration)
-            } else {
-                appLogger.d("$TAG start syncing without retry logic, default duration (${stayAliveDuration.inWholeSeconds}s)")
-                syncLifecycleManager.syncTemporarily(userId, stayAliveDuration)
+        coreLogic.runWithValidSession(userId) {
+            val session = this
+            coroutineScope {
+                appLogger.d("$TAG checking the notifications once")
+                val observeLocalNotificationsJob = observeLocalNotificationsOnceJob(userId, session, this)
+                val observeCallsJob = observeCallNotificationsOnceJob(userId, this)
+                try {
+                    syncForNotifications(userId, session)
+                } finally {
+                    observeLocalNotificationsJob?.cancel("$TAG checked the notifications once, canceling observing.")
+                    observeCallsJob?.cancel("$TAG checked the calls once, canceling observing.")
+                }
             }
-        } finally {
-            observeLocalNotificationsJob?.cancel("$TAG checked the notifications once, canceling observing.")
-            observeCallsJob?.cancel("$TAG checked the calls once, canceling observing.")
+        }
+    }
+
+    private suspend fun syncForNotifications(userId: UserId, session: UserSessionScope) {
+        val stayAliveDuration = BuildConfig.BACKGROUND_NOTIFICATION_STAY_ALIVE_SECONDS.seconds
+        if (BuildConfig.BACKGROUND_NOTIFICATION_RETRY_ENABLED) {
+            appLogger.d("$TAG start syncing with retry logic and extended duration (${stayAliveDuration.inWholeSeconds}s)")
+            retrySync(userId, session, stayAliveDuration)
+        } else {
+            appLogger.d("$TAG start syncing without retry logic, default duration (${stayAliveDuration.inWholeSeconds}s)")
+            syncLifecycleManager.syncTemporarily(userId, session, stayAliveDuration, false) {}
         }
     }
 
@@ -213,7 +220,7 @@ class WireNotificationManager @Inject constructor(
      * may not be immediately available despite WorkManager constraints.
      */
     @Suppress("TooGenericExceptionCaught")
-    private suspend fun retrySync(userId: UserId, stayAliveDuration: Duration) {
+    private suspend fun retrySync(userId: UserId, session: UserSessionScope, stayAliveDuration: Duration) {
         val maxRetries = MAX_SYNC_RETRY
         var attempt = 0
         var lastException: Exception? = null
@@ -221,7 +228,7 @@ class WireNotificationManager @Inject constructor(
         while (attempt < maxRetries) {
             try {
                 appLogger.d("$TAG Sync attempt ${attempt + 1}/$maxRetries")
-                syncLifecycleManager.syncTemporarily(userId, stayAliveDuration)
+                syncLifecycleManager.syncTemporarily(userId, session, stayAliveDuration, false) {}
                 appLogger.i("$TAG Sync succeeded on attempt ${attempt + 1}")
                 return // Success, exit retry loop
             } catch (e: Exception) {
@@ -257,7 +264,11 @@ class WireNotificationManager @Inject constructor(
         }
     }
 
-    private fun observeLocalNotificationsOnceJob(userId: UserId): Job? {
+    private fun observeLocalNotificationsOnceJob(
+        userId: UserId,
+        session: UserSessionScope,
+        observationScope: CoroutineScope,
+    ): Job? {
         val isAlreadyObserving = observingWhileRunningJobs.userJobs[userId]?.localNotificationsJob?.isActive == true ||
                 observingPersistentlyJobs.userJobs[userId]?.localNotificationsJob?.isActive == true
 
@@ -266,8 +277,9 @@ class WireNotificationManager @Inject constructor(
             appLogger.d("$TAG checking the notifications once, but notifications are already observed, no need to start a new job")
             null
         } else {
-            scope.launch(start = CoroutineStart.UNDISPATCHED) {
-                observeLocalNotifications(
+            // Enter collection inside the admitted operation before sync can produce notifications.
+            observationScope.launch(start = CoroutineStart.UNDISPATCHED) {
+                session.collectLocalNotifications(
                     userId,
                     MutableStateFlow(CurrentScreen.InBackground)
                 )
@@ -275,7 +287,7 @@ class WireNotificationManager @Inject constructor(
         }
     }
 
-    private fun observeCallNotificationsOnceJob(userId: UserId): Job? {
+    private fun observeCallNotificationsOnceJob(userId: UserId, observationScope: CoroutineScope): Job? {
         val isCallsAlreadyObserving =
             observingWhileRunningJobs.userJobs[userId]?.run { incomingCallsJob.isActive }
                 ?: observingPersistentlyJobs.userJobs[userId]?.run { incomingCallsJob.isActive }
@@ -286,7 +298,7 @@ class WireNotificationManager @Inject constructor(
             appLogger.d("$TAG checking the calls once, but calls are already observed, no need to start a new job")
             null
         } else {
-            scope.launch { observeIncomingCalls(userId) }
+            observationScope.launch { observeIncomingCalls(userId) }
         }
     }
 

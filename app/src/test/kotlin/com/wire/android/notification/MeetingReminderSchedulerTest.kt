@@ -245,9 +245,11 @@ class MeetingReminderSchedulerTest {
         val arrangement = Arrangement()
         val otherId = TestUser.OTHER_USER.id
         val other = mockk<UserSessionScope>(relaxed = true)
+        val otherReminders = mockk<MeetingRemindersUseCase>()
         coEvery { other.observeIsMeetingsEnabled() } returns flowOf(true)
-        every { other.meetings.meetingReminders.changes() } returns flowOf(Unit)
-        coEvery { other.meetings.meetingReminders.next(any()) } returns null
+        every { other.meetings.meetingReminders } returns otherReminders
+        every { otherReminders.changes() } returns flowOf(Unit)
+        coEvery { otherReminders.next(any()) } returns null
         arrangement.admission.publish(arrangement.user.id, null)
         arrangement.admission.publish(otherId, other)
         arrangement.rawAccounts.value = GetAllSessionsResult.Success(
@@ -255,7 +257,14 @@ class MeetingReminderSchedulerTest {
         )
         backgroundScope.launch { arrangement.scheduler.observe() }
         runCurrent()
-        coVerify(exactly = 1) { other.meetings.meetingReminders.next(any()) }
+        verify(exactly = 1) { otherReminders.changes() }
+        coVerify(exactly = 1) { otherReminders.next(any()) }
+        coVerify(exactly = 0) { arrangement.reminders.next(any()) }
+        assertEquals(listOf(other), arrangement.admission.attached)
+        arrangement.admission.publish(otherId, null)
+        runCurrent()
+        assertEquals(listOf(other), arrangement.admission.drained)
+        coVerify(exactly = 1) { otherReminders.next(any()) }
         verify(exactly = 0) { arrangement.coreLogic.getSessionScope(any()) }
     }
 

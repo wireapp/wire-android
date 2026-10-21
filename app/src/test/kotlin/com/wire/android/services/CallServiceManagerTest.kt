@@ -383,7 +383,7 @@ class CallServiceManagerTest {
             .withSpecificUserSession(incoming = flowOf(listOf(call))).arrange()
         coEvery { arrangement.answerCallForUser(selfUser.id)(any()) } throws failure
         manager.handleAction(CallService.Action.Start.AnswerCall(selfUser.id, conversationId))
-        manager.handleActionsFlow().test { assertSame(failure, awaitError()) }
+        manager.handleActionsFlow().test { assertSame(failure, generateSequence(awaitError()) { it.cause }.last()) }
     }
 
     @Test

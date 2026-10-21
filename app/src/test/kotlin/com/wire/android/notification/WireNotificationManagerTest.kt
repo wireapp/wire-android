@@ -18,6 +18,7 @@
 
 package com.wire.android.notification
 
+import com.wire.android.BuildConfig
 import com.wire.android.common.runTestWithCancellation
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.framework.TestUser
@@ -75,6 +76,8 @@ import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
@@ -86,21 +89,25 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlin.time.Instant
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Duration.Companion.seconds
 
 @Suppress("LargeClass")
 @OptIn(ExperimentalCoroutinesApi::class)
 class WireNotificationManagerTest {
 
     private val dispatcherProvider = TestDispatcherProvider()
+    private val stayAliveDuration = BuildConfig.BACKGROUND_NOTIFICATION_STAY_ALIVE_SECONDS.seconds
 
     @Test
     fun `mark notified after suspended handling uses the captured session`() = runTestWithCancellation(dispatcherProvider.main()) {
@@ -196,24 +203,130 @@ class WireNotificationManagerTest {
     @Test
     fun givenMeetingDuringOneShotSync_whenSyncFinishes_thenCancelMeetingObserver() = runTest(dispatcherProvider.main()) {
         val invite = meetingInvite()
+        val handled = CompletableDeferred<Unit>()
         val events = MutableSharedFlow<LocalNotification.Meeting>()
         val (arrangement, manager) = Arrangement()
             .withSession(GetAllSessionsResult.Success(listOf(TEST_AUTH_TOKEN)))
             .withMeetingNotificationsFlow(events)
             .withIncomingCalls(emptyList())
             .arrange()
-        coEvery { arrangement.syncLifecycleManager.syncTemporarily(TEST_AUTH_TOKEN.userId, any()) } coAnswers {
-            runCurrent()
+        arrangement.admission.publish(TEST_AUTH_TOKEN.userId, null)
+        every {
+            arrangement.meetingNotificationManager.handleNotifications(listOf(invite), TEST_AUTH_TOKEN.userId)
+        } answers {
+            handled.complete(Unit)
+            Unit
+        }
+        coEvery {
+            arrangement.syncLifecycleManager.syncTemporarily(
+                TEST_AUTH_TOKEN.userId, arrangement.userSessionScope, stayAliveDuration, false, any()
+            )
+        } coAnswers {
+            assertEquals(1, events.subscriptionCount.value)
             events.emit(invite)
-            runCurrent()
+            handled.await()
         }
 
-        manager.fetchAndShowNotificationsOnce(TEST_AUTH_TOKEN.userId.value)
+        val fetching = async { manager.fetchAndShowNotificationsOnce(TEST_AUTH_TOKEN.userId.value) }
         runCurrent()
+        assertTrue(fetching.isActive)
         assertEquals(0, events.subscriptionCount.value)
+        coVerify(exactly = 0) { arrangement.getNotificationsUseCase() }
+        coVerify(exactly = 0) { arrangement.syncLifecycleManager.syncTemporarily(any(), any(), any(), any(), any()) }
+        arrangement.admission.publish(TEST_AUTH_TOKEN.userId, arrangement.userSessionScope)
+        fetching.await()
+        assertEquals(0, events.subscriptionCount.value)
+        coVerify(exactly = 1) { arrangement.getNotificationsUseCase() }
+        coVerify(exactly = 1) {
+            arrangement.syncLifecycleManager.syncTemporarily(
+                TEST_AUTH_TOKEN.userId, arrangement.userSessionScope, stayAliveDuration, false, any()
+            )
+        }
         verify(exactly = 1) {
             arrangement.meetingNotificationManager.handleNotifications(listOf(invite), TEST_AUTH_TOKEN.userId)
         }
+        verify(exactly = 0) { arrangement.coreLogic.getSessionScope(any()) }
+    }
+
+    @Test
+    fun givenPendingOneShotAdmission_whenAccountIsRemoved_thenFinishWithoutSyncOrReplay() = runTest(dispatcherProvider.main()) {
+        val events = MutableSharedFlow<LocalNotification.Meeting>()
+        val (arrangement, manager) = Arrangement()
+            .withSession(GetAllSessionsResult.Success(listOf(TEST_AUTH_TOKEN)))
+            .withMeetingNotificationsFlow(events)
+            .withIncomingCalls(emptyList())
+            .arrange()
+        arrangement.admission.publish(TEST_AUTH_TOKEN.userId, null)
+        val fetching = async { manager.fetchAndShowNotificationsOnce(TEST_AUTH_TOKEN.userId.value) }
+        runCurrent()
+        assertTrue(fetching.isActive)
+        arrangement.rawAccounts.value = GetAllSessionsResult.Success(emptyList())
+        fetching.await()
+        arrangement.admission.publish(TEST_AUTH_TOKEN.userId, arrangement.userSessionScope)
+        runCurrent()
+        assertTrue(arrangement.admission.attached.isEmpty())
+        assertEquals(0, events.subscriptionCount.value)
+        coVerify(exactly = 0) { arrangement.getNotificationsUseCase() }
+        coVerify(exactly = 0) { arrangement.syncLifecycleManager.syncTemporarily(any(), any(), any(), any(), any()) }
+        verify(exactly = 0) { arrangement.meetingNotificationManager.handleNotifications(any(), any()) }
+        verify(exactly = 0) { arrangement.coreLogic.getSessionScope(any()) }
+    }
+
+    @Test
+    fun givenRevokedOneShotSync_whenReplaced_thenWaitForDrainWithoutReplaying() = runTest(dispatcherProvider.main()) {
+        val entered = CompletableDeferred<Unit>()
+        val draining = CompletableDeferred<Unit>()
+        val releaseDrain = CompletableDeferred<Unit>()
+        val drained = CompletableDeferred<Unit>()
+        val events = MutableSharedFlow<LocalNotification.Meeting>()
+        val (arrangement, manager) = Arrangement()
+            .withSession(GetAllSessionsResult.Success(listOf(TEST_AUTH_TOKEN)))
+            .withMeetingNotificationsFlow(events)
+            .withIncomingCalls(emptyList())
+            .arrange()
+        coEvery {
+            arrangement.syncLifecycleManager.syncTemporarily(
+                TEST_AUTH_TOKEN.userId, arrangement.userSessionScope, stayAliveDuration, false, any()
+            )
+        } coAnswers {
+            assertEquals(1, events.subscriptionCount.value)
+            entered.complete(Unit)
+            try {
+                awaitCancellation()
+            } finally {
+                withContext(NonCancellable) {
+                    draining.complete(Unit)
+                    releaseDrain.await()
+                    drained.complete(Unit)
+                }
+            }
+        }
+        val fetching = async { manager.fetchAndShowNotificationsOnce(TEST_AUTH_TOKEN.userId.value) }
+        entered.await()
+        arrangement.admission.publish(TEST_AUTH_TOKEN.userId, null)
+        draining.await()
+        val replacement = mockk<UserSessionScope>()
+        try {
+            arrangement.admission.publish(TEST_AUTH_TOKEN.userId, replacement)
+            runCurrent()
+            assertTrue(fetching.isActive)
+            assertFalse(drained.isCompleted)
+        } finally {
+            releaseDrain.complete(Unit)
+        }
+        fetching.await()
+        assertTrue(drained.isCompleted)
+        assertTrue(arrangement.userSessionScope in arrangement.admission.drained)
+        assertEquals(0, events.subscriptionCount.value)
+        coVerify(exactly = 1) { arrangement.getNotificationsUseCase() }
+        coVerify(exactly = 1) {
+            arrangement.syncLifecycleManager.syncTemporarily(
+                TEST_AUTH_TOKEN.userId, arrangement.userSessionScope, stayAliveDuration, false, any()
+            )
+        }
+        verify { replacement wasNot Called }
+        verify(exactly = 0) { arrangement.meetingNotificationManager.handleNotifications(any(), any()) }
+        verify(exactly = 0) { arrangement.coreLogic.getSessionScope(any()) }
     }
 
     @Test
@@ -230,11 +343,13 @@ class WireNotificationManagerTest {
                 .arrange()
             manager.observeNotificationsAndCallsPersistently(listOf(TEST_AUTH_TOKEN.userId), this)
             runCurrent()
-            coEvery { arrangement.syncLifecycleManager.syncTemporarily(TEST_AUTH_TOKEN.userId, any()) } coAnswers {
-                runCurrent()
+            coEvery {
+                arrangement.syncLifecycleManager.syncTemporarily(
+                    TEST_AUTH_TOKEN.userId, arrangement.userSessionScope, stayAliveDuration, false, any()
+                )
+            } coAnswers {
                 assertEquals(1, events.subscriptionCount.value)
                 events.emit(invite)
-                runCurrent()
             }
 
             manager.fetchAndShowNotificationsOnce(TEST_AUTH_TOKEN.userId.value)
@@ -379,7 +494,11 @@ class WireNotificationManagerTest {
             manager.fetchAndShowNotificationsOnce("user_id")
             advanceUntilIdle()
 
-            coVerify(exactly = 1) { arrangement.syncLifecycleManager.syncTemporarily(TEST_AUTH_TOKEN.userId, any()) }
+            coVerify(exactly = 1) {
+                arrangement.syncLifecycleManager.syncTemporarily(
+                    TEST_AUTH_TOKEN.userId, arrangement.userSessionScope, stayAliveDuration, false, any()
+                )
+            }
         }
 
     @Test
@@ -619,7 +738,11 @@ class WireNotificationManagerTest {
                 .withCurrentScreen(CurrentScreen.InBackground)
                 .arrange()
 
-            coEvery { arrangement.syncLifecycleManager.syncTemporarily(userId, any()) } coAnswers {
+            coEvery {
+                arrangement.syncLifecycleManager.syncTemporarily(
+                    userId, arrangement.userSessionScope, stayAliveDuration, false, any()
+                )
+            } coAnswers {
                 // Push handling is taking 10 minutes
                 delay(10.minutes)
             }
@@ -634,15 +757,27 @@ class WireNotificationManagerTest {
             }
             // After first call, should have handled push once
             advanceTimeBy(1.minutes.inWholeMilliseconds)
-            coVerify(exactly = 1) { arrangement.syncLifecycleManager.syncTemporarily(userId, any()) }
+            coVerify(exactly = 1) {
+                arrangement.syncLifecycleManager.syncTemporarily(
+                    userId, arrangement.userSessionScope, stayAliveDuration, false, any()
+                )
+            }
 
             // After second call, should have handled push once
             advanceTimeBy(6.minutes.inWholeMilliseconds)
-            coVerify(exactly = 1) { arrangement.syncLifecycleManager.syncTemporarily(userId, any()) }
+            coVerify(exactly = 1) {
+                arrangement.syncLifecycleManager.syncTemporarily(
+                    userId, arrangement.userSessionScope, stayAliveDuration, false, any()
+                )
+            }
 
             // After everything ends, should have handled push once
             advanceUntilIdle()
-            coVerify(exactly = 1) { arrangement.syncLifecycleManager.syncTemporarily(userId, any()) }
+            coVerify(exactly = 1) {
+                arrangement.syncLifecycleManager.syncTemporarily(
+                    userId, arrangement.userSessionScope, stayAliveDuration, false, any()
+                )
+            }
         }
 
     @Test
@@ -659,7 +794,9 @@ class WireNotificationManagerTest {
         manager.fetchAndShowNotificationsOnce(userId.value)
         advanceUntilIdle()
 
-        coVerify(exactly = 0) { arrangement.syncLifecycleManager.syncTemporarily(userId, any()) }
+        coVerify(exactly = 0) {
+            arrangement.syncLifecycleManager.syncTemporarily(userId, any(), any(), any(), any())
+        }
     }
 
     @Test
@@ -676,7 +813,11 @@ class WireNotificationManagerTest {
             manager.fetchAndShowNotificationsOnce(userId.value)
             advanceUntilIdle()
 
-            coVerify(exactly = 1) { arrangement.syncLifecycleManager.syncTemporarily(userId, any()) }
+            coVerify(exactly = 1) {
+                arrangement.syncLifecycleManager.syncTemporarily(
+                    userId, arrangement.userSessionScope, stayAliveDuration, false, any()
+                )
+            }
         }
 
     @Test
@@ -1450,6 +1591,7 @@ class WireNotificationManagerTest {
         lateinit var observeE2EIRequired: ObserveE2EIRequiredUseCase
 
         private val currentSessionChannel = Channel<CurrentSessionResult>(capacity = Channel.UNLIMITED)
+        val rawAccounts = MutableStateFlow<GetAllSessionsResult>(GetAllSessionsResult.Failure.NoSessionFound)
         private val sessions = mutableMapOf<UserId, UserSessionScope>()
         val admission by lazy { FakeSessionAdmission(coreLogic) { sessions[it] ?: userSessionScope } }
 
@@ -1485,6 +1627,7 @@ class WireNotificationManagerTest {
             coEvery { markConnectionRequestAsNotified(any()) } returns Unit
             coEvery { syncManager.waitUntilLive() } returns Unit
             coEvery { globalKaliumScope.getSessions } returns getSessionsUseCase
+            coEvery { globalKaliumScope.observeAllValidSessionsFlow() } returns rawAccounts
             coEvery { coreLogic.getGlobalScope() } returns globalKaliumScope
             coEvery { messageNotificationManager.handleNotification(any(), any(), any()) } returns Unit
             coEvery { callsScope.getIncomingCalls } returns getIncomingCallsUseCase
@@ -1541,6 +1684,7 @@ class WireNotificationManagerTest {
 
         fun withSession(session: GetAllSessionsResult): Arrangement {
             coEvery { getSessionsUseCase() } returns session
+            rawAccounts.value = session
             return this
         }
 

@@ -180,7 +180,7 @@ class ObserveAppLockConfigUseCaseTest {
             .withAppLockedByCurrentUser(false).arrange()
         val failure = IllegalStateException("config failed")
         every { arrangement.appLockTeamFeatureConfigObserver() } throws failure
-        useCase().test { assertSame(failure, awaitError()) }
+        useCase().test { assertSame(failure, generateSequence(awaitError()) { it.cause }.last()) }
     }
 
     inner class Arrangement {

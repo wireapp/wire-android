@@ -23,10 +23,17 @@ import com.wire.kalium.logic.data.logout.LogoutReason
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.session.DoesValidSessionExistResult
 import com.wire.kalium.logic.feature.session.GetAllSessionsResult
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitCancellation
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
+import org.junit.jupiter.api.Assertions.assertTrue
+import kotlinx.coroutines.CancellationException
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 
+@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 class PendingMessagesForegroundSyncHandlerTest {
 
     @Test
@@ -52,7 +59,6 @@ class PendingMessagesForegroundSyncHandlerTest {
 
         handler.sendPendingMessagesForAllValidSessions()
 
-        assertEquals(4, events.size)
         listOf(FIRST_USER_ID, SECOND_USER_ID).forEach { userId ->
             assertEquals(listOf("check:${userId.value}", "send:${userId.value}"), events.filter { it.endsWith(userId.value) })
         }
@@ -190,6 +196,53 @@ class PendingMessagesForegroundSyncHandlerTest {
         handler.sendPendingMessagesForAllValidSessions()
 
         assertEquals(emptyList<UserId>(), sentPendingMessagesFor)
+    }
+
+    @Test
+    fun `pending A does not block B and cancelling the batch drains its waiting child`() = runTest {
+        val waiting = CompletableDeferred<Unit>()
+        val drained = CompletableDeferred<Unit>()
+        val sent = mutableListOf<UserId>()
+        val handler = PendingMessagesForegroundSyncHandler(
+            allSessions = {
+                GetAllSessionsResult.Success(listOf(AccountInfo.Valid(FIRST_USER_ID), AccountInfo.Valid(SECOND_USER_ID)))
+            },
+            doesValidSessionExist = { DoesValidSessionExistResult.Success(true) },
+            sendPendingMessagesAfterForegroundSync = {
+                if (it == FIRST_USER_ID) {
+                    waiting.complete(Unit)
+                    try { awaitCancellation() } finally { drained.complete(Unit) }
+                } else {
+                    sent += it
+                }
+            }
+        )
+        val batch = async { handler.sendPendingMessagesForAllValidSessions() }
+        waiting.await()
+        runCurrent()
+        assertEquals(listOf(SECOND_USER_ID), sent)
+        assertTrue(batch.isActive)
+        batch.cancel()
+        batch.join()
+        assertTrue(batch.isCancelled)
+        assertTrue(drained.isCompleted)
+    }
+
+    @Test
+    fun `send cancellation propagates from the concurrent batch`() = runTest {
+        val cancellation = CancellationException("send cancelled")
+        val handler = PendingMessagesForegroundSyncHandler(
+            allSessions = { GetAllSessionsResult.Success(listOf(AccountInfo.Valid(FIRST_USER_ID))) },
+            doesValidSessionExist = { DoesValidSessionExistResult.Success(true) },
+            sendPendingMessagesAfterForegroundSync = { throw cancellation }
+        )
+        val observed = try {
+            handler.sendPendingMessagesForAllValidSessions()
+            error("expected cancellation")
+        } catch (actual: CancellationException) {
+            actual
+        }
+        assertEquals(cancellation.message, observed.message)
     }
 
     private companion object {

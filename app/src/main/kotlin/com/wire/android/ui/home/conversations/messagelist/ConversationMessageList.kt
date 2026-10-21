@@ -68,8 +68,10 @@ import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalLocale
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
@@ -95,6 +97,7 @@ import com.wire.android.ui.home.conversations.AuthorHeaderHelper.rememberShouldH
 import com.wire.android.ui.home.conversations.AuthorHeaderHelper.rememberShouldShowHeader
 import com.wire.android.ui.home.conversations.LocalAssetLocalPathKeyInScopeResolver
 import com.wire.android.ui.home.conversations.LocalAudioMessageKeyInScopeResolver
+import com.wire.android.ui.home.conversations.MessageOptionsDismissal
 import com.wire.android.ui.home.conversations.info.ConversationDetailsData
 import com.wire.android.ui.home.conversations.messages.item.AdminlessGroupDeleteReminderItem
 import com.wire.android.ui.home.conversations.messages.item.AssetLocalPathArgs
@@ -108,6 +111,7 @@ import com.wire.android.ui.markdown.LocalInlineActionFocusRegistry
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.DateAndTimeParsers
+import com.wire.android.util.ui.handleContextMenuShortcut
 import com.wire.kalium.logic.data.conversation.InteractionAvailability
 import com.wire.kalium.logic.data.message.MessageAssetStatus
 import kotlin.time.Instant
@@ -124,7 +128,7 @@ private const val SCOPED_VIEW_MODEL_PREFETCH_WINDOW = 3
 @Suppress("ComplexMethod", "ComplexCondition")
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun ConversationMessageList(
+internal fun ConversationMessageList(
     lazyPagingMessages: LazyPagingItems<UIMessage>,
     lazyListState: LazyListState,
     lastUnreadMessageInstant: Instant?,
@@ -140,6 +144,10 @@ fun ConversationMessageList(
     interactionAvailability: InteractionAvailability,
     clickActions: MessageClickActions.Content,
     modifier: Modifier = Modifier,
+    onKeyboardOptionsRequested: ((UIMessage.Regular) -> Unit)? = null,
+    retainMessageNavigationForOptions: Boolean = false,
+    messageOptionsDismissal: MessageOptionsDismissal? = null,
+    onMessageOptionsDismissalHandled: (MessageOptionsDismissal) -> Boolean = { true },
     currentTimeInMillisFlow: Flow<Long> = flow { },
     showHistoryLoadingIndicator: Boolean = false,
     isFetchingOlderMessages: Boolean = false,
@@ -233,21 +241,68 @@ fun ConversationMessageList(
     val audioMessageKeyInScopeResolver = rememberKeysInScope(audioMessageKeysInScope)
     val assetLocalPathKeyInScopeResolver = rememberKeysInScope(assetLocalPathKeysInScope)
     val messageListContentDescription = stringResource(R.string.content_description_conversation_message_list)
+    val messageFocusTargets = remember { mutableMapOf<String, FocusRequester>() }
+    val windowFocused = LocalWindowInfo.current.isWindowFocused
     val focusManager = LocalFocusManager.current
     val messageListFocusRequester = remember { FocusRequester() }
     val firstMessageFocusRequester = remember { FocusRequester() }
     var isMessageNavigationActive by rememberSaveable { mutableStateOf(false) }
     var isMessageListFocused by remember { mutableStateOf(false) }
     var messageNavigationTargetIndex by remember { mutableStateOf(0) }
+    var isMessageNavigationStarting by remember { mutableStateOf(false) }
+    val messageNavigationScope = rememberCoroutineScope()
 
     val contentFocusRestoration = rememberMessageContentFocusRestoration(messageListFocusRequester) {
         isMessageNavigationActive = true
     }
 
-    LaunchedEffect(isMessageNavigationActive) {
-        if (isMessageNavigationActive && !contentFocusRestoration.hasPendingRestoration && lazyPagingMessages.itemCount > 0) {
-            withFrameNanos { }
-            firstMessageFocusRequester.requestFocus()
+    LaunchedEffect(messageOptionsDismissal, windowFocused) {
+        when (val result = messageOptionsDismissal) {
+            is MessageOptionsDismissal.RestoreMessage -> if (windowFocused) {
+                isMessageNavigationActive = messageFocusTargets.containsKey(result.messageId)
+                // Attach enabled message targets after the sheet window has gone away.
+                withFrameNanos { }
+                // Claim this result before focusing; an older effect cannot consume a newer dismissal.
+                if (onMessageOptionsDismissalHandled(result)) {
+                    val restored = messageFocusTargets[result.messageId]?.requestFocus() == true
+                    if (!restored) {
+                        isMessageNavigationActive = false
+                        messageListFocusRequester.requestFocus()
+                    }
+                }
+            }
+            MessageOptionsDismissal.FocusHandledByAction -> {
+                if (onMessageOptionsDismissalHandled(result)) isMessageNavigationActive = false
+            }
+            null -> Unit
+        }
+    }
+
+    fun requestMessageFocus() {
+        isMessageNavigationStarting = true
+        isMessageNavigationActive = true
+        messageNavigationScope.launch {
+            try {
+                // Allow a frame for Compose to enable and attach the message focus target.
+                withFrameNanos { }
+                if (isMessageNavigationActive && lazyPagingMessages.itemCount > 0) {
+                    firstMessageFocusRequester.requestFocus()
+                    // Keep the navigation guard active while focus callbacks settle.
+                    withFrameNanos { }
+                }
+            } finally {
+                isMessageNavigationStarting = false
+            }
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        if (isMessageNavigationActive &&
+            !contentFocusRestoration.hasPendingRestoration &&
+            !retainMessageNavigationForOptions
+        ) {
+            messageNavigationTargetIndex = lazyListState.firstVisibleItemIndex
+            requestMessageFocus()
         }
     }
 
@@ -272,7 +327,11 @@ fun ConversationMessageList(
                 .focusRequester(messageListFocusRequester)
                 .onFocusChanged { focusState ->
                     isMessageListFocused = focusState.isFocused
-                    if (!focusState.hasFocus && !contentFocusRestoration.hasPendingRestoration) {
+                    if (!focusState.hasFocus &&
+                        !contentFocusRestoration.hasPendingRestoration &&
+                        !retainMessageNavigationForOptions &&
+                        !isMessageNavigationStarting
+                    ) {
                         isMessageNavigationActive = false
                     }
                 }
@@ -281,7 +340,7 @@ fun ConversationMessageList(
                     when {
                         isMessageListFocused && (event.key == Key.Enter || event.key == Key.NumPadEnter) -> {
                             messageNavigationTargetIndex = lazyListState.firstVisibleItemIndex
-                            isMessageNavigationActive = true
+                            requestMessageFocus()
                             true
                         }
                         isMessageNavigationActive && event.key == Key.DirectionUp ->
@@ -343,6 +402,9 @@ fun ConversationMessageList(
                     val useSmallBottomPadding = rememberShouldHaveSmallBottomPadding(index, message, lazyPagingMessages)
                     var isMessageKeyboardFocused by remember(message.header.messageId) { mutableStateOf(false) }
                     val messageFocusRequester = remember(message.header.messageId) { FocusRequester() }
+                    val onOpenOptions = (message as? UIMessage.Regular)
+                        ?.takeUnless { it.isDeleted }
+                        ?.let { regular -> clickActions.onFullMessageLongClicked?.let { open -> { open(regular) } } }
                     val contentHash = when (val content = message.messageContent) {
                         is UIMessageContent.TextMessage -> content.messageBody.hashCode()
                         is UIMessageContent.Multipart -> content.messageBody.hashCode()
@@ -351,7 +413,11 @@ fun ConversationMessageList(
                     }
                     DisposableEffect(message.header.messageId, contentHash) {
                         contentFocusRestoration.register(message.header.messageId, messageFocusRequester, contentHash)
-                        onDispose { contentFocusRestoration.unregister(message.header.messageId) }
+                        messageFocusTargets[message.header.messageId] = messageFocusRequester
+                        onDispose {
+                            contentFocusRestoration.unregister(message.header.messageId)
+                            messageFocusTargets.remove(message.header.messageId)
+                        }
                     }
                     val inlineFocusRegistry = remember(message.header.messageId, contentFocusRestoration) {
                         contentFocusRestoration.forMessage(message.header.messageId)
@@ -393,6 +459,7 @@ fun ConversationMessageList(
                     CompositionLocalProvider(LocalInlineActionFocusRegistry provides inlineFocusRegistry) {
                         MessageContainerItem(
                             modifier = Modifier
+                                .testTag("message_${message.header.messageId}")
                                 .applyIf(isMessageKeyboardFocused) {
                                     background(MaterialTheme.wireColorScheme.primaryVariant)
                                 }
@@ -401,6 +468,19 @@ fun ConversationMessageList(
                                 }
                                 .focusRequester(messageFocusRequester)
                                 .onFocusChanged { isMessageKeyboardFocused = it.isFocused }
+                                .onPreviewKeyEvent { event ->
+                                    if (onOpenOptions == null) {
+                                        false
+                                    } else {
+                                        event.handleContextMenuShortcut {
+                                            if (onKeyboardOptionsRequested != null) {
+                                                onKeyboardOptionsRequested(message as UIMessage.Regular)
+                                            } else {
+                                                onOpenOptions()
+                                            }
+                                        }
+                                    }
+                                }
                                 .focusProperties { canFocus = isMessageNavigationActive }
                                 .focusable(isMessageNavigationActive),
                             message = message,

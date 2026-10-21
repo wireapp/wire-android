@@ -33,6 +33,7 @@ import com.wire.kalium.logic.feature.message.GetMessageByIdUseCase
 import com.wire.kalium.logic.feature.message.ObserveMessageByIdUseCase
 import com.wire.kalium.logic.feature.session.DeleteSessionUseCase
 import com.wire.kalium.logic.featureFlags.KaliumConfigs
+import com.wire.kalium.network.networkContainer.AuthenticatedNetworkContainer
 import com.wire.kalium.persistence.dao.SupportedProtocolEntity
 import com.wire.kalium.persistence.dao.UserAvailabilityStatusEntity
 import com.wire.kalium.persistence.dao.UserEntity
@@ -43,6 +44,8 @@ import com.wire.kalium.persistence.dao.message.MessageEntity
 import com.wire.kalium.persistence.dao.message.MessageEntityContent
 import com.wire.kalium.persistence.daokaliumdb.ServerConfigurationDAO
 import com.wire.kalium.persistence.db.PlatformDatabaseData
+import com.wire.kalium.persistence.db.GlobalDatabaseBuilder
+import com.wire.kalium.persistence.db.UserDatabaseBuilder
 import com.wire.kalium.persistence.db.globalDatabaseProvider
 import com.wire.kalium.persistence.db.userDatabaseBuilder
 import dev.zacsweers.metro.BindingContainer
@@ -67,6 +70,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.async
 import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
@@ -109,6 +113,10 @@ class WireKaliumConsumerIntegrationTest {
     @Test
     @Suppress("LongMethod") // One retained-owner scenario spans disposal, replacement and final teardown.
     fun givenRealSdkConsumers_whenRetainingClearingAndReplacingAccount_thenFactoryPreservesOwnersAndGenerations() = runBlocking {
+        repeat(2) { verifyOwnershipScenario() }
+    }
+
+    private suspend fun verifyOwnershipScenario() = coroutineScope {
         val owner = IntegrationOwner()
         val independentOwner = IntegrationOwner()
         val reads = mutableListOf<ActiveReads>()
@@ -118,7 +126,7 @@ class WireKaliumConsumerIntegrationTest {
             every { WorkManager.getInstance(any<Context>()) } returns mockk(relaxed = true)
             withTimeout(30_000) {
                 val sdk = IntegrationFixture.create().also { fixture = it }
-                val session = sdk.logic.getSessionScope(sdk.userId)
+                val session = sdk.session()
                 val factory = IntegrationFactory(session)
                 val provider = ViewModelProvider(owner, factory)
                 val first = provider["conversation-screen", WireKaliumIntegrationViewModel::class.java]
@@ -160,7 +168,7 @@ class WireKaliumConsumerIntegrationTest {
                 assertStoredMessage(second.getMessage(sdk.conversationId, MESSAGE_ID))
 
                 // Closing one VM consumer leaves both the parent generation and siblings usable.
-                assertSame(session, sdk.logic.getSessionScope(sdk.userId))
+                assertSame(session, sdk.session())
                 val probe = session.createConsumer()
                 try {
                     assertStoredMessage(probe.getMessageById(sdk.conversationId, MESSAGE_ID))
@@ -189,9 +197,9 @@ class WireKaliumConsumerIntegrationTest {
                 // Published ViewModels own their consumers; invalidation must not cancel their jobs.
                 assertTrue(second.viewModelScope.coroutineContext.job.isActive)
 
-                val replacement = sdk.logic.getSessionScope(sdk.userId)
+                val replacement = sdk.session()
                 assertNotSame(session, replacement)
-                assertSame(replacement, sdk.logic.getSessionScope(sdk.userId))
+                assertSame(replacement, sdk.session())
                 val freshFactory = IntegrationFactory(replacement)
                 val fresh = ViewModelProvider(owner, freshFactory)["conversation-screen", WireKaliumIntegrationViewModel::class.java]
                 assertNotSame(first.consumer, fresh.consumer)
@@ -265,12 +273,6 @@ class WireKaliumConsumerIntegrationTest {
         return ActiveReads(messageFlow, detailsFlow, messageJob, detailsJob)
     }
 
-    // The SDK keeps repository captures private; reflection avoids adding production test accessors.
-    private fun capture(owner: Any, name: String): Any = owner.javaClass.getDeclaredField(name).let {
-        it.isAccessible = true
-        checkNotNull(it.get(owner))
-    }
-
     private fun assertStoredMessage(result: GetMessageByIdUseCase.Result) {
         val message = (result as GetMessageByIdUseCase.Result.Success).message
         assertTrue(message is Message.Regular)
@@ -324,6 +326,22 @@ class WireKaliumConsumerIntegrationTest {
     }
 
     private class IntegrationFixture(val logic: CoreLogic, val userId: UserId, val conversationId: ConversationId) {
+        private val sessions = linkedSetOf<UserSessionScope>()
+        private val databases = linkedSetOf<UserDatabaseBuilder>()
+        private val networks = linkedSetOf<AuthenticatedNetworkContainer>()
+        private var globalDatabase: GlobalDatabaseBuilder? = CoreLogic::class.java
+            .getDeclaredMethod("getGlobalDatabaseBuilder").let {
+                it.isAccessible = true
+                it.invoke(logic) as GlobalDatabaseBuilder
+            }
+
+        fun session(): UserSessionScope = logic.getSessionScope(userId).also { session ->
+            sessions.add(session)
+            networks.add(capture(session, "authenticatedNetworkContainer") as AuthenticatedNetworkContainer)
+            val storage = capture(session, "userStorage")
+            databases.add(storage.javaClass.getMethod("getDatabase").invoke(storage) as UserDatabaseBuilder)
+        }
+
         suspend fun login(replace: Boolean = false) {
             assertEquals(
                 AddAuthenticatedUserUseCase.Result.Success(userId),
@@ -341,11 +359,50 @@ class WireKaliumConsumerIntegrationTest {
         }
 
         suspend fun close() {
-            try {
+            if (globalDatabase == null && databases.isEmpty() && networks.isEmpty()) return
+            val removal = runCatching {
                 assertEquals(DeleteSessionUseCase.Result.Success, logic.getGlobalScope().deleteSession(userId))
-            } finally {
-                logic.getGlobalScope().coroutineContext.job.cancelAndJoin()
             }
+            val cleanup = runCatching {
+                withContext(NonCancellable + Dispatchers.Default) {
+                    withTimeout(10_000) {
+                        logic.getGlobalScope().coroutineContext.job.cancelAndJoin()
+                        val detachedJobs = sessions.mapNotNull { session ->
+                            val manager = capture(session, "keyPackageManager\$delegate") as Lazy<*>
+                            if (!manager.isInitialized()) null else {
+                                (capture(checkNotNull(manager.value), "refillKeyPackagesScope") as CoroutineScope).coroutineContext.job
+                            }
+                        }
+                        detachedJobs.forEach { it.cancel() }
+                        detachedJobs.forEach { it.join() }
+                        sessions.forEach { it.coroutineContext.job.cancel() }
+                        sessions.forEach { it.coroutineContext.job.join() }
+                        val cellsJobs = sessions.filter { it.isCellsInitialized }.map { it.cells.coroutineContext.job }
+                        cellsJobs.forEach { it.cancel() }
+                        cellsJobs.forEach { it.join() }
+                        assertTrue(cellsJobs.all { it.isCompleted })
+                        assertTrue(sessions.all { it.coroutineContext.job.isCompleted })
+                        assertTrue(detachedJobs.all { it.isCompleted })
+                        while (networks.isNotEmpty()) {
+                            val network = networks.first()
+                            network.close()
+                            networks.remove(network)
+                        }
+                        while (databases.isNotEmpty()) {
+                            val database = databases.first()
+                            database.close()
+                            databases.remove(database)
+                        }
+                        globalDatabase?.close()
+                        globalDatabase = null
+                    }
+                }
+            }
+            removal.exceptionOrNull()?.let { failure ->
+                cleanup.exceptionOrNull()?.takeIf { it !== failure }?.let(failure::addSuppressed)
+                throw failure
+            }
+            cleanup.getOrThrow()
         }
 
         companion object {
@@ -518,4 +575,10 @@ class WireKaliumIntegrationAudioEffectShadow {
         @Implementation
         fun __staticInitializer__() = Unit
     }
+}
+
+// Read existing captures without widening SDK visibility or initializing unused lazy resources.
+private fun capture(owner: Any, name: String): Any = owner.javaClass.getDeclaredField(name).let {
+    it.isAccessible = true
+    checkNotNull(it.get(owner))
 }

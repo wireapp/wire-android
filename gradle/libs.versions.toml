@@ -94,7 +94,7 @@ ksp = "2.3.11"
 kermitIo = "2.0.5"
 
 # Benchmark
-benchmark-macro-junit4 = "1.4.1"
+benchmark-macro-junit4 = "1.5.0"
 benchmark-baselineprofile-plugin = "1.5.0"
 profileinstaller = "1.4.1"
 

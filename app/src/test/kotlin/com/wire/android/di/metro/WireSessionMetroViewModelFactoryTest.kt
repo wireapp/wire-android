@@ -51,17 +51,23 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.runCurrent
+import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotSame
 import org.junit.jupiter.api.Assertions.assertSame
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
+import org.junit.jupiter.api.extension.RegisterExtension
 
 @OptIn(ExperimentalCoroutinesApi::class)
-@ExtendWith(CoroutineTestExtension::class)
 class WireSessionMetroViewModelFactoryTest {
+    @JvmField
+    @RegisterExtension
+    val coroutineTestExtension = CoroutineTestExtension(StandardTestDispatcher())
+
     @Test
     fun givenSameOwnerAndKey_whenLookingUpAgain_thenConsumerAndChildGraphAreRetained() {
         val arrangement = Arrangement()
@@ -99,8 +105,14 @@ class WireSessionMetroViewModelFactoryTest {
         assertNotSame(second.getMessage, third.getMessage)
         owner.viewModelStore.clear()
         owner.viewModelStore.clear()
-        verify(exactly = 1) { arrangement.consumers[0].close(); arrangement.consumers[1].close() }
-        verify(exactly = 0) { arrangement.consumers[2].close(); arrangement.parent.close() }
+        verify(exactly = 1) {
+            arrangement.consumers[0].close()
+            arrangement.consumers[1].close()
+        }
+        verify(exactly = 0) {
+            arrangement.consumers[2].close()
+            arrangement.parent.close()
+        }
         otherOwner.viewModelStore.clear()
         verify(exactly = 1) { arrangement.consumers[2].close() }
     }
@@ -160,7 +172,7 @@ class WireSessionMetroViewModelFactoryTest {
     }
 
     @Test
-    fun givenActualScopedAudioViewModel_whenCreatingAndRetaining_thenEachNewItemUsesItsConsumer() {
+    fun givenActualScopedAudioViewModel_whenCreatingAndRetaining_thenEachNewItemUsesItsConsumer() = runTest {
         val arrangement = Arrangement()
         val owner = ReadOwner()
         val args = AudioMessageArgs(ConversationId("conversation", "wire.test"), "message")
@@ -173,8 +185,12 @@ class WireSessionMetroViewModelFactoryTest {
         assertSame(first, provider["first", AudioMessageViewModelImpl::class.java])
         assertNotSame(first, provider["second", AudioMessageViewModelImpl::class.java])
         assertEquals(2, arrangement.consumers.size)
+        runCurrent()
         arrangement.consumers.forEach { consumer ->
-            coVerify(exactly = 1) { consumer.observeMessageById(args.conversationId, args.messageId) }
+            verify(exactly = 1) { consumer.observeMessageById }
+            // Resolve the explicitly returned mock before verification, avoiding MockK's synthetic child mock.
+            val observeMessageById = consumer.observeMessageById
+            coVerify(exactly = 1) { observeMessageById(args.conversationId, args.messageId) }
         }
         owner.viewModelStore.clear()
         arrangement.consumers.forEach { consumer -> verify(exactly = 1) { consumer.close() } }
@@ -204,9 +220,12 @@ class WireSessionMetroViewModelFactoryTest {
         val sibling = ViewModelProvider(owner, arrangement.factory)[DirectReadViewModel::class.java]
         val failure = IllegalStateException("Graph creation failed")
         arrangement.graphFailure = failure
-        assertSame(failure, assertThrows(IllegalStateException::class.java) {
-            arrangement.factory.create(DirectReadViewModel::class, CreationExtras.Empty)
-        })
+        assertSame(
+            failure,
+            assertThrows(IllegalStateException::class.java) {
+                arrangement.factory.create(DirectReadViewModel::class, CreationExtras.Empty)
+            }
+        )
         arrangement.graphFailure = null
         assertThrows(IllegalStateException::class.java) {
             arrangement.factory.create(FailingReadViewModel::class, CreationExtras.Empty)
@@ -215,13 +234,19 @@ class WireSessionMetroViewModelFactoryTest {
             arrangement.factory.create(AssistedReadViewModel::class, CreationExtras.Empty)
         }
         val manual = arrangement.factory.wireManualViewModelFactory(ReadManualFactory::class) { throw failure }
-        assertSame(failure, assertThrows(IllegalStateException::class.java) {
-            manual.create(AssistedReadViewModel::class, CreationExtras.Empty)
-        })
+        assertSame(
+            failure,
+            assertThrows(IllegalStateException::class.java) {
+                manual.create(AssistedReadViewModel::class, CreationExtras.Empty)
+            }
+        )
         assertEquals(5, arrangement.consumers.size)
         arrangement.consumers.drop(1).forEach { consumer -> verify(exactly = 1) { consumer.close() } }
         assertTrue(sibling.viewModelScope.coroutineContext[Job]!!.isActive)
-        verify(exactly = 0) { arrangement.consumers.first().close(); arrangement.parent.close() }
+        verify(exactly = 0) {
+            arrangement.consumers.first().close()
+            arrangement.parent.close()
+        }
         owner.viewModelStore.clear()
     }
 
@@ -242,7 +267,10 @@ class WireSessionMetroViewModelFactoryTest {
 
         assertTrue(vm.cleared)
         assertTrue(vm.viewModelScope.coroutineContext[Job]!!.isCancelled)
-        verify(exactly = 1) { consumer.close(); owned.close() }
+        verify(exactly = 1) {
+            consumer.close()
+            owned.close()
+        }
         verify(exactly = 0) { vm.parent.close() }
     }
 
@@ -401,8 +429,13 @@ internal object ReadConsumerBindings {
     @ManualViewModelAssistedFactoryKey(ScopedMessageManualViewModelFactory::class)
     fun audio(factory: AudioMessageViewModelImpl.Factory): ManualViewModelAssistedFactory =
         WireMetroViewModelBindings.scopedMessageManualViewModelFactory(
-            compositeMessageFactory = mockk(), messageOptionsMenuFactory = mockk(), typingIndicatorFactory = mockk(),
-            assetLocalPathFactory = mockk(), selfDeletingMessageActionFactory = mockk(),
-            isFileSharingEnabledProvider = mockk(), recordAudioProvider = mockk(), audioMessageFactory = factory,
+            compositeMessageFactory = mockk(),
+            messageOptionsMenuFactory = mockk(),
+            typingIndicatorFactory = mockk(),
+            assetLocalPathFactory = mockk(),
+            selfDeletingMessageActionFactory = mockk(),
+            isFileSharingEnabledProvider = mockk(),
+            recordAudioProvider = mockk(),
+            audioMessageFactory = factory,
         )
 }

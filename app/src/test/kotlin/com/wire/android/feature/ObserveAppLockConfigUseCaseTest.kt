@@ -197,7 +197,7 @@ class ObserveAppLockConfigUseCaseTest {
         @MockK
         lateinit var appLockTeamFeatureConfigObserver: AppLockTeamFeatureConfigObserver
 
-        val admission by lazy { FakeSessionAdmission(coreLogic) { userSessionScope } }
+        internal val admission by lazy { FakeSessionAdmission(coreLogic) { userSessionScope } }
 
         val useCase by lazy {
             ObserveAppLockConfigUseCase(

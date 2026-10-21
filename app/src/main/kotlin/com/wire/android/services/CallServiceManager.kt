@@ -21,9 +21,9 @@ import com.wire.android.appLogger
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.notification.CallNotificationData
 import com.wire.android.services.CallService.Action
+import com.wire.android.session.runWithValidSession
 import com.wire.android.util.logging.logIfEmptyUserName
 import com.wire.kalium.common.functional.Either
-import com.wire.kalium.common.functional.fold
 import com.wire.kalium.common.functional.left
 import com.wire.kalium.common.functional.right
 import com.wire.kalium.logic.CoreLogic
@@ -31,16 +31,18 @@ import com.wire.kalium.logic.data.call.Call
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.UserSessionScope
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
-import com.wire.kalium.logic.feature.session.DoesValidSessionExistResult
+import com.wire.kalium.logic.feature.session.GetAllSessionsResult
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
@@ -76,43 +78,48 @@ class CallServiceManager @Inject constructor(@KaliumCoreLogic val coreLogic: Cor
         .debounce { if (it is Either.Left) ServicesManager.DEBOUNCE_TIME else 0L }
 
     /** Answers the call for the given action if a valid session and incoming call exist for the userId, logging if it does not. */
-    private suspend fun answerCall(action: Action.Start.AnswerCall) = getValidSessionIfExists(action.userId).fold({
-        appLogger.i("$TAG: Cannot answer call, no valid session for user ${action.userId.toLogString()}")
-    }, { userSessionScope ->
-        val incomingCall = userSessionScope.calls.getIncomingCalls().firstOrNull()?.firstOrNull {
+    private suspend fun answerCall(action: Action.Start.AnswerCall) = coreLogic.runWithValidSession(action.userId) {
+        val incomingCall = calls.getIncomingCalls().firstOrNull()?.firstOrNull {
             it.conversationId == action.conversationId
         }
         if (incomingCall != null) {
-            userSessionScope.calls.answerCall(action.conversationId)
+            calls.answerCall(action.conversationId)
         } else {
             appLogger.i(
                 "$TAG: Cannot answer call, no incoming call for user ${action.userId.toLogString()}" +
                         " and conversation ${action.conversationId.toLogString()}"
             )
         }
-    })
+    }
 
-    /** Closes the active call for the current session if it exists, logging if it does not. */
-    private suspend fun closeActiveCall() =
-        coreLogic.getGlobalScope().session.currentSessionFlow().firstOrNull().let {
-            if (it is CurrentSessionResult.Success && it.accountInfo.isValid()) {
-                val userId = it.accountInfo.userId
-                val userSessionScope = coreLogic.getSessionScope(userId)
-                combine(
-                    userSessionScope.calls.observeOutgoingCall(),
-                    userSessionScope.calls.establishedCall(),
-                    { outgoingCalls, establishedCalls -> outgoingCalls + establishedCalls }
-                ).firstOrNull()?.forEach {
-                    appLogger.i(
-                        "$TAG: Ending call for user ${userId.toLogString()}" +
-                                " and conversation ${it.conversationId.toLogString()}"
-                    )
-                    userSessionScope.calls.endCall(it.conversationId)
+    /** Closes at most one snapshot of active calls, cancelling when the current account becomes inactive. */
+    private suspend fun closeActiveCall() {
+        val sessions = coreLogic.getGlobalScope().session.currentSessionFlow()
+        val account = (sessions.firstOrNull() as? CurrentSessionResult.Success)?.accountInfo
+        if (account?.isValid() != true) return
+        var started = false
+        sessions.flatMapLatest { result ->
+            flow {
+                if (!started && result is CurrentSessionResult.Success && result.accountInfo.isValid() &&
+                    result.accountInfo.userId == account.userId
+                ) {
+                    coreLogic.runWithValidSession(account.userId) {
+                        started = true
+                        combine(calls.observeOutgoingCall(), calls.establishedCall()) { outgoing, established ->
+                            outgoing + established
+                        }.firstOrNull()?.forEach {
+                            appLogger.i(
+                                "$TAG: Ending call for user ${account.userId.toLogString()}" +
+                                        " and conversation ${it.conversationId.toLogString()}"
+                            )
+                            calls.endCall(it.conversationId)
+                        }
+                    }
                 }
-            } else {
-                appLogger.i("$TAG: Cannot end call, no valid current session")
+                emit(Unit)
             }
-        }
+        }.firstOrNull()
+    }
 
     /**
      * Returns a flow representing the lifecycle of the service for the given start action.
@@ -124,15 +131,21 @@ class CallServiceManager @Inject constructor(@KaliumCoreLogic val coreLogic: Cor
             .flatMapLatest {
                 if (it is CurrentSessionResult.Success && it.accountInfo.isValid()) {
                     val userId = it.accountInfo.userId
-                    val userSessionScope = coreLogic.getSessionScope(userId)
-                    val userName = userSessionScope.getUserName()
-                    combine(
-                        userSessionScope.calls.establishedCall().mapToCallNotificationData(userId, userName),
-                        userSessionScope.calls.observeOutgoingCall().mapToCallNotificationData(userId, userName),
-                        observeCallCurrentlyBeingAnswered(action),
-                    ) { establishedCalls, outgoingCalls, answeringCall ->
-                        (establishedCalls + outgoingCalls + answeringCall).firstOrNull()?.right() ?: StopReason.NO_CALLS.left()
+                    val currentCalls = coreLogic.observeValidSession(userId) {
+                        val userName = getUserName()
+                        combine(
+                            calls.establishedCall().mapToCallNotificationData(userId, userName),
+                            calls.observeOutgoingCall().mapToCallNotificationData(userId, userName),
+                        ) { established, outgoing -> established + outgoing }
                     }
+                    combine(currentCalls, observeCallCurrentlyBeingAnswered(action)) { current, answering ->
+                        val call = (current.orEmpty() + answering.orEmpty()).firstOrNull()
+                        when {
+                            call != null -> call.right()
+                            current == null || answering == null -> null // Pending admission is not evidence of no calls.
+                            else -> StopReason.NO_CALLS.left()
+                        }
+                    }.filterNotNull()
                 } else {
                     flowOf(Either.Left(StopReason.NO_VALID_CURRENT_SESSION))
                 }
@@ -142,16 +155,22 @@ class CallServiceManager @Inject constructor(@KaliumCoreLogic val coreLogic: Cor
      * Observes the call that is currently being answered, if any. If the action is of type AnswerCall, it checks if a valid session exists
      * for the userId and returns the call data if it does, otherwise returns an empty list.
      */
-    private suspend fun observeCallCurrentlyBeingAnswered(action: Action.Start) =
+    private suspend fun observeCallCurrentlyBeingAnswered(action: Action.Start): Flow<List<CallNotificationData>?> =
         if (action is Action.Start.AnswerCall) {
-            getValidSessionIfExists(action.userId).fold({
-                flowOf(emptyList())
-            }, { userSessionScope ->
-                val userName = userSessionScope.getUserName()
-                userSessionScope.calls.getIncomingCalls()
-                    .map { it.filter { it.conversationId == action.conversationId } }
-                    .mapToCallNotificationData(action.userId, userName)
-            })
+            coreLogic.getGlobalScope().observeAllValidSessionsFlow().map { result ->
+                (result as? GetAllSessionsResult.Success)?.sessions.orEmpty().any { it.userId == action.userId && it.isValid() }
+            }.distinctUntilChanged().flatMapLatest { valid ->
+                if (valid) {
+                    coreLogic.observeValidSession(action.userId) {
+                        val userName = getUserName()
+                        calls.getIncomingCalls()
+                            .map { it.filter { it.conversationId == action.conversationId } }
+                            .mapToCallNotificationData(action.userId, userName)
+                    }
+                } else {
+                    flowOf(emptyList())
+                }
+            }
         } else {
             flowOf(emptyList())
         }
@@ -165,16 +184,6 @@ class CallServiceManager @Inject constructor(@KaliumCoreLogic val coreLogic: Cor
     private suspend fun UserSessionScope.getUserName() = users.observeSelfUser().first()
         .also { it.logIfEmptyUserName() }
         .let { it.handle ?: it.name ?: "" }
-
-    /** Checks if a valid session exists for the given userId and returns the UserSessionScope if it does. */
-    private suspend fun getValidSessionIfExists(userId: UserId): Either<Unit, UserSessionScope> =
-        coreLogic.getGlobalScope().doesValidSessionExist(userId).let { result ->
-            if (result is DoesValidSessionExistResult.Success && result.doesValidSessionExist) {
-                coreLogic.getSessionScope(userId).right()
-            } else {
-                Unit.left()
-            }
-        }
 
     enum class StopReason(val message: String) {
         NO_CALLS("no calls"),

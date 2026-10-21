@@ -19,7 +19,6 @@ package com.wire.android.services
 
 import com.wire.android.framework.fake.FakeSyncExecutor
 import com.wire.android.session.FakeSessionAdmission
-import com.wire.android.session.runWithValidSession
 import com.wire.android.util.CurrentScreenManager
 import com.wire.android.util.lifecycle.SyncLifecycleManager
 import com.wire.kalium.common.error.CoreFailure
@@ -91,7 +90,7 @@ class SendPendingMessagesAfterForegroundSyncUseCaseTest {
             try { awaitCancellation() } finally { drained.complete(Unit) }
         }
         val request = async {
-            arrangement.coreLogic.runWithValidSession(USER_ID) { useCase(USER_ID, this) }
+            useCase(USER_ID)
         }
         runCurrent()
         assertEquals(0, arrangement.syncExecutor.requestCount)
@@ -112,7 +111,7 @@ class SendPendingMessagesAfterForegroundSyncUseCaseTest {
         val (arrangement, useCase) = Arrangement().arrange()
         arrangement.admission.publish(USER_ID, null)
         val request = async {
-            arrangement.coreLogic.runWithValidSession(USER_ID) { useCase(USER_ID, this) }
+            useCase(USER_ID)
         }
         runCurrent()
         arrangement.rawAccounts.value = GetAllSessionsResult.Success(emptyList())
@@ -130,7 +129,7 @@ class SendPendingMessagesAfterForegroundSyncUseCaseTest {
         val failure = IllegalStateException("send failed")
         coEvery { arrangement.sendPendingMessages() } throws failure
         val observed = try {
-            arrangement.coreLogic.runWithValidSession(USER_ID) { useCase(USER_ID, this) }
+            useCase(USER_ID)
             error("expected failure")
         } catch (actual: IllegalStateException) {
             actual
@@ -144,7 +143,7 @@ class SendPendingMessagesAfterForegroundSyncUseCaseTest {
         val (arrangement, useCase) = Arrangement().arrange()
         arrangement.admission.publish(USER_ID, null)
         val request = async {
-            arrangement.coreLogic.runWithValidSession(USER_ID) { useCase(USER_ID, this) }
+            useCase(USER_ID)
         }
         runCurrent()
         request.cancel()
@@ -178,7 +177,6 @@ class SendPendingMessagesAfterForegroundSyncUseCaseTest {
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
             admission
-            every { coreLogic.getSessionScope(USER_ID) } returns userSessionScope
             coEvery { coreLogic.getGlobalScope().observeAllValidSessionsFlow() } returns rawAccounts
             every { userSessionScope.syncManager } returns syncStateObserver
             every { syncStateObserver.syncState } returns MutableStateFlow(SyncState.Live)

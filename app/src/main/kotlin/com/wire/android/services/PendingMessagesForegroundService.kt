@@ -37,6 +37,7 @@ import com.wire.android.notification.NotificationConstants.PENDING_MESSAGES_SYNC
 import com.wire.android.notification.NotificationConstants.PENDING_MESSAGES_SYNC_CHANNEL_NAME
 import com.wire.android.notification.NotificationIds
 import com.wire.android.notification.openAppPendingIntent
+import com.wire.android.session.runWithValidSession
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.lifecycle.SyncLifecycleManager
 import com.wire.kalium.logic.CoreLogic
@@ -53,7 +54,10 @@ import dev.zacsweers.metro.Inject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeoutOrNull
@@ -256,16 +260,16 @@ internal class PendingMessagesForegroundSyncHandler(
         sendPendingMessagesAfterForegroundSync = sendPendingMessagesAfterForegroundSync::invoke
     )
 
-    suspend fun sendPendingMessagesForAllValidSessions() {
+    suspend fun sendPendingMessagesForAllValidSessions() = coroutineScope {
         when (val result = allSessions()) {
             is GetAllSessionsResult.Success ->
                 result.sessions
                     .filterIsInstance<AccountInfo.Valid>()
                     .map { it.userId }
                     .distinct()
-                    .forEach { userId ->
-                        sendPendingMessagesIfSessionIsStillValid(userId)
-                    }
+                    .map { userId ->
+                        async { sendPendingMessagesIfSessionIsStillValid(userId) }
+                    }.awaitAll()
 
             is GetAllSessionsResult.Failure ->
                 appLogger.w("$TAG: unable to get valid sessions, skipping pending messages send: $result")
@@ -312,13 +316,7 @@ class SendPendingMessagesAfterForegroundSyncUseCase @Inject constructor(
     private val syncLifecycleManager: SyncLifecycleManager,
 ) {
     suspend operator fun invoke(userId: UserId) {
-        syncLifecycleManager.syncTemporarily(
-            userId = userId,
-            stayAliveExtraDuration = 3.seconds,
-            waitForNextSyncState = true,
-        ) {
-            coreLogic.getSessionScope(userId).sendAfterSync(userId)
-        }
+        coreLogic.runWithValidSession(userId) { invoke(userId, this) }
     }
 
     internal suspend operator fun invoke(userId: UserId, session: UserSessionScope) {

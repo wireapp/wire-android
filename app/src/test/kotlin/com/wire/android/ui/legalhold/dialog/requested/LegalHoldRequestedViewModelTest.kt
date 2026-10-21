@@ -18,12 +18,15 @@
 package com.wire.android.ui.legalhold.dialog.requested
 
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
+import com.wire.android.session.FakeSessionAdmission
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.SnapshotExtension
 import com.wire.android.ui.legalhold.dialog.requested.LegalHoldRequestedViewModelTest.Arrangement.Companion.UNKNOWN_ERROR
 import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.auth.AccountInfo
+import com.wire.kalium.logic.data.logout.LogoutReason
+import com.wire.kalium.logic.feature.session.GetAllSessionsResult
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.UserSessionScope
 import com.wire.kalium.logic.feature.auth.ValidatePasswordResult
@@ -40,6 +43,13 @@ import io.mockk.impl.annotations.MockK
 import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.awaitCancellation
+import kotlinx.coroutines.test.runCurrent
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.cancel
+import org.junit.jupiter.api.Assertions.assertTrue
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import com.wire.android.assertions.shouldBeEqualTo
@@ -293,6 +303,51 @@ class LegalHoldRequestedViewModelTest {
         coVerify { arrangement.userSessionScope.approveLegalHoldRequest(password) }
     }
 
+    @Test
+    fun `request waits for publication and invalid current metadata cancels captured password read`() = runTest {
+        val arrangement = arrangeWithLegalHoldRequest()
+        val current = MutableStateFlow<CurrentSessionResult>(CurrentSessionResult.Success(AccountInfo.Valid(arrangement.userId)))
+        every { arrangement.coreLogic.getGlobalScope().session.currentSessionFlow() } returns current
+        arrangement.admission.publish(arrangement.userId, null)
+        val waiting = LegalHoldRequestedViewModel(arrangement.validatePassword, lazyOf(arrangement.coreLogic))
+        waiting.observeLegalHoldRequest()
+        runCurrent()
+        waiting.state shouldBeInstanceOf LegalHoldRequestedState.Hidden::class
+        val entered = CompletableDeferred<Unit>()
+        val drained = CompletableDeferred<Unit>()
+        coEvery { arrangement.userSessionScope.users.isPasswordRequired() } coAnswers {
+            entered.complete(Unit)
+            try { awaitCancellation() } finally { drained.complete(Unit) }
+        }
+        arrangement.admission.publish(arrangement.userId, arrangement.userSessionScope)
+        entered.await()
+        current.value = CurrentSessionResult.Success(AccountInfo.Invalid(arrangement.userId, LogoutReason.SELF_SOFT_LOGOUT))
+        runCurrent()
+        assertTrue(drained.isCompleted)
+        waiting.state shouldBeInstanceOf LegalHoldRequestedState.Hidden::class
+        arrangement.admission.publish(arrangement.userId, arrangement.userSessionScope)
+        runCurrent()
+        coVerify(exactly = 1) { arrangement.userSessionScope.users.isPasswordRequired() }
+        verify(exactly = 0) { arrangement.coreLogic.getSessionScope(any()) }
+        waiting.viewModelScope.cancel()
+    }
+
+    @Test
+    fun `cancelled approval does not become a successful hidden dialog or replay on revision`() = runTest {
+        val (arrangement, viewModel) = arrangeWithLegalHoldRequest(isPasswordRequired = false).arrange()
+        coEvery { arrangement.userSessionScope.approveLegalHoldRequest(any()) } throws kotlinx.coroutines.CancellationException("caller")
+        viewModel.acceptClicked()
+        runCurrent()
+        viewModel.state.assertStateVisible { assertTrue(it.loading) }
+        arrangement.admission.publish(arrangement.userId, null)
+        runCurrent()
+        arrangement.admission.publish(arrangement.userId, arrangement.userSessionScope)
+        runCurrent()
+        coVerify(exactly = 1) { arrangement.userSessionScope.approveLegalHoldRequest(any()) }
+        verify(exactly = 0) { arrangement.coreLogic.getSessionScope(any()) }
+        viewModel.viewModelScope.cancel()
+    }
+
     private class Arrangement {
 
         @MockK
@@ -305,6 +360,8 @@ class LegalHoldRequestedViewModelTest {
         lateinit var userSessionScope: UserSessionScope
 
         val userId = UserId("userId", "domain")
+        val rawAccounts = MutableStateFlow<GetAllSessionsResult>(GetAllSessionsResult.Success(listOf(AccountInfo.Valid(userId))))
+        val admission by lazy { FakeSessionAdmission(coreLogic) { userSessionScope } }
 
         val viewModel by lazy {
             LegalHoldRequestedViewModel(
@@ -315,18 +372,19 @@ class LegalHoldRequestedViewModelTest {
 
         init {
             MockKAnnotations.init(this)
-            every { coreLogic.getSessionScope(userId) } returns userSessionScope
+            admission
+            coEvery { coreLogic.getGlobalScope().observeAllValidSessionsFlow() } returns rawAccounts
         }
         fun withNotCurrentSession() = apply {
-            every { coreLogic.globalScope { session.currentSessionFlow() } } returns
+            every { coreLogic.getGlobalScope().session.currentSessionFlow() } returns
                     flowOf(CurrentSessionResult.Failure.SessionNotFound)
         }
         fun withCurrentSessionFailure() = apply {
-            every { coreLogic.globalScope { session.currentSessionFlow() } } returns
+            every { coreLogic.getGlobalScope().session.currentSessionFlow() } returns
                     flowOf(CurrentSessionResult.Failure.Generic(UNKNOWN_ERROR))
         }
         fun withCurrentSessionExists() = apply {
-            every { coreLogic.globalScope { session.currentSessionFlow() } } returns
+            every { coreLogic.getGlobalScope().session.currentSessionFlow() } returns
                     flowOf(CurrentSessionResult.Success(AccountInfo.Valid(userId)))
         }
         fun withLegalHoldRequestResult(result: ObserveLegalHoldRequestUseCase.Result) = apply {

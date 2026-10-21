@@ -48,6 +48,7 @@ import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import dev.zacsweers.metro.Inject
 
@@ -120,9 +121,12 @@ class PersistentWebSocketService : Service() {
         coroutineScope {
             usersToObserve.forEach { userId ->
                 launch {
-                    coreLogic.getSessionScope(userId).syncExecutor.request {
-                        awaitCancellation()
-                    }
+                    coreLogic.observeValidSession(userId) {
+                        val executor = syncExecutor
+                        flow<Unit> {
+                            executor.request { awaitCancellation() }
+                        }
+                    }.collect { }
                 }
             }
         }

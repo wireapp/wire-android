@@ -261,7 +261,7 @@ private fun LoginNextButton(
 }
 
 @Composable
-private fun EmailOrSSOCodeInput(
+internal fun EmailOrSSOCodeInput(
     userIdentifierState: TextFieldState,
     error: String?,
     enabled: Boolean,

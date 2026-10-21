@@ -302,4 +302,7 @@
         <item quantity="other">%1$d selected</item>
     </plurals>
     <string name="cells_bulk_selection_cancel_content_description">Cancel selection</string>
+    <string name="cells_bulk_action_move">Move</string>
+    <string name="cells_bulk_action_delete">Delete</string>
+    <string name="cells_bulk_action_offline">Offline</string>
 </resources>

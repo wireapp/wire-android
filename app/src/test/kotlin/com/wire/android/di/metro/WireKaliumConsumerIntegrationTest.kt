@@ -196,7 +196,13 @@ class WireKaliumConsumerIntegrationTest {
                 assertSame(cleanupFailure, generateSequence(suppressed) { it.cause }.last())
                 assertTrue(jobs.all { it.isCompleted })
                 assertTrue(unused.none { it.isInitialized() })
-                assertEquals(true, capture(network, "closed"))
+                val httpProvider = network.javaClass.declaredFields.single {
+                    it.type.name == "com.wire.kalium.network.networkContainer.AuthenticatedHttpClientProviderImpl"
+                }.let { delegate ->
+                    delegate.isAccessible = true
+                    checkNotNull(delegate.get(network))
+                }
+                assertEquals(true, capture(httpProvider, "closed"))
                 assertEquals(true, capture(database, "closed"))
                 // Retry only the failed global close; successfully closed handles must stay removed.
                 sdk.close()

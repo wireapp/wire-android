@@ -32,14 +32,15 @@ import com.wire.android.notification.NotificationConstants
 import com.wire.android.notification.NotificationIds
 import com.wire.android.notification.openAppPendingIntent
 import com.wire.kalium.logic.CoreLogic
-import com.wire.kalium.logic.data.team.Team
-import com.wire.kalium.logic.data.user.SelfUser
+import com.wire.kalium.logic.data.auth.AccountInfo
 import com.wire.kalium.logic.feature.UserSessionScope
+import com.wire.kalium.logic.feature.session.GetAllSessionsResult
 import dev.zacsweers.metro.Assisted
 import dev.zacsweers.metro.AssistedInject
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
@@ -64,20 +65,30 @@ class AssetUploadObserverWorker @AssistedInject constructor(
         // Wait until no logged-in account has an upload in progress. Deliberately not scoped to just the
         // current session: switching to an account with nothing uploading must not let this finish (and
         // release foreground priority) while a different logged-in account's upload is still running.
-        coreLogic.getGlobalScope().observeValidAccounts()
-            .flatMapLatest { accounts -> accounts.anyUploadInProgress() }
+        coreLogic.getGlobalScope().observeAllValidSessionsFlow()
+            .flatMapLatest { result ->
+                val accounts = (result as? GetAllSessionsResult.Success)?.sessions.orEmpty().filter { it.isValid() }
+                accounts.anyUploadInProgress()
+            }
+            .filterNotNull()
             .first { uploadInProgress -> !uploadInProgress }
 
         return Result.success()
     }
 
-    private suspend fun List<Pair<SelfUser, Team?>>.anyUploadInProgress(): Flow<Boolean> {
+    private fun List<AccountInfo>.anyUploadInProgress(): Flow<Boolean?> {
         if (isEmpty()) return flowOf(false)
-        val perAccountFlows = mutableListOf<Flow<Boolean>>()
-        for ((selfUser, _) in this) {
-            perAccountFlows += coreLogic.getSessionScope(selfUser.id).observeAnyUploadInProgress()
+        val perAccountFlows = mutableListOf<Flow<Boolean?>>()
+        for (account in this) {
+            perAccountFlows += coreLogic.observeValidSession(account.userId) { observeAnyUploadInProgress() }
         }
-        return combine(perAccountFlows) { states -> states.any { it } }
+        return combine(perAccountFlows) { states ->
+            when {
+                states.any { it == true } -> true
+                states.any { it == null } -> null // Admission pending does not prove that all uploads have stopped.
+                else -> false
+            }
+        }
     }
 
     override suspend fun getForegroundInfo(): ForegroundInfo {

@@ -29,12 +29,7 @@ import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.datastore.GlobalDataStore
-import com.wire.android.di.IsProfileQRCodeEnabledUseCaseProvider
 import com.wire.android.di.KaliumCoreLogic
-import com.wire.android.di.ObserveIfE2EIRequiredDuringLoginUseCaseProvider
-import com.wire.android.di.ObserveScreenshotCensoringConfigUseCaseProvider
-import com.wire.android.di.ObserveSelfUserUseCaseProvider
-import com.wire.android.di.ObserveSyncStateUseCaseProvider
 import com.wire.android.emm.ManagedConfigurationsManager
 import com.wire.android.feature.AccountSwitchUseCase
 import com.wire.android.feature.StartupAccountLimitGate
@@ -43,6 +38,7 @@ import com.wire.android.feature.SwitchAccountParam
 import com.wire.android.feature.SwitchAccountResult
 import com.wire.android.navigation.LoginTypeSelector
 import com.wire.android.services.ServicesManager
+import com.wire.android.session.observeCurrentValidSession
 import com.wire.android.sync.MonitorSyncWorkUseCase
 import com.wire.android.ui.authentication.devices.model.displayName
 import com.wire.android.ui.common.ActionsViewModel
@@ -102,6 +98,8 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
@@ -127,19 +125,12 @@ class WireActivityViewModel @Inject constructor(
     private val observeSessions: Lazy<ObserveSessionsUseCase>,
     private val accountSwitch: Lazy<AccountSwitchUseCase>,
     private val servicesManager: Lazy<ServicesManager>,
-    private val observeSyncStateUseCaseProviderFactory: ObserveSyncStateUseCaseProvider.Factory,
     private val observeIfAppUpdateRequired: Lazy<ObserveIfAppUpdateRequiredUseCase>,
     private val observeNewClients: Lazy<ObserveNewClientsUseCase>,
     private val clearNewClientsForUser: Lazy<ClearNewClientsForUserUseCase>,
     private val currentScreenManager: Lazy<CurrentScreenManager>,
-    private val observeScreenshotCensoringConfigUseCaseProviderFactory:
-    ObserveScreenshotCensoringConfigUseCaseProvider.Factory,
     private val globalDataStore: Lazy<GlobalDataStore>,
-    private val observeIfE2EIRequiredDuringLoginUseCaseProviderFactory:
-    ObserveIfE2EIRequiredDuringLoginUseCaseProvider.Factory,
     private val workManager: Lazy<WorkManager>,
-    private val isProfileQRCodeEnabledFactory: IsProfileQRCodeEnabledUseCaseProvider.Factory,
-    private val observeSelfUserFactory: ObserveSelfUserUseCaseProvider.Factory,
     private val monitorSyncWorkUseCase: MonitorSyncWorkUseCase,
     private val managedConfigurationsManager: ManagedConfigurationsManager,
     private val defaultServerConfig: ServerConfig.Links,
@@ -153,18 +144,14 @@ class WireActivityViewModel @Inject constructor(
     private val _observeSyncFlowState: MutableStateFlow<SyncState?> = MutableStateFlow(null)
     val observeSyncFlowState: StateFlow<SyncState?> = _observeSyncFlowState
 
-    private val observeCurrentAccountInfo: SharedFlow<AccountInfo?> = currentSessionFlow.value.invoke()
-        .map { (it as? CurrentSessionResult.Success)?.accountInfo }
-        .distinctUntilChanged()
+    private val observeCurrentSession: SharedFlow<CurrentSessionResult> = currentSessionFlow.value.invoke()
         .flowOn(dispatchers.io())
         .shareIn(viewModelScope, SharingStarted.WhileSubscribed(), 1)
 
-    private val observeCurrentValidUserId: SharedFlow<UserId?> = observeCurrentAccountInfo
-        .map {
-            if (it?.isValid() == true) it.userId else null
-        }
+    // Keep raw invalid/logout metadata independent of resource admission.
+    private val observeCurrentAccountInfo: SharedFlow<AccountInfo?> = observeCurrentSession
+        .map { (it as? CurrentSessionResult.Success)?.accountInfo }
         .distinctUntilChanged()
-        .flowOn(dispatchers.io())
         .shareIn(viewModelScope, SharingStarted.WhileSubscribed(), 1)
 
     private lateinit var validSessions: StateFlow<List<AccountInfo>>
@@ -184,8 +171,9 @@ class WireActivityViewModel @Inject constructor(
     }
 
     private suspend fun shouldEnrollToE2ei(userId: UserId): Boolean =
-        observeIfE2EIRequiredDuringLoginUseCaseProviderFactory.create(userId)
-            .observeIfE2EIIsRequiredDuringLogin().first() ?: false
+        coreLogic.value.observeValidSession(userId) {
+            observeIfE2EIRequiredDuringLogin().map { it ?: false }
+        }.filterNotNull().first()
 
     private fun observeAppThemeState() {
         viewModelScope.launch(dispatchers.io()) {
@@ -199,13 +187,10 @@ class WireActivityViewModel @Inject constructor(
 
     private fun observeSelectedAccent() {
         viewModelScope.launch(dispatchers.io()) {
-            observeCurrentValidUserId.flatMapLatest {
-                it?.let {
-                    observeSelfUserFactory.create(it).observeSelfUser().map { user ->
-                        Accent.fromAccentId(user.accentId)
-                    }
-                } ?: flowOf(Accent.Unknown)
+            observeCurrentSession.observeCurrentValidSession(coreLogic.value) {
+                users.observeSelfUser().map { user -> Accent.fromAccentId(user.accentId) }
             }
+                .map { it ?: Accent.Unknown }
                 .distinctUntilChanged()
                 .collectLatest {
                     globalAppState = globalAppState.copy(userAccent = it)
@@ -215,15 +200,10 @@ class WireActivityViewModel @Inject constructor(
 
     private fun observeBackendWebsiteUrl() {
         viewModelScope.launch(dispatchers.io()) {
-            observeCurrentValidUserId.collectLatest { userId ->
-                val serverLinks = userId?.let {
-                    runCatching {
-                        when (val result = coreLogic.value.getSessionScope(it).users.serverLinks()) {
-                            is SelfServerConfigUseCase.Result.Success -> result.serverLinks.links
-                            is SelfServerConfigUseCase.Result.Failure -> null
-                        }
-                    }.getOrNull()
-                }
+            observeCurrentSession.observeCurrentValidSession(coreLogic.value) {
+                flow { emit(users.serverLinks()) }
+            }.collectLatest { result ->
+                val serverLinks = (result as? SelfServerConfigUseCase.Result.Success)?.serverLinks?.links
                 serverLinks?.let(BackendSupportConfig::setCurrentBackend)
                 val websiteUrl = serverLinks?.website
                     ?: managedConfigurationsManager.currentServerConfig?.website
@@ -237,12 +217,7 @@ class WireActivityViewModel @Inject constructor(
 
     private fun observeSyncState() {
         viewModelScope.launch(dispatchers.io()) {
-            observeCurrentValidUserId
-                .flatMapLatest { userId ->
-                    userId?.let {
-                        observeSyncStateUseCaseProviderFactory.create(userId).observeSyncState()
-                    } ?: flowOf(null)
-                }
+            observeCurrentSession.observeCurrentValidSession(coreLogic.value) { this.observeSyncState() }
                 .distinctUntilChanged()
                 .flowOn(dispatchers.io())
                 .collect {
@@ -308,16 +283,10 @@ class WireActivityViewModel @Inject constructor(
 
     private fun observeScreenshotCensoringConfigState() {
         viewModelScope.launch(dispatchers.io()) {
-            observeCurrentValidUserId
-                .flatMapLatest { currentValidUserId ->
-                    currentValidUserId?.let {
-                        observeScreenshotCensoringConfigUseCaseProviderFactory.create(it)
-                            .observeScreenshotCensoringConfig()
-                            .map { result ->
-                                result is ObserveScreenshotCensoringConfigResult.Enabled
-                            }
-                    } ?: flowOf(false)
-                }
+            observeCurrentSession.observeCurrentValidSession(coreLogic.value) {
+                observeScreenshotCensoringConfig().map { result -> result is ObserveScreenshotCensoringConfigResult.Enabled }
+            }
+                .map { it == true }
                 .collect {
                     globalAppState = globalAppState.copy(screenshotCensoringEnabled = it)
                 }
@@ -427,23 +396,21 @@ class WireActivityViewModel @Inject constructor(
         data: InputStream
     ) {
         viewModelScope.launch(dispatchers.io()) {
-            when (val currentSession = coreLogic.value.getGlobalScope().session.currentSession()) {
-                is CurrentSessionResult.Failure.Generic -> null
-                CurrentSessionResult.Failure.SessionNotFound -> null
-                is CurrentSessionResult.Success -> {
-                    coreLogic.value.sessionScope(currentSession.accountInfo.userId) {
+            var requested = false
+            observeCurrentSession.observeCurrentValidSession(coreLogic.value, waitForAdmission = true) {
+                flow {
+                    // A revoked admission may restart; this manual import must not be replayed.
+                    if (!requested) {
+                        requested = true
                         when (val result = debug.synchronizeExternalData(InputStreamReader(data).readText())) {
-                            is SynchronizeExternalDataResult.Success -> {
-                                appLogger.d("Synchronized external data")
-                            }
-
-                            is SynchronizeExternalDataResult.Failure -> {
+                            is SynchronizeExternalDataResult.Success -> appLogger.d("Synchronized external data")
+                            is SynchronizeExternalDataResult.Failure ->
                                 appLogger.d("Failed to Synchronize external data: ${result.coreFailure}")
-                            }
                         }
                     }
+                    emit(Unit)
                 }
-            }
+            }.first()
         }
     }
 
@@ -828,8 +795,22 @@ class WireActivityViewModel @Inject constructor(
     }
 
     private fun onOpenUserProfileDeepLink(result: DeepLinkResult.OpenOtherUserProfile) = viewModelScope.launch {
-        val userId = result.targetSessionId ?: observeCurrentValidUserId.first() ?: return@launch
-        if (isProfileQRCodeEnabledFactory.create(userId).isProfileQRCodeEnabled()) {
+        val userId = result.targetSessionId
+            ?: observeCurrentAccountInfo.first()?.takeIf { it.isValid() }?.userId
+            ?: return@launch
+        val enabled = coreLogic.value.getGlobalScope().observeAllValidSessionsFlow()
+            .flatMapLatest { sessions ->
+                val valid = (sessions as? GetAllSessionsResult.Success)?.sessions.orEmpty()
+                    .any { it.userId == userId && it.isValid() }
+                if (valid) {
+                    coreLogic.value.observeValidSession(userId) {
+                        flow { emit(users.isProfileQRCodeEnabled()) }
+                    }.filterNotNull()
+                } else {
+                    flowOf(false)
+                }
+            }.first()
+        if (enabled == true) {
             sendAction(OnOpenUserProfile(result))
         } else {
             sendAction(ShowToast(R.string.profile_deeplink_feature_unavailable_title_alert))

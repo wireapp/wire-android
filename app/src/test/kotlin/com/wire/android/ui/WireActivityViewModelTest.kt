@@ -33,11 +33,6 @@ import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.config.mockUri
 import com.wire.android.datastore.GlobalDataStore
-import com.wire.android.di.IsProfileQRCodeEnabledUseCaseProvider
-import com.wire.android.di.ObserveIfE2EIRequiredDuringLoginUseCaseProvider
-import com.wire.android.di.ObserveScreenshotCensoringConfigUseCaseProvider
-import com.wire.android.di.ObserveSelfUserUseCaseProvider
-import com.wire.android.di.ObserveSyncStateUseCaseProvider
 import com.wire.android.emm.ManagedConfigurationsManager
 import com.wire.android.feature.AccountSwitchUseCase
 import com.wire.android.feature.SwitchAccountParam
@@ -48,6 +43,7 @@ import com.wire.android.framework.TestUser
 import com.wire.android.framework.TestUser.SELF_USER
 import com.wire.android.navigation.LoginTypeSelector
 import com.wire.android.services.ServicesManager
+import com.wire.android.session.FakeSessionAdmission
 import com.wire.android.sync.MonitorSyncWorkUseCase
 import com.wire.android.ui.common.dialogs.CustomServerDetailsDialogState
 import com.wire.android.ui.common.dialogs.CustomServerNoNetworkDialogState
@@ -76,6 +72,7 @@ import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.logout.LogoutReason
 import com.wire.kalium.logic.data.sync.SyncState
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.UserSessionScope
 import com.wire.kalium.logic.feature.appVersioning.ObserveIfAppUpdateRequiredUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import com.wire.kalium.logic.feature.client.ClearNewClientsForUserUseCase
@@ -83,6 +80,7 @@ import com.wire.kalium.logic.feature.client.IsProfileQRCodeEnabledUseCase
 import com.wire.kalium.logic.feature.client.NewClientResult
 import com.wire.kalium.logic.feature.client.ObserveNewClientsUseCase
 import com.wire.kalium.logic.feature.conversation.CheckConversationInviteCodeUseCase
+import com.wire.kalium.logic.feature.debug.SynchronizeExternalDataResult
 import com.wire.kalium.logic.feature.server.GetServerConfigResult
 import com.wire.kalium.logic.feature.server.GetServerConfigUseCase
 import com.wire.kalium.logic.feature.server.IsCrossBackendLoginBlockedUseCase
@@ -105,6 +103,8 @@ import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -120,6 +120,7 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import java.io.ByteArrayInputStream
 
 @Suppress("MaxLineLength", "LargeClass")
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -129,6 +130,55 @@ class WireActivityViewModelTest {
     @AfterEach
     fun tearDown() {
         SupportUrlResolver.setBaseUrl(null)
+    }
+
+    @Test
+    fun `revoked manual import drains and is not replayed after same account publication`() = runTest {
+        val entered = CompletableDeferred<Unit>()
+        val drained = CompletableDeferred<Unit>()
+        var imports = 0
+        val (arrangement, viewModel) = Arrangement()
+            .withCurrentSessionFlow(flowOf(CurrentSessionResult.Success(TEST_ACCOUNT_INFO)))
+            .withDataImport {
+                imports++
+                entered.complete(Unit)
+                try { awaitCancellation() } finally { drained.complete(Unit) }
+            }
+            .arrange()
+        viewModel.handleSynchronizeExternalData(ByteArrayInputStream("data".toByteArray()))
+        entered.await()
+        arrangement.withSessionUnavailable(TEST_ACCOUNT_INFO.userId)
+        advanceUntilIdle()
+        assertTrue(drained.isCompleted)
+        arrangement.publishSession(TEST_ACCOUNT_INFO.userId)
+        advanceUntilIdle()
+        assertEquals(1, imports)
+    }
+
+    @Test
+    fun `early valid metadata cannot bind sync or screenshot reads until admission publishes`() = runTest {
+        val raw = MutableStateFlow<CurrentSessionResult>(CurrentSessionResult.Failure.SessionNotFound)
+        val (arrangement, viewModel) = Arrangement()
+            .withCurrentSessionFlow(raw)
+            .withSyncStateForUser(TEST_ACCOUNT_INFO.userId, SyncState.Live)
+            .withScreenshotCensoringConfigForUser(
+                TEST_ACCOUNT_INFO.userId,
+                ObserveScreenshotCensoringConfigResult.Enabled.ChosenByUser,
+            )
+            .withSessionUnavailable(TEST_ACCOUNT_INFO.userId)
+            .arrange()
+        advanceUntilIdle()
+        raw.value = CurrentSessionResult.Success(TEST_ACCOUNT_INFO)
+        advanceUntilIdle()
+        assertEquals(null, viewModel.observeSyncFlowState.value)
+        assertEquals(false, viewModel.globalAppState.screenshotCensoringEnabled)
+        // Raw identity remains metadata; this test makes no navigation-readiness claim.
+        assertEquals(TEST_ACCOUNT_INFO.userId, viewModel.globalAppState.currentUserId)
+
+        arrangement.publishSession(TEST_ACCOUNT_INFO.userId)
+        advanceUntilIdle()
+        assertEquals(SyncState.Live, viewModel.observeSyncFlowState.value)
+        assertEquals(true, viewModel.globalAppState.screenshotCensoringEnabled)
     }
 
     @Test
@@ -1246,10 +1296,26 @@ class WireActivityViewModelTest {
         val managedConfigurationsManager: ManagedConfigurationsManager = mockk(relaxed = true)
         private val persistentWebSocketEnforcedByMDMFlow = MutableStateFlow(false)
         private var defaultServerConfig = newServerConfig(0).links
+        private val observedSessions = mutableMapOf<UserId, UserSessionScope>()
+        private val observeSelfUserUseCase = mockk<ObserveSelfUserUseCase>()
+        private var e2eiRequired = false
+        private val admission by lazy { FakeSessionAdmission(coreLogic, ::capturedSession) }
+
+        private fun capturedSession(userId: UserId): UserSessionScope = observedSessions.getOrPut(userId) {
+            mockk<UserSessionScope>(relaxed = true).also { session ->
+                every { session.observeSyncState } returns observeSyncStateUseCase
+                every { session.observeScreenshotCensoringConfig } returns observeScreenshotCensoringConfigUseCase
+                every { session.users.observeSelfUser } returns observeSelfUserUseCase
+                coEvery { session.observeIfE2EIRequiredDuringLogin() } answers { flowOf(e2eiRequired) }
+                coEvery { session.users.serverLinks() } returns
+                    SelfServerConfigUseCase.Result.Failure(NetworkFailure.NoNetworkConnection(null))
+            }
+        }
 
         init {
             // Tests setup
             MockKAnnotations.init(this, relaxUnitFun = true)
+            admission // Bind the fake observation boundary; production never looks up a scope by ID in its callback.
 
             // Default empty values
             mockUri()
@@ -1259,24 +1325,15 @@ class WireActivityViewModelTest {
             coEvery { getServerConfigUseCase(any()) } returns GetServerConfigResult.Success(newServerConfig(1).links)
             coEvery { deepLinkProcessor(any(), any()) } returns DeepLinkResult.Unknown
             coEvery { observeSessionsUseCase.invoke() } returns flowOf(GetAllSessionsResult.Failure.NoSessionFound)
-            every { observeSyncStateUseCaseProviderFactory.create(any()).observeSyncState } returns observeSyncStateUseCase
             every { observeSyncStateUseCase() } returns emptyFlow()
             coEvery { observeIfAppUpdateRequired(any()) } returns flowOf(false)
             coEvery { observeNewClients() } returns flowOf()
-            every { observeScreenshotCensoringConfigUseCaseProviderFactory.create(any()).observeScreenshotCensoringConfig } returns
-                    observeScreenshotCensoringConfigUseCase
             every { observeScreenshotCensoringConfigUseCase.invoke() } returns
                     flowOf(ObserveScreenshotCensoringConfigResult.Disabled)
             coEvery { currentScreenManager.observeCurrentScreen(any()) } returns MutableStateFlow(CurrentScreen.SomeOther())
             coEvery { globalDataStore.selectedThemeOptionFlow() } returns flowOf(ThemeOption.LIGHT)
-            coEvery {
-                observeIfE2EIRequiredDuringLoginUseCaseProviderFactory.create(any()).observeIfE2EIIsRequiredDuringLogin()
-            } returns
-                    flowOf(false)
             every { workManager.cancelAllWorkByTag(any()) } returns mockk<Operation>()
             every { workManager.enqueueUniquePeriodicWork(any(), any(), any()) } returns mockk<Operation>()
-            val observeSelfUserUseCase = mockk<ObserveSelfUserUseCase>()
-            every { observeSelfUserFactory.create(any()).observeSelfUser } returns observeSelfUserUseCase
             coEvery { observeSelfUserUseCase() } returns flowOf(SELF_USER)
             every { managedConfigurationsManager.persistentWebSocketEnforcedByMDM } returns persistentWebSocketEnforcedByMDMFlow
             every { managedConfigurationsManager.currentServerConfig } returns null
@@ -1308,9 +1365,6 @@ class WireActivityViewModelTest {
         private lateinit var observeSyncStateUseCase: ObserveSyncStateUseCase
 
         @MockK
-        private lateinit var observeSyncStateUseCaseProviderFactory: ObserveSyncStateUseCaseProvider.Factory
-
-        @MockK
         private lateinit var coreLogic: CoreLogic
 
         @MockK
@@ -1332,12 +1386,6 @@ class WireActivityViewModelTest {
         lateinit var observeScreenshotCensoringConfigUseCase: ObserveScreenshotCensoringConfigUseCase
 
         @MockK
-        private lateinit var observeScreenshotCensoringConfigUseCaseProviderFactory: ObserveScreenshotCensoringConfigUseCaseProvider.Factory
-
-        @MockK
-        private lateinit var observeIfE2EIRequiredDuringLoginUseCaseProviderFactory: ObserveIfE2EIRequiredDuringLoginUseCaseProvider.Factory
-
-        @MockK
         lateinit var globalDataStore: GlobalDataStore
 
         @MockK
@@ -1345,12 +1393,6 @@ class WireActivityViewModelTest {
 
         @MockK
         lateinit var observeEstablishedCalls: ObserveEstablishedCallsUseCase
-
-        @MockK
-        lateinit var isProfileQRCodeEnabledFactory: IsProfileQRCodeEnabledUseCaseProvider.Factory
-
-        @MockK
-        lateinit var observeSelfUserFactory: ObserveSelfUserUseCaseProvider.Factory
 
         @MockK
         lateinit var monitorSyncWorkUseCase: MonitorSyncWorkUseCase
@@ -1369,17 +1411,12 @@ class WireActivityViewModelTest {
                 observeSessions = lazyOf(observeSessionsUseCase),
                 accountSwitch = lazyOf(switchAccount),
                 servicesManager = lazyOf(servicesManager),
-                observeSyncStateUseCaseProviderFactory = observeSyncStateUseCaseProviderFactory,
                 observeIfAppUpdateRequired = lazyOf(observeIfAppUpdateRequired),
                 observeNewClients = lazyOf(observeNewClients),
                 clearNewClientsForUser = lazyOf(clearNewClientsForUser),
                 currentScreenManager = lazyOf(currentScreenManager),
-                observeScreenshotCensoringConfigUseCaseProviderFactory = observeScreenshotCensoringConfigUseCaseProviderFactory,
                 globalDataStore = lazyOf(globalDataStore),
-                observeIfE2EIRequiredDuringLoginUseCaseProviderFactory = observeIfE2EIRequiredDuringLoginUseCaseProviderFactory,
                 workManager = lazyOf(workManager),
-                isProfileQRCodeEnabledFactory = isProfileQRCodeEnabledFactory,
-                observeSelfUserFactory = observeSelfUserFactory,
                 monitorSyncWorkUseCase = monitorSyncWorkUseCase,
                 managedConfigurationsManager = managedConfigurationsManager,
                 defaultServerConfig = defaultServerConfig,
@@ -1387,6 +1424,14 @@ class WireActivityViewModelTest {
                 startupAccountLimitGate = startupAccountLimitGate,
             )
         }
+
+        fun withDataImport(action: suspend () -> SynchronizeExternalDataResult): Arrangement = apply {
+            coEvery { capturedSession(TEST_ACCOUNT_INFO.userId).debug.synchronizeExternalData(any()) } coAnswers { action() }
+        }
+
+        fun withSessionUnavailable(userId: UserId): Arrangement = apply { admission.publish(userId, null) }
+
+        fun publishSession(userId: UserId) { admission.publish(userId, capturedSession(userId)) }
 
         fun withSomeCurrentSession(): Arrangement = apply {
             coEvery { currentSessionFlow() } returns flowOf(CurrentSessionResult.Success(TEST_ACCOUNT_INFO))
@@ -1430,6 +1475,7 @@ class WireActivityViewModelTest {
         fun withServerConfigForUser(userId: UserId, serverConfig: ServerConfig): Arrangement = apply {
             coEvery { coreLogic.getSessionScope(userId).users.serverLinks() } returns
                     SelfServerConfigUseCase.Result.Success(serverConfig)
+            coEvery { capturedSession(userId).users.serverLinks() } returns SelfServerConfigUseCase.Result.Success(serverConfig)
         }
 
         fun withDefaultServerConfig(serverConfig: ServerConfig.Links): Arrangement = apply {
@@ -1441,9 +1487,7 @@ class WireActivityViewModelTest {
         }
 
         fun withE2EIRequiredDuringLogin(required: Boolean): Arrangement = apply {
-            coEvery {
-                observeIfE2EIRequiredDuringLoginUseCaseProviderFactory.create(any()).observeIfE2EIIsRequiredDuringLogin()
-            } returns flowOf(required)
+            e2eiRequired = required
         }
 
         fun withObserveSessionsFlow(result: Flow<GetAllSessionsResult>): Arrangement = apply {
@@ -1524,14 +1568,14 @@ class WireActivityViewModelTest {
         suspend fun withScreenshotCensoringConfigForUser(id: UserId, result: ObserveScreenshotCensoringConfigResult) = apply {
             val useCase = mockk<ObserveScreenshotCensoringConfigUseCase>()
             coEvery {
-                observeScreenshotCensoringConfigUseCaseProviderFactory.create(id).observeScreenshotCensoringConfig
+                capturedSession(id).observeScreenshotCensoringConfig
             } returns useCase
             coEvery { useCase() } returns flowOf(result)
         }
 
         fun withSyncStateForUser(id: UserId, result: SyncState) = apply {
             val useCase = mockk<ObserveSyncStateUseCase>()
-            coEvery { observeSyncStateUseCaseProviderFactory.create(id).observeSyncState } returns useCase
+            coEvery { capturedSession(id).observeSyncState } returns useCase
             coEvery { useCase() } returns flowOf(result)
         }
 
@@ -1541,8 +1585,10 @@ class WireActivityViewModelTest {
 
         suspend fun withProfileQRCodeEnabled(isEnabled: Boolean = true) = apply {
             val useCase = mockk<IsProfileQRCodeEnabledUseCase>()
-            coEvery { isProfileQRCodeEnabledFactory.create(any()).isProfileQRCodeEnabled } returns useCase
+            coEvery { capturedSession(TEST_ACCOUNT_INFO.userId).users.isProfileQRCodeEnabled } returns useCase
             coEvery { useCase() } returns isEnabled
+            coEvery { coreLogic.getGlobalScope().observeAllValidSessionsFlow() } returns
+                flowOf(GetAllSessionsResult.Success(listOf(TEST_ACCOUNT_INFO)))
         }
 
         fun withCanUseNewLogin(canUseNewLogin: Boolean): Arrangement = apply {

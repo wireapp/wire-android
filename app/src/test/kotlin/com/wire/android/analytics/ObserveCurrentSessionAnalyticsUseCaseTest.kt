@@ -24,10 +24,12 @@ import com.wire.android.datastore.UserDataStore
 import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.feature.analytics.model.AnalyticsProfileProperties
 import com.wire.android.framework.TestUser
+import com.wire.android.session.FakeSessionAdmission
 import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.logic.configuration.server.CommonApiVersionType
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.data.analytics.AnalyticsIdentifierResult
+import com.wire.kalium.logic.feature.UserSessionScope
 import com.wire.kalium.logic.data.auth.AccountInfo
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.analytics.AnalyticsContactsData
@@ -38,11 +40,18 @@ import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
+import io.mockk.mockk
+import io.mockk.coVerify
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.awaitCancellation
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.Test
 
 class ObserveCurrentSessionAnalyticsUseCaseTest {
@@ -237,6 +246,48 @@ class ObserveCurrentSessionAnalyticsUseCaseTest {
         }
     }
 
+    @Test
+    fun givenRevokedAdmission_whenUsingPreviouslyDeliveredAnalytics_thenProfileIsSnapshotAndManagerCannotReacquire() = runTest {
+        val (arrangement, useCase) = Arrangement().withIsAnonymousUsageDataEnabled(true).apply {
+            setCurrentSession(CurrentSessionResult.Success(AccountInfo.Valid(TestUser.SELF_USER.id)))
+            setAnalyticsContactsData(TestUser.SELF_USER.id, Arrangement.ANALYTICS_CONTACTS_DATA)
+            setObservingTrackingIdentifierStatus(AnalyticsIdentifierResult.ExistingIdentifier(Arrangement.CURRENT_TRACKING_IDENTIFIER))
+            setSelfServerConfig(Arrangement.SERVER_CONFIG_PRODUCTION)
+        }.arrange()
+
+        useCase.invoke().test {
+            val delivered = awaitItem()
+            arrangement.admission.publish(TestUser.SELF_USER.id, null)
+            assertIs<AnalyticsIdentifierResult.Disabled>(awaitItem().identifierResult)
+            assertAnalyticsProfileProperties(Arrangement.ANALYTICS_CONTACTS_DATA, delivered.profileProperties())
+            delivered.manager?.propagateTrackingIdentifier("stale")
+            delivered.manager?.onMigrationComplete()
+            arrangement.verifyNoManagerCommands()
+        }
+    }
+
+    @Test
+    fun givenManagerCommandInFlight_whenAdmissionRevokes_thenCommandDrainsAndAnalyticsCollectorRemainsUsable() = runTest {
+        val entered = CompletableDeferred<Unit>()
+        val drained = CompletableDeferred<Unit>()
+        val (arrangement, useCase) = Arrangement().withIsAnonymousUsageDataEnabled(true).apply {
+            setCurrentSession(CurrentSessionResult.Success(AccountInfo.Valid(TestUser.SELF_USER.id)))
+            setObservingTrackingIdentifierStatus(AnalyticsIdentifierResult.ExistingIdentifier(Arrangement.CURRENT_TRACKING_IDENTIFIER))
+            setSelfServerConfig(Arrangement.SERVER_CONFIG_PRODUCTION)
+            blockManagerCommand(entered, drained)
+        }.arrange()
+        useCase.invoke().test {
+            val delivered = awaitItem()
+            val command = launch { delivered.manager?.propagateTrackingIdentifier("active") }
+            entered.await()
+            arrangement.admission.publish(TestUser.SELF_USER.id, null)
+            assertIs<AnalyticsIdentifierResult.Disabled>(awaitItem().identifierResult)
+            command.join()
+            assertTrue(drained.isCompleted)
+            assertFalse(command.isCancelled)
+        }
+    }
+
     private fun assertAnalyticsProfileProperties(expected: AnalyticsContactsData, actual: AnalyticsProfileProperties) {
         assertEquals(expected.teamId, actual.teamId)
         assertEquals(expected.isTeamMember, actual.isTeamMember)
@@ -267,9 +318,17 @@ class ObserveCurrentSessionAnalyticsUseCaseTest {
 
         private var analyticsContactsData: MutableMap<UserId, AnalyticsContactsData> = mutableMapOf()
 
-        private val getAnalyticsContactsData: (UserId) -> AnalyticsContactsData = {
-            analyticsContactsData.getOrDefault(it, ANALYTICS_CONTACTS_DATA_DEFAULT)
-        }
+        val admission = FakeSessionAdmission(initiallyReady = { userId ->
+            mockk<UserSessionScope>(relaxed = true).also { session ->
+                every { session.analyticsIdentifierManager } returns analyticsIdentifierManager
+                coEvery { session.getAnalyticsContactsData() } answers {
+                    analyticsContactsData.getOrDefault(userId, ANALYTICS_CONTACTS_DATA_DEFAULT)
+                }
+                coEvery { session.observeAnalyticsTrackingIdentifierStatus() } returns
+                    analyticsTrackingIdentifierStatusChannel.receiveAsFlow()
+                coEvery { session.users.serverLinks() } coAnswers { selfServerConfigChannel.receive() }
+            }
+        })
 
         init {
             // Tests setup
@@ -308,19 +367,22 @@ class ObserveCurrentSessionAnalyticsUseCaseTest {
 
         var useCase: ObserveCurrentSessionAnalyticsUseCase = ObserveCurrentSessionAnalyticsUseCase(
             currentSessionFlow = currentSessionChannel.receiveAsFlow(),
-            getAnalyticsContactsData = getAnalyticsContactsData,
-            observeAnalyticsTrackingIdentifierStatusFlow = {
-                analyticsTrackingIdentifierStatusChannel.receiveAsFlow()
-            },
-            analyticsIdentifierManagerProvider = {
-                analyticsIdentifierManager
-            },
+            coreLogic = admission.coreLogic,
             userDataStoreProvider = userDataStoreProvider,
-            currentBackend = {
-                selfServerConfigChannel.receive()
-            },
-            globalDataStore = globalDataStore
+            globalDataStore = globalDataStore,
         )
+
+        fun blockManagerCommand(entered: CompletableDeferred<Unit>, drained: CompletableDeferred<Unit>) {
+            coEvery { analyticsIdentifierManager.propagateTrackingIdentifier(any()) } coAnswers {
+                entered.complete(Unit)
+                try { awaitCancellation() } finally { drained.complete(Unit) }
+            }
+        }
+
+        fun verifyNoManagerCommands() {
+            coVerify(exactly = 0) { analyticsIdentifierManager.propagateTrackingIdentifier(any()) }
+            coVerify(exactly = 0) { analyticsIdentifierManager.onMigrationComplete() }
+        }
 
         fun arrange() = this to useCase
 

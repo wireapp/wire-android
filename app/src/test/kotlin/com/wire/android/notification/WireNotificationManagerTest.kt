@@ -23,6 +23,7 @@ import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.framework.TestUser
 import com.wire.android.media.PingRinger
 import com.wire.android.services.ServicesManager
+import com.wire.android.session.FakeSessionAdmission
 import com.wire.android.util.CurrentScreen
 import com.wire.android.util.CurrentScreenManager
 import com.wire.android.util.lifecycle.SyncLifecycleManager
@@ -65,7 +66,6 @@ import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
 import com.wire.kalium.logic.feature.user.UserScope
 import com.wire.kalium.logic.sync.SyncManager
 import io.mockk.MockKAnnotations
-import io.mockk.MockKMatcherScope
 import io.mockk.clearMocks
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -74,6 +74,8 @@ import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
@@ -90,6 +92,7 @@ import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlin.time.Instant
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import kotlin.time.Duration.Companion.minutes
 
@@ -98,6 +101,77 @@ import kotlin.time.Duration.Companion.minutes
 class WireNotificationManagerTest {
 
     private val dispatcherProvider = TestDispatcherProvider()
+
+    @Test
+    fun `mark notified after suspended handling uses the captured session`() = runTestWithCancellation(dispatcherProvider.main()) {
+        val entered = CompletableDeferred<Unit>()
+        val resume = CompletableDeferred<Unit>()
+        val notification = provideLocalNotificationConversation(messages = listOf(provideLocalNotificationMessage()))
+        val (arrangement, manager) = Arrangement().withMessageNotifications(listOf(notification))
+            .withIncomingCalls(emptyList()).withOutgoingCalls(emptyList()).withCurrentScreen(CurrentScreen.SomeOther()).arrange()
+        coEvery { arrangement.messageNotificationManager.handleNotification(any(), any(), any()) } coAnswers {
+            entered.complete(Unit)
+            resume.await()
+        }
+        manager.observeNotificationsAndCallsWhileRunning(listOf(TestUser.SELF_USER.id), this)
+        entered.await()
+        every { arrangement.coreLogic.getSessionScope(any()) } throws IllegalStateException("ID reacquisition forbidden")
+        resume.complete(Unit)
+        runCurrent()
+        coVerify(exactly = 1) { arrangement.markMessagesAsNotified(any<MarkMessagesAsNotifiedUseCase.UpdateTarget.SingleConversation>()) }
+        coVerify(exactly = 1) { arrangement.markConnectionRequestAsNotified(null) }
+        verify(exactly = 0) { arrangement.coreLogic.getSessionScope(any()) }
+    }
+
+    @Test
+    fun `revocation drains suspended notification handling before later resource marks`() =
+        runTestWithCancellation(dispatcherProvider.main()) {
+            val entered = CompletableDeferred<Unit>()
+            val drained = CompletableDeferred<Unit>()
+            val notification = provideLocalNotificationConversation(messages = listOf(provideLocalNotificationMessage()))
+            val (arrangement, manager) = Arrangement().withMessageNotifications(listOf(notification))
+                .withIncomingCalls(emptyList()).withOutgoingCalls(emptyList()).withCurrentScreen(CurrentScreen.SomeOther()).arrange()
+            coEvery { arrangement.messageNotificationManager.handleNotification(any(), any(), any()) } coAnswers {
+                entered.complete(Unit)
+                try { awaitCancellation() } finally { drained.complete(Unit) }
+            }
+            manager.observeNotificationsAndCallsWhileRunning(listOf(TestUser.SELF_USER.id), this)
+            entered.await()
+            arrangement.admission.publish(TestUser.SELF_USER.id, null)
+            runCurrent()
+            assertTrue(drained.isCompleted)
+            coVerify(exactly = 0) { arrangement.markMessagesAsNotified(any()) }
+            coVerify(exactly = 0) { arrangement.markConnectionRequestAsNotified(any()) }
+            verify(exactly = 0) { arrangement.coreLogic.getSessionScope(any()) }
+        }
+
+    @Test
+    fun `early valid outgoing calls wait and same ID revision resumes without reacquisition`() =
+        runTestWithCancellation(dispatcherProvider.main()) {
+            val established = MutableStateFlow(listOf(provideCall()))
+            val (arrangement, manager) = Arrangement().withMessageNotifications(emptyList())
+                .withIncomingCalls(emptyList()).withOutgoingCalls(emptyList()).withEstablishedCallFlow(established)
+                .withCurrentUserSession(CurrentSessionResult.Success(AccountInfo.Valid(TestUser.SELF_USER.id)))
+                .withCurrentScreen(CurrentScreen.SomeOther()).arrange()
+            arrangement.admission.publish(TestUser.SELF_USER.id, null)
+            manager.observeNotificationsAndCallsWhileRunning(listOf(TestUser.SELF_USER.id), this)
+            runCurrent()
+            verify(exactly = 0) { arrangement.servicesManager.startCallService() }
+            arrangement.admission.publish(TestUser.SELF_USER.id, arrangement.userSessionScope)
+            runCurrent()
+            verify(exactly = 1) { arrangement.servicesManager.startCallService() }
+            arrangement.admission.publish(TestUser.SELF_USER.id, null)
+            runCurrent()
+            established.value = emptyList()
+            runCurrent()
+            established.value = listOf(provideCall())
+            runCurrent()
+            verify(exactly = 1) { arrangement.servicesManager.startCallService() }
+            arrangement.admission.publish(TestUser.SELF_USER.id, arrangement.userSessionScope)
+            runCurrent()
+            verify(exactly = 2) { arrangement.servicesManager.startCallService() }
+            verify(exactly = 0) { arrangement.coreLogic.getSessionScope(any()) }
+        }
 
     @Test
     fun givenMixedNotifications_whenObserved_thenRouteEachFamilySeparately() =
@@ -1374,6 +1448,8 @@ class WireNotificationManagerTest {
         lateinit var observeE2EIRequired: ObserveE2EIRequiredUseCase
 
         private val currentSessionChannel = Channel<CurrentSessionResult>(capacity = Channel.UNLIMITED)
+        private val sessions = mutableMapOf<UserId, UserSessionScope>()
+        val admission by lazy { FakeSessionAdmission(coreLogic) { sessions[it] ?: userSessionScope } }
 
         val meetingNotificationManager = io.mockk.mockk<MeetingNotificationManager>(relaxUnitFun = true)
 
@@ -1393,6 +1469,7 @@ class WireNotificationManagerTest {
 
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
+            admission
 
             coEvery { observeE2EIRequired() } returns flowOf(E2EIRequiredResult.NotRequired)
             coEvery { userSessionScope.calls } returns callsScope
@@ -1406,7 +1483,6 @@ class WireNotificationManagerTest {
             coEvery { markConnectionRequestAsNotified(any()) } returns Unit
             coEvery { syncManager.waitUntilLive() } returns Unit
             coEvery { globalKaliumScope.getSessions } returns getSessionsUseCase
-            coEvery { coreLogic.getSessionScope(any()) } returns userSessionScope
             coEvery { coreLogic.getGlobalScope() } returns globalKaliumScope
             coEvery { messageNotificationManager.handleNotification(any(), any(), any()) } returns Unit
             coEvery { callsScope.getIncomingCalls } returns getIncomingCallsUseCase
@@ -1437,9 +1513,9 @@ class WireNotificationManagerTest {
             staleOpenCallsCleanupFinished: Boolean = true,
             notifications: List<LocalNotification> = emptyList(),
             selfUser: SelfUser = TestUser.SELF_USER,
-            userId: MockKMatcherScope.() -> UserId
+            userId: UserId
         ) {
-            coEvery { coreLogic.getSessionScope(userId()) } returns mockk {
+            sessions[userId] = mockk {
                 coEvery { syncManager } returns this@Arrangement.syncManager
                 coEvery { conversations } returns mockk {
                     coEvery { markConnectionRequestAsNotified } returns this@Arrangement.markConnectionRequestAsNotified
@@ -1520,7 +1596,7 @@ class WireNotificationManagerTest {
                 staleOpenCallsCleanupFinished = staleOpenCallsCleanupFinished,
                 notifications = notifications,
                 selfUser = selfUser,
-                userId = { eq(userId) }
+                userId = userId
             )
         }
 

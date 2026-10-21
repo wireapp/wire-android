@@ -5,10 +5,12 @@ import android.app.Application
 import android.app.PendingIntent
 import androidx.test.core.app.ApplicationProvider
 import com.wire.android.framework.TestUser
+import com.wire.android.session.FakeSessionAdmission
 import com.wire.android.util.CurrentTimeProvider
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.GlobalKaliumScope
 import com.wire.kalium.logic.data.call.Call
+import com.wire.kalium.logic.data.auth.AccountInfo
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.meeting.MeetingReminder
 import com.wire.kalium.logic.feature.UserSessionScope
@@ -17,6 +19,7 @@ import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import com.wire.kalium.logic.feature.meeting.MeetingRemindersUseCase
 import com.wire.kalium.logic.feature.meeting.MeetingScope
 import com.wire.kalium.logic.feature.session.DoesValidSessionExistResult
+import com.wire.kalium.logic.feature.session.GetAllSessionsResult
 import com.wire.kalium.logic.feature.session.DoesValidSessionExistUseCase
 import com.wire.kalium.logic.feature.user.ObserveIsMeetingsEnabledUseCase
 import io.mockk.coEvery
@@ -25,6 +28,9 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
@@ -34,6 +40,7 @@ import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlin.time.Instant
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -41,6 +48,7 @@ import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
 @Config(application = Application::class, sdk = [36])
+@OptIn(ExperimentalCoroutinesApi::class)
 class MeetingReminderSchedulerTest {
     @Test
     fun givenMeetingsDisabled_whenObserving_thenDoNotScheduleAlarm() = runTest {
@@ -49,7 +57,8 @@ class MeetingReminderSchedulerTest {
             meetingsEnabled = flowOf(false)
         }
 
-        arrangement.scheduler.observe()
+        backgroundScope.launch { arrangement.scheduler.observe() }
+        runCurrent()
 
         assertEquals(0, arrangement.scheduledAlarms.size)
         coVerify(exactly = 0) { arrangement.reminders.next(any()) }
@@ -93,13 +102,15 @@ class MeetingReminderSchedulerTest {
         assertEquals(1, arrangement.scheduledAlarms.size)
 
         arrangement.upcomingStarts.remove(FIRST_START)
-        arrangement.scheduler.observe()
+        backgroundScope.launch { arrangement.scheduler.observe() }
+        runCurrent()
         assertEquals(2, arrangement.scheduledAlarms.size)
         assertEquals(arrangement.scheduledAlarms[0], arrangement.scheduledAlarms[1])
 
         arrangement.upcomingStarts.clear()
         arrangement.now = Instant.parse("2026-10-07T15:20:30Z")
-        arrangement.scheduler.observe()
+        backgroundScope.launch { arrangement.scheduler.observe() }
+        runCurrent()
         verify(exactly = 1) { arrangement.alarmManager.cancel(arrangement.scheduledAlarms.last()) }
     }
 
@@ -109,7 +120,8 @@ class MeetingReminderSchedulerTest {
         arrangement.scheduler.restore()
         arrangement.upcomingStarts.add(0, FIRST_START)
         arrangement.now = Instant.parse("2026-10-07T14:40:30Z")
-        arrangement.scheduler.observe()
+        backgroundScope.launch { arrangement.scheduler.observe() }
+        runCurrent()
         assertEquals(2, arrangement.scheduledAlarms.size)
         assertEquals(arrangement.scheduledAlarms[0], arrangement.scheduledAlarms[1])
 
@@ -119,7 +131,8 @@ class MeetingReminderSchedulerTest {
         arrangement.now = Instant.parse("2026-10-07T14:50:30Z")
         arrangement.scheduledAlarms.last().cancel() // The system may release the PendingIntent after dispatching the alarm.
         val restartedScheduler = arrangement.newScheduler()
-        restartedScheduler.observe()
+        backgroundScope.launch { restartedScheduler.observe() }
+        runCurrent()
         assertEquals(2, arrangement.scheduledAlarms.size)
         verify(exactly = 0) { arrangement.alarmManager.cancel(any<PendingIntent>()) }
 
@@ -183,13 +196,106 @@ class MeetingReminderSchedulerTest {
         arrangement.scheduler.restore()
         arrangement.upcomingStarts.clear()
         arrangement.upcomingStarts += LATER_START
-        arrangement.scheduler.observe()
+        backgroundScope.launch { arrangement.scheduler.observe() }
+        runCurrent()
         arrangement.now = ALARM_TIME
 
         arrangement.scheduler.onAlarm(arrangement.user.id, FIRST_START)
 
         verify(exactly = 0) { arrangement.notificationManager.showReminder(any(), any()) }
         assertEquals(2, arrangement.scheduledAlarms.size)
+    }
+
+    @Test
+    fun givenPendingAdmission_whenObserving_thenKeepStoredAlarmUntilRawAccountRemoval() = runTest {
+        val arrangement = Arrangement().apply { upcomingStarts += FIRST_START }
+        arrangement.scheduler.restore()
+        arrangement.admission.publish(arrangement.user.id, null)
+        backgroundScope.launch { arrangement.scheduler.observe() }
+        runCurrent()
+        verify(exactly = 0) { arrangement.alarmManager.cancel(any<PendingIntent>()) }
+        coVerify(exactly = 1) { arrangement.reminders.next(any()) } // The initial restore only.
+
+        arrangement.rawAccounts.value = GetAllSessionsResult.Success(emptyList())
+        runCurrent()
+        verify(exactly = 1) { arrangement.alarmManager.cancel(arrangement.scheduledAlarms.single()) }
+        verify(exactly = 0) { arrangement.coreLogic.getSessionScope(any()) }
+    }
+
+    @Test
+    fun givenSuspendedReminderQuery_whenAccountIsRemoved_thenDrainWithoutSchedulingLateAlarm() = runTest {
+        val entered = CompletableDeferred<Unit>()
+        val drained = CompletableDeferred<Unit>()
+        val arrangement = Arrangement()
+        coEvery { arrangement.reminders.next(any()) } coAnswers {
+            entered.complete(Unit)
+            try { awaitCancellation() } finally { drained.complete(Unit) }
+        }
+        backgroundScope.launch { arrangement.scheduler.observe() }
+        entered.await()
+        arrangement.rawAccounts.value = GetAllSessionsResult.Success(emptyList())
+        runCurrent()
+        assertTrue(drained.isCompleted)
+        assertEquals(0, arrangement.scheduledAlarms.size)
+        verify(exactly = 0) { arrangement.coreLogic.getSessionScope(any()) }
+    }
+
+    @Test
+    fun givenPendingAccount_whenAnotherAccountIsReady_thenScheduleTheReadyAccountIndependently() = runTest {
+        val arrangement = Arrangement()
+        val otherId = TestUser.OTHER_USER.id
+        val other = mockk<UserSessionScope>(relaxed = true)
+        coEvery { other.observeIsMeetingsEnabled() } returns flowOf(true)
+        every { other.meetings.meetingReminders.changes() } returns flowOf(Unit)
+        coEvery { other.meetings.meetingReminders.next(any()) } returns null
+        arrangement.admission.publish(arrangement.user.id, null)
+        arrangement.admission.publish(otherId, other)
+        arrangement.rawAccounts.value = GetAllSessionsResult.Success(
+            listOf(AccountInfo.Valid(arrangement.user.id), AccountInfo.Valid(otherId))
+        )
+        backgroundScope.launch { arrangement.scheduler.observe() }
+        runCurrent()
+        coVerify(exactly = 1) { other.meetings.meetingReminders.next(any()) }
+        verify(exactly = 0) { arrangement.coreLogic.getSessionScope(any()) }
+    }
+
+    @Test
+    fun givenPendingRestoreAccount_whenAnotherAccountIsReady_thenRestoreItWithoutWaitingForTheFirst() = runTest {
+        val arrangement = Arrangement()
+        val otherId = TestUser.OTHER_USER.id
+        val other = mockk<UserSessionScope>(relaxed = true)
+        coEvery { other.meetings.meetingReminders.next(any()) } returns null
+        arrangement.admission.publish(arrangement.user.id, null)
+        arrangement.admission.publish(otherId, other)
+        arrangement.rawAccounts.value = GetAllSessionsResult.Success(
+            listOf(AccountInfo.Valid(arrangement.user.id), AccountInfo.Valid(otherId))
+        )
+        val restoring = async { arrangement.scheduler.restore() }
+        runCurrent()
+        assertTrue(restoring.isActive)
+        coVerify(exactly = 1) { other.meetings.meetingReminders.next(any()) }
+        restoring.cancel()
+        restoring.join()
+        assertTrue(restoring.isCancelled)
+    }
+
+    @Test
+    fun givenAlarmWithPendingAdmission_whenPublished_thenConsumeStoredOwnershipAndNotifyOnce() = runTest {
+        val arrangement = Arrangement().apply { upcomingStarts += FIRST_START }
+        val reminder = arrangement.reminder(FIRST_START)
+        arrangement.remindersInWindow += reminder
+        arrangement.scheduler.restore()
+        arrangement.now = ALARM_TIME
+        arrangement.admission.publish(arrangement.user.id, null)
+        val alarm = async { arrangement.scheduler.onAlarm(arrangement.user.id, FIRST_START) }
+        runCurrent()
+        assertTrue(alarm.isActive)
+        verify(exactly = 0) { arrangement.notificationManager.showReminder(any(), any()) }
+        arrangement.admission.publish(arrangement.user.id, arrangement.session)
+        alarm.await()
+        arrangement.scheduler.onAlarm(arrangement.user.id, FIRST_START)
+        verify(exactly = 1) { arrangement.notificationManager.showReminder(reminder, arrangement.user.id) }
+        verify(exactly = 0) { arrangement.coreLogic.getSessionScope(any()) }
     }
 
     private class Arrangement {
@@ -208,19 +314,20 @@ class MeetingReminderSchedulerTest {
         private val meetings = mockk<MeetingScope>()
         private val calls = mockk<CallsScope>()
         private val establishedCall = mockk<ObserveEstablishedCallsUseCase>()
-        private val session = mockk<UserSessionScope>()
+        val session = mockk<UserSessionScope>()
         private val global = mockk<GlobalKaliumScope>()
         private val validSession = mockk<DoesValidSessionExistUseCase>()
-        private val coreLogic = mockk<CoreLogic>()
+        val coreLogic = mockk<CoreLogic>()
+        val rawAccounts = MutableStateFlow<GetAllSessionsResult>(GetAllSessionsResult.Success(listOf(AccountInfo.Valid(user.id))))
+        val admission = FakeSessionAdmission(coreLogic) { session }
         private val context = ApplicationProvider.getApplicationContext<Application>()
         val scheduler = newScheduler()
 
         init {
             every { coreLogic.getGlobalScope() } returns global
-            coEvery { global.observeValidAccounts() } returns flowOf(listOf(user to null))
+            coEvery { global.observeAllValidSessionsFlow() } returns rawAccounts
             every { global.doesValidSessionExist } returns validSession
             coEvery { validSession(user.id) } returns DoesValidSessionExistResult.Success(true)
-            every { coreLogic.getSessionScope(user.id) } returns session
             every { session.meetings } returns meetings
             every { session.observeIsMeetingsEnabled } returns observeIsMeetingsEnabled
             coEvery { observeIsMeetingsEnabled() } answers { meetingsEnabled }

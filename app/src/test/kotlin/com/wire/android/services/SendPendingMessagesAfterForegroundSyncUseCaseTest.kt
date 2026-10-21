@@ -18,11 +18,15 @@
 package com.wire.android.services
 
 import com.wire.android.framework.fake.FakeSyncExecutor
+import com.wire.android.session.FakeSessionAdmission
+import com.wire.android.session.runWithValidSession
 import com.wire.android.util.CurrentScreenManager
 import com.wire.android.util.lifecycle.SyncLifecycleManager
 import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.sync.SyncState
+import com.wire.kalium.logic.data.auth.AccountInfo
+import com.wire.kalium.logic.feature.session.GetAllSessionsResult
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.UserSessionScope
 import com.wire.kalium.logic.sync.SendPendingMessagesUseCase
@@ -33,11 +37,19 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
+import io.mockk.verify
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitCancellation
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.Assertions.assertSame
 import org.junit.jupiter.api.Test
 
+@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 @Suppress("DEPRECATION")
 class SendPendingMessagesAfterForegroundSyncUseCaseTest {
 
@@ -68,6 +80,80 @@ class SendPendingMessagesAfterForegroundSyncUseCaseTest {
         coVerify(exactly = 0) { arrangement.sendPendingMessages() }
     }
 
+    @Test
+    fun `early metadata waits and revocation drains captured send without replay`() = runTest {
+        val entered = CompletableDeferred<Unit>()
+        val drained = CompletableDeferred<Unit>()
+        val (arrangement, useCase) = Arrangement().arrange()
+        arrangement.admission.publish(USER_ID, null)
+        coEvery { arrangement.sendPendingMessages() } coAnswers {
+            entered.complete(Unit)
+            try { awaitCancellation() } finally { drained.complete(Unit) }
+        }
+        val request = async {
+            arrangement.coreLogic.runWithValidSession(USER_ID) { useCase(USER_ID, this) }
+        }
+        runCurrent()
+        assertEquals(0, arrangement.syncExecutor.requestCount)
+        arrangement.admission.publish(USER_ID, arrangement.userSessionScope)
+        entered.await()
+        arrangement.admission.publish(USER_ID, null)
+        runCurrent()
+        assertTrue(drained.isCompleted)
+        arrangement.admission.publish(USER_ID, arrangement.userSessionScope)
+        request.await()
+        assertEquals(1, arrangement.syncExecutor.requestCount)
+        coVerify(exactly = 1) { arrangement.sendPendingMessages() }
+        verify(exactly = 0) { arrangement.coreLogic.getSessionScope(any()) }
+    }
+
+    @Test
+    fun `raw invalidation cancels waiting send and does not acquire on later publication`() = runTest {
+        val (arrangement, useCase) = Arrangement().arrange()
+        arrangement.admission.publish(USER_ID, null)
+        val request = async {
+            arrangement.coreLogic.runWithValidSession(USER_ID) { useCase(USER_ID, this) }
+        }
+        runCurrent()
+        arrangement.rawAccounts.value = GetAllSessionsResult.Success(emptyList())
+        request.await()
+        arrangement.admission.publish(USER_ID, arrangement.userSessionScope)
+        runCurrent()
+        assertEquals(0, arrangement.syncExecutor.requestCount)
+        coVerify(exactly = 0) { arrangement.sendPendingMessages() }
+        verify(exactly = 0) { arrangement.coreLogic.getSessionScope(any()) }
+    }
+
+    @Test
+    fun `captured send failure propagates unchanged`() = runTest {
+        val (arrangement, useCase) = Arrangement().arrange()
+        val failure = IllegalStateException("send failed")
+        coEvery { arrangement.sendPendingMessages() } throws failure
+        val observed = try {
+            arrangement.coreLogic.runWithValidSession(USER_ID) { useCase(USER_ID, this) }
+            error("expected failure")
+        } catch (actual: IllegalStateException) {
+            actual
+        }
+        assertSame(failure, observed)
+        verify(exactly = 0) { arrangement.coreLogic.getSessionScope(any()) }
+    }
+
+    @Test
+    fun `caller cancellation while waiting is not converted to successful send`() = runTest {
+        val (arrangement, useCase) = Arrangement().arrange()
+        arrangement.admission.publish(USER_ID, null)
+        val request = async {
+            arrangement.coreLogic.runWithValidSession(USER_ID) { useCase(USER_ID, this) }
+        }
+        runCurrent()
+        request.cancel()
+        request.join()
+        assertTrue(request.isCancelled)
+        assertEquals(0, arrangement.syncExecutor.requestCount)
+        coVerify(exactly = 0) { arrangement.sendPendingMessages() }
+    }
+
     private class Arrangement {
 
         @MockK
@@ -86,10 +172,14 @@ class SendPendingMessagesAfterForegroundSyncUseCaseTest {
         lateinit var sendPendingMessages: SendPendingMessagesUseCase
 
         var syncExecutor = FakeSyncExecutor()
+        val rawAccounts = MutableStateFlow<GetAllSessionsResult>(GetAllSessionsResult.Success(listOf(AccountInfo.Valid(USER_ID))))
+        val admission by lazy { FakeSessionAdmission(coreLogic) { userSessionScope } }
 
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
+            admission
             every { coreLogic.getSessionScope(USER_ID) } returns userSessionScope
+            coEvery { coreLogic.getGlobalScope().observeAllValidSessionsFlow() } returns rawAccounts
             every { userSessionScope.syncManager } returns syncStateObserver
             every { syncStateObserver.syncState } returns MutableStateFlow(SyncState.Live)
             every { userSessionScope.sendPendingMessages } returns sendPendingMessages

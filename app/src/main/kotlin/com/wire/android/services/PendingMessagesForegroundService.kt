@@ -43,6 +43,7 @@ import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.auth.AccountInfo
 import com.wire.kalium.logic.data.logout.LogoutReason
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.UserSessionScope
 import com.wire.kalium.logic.feature.auth.LogoutCallback
 import com.wire.kalium.logic.feature.session.DoesValidSessionExistResult
 import com.wire.kalium.logic.feature.session.GetAllSessionsResult
@@ -316,14 +317,27 @@ class SendPendingMessagesAfterForegroundSyncUseCase @Inject constructor(
             stayAliveExtraDuration = 3.seconds,
             waitForNextSyncState = true,
         ) {
-            val userSessionScope = coreLogic.getSessionScope(userId)
-            appLogger.i(
-                "$TAG: sending pending messages for ${userId.toLogString()}, " +
-                        "syncState=${userSessionScope.syncManager.syncState.value}, " +
-                        "userSessionScope=$userSessionScope"
-            )
-            userSessionScope.sendPendingMessages()
+            coreLogic.getSessionScope(userId).sendAfterSync(userId)
         }
+    }
+
+    internal suspend operator fun invoke(userId: UserId, session: UserSessionScope) {
+        syncLifecycleManager.syncTemporarily(
+            userId = userId,
+            session = session,
+            stayAliveExtraDuration = 3.seconds,
+            waitForNextSyncState = true,
+        ) {
+            session.sendAfterSync(userId)
+        }
+    }
+
+    private suspend fun UserSessionScope.sendAfterSync(userId: UserId) {
+        appLogger.i(
+            "$TAG: sending pending messages for ${userId.toLogString()}, " +
+                "syncState=${syncManager.syncState.value}, userSessionScope=$this"
+        )
+        sendPendingMessages()
     }
 
     private companion object {

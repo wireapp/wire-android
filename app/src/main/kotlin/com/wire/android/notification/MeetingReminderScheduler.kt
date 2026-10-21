@@ -7,11 +7,14 @@ import android.content.Intent
 import android.os.Build
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.notification.broadcastreceivers.MeetingReminderReceiver
+import com.wire.android.session.runWithValidSession
 import com.wire.android.util.CurrentTimeProvider
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.meeting.MeetingReminder.Companion.REMINDER_NOTIFICATION_LEAD_TIME
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.session.DoesValidSessionExistResult
+import com.wire.kalium.logic.feature.session.GetAllSessionsResult
+import com.wire.kalium.logic.feature.UserSessionScope
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
@@ -40,26 +43,26 @@ class MeetingReminderScheduler @Inject constructor(
     private val scheduledReminderTimes = ScheduledReminderTimeStore(context)
 
     suspend fun observe() {
-        coreLogic.getGlobalScope().observeValidAccounts()
-            .map { accounts -> accounts.map { it.first.id }.toSet() }
+        coreLogic.getGlobalScope().observeAllValidSessionsFlow()
+            .map { result ->
+                (result as? GetAllSessionsResult.Success)?.sessions.orEmpty().filter { it.isValid() }.map { it.userId }.toSet()
+            }
             .scan(emptySet<UserId>() to emptySet<UserId>()) { (_, currentUsers), nextUsers -> currentUsers to nextUsers }
             .collectLatest { (previousUsers, users) ->
                 (previousUsers - users).forEach { cancel(it) }
                 coroutineScope {
                     users.forEach { userId ->
                         launch {
-                            val sessionScope = coreLogic.getSessionScope(userId)
-                            combine(
-                                sessionScope.observeIsMeetingsEnabled(),
-                                sessionScope.meetings.meetingReminders.changes(),
-                            ) { isMeetingsEnabled, _ -> isMeetingsEnabled }
-                                .collect { isMeetingsEnabled ->
-                                    if (isMeetingsEnabled) {
-                                        scheduleNext(userId)
-                                    } else {
-                                        cancel(userId)
+                            coreLogic.observeValidSession(userId) {
+                                val sessionScope = this
+                                combine(
+                                    observeIsMeetingsEnabled(),
+                                    meetings.meetingReminders.changes(),
+                                ) { isMeetingsEnabled, _ -> isMeetingsEnabled }
+                                    .map { isMeetingsEnabled ->
+                                        if (isMeetingsEnabled) scheduleNext(userId, sessionScope) else cancel(userId)
                                     }
-                                }
+                            }.collect {}
                         }
                     }
                 }
@@ -68,7 +71,12 @@ class MeetingReminderScheduler @Inject constructor(
 
     suspend fun restore() {
         schedulingMutex.withLock { scheduledReminderTimes.clearAll() }
-        coreLogic.getGlobalScope().observeValidAccounts().first().forEach { (user, _) -> scheduleNext(user.id) }
+        val result = coreLogic.getGlobalScope().observeAllValidSessionsFlow().first()
+        coroutineScope {
+            (result as? GetAllSessionsResult.Success)?.sessions.orEmpty().filter { it.isValid() }.forEach { account ->
+                launch { coreLogic.runWithValidSession(account.userId) { scheduleNext(account.userId, this) } }
+            }
+        }
     }
 
     suspend fun onAlarm(userId: UserId, startTime: Instant) {
@@ -77,53 +85,63 @@ class MeetingReminderScheduler @Inject constructor(
             cancel(userId)
             return
         }
-        val now = currentTimeProvider()
-        val rangeEndExclusive = maxOf(startTime + 1.minutes, nextEligibleReminderTime(now))
-        val isCurrentAlarm = schedulingMutex.withLock {
-            if (scheduledReminderTimes.get(userId) != startTime || now < startTime - REMINDER_NOTIFICATION_LEAD_TIME) return@withLock false
-            scheduledReminderTimes.clear(userId)
-            scheduleNextLocked(userId, rangeEndExclusive - 1.nanoseconds, now, null)
-            true
-        }
-        if (isCurrentAlarm) {
-            val sessionScope = coreLogic.getSessionScope(userId)
-            val ongoingCallConversationIds = sessionScope.calls.establishedCall().first().map { it.conversationId }.toSet()
-            sessionScope.meetings.meetingReminders
-                .within(startTime, rangeEndExclusive)
-                .filter { it.startTime > now && it.conversationId !in ongoingCallConversationIds }
-                .forEach { meetingNotificationManager.showReminder(it, userId) }
+        coreLogic.runWithValidSession(userId) {
+            val sessionScope = this
+            val now = currentTimeProvider()
+            val rangeEndExclusive = maxOf(startTime + 1.minutes, nextEligibleReminderTime(now))
+            val isCurrentAlarm = schedulingMutex.withLock {
+                if (scheduledReminderTimes.get(userId) != startTime || now < startTime - REMINDER_NOTIFICATION_LEAD_TIME) {
+                    return@withLock false
+                }
+                scheduledReminderTimes.clear(userId)
+                scheduleNextLocked(userId, sessionScope, rangeEndExclusive - 1.nanoseconds, now, null)
+                true
+            }
+            if (isCurrentAlarm) {
+                val ongoingCallConversationIds = sessionScope.calls.establishedCall().first().map { it.conversationId }.toSet()
+                sessionScope.meetings.meetingReminders
+                    .within(startTime, rangeEndExclusive)
+                    .filter { it.startTime > now && it.conversationId !in ongoingCallConversationIds }
+                    .forEach { meetingNotificationManager.showReminder(it, userId) }
+            }
         }
     }
 
-    private suspend fun scheduleNext(userId: UserId) {
+    private suspend fun scheduleNext(userId: UserId, session: UserSessionScope) {
         schedulingMutex.withLock {
             val now = currentTimeProvider()
             val scheduledReminderTime = scheduledReminderTimes.get(userId)
             if (scheduledReminderTime != null && scheduledReminderTime - REMINDER_NOTIFICATION_LEAD_TIME <= now) {
                 val reminderWindowEndExclusive = maxOf(scheduledReminderTime + 1.minutes, nextEligibleReminderTime(now))
-                val hasUpcomingMeeting = coreLogic.getSessionScope(userId).meetings.meetingReminders
+                val hasUpcomingMeeting = session.meetings.meetingReminders
                     .within(scheduledReminderTime, reminderWindowEndExclusive)
                     .any { it.startTime > now }
                 if (hasUpcomingMeeting) return@withLock
 
                 existingAlarmIntent(userId)?.let(alarmManager::cancel)
                 scheduledReminderTimes.clear(userId)
-                scheduleNextLocked(userId, reminderWindowEndExclusive - 1.nanoseconds, now, null)
+                scheduleNextLocked(userId, session, reminderWindowEndExclusive - 1.nanoseconds, now, null)
                 return@withLock
             }
 
             if (scheduledReminderTime != null && existingAlarmIntent(userId) == null) {
                 scheduledReminderTimes.clear(userId)
-                scheduleNextLocked(userId, nextEligibleReminderTime(now) - 1.nanoseconds, now, null)
+                scheduleNextLocked(userId, session, nextEligibleReminderTime(now) - 1.nanoseconds, now, null)
             } else {
-                scheduleNextLocked(userId, nextEligibleReminderTime(now) - 1.nanoseconds, now, scheduledReminderTime)
+                scheduleNextLocked(userId, session, nextEligibleReminderTime(now) - 1.nanoseconds, now, scheduledReminderTime)
             }
         }
     }
 
-    private suspend fun scheduleNextLocked(userId: UserId, nextReminderTime: Instant, now: Instant, scheduledReminderTime: Instant?) {
+    private suspend fun scheduleNextLocked(
+        userId: UserId,
+        session: UserSessionScope,
+        nextReminderTime: Instant,
+        now: Instant,
+        scheduledReminderTime: Instant?,
+    ) {
         val eligibleFrom = maxOf(nextReminderTime, nextEligibleReminderTime(now) - 1.nanoseconds)
-        val next = coreLogic.getSessionScope(userId).meetings.meetingReminders.next(eligibleFrom)
+        val next = session.meetings.meetingReminders.next(eligibleFrom)
         if (next == null) {
             if (scheduledReminderTime != null) {
                 existingAlarmIntent(userId)?.let(alarmManager::cancel)

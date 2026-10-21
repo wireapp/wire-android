@@ -140,7 +140,7 @@ jobs:
   lint:
     name: Lint
     needs: [workflow-security]
-    runs-on: ubuntu-latest
+    runs-on: warp-ubuntu-2404-x64-8x
     steps:
       - name: Checkout
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
@@ -184,7 +184,7 @@ jobs:
   compose-stability:
     name: Compose Stability
     needs: [workflow-security]
-    runs-on: ubuntu-latest
+    runs-on: warp-ubuntu-2404-x64-8x
     steps:
       - name: Checkout
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0

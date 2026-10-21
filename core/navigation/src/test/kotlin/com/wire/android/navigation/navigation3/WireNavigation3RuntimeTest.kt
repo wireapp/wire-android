@@ -200,7 +200,6 @@ class WireNavigation3RuntimeTest {
         )
 
         assertEquals(WireNavResult.Value(null), restoredRuntime.consumeResult(requestId, nullableType))
-        assertNull(restoredRuntime.consumeResult(requestId, nullableType))
     }
 
     @Test

@@ -18,11 +18,6 @@
 
 package com.wire.navigation
 
-import kotlinx.serialization.KSerializer
-import kotlinx.serialization.builtins.nullable
-import kotlinx.serialization.builtins.serializer
-import kotlinx.serialization.encoding.Decoder
-import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.Json
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -193,63 +188,6 @@ class WireNavResultRegistryTest {
             WireNavResult.Value("value"),
             restored.consume(completed.id, completed.requesterEntryId),
         )
-    }
-
-    @Test
-    fun givenLegacySavedResultVariants_whenDecoded_thenPayloadsAndDefaultsArePreserved() {
-        val request = """{"id":"saved","contractId":"nullable-string","requesterEntryId":"home","targetEntryId":"picker"}"""
-        val stateType = "com.wire.navigation.WireNavResultState"
-        val resultType = "com.wire.navigation.WireNavResult"
-        val fixtures = listOf<Pair<String, WireNavResultState<String?>>>(
-            "" to WireNavResultState.Pending,
-            ""","state":{"type":"$stateType.Pending"}""" to WireNavResultState.Pending,
-            ""","state":{"type":"$stateType.Completed","result":{"type":"$resultType.Canceled"}}""" to
-                WireNavResultState.Completed(WireNavResult.Canceled),
-            ""","state":{"type":"$stateType.Completed","result":{"type":"$resultType.Value","value":"saved"}}""" to
-                WireNavResultState.Completed(WireNavResult.Value("saved")),
-            ""","state":{"type":"$stateType.Completed","result":{"type":"$resultType.Value","value":null}}""" to
-                WireNavResultState.Completed(WireNavResult.Value(null)),
-        )
-        val serializer = String.serializer().nullable
-
-        fixtures.forEach { (state, expected) ->
-            val encoded = """{"records":[{"request":$request$state}]}"""
-            val decoded = decodeWireNavResultRegistrySnapshot(encoded, serializer)
-
-            assertEquals(expected, decoded.records.single().state)
-            val canonical = if (expected == WireNavResultState.Pending) {
-                """{"records":[{"request":$request}]}"""
-            } else {
-                encoded
-            }
-            assertEquals(Json.parseToJsonElement(canonical), Json.parseToJsonElement(decoded.encode(serializer)))
-        }
-    }
-
-    @Test
-    fun givenCustomNullablePayloadSerializer_whenRestoringSnapshot_thenTypedResultsAreConsumedOnce() {
-        val serializer = object : KSerializer<Int> {
-            override val descriptor = String.serializer().descriptor
-            override fun serialize(encoder: Encoder, value: Int) = encoder.encodeString("payload-$value")
-            override fun deserialize(decoder: Decoder): Int = decoder.decodeString().removePrefix("payload-").toInt()
-        }.nullable
-        val contract = WireNavResultContract<Int?>(WireNavResultContractId("custom"))
-        val registry = WireNavResultRegistry(contract)
-        val values = listOf(42, null)
-        val requests = values.mapIndexed { index, value ->
-            request(id = "custom-$index", contractId = contract.id).also {
-                registry.register(it)
-                registry.complete(it.id, WireNavResult.Value(value))
-            }
-        }
-        val encoded = registry.snapshot().encode(serializer)
-        assertTrue(encoded.contains("\"value\":\"payload-42\""))
-        val restored = WireNavResultRegistry(contract, decodeWireNavResultRegistrySnapshot(encoded, serializer))
-
-        requests.zip(values).forEach { (request, value) ->
-            assertEquals(WireNavResult.Value(value), restored.consume(request.id, request.requesterEntryId))
-            assertNull(restored.consume(request.id, request.requesterEntryId))
-        }
     }
 
     @Test

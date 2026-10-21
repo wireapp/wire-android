@@ -23,7 +23,7 @@ CRASH = re.compile(r"ANR in |FATAL EXCEPTION:|Fatal signal \d+|\bam_(?:anr|crash
 
 
 def run(*args: str, timeout: int = 20) -> subprocess.CompletedProcess[str]:
-    return subprocess.run(args, capture_output=True, text=True, timeout=timeout, check=False)
+    return subprocess.run(args, shell=False, capture_output=True, text=True, timeout=timeout, check=False)
 
 
 def adb(serial: str, *args: str, timeout: int = 20) -> subprocess.CompletedProcess[str]:

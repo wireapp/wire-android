@@ -92,7 +92,7 @@ permissions:
 
 jobs:
   run-tests:
-    uses: ./.github/workflows/qa-android-regression-tests.yml
+    uses: ./.github/workflows/qa-android-ui-tests.yml
     permissions:
       contents: write
       actions: read
@@ -115,4 +115,10 @@ jobs:
       androidDeviceId: ${{ inputs.androidDeviceId || '' }}
       androidDeviceGroup: GrapheneOS
       rerunFailedCount: ${{ inputs.rerunFailedCount || '' }}
-    secrets: inherit
+    secrets:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
+      OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
+      WIRE_QA_AUTOMATION_CHANNEL_URL: ${{ secrets.WIRE_QA_AUTOMATION_CHANNEL_URL }}
+      WIRE_QA_AUTOMATION_CHANNEL_TOKEN: ${{ secrets.WIRE_QA_AUTOMATION_CHANNEL_TOKEN }}

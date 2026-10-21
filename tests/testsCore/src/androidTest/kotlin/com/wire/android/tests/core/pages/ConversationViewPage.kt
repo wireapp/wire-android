@@ -86,7 +86,9 @@ data class ConversationViewPage(private val device: UiDevice) {
         var user: UiObject2? = null
         val visible = UiWaitUtils.retryUntilTimeout(UiWaitUtils.DEFAULT_TIMEOUT) {
             user = device.findObject(By.clazz("android.widget.Button").descStartsWith("$userName,"))
-                ?: device.findObject(By.clickable(true).hasChild(By.text(userName)))
+                ?: device.findObject(
+                    By.clickable(true).hasChild(By.text(userName)).hasChild(By.textStartsWith("@"))
+                )
             user?.visibleBounds?.isEmpty == false
         }
         if (!visible) {

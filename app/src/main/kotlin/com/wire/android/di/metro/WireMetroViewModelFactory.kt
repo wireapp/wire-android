@@ -18,6 +18,13 @@
 package com.wire.android.di.metro
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelStore
+import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.CreationExtras
+import com.wire.android.navigation.runtime.WireNavigationDiagnostics
+import com.wire.kalium.logic.di.KaliumConsumer
+import com.wire.kalium.logic.feature.UserSessionScope
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.ContributesBinding
 import dev.zacsweers.metro.Inject
@@ -26,8 +33,10 @@ import dev.zacsweers.metro.binding
 import dev.zacsweers.metrox.viewmodel.ManualViewModelAssistedFactory
 import dev.zacsweers.metrox.viewmodel.MetroViewModelFactory
 import dev.zacsweers.metrox.viewmodel.ViewModelAssistedFactory
-import com.wire.android.navigation.runtime.WireNavigationDiagnostics
+import java.util.concurrent.atomic.AtomicBoolean
+import kotlinx.coroutines.Job
 import kotlin.reflect.KClass
+import kotlin.reflect.cast
 
 abstract class WireMetroViewModelFactory(
     viewModelProviders: Map<KClass<out ViewModel>, () -> ViewModel>,
@@ -56,11 +65,27 @@ class WireApplicationMetroViewModelFactory(
     manualAssistedFactoryProviders,
 )
 
-/** Session graph factory. It must be built from the selected session graph's binding maps. */
+/** Session dispatcher. Only the factory is retained; every new ViewModel gets a child graph. */
 @Inject
 @SingleIn(MetroSessionScope::class)
 @ContributesBinding(MetroSessionScope::class, binding = binding<MetroViewModelFactory>())
 class WireSessionMetroViewModelFactory(
+    private val graphFactory: AppViewModelGraph.Factory,
+    private val session: UserSessionScope,
+) : WireConsumerMetroViewModelFactory() {
+    // Parent providers can still look up by account. The captured consumer guards the entire
+    // assembly, rejecting publication if those providers cross into a replacement generation.
+    override fun <VM : ViewModel> createInGraph(create: (MetroViewModelFactory) -> VM): VM =
+        createConsumerViewModel(
+            createConsumer = session::createConsumer,
+        ) { consumer ->
+            create(graphFactory.createViewModelGraph(consumer).consumerViewModelFactory)
+        }
+}
+
+/** Constructed in AppViewModelGraph so all provider maps and manual factories belong to that child. */
+@Inject
+class WireViewModelGraphFactory(
     viewModelProviders: Map<KClass<out ViewModel>, () -> ViewModel>,
     assistedFactoryProviders: Map<KClass<out ViewModel>, () -> ViewModelAssistedFactory>,
     manualAssistedFactoryProviders:
@@ -70,6 +95,52 @@ class WireSessionMetroViewModelFactory(
     assistedFactoryProviders,
     manualAssistedFactoryProviders,
 )
+
+/**
+ * The ViewModel owns its consumer. Invalidation drains guarded SDK work, while the published
+ * ViewModel's own job can finish terminal account work and its follow-up. Only an unpublished,
+ * rejected ViewModel transfers its job to consumer drain so resources outlive its cleanup.
+ */
+@Suppress("TooGenericExceptionCaught") // Cleanup must preserve any original construction failure, including Errors.
+internal fun <VM : ViewModel> createConsumerViewModel(
+    createConsumer: () -> KaliumConsumer,
+    create: (KaliumConsumer) -> VM,
+): VM {
+    val consumer = createConsumer()
+    val closeable = CloseOnce(consumer)
+    try {
+        return consumer.assemble(
+            create = { create(consumer).also { it.addCloseable(closeable) } },
+            onDiscard = ::clearUnpublishedViewModel,
+            jobOnDiscard = { it.viewModelScope.coroutineContext[Job] },
+        )
+    } catch (failure: Throwable) {
+        try {
+            closeable.close()
+        } catch (cleanupFailure: Throwable) {
+            if (cleanupFailure !== failure) failure.addSuppressed(cleanupFailure)
+        }
+        throw failure
+    }
+}
+
+/** Clear through public lifecycle APIs, including onCleared and resources beyond viewModelScope. */
+private fun clearUnpublishedViewModel(viewModel: ViewModel) {
+    val store = ViewModelStore()
+    val factory = object : ViewModelProvider.Factory {
+        override fun <T : ViewModel> create(modelClass: KClass<T>, extras: CreationExtras): T = modelClass.cast(viewModel)
+    }
+    ViewModelProvider.create(store, factory)["unpublished", viewModel::class]
+    store.clear()
+}
+
+private class CloseOnce(private val consumer: AutoCloseable) : AutoCloseable {
+    private val closed = AtomicBoolean()
+
+    override fun close() {
+        if (closed.compareAndSet(false, true)) consumer.close()
+    }
+}
 
 private fun <K : Any, V : Any> Map<KClass<out K>, () -> V>.withDiagnostics(
     factory: String,

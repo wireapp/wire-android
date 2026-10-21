@@ -344,6 +344,7 @@ dependencies {
     testImplementation(libs.turbine)
     testImplementation(libs.okio.fakeFileSystem)
     testImplementation(libs.robolectric)
+    testImplementation("com.wire.kalium:kalium-persistence")
     testRuntimeOnly(libs.junit5.vintage.engine)
     testRuntimeOnly(libs.junit5.engine)
     testImplementation(libs.androidx.paging.testing)

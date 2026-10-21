@@ -19,8 +19,8 @@ import com.wire.android.di.EmptyPreviewProvider
 import com.wire.android.di.PreviewProvider
 import com.wire.android.di.findPreviewOr
 import dev.zacsweers.metrox.viewmodel.ManualViewModelAssistedFactory
+import dev.zacsweers.metrox.viewmodel.LocalMetroViewModelFactory
 import dev.zacsweers.metrox.viewmodel.MetroViewModelFactory
-import dev.zacsweers.metrox.viewmodel.assistedMetroViewModel
 import dev.zacsweers.metrox.viewmodel.metroViewModel
 
 /**
@@ -168,10 +168,10 @@ internal inline fun <
     crossinline create: Factory.(CreationExtras) -> VM,
 ): VM {
     WireViewModelDiagnostics.viewModelRequested(owner, checkNotNull(resolvedKey))
-    return assistedMetroViewModel<VM, Factory>(
-        viewModelStoreOwner = owner,
-        key = resolvedKey,
-    ) { extras ->
-        create(extras)
-    }
+    return ViewModelProvider(
+        owner,
+        LocalMetroViewModelFactory.current.wireManualViewModelFactory(Factory::class) { extras ->
+            create(extras)
+        },
+    )[resolvedKey, VM::class.java]
 }

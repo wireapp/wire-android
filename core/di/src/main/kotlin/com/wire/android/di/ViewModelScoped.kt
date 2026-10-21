@@ -26,10 +26,9 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import com.sebaslogen.resaca.KeyInScopeResolver
+import com.wire.android.di.metro.wireManualViewModelFactory
 import dev.zacsweers.metrox.viewmodel.LocalMetroViewModelFactory
 import dev.zacsweers.metrox.viewmodel.ManualViewModelAssistedFactory
-import kotlin.reflect.KClass
-import kotlin.reflect.cast
 import kotlin.time.Duration
 import com.sebaslogen.resaca.metro.metroViewModelScoped as resacaMetroViewModelScoped
 
@@ -77,12 +76,8 @@ inline fun <reified T, reified S, reified R : ScopedArgs, reified FactoryType> w
 internal inline fun <reified T, reified FactoryType> manualScopedViewModelFactory(
     crossinline create: FactoryType.(CreationExtras) -> T,
 ): ViewModelProvider.Factory where T : ViewModel, FactoryType : ManualViewModelAssistedFactory {
-    val metroViewModelFactory = LocalMetroViewModelFactory.current
-    return object : ViewModelProvider.Factory {
-        override fun <VM : ViewModel> create(modelClass: KClass<VM>, extras: CreationExtras): VM {
-            val factory = metroViewModelFactory.createManuallyAssistedFactory(FactoryType::class)()
-            return modelClass.cast(factory.create(extras))
-        }
+    return LocalMetroViewModelFactory.current.wireManualViewModelFactory(FactoryType::class) { extras ->
+        create(extras)
     }
 }
 

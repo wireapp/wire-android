@@ -57,7 +57,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.Dp
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
@@ -423,7 +423,7 @@ internal fun ConversationFilesScreenContent(
                     exit = fadeOut(),
                 ) {
                     val fabCornerRadius by transition.animateDp(label = "FabCornerRadius") { state ->
-                        if (state == EnterExitState.Visible) FAB_CORNER_RADIUS else PILL_CORNER_RADIUS
+                        if (state == EnterExitState.Visible) fabCornerRadius() else pillCornerRadius()
                     }
                     FloatingActionButton(
                         modifier = Modifier
@@ -523,7 +523,7 @@ internal fun ConversationFilesScreenContent(
                 ) {
                     // Mirrors the FAB: starts from the FAB corners and rounds up to a pill as it takes the FAB's place.
                     val barCornerRadius by transition.animateDp(label = "BulkActionsBarCornerRadius") { state ->
-                        if (state == EnterExitState.Visible) PILL_CORNER_RADIUS else FAB_CORNER_RADIUS
+                        if (state == EnterExitState.Visible) pillCornerRadius() else fabCornerRadius()
                     }
                     CellBulkActionsBar(
                         actions = bulkActions(offlineFilesEnabled = offlineFilesEnabled, sendIntent = sendIntent),
@@ -543,10 +543,12 @@ internal fun ConversationFilesScreenContent(
 private const val FAB_TO_BULK_ACTIONS_KEY = "cells_fab_to_bulk_actions"
 
 // Extended FAB default corners (Material3 ShapeDefaults.Large).
-private val FAB_CORNER_RADIUS = 16.dp
+@Composable
+private fun fabCornerRadius(): Dp = dimensions().corner16x
 
 // Larger than half of the bar height, so RoundedCornerShape clamps it to a full pill.
-private val PILL_CORNER_RADIUS = 32.dp
+@Composable
+private fun pillCornerRadius(): Dp = dimensions().spacing32x
 
 private fun bulkActions(offlineFilesEnabled: Boolean, sendIntent: (CellViewIntent) -> Unit): List<CellBulkAction> =
     buildList {
@@ -599,7 +601,6 @@ private fun SelectionAwareTitle(title: String, selectedCount: Int) {
     }
 }
 
-@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 @MultipleThemePreviews
 fun PreviewConversationFilesScreen() {

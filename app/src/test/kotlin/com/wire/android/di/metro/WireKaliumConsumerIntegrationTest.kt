@@ -136,6 +136,13 @@ class WireKaliumConsumerIntegrationTest {
                 assertNotSame(first.message, second.message)
                 assertNotSame(first.details, second.details)
                 assertEquals(2, factory.consumers.size)
+                // Check the actual session wiring, not just that two fresh use cases differ.
+                val firstMessageRepository = capture(first.getMessage, "messageRepository")
+                assertSame(firstMessageRepository, capture(first.message, "messageRepository"))
+                val secondMessageRepository = capture(second.getMessage, "messageRepository")
+                assertNotSame(firstMessageRepository, secondMessageRepository)
+                assertNotSame(capture(firstMessageRepository, "delegate"), capture(secondMessageRepository, "delegate"))
+                assertNotSame(capture(first.details, "conversationRepository"), capture(second.details, "conversationRepository"))
 
                 val firstReads = observe(first, sdk).also(reads::add)
                 val secondReads = observe(second, sdk).also(reads::add)
@@ -256,6 +263,12 @@ class WireKaliumConsumerIntegrationTest {
         assertEquals(sdk.conversationId, conversation.id)
         assertEquals(CONVERSATION_NAME, conversation.name)
         return ActiveReads(messageFlow, detailsFlow, messageJob, detailsJob)
+    }
+
+    // The SDK keeps repository captures private; reflection avoids adding production test accessors.
+    private fun capture(owner: Any, name: String): Any = owner.javaClass.getDeclaredField(name).let {
+        it.isAccessible = true
+        checkNotNull(it.get(owner))
     }
 
     private fun assertStoredMessage(result: GetMessageByIdUseCase.Result) {

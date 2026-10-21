@@ -367,11 +367,14 @@ class WireKaliumConsumerIntegrationTest {
                 withContext(NonCancellable + Dispatchers.Default) {
                     withTimeout(10_000) {
                         logic.getGlobalScope().coroutineContext.job.cancelAndJoin()
-                        val detachedJobs = sessions.mapNotNull { session ->
-                            val manager = capture(session, "keyPackageManager\$delegate") as Lazy<*>
-                            if (!manager.isInitialized()) null else {
-                                (capture(checkNotNull(manager.value), "refillKeyPackagesScope") as CoroutineScope).coroutineContext.job
-                            }
+                        val detachedJobs = sessions.flatMap { session ->
+                            listOf("keyPackageManager\$delegate" to "refillKeyPackagesScope", "legalHoldHandler\$delegate" to "scope")
+                                .mapNotNull { (delegateField, scopeField) ->
+                                    val manager = capture(session, delegateField) as Lazy<*>
+                                    if (!manager.isInitialized()) null else {
+                                        (capture(checkNotNull(manager.value), scopeField) as CoroutineScope).coroutineContext.job
+                                    }
+                                }
                         }
                         detachedJobs.forEach { it.cancel() }
                         detachedJobs.forEach { it.join() }

@@ -41,7 +41,8 @@ import com.wire.android.util.CurrentTimeProvider
 import com.wire.android.util.time.CurrentTimeZoneProvider
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.meeting.Meeting
-import com.wire.kalium.logic.data.meeting.UpsertMeeting
+import com.wire.kalium.logic.data.meeting.CreateMeeting
+import com.wire.kalium.logic.data.meeting.UpdateMeeting
 import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.conversation.ObserveConversationMembersUseCase
@@ -146,6 +147,7 @@ class NewMeetingViewModelImpl @AssistedInject constructor(
                             endTime = meetingOccurrence.occurrenceEndTime,
                             tzid = meetingOccurrence.meeting.tzid,
                             repeatingInterval = meetingOccurrence.meeting.recurrence?.toRepeatingInterval(),
+                            meetingType = meetingOccurrence.meeting.type,
                             selectedIndividualContacts = otherContacts,
                             confirmedIndividualContacts = otherContacts,
                         )
@@ -284,12 +286,14 @@ class NewMeetingViewModelImpl @AssistedInject constructor(
             if (titleValid && startAndEndTimeValid && !state.isSubmitting) {
                 state = state.copy(isSubmitting = true, continueButtonEnabled = false)
                 val creationResult = createNewMeeting(
-                    createMeeting = UpsertMeeting(
+                    createMeeting = CreateMeeting(
                         title = titleTextState.text.trim().toString(),
                         startTime = state.startTime,
                         endTime = state.endTime,
                         tzid = state.tzid,
                         recurrence = state.repeatingInterval?.let { Meeting.Recurrence(it.frequency, it.interval.toLong(), null) },
+                        type = if (type == NewMeetingType.MeetNow) Meeting.Type.IMMEDIATE else Meeting.Type.SCHEDULED,
+                        password = null, // TODO: optional password input to be implemented soon
                         otherParticipants = state.confirmedContacts.map { UserId(it.id, it.domain) }
                     )
                 )
@@ -315,12 +319,13 @@ class NewMeetingViewModelImpl @AssistedInject constructor(
                 state = state.copy(isSubmitting = true, continueButtonEnabled = false)
                 val updateResult = updateMeeting(
                     meetingId = meetingType.id,
-                    updateMeeting = UpsertMeeting(
+                    updateMeeting = UpdateMeeting(
                         title = titleTextState.text.trim().toString(),
                         startTime = state.startTime,
                         endTime = state.endTime,
                         tzid = state.tzid,
                         recurrence = state.repeatingInterval?.let { Meeting.Recurrence(it.frequency, it.interval.toLong(), null) },
+                        type = state.meetingType,
                         otherParticipants = state.confirmedContacts.map { UserId(it.id, it.domain) }
                     )
                 )
@@ -402,6 +407,7 @@ data class NewMeetingState(
     val endTimeError: TimeError? = null,
     val tzid: String,
     val repeatingInterval: MeetingItem.RepeatingInterval? = null,
+    val meetingType: Meeting.Type = Meeting.Type.SCHEDULED,
     val submitError: SubmitError? = null,
     val isSubmitting: Boolean = false,
     val initialLoading: InitialLoadingState = InitialLoadingState.Loading,

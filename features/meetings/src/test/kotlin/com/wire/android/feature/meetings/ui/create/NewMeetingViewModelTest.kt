@@ -37,7 +37,8 @@ import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.MeetingId
 import com.wire.kalium.logic.data.meeting.Meeting
 import com.wire.kalium.logic.data.meeting.MeetingOccurrence
-import com.wire.kalium.logic.data.meeting.UpsertMeeting
+import com.wire.kalium.logic.data.meeting.CreateMeeting
+import com.wire.kalium.logic.data.meeting.UpdateMeeting
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.data.user.UserId
@@ -398,12 +399,13 @@ class NewMeetingViewModelTest {
 
             coVerify(exactly = 1) {
                 arrangement.createNewMeeting(
-                    UpsertMeeting(
+                    CreateMeeting(
                         title = "Quick sync",
                         startTime = currentTime,
                         endTime = currentTime + 1.hours,
                         tzid = MEETING_TIME_ZONE_ID,
                         recurrence = null,
+                        type = Meeting.Type.IMMEDIATE,
                         otherParticipants = emptyList()
                     )
                 )
@@ -420,7 +422,7 @@ class NewMeetingViewModelTest {
     @Test
     fun givenScheduleTypeWithValidData_whenSubmitCreationIsCalled_thenSuccessDoesNotRequestCall() = runTest(dispatcher) {
         val currentTime = Instant.parse("2026-01-01T12:00:00Z")
-        val createMeeting = UPSERT_MEETING.copy(startTime = currentTime + 2.hours, endTime = currentTime + 3.hours)
+        val createMeeting = CREATE_MEETING.copy(startTime = currentTime + 2.hours, endTime = currentTime + 3.hours)
         val (arrangement, viewModel) = arrangeViewModel(
             Arrangement(dispatcher)
                 .withNewMeetingType(NewMeetingType.Schedule)
@@ -474,7 +476,7 @@ class NewMeetingViewModelTest {
     fun givenEditTypeWithValidData_whenSubmitUpdateIsCalled_thenMeetingIsEditedAndSuccessActionIsSent() = runTest(dispatcher) {
         val currentTime = Instant.parse("2026-01-01T12:00:00Z")
         val contact = contact("contact-1")
-        val createMeeting = UPSERT_MEETING.copy(startTime = currentTime + 2.hours, endTime = currentTime + 3.hours)
+        val updateMeeting = UPDATE_MEETING.copy(startTime = currentTime + 2.hours, endTime = currentTime + 3.hours)
         val editType = NewMeetingType.Edit(MeetingId("meeting-id", "domain"))
         val nextOccurrence = MEETING_OCCURRENCE.copy(
             meeting = MEETING_OCCURRENCE.meeting.copy(
@@ -493,17 +495,17 @@ class NewMeetingViewModelTest {
                 .withCurrentTimeProvider { currentTime }
         )
 
-        enterTitle(viewModel, createMeeting.title)
-        viewModel.updateStartTime(createMeeting.startTime)
-        viewModel.updateEndTime(createMeeting.endTime)
+        enterTitle(viewModel, updateMeeting.title)
+        viewModel.updateStartTime(updateMeeting.startTime)
+        viewModel.updateEndTime(updateMeeting.endTime)
         viewModel.updateSelectedContact(selected = true, contact = contact)
         viewModel.confirmSelectedContacts()
-        viewModel.updateRepeatingInterval(createMeeting.recurrence?.toRepeatingInterval())
+        viewModel.updateRepeatingInterval(updateMeeting.recurrence?.toRepeatingInterval())
 
         viewModel.actions.test {
             viewModel.submitUpdate()
             advanceUntilIdle()
-            coVerify(exactly = 1) { arrangement.updateMeeting(editType.id, createMeeting) }
+            coVerify(exactly = 1) { arrangement.updateMeeting(editType.id, updateMeeting) }
             assertFalse(viewModel.state.isSubmitting)
             assertNull(viewModel.state.submitError)
             assertEquals(NewMeetingViewActions.Success(), awaitItem())
@@ -527,7 +529,7 @@ class NewMeetingViewModelTest {
                 occurrenceStartTime = currentTime + 1.hours,
                 occurrenceEndTime = currentTime + 2.hours,
             )
-            val updateMeeting = UpsertMeeting(
+            val updateMeeting = UpdateMeeting(
                 title = "Retrospective sync",
                 startTime = pastStartTime,
                 endTime = pastEndTime,
@@ -871,7 +873,7 @@ class NewMeetingViewModelTest {
     fun givenLocalTimeZone_whenSubmitCreationIsCalled_thenCurrentLocalTzidIsPassed() = runTest(dispatcher) {
         val currentTime = Instant.parse("2026-01-01T12:00:00Z")
         val localTimeZoneID = "Europe/Berlin"
-        val createMeeting = UPSERT_MEETING.copy(
+        val createMeeting = CREATE_MEETING.copy(
             startTime = currentTime + 2.hours,
             endTime = currentTime + 3.hours,
             tzid = localTimeZoneID,
@@ -928,7 +930,7 @@ class NewMeetingViewModelTest {
             val localTimeZoneID = "Europe/Berlin"
             val nextOccurrence = MEETING_OCCURRENCE.copy(meeting = MEETING_OCCURRENCE.meeting.copy(tzid = meetingTimeZoneId))
             val editType = NewMeetingType.Edit(nextOccurrence.meeting.meetingId)
-            val updateMeeting = UPSERT_MEETING.copy(
+            val updateMeeting = UPDATE_MEETING.copy(
                 startTime = nextOccurrence.occurrenceStartTime,
                 endTime = nextOccurrence.occurrenceEndTime,
                 tzid = meetingTimeZoneId, // keep the original tzid since no time changes are made
@@ -965,7 +967,7 @@ class NewMeetingViewModelTest {
             val updatedStartTime = currentTime + 3.hours
             val nextOccurrence = MEETING_OCCURRENCE.copy(meeting = MEETING_OCCURRENCE.meeting.copy(tzid = meetingTimeZoneId))
             val editType = NewMeetingType.Edit(nextOccurrence.meeting.meetingId)
-            val updateMeeting = UPSERT_MEETING.copy(
+            val updateMeeting = UPDATE_MEETING.copy(
                 startTime = updatedStartTime,
                 endTime = updatedStartTime + 1.hours, // it's recalculated based on the original duration of the meeting
                 tzid = meetingTimeZoneId, // keep the original tzid
@@ -1001,7 +1003,7 @@ class NewMeetingViewModelTest {
             val nextOccurrence = MEETING_OCCURRENCE.copy(meeting = MEETING_OCCURRENCE.meeting.copy(tzid = meetingTimeZoneId))
             val updatedEndTime = nextOccurrence.occurrenceStartTime + 2.hours
             val editType = NewMeetingType.Edit(nextOccurrence.meeting.meetingId)
-            val updateMeeting = UPSERT_MEETING.copy(
+            val updateMeeting = UPDATE_MEETING.copy(
                 startTime = nextOccurrence.occurrenceStartTime,
                 endTime = updatedEndTime,
                 tzid = meetingTimeZoneId, // keep the original tzid
@@ -1162,12 +1164,20 @@ class NewMeetingViewModelTest {
         occurrenceEndTime = Instant.parse("2026-01-02T10:00:00Z"),
     )
     private val CONTACT = contact("contact-1")
-    private val UPSERT_MEETING = UpsertMeeting(
+    private val CREATE_MEETING = CreateMeeting(
         title = MEETING_OCCURRENCE.meeting.title,
         startTime = MEETING_OCCURRENCE.meeting.startTime,
         endTime = MEETING_OCCURRENCE.meeting.endTime,
         tzid = MEETING_TIME_ZONE_ID,
         recurrence = MEETING_OCCURRENCE.meeting.recurrence,
         otherParticipants = listOf(UserId(CONTACT.id, CONTACT.domain))
+    )
+    private val UPDATE_MEETING = UpdateMeeting(
+        title = CREATE_MEETING.title,
+        startTime = CREATE_MEETING.startTime,
+        endTime = CREATE_MEETING.endTime,
+        tzid = CREATE_MEETING.tzid,
+        recurrence = CREATE_MEETING.recurrence,
+        otherParticipants = CREATE_MEETING.otherParticipants,
     )
 }

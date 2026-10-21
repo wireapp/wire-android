@@ -169,6 +169,8 @@ enum class FeatureConfigs(val value: String, val configType: ConfigType) {
 
     DRIVE_PERMISSIONS_ENABLED("drive_permissions_enabled", ConfigType.BOOLEAN),
 
+    MEETINGS_GUESTS_LINKS_ENABLED("meetings_guests_links_enabled", ConfigType.BOOLEAN),
+
     DRIVE_DIRECT_UPLOAD_ENABLED("drive_direct_upload_enabled", ConfigType.BOOLEAN),
 
     DRIVE_BULK_ACTIONS_ENABLED("drive_bulk_actions_enabled", ConfigType.BOOLEAN),

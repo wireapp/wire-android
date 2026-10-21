@@ -36,6 +36,7 @@ import com.wire.kalium.logic.feature.call.usecase.ObserveActiveCallsUseCase
 import com.wire.kalium.logic.feature.meeting.DeleteMeetingForEveryoneUseCase
 import com.wire.kalium.logic.feature.meeting.DeleteMeetingForMeUseCase
 import com.wire.kalium.logic.feature.meeting.ObserveMeetingOccurrenceUseCase
+import com.wire.kalium.logic.feature.user.ObserveIsMeetingsEnabledUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -74,6 +75,36 @@ class MeetingOptionsMenuViewModelTest {
     }
 
     @Test
+    fun givenCreatorAndGuestLinksDisabled_whenObserving_thenShareWithGuestsIsNotAvailable() = runTest(dispatcher) {
+        val (_, viewModel) = Arrangement()
+            .withObservedMeeting(meeting(MeetingOccurrence.SelfRole.Creator, CURRENT_TIME + 1.hours))
+            .withMeetingsGuestsLinksEnabled(false)
+            .arrange()
+
+        viewModel.observeMeetingStateFlow(OCCURRENCE_ID).test {
+            assertEquals(MeetingOptionsMenuState.Loading, awaitItem())
+            runCurrent()
+            assertFalse(assertInstanceOf<MeetingOptionsMenuState.Meeting>(awaitItem()).shareWithGuestsEnabled)
+            cancelAndConsumeRemainingEvents()
+        }
+    }
+
+    @Test
+    fun givenCreatorAndApiDoesNotSupportGuestLinks_whenObserving_thenShareWithGuestsIsNotAvailable() = runTest(dispatcher) {
+        val (_, viewModel) = Arrangement()
+            .withObservedMeeting(meeting(MeetingOccurrence.SelfRole.Creator, CURRENT_TIME + 1.hours))
+            .withGuestLinkSharingEnabled(false)
+            .arrange()
+
+        viewModel.observeMeetingStateFlow(OCCURRENCE_ID).test {
+            assertEquals(MeetingOptionsMenuState.Loading, awaitItem())
+            runCurrent()
+            assertFalse(assertInstanceOf<MeetingOptionsMenuState.Meeting>(awaitItem()).shareWithGuestsEnabled)
+            cancelAndConsumeRemainingEvents()
+        }
+    }
+
+    @Test
     fun givenFutureMeeting_andSelfUserIsCreator_whenObserving_thenEditAndDeleteForEveryoneIsAvailable() = runTest(dispatcher) {
         val meeting = meeting(
             selfRole = MeetingOccurrence.SelfRole.Creator,
@@ -90,6 +121,7 @@ class MeetingOptionsMenuViewModelTest {
 
             assertInstanceOf<MeetingOptionsMenuState.Meeting>(awaitItem()).also {
                 assertEquals(MeetingOptionsMenuState.Meeting.DeleteOption.ForEveryone, it.deleteOption)
+                assertEquals(true, it.shareWithGuestsEnabled)
                 assertEquals(true, it.editMeetingEnabled)
             }
             cancelAndConsumeRemainingEvents()
@@ -113,6 +145,7 @@ class MeetingOptionsMenuViewModelTest {
 
             assertInstanceOf<MeetingOptionsMenuState.Meeting>(awaitItem()).also {
                 assertEquals(MeetingOptionsMenuState.Meeting.DeleteOption.ForMe, it.deleteOption)
+                assertEquals(false, it.shareWithGuestsEnabled)
                 assertEquals(false, it.editMeetingEnabled)
             }
             cancelAndConsumeRemainingEvents()
@@ -136,6 +169,7 @@ class MeetingOptionsMenuViewModelTest {
 
             assertInstanceOf<MeetingOptionsMenuState.Meeting>(awaitItem()).also {
                 assertEquals(MeetingOptionsMenuState.Meeting.DeleteOption.ForEveryone, it.deleteOption)
+                assertEquals(true, it.shareWithGuestsEnabled)
                 assertEquals(false, it.editMeetingEnabled)
             }
             cancelAndConsumeRemainingEvents()
@@ -159,6 +193,7 @@ class MeetingOptionsMenuViewModelTest {
 
             assertInstanceOf<MeetingOptionsMenuState.Meeting>(awaitItem()).also {
                 assertEquals(MeetingOptionsMenuState.Meeting.DeleteOption.ForMe, it.deleteOption)
+                assertEquals(false, it.shareWithGuestsEnabled)
                 assertEquals(false, it.editMeetingEnabled)
             }
             cancelAndConsumeRemainingEvents()
@@ -364,6 +399,12 @@ class MeetingOptionsMenuViewModelTest {
     )
 
     private class Arrangement {
+        private var meetingsGuestsLinksEnabled: Boolean = true
+
+        fun withMeetingsGuestsLinksEnabled(enabled: Boolean) = apply {
+            meetingsGuestsLinksEnabled = enabled
+        }
+
         @MockK
         lateinit var observeMeetingOccurrenceUseCase: ObserveMeetingOccurrenceUseCase
 
@@ -376,16 +417,23 @@ class MeetingOptionsMenuViewModelTest {
         @MockK
         lateinit var observeActiveCallsUseCase: ObserveActiveCallsUseCase
 
+        @MockK
+        lateinit var observeIsMeetingsEnabledUseCase: ObserveIsMeetingsEnabledUseCase
+
         val currentTimeProvider = CurrentTimeProvider { CURRENT_TIME }
 
         init {
             MockKAnnotations.init(this)
             coEvery { observeMeetingOccurrenceUseCase.invoke(OCCURRENCE_ID) } returns flowOf(null)
+            coEvery { observeIsMeetingsEnabledUseCase.observeGuestLinkSharingEnabled() } returns flowOf(true)
             coEvery { deleteMeetingForEveryoneUseCase.invoke(MEETING_ID) } returns DeleteMeetingForEveryoneUseCase.Result.Success
             coEvery { deleteMeetingForMeUseCase.invoke(MEETING_ID) } returns DeleteMeetingForMeUseCase.Result.Success
         }
         fun withObservedMeeting(meeting: MeetingOccurrence?) = apply {
             coEvery { observeMeetingOccurrenceUseCase.invoke(OCCURRENCE_ID) } returns flowOf(meeting)
+        }
+        fun withGuestLinkSharingEnabled(enabled: Boolean) = apply {
+            coEvery { observeIsMeetingsEnabledUseCase.observeGuestLinkSharingEnabled() } returns flowOf(enabled)
         }
         fun withDeleteMeetingForEveryoneResult(result: DeleteMeetingForEveryoneUseCase.Result) = apply {
             coEvery { deleteMeetingForEveryoneUseCase.invoke(MEETING_ID) } returns result
@@ -399,6 +447,8 @@ class MeetingOptionsMenuViewModelTest {
             deleteMeetingForEveryoneUseCase = deleteMeetingForEveryoneUseCase,
             deleteMeetingForMeUseCase = deleteMeetingForMeUseCase,
             observeActiveCallsUseCase = observeActiveCallsUseCase,
+            observeIsMeetingsEnabledUseCase = observeIsMeetingsEnabledUseCase,
+            meetingsGuestsLinksEnabled = meetingsGuestsLinksEnabled,
         )
     }
 

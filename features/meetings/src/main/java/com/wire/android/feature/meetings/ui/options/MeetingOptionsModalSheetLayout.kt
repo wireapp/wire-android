@@ -58,6 +58,7 @@ import com.wire.android.ui.common.R as UICommonR
 fun MeetingOptionsModalSheetLayout(
     sheetState: WireModalSheetState<String>,
     editMeeting: (meetingId: MeetingId) -> Unit = {},
+    shareWithGuests: (occurrenceId: String) -> Unit = {},
     startCall: (conversationId: ConversationId) -> Unit = {},
     joinCall: (conversationId: ConversationId) -> Unit = {},
     returnToCall: (conversationId: ConversationId) -> Unit = {},
@@ -98,6 +99,9 @@ fun MeetingOptionsModalSheetLayout(
                                 )
                             )
                         }
+                    },
+                    onShareWithGuests = {
+                        sheetState.hide { shareWithGuests(occurrenceId) }
                     },
                     onEditMeeting = {
                         sheetState.hide {
@@ -157,7 +161,7 @@ fun MeetingOptionsModalSheetLayout(
 private fun MeetingOptionsModalContent(
     meetingState: MeetingOptionsMenuState.Meeting,
     onCreateConversation: () -> Unit = {},
-    onCopyLink: () -> Unit = {},
+    onShareWithGuests: () -> Unit = {},
     onEditMeeting: () -> Unit = {},
     onDeleteMeetingForMe: () -> Unit = {},
     onDeleteMeetingForEveryone: () -> Unit = {},
@@ -201,19 +205,6 @@ private fun MeetingOptionsModalContent(
                     onItemClick = onCreateConversation,
                 )
             }
-            addIf(meetingState.copyLinkEnabled) {
-                MenuBottomSheetItem(
-                    title = stringResource(R.string.meeting_options_copy_link),
-                    leading = {
-                        Icon(
-                            painter = painterResource(UICommonR.drawable.ic_link_indicator),
-                            contentDescription = null,
-                            tint = colorsScheme().onSurface,
-                        )
-                    },
-                    onItemClick = onCopyLink,
-                )
-            }
             addIf(meetingState.editMeetingEnabled) {
                 MenuBottomSheetItem(
                     title = stringResource(R.string.meeting_options_edit_meeting),
@@ -225,6 +216,19 @@ private fun MeetingOptionsModalContent(
                         )
                     },
                     onItemClick = onEditMeeting,
+                )
+            }
+            addIf(meetingState.shareWithGuestsEnabled) {
+                MenuBottomSheetItem(
+                    title = stringResource(R.string.meeting_share_with_guests),
+                    leading = {
+                        Icon(
+                            painter = painterResource(UICommonR.drawable.ic_link_indicator),
+                            contentDescription = null,
+                            tint = colorsScheme().onSurface,
+                        )
+                    },
+                    onItemClick = onShareWithGuests,
                 )
             }
             addIf(meetingState.deleteOption == MeetingOptionsMenuState.Meeting.DeleteOption.ForMe) {

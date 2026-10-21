@@ -143,6 +143,10 @@ object AppModule {
     fun provideDriveBulkActionsEnabled(): Boolean = BuildConfig.DRIVE_BULK_ACTIONS_ENABLED
 
     @Provides
+    @Named("meetingsGuestsLinksEnabled")
+    fun provideMeetingsGuestsLinksEnabled(): Boolean = BuildConfig.MEETINGS_GUESTS_LINKS_ENABLED
+
+    @Provides
     @Named("inAppImageViewerEnabled")
     fun provideInAppImageViewerEnabled(): Boolean = BuildConfig.IN_APP_IMAGE_VIEWER_ENABLED
 

@@ -31,10 +31,13 @@ import com.wire.kalium.logic.data.call.RecentlyEndedCallMetadata
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.sync.SyncState
 import com.wire.kalium.logic.feature.UserSessionScope
+import com.wire.kalium.logic.feature.call.CallsScope
+import com.wire.kalium.logic.feature.call.usecase.ObserveRecentlyEndedCallMetadataUseCase
 import com.wire.kalium.logic.feature.session.GetAllSessionsResult
 import com.wire.kalium.logic.feature.session.CurrentSessionFlowUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.user.ShouldAskCallFeedbackUseCaseResult
+import com.wire.kalium.logic.feature.user.UpdateNextTimeCallFeedbackUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -201,8 +204,10 @@ class CallFeedbackViewModelTest {
         viewModel.rateCall(5, false)
         viewModel.skipCallFeedback(false)
         runCurrent()
-        coVerify(exactly = 0) { arrangement.session.calls.updateNextTimeCallFeedback(any()) }
-        coVerify(exactly = 0) { replacement.session.calls.updateNextTimeCallFeedback(any()) }
+        coVerify(exactly = 0) { arrangement.updateNextTimeCallFeedback(any()) }
+        coVerify(exactly = 0) { replacement.updateNextTimeCallFeedback(any()) }
+        coVerify(exactly = 0) { arrangement.observeRecentlyEndedCallMetadata() }
+        coVerify(exactly = 0) { replacement.observeRecentlyEndedCallMetadata() }
         verify(exactly = 0) { arrangement.coreLogic.getSessionScope(any()) }
         viewModel.viewModelScope.cancel()
     }
@@ -233,7 +238,7 @@ class CallFeedbackViewModelTest {
             )
         }
         coVerify(exactly = 0) { arrangement.session.observeSyncState() }
-        coVerify(exactly = 0) { arrangement.session.calls.observeRecentlyEndedCallMetadata() }
+        coVerify(exactly = 0) { arrangement.observeRecentlyEndedCallMetadata() }
         coVerify(exactly = 0) { arrangement.isAnalyticsAvailable(any()) }
         verify(exactly = 0) { arrangement.coreLogic.getSessionScope(any()) }
         viewModel.viewModelScope.cancel()
@@ -244,7 +249,7 @@ class CallFeedbackViewModelTest {
         val entered = CompletableDeferred<Unit>()
         val drained = CompletableDeferred<Unit>()
         val (arrangement, viewModel) = Arrangement().arrange()
-        coEvery { arrangement.session.calls.observeRecentlyEndedCallMetadata() } returns flow {
+        coEvery { arrangement.observeRecentlyEndedCallMetadata() } returns flow {
             entered.complete(Unit)
             try { awaitCancellation() } finally { drained.complete(Unit) }
         }
@@ -257,8 +262,10 @@ class CallFeedbackViewModelTest {
         arrangement.admission.publish(TestUser.USER_ID, replacement.session)
         runCurrent()
         coVerify(exactly = 0) { arrangement.analyticsManager.sendEvent(any()) }
-        coVerify(exactly = 0) { arrangement.session.calls.updateNextTimeCallFeedback(any()) }
-        coVerify(exactly = 0) { replacement.session.calls.observeRecentlyEndedCallMetadata() }
+        coVerify(exactly = 1) { arrangement.observeRecentlyEndedCallMetadata() }
+        coVerify(exactly = 0) { arrangement.updateNextTimeCallFeedback(any()) }
+        coVerify(exactly = 0) { replacement.observeRecentlyEndedCallMetadata() }
+        coVerify(exactly = 0) { replacement.updateNextTimeCallFeedback(any()) }
         verify(exactly = 0) { arrangement.coreLogic.getSessionScope(any()) }
         viewModel.viewModelScope.cancel()
     }
@@ -268,7 +275,7 @@ class CallFeedbackViewModelTest {
         val entered = CompletableDeferred<Unit>()
         val drained = CompletableDeferred<Unit>()
         val (arrangement, viewModel) = Arrangement().arrange()
-        coEvery { arrangement.session.calls.observeRecentlyEndedCallMetadata() } returns flow {
+        coEvery { arrangement.observeRecentlyEndedCallMetadata() } returns flow {
             entered.complete(Unit)
             try { awaitCancellation() } finally { drained.complete(Unit) }
         }
@@ -279,9 +286,10 @@ class CallFeedbackViewModelTest {
         assertTrue(drained.isCompleted)
         arrangement.admission.publish(TestUser.USER_ID, arrangement.session)
         runCurrent()
-        coVerify(exactly = 1) { arrangement.session.calls.observeRecentlyEndedCallMetadata() }
+        coVerify(exactly = 1) { arrangement.observeRecentlyEndedCallMetadata() }
         coVerify(exactly = 0) { arrangement.analyticsManager.sendEvent(any()) }
-        coVerify(exactly = 0) { arrangement.session.calls.updateNextTimeCallFeedback(any()) }
+        coVerify(exactly = 0) { arrangement.updateNextTimeCallFeedback(any()) }
+        verify(exactly = 0) { arrangement.coreLogic.getSessionScope(any()) }
     }
 
     @Test
@@ -316,6 +324,9 @@ class CallFeedbackViewModelTest {
         lateinit var isAnalyticsAvailable: IsAnalyticsAvailableUseCase
 
         val session = mockk<UserSessionScope>()
+        private val calls = mockk<CallsScope>()
+        val observeRecentlyEndedCallMetadata = mockk<ObserveRecentlyEndedCallMetadataUseCase>()
+        val updateNextTimeCallFeedback = mockk<UpdateNextTimeCallFeedbackUseCase>()
         val admission by lazy { FakeSessionAdmission(coreLogic) { session } }
         var rawSessions: Flow<CurrentSessionResult> = flowOf(CurrentSessionResult.Success(AccountInfo.Valid(TestUser.USER_ID)))
 
@@ -329,7 +340,7 @@ class CallFeedbackViewModelTest {
         }
 
         fun withObserveAskCallFeedbackUseCaseReturning(result: ShouldAskCallFeedbackUseCaseResult) = apply {
-            coEvery { session.calls.observeAskCallFeedbackUseCase() } returns flowOf(result)
+            coEvery { calls.observeAskCallFeedbackUseCase() } returns flowOf(result)
         }
 
         init {
@@ -345,19 +356,20 @@ class CallFeedbackViewModelTest {
                 }
             }
             coEvery { session.observeSyncState() } returns flowOf(SyncState.Live)
-            coEvery { session.calls.observeAskCallFeedbackUseCase() } returns flowOf()
-            coEvery { session.calls.updateNextTimeCallFeedback(any()) } returns Unit
-            coEvery {
-                session.calls.observeRecentlyEndedCallMetadata()
-            } returns flowOf(recentlyEndedCallMetadata)
+            every { session.calls } returns calls
+            every { calls.observeRecentlyEndedCallMetadata } returns observeRecentlyEndedCallMetadata
+            every { calls.updateNextTimeCallFeedback } returns updateNextTimeCallFeedback
+            coEvery { calls.observeAskCallFeedbackUseCase() } returns flowOf()
+            coEvery { updateNextTimeCallFeedback(any()) } returns Unit
+            coEvery { observeRecentlyEndedCallMetadata() } returns flowOf(recentlyEndedCallMetadata)
         }
 
         fun withFeedbackFlow(result: Flow<ShouldAskCallFeedbackUseCaseResult>) = apply {
-            coEvery { session.calls.observeAskCallFeedbackUseCase() } returns result
+            coEvery { calls.observeAskCallFeedbackUseCase() } returns result
         }
 
         fun withMetadata(metadata: RecentlyEndedCallMetadata) = apply {
-            coEvery { session.calls.observeRecentlyEndedCallMetadata() } returns flowOf(metadata)
+            coEvery { observeRecentlyEndedCallMetadata() } returns flowOf(metadata)
         }
 
         fun arrange() = this to viewModel

@@ -191,7 +191,9 @@ class WireKaliumConsumerIntegrationTest {
                     }
                 }.exceptionOrNull()
                 assertSame(startupFailure, failure)
-                assertEquals(listOf(cleanupFailure), startupFailure.suppressed.toList())
+                // Coroutine stack recovery may copy the suppressed failure while retaining its cause.
+                val suppressed = startupFailure.suppressed.single()
+                assertSame(cleanupFailure, generateSequence(suppressed) { it.cause }.last())
                 assertTrue(jobs.all { it.isCompleted })
                 assertTrue(unused.none { it.isInitialized() })
                 assertEquals(true, capture(network, "closed"))

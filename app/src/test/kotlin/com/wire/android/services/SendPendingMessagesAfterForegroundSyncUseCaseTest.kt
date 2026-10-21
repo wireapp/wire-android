@@ -134,7 +134,7 @@ class SendPendingMessagesAfterForegroundSyncUseCaseTest {
         } catch (actual: IllegalStateException) {
             actual
         }
-        assertSame(failure, observed)
+        assertSame(failure, generateSequence(observed) { it.cause }.last())
         verify(exactly = 0) { arrangement.coreLogic.getSessionScope(any()) }
     }
 

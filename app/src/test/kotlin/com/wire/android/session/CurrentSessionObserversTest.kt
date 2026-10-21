@@ -23,6 +23,7 @@ import com.wire.kalium.logic.data.auth.AccountInfo
 import com.wire.kalium.logic.data.logout.LogoutReason
 import com.wire.kalium.logic.feature.UserSessionScope
 import com.wire.kalium.logic.feature.call.CallsScope
+import com.wire.kalium.logic.feature.call.usecase.SetBackgroundUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.GetAllSessionsResult
 import io.mockk.coEvery
@@ -134,7 +135,10 @@ class CurrentSessionObserversTest {
     fun `visibility replay uses captured session and preserves the fresh calls getter`() = runTest {
         val admission = FakeSessionAdmission()
         val session = mockk<UserSessionScope>()
-        val calls = mockk<CallsScope>(relaxed = true)
+        val calls = mockk<CallsScope>()
+        val setBackground = mockk<SetBackgroundUseCase>()
+        every { calls.setBackground } returns setBackground
+        coEvery { setBackground(any()) } returns Unit
         var facadeReads = 0
         every { session.calls } answers {
             facadeReads++
@@ -145,10 +149,10 @@ class CurrentSessionObserversTest {
         val accounts = flowOf(GetAllSessionsResult.Success(listOf(AccountInfo.Valid(userId))))
         val parent = backgroundScope.launch { admission.coreLogic.observeCallBackgroundState(accounts, visibility).collect {} }
         runCurrent()
-        coVerify(exactly = 1) { calls.setBackground(true) }
+        coVerify(exactly = 1) { setBackground(true) }
         visibility.value = true
         runCurrent()
-        coVerify(exactly = 1) { calls.setBackground(false) }
+        coVerify(exactly = 1) { setBackground(false) }
         assertEquals(2, facadeReads)
 
         admission.publish(userId, null)
@@ -156,7 +160,10 @@ class CurrentSessionObserversTest {
         visibility.value = false
         runCurrent()
         assertEquals(2, facadeReads)
+        coVerify(exactly = 1) { setBackground(true) }
+        coVerify(exactly = 1) { setBackground(false) }
         assertEquals(1, admission.attached.size)
+        assertEquals(listOf(session), admission.drained)
         assertTrue(parent.isActive)
         verify(exactly = 0) { admission.coreLogic.getSessionScope(any()) }
     }
@@ -187,7 +194,7 @@ class CurrentSessionObserversTest {
         } catch (observed: IllegalStateException) {
             observed
         }
-        assertSame(failure, actual)
+        assertSame(failure, generateSequence(actual) { it.cause }.last())
     }
 
     @Test

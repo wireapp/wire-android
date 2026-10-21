@@ -1627,7 +1627,8 @@ class WireActivityViewModelTest {
         }
 
         fun withDataImport(action: suspend () -> SynchronizeExternalDataResult): Arrangement = apply {
-            coEvery { capturedSession(TEST_ACCOUNT_INFO.userId).debug.synchronizeExternalData(any()) } coAnswers { action() }
+            val session = capturedSession(TEST_ACCOUNT_INFO.userId)
+            coEvery { session.debug.synchronizeExternalData(any()) } coAnswers { action() }
         }
 
         fun withSessionUnavailable(userId: UserId): Arrangement = apply { admission.publish(userId, null) }
@@ -1674,9 +1675,10 @@ class WireActivityViewModelTest {
         }
 
         fun withServerConfigForUser(userId: UserId, serverConfig: ServerConfig): Arrangement = apply {
+            val session = capturedSession(userId)
             coEvery { coreLogic.getSessionScope(userId).users.serverLinks() } returns
                     SelfServerConfigUseCase.Result.Success(serverConfig)
-            coEvery { capturedSession(userId).users.serverLinks() } returns SelfServerConfigUseCase.Result.Success(serverConfig)
+            coEvery { session.users.serverLinks() } returns SelfServerConfigUseCase.Result.Success(serverConfig)
         }
 
         fun withDefaultServerConfig(serverConfig: ServerConfig.Links): Arrangement = apply {
@@ -1767,16 +1769,18 @@ class WireActivityViewModelTest {
         }
 
         suspend fun withScreenshotCensoringConfigForUser(id: UserId, result: ObserveScreenshotCensoringConfigResult) = apply {
+            val session = capturedSession(id)
             val useCase = mockk<ObserveScreenshotCensoringConfigUseCase>()
             coEvery {
-                capturedSession(id).observeScreenshotCensoringConfig
+                session.observeScreenshotCensoringConfig
             } returns useCase
             coEvery { useCase() } returns flowOf(result)
         }
 
         fun withSyncStateForUser(id: UserId, result: SyncState) = apply {
+            val session = capturedSession(id)
             val useCase = mockk<ObserveSyncStateUseCase>()
-            coEvery { capturedSession(id).observeSyncState } returns useCase
+            coEvery { session.observeSyncState } returns useCase
             coEvery { useCase() } returns flowOf(result)
         }
 
@@ -1785,8 +1789,9 @@ class WireActivityViewModelTest {
         }
 
         suspend fun withProfileQRCodeEnabled(isEnabled: Boolean = true) = apply {
+            val session = capturedSession(TEST_ACCOUNT_INFO.userId)
             val useCase = mockk<IsProfileQRCodeEnabledUseCase>()
-            coEvery { capturedSession(TEST_ACCOUNT_INFO.userId).users.isProfileQRCodeEnabled } returns useCase
+            coEvery { session.users.isProfileQRCodeEnabled } returns useCase
             coEvery { useCase() } returns isEnabled
             coEvery { coreLogic.getGlobalScope().observeAllValidSessionsFlow() } returns
                 flowOf(GetAllSessionsResult.Success(listOf(TEST_ACCOUNT_INFO)))

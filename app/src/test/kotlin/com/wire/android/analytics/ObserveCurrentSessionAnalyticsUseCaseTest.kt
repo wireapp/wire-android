@@ -321,7 +321,7 @@ class ObserveCurrentSessionAnalyticsUseCaseTest {
         val admission = FakeSessionAdmission(initiallyReady = { userId ->
             mockk<UserSessionScope>(relaxed = true).also { session ->
                 every { session.analyticsIdentifierManager } returns analyticsIdentifierManager
-                coEvery { session.getAnalyticsContactsData() } answers {
+                coEvery { session.getAnalyticsContactsData(any()) } answers {
                     analyticsContactsData.getOrDefault(userId, ANALYTICS_CONTACTS_DATA_DEFAULT)
                 }
                 coEvery { session.observeAnalyticsTrackingIdentifierStatus() } returns

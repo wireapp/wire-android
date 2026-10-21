@@ -22,6 +22,7 @@ import com.wire.android.assertIs
 import com.wire.android.framework.TestConversation
 import com.wire.android.framework.TestUser
 import com.wire.android.notification.CallNotificationData
+import com.wire.android.session.FakeSessionAdmission
 import com.wire.kalium.common.functional.Either
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.auth.AccountInfo
@@ -35,18 +36,27 @@ import com.wire.kalium.logic.feature.call.usecase.AnswerCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.DoesValidSessionExistResult
+import com.wire.kalium.logic.feature.session.GetAllSessionsResult
+import com.wire.kalium.logic.feature.UserSessionScope
+import io.mockk.verify
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.Assertions.assertSame
 import org.junit.jupiter.api.Test
 
+@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 class CallServiceManagerTest {
 
     @Test
@@ -291,17 +301,169 @@ class CallServiceManagerTest {
         }
     }
 
+    @Test
+    fun `pending current admission never claims no calls and same ID replacement rebinds`() = runTest {
+        val current = MutableStateFlow<CurrentSessionResult>(CurrentSessionResult.Success(AccountInfo.Valid(selfUser.id)))
+        val (arrangement, manager) = Arrangement().withCurrentSession(current)
+            .withSpecificUserSession(established = flowOf(listOf(call))).arrange()
+        val outgoing = arrangement.sessions.getValue(selfUser.id)
+        arrangement.admission.publish(selfUser.id, null)
+        manager.handleAction(CallService.Action.Start.Default)
+        manager.handleActionsFlow().test {
+            runCurrent()
+            expectNoEvents()
+            arrangement.admission.publish(selfUser.id, outgoing)
+            assertEquals(CallNotificationData(selfUser.id, call, selfUser.name()), assertIsUpdate(awaitItem()))
+            arrangement.admission.publish(selfUser.id, null)
+            runCurrent()
+            expectNoEvents()
+            assertTrue(outgoing in arrangement.admission.drained)
+            val replacementCall = call.copy(conversationName = "Replacement")
+            arrangement.withSpecificUserSession(established = flowOf(listOf(replacementCall)))
+            arrangement.admission.publish(selfUser.id, arrangement.sessions.getValue(selfUser.id))
+            assertEquals(CallNotificationData(selfUser.id, replacementCall, selfUser.name()), assertIsUpdate(awaitItem()))
+            current.value = CurrentSessionResult.Success(AccountInfo.Invalid(selfUser.id, LogoutReason.SELF_SOFT_LOGOUT))
+            assertEquals(CallServiceManager.StopReason.NO_VALID_CURRENT_SESSION, assertIsStop(awaitItem()))
+            cancelAndIgnoreRemainingEvents()
+        }
+        verify(exactly = 0) { arrangement.coreLogic.getSessionScope(any()) }
+    }
+
+    @Test
+    fun `answer waiting for another account is abandoned when raw validity disappears`() = runTest {
+        val other = selfUser.copy(id = selfUser.id.copy("other"))
+        val (arrangement, manager) = Arrangement()
+            .withCurrentSession(flowOf(CurrentSessionResult.Success(AccountInfo.Valid(selfUser.id))))
+            .withSpecificUserSession(selfUser = other, incoming = flowOf(listOf(call))).arrange()
+        arrangement.admission.publish(other.id, null)
+        manager.handleAction(CallService.Action.Start.AnswerCall(other.id, conversationId))
+        manager.handleActionsFlow().test {
+            runCurrent()
+            expectNoEvents()
+            arrangement.withValidSessionExists(other.id, DoesValidSessionExistResult.Success(false))
+            assertEquals(CallServiceManager.StopReason.NO_CALLS, assertIsStop(awaitItem()))
+            arrangement.admission.publish(other.id, arrangement.sessions.getValue(other.id))
+            runCurrent()
+            expectNoEvents()
+            cancelAndIgnoreRemainingEvents()
+        }
+        coVerify(exactly = 0) { arrangement.answerCallForUser(other.id)(any()) }
+        verify(exactly = 0) { arrangement.coreLogic.getSessionScope(any()) }
+    }
+
+    @Test
+    fun `revoked answer drains and is never replayed after replacement`() = runTest {
+        val entered = CompletableDeferred<Unit>()
+        val drained = CompletableDeferred<Unit>()
+        val (arrangement, manager) = Arrangement()
+            .withCurrentSession(flowOf(CurrentSessionResult.Success(AccountInfo.Valid(selfUser.id))))
+            .withSpecificUserSession(incoming = flowOf(listOf(call))).arrange()
+        coEvery { arrangement.answerCallForUser(selfUser.id)(any()) } coAnswers {
+            entered.complete(Unit)
+            try { awaitCancellation() } finally { drained.complete(Unit) }
+        }
+        manager.handleAction(CallService.Action.Start.AnswerCall(selfUser.id, conversationId))
+        manager.handleActionsFlow().test {
+            entered.await()
+            arrangement.admission.publish(selfUser.id, null)
+            runCurrent()
+            assertTrue(drained.isCompleted)
+            arrangement.admission.publish(selfUser.id, arrangement.sessions.getValue(selfUser.id))
+            assertIsUpdate(awaitItem())
+            cancelAndIgnoreRemainingEvents()
+        }
+        coVerify(exactly = 1) { arrangement.answerCallForUser(selfUser.id)(any()) }
+    }
+
+    @Test
+    fun `genuine answer failure reaches the service collector`() = runTest {
+        val failure = IllegalStateException("answer failed")
+        val (arrangement, manager) = Arrangement()
+            .withCurrentSession(flowOf(CurrentSessionResult.Success(AccountInfo.Valid(selfUser.id))))
+            .withSpecificUserSession(incoming = flowOf(listOf(call))).arrange()
+        coEvery { arrangement.answerCallForUser(selfUser.id)(any()) } throws failure
+        manager.handleAction(CallService.Action.Start.AnswerCall(selfUser.id, conversationId))
+        manager.handleActionsFlow().test { assertSame(failure, awaitError()) }
+    }
+
+    @Test
+    fun `pending current A does not block answering and displaying ready B`() = runTest {
+        val other = selfUser.copy(id = selfUser.id.copy("other"))
+        val (arrangement, manager) = Arrangement()
+            .withCurrentSession(flowOf(CurrentSessionResult.Success(AccountInfo.Valid(selfUser.id))))
+            .withSpecificUserSession(selfUser = other, incoming = flowOf(listOf(call))).arrange()
+        arrangement.admission.publish(selfUser.id, null)
+        manager.handleAction(CallService.Action.Start.AnswerCall(other.id, conversationId))
+        manager.handleActionsFlow().test {
+            assertEquals(CallNotificationData(other.id, call, other.name()), assertIsUpdate(awaitItem()))
+            cancelAndIgnoreRemainingEvents()
+        }
+        coVerify(exactly = 1) { arrangement.answerCallForUser(other.id)(conversationId) }
+        verify(exactly = 0) { arrangement.coreLogic.getSessionScope(any()) }
+    }
+
+    @Test
+    fun `invalid current metadata drains end call and the stopped request cannot replay`() = runTest {
+        val current = MutableStateFlow<CurrentSessionResult>(CurrentSessionResult.Success(AccountInfo.Valid(selfUser.id)))
+        val (arrangement, manager) = Arrangement().withCurrentSession(current)
+            .withSpecificUserSession(established = flowOf(listOf(call))).arrange()
+        val entered = CompletableDeferred<Unit>()
+        val drained = CompletableDeferred<Unit>()
+        coEvery { arrangement.endCallForUser(selfUser.id)(any()) } coAnswers {
+            entered.complete(Unit)
+            try { awaitCancellation() } finally { drained.complete(Unit) }
+        }
+        manager.handleAction(CallService.Action.Stop)
+        manager.handleActionsFlow().test {
+            entered.await()
+            current.value = CurrentSessionResult.Success(AccountInfo.Invalid(selfUser.id, LogoutReason.SELF_SOFT_LOGOUT))
+            assertEquals(CallServiceManager.StopReason.ACTION_STOP_CALLED, assertIsStop(awaitItem()))
+            assertTrue(drained.isCompleted)
+            arrangement.admission.publish(selfUser.id, arrangement.sessions.getValue(selfUser.id))
+            runCurrent()
+            expectNoEvents()
+            cancelAndIgnoreRemainingEvents()
+        }
+        coVerify(exactly = 1) { arrangement.endCallForUser(selfUser.id)(any()) }
+    }
+
+    @Test
+    fun `end request waiting for A cannot retarget to B after the current account changes`() = runTest {
+        val other = selfUser.copy(id = selfUser.id.copy("other"))
+        val current = MutableStateFlow<CurrentSessionResult>(CurrentSessionResult.Success(AccountInfo.Valid(selfUser.id)))
+        val (arrangement, manager) = Arrangement().withCurrentSession(current)
+            .withSpecificUserSession(selfUser = other, established = flowOf(listOf(call))).arrange()
+        arrangement.admission.publish(selfUser.id, null)
+        manager.handleAction(CallService.Action.Stop)
+        manager.handleActionsFlow().test {
+            runCurrent()
+            expectNoEvents()
+            current.value = CurrentSessionResult.Success(AccountInfo.Valid(other.id))
+            assertEquals(CallServiceManager.StopReason.ACTION_STOP_CALLED, assertIsStop(awaitItem()))
+            arrangement.admission.publish(selfUser.id, arrangement.sessions.getValue(selfUser.id))
+            runCurrent()
+            cancelAndIgnoreRemainingEvents()
+        }
+        coVerify(exactly = 0) { arrangement.endCallForUser(selfUser.id)(any()) }
+        coVerify(exactly = 0) { arrangement.endCallForUser(other.id)(any()) }
+    }
+
     private fun assertIsStop(item: Any) = assertIs<Either.Left<CallServiceManager.StopReason>>(item).value
     private fun assertIsUpdate(item: Any) = assertIs<Either.Right<CallNotificationData>>(item).value
 
     inner class Arrangement {
         @MockK
         lateinit var coreLogic: CoreLogic
+        val sessions = mutableMapOf<UserId, UserSessionScope>()
+        val rawAccounts = MutableStateFlow<GetAllSessionsResult>(GetAllSessionsResult.Success(emptyList()))
+        val admission by lazy { FakeSessionAdmission(coreLogic) { sessions[it] } }
         private val answerCallForUser: MutableMap<UserId, AnswerCallUseCase> = mutableMapOf()
         private val endCallForUser: MutableMap<UserId, EndCallUseCase> = mutableMapOf()
 
         init {
             MockKAnnotations.init(this)
+            admission
+            coEvery { coreLogic.getGlobalScope().observeAllValidSessionsFlow() } returns rawAccounts
             withSpecificUserSession(TestUser.SELF_USER, flowOf(emptyList()), flowOf(emptyList()), flowOf(emptyList()),)
         }
 
@@ -312,7 +474,12 @@ class CallServiceManagerTest {
             coEvery { coreLogic.getGlobalScope().session.currentSessionFlow() } returns (result)
         }
         fun withValidSessionExists(userId: UserId, result: DoesValidSessionExistResult) = apply {
-            coEvery { coreLogic.getGlobalScope().doesValidSessionExist(userId) } returns (result)
+            val accounts = (rawAccounts.value as GetAllSessionsResult.Success).sessions.filter { it.userId != userId }
+            rawAccounts.value = GetAllSessionsResult.Success(
+                accounts + if (result is DoesValidSessionExistResult.Success && result.doesValidSessionExist) {
+                    listOf(AccountInfo.Valid(userId))
+                } else emptyList()
+            )
         }
         fun withSpecificUserSession(
             selfUser: SelfUser = TestUser.SELF_USER,
@@ -320,13 +487,15 @@ class CallServiceManagerTest {
             outgoing: Flow<List<Call>> = flowOf(emptyList()),
             established: Flow<List<Call>> = flowOf(emptyList()),
         ) = apply {
+            val session = mockk<UserSessionScope>()
+            sessions[selfUser.id] = session
             withValidSessionExists(selfUser.id, DoesValidSessionExistResult.Success(true))
-            coEvery { coreLogic.getSessionScope(selfUser.id).users.observeSelfUser() } returns flowOf(selfUser)
-            coEvery { coreLogic.getSessionScope(selfUser.id).calls.getIncomingCalls() } returns incoming
-            coEvery { coreLogic.getSessionScope(selfUser.id).calls.observeOutgoingCall() } returns outgoing
-            coEvery { coreLogic.getSessionScope(selfUser.id).calls.establishedCall() } returns established
-            coEvery { coreLogic.getSessionScope(selfUser.id).calls.answerCall } returns answerCallForUser(selfUser.id)
-            coEvery { coreLogic.getSessionScope(selfUser.id).calls.endCall } returns endCallForUser(selfUser.id)
+            coEvery { session.users.observeSelfUser() } returns flowOf(selfUser)
+            coEvery { session.calls.getIncomingCalls() } returns incoming
+            coEvery { session.calls.observeOutgoingCall() } returns outgoing
+            coEvery { session.calls.establishedCall() } returns established
+            coEvery { session.calls.answerCall } returns answerCallForUser(selfUser.id)
+            coEvery { session.calls.endCall } returns endCallForUser(selfUser.id)
         }
     }
 

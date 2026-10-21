@@ -283,7 +283,7 @@ class WireActivityViewModel @Inject constructor(
 
     private fun observeScreenshotCensoringConfigState() {
         viewModelScope.launch(dispatchers.io()) {
-            observeCurrentSession.observeCurrentValidSession(coreLogic.value) {
+            observeCurrentSession.observeCurrentValidSession(coreLogic.value, waitForAdmission = true) {
                 observeScreenshotCensoringConfig().map { result -> result is ObserveScreenshotCensoringConfigResult.Enabled }
             }
                 .map { it == true }

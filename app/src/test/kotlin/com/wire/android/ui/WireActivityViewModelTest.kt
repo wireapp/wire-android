@@ -179,6 +179,15 @@ class WireActivityViewModelTest {
         advanceUntilIdle()
         assertEquals(SyncState.Live, viewModel.observeSyncFlowState.value)
         assertEquals(true, viewModel.globalAppState.screenshotCensoringEnabled)
+
+        arrangement.withSessionUnavailable(TEST_ACCOUNT_INFO.userId)
+        advanceUntilIdle()
+        // Losing resource admission while metadata stays Valid must not relax screenshot protection.
+        assertEquals(true, viewModel.globalAppState.screenshotCensoringEnabled)
+
+        raw.value = CurrentSessionResult.Failure.SessionNotFound
+        advanceUntilIdle()
+        assertEquals(false, viewModel.globalAppState.screenshotCensoringEnabled)
     }
 
     @Test

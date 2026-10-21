@@ -118,6 +118,21 @@ object UiAutomatorSetup {
         device.executeShellCommand("am force-stop $appPackage")
     }
 
+    // Upgrade tests must each start on the old APK, including tests in the same batch.
+    // Local runs without oldApkPath keep using the manually preinstalled old APK.
+    fun installOldWireApkIfProvided() {
+        val arguments = InstrumentationRegistry.getArguments()
+        val oldApkPath = arguments.getString("oldApkPath") ?: return
+        val packageName = arguments.getString(APP_PACKAGE_ARGUMENT) ?: APP_ALPHA
+        require(oldApkPath.matches(Regex("[A-Za-z0-9_./-]+\\.apk"))) { "Invalid oldApkPath: $oldApkPath" }
+        require(packageName.matches(Regex("[A-Za-z0-9_.]+"))) { "Invalid appPackage: $packageName" }
+
+        val device = getDevice()
+        device.executeShellCommand("pm uninstall $packageName")
+        val output = device.executeShellCommand("pm install -r -g $oldApkPath").trim()
+        check(output.contains("Success")) { "Failed to install old Wire APK '$oldApkPath': $output" }
+    }
+
     fun upgradeWireToRecentVersion(apkPath: String) {
         val device = getDevice()
         // Log and verify the installed version so CI proves that the APK upgrade really happened.

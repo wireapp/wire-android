@@ -94,7 +94,7 @@ import com.wire.kalium.logic.feature.e2ei.MLSClientIdentity
 import com.wire.kalium.logic.feature.e2ei.MLSCredentialsType
 import com.wire.kalium.logic.feature.e2ei.X509Identity
 import com.wire.kalium.logic.feature.e2ei.usecase.EnrollE2EIResult
-import kotlinx.datetime.Instant
+import kotlin.time.Instant
 
 @Composable
 internal fun DeviceDetailsRouteScreen(

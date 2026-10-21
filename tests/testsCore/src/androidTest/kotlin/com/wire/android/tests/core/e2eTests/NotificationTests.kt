@@ -62,6 +62,7 @@ class NotificationTests : BaseCallUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "Notifications", backendClient)
         }
 
         step("And User user1Name adds user user2Name to team Notifications with role Member") {
@@ -148,6 +149,7 @@ class NotificationTests : BaseCallUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "Notifications", backendClient)
         }
 
         step("And User user1Name adds user user2Name to team Notifications with role Member") {
@@ -238,6 +240,7 @@ class NotificationTests : BaseCallUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "Notifications", backendClient)
         }
 
         step("And User user1Name adds user user2Name to team Notifications with role Member") {
@@ -336,6 +339,7 @@ class NotificationTests : BaseCallUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "Notifications", backendClient)
         }
 
         step("And User user1Name adds user user2Name to team Notifications with role Member") {
@@ -457,6 +461,7 @@ class NotificationTests : BaseCallUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "Notifications", backendClient)
         }
 
         step("And User user1Name adds users user2Name,user3Name to team Notifications with role Member") {
@@ -471,12 +476,20 @@ class NotificationTests : BaseCallUiTest() {
             )
         }
 
+        step("And MLS devices are registered for all participants") {
+            testServiceHelper.apply {
+                addDevice("user1Name", null, "Device1")
+                addDevice("user2Name", null, "Device1")
+                addDevice("user3Name", null, "Device1")
+            }
+        }
+
         step("And User user1Name has group conversation NotificationsGroup with user2Name,user3Name") {
-            backendSetupHelper.userHasGroupConversationInTeam(
-                "user1Name",
-                "NotificationsGroup",
-                "user2Name,user3Name",
-                "Notifications"
+            testServiceHelper.userCreatesMLSGroupConversation(
+                ownerAlias = "user1Name",
+                participantAliases = "user2Name,user3Name",
+                conversationName = "NotificationsGroup",
+                deviceName = "Device1"
             )
         }
 
@@ -545,6 +558,7 @@ class NotificationTests : BaseCallUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "Notifications", backendClient)
         }
 
         step("And User user1Name adds users user2Name,user3Name to team Notifications with role Member") {
@@ -559,12 +573,20 @@ class NotificationTests : BaseCallUiTest() {
             )
         }
 
+        step("And MLS devices are registered for all participants") {
+            testServiceHelper.apply {
+                addDevice("user1Name", null, "Device1")
+                addDevice("user2Name", null, "Device1")
+                addDevice("user3Name", null, "Device1")
+            }
+        }
+
         step("And User user1Name has group conversation NotificationsGroup with user2Name,user3Name") {
-            backendSetupHelper.userHasGroupConversationInTeam(
-                "user1Name",
-                "NotificationsGroup",
-                "user2Name,user3Name",
-                "Notifications"
+            testServiceHelper.userCreatesMLSGroupConversation(
+                ownerAlias = "user1Name",
+                participantAliases = "user2Name,user3Name",
+                conversationName = "NotificationsGroup",
+                deviceName = "Device1"
             )
         }
 
@@ -682,6 +704,7 @@ class NotificationTests : BaseCallUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "Notifications", backendClient)
         }
 
         step("And User user1Name adds users user2Name,user3Name to team Notifications with role Member") {
@@ -696,12 +719,20 @@ class NotificationTests : BaseCallUiTest() {
             )
         }
 
+        step("And MLS devices are registered for all participants") {
+            testServiceHelper.apply {
+                addDevice("user1Name", null, "Device1")
+                addDevice("user2Name", null, "Device1")
+                addDevice("user3Name", null, "Device1")
+            }
+        }
+
         step("And User user1Name has group conversation NotificationsGroup with user2Name,user3Name") {
-            backendSetupHelper.userHasGroupConversationInTeam(
-                "user1Name",
-                "NotificationsGroup",
-                "user2Name,user3Name",
-                "Notifications"
+            testServiceHelper.userCreatesMLSGroupConversation(
+                ownerAlias = "user1Name",
+                participantAliases = "user2Name,user3Name",
+                conversationName = "NotificationsGroup",
+                deviceName = "Device1"
             )
         }
 
@@ -752,6 +783,7 @@ class NotificationTests : BaseCallUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "Notifications", backendClient)
         }
 
         step("And User user1Name adds user user2Name to team Notifications with role Member") {
@@ -821,6 +853,7 @@ class NotificationTests : BaseCallUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "WeLikeCalls", backendClient)
         }
 
         step("And I wait for 3 seconds") {
@@ -848,12 +881,19 @@ class NotificationTests : BaseCallUiTest() {
             )
         }
 
+        step("And MLS devices are registered for all participants") {
+            testServiceHelper.apply {
+                addDevice("user1Name", null, "Device1")
+                addDevice("user2Name", null, "Device1")
+            }
+        }
+
         step("And User user1Name has group conversation WantToCall with user2Name in team WeLikeCalls") {
-            backendSetupHelper.userHasGroupConversationInTeam(
-                "user1Name",
-                "WantToCall",
-                "user2Name",
-                "WeLikeCalls"
+            testServiceHelper.userCreatesMLSGroupConversation(
+                ownerAlias = "user1Name",
+                participantAliases = "user2Name",
+                conversationName = "WantToCall",
+                deviceName = "Device1"
             )
         }
 
@@ -921,6 +961,7 @@ class NotificationTests : BaseCallUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "Notifications", backendClient)
         }
 
         step("And TeamOwner user1Name enables conference calling for team Notifications") {
@@ -944,12 +985,19 @@ class NotificationTests : BaseCallUiTest() {
             )
         }
 
+        step("And MLS devices are registered for all participants") {
+            testServiceHelper.apply {
+                addDevice("user1Name", null, "Device1")
+                addDevice("user2Name", null, "Device1")
+            }
+        }
+
         step("And User user1Name has group conversation WantToCall with user2Name in team Notifications") {
-            backendSetupHelper.userHasGroupConversationInTeam(
-                "user1Name",
-                "WantToCall",
-                "user2Name",
-                "Notifications"
+            testServiceHelper.userCreatesMLSGroupConversation(
+                ownerAlias = "user1Name",
+                participantAliases = "user2Name",
+                conversationName = "WantToCall",
+                deviceName = "Device1"
             )
         }
 
@@ -1011,6 +1059,7 @@ class NotificationTests : BaseCallUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "Notifications", backendClient)
         }
 
         step("And User user1Name adds user user2Name to team Notifications with role Member") {
@@ -1120,6 +1169,7 @@ class NotificationTests : BaseCallUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "Notifications", backendClient)
         }
 
         step("And User user1Name adds user user2Name to team Notifications with role Member") {
@@ -1225,6 +1275,7 @@ class NotificationTests : BaseCallUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "Notifications", backendClient)
         }
 
         step("And User user1Name adds user user2Name to team Notifications with role Member") {
@@ -1332,6 +1383,7 @@ class NotificationTests : BaseCallUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "Notifications", backendClient)
         }
 
         step("And User user1Name adds user2Name and user3Name to team Notifications with role Member") {
@@ -1346,12 +1398,20 @@ class NotificationTests : BaseCallUiTest() {
             )
         }
 
+        step("And MLS devices are registered for all participants") {
+            testServiceHelper.apply {
+                addDevice("user1Name", null, "Device1")
+                addDevice("user2Name", null, "Device1")
+                addDevice("user3Name", null, "Device1")
+            }
+        }
+
         step("And User user1Name has group NotificationsGroup with user2Name and user3Name") {
-            backendSetupHelper.userHasGroupConversationInTeam(
-                "user1Name",
-                "NotificationsGroup",
-                "user2Name,user3Name",
-                "Notifications"
+            testServiceHelper.userCreatesMLSGroupConversation(
+                ownerAlias = "user1Name",
+                participantAliases = "user2Name,user3Name",
+                conversationName = "NotificationsGroup",
+                deviceName = "Device1"
             )
         }
 
@@ -1446,6 +1506,7 @@ class NotificationTests : BaseCallUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "Notifications", backendClient)
         }
 
         step("And User user1Name adds user2Name and user3Name to team Notifications with role Member") {
@@ -1460,12 +1521,20 @@ class NotificationTests : BaseCallUiTest() {
             )
         }
 
+        step("And MLS devices are registered for all participants") {
+            testServiceHelper.apply {
+                addDevice("user1Name", null, "Device1")
+                addDevice("user2Name", null, "Device1")
+                addDevice("user3Name", null, "Device1")
+            }
+        }
+
         step("And User user1Name has group NotificationsGroup with user2Name and user3Name") {
-            backendSetupHelper.userHasGroupConversationInTeam(
-                "user1Name",
-                "NotificationsGroup",
-                "user2Name,user3Name",
-                "Notifications"
+            testServiceHelper.userCreatesMLSGroupConversation(
+                ownerAlias = "user1Name",
+                participantAliases = "user2Name,user3Name",
+                conversationName = "NotificationsGroup",
+                deviceName = "Device1"
             )
         }
 
@@ -1552,6 +1621,7 @@ class NotificationTests : BaseCallUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "Notifications", backendClient)
         }
 
         step("And User user1Name adds user2Name and user3Name to team Notifications with role Member") {
@@ -1566,12 +1636,20 @@ class NotificationTests : BaseCallUiTest() {
             )
         }
 
+        step("And MLS devices are registered for all participants") {
+            testServiceHelper.apply {
+                addDevice("user1Name", null, "Device1")
+                addDevice("user2Name", null, "Device1")
+                addDevice("user3Name", null, "Device1")
+            }
+        }
+
         step("And User user1Name has group NotificationsGroup with user2Name and user3Name") {
-            backendSetupHelper.userHasGroupConversationInTeam(
-                "user1Name",
-                "NotificationsGroup",
-                "user2Name,user3Name",
-                "Notifications"
+            testServiceHelper.userCreatesMLSGroupConversation(
+                ownerAlias = "user1Name",
+                participantAliases = "user2Name,user3Name",
+                conversationName = "NotificationsGroup",
+                deviceName = "Device1"
             )
         }
 

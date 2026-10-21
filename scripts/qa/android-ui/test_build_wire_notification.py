@@ -29,7 +29,7 @@ class BuildWireNotificationTest(unittest.TestCase):
 
         self.assertTrue(body.startswith("✅ android fdroid tests #123"))
         self.assertIn("@fdroid", body)
-        self.assertIn("Failed: 0 / -1", body)
+        self.assertIn("Failed: 0,", body)
 
     def test_uses_success_icon_when_failed_job_has_recovered_test_results(self) -> None:
         with patch.dict(
@@ -48,7 +48,7 @@ class BuildWireNotificationTest(unittest.TestCase):
             body = build_body()
 
         self.assertTrue(body.startswith("✅ android critical flows #123"))
-        self.assertIn("Failed: 0 / -2", body)
+        self.assertIn("Failed: 0,", body)
 
     def test_rejects_missing_or_blank_title(self) -> None:
         for title in (None, "", " \t\n "):

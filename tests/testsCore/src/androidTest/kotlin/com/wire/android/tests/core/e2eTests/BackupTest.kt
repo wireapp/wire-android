@@ -64,6 +64,7 @@ class BackupTest : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "Messaging", backendClient)
             teamOwner = clientUserManager.findUserBy("user1Name", ClientUserManager.FindBy.NAME_ALIAS)
         }
 
@@ -80,16 +81,16 @@ class BackupTest : BaseUiTest() {
         }
 
         step("And User user1Name has group conversation BackingUp with user2Name in team Messaging") {
-            backendSetupHelper.userHasGroupConversationInTeam(
-                "user1Name",
-                "BackingUp",
-                "user2Name",
-                "Messaging"
-            )
-        }
-
-        testServiceHelper.apply {
-            addDevice("user2Name", null, "Device1")
+            testServiceHelper.apply {
+                addDevice("user1Name", null, "Device1")
+                addDevice("user2Name", null, "Device1")
+                userCreatesMLSGroupConversation(
+                    ownerAlias = "user1Name",
+                    participantAliases = "user2Name",
+                    conversationName = "BackingUp",
+                    deviceName = "Device1"
+                )
+            }
         }
 
         step("And I see email verification Welcome Page") {
@@ -297,6 +298,7 @@ class BackupTest : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "Messaging", backendClient)
             teamOwner = clientUserManager.findUserBy("user1Name", ClientUserManager.FindBy.NAME_ALIAS)
         }
 
@@ -313,12 +315,16 @@ class BackupTest : BaseUiTest() {
         }
 
         step("And User user1Name has group conversation BackingUp with user2Name in team Messaging") {
-            backendSetupHelper.userHasGroupConversationInTeam(
-                "user1Name",
-                "BackingUp",
-                "user2Name",
-                "Messaging"
-            )
+            testServiceHelper.apply {
+                addDevice("user1Name", null, "Device1")
+                addDevice("user2Name", null, "Device1")
+                userCreatesMLSGroupConversation(
+                    ownerAlias = "user1Name",
+                    participantAliases = "user2Name",
+                    conversationName = "BackingUp",
+                    deviceName = "Device1"
+                )
+            }
         }
 
         step("And I see email verification Welcome Page") {
@@ -335,10 +341,6 @@ class BackupTest : BaseUiTest() {
                 enterUserPassword(teamOwner?.password.orEmpty())
                 clickLoginButton()
             }
-        }
-
-        testServiceHelper.apply {
-            addDevice("user2Name", null, "Device1")
         }
 
         step("And I wait until I am fully logged in and decline share data alert") {
@@ -532,7 +534,7 @@ class BackupTest : BaseUiTest() {
      */
     @Suppress("CyclomaticComplexMethod", "LongMethod")
     @TestCaseId("TC-4245")
-    @Category("regression", "RC", "backup")
+    @Category("regression", "RC", "backup", "upgrade")
     @Test
     fun givenIWantToImportABackupCreatedOnPreviousVersion_whenIImportIt_thenMessagesAreRestored() {
         val backupPassword = "A1a!".repeat(2)
@@ -546,6 +548,7 @@ class BackupTest : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "Messaging", backendClient)
             teamOwner = clientUserManager.findUserBy("user1Name", ClientUserManager.FindBy.NAME_ALIAS)
         }
 
@@ -562,16 +565,16 @@ class BackupTest : BaseUiTest() {
         }
 
         step("And User user1Name has group conversation BackingUp with user2Name in team Messaging") {
-            backendSetupHelper.userHasGroupConversationInTeam(
-                "user1Name",
-                "BackingUp",
-                "user2Name",
-                "Messaging"
-            )
-        }
-
-        testServiceHelper.apply {
-            addDevice("user2Name", null, "Device1")
+            testServiceHelper.apply {
+                addDevice("user1Name", null, "Device1")
+                addDevice("user2Name", null, "Device1")
+                userCreatesMLSGroupConversation(
+                    ownerAlias = "user1Name",
+                    participantAliases = "user2Name",
+                    conversationName = "BackingUp",
+                    deviceName = "Device1"
+                )
+            }
         }
 
         step("And I see email verification Welcome Page") {

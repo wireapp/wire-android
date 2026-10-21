@@ -37,7 +37,7 @@ import com.wire.android.util.CurrentTimeProvider
 import com.wire.android.util.rememberCurrentTimeProvider
 import com.wire.kalium.logic.data.message.Message
 import kotlinx.coroutines.delay
-import kotlinx.datetime.Instant
+import kotlin.time.Instant
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.ZERO
 import kotlin.time.Duration.Companion.days

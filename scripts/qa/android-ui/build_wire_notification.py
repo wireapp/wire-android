@@ -30,6 +30,8 @@ def resolve_status_icon() -> str:
 
     tests_failed = env_int("TESTS_FAILED")
     tests_total = env_int("TESTS_TOTAL")
+    if (env_int("TESTS_MISSING") or 0) > 0:
+        return "❌"
     if tests_failed is not None and tests_total is not None and tests_total > 0:
         return "❌" if tests_failed > 0 else "✅"
 
@@ -120,14 +122,23 @@ def build_body() -> str:
             f"See Allure Reports: [open report]({safe_allure_report_url})"
         )
 
-    lines.append(
-        "Tests passed: "
-        f"{env('TESTS_PASSED') or '0'}, "
-        f"Failed: {env('TESTS_FAILED') or '0'} / -{env('PASSED_ON_RERUN_COUNT') or '0'}, "
-        f"Skipped: {env('TESTS_SKIPPED') or '0'}, "
-        f"Total: {env('TESTS_TOTAL') or '0'} "
-        f"({env('TESTS_SUCCESS_PERCENT') or '0'}%)"
-    )
+    if env("RUN_MODE") == "deflake":
+        result = (f"Tests selected: {env('TESTS_SELECTED') or '0'}, "
+                  f"Passed: {env('TESTS_PASSED') or '0'}, "
+                  f"Still unsuccessful: {env('TESTS_FAILED') or '0'}")
+        for name in ("SKIPPED", "MISSING"):
+            if (env_int(f"TESTS_{name}") or 0) > 0:
+                result += f", {name.capitalize()}: {env(f'TESTS_{name}')}"
+        lines.append(result)
+    else:
+        lines.append(
+            "Tests passed: "
+            f"{env('TESTS_PASSED') or '0'}, "
+            f"Failed: {env('TESTS_FAILED') or '0'}, "
+            f"Skipped: {env('TESTS_SKIPPED') or '0'}, "
+            f"Total: {env('TESTS_TOTAL') or '0'} "
+            f"({env('TESTS_SUCCESS_PERCENT') or '0'}%)"
+        )
 
     return "\n".join(lines)
 

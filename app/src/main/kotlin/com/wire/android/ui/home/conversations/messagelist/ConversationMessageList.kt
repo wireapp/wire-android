@@ -43,6 +43,7 @@ import androidx.compose.material3.SmallFloatingActionButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
@@ -50,6 +51,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
@@ -102,17 +104,18 @@ import com.wire.android.ui.home.conversations.messages.item.SwipeableMessageConf
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.ui.home.conversations.model.UIQuotedMessage
+import com.wire.android.ui.markdown.LocalInlineActionFocusRegistry
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.DateAndTimeParsers
 import com.wire.kalium.logic.data.conversation.InteractionAvailability
 import com.wire.kalium.logic.data.message.MessageAssetStatus
+import kotlin.time.Instant
 import kotlinx.collections.immutable.PersistentMap
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
-import kotlinx.datetime.Instant
 import com.wire.android.ui.common.R as commonR
 
 private const val MAXIMUM_SCROLLED_MESSAGES_UNTIL_AUTOSCROLL_STOPS = 5
@@ -233,12 +236,16 @@ fun ConversationMessageList(
     val focusManager = LocalFocusManager.current
     val messageListFocusRequester = remember { FocusRequester() }
     val firstMessageFocusRequester = remember { FocusRequester() }
-    var isMessageNavigationActive by remember { mutableStateOf(false) }
+    var isMessageNavigationActive by rememberSaveable { mutableStateOf(false) }
     var isMessageListFocused by remember { mutableStateOf(false) }
     var messageNavigationTargetIndex by remember { mutableStateOf(0) }
 
+    val contentFocusRestoration = rememberMessageContentFocusRestoration(messageListFocusRequester) {
+        isMessageNavigationActive = true
+    }
+
     LaunchedEffect(isMessageNavigationActive) {
-        if (isMessageNavigationActive && lazyPagingMessages.itemCount > 0) {
+        if (isMessageNavigationActive && !contentFocusRestoration.hasPendingRestoration && lazyPagingMessages.itemCount > 0) {
             withFrameNanos { }
             firstMessageFocusRequester.requestFocus()
         }
@@ -265,7 +272,7 @@ fun ConversationMessageList(
                 .focusRequester(messageListFocusRequester)
                 .onFocusChanged { focusState ->
                     isMessageListFocused = focusState.isFocused
-                    if (!focusState.hasFocus) {
+                    if (!focusState.hasFocus && !contentFocusRestoration.hasPendingRestoration) {
                         isMessageNavigationActive = false
                     }
                 }
@@ -335,6 +342,20 @@ fun ConversationMessageList(
                     }
                     val useSmallBottomPadding = rememberShouldHaveSmallBottomPadding(index, message, lazyPagingMessages)
                     var isMessageKeyboardFocused by remember(message.header.messageId) { mutableStateOf(false) }
+                    val messageFocusRequester = remember(message.header.messageId) { FocusRequester() }
+                    val contentHash = when (val content = message.messageContent) {
+                        is UIMessageContent.TextMessage -> content.messageBody.hashCode()
+                        is UIMessageContent.Multipart -> content.messageBody.hashCode()
+                        is UIMessageContent.Composite -> content.messageBody.hashCode()
+                        else -> content.hashCode()
+                    }
+                    DisposableEffect(message.header.messageId, contentHash) {
+                        contentFocusRestoration.register(message.header.messageId, messageFocusRequester, contentHash)
+                        onDispose { contentFocusRestoration.unregister(message.header.messageId) }
+                    }
+                    val inlineFocusRegistry = remember(message.header.messageId, contentFocusRestoration) {
+                        contentFocusRestoration.forMessage(message.header.messageId)
+                    }
 
                     if (index > 0) {
                         val previousMessage = lazyPagingMessages[index - 1] ?: message
@@ -369,30 +390,33 @@ fun ConversationMessageList(
                         AdminlessGroupDeleteReminderItem(adminlessGroupDeletionTimestamp)
                     }
 
-                    MessageContainerItem(
-                        modifier = Modifier
-                            .applyIf(isMessageKeyboardFocused) {
-                                background(MaterialTheme.wireColorScheme.primaryVariant)
-                            }
-                            .applyIf(index == messageNavigationTargetIndex) {
-                                focusRequester(firstMessageFocusRequester)
-                            }
-                            .onFocusChanged { isMessageKeyboardFocused = it.isFocused }
-                            .focusProperties { canFocus = isMessageNavigationActive }
-                            .focusable(isMessageNavigationActive),
-                        message = message,
-                        conversationDetailsData = conversationDetailsData,
-                        showAuthor = showAuthor,
-                        useSmallBottomPadding = useSmallBottomPadding,
-                        assetStatus = assetStatuses[message.header.messageId]?.transferStatus,
-                        clickActions = clickActions,
-                        swipeableMessageConfiguration = swipeableConfiguration,
-                        onSelfDeletingMessageRead = onSelfDeletingMessageRead,
-                        isSelectedMessage = message.header.messageId == selectedMessageId,
-                        failureInteractionAvailable = interactionAvailability == InteractionAvailability.ENABLED,
-                        isBubbleUiEnabled = isBubbleUiEnabled,
-                        isWireCellsEnabled = isWireCellsEnabled,
-                    )
+                    CompositionLocalProvider(LocalInlineActionFocusRegistry provides inlineFocusRegistry) {
+                        MessageContainerItem(
+                            modifier = Modifier
+                                .applyIf(isMessageKeyboardFocused) {
+                                    background(MaterialTheme.wireColorScheme.primaryVariant)
+                                }
+                                .applyIf(index == messageNavigationTargetIndex) {
+                                    focusRequester(firstMessageFocusRequester)
+                                }
+                                .focusRequester(messageFocusRequester)
+                                .onFocusChanged { isMessageKeyboardFocused = it.isFocused }
+                                .focusProperties { canFocus = isMessageNavigationActive }
+                                .focusable(isMessageNavigationActive),
+                            message = message,
+                            conversationDetailsData = conversationDetailsData,
+                            showAuthor = showAuthor,
+                            useSmallBottomPadding = useSmallBottomPadding,
+                            assetStatus = assetStatuses[message.header.messageId]?.transferStatus,
+                            clickActions = clickActions,
+                            swipeableMessageConfiguration = swipeableConfiguration,
+                            onSelfDeletingMessageRead = onSelfDeletingMessageRead,
+                            isSelectedMessage = message.header.messageId == selectedMessageId,
+                            failureInteractionAvailable = interactionAvailability == InteractionAvailability.ENABLED,
+                            isBubbleUiEnabled = isBubbleUiEnabled,
+                            isWireCellsEnabled = isWireCellsEnabled,
+                        )
+                    }
 
                     val isTheOnlyItem = index == 0 && lazyPagingMessages.itemCount == 1
                     val isTheLastItem = index + 1 == lazyPagingMessages.itemCount

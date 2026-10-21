@@ -66,6 +66,7 @@ import com.wire.kalium.logic.feature.user.ObserveE2EIRequiredUseCase
 import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
 import com.wire.kalium.logic.feature.user.UserScope
 import com.wire.kalium.logic.sync.SyncManager
+import io.mockk.Called
 import io.mockk.MockKAnnotations
 import io.mockk.clearMocks
 import io.mockk.coEvery
@@ -239,7 +240,11 @@ class WireNotificationManagerTest {
         coVerify(exactly = 1) { arrangement.getNotificationsUseCase() }
         coVerify(exactly = 1) {
             arrangement.syncLifecycleManager.syncTemporarily(
-                TEST_AUTH_TOKEN.userId, arrangement.userSessionScope, stayAliveDuration, false, any()
+                TEST_AUTH_TOKEN.userId,
+                arrangement.userSessionScope,
+                stayAliveDuration,
+                false,
+                any()
             )
         }
         verify(exactly = 1) {
@@ -321,7 +326,11 @@ class WireNotificationManagerTest {
         coVerify(exactly = 1) { arrangement.getNotificationsUseCase() }
         coVerify(exactly = 1) {
             arrangement.syncLifecycleManager.syncTemporarily(
-                TEST_AUTH_TOKEN.userId, arrangement.userSessionScope, stayAliveDuration, false, any()
+                TEST_AUTH_TOKEN.userId,
+                arrangement.userSessionScope,
+                stayAliveDuration,
+                false,
+                any()
             )
         }
         verify { replacement wasNot Called }
@@ -496,7 +505,11 @@ class WireNotificationManagerTest {
 
             coVerify(exactly = 1) {
                 arrangement.syncLifecycleManager.syncTemporarily(
-                    TEST_AUTH_TOKEN.userId, arrangement.userSessionScope, stayAliveDuration, false, any()
+                    TEST_AUTH_TOKEN.userId,
+                    arrangement.userSessionScope,
+                    stayAliveDuration,
+                    false,
+                    any()
                 )
             }
         }
@@ -759,7 +772,11 @@ class WireNotificationManagerTest {
             advanceTimeBy(1.minutes.inWholeMilliseconds)
             coVerify(exactly = 1) {
                 arrangement.syncLifecycleManager.syncTemporarily(
-                    userId, arrangement.userSessionScope, stayAliveDuration, false, any()
+                    userId,
+                    arrangement.userSessionScope,
+                    stayAliveDuration,
+                    false,
+                    any()
                 )
             }
 
@@ -767,7 +784,11 @@ class WireNotificationManagerTest {
             advanceTimeBy(6.minutes.inWholeMilliseconds)
             coVerify(exactly = 1) {
                 arrangement.syncLifecycleManager.syncTemporarily(
-                    userId, arrangement.userSessionScope, stayAliveDuration, false, any()
+                    userId,
+                    arrangement.userSessionScope,
+                    stayAliveDuration,
+                    false,
+                    any()
                 )
             }
 
@@ -775,7 +796,11 @@ class WireNotificationManagerTest {
             advanceUntilIdle()
             coVerify(exactly = 1) {
                 arrangement.syncLifecycleManager.syncTemporarily(
-                    userId, arrangement.userSessionScope, stayAliveDuration, false, any()
+                    userId,
+                    arrangement.userSessionScope,
+                    stayAliveDuration,
+                    false,
+                    any()
                 )
             }
         }
@@ -815,7 +840,11 @@ class WireNotificationManagerTest {
 
             coVerify(exactly = 1) {
                 arrangement.syncLifecycleManager.syncTemporarily(
-                    userId, arrangement.userSessionScope, stayAliveDuration, false, any()
+                    userId,
+                    arrangement.userSessionScope,
+                    stayAliveDuration,
+                    false,
+                    any()
                 )
             }
         }

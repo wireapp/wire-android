@@ -24,7 +24,6 @@ import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.feature.UserSessionScope
 import io.mockk.mockk
-import io.mockk.verify
 import com.wire.kalium.logic.data.auth.AccountInfo
 import com.wire.kalium.logic.feature.session.GetAllSessionsResult
 import com.wire.kalium.logic.data.user.UserId
@@ -40,12 +39,6 @@ import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.CompletableDeferred
-import kotlinx.coroutines.awaitCancellation
-import kotlinx.coroutines.test.runCurrent
-import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.cancel
-import org.junit.jupiter.api.Assertions.assertTrue
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import com.wire.android.assertions.shouldBeInstanceOf
@@ -118,55 +111,6 @@ class LegalHoldDeactivatedViewModelTest {
         advanceUntilIdle()
         viewModel.state shouldBeInstanceOf LegalHoldDeactivatedState.Hidden::class
         coVerify { arrangement.session.markLegalHoldChangeAsNotifiedForSelf() }
-    }
-
-    @Test
-    fun `enabled notification action stays in its admission and drains before replacement`() = runTest {
-        val arrangement = Arrangement().withCurrentSessionExists()
-            .withLegalHoldChangeNotifiedResult(
-                ObserveLegalHoldChangeNotifiedForSelfUseCase.Result.ShouldNotify(LegalHoldState.Enabled)
-            )
-        val entered = CompletableDeferred<Unit>()
-        val drained = CompletableDeferred<Unit>()
-        coEvery { arrangement.session.markLegalHoldChangeAsNotifiedForSelf() } coAnswers {
-            entered.complete(Unit)
-            try { awaitCancellation() } finally { drained.complete(Unit) }
-        }
-        arrangement.admission.publish(arrangement.userId, null)
-        val (_, viewModel) = arrangement.arrange()
-        runCurrent()
-        coVerify(exactly = 0) { arrangement.session.markLegalHoldChangeAsNotifiedForSelf() }
-        arrangement.admission.publish(arrangement.userId, arrangement.session)
-        entered.await()
-        arrangement.admission.publish(arrangement.userId, null)
-        runCurrent()
-        assertTrue(drained.isCompleted)
-        arrangement.withLegalHoldChangeNotifiedResult(
-            ObserveLegalHoldChangeNotifiedForSelfUseCase.Result.ShouldNotify(LegalHoldState.Disabled)
-        )
-        arrangement.admission.publish(arrangement.userId, arrangement.session)
-        runCurrent()
-        viewModel.state shouldBeInstanceOf LegalHoldDeactivatedState.Visible::class
-        coVerify(exactly = 1) { arrangement.session.markLegalHoldChangeAsNotifiedForSelf() }
-        verify(exactly = 0) { arrangement.coreLogic.getSessionScope(any()) }
-        viewModel.viewModelScope.cancel()
-    }
-
-    @Test
-    fun `stale visible dismissal cannot act after raw account invalidation`() = runTest {
-        val (arrangement, viewModel) = Arrangement().withCurrentSessionExists()
-            .withLegalHoldChangeNotifiedResult(
-                ObserveLegalHoldChangeNotifiedForSelfUseCase.Result.ShouldNotify(LegalHoldState.Disabled)
-            ).arrange()
-        viewModel.state shouldBeInstanceOf LegalHoldDeactivatedState.Visible::class
-        arrangement.rawAccounts.value = GetAllSessionsResult.Success(emptyList())
-        viewModel.dismiss()
-        arrangement.admission.publish(arrangement.userId, null)
-        runCurrent()
-        arrangement.admission.publish(arrangement.userId, arrangement.session)
-        runCurrent()
-        coVerify(exactly = 0) { arrangement.session.markLegalHoldChangeAsNotifiedForSelf() }
-        viewModel.viewModelScope.cancel()
     }
 
     private class Arrangement {

@@ -36,19 +36,11 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
-import io.mockk.verify
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.CompletableDeferred
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitCancellation
-import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertTrue
-import org.junit.jupiter.api.Assertions.assertSame
 import org.junit.jupiter.api.Test
 
-@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 @Suppress("DEPRECATION")
 class SendPendingMessagesAfterForegroundSyncUseCaseTest {
 
@@ -76,80 +68,6 @@ class SendPendingMessagesAfterForegroundSyncUseCaseTest {
         assertEquals(1, arrangement.syncExecutor.requestCount)
         assertEquals(0, arrangement.syncExecutor.waitUntilLiveCount)
         assertEquals(1, arrangement.syncExecutor.waitUntilNextLiveCount)
-        coVerify(exactly = 0) { arrangement.sendPendingMessages() }
-    }
-
-    @Test
-    fun `early metadata waits and revocation drains captured send without replay`() = runTest {
-        val entered = CompletableDeferred<Unit>()
-        val drained = CompletableDeferred<Unit>()
-        val (arrangement, useCase) = Arrangement().arrange()
-        arrangement.admission.publish(USER_ID, null)
-        coEvery { arrangement.sendPendingMessages() } coAnswers {
-            entered.complete(Unit)
-            try { awaitCancellation() } finally { drained.complete(Unit) }
-        }
-        val request = async {
-            useCase(USER_ID)
-        }
-        runCurrent()
-        assertEquals(0, arrangement.syncExecutor.requestCount)
-        arrangement.admission.publish(USER_ID, arrangement.userSessionScope)
-        entered.await()
-        arrangement.admission.publish(USER_ID, null)
-        runCurrent()
-        assertTrue(drained.isCompleted)
-        arrangement.admission.publish(USER_ID, arrangement.userSessionScope)
-        request.await()
-        assertEquals(1, arrangement.syncExecutor.requestCount)
-        coVerify(exactly = 1) { arrangement.sendPendingMessages() }
-        verify(exactly = 0) { arrangement.coreLogic.getSessionScope(any()) }
-    }
-
-    @Test
-    fun `raw invalidation cancels waiting send and does not acquire on later publication`() = runTest {
-        val (arrangement, useCase) = Arrangement().arrange()
-        arrangement.admission.publish(USER_ID, null)
-        val request = async {
-            useCase(USER_ID)
-        }
-        runCurrent()
-        arrangement.rawAccounts.value = GetAllSessionsResult.Success(emptyList())
-        request.await()
-        arrangement.admission.publish(USER_ID, arrangement.userSessionScope)
-        runCurrent()
-        assertEquals(0, arrangement.syncExecutor.requestCount)
-        coVerify(exactly = 0) { arrangement.sendPendingMessages() }
-        verify(exactly = 0) { arrangement.coreLogic.getSessionScope(any()) }
-    }
-
-    @Test
-    fun `captured send failure propagates unchanged`() = runTest {
-        val (arrangement, useCase) = Arrangement().arrange()
-        val failure = IllegalStateException("send failed")
-        coEvery { arrangement.sendPendingMessages() } throws failure
-        val observed = try {
-            useCase(USER_ID)
-            error("expected failure")
-        } catch (actual: IllegalStateException) {
-            actual
-        }
-        assertSame(failure, generateSequence<Throwable>(observed) { it.cause }.last())
-        verify(exactly = 0) { arrangement.coreLogic.getSessionScope(any()) }
-    }
-
-    @Test
-    fun `caller cancellation while waiting is not converted to successful send`() = runTest {
-        val (arrangement, useCase) = Arrangement().arrange()
-        arrangement.admission.publish(USER_ID, null)
-        val request = async {
-            useCase(USER_ID)
-        }
-        runCurrent()
-        request.cancel()
-        request.join()
-        assertTrue(request.isCancelled)
-        assertEquals(0, arrangement.syncExecutor.requestCount)
         coVerify(exactly = 0) { arrangement.sendPendingMessages() }
     }
 

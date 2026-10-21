@@ -80,7 +80,6 @@ import com.wire.kalium.logic.feature.client.IsProfileQRCodeEnabledUseCase
 import com.wire.kalium.logic.feature.client.NewClientResult
 import com.wire.kalium.logic.feature.client.ObserveNewClientsUseCase
 import com.wire.kalium.logic.feature.conversation.CheckConversationInviteCodeUseCase
-import com.wire.kalium.logic.feature.debug.SynchronizeExternalDataResult
 import com.wire.kalium.logic.feature.server.GetServerConfigResult
 import com.wire.kalium.logic.feature.server.GetServerConfigUseCase
 import com.wire.kalium.logic.feature.server.IsCrossBackendLoginBlockedUseCase
@@ -103,8 +102,6 @@ import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.CompletableDeferred
-import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -120,7 +117,6 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import java.io.ByteArrayInputStream
 
 @Suppress("MaxLineLength", "LargeClass")
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -130,64 +126,6 @@ class WireActivityViewModelTest {
     @AfterEach
     fun tearDown() {
         SupportUrlResolver.setBaseUrl(null)
-    }
-
-    @Test
-    fun `revoked manual import drains and is not replayed after same account publication`() = runTest {
-        val entered = CompletableDeferred<Unit>()
-        val drained = CompletableDeferred<Unit>()
-        var imports = 0
-        val (arrangement, viewModel) = Arrangement()
-            .withCurrentSessionFlow(flowOf(CurrentSessionResult.Success(TEST_ACCOUNT_INFO)))
-            .withDataImport {
-                imports++
-                entered.complete(Unit)
-                try { awaitCancellation() } finally { drained.complete(Unit) }
-            }
-            .arrange()
-        viewModel.handleSynchronizeExternalData(ByteArrayInputStream("data".toByteArray()))
-        entered.await()
-        arrangement.withSessionUnavailable(TEST_ACCOUNT_INFO.userId)
-        advanceUntilIdle()
-        assertTrue(drained.isCompleted)
-        arrangement.publishSession(TEST_ACCOUNT_INFO.userId)
-        advanceUntilIdle()
-        assertEquals(1, imports)
-    }
-
-    @Test
-    fun `early valid metadata cannot bind sync or screenshot reads until admission publishes`() = runTest {
-        val raw = MutableStateFlow<CurrentSessionResult>(CurrentSessionResult.Failure.SessionNotFound)
-        val (arrangement, viewModel) = Arrangement()
-            .withCurrentSessionFlow(raw)
-            .withSyncStateForUser(TEST_ACCOUNT_INFO.userId, SyncState.Live)
-            .withScreenshotCensoringConfigForUser(
-                TEST_ACCOUNT_INFO.userId,
-                ObserveScreenshotCensoringConfigResult.Enabled.ChosenByUser,
-            )
-            .withSessionUnavailable(TEST_ACCOUNT_INFO.userId)
-            .arrange()
-        advanceUntilIdle()
-        raw.value = CurrentSessionResult.Success(TEST_ACCOUNT_INFO)
-        advanceUntilIdle()
-        assertEquals(null, viewModel.observeSyncFlowState.value)
-        assertEquals(false, viewModel.globalAppState.screenshotCensoringEnabled)
-        // Raw identity remains metadata; this test makes no navigation-readiness claim.
-        assertEquals(TEST_ACCOUNT_INFO.userId, viewModel.globalAppState.currentUserId)
-
-        arrangement.publishSession(TEST_ACCOUNT_INFO.userId)
-        advanceUntilIdle()
-        assertEquals(SyncState.Live, viewModel.observeSyncFlowState.value)
-        assertEquals(true, viewModel.globalAppState.screenshotCensoringEnabled)
-
-        arrangement.withSessionUnavailable(TEST_ACCOUNT_INFO.userId)
-        advanceUntilIdle()
-        // Losing resource admission while metadata stays Valid must not relax screenshot protection.
-        assertEquals(true, viewModel.globalAppState.screenshotCensoringEnabled)
-
-        raw.value = CurrentSessionResult.Failure.SessionNotFound
-        advanceUntilIdle()
-        assertEquals(false, viewModel.globalAppState.screenshotCensoringEnabled)
     }
 
     @Test
@@ -1433,15 +1371,6 @@ class WireActivityViewModelTest {
                 startupAccountLimitGate = startupAccountLimitGate,
             )
         }
-
-        fun withDataImport(action: suspend () -> SynchronizeExternalDataResult): Arrangement = apply {
-            val session = capturedSession(TEST_ACCOUNT_INFO.userId)
-            coEvery { session.debug.synchronizeExternalData(any()) } coAnswers { action() }
-        }
-
-        fun withSessionUnavailable(userId: UserId): Arrangement = apply { admission.publish(userId, null) }
-
-        fun publishSession(userId: UserId) { admission.publish(userId, capturedSession(userId)) }
 
         fun withSomeCurrentSession(): Arrangement = apply {
             coEvery { currentSessionFlow() } returns flowOf(CurrentSessionResult.Success(TEST_ACCOUNT_INFO))

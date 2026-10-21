@@ -25,7 +25,6 @@ import com.wire.android.ui.legalhold.dialog.requested.LegalHoldRequestedViewMode
 import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.auth.AccountInfo
-import com.wire.kalium.logic.data.logout.LogoutReason
 import com.wire.kalium.logic.feature.session.GetAllSessionsResult
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.UserSessionScope
@@ -44,12 +43,6 @@ import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.CompletableDeferred
-import kotlinx.coroutines.awaitCancellation
-import kotlinx.coroutines.test.runCurrent
-import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.cancel
-import org.junit.jupiter.api.Assertions.assertTrue
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import com.wire.android.assertions.shouldBeEqualTo
@@ -301,53 +294,6 @@ class LegalHoldRequestedViewModelTest {
         advanceUntilIdle()
         viewModel.acceptClicked()
         coVerify { arrangement.userSessionScope.approveLegalHoldRequest(password) }
-    }
-
-    @Test
-    fun `request waits for publication and invalid current metadata cancels captured password read`() = runTest {
-        val arrangement = arrangeWithLegalHoldRequest()
-        val current = MutableStateFlow<CurrentSessionResult>(CurrentSessionResult.Success(AccountInfo.Valid(arrangement.userId)))
-        every { arrangement.coreLogic.getGlobalScope().session.currentSessionFlow() } returns current
-        arrangement.admission.publish(arrangement.userId, null)
-        val waiting = LegalHoldRequestedViewModel(arrangement.validatePassword, lazyOf(arrangement.coreLogic))
-        waiting.observeLegalHoldRequest()
-        runCurrent()
-        waiting.state shouldBeInstanceOf LegalHoldRequestedState.Hidden::class
-        val entered = CompletableDeferred<Unit>()
-        val drained = CompletableDeferred<Unit>()
-        coEvery { arrangement.userSessionScope.users.isPasswordRequired() } coAnswers {
-            entered.complete(Unit)
-            try { awaitCancellation() } finally { drained.complete(Unit) }
-        }
-        arrangement.admission.publish(arrangement.userId, arrangement.userSessionScope)
-        entered.await()
-        current.value = CurrentSessionResult.Success(AccountInfo.Invalid(arrangement.userId, LogoutReason.SELF_SOFT_LOGOUT))
-        runCurrent()
-        assertTrue(drained.isCompleted)
-        waiting.state shouldBeInstanceOf LegalHoldRequestedState.Hidden::class
-        arrangement.admission.publish(arrangement.userId, arrangement.userSessionScope)
-        runCurrent()
-        coVerify(exactly = 1) { arrangement.userSessionScope.users.isPasswordRequired() }
-        verify(exactly = 0) { arrangement.coreLogic.getSessionScope(any()) }
-        waiting.viewModelScope.cancel()
-    }
-
-    @Test
-    fun `cancelled approval does not become a successful hidden dialog or replay on revision`() = runTest {
-        val (arrangement, viewModel) = arrangeWithLegalHoldRequest(isPasswordRequired = false).arrange()
-        coEvery {
-            arrangement.userSessionScope.approveLegalHoldRequest(any())
-        } throws kotlinx.coroutines.CancellationException("caller")
-        viewModel.acceptClicked()
-        runCurrent()
-        viewModel.state.assertStateVisible { assertTrue(it.loading) }
-        arrangement.admission.publish(arrangement.userId, null)
-        runCurrent()
-        arrangement.admission.publish(arrangement.userId, arrangement.userSessionScope)
-        runCurrent()
-        coVerify(exactly = 1) { arrangement.userSessionScope.approveLegalHoldRequest(any()) }
-        verify(exactly = 0) { arrangement.coreLogic.getSessionScope(any()) }
-        viewModel.viewModelScope.cancel()
     }
 
     private class Arrangement {

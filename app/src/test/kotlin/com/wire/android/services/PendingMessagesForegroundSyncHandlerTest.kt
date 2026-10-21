@@ -59,6 +59,7 @@ class PendingMessagesForegroundSyncHandlerTest {
 
         handler.sendPendingMessagesForAllValidSessions()
 
+        assertEquals(4, events.size)
         listOf(FIRST_USER_ID, SECOND_USER_ID).forEach { userId ->
             assertEquals(listOf("check:${userId.value}", "send:${userId.value}"), events.filter { it.endsWith(userId.value) })
         }

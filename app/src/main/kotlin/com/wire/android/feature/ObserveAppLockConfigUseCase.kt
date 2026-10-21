@@ -20,11 +20,10 @@ package com.wire.android.feature
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.kalium.logic.CoreLogic
-import com.wire.kalium.logic.feature.session.CurrentSessionResult
+import com.wire.android.session.observeCurrentValidSession
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.channelFlow
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.combineTransform
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.map
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.SingleIn
@@ -36,41 +35,18 @@ class ObserveAppLockConfigUseCase @Inject constructor(
     private val globalDataStore: GlobalDataStore,
     @KaliumCoreLogic private val coreLogic: CoreLogic
 ) {
-    operator fun invoke(): Flow<AppLockConfig> = channelFlow {
-        coreLogic.getGlobalScope().session.currentSessionFlow().collectLatest { sessionResult ->
-            when {
-                sessionResult is CurrentSessionResult.Success && sessionResult.accountInfo.isValid() -> {
-                    val userId = sessionResult.accountInfo.userId
-                    val appLockTeamFeatureConfigFlow =
-                        coreLogic.getSessionScope(userId).appLockTeamFeatureConfigObserver
-
-                    appLockTeamFeatureConfigFlow().combineTransform(
-                        globalDataStore.isAppLockPasscodeSetFlow()
-                    ) { teamAppLockConfig, isAppLockConfigured ->
-                        when {
-                            isAppLockConfigured -> {
-                                emit(AppLockConfig.Enabled(teamAppLockConfig?.timeout ?: DEFAULT_APP_LOCK_TIMEOUT))
-                            }
-
-                            teamAppLockConfig != null && teamAppLockConfig.isEnforced -> {
-                                emit(AppLockConfig.EnforcedByTeam(teamAppLockConfig.timeout))
-                            }
-
-                            else -> {
-                                emit(AppLockConfig.Disabled(teamAppLockConfig?.timeout ?: DEFAULT_APP_LOCK_TIMEOUT))
-                            }
-                        }
-                    }.collectLatest {
-                        send(it)
-                    }
-                }
-
-                else -> {
-                    send(AppLockConfig.Disabled(DEFAULT_APP_LOCK_TIMEOUT))
+    operator fun invoke(): Flow<AppLockConfig> = coreLogic.getGlobalScope().session.currentSessionFlow()
+        .observeCurrentValidSession(coreLogic, waitForAdmission = true) {
+            appLockTeamFeatureConfigObserver().combine(globalDataStore.isAppLockPasscodeSetFlow()) { teamConfig, passcodeSet ->
+                when {
+                    passcodeSet -> AppLockConfig.Enabled(teamConfig?.timeout ?: DEFAULT_APP_LOCK_TIMEOUT)
+                    teamConfig != null && teamConfig.isEnforced -> AppLockConfig.EnforcedByTeam(teamConfig.timeout)
+                    else -> AppLockConfig.Disabled(teamConfig?.timeout ?: DEFAULT_APP_LOCK_TIMEOUT)
                 }
             }
         }
-    }
+        // Pending admission of raw Valid keeps the last security config; Invalid/missing still disables it.
+        .map { it ?: AppLockConfig.Disabled(DEFAULT_APP_LOCK_TIMEOUT) }
 
     companion object {
         val DEFAULT_APP_LOCK_TIMEOUT = 60.seconds

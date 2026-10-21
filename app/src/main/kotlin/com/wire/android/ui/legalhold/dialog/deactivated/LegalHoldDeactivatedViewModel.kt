@@ -25,6 +25,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wire.android.session.observeCurrentValidSession
+import com.wire.android.session.runWithValidSession
 import com.wire.android.appLogger
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.user.UserId
@@ -35,9 +37,9 @@ import com.wire.kalium.logic.feature.legalhold.ObserveLegalHoldChangeNotifiedFor
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapLatest
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
 class LegalHoldDeactivatedViewModel @Inject constructor(
@@ -47,26 +49,15 @@ class LegalHoldDeactivatedViewModel @Inject constructor(
     var state: LegalHoldDeactivatedState by mutableStateOf(LegalHoldDeactivatedState.Hidden)
         private set
 
-    private fun <T> currentSessionFlow(noSession: T, session: suspend UserSessionScope.(UserId) -> Flow<T>): Flow<T> =
+    private fun <T : Any> currentSessionFlow(noSession: T, session: suspend UserSessionScope.(UserId) -> Flow<T>): Flow<T> =
         coreLogic.value.getGlobalScope().session.currentSessionFlow()
-            .flatMapLatest { currentSessionResult ->
-                when (currentSessionResult) {
-                    is CurrentSessionResult.Failure.Generic -> {
-                        appLogger.e("$TAG: Failed to get current session")
-                        flowOf(noSession)
-                    }
-
-                    CurrentSessionResult.Failure.SessionNotFound -> flowOf(noSession)
-                    is CurrentSessionResult.Success ->
-                        currentSessionResult.accountInfo.userId.let { userId ->
-                            runCatching { coreLogic.value.getSessionScope(userId).session(userId) }
-                                .getOrElse {
-                                    appLogger.e("$TAG: Failed to get session scope for current session: $userId")
-                                    flowOf(noSession)
-                                }
-                        }
+            .onEach { result ->
+                if (result is CurrentSessionResult.Failure.Generic) {
+                    appLogger.e("$TAG: Failed to get current session")
                 }
             }
+            .observeCurrentValidSession(coreLogic.value) { userId -> session(userId) }
+            .map { it ?: noSession }
 
     init {
         viewModelScope.launch {
@@ -83,7 +74,7 @@ class LegalHoldDeactivatedViewModel @Inject constructor(
                                 when (it.legalHoldState) {
                                     is LegalHoldState.Disabled -> LegalHoldDeactivatedState.Visible(userId)
                                     is LegalHoldState.Enabled -> { // for enabled we don't show the dialog, just mark as already notified
-                                        markLegalHoldChangeAsNotified(userId)
+                                        markLegalHoldChangeAsNotifiedForSelf()
                                         LegalHoldDeactivatedState.Hidden
                                     }
                                 }
@@ -105,14 +96,13 @@ class LegalHoldDeactivatedViewModel @Inject constructor(
         }
     }
 
-    private suspend fun markLegalHoldChangeAsNotified(
-        userId: UserId
-    ): MarkLegalHoldChangeAsNotifiedForSelfUseCase.Result? =
-        runCatching { coreLogic.value.getSessionScope(userId).markLegalHoldChangeAsNotifiedForSelf() }
-            .getOrElse {
-                appLogger.e("$TAG: Failed to mark legal hold change as notified because session scope is not available")
-                null
-            }
+    private suspend fun markLegalHoldChangeAsNotified(userId: UserId): MarkLegalHoldChangeAsNotifiedForSelfUseCase.Result? {
+        var result: MarkLegalHoldChangeAsNotifiedForSelfUseCase.Result? = null
+        coreLogic.value.runWithValidSession(userId) {
+            result = markLegalHoldChangeAsNotifiedForSelf()
+        }
+        return result
+    }
 
     companion object {
         private const val TAG = "LegalHoldDeactivatedViewModel"

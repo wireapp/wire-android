@@ -18,11 +18,14 @@
 package com.wire.android.services
 
 import com.wire.android.framework.fake.FakeSyncExecutor
+import com.wire.android.session.FakeSessionAdmission
 import com.wire.android.util.CurrentScreenManager
 import com.wire.android.util.lifecycle.SyncLifecycleManager
 import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.sync.SyncState
+import com.wire.kalium.logic.data.auth.AccountInfo
+import com.wire.kalium.logic.feature.session.GetAllSessionsResult
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.UserSessionScope
 import com.wire.kalium.logic.sync.SendPendingMessagesUseCase
@@ -86,10 +89,13 @@ class SendPendingMessagesAfterForegroundSyncUseCaseTest {
         lateinit var sendPendingMessages: SendPendingMessagesUseCase
 
         var syncExecutor = FakeSyncExecutor()
+        val rawAccounts = MutableStateFlow<GetAllSessionsResult>(GetAllSessionsResult.Success(listOf(AccountInfo.Valid(USER_ID))))
+        val admission by lazy { FakeSessionAdmission(coreLogic) { userSessionScope } }
 
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
-            every { coreLogic.getSessionScope(USER_ID) } returns userSessionScope
+            admission
+            coEvery { coreLogic.getGlobalScope().observeAllValidSessionsFlow() } returns rawAccounts
             every { userSessionScope.syncManager } returns syncStateObserver
             every { syncStateObserver.syncState } returns MutableStateFlow(SyncState.Live)
             every { userSessionScope.sendPendingMessages } returns sendPendingMessages

@@ -24,16 +24,19 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.wire.android.R
 import com.wire.android.di.KaliumCoreLogic
+import com.wire.kalium.cells.CellsScope
 import com.wire.kalium.cells.domain.CellUploadItem
 import com.wire.kalium.cells.domain.CellUploadState
 import com.wire.kalium.cells.domain.isActive
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.session.GetAllSessionsResult
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import java.util.concurrent.ConcurrentHashMap
 import com.wire.android.feature.notification.R as NR
@@ -68,17 +71,24 @@ class DriveUploadNotificationManager @Inject constructor(
 
     suspend fun observeAndNotify() {
         var previousUserIds = emptySet<UserId>()
-        coreLogic.getGlobalScope().observeValidAccounts()
-            .collectLatest { accounts ->
-                val currentUserIds = accounts.map { (selfUser, _) -> selfUser.id }.toSet()
+        coreLogic.getGlobalScope().observeAllValidSessionsFlow()
+            .collectLatest { result ->
+                val accounts = (result as? GetAllSessionsResult.Success)?.sessions.orEmpty().filter { it.isValid() }
+                val currentUserIds = accounts.map { it.userId }.toSet()
                 (previousUserIds - currentUserIds).forEach(::cancelAllNotificationsForUser)
                 previousUserIds = currentUserIds
 
                 coroutineScope {
-                    accounts.forEach { (selfUser, _) ->
+                    accounts.forEach { account ->
                         launch {
-                            coreLogic.getSessionScope(selfUser.id).cells.uploadCoordinator.uploads
-                                .collect { uploads -> updateNotifications(selfUser.id, uploads) }
+                            coreLogic.observeValidSession(account.userId) {
+                                val observedCells = cells
+                                observedCells.uploadCoordinator.uploads.map { uploads ->
+                                    updateNotifications(account.userId, uploads, observedCells)
+                                }
+                            }.collect { available ->
+                                if (available == null) cancelAllNotificationsForUser(account.userId)
+                            }
                         }
                     }
                 }
@@ -91,7 +101,7 @@ class DriveUploadNotificationManager @Inject constructor(
         }
     }
 
-    private suspend fun updateNotifications(userId: UserId, uploads: List<CellUploadItem>) {
+    private suspend fun updateNotifications(userId: UserId, uploads: List<CellUploadItem>, cells: CellsScope) {
         val byConversation = uploads.groupBy { it.conversationId }
 
         val staleConversationIds = mutableListOf<String>()
@@ -104,29 +114,38 @@ class DriveUploadNotificationManager @Inject constructor(
         }
 
         byConversation.forEach { (conversationId, conversationUploads) ->
-            updateNotification(userId, conversationId, conversationUploads)
+            updateNotification(userId, conversationId, conversationUploads, cells.getConversationName(conversationId))
         }
     }
 
-    private suspend fun updateNotification(userId: UserId, conversationId: String, uploads: List<CellUploadItem>) {
+    private suspend fun updateNotification(
+        userId: UserId,
+        conversationId: String,
+        uploads: List<CellUploadItem>,
+        conversationName: String?,
+    ) {
         notificationChannelsManager.createRegularChannel(
             channelId = NotificationConstants.DRIVE_UPLOAD_CHANNEL_ID,
             channelName = NotificationConstants.DRIVE_UPLOAD_CHANNEL_NAME,
             importance = NotificationManagerCompat.IMPORTANCE_LOW
         )
 
-        val notification = buildNotification(userId, conversationId, uploads)
+        val notification = buildNotification(userId, conversationId, uploads, conversationName)
         if (notificationManager.areNotificationsEnabled()) {
             notificationManager.notify(NotificationConstants.getDriveUploadNotificationId(userId, conversationId), notification)
         }
     }
 
-    private suspend fun buildNotification(userId: UserId, conversationId: String, uploads: List<CellUploadItem>): Notification {
+    private fun buildNotification(
+        userId: UserId,
+        conversationId: String,
+        uploads: List<CellUploadItem>,
+        conversationName: String?,
+    ): Notification {
         val total = uploads.size
         val completed = uploads.count { it.state is CellUploadState.Completed }
         val failed = uploads.count { it.state is CellUploadState.Failed }
         val active = uploads.count { it.state.isActive }
-        val conversationName = coreLogic.getSessionScope(userId).cells.getConversationName(conversationId)
 
         val builder = NotificationCompat.Builder(context, NotificationConstants.DRIVE_UPLOAD_CHANNEL_ID)
             .setSmallIcon(NR.drawable.notification_icon_small)

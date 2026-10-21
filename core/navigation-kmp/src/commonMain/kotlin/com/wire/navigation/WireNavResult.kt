@@ -20,7 +20,10 @@ package com.wire.navigation
 
 import kotlin.jvm.JvmInline
 import kotlin.random.Random
+import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
 
 private const val ENTRY_ID_BYTE_COUNT = 16
 private const val HEX_RADIX = 16
@@ -130,11 +133,30 @@ sealed interface WireNavResultState<out T> {
     data object Pending : WireNavResultState<Nothing>
 
     @Serializable
-    data class Completed<T>(val result: WireNavResult<T>) : WireNavResultState<T>
+    data class Completed<T>(
+        @Serializable(with = WireNavResultSerializer::class)
+        val result: WireNavResult<T>,
+    ) : WireNavResultState<T>
 }
 
 @Serializable
 data class WireNavResultRecord<T>(
     val request: WireNavResultRequest,
+    @Serializable(with = WireNavResultStateSerializer::class)
     val state: WireNavResultState<T> = WireNavResultState.Pending,
 )
+
+// Keep the payload serializer and let the format handle sealed discriminators.
+internal class WireNavResultSerializer<T>(valueSerializer: KSerializer<T>) : KSerializer<WireNavResult<T>> {
+    private val delegate = WireNavResult.serializer(valueSerializer)
+    override val descriptor = delegate.descriptor
+    override fun serialize(encoder: Encoder, value: WireNavResult<T>) = encoder.encodeSerializableValue(delegate, value)
+    override fun deserialize(decoder: Decoder): WireNavResult<T> = decoder.decodeSerializableValue(delegate)
+}
+
+internal class WireNavResultStateSerializer<T>(valueSerializer: KSerializer<T>) : KSerializer<WireNavResultState<T>> {
+    private val delegate = WireNavResultState.serializer(valueSerializer)
+    override val descriptor = delegate.descriptor
+    override fun serialize(encoder: Encoder, value: WireNavResultState<T>) = encoder.encodeSerializableValue(delegate, value)
+    override fun deserialize(decoder: Decoder): WireNavResultState<T> = decoder.decodeSerializableValue(delegate)
+}

@@ -46,6 +46,10 @@ import com.wire.android.feature.analytics.model.AnalyticsEvent
 import com.wire.android.feature.analytics.model.AnalyticsSettings
 import com.wire.android.navigation.runtime.WireNavigationDiagnostics
 import com.wire.android.notification.DriveUploadNotificationManager
+import com.wire.android.session.observeCallBackgroundState
+import com.wire.android.session.observeCurrentAssetUploadState
+import com.wire.android.session.observeCurrentRecentlyEndedCalls
+import com.wire.android.session.observeCurrentValidSession
 import com.wire.android.util.AppNameUtil
 import com.wire.android.util.CurrentScreenManager
 import com.wire.android.util.DataDogLogger
@@ -54,28 +58,22 @@ import com.wire.android.util.getGitBuildId
 import com.wire.android.util.lifecycle.SyncLifecycleManager
 import com.wire.android.workmanager.WireWorkerFactory
 import com.wire.android.workmanager.worker.enqueueAssetUploadObserver
-import com.wire.android.workmanager.worker.observeAnyUploadInProgress
 import com.wire.kalium.common.logger.CoreLogger
 import com.wire.kalium.logger.KaliumLogLevel
 import com.wire.kalium.logger.KaliumLogger
 import com.wire.kalium.logic.CoreLogic
-import com.wire.kalium.logic.feature.session.CurrentSessionResult
-import com.wire.kalium.logic.feature.session.GetAllSessionsResult
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.filterIsInstance
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
 import dev.zacsweers.metro.Inject
 import java.util.concurrent.atomic.AtomicBoolean
-import kotlin.collections.filter
 
 @Suppress("TooManyFunctions")
 class WireApplication : BaseApp() {
@@ -200,37 +198,22 @@ class WireApplication : BaseApp() {
     }
 
     private suspend fun observeCallBackgroundState() {
-        combine(
-            currentScreenManager.isAppVisibleFlow(),
-            coreLogic.value.getGlobalScope().session.allSessionsFlow()
-                .filterIsInstance<GetAllSessionsResult.Success>()
-                .map { it.sessions.filter { it.isValid() } },
-            ::Pair
-        ).collect { (isAppVisible, validSessions) ->
-            validSessions.forEach {
-                coreLogic.value.getSessionScope(it.userId).calls.setBackground(!isAppVisible)
-            }
-        }
+        coreLogic.value.observeCallBackgroundState(
+            sessions = coreLogic.value.getGlobalScope().session.allSessionsFlow(),
+            visibility = currentScreenManager.isAppVisibleFlow(),
+        ).collect {}
     }
 
     private suspend fun observeRecentlyEndedCall() {
-        coreLogic.value.getGlobalScope().session.currentSessionFlow().filterIsInstance(CurrentSessionResult.Success::class)
-            .filter { session -> session.accountInfo.isValid() }
-            .flatMapLatest { session ->
-                coreLogic.value.getSessionScope(session.accountInfo.userId).calls.observeRecentlyEndedCallMetadata()
-            }
+        coreLogic.value.observeCurrentRecentlyEndedCalls(coreLogic.value.getGlobalScope().session.currentSessionFlow())
+            .filterNotNull()
             .collect { metadata ->
                 analyticsManager.value.sendEvent(AnalyticsEvent.RecentlyEndedCallEvent(metadata))
             }
     }
 
     private suspend fun observeAssetUploadState() {
-        coreLogic.value.getGlobalScope().session.currentSessionFlow()
-            .filterIsInstance<CurrentSessionResult.Success>()
-            .map { it.accountInfo.userId }
-            .flatMapLatest {
-                coreLogic.value.getSessionScope(it).observeAnyUploadInProgress()
-            }
+        coreLogic.value.observeCurrentAssetUploadState(coreLogic.value.getGlobalScope().session.currentSessionFlow())
             .collect { uploadInProgress ->
                 if (uploadInProgress) {
                     workManager.enqueueAssetUploadObserver()
@@ -388,20 +371,9 @@ class WireApplication : BaseApp() {
 
         val analyticsResultFlow = ObserveCurrentSessionAnalyticsUseCase(
             currentSessionFlow = coreLogic.value.getGlobalScope().session.currentSessionFlow(),
-            getAnalyticsContactsData = { userId ->
-                coreLogic.value.getSessionScope(userId).getAnalyticsContactsData()
-            },
-            observeAnalyticsTrackingIdentifierStatusFlow = { userId ->
-                coreLogic.value.getSessionScope(userId).observeAnalyticsTrackingIdentifierStatus()
-            },
-            analyticsIdentifierManagerProvider = { userId ->
-                coreLogic.value.getSessionScope(userId).analyticsIdentifierManager
-            },
+            coreLogic = coreLogic.value,
             userDataStoreProvider = userDataStoreProvider.value,
             globalDataStore = globalDataStore.value,
-            currentBackend = { userId ->
-                coreLogic.value.getSessionScope(userId).users.serverLinks()
-            }
         ).invoke()
 
         AnonymousAnalyticsManagerImpl.init(
@@ -423,14 +395,13 @@ class WireApplication : BaseApp() {
         globalAppScope.launch {
             currentScreenManager
                 .isAppVisibleFlow()
-                .filter { isVisible -> isVisible }
-                .collect {
-                    val currentSessionResult = coreLogic.value.getGlobalScope().session.currentSessionFlow().first()
-                    val isTeamMember = if (currentSessionResult is CurrentSessionResult.Success) {
-                        coreLogic.value.getSessionScope(currentSessionResult.accountInfo.userId).team.isSelfATeamMember()
-                    } else {
-                        null
-                    }
+                .collectLatest { isVisible ->
+                    if (!isVisible) return@collectLatest
+                    val isTeamMember = coreLogic.value.getGlobalScope().session.currentSessionFlow()
+                        .observeCurrentValidSession<Boolean>(coreLogic.value, waitForAdmission = true) {
+                            flow { emit(team.isSelfATeamMember()) }
+                        }
+                        .first()
 
                     AnonymousAnalyticsManagerImpl.sendEvent(
                         AnalyticsEvent.AppOpen(isTeamMember)

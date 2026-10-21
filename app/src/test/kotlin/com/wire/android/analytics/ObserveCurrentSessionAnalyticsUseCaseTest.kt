@@ -24,10 +24,12 @@ import com.wire.android.datastore.UserDataStore
 import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.feature.analytics.model.AnalyticsProfileProperties
 import com.wire.android.framework.TestUser
+import com.wire.android.session.FakeSessionAdmission
 import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.logic.configuration.server.CommonApiVersionType
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.data.analytics.AnalyticsIdentifierResult
+import com.wire.kalium.logic.feature.UserSessionScope
 import com.wire.kalium.logic.data.auth.AccountInfo
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.analytics.AnalyticsContactsData
@@ -38,6 +40,7 @@ import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
+import io.mockk.mockk
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.receiveAsFlow
@@ -267,9 +270,17 @@ class ObserveCurrentSessionAnalyticsUseCaseTest {
 
         private var analyticsContactsData: MutableMap<UserId, AnalyticsContactsData> = mutableMapOf()
 
-        private val getAnalyticsContactsData: (UserId) -> AnalyticsContactsData = {
-            analyticsContactsData.getOrDefault(it, ANALYTICS_CONTACTS_DATA_DEFAULT)
-        }
+        val admission = FakeSessionAdmission(initiallyReady = { userId ->
+            mockk<UserSessionScope>(relaxed = true).also { session ->
+                every { session.analyticsIdentifierManager } returns analyticsIdentifierManager
+                coEvery { session.getAnalyticsContactsData(any()) } answers {
+                    analyticsContactsData.getOrDefault(userId, ANALYTICS_CONTACTS_DATA_DEFAULT)
+                }
+                coEvery { session.observeAnalyticsTrackingIdentifierStatus() } returns
+                    analyticsTrackingIdentifierStatusChannel.receiveAsFlow()
+                coEvery { session.users.serverLinks() } coAnswers { selfServerConfigChannel.receive() }
+            }
+        })
 
         init {
             // Tests setup
@@ -308,18 +319,9 @@ class ObserveCurrentSessionAnalyticsUseCaseTest {
 
         var useCase: ObserveCurrentSessionAnalyticsUseCase = ObserveCurrentSessionAnalyticsUseCase(
             currentSessionFlow = currentSessionChannel.receiveAsFlow(),
-            getAnalyticsContactsData = getAnalyticsContactsData,
-            observeAnalyticsTrackingIdentifierStatusFlow = {
-                analyticsTrackingIdentifierStatusChannel.receiveAsFlow()
-            },
-            analyticsIdentifierManagerProvider = {
-                analyticsIdentifierManager
-            },
+            coreLogic = admission.coreLogic,
             userDataStoreProvider = userDataStoreProvider,
-            currentBackend = {
-                selfServerConfigChannel.receive()
-            },
-            globalDataStore = globalDataStore
+            globalDataStore = globalDataStore,
         )
 
         fun arrange() = this to useCase

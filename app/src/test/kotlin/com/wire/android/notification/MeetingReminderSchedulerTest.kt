@@ -5,10 +5,12 @@ import android.app.Application
 import android.app.PendingIntent
 import androidx.test.core.app.ApplicationProvider
 import com.wire.android.framework.TestUser
+import com.wire.android.session.FakeSessionAdmission
 import com.wire.android.util.CurrentTimeProvider
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.GlobalKaliumScope
 import com.wire.kalium.logic.data.call.Call
+import com.wire.kalium.logic.data.auth.AccountInfo
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.meeting.MeetingReminder
 import com.wire.kalium.logic.feature.UserSessionScope
@@ -17,6 +19,7 @@ import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import com.wire.kalium.logic.feature.meeting.MeetingRemindersUseCase
 import com.wire.kalium.logic.feature.meeting.MeetingScope
 import com.wire.kalium.logic.feature.session.DoesValidSessionExistResult
+import com.wire.kalium.logic.feature.session.GetAllSessionsResult
 import com.wire.kalium.logic.feature.session.DoesValidSessionExistUseCase
 import com.wire.kalium.logic.feature.user.ObserveIsMeetingsEnabledUseCase
 import io.mockk.coEvery
@@ -41,6 +44,7 @@ import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
 @Config(application = Application::class, sdk = [36])
+@OptIn(ExperimentalCoroutinesApi::class)
 class MeetingReminderSchedulerTest {
     @Test
     fun givenMeetingsDisabled_whenObserving_thenDoNotScheduleAlarm() = runTest {
@@ -49,7 +53,8 @@ class MeetingReminderSchedulerTest {
             meetingsEnabled = flowOf(false)
         }
 
-        arrangement.scheduler.observe()
+        backgroundScope.launch { arrangement.scheduler.observe() }
+        runCurrent()
 
         assertEquals(0, arrangement.scheduledAlarms.size)
         coVerify(exactly = 0) { arrangement.reminders.next(any()) }
@@ -93,13 +98,15 @@ class MeetingReminderSchedulerTest {
         assertEquals(1, arrangement.scheduledAlarms.size)
 
         arrangement.upcomingStarts.remove(FIRST_START)
-        arrangement.scheduler.observe()
+        backgroundScope.launch { arrangement.scheduler.observe() }
+        runCurrent()
         assertEquals(2, arrangement.scheduledAlarms.size)
         assertEquals(arrangement.scheduledAlarms[0], arrangement.scheduledAlarms[1])
 
         arrangement.upcomingStarts.clear()
         arrangement.now = Instant.parse("2026-10-07T15:20:30Z")
-        arrangement.scheduler.observe()
+        backgroundScope.launch { arrangement.scheduler.observe() }
+        runCurrent()
         verify(exactly = 1) { arrangement.alarmManager.cancel(arrangement.scheduledAlarms.last()) }
     }
 
@@ -109,7 +116,8 @@ class MeetingReminderSchedulerTest {
         arrangement.scheduler.restore()
         arrangement.upcomingStarts.add(0, FIRST_START)
         arrangement.now = Instant.parse("2026-10-07T14:40:30Z")
-        arrangement.scheduler.observe()
+        backgroundScope.launch { arrangement.scheduler.observe() }
+        runCurrent()
         assertEquals(2, arrangement.scheduledAlarms.size)
         assertEquals(arrangement.scheduledAlarms[0], arrangement.scheduledAlarms[1])
 
@@ -119,7 +127,8 @@ class MeetingReminderSchedulerTest {
         arrangement.now = Instant.parse("2026-10-07T14:50:30Z")
         arrangement.scheduledAlarms.last().cancel() // The system may release the PendingIntent after dispatching the alarm.
         val restartedScheduler = arrangement.newScheduler()
-        restartedScheduler.observe()
+        backgroundScope.launch { restartedScheduler.observe() }
+        runCurrent()
         assertEquals(2, arrangement.scheduledAlarms.size)
         verify(exactly = 0) { arrangement.alarmManager.cancel(any<PendingIntent>()) }
 
@@ -183,7 +192,8 @@ class MeetingReminderSchedulerTest {
         arrangement.scheduler.restore()
         arrangement.upcomingStarts.clear()
         arrangement.upcomingStarts += LATER_START
-        arrangement.scheduler.observe()
+        backgroundScope.launch { arrangement.scheduler.observe() }
+        runCurrent()
         arrangement.now = ALARM_TIME
 
         arrangement.scheduler.onAlarm(arrangement.user.id, FIRST_START)
@@ -212,15 +222,16 @@ class MeetingReminderSchedulerTest {
         private val global = mockk<GlobalKaliumScope>()
         private val validSession = mockk<DoesValidSessionExistUseCase>()
         private val coreLogic = mockk<CoreLogic>()
+        val rawAccounts = MutableStateFlow<GetAllSessionsResult>(GetAllSessionsResult.Success(listOf(AccountInfo.Valid(user.id))))
+        val admission = FakeSessionAdmission(coreLogic) { session }
         private val context = ApplicationProvider.getApplicationContext<Application>()
         val scheduler = newScheduler()
 
         init {
             every { coreLogic.getGlobalScope() } returns global
-            coEvery { global.observeValidAccounts() } returns flowOf(listOf(user to null))
+            coEvery { global.observeAllValidSessionsFlow() } returns rawAccounts
             every { global.doesValidSessionExist } returns validSession
             coEvery { validSession(user.id) } returns DoesValidSessionExistResult.Success(true)
-            every { coreLogic.getSessionScope(user.id) } returns session
             every { session.meetings } returns meetings
             every { session.observeIsMeetingsEnabled } returns observeIsMeetingsEnabled
             coEvery { observeIsMeetingsEnabled() } answers { meetingsEnabled }

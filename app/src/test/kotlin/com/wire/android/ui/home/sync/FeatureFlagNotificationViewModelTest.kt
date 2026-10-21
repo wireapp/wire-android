@@ -22,6 +22,7 @@ import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.feature.AppLockSource
 import com.wire.android.feature.DisableAppLockUseCase
 import com.wire.android.framework.TestUser
+import com.wire.android.session.FakeSessionAdmission
 import com.wire.android.ui.home.FeatureFlagState
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.configuration.AppLockTeamConfig
@@ -30,6 +31,8 @@ import com.wire.kalium.logic.configuration.GuestRoomLinkStatus
 import com.wire.kalium.logic.data.auth.AccountInfo
 import com.wire.kalium.logic.data.sync.SyncState
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.UserSessionScope
+import com.wire.kalium.logic.feature.session.GetAllSessionsResult
 import com.wire.kalium.logic.feature.applock.AppLockTeamFeatureConfigObserver
 import com.wire.kalium.logic.feature.session.CurrentSessionFlowUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
@@ -42,10 +45,12 @@ import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
+import io.mockk.mockk
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
@@ -325,6 +330,10 @@ class FeatureFlagNotificationViewModelTest {
         @MockK
         lateinit var markNotifyForRevokedCertificateAsNotified: MarkNotifyForRevokedCertificateAsNotifiedUseCase
 
+        val session = mockk<UserSessionScope>()
+        val admission by lazy { FakeSessionAdmission(coreLogic) { session } }
+        var rawSessions: Flow<CurrentSessionResult> = flowOf(CurrentSessionResult.Success(AccountInfo.Valid(TestUser.USER_ID)))
+
         val viewModel: FeatureFlagNotificationViewModel by lazy {
             FeatureFlagNotificationViewModel(
                 coreLogic = lazyOf(coreLogic),
@@ -336,30 +345,38 @@ class FeatureFlagNotificationViewModelTest {
 
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
-            coEvery { currentSessionFlow() } returns flowOf(CurrentSessionResult.Success(AccountInfo.Valid(TestUser.USER_ID)))
-            coEvery { coreLogic.getSessionScope(any()).observeSyncState() } returns flowOf(SyncState.Live)
-            coEvery { coreLogic.getSessionScope(any()).observeTeamSettingsSelfDeletionStatus() } returns flowOf()
+            admission
+            every { currentSessionFlow() } answers { rawSessions }
+            coEvery { coreLogic.getGlobalScope().observeAllValidSessionsFlow() } answers {
+                rawSessions.map { result ->
+                    GetAllSessionsResult.Success(
+                        listOfNotNull((result as? CurrentSessionResult.Success)?.accountInfo?.takeIf { it.isValid() })
+                    )
+                }
+            }
+            coEvery { session.observeSyncState() } returns flowOf(SyncState.Live)
+            coEvery { session.observeTeamSettingsSelfDeletionStatus() } returns flowOf()
             every {
-                coreLogic.getSessionScope(any()).markGuestLinkFeatureFlagAsNotChanged
+                session.markGuestLinkFeatureFlagAsNotChanged
             } returns markGuestLinkFeatureFlagAsNotChanged
-            every { coreLogic.getSessionScope(any()).markSelfDeletingMessagesAsNotified } returns markSelfDeletingStatusAsNotified
-            every { coreLogic.getSessionScope(any()).markE2EIRequiredAsNotified } returns markE2EIRequiredAsNotified
-            coEvery { coreLogic.getSessionScope(any()).appLockTeamFeatureConfigObserver } returns ppLockTeamFeatureConfigObserver
-            coEvery { coreLogic.getSessionScope(any()).observeFileSharingStatus.invoke() } returns flowOf()
-            coEvery { coreLogic.getSessionScope(any()).observeGuestRoomLinkFeatureFlag.invoke() } returns flowOf()
-            coEvery { coreLogic.getSessionScope(any()).observeE2EIRequired.invoke() } returns flowOf()
-            coEvery { coreLogic.getSessionScope(any()).calls.observeEndCallDueToDegradationDialog() } returns flowOf()
-            coEvery { coreLogic.getSessionScope(any()).calls.observeAskCallFeedbackUseCase() } returns flowOf()
-            coEvery { coreLogic.getSessionScope(any()).observeShouldNotifyForRevokedCertificate() } returns flowOf()
-            coEvery { coreLogic.getSessionScope(any()).calls.updateNextTimeCallFeedback(any()) } returns Unit
-            every { coreLogic.getSessionScope(any()).markNotifyForRevokedCertificateAsNotified } returns
+            every { session.markSelfDeletingMessagesAsNotified } returns markSelfDeletingStatusAsNotified
+            every { session.markE2EIRequiredAsNotified } returns markE2EIRequiredAsNotified
+            coEvery { session.appLockTeamFeatureConfigObserver } returns ppLockTeamFeatureConfigObserver
+            coEvery { session.observeFileSharingStatus.invoke() } returns flowOf()
+            coEvery { session.observeGuestRoomLinkFeatureFlag.invoke() } returns flowOf()
+            coEvery { session.observeE2EIRequired.invoke() } returns flowOf()
+            coEvery { session.calls.observeEndCallDueToDegradationDialog() } returns flowOf()
+            coEvery { session.calls.observeAskCallFeedbackUseCase() } returns flowOf()
+            coEvery { session.observeShouldNotifyForRevokedCertificate() } returns flowOf()
+            coEvery { session.calls.updateNextTimeCallFeedback(any()) } returns Unit
+            every { session.markNotifyForRevokedCertificateAsNotified } returns
                     markNotifyForRevokedCertificateAsNotified
             coEvery { ppLockTeamFeatureConfigObserver() } returns flowOf(null)
             withIsAppLockSetup(true)
         }
 
         fun withCurrentSessionsFlow(result: Flow<CurrentSessionResult>) = apply {
-            coEvery { currentSessionFlow() } returns result
+            rawSessions = result
         }
 
         fun withIsAppLockSetup(result: Boolean) = apply {
@@ -375,19 +392,19 @@ class FeatureFlagNotificationViewModelTest {
         }
 
         fun withFileSharingStatus(stateFlow: Flow<FileSharingStatus>) = apply {
-            coEvery { coreLogic.getSessionScope(any()).observeFileSharingStatus() } returns stateFlow
+            coEvery { session.observeFileSharingStatus() } returns stateFlow
         }
 
         fun withGuestRoomLinkFeatureFlag(stateFlow: Flow<GuestRoomLinkStatus>) = apply {
-            coEvery { coreLogic.getSessionScope(any()).observeGuestRoomLinkFeatureFlag() } returns stateFlow
+            coEvery { session.observeGuestRoomLinkFeatureFlag() } returns stateFlow
         }
 
         fun withE2EIRequiredSettings(result: E2EIRequiredResult) = apply {
-            coEvery { coreLogic.getSessionScope(any()).observeE2EIRequired() } returns flowOf(result)
+            coEvery { session.observeE2EIRequired() } returns flowOf(result)
         }
 
         fun withEndCallDialog() = apply {
-            coEvery { coreLogic.getSessionScope(any()).calls.observeEndCallDueToDegradationDialog() } returns flowOf(Unit)
+            coEvery { session.calls.observeEndCallDueToDegradationDialog() } returns flowOf(Unit)
         }
 
         fun withTeamAppLockEnforce(result: AppLockTeamConfig?) = apply {

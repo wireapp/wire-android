@@ -27,6 +27,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wire.android.session.observeCurrentValidSession
+import com.wire.android.session.runWithValidSession
 import com.wire.android.appLogger
 import com.wire.android.ui.common.textfield.textAsFlow
 import com.wire.kalium.logic.CoreLogic
@@ -41,9 +43,9 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapLatest
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
@@ -89,26 +91,15 @@ class LegalHoldRequestedViewModel @Inject constructor(
             }
     }.stateIn(viewModelScope, SharingStarted.Eagerly, LegalHoldRequestData.None)
 
-    private fun <T> currentSessionFlow(noSession: T, session: UserSessionScope.(UserId) -> Flow<T>): Flow<T> =
+    private fun <T : Any> currentSessionFlow(noSession: T, session: suspend UserSessionScope.(UserId) -> Flow<T>): Flow<T> =
         coreLogic.value.getGlobalScope().session.currentSessionFlow()
-            .flatMapLatest { currentSessionResult ->
-                when (currentSessionResult) {
-                    is CurrentSessionResult.Failure.Generic -> {
-                        appLogger.e("$TAG: Failed to get current session")
-                        flowOf(noSession)
-                    }
-
-                    CurrentSessionResult.Failure.SessionNotFound -> flowOf(noSession)
-                    is CurrentSessionResult.Success ->
-                        currentSessionResult.accountInfo.userId.let { userId ->
-                            runCatching { coreLogic.value.getSessionScope(userId).session(userId) }
-                                .getOrElse {
-                                    appLogger.e("$TAG: Failed to get session scope for current session: $userId")
-                                    flowOf(noSession)
-                                }
-                        }
+            .onEach { result ->
+                if (result is CurrentSessionResult.Failure.Generic) {
+                    appLogger.e("$TAG: Failed to get current session")
                 }
             }
+            .observeCurrentValidSession(coreLogic.value) { userId -> session(userId) }
+            .map { it ?: noSession }
 
     fun observeLegalHoldRequest() {
         viewModelScope.launch {
@@ -159,39 +150,34 @@ class LegalHoldRequestedViewModel @Inject constructor(
             } else {
                 val password = if (it.requiresPassword) passwordTextState.text.toString() else null
                 viewModelScope.launch {
-                    runCatching {
-                        coreLogic.value.sessionScope(it.userId) {
-                            approveLegalHoldRequest(password).let { approveLegalHoldResult ->
-                                state = when (approveLegalHoldResult) {
-                                    is ApproveLegalHoldRequestUseCase.Result.Success ->
-                                        LegalHoldRequestedState.Hidden
+                    coreLogic.value.runWithValidSession(it.userId) {
+                        approveLegalHoldRequest(password).let { approveLegalHoldResult ->
+                            state = when (approveLegalHoldResult) {
+                                is ApproveLegalHoldRequestUseCase.Result.Success ->
+                                    LegalHoldRequestedState.Hidden
 
-                                    ApproveLegalHoldRequestUseCase.Result.Failure.InvalidPassword ->
-                                        it.copy(
-                                            loading = false,
-                                            error = LegalHoldRequestedError.InvalidCredentialsError
-                                        )
+                                ApproveLegalHoldRequestUseCase.Result.Failure.InvalidPassword ->
+                                    it.copy(
+                                        loading = false,
+                                        error = LegalHoldRequestedError.InvalidCredentialsError
+                                    )
 
-                                    ApproveLegalHoldRequestUseCase.Result.Failure.PasswordRequired ->
-                                        it.copy(
-                                            loading = false,
-                                            requiresPassword = true,
-                                            error = LegalHoldRequestedError.InvalidCredentialsError
-                                        )
+                                ApproveLegalHoldRequestUseCase.Result.Failure.PasswordRequired ->
+                                    it.copy(
+                                        loading = false,
+                                        requiresPassword = true,
+                                        error = LegalHoldRequestedError.InvalidCredentialsError
+                                    )
 
-                                    is ApproveLegalHoldRequestUseCase.Result.Failure.GenericFailure -> {
-                                        appLogger.e("$TAG: Failed to approve legal hold: ${approveLegalHoldResult.coreFailure}")
-                                        it.copy(
-                                            loading = false,
-                                            error = LegalHoldRequestedError.GenericError(approveLegalHoldResult.coreFailure)
-                                        )
-                                    }
+                                is ApproveLegalHoldRequestUseCase.Result.Failure.GenericFailure -> {
+                                    appLogger.e("$TAG: Failed to approve legal hold: ${approveLegalHoldResult.coreFailure}")
+                                    it.copy(
+                                        loading = false,
+                                        error = LegalHoldRequestedError.GenericError(approveLegalHoldResult.coreFailure)
+                                    )
                                 }
                             }
                         }
-                    }.onFailure {
-                        appLogger.e("$TAG: Failed to approve legal hold because session scope is not available")
-                        state = LegalHoldRequestedState.Hidden
                     }
                 }
             }

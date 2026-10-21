@@ -17,11 +17,15 @@
  */
 package com.wire.android.ui.legalhold.dialog.deactivated
 
+import com.wire.android.session.FakeSessionAdmission
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.ui.legalhold.dialog.deactivated.LegalHoldDeactivatedViewModelTest.Arrangement.Companion.UNKNOWN_ERROR
 import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.logic.CoreLogic
+import com.wire.kalium.logic.feature.UserSessionScope
+import io.mockk.mockk
 import com.wire.kalium.logic.data.auth.AccountInfo
+import com.wire.kalium.logic.feature.session.GetAllSessionsResult
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.legalhold.LegalHoldState
 import com.wire.kalium.logic.feature.legalhold.MarkLegalHoldChangeAsNotifiedForSelfUseCase
@@ -34,6 +38,7 @@ import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import com.wire.android.assertions.shouldBeInstanceOf
@@ -105,33 +110,41 @@ class LegalHoldDeactivatedViewModelTest {
         viewModel.dismiss()
         advanceUntilIdle()
         viewModel.state shouldBeInstanceOf LegalHoldDeactivatedState.Hidden::class
-        coVerify { arrangement.coreLogic.getSessionScope(any()).markLegalHoldChangeAsNotifiedForSelf() }
+        coVerify { arrangement.session.markLegalHoldChangeAsNotifiedForSelf() }
     }
 
     private class Arrangement {
 
         @MockK
         lateinit var coreLogic: CoreLogic
+        val userId = UserId("userId", "domain")
+        val session = mockk<UserSessionScope>()
+        val rawAccounts = MutableStateFlow<GetAllSessionsResult>(GetAllSessionsResult.Success(listOf(AccountInfo.Valid(userId))))
+        val admission by lazy { FakeSessionAdmission(coreLogic) { session } }
         val viewModel by lazy { LegalHoldDeactivatedViewModel(coreLogic = lazyOf(coreLogic)) }
 
-        init { MockKAnnotations.init(this) }
+        init {
+            MockKAnnotations.init(this)
+            admission
+            coEvery { coreLogic.getGlobalScope().observeAllValidSessionsFlow() } returns rawAccounts
+        }
         fun withNotCurrentSession() = apply {
-            every { coreLogic.globalScope { session.currentSessionFlow() } } returns
+            every { coreLogic.getGlobalScope().session.currentSessionFlow() } returns
                     flowOf(CurrentSessionResult.Failure.SessionNotFound)
         }
         fun withCurrentSessionFailure() = apply {
-            every { coreLogic.globalScope { session.currentSessionFlow() } } returns
+            every { coreLogic.getGlobalScope().session.currentSessionFlow() } returns
                     flowOf(CurrentSessionResult.Failure.Generic(UNKNOWN_ERROR))
         }
         fun withCurrentSessionExists() = apply {
-            every { coreLogic.globalScope { session.currentSessionFlow() } } returns
+            every { coreLogic.getGlobalScope().session.currentSessionFlow() } returns
                     flowOf(CurrentSessionResult.Success(AccountInfo.Valid(UserId("userId", "domain"))))
         }
         fun withLegalHoldChangeNotifiedResult(result: ObserveLegalHoldChangeNotifiedForSelfUseCase.Result) = apply {
-            coEvery { coreLogic.getSessionScope(any()).observeLegalHoldChangeNotifiedForSelf() } returns flowOf(result)
+            coEvery { session.observeLegalHoldChangeNotifiedForSelf() } returns flowOf(result)
         }
         fun withMarkLegalHoldChangeAsNotifiedResult(result: MarkLegalHoldChangeAsNotifiedForSelfUseCase.Result) = apply {
-            coEvery { coreLogic.getSessionScope(any()).markLegalHoldChangeAsNotifiedForSelf() } returns result
+            coEvery { session.markLegalHoldChangeAsNotifiedForSelf() } returns result
         }
         fun arrange() = this to viewModel
 

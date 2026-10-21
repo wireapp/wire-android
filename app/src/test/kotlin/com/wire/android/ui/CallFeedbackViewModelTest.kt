@@ -22,19 +22,29 @@ import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.feature.analytics.AnonymousAnalyticsManager
 import com.wire.android.feature.analytics.model.AnalyticsEvent
 import com.wire.android.framework.TestUser
+import com.wire.android.session.FakeSessionAdmission
 import com.wire.android.ui.analytics.IsAnalyticsAvailableUseCase
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.auth.AccountInfo
 import com.wire.kalium.logic.data.call.RecentlyEndedCallMetadata
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.sync.SyncState
+import com.wire.kalium.logic.feature.UserSessionScope
+import com.wire.kalium.logic.feature.call.CallsScope
+import com.wire.kalium.logic.feature.call.usecase.ObserveRecentlyEndedCallMetadataUseCase
+import com.wire.kalium.logic.feature.session.GetAllSessionsResult
 import com.wire.kalium.logic.feature.session.CurrentSessionFlowUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.user.ShouldAskCallFeedbackUseCaseResult
+import com.wire.kalium.logic.feature.user.UpdateNextTimeCallFeedbackUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
+import io.mockk.every
+import io.mockk.mockk
 import io.mockk.impl.annotations.MockK
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Test
@@ -49,7 +59,7 @@ class CallFeedbackViewModelTest {
         val (arrangement, viewModel) = Arrangement()
             .arrange()
 
-        coEvery { arrangement.isAnalyticsAvailable(any()) } returns false
+        coEvery { arrangement.isAnalyticsAvailable(any(), any()) } returns false
 
         viewModel.showCallFeedbackFlow.test {
             expectNoEvents()
@@ -158,6 +168,13 @@ class CallFeedbackViewModelTest {
         @MockK
         lateinit var isAnalyticsAvailable: IsAnalyticsAvailableUseCase
 
+        val session = mockk<UserSessionScope>()
+        private val calls = mockk<CallsScope>()
+        val observeRecentlyEndedCallMetadata = mockk<ObserveRecentlyEndedCallMetadataUseCase>()
+        val updateNextTimeCallFeedback = mockk<UpdateNextTimeCallFeedbackUseCase>()
+        val admission by lazy { FakeSessionAdmission(coreLogic) { session } }
+        var rawSessions: Flow<CurrentSessionResult> = flowOf(CurrentSessionResult.Success(AccountInfo.Valid(TestUser.USER_ID)))
+
         val viewModel: CallFeedbackViewModel by lazy {
             CallFeedbackViewModel(
                 coreLogic = lazyOf(coreLogic),
@@ -168,19 +185,28 @@ class CallFeedbackViewModelTest {
         }
 
         fun withObserveAskCallFeedbackUseCaseReturning(result: ShouldAskCallFeedbackUseCaseResult) = apply {
-            coEvery { coreLogic.getSessionScope(any()).calls.observeAskCallFeedbackUseCase() } returns flowOf(result)
+            coEvery { calls.observeAskCallFeedbackUseCase() } returns flowOf(result)
         }
 
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
-            coEvery { isAnalyticsAvailable(any()) } returns true
-            coEvery { currentSessionFlow() } returns flowOf(CurrentSessionResult.Success(AccountInfo.Valid(TestUser.USER_ID)))
-            coEvery { coreLogic.getSessionScope(any()).observeSyncState() } returns flowOf(SyncState.Live)
-            coEvery { coreLogic.getSessionScope(any()).calls.observeAskCallFeedbackUseCase() } returns flowOf()
-            coEvery { coreLogic.getSessionScope(any()).calls.updateNextTimeCallFeedback(any()) } returns Unit
-            coEvery {
-                coreLogic.getSessionScope(any()).calls.observeRecentlyEndedCallMetadata()
-            } returns flowOf(recentlyEndedCallMetadata)
+            coEvery { isAnalyticsAvailable(any(), any()) } returns true
+            admission
+            every { currentSessionFlow() } answers { rawSessions }
+            coEvery { coreLogic.getGlobalScope().observeAllValidSessionsFlow() } answers {
+                rawSessions.map { result ->
+                    GetAllSessionsResult.Success(
+                        listOfNotNull((result as? CurrentSessionResult.Success)?.accountInfo?.takeIf { it.isValid() })
+                    )
+                }
+            }
+            coEvery { session.observeSyncState() } returns flowOf(SyncState.Live)
+            every { session.calls } returns calls
+            every { calls.observeRecentlyEndedCallMetadata } returns observeRecentlyEndedCallMetadata
+            every { calls.updateNextTimeCallFeedback } returns updateNextTimeCallFeedback
+            coEvery { calls.observeAskCallFeedbackUseCase() } returns flowOf()
+            coEvery { updateNextTimeCallFeedback(any()) } returns Unit
+            coEvery { observeRecentlyEndedCallMetadata() } returns flowOf(recentlyEndedCallMetadata)
         }
 
         fun arrange() = this to viewModel

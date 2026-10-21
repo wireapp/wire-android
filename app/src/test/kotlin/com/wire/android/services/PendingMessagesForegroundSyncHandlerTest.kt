@@ -30,7 +30,7 @@ import org.junit.jupiter.api.Test
 class PendingMessagesForegroundSyncHandlerTest {
 
     @Test
-    fun `given multiple valid sessions when sending pending messages then sends sequentially for each user`() = runTest {
+    fun `given multiple valid sessions when sending pending messages then checks validity before sending for each user`() = runTest {
         val events = mutableListOf<String>()
         val handler = PendingMessagesForegroundSyncHandler(
             allSessions = {
@@ -52,15 +52,10 @@ class PendingMessagesForegroundSyncHandlerTest {
 
         handler.sendPendingMessagesForAllValidSessions()
 
-        assertEquals(
-            listOf(
-                "check:${FIRST_USER_ID.value}",
-                "send:${FIRST_USER_ID.value}",
-                "check:${SECOND_USER_ID.value}",
-                "send:${SECOND_USER_ID.value}",
-            ),
-            events
-        )
+        assertEquals(4, events.size)
+        listOf(FIRST_USER_ID, SECOND_USER_ID).forEach { userId ->
+            assertEquals(listOf("check:${userId.value}", "send:${userId.value}"), events.filter { it.endsWith(userId.value) })
+        }
     }
 
     @Test

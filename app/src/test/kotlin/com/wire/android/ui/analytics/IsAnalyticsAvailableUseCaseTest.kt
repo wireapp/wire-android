@@ -23,18 +23,27 @@ import com.wire.android.framework.TestUser
 import com.wire.android.util.newServerConfig
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.configuration.server.ServerConfig
+import com.wire.kalium.logic.feature.UserSessionScope
 import com.wire.kalium.logic.feature.user.SelfServerConfigUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
+import io.mockk.coVerify
+import io.mockk.verify
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.async
+import kotlinx.coroutines.test.runCurrent
+import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.Test
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.EnumSource
 
+@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 class IsAnalyticsAvailableUseCaseTest {
 
     @ParameterizedTest
@@ -55,11 +64,65 @@ class IsAnalyticsAvailableUseCaseTest {
         assertEquals(params.expected, result)
     }
 
+    @ParameterizedTest
+    @EnumSource(TestParams::class)
+    fun `captured analytics gate preserves the public configuration matrix`(params: TestParams) = runTest {
+        val (arrangement, useCase) = Arrangement().withServerConfig(params.serverConfig)
+            .withAnalyticsUsageEnabled(params.isAnalyticsUsageEnabled).arrange(params.analyticsConfiguration)
+        assertEquals(params.expected, useCase(TestUser.USER_ID, arrangement.session))
+        coVerify(exactly = 1) { arrangement.selfServerConfig() }
+        verify(exactly = 1) { arrangement.dataStoreProvider.getOrCreate(TestUser.USER_ID) }
+        verify(exactly = 0) { arrangement.coreLogic.getSessionScope(any()) }
+    }
+
+    @Test
+    fun `captured analytics server failure propagates`() = runTest {
+        val (arrangement, useCase) = Arrangement().withAnalyticsUsageEnabled(true).arrange(AnalyticsConfiguration.Enabled)
+        val failure = IllegalStateException("server config failed")
+        coEvery { arrangement.selfServerConfig() } throws failure
+        val observed = try {
+            useCase(TestUser.USER_ID, arrangement.session)
+            error("expected failure")
+        } catch (actual: IllegalStateException) {
+            actual
+        }
+        assertEquals(failure, observed)
+        verify(exactly = 0) { arrangement.coreLogic.getSessionScope(any()) }
+    }
+
+    @Test
+    fun `caller cancellation while preferences are pending cannot acquire a resource`() = runTest {
+        val preferences = MutableSharedFlow<Boolean>()
+        val (arrangement, useCase) = Arrangement().arrange(AnalyticsConfiguration.Enabled)
+        coEvery { arrangement.dataStore.isAnonymousUsageDataEnabled() } returns preferences
+        val request = async { useCase(TestUser.USER_ID, arrangement.session) }
+        runCurrent()
+        request.cancel()
+        request.join()
+        assertTrue(request.isCancelled)
+        coVerify(exactly = 0) { arrangement.selfServerConfig() }
+        verify(exactly = 0) { arrangement.coreLogic.getSessionScope(any()) }
+    }
+
+    @Test
+    fun `public analytics gate retains its fresh scope lookup after preferences arrive`() = runTest {
+        val preferences = MutableSharedFlow<Boolean>()
+        val (arrangement, useCase) = Arrangement().withServerConfig(PRODUCTION_SERVER_CONFIG).arrange(AnalyticsConfiguration.Enabled)
+        coEvery { arrangement.dataStore.isAnonymousUsageDataEnabled() } returns preferences
+        val request = async { useCase(TestUser.USER_ID) }
+        runCurrent()
+        verify(exactly = 0) { arrangement.coreLogic.getSessionScope(any()) }
+        preferences.emit(true)
+        assertTrue(request.await())
+        verify(exactly = 1) { arrangement.coreLogic.getSessionScope(TestUser.USER_ID) }
+    }
+
     private class Arrangement {
         val dataStore = mockk<UserDataStore>()
         val dataStoreProvider = mockk<UserDataStoreProvider>()
         val selfServerConfig = mockk<SelfServerConfigUseCase>()
         val coreLogic = mockk<CoreLogic>()
+        val session = mockk<UserSessionScope>()
 
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
@@ -67,7 +130,8 @@ class IsAnalyticsAvailableUseCaseTest {
             coEvery { dataStore.setIsAnonymousAnalyticsEnabled(any()) } returns Unit
             coEvery { dataStore.setIsAnalyticsDialogSeen() } returns Unit
             every { dataStoreProvider.getOrCreate(any()) } returns dataStore
-            coEvery { coreLogic.getSessionScope(any()).users.serverLinks } returns selfServerConfig
+            every { coreLogic.getSessionScope(any()) } returns session
+            every { session.users.serverLinks } returns selfServerConfig
         }
 
         fun withServerConfig(serverConfig: ServerConfig) = apply {

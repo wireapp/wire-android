@@ -184,7 +184,9 @@ class GlobalObserversManagerTest {
 
         manager.observe()
 
-        coVerify(exactly = 1) { arrangement.sendPendingMessagesAfterForegroundSync(TestUser.SELF_USER.id, arrangement.userSessionScope) }
+        coVerify(exactly = 1) {
+            arrangement.sendPendingMessagesAfterForegroundSync(TestUser.SELF_USER.id, arrangement.userSessionScope)
+        }
     }
 
     @Test
@@ -274,7 +276,9 @@ class GlobalObserversManagerTest {
 
         appVisibleFlow.value = true
 
-        coVerify(exactly = 1) { arrangement.sendPendingMessagesAfterForegroundSync(TestUser.SELF_USER.id, arrangement.userSessionScope) }
+        coVerify(exactly = 1) {
+            arrangement.sendPendingMessagesAfterForegroundSync(TestUser.SELF_USER.id, arrangement.userSessionScope)
+        }
     }
 
     @Test
@@ -494,9 +498,11 @@ class GlobalObserversManagerTest {
 
         fun withValidAccountsFlow(flow: MutableStateFlow<List<Pair<SelfUser, Team?>>>): Arrangement = apply {
             coEvery { coreLogic.getGlobalScope().observeValidAccounts() } returns flow
-            withRawSessionsFlow(flow.map { accounts ->
-                GetAllSessionsResult.Success(accounts.map { AccountInfo.Valid(it.first.id) })
-            })
+            withRawSessionsFlow(
+                flow.map { accounts ->
+                    GetAllSessionsResult.Success(accounts.map { AccountInfo.Valid(it.first.id) })
+                }
+            )
         }
 
         fun withPersistentWebSocketConnectionStatuses(list: List<PersistentWebSocketStatus>): Arrangement = apply {

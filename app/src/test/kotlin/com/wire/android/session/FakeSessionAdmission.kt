@@ -70,5 +70,7 @@ internal class FakeSessionAdmission(
         state.value = Publication(state.value.revision + 1, session)
     }
 
-    private fun state(userId: UserId) = publications.getOrPut(userId) { MutableStateFlow(Publication(0, initiallyReady(userId))) }
+    private fun state(userId: UserId) = publications.getOrPut(userId) {
+        MutableStateFlow(Publication(0, initiallyReady(userId)))
+    }
 }

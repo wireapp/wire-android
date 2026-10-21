@@ -398,7 +398,9 @@ class WireApplication : BaseApp() {
                 .collectLatest { isVisible ->
                     if (!isVisible) return@collectLatest
                     val isTeamMember = coreLogic.value.getGlobalScope().session.currentSessionFlow()
-                        .observeCurrentValidSession(coreLogic.value, waitForAdmission = true) { flow { emit(team.isSelfATeamMember()) } }
+                        .observeCurrentValidSession<Boolean>(coreLogic.value, waitForAdmission = true) {
+                            flow { emit(team.isSelfATeamMember()) }
+                        }
                         .first()
 
                     AnonymousAnalyticsManagerImpl.sendEvent(

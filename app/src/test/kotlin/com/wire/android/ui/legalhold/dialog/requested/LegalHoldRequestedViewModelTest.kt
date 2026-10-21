@@ -335,7 +335,9 @@ class LegalHoldRequestedViewModelTest {
     @Test
     fun `cancelled approval does not become a successful hidden dialog or replay on revision`() = runTest {
         val (arrangement, viewModel) = arrangeWithLegalHoldRequest(isPasswordRequired = false).arrange()
-        coEvery { arrangement.userSessionScope.approveLegalHoldRequest(any()) } throws kotlinx.coroutines.CancellationException("caller")
+        coEvery {
+            arrangement.userSessionScope.approveLegalHoldRequest(any())
+        } throws kotlinx.coroutines.CancellationException("caller")
         viewModel.acceptClicked()
         runCurrent()
         viewModel.state.assertStateVisible { assertTrue(it.loading) }

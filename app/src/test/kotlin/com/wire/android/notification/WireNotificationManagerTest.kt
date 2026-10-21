@@ -118,7 +118,9 @@ class WireNotificationManagerTest {
         every { arrangement.coreLogic.getSessionScope(any()) } throws IllegalStateException("ID reacquisition forbidden")
         resume.complete(Unit)
         runCurrent()
-        coVerify(exactly = 1) { arrangement.markMessagesAsNotified(any<MarkMessagesAsNotifiedUseCase.UpdateTarget.SingleConversation>()) }
+        coVerify(exactly = 1) {
+            arrangement.markMessagesAsNotified(any<MarkMessagesAsNotifiedUseCase.UpdateTarget.SingleConversation>())
+        }
         coVerify(exactly = 1) { arrangement.markConnectionRequestAsNotified(null) }
         verify(exactly = 0) { arrangement.coreLogic.getSessionScope(any()) }
     }

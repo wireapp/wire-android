@@ -478,7 +478,9 @@ class CallServiceManagerTest {
             rawAccounts.value = GetAllSessionsResult.Success(
                 accounts + if (result is DoesValidSessionExistResult.Success && result.doesValidSessionExist) {
                     listOf(AccountInfo.Valid(userId))
-                } else emptyList()
+                } else {
+                    emptyList()
+                }
             )
         }
         fun withSpecificUserSession(

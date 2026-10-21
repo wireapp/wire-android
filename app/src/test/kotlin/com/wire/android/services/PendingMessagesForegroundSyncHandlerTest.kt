@@ -204,13 +204,17 @@ class PendingMessagesForegroundSyncHandlerTest {
         val drained = CompletableDeferred<Unit>()
         val sent = mutableListOf<UserId>()
         val handler = PendingMessagesForegroundSyncHandler(
-            allSessions = { GetAllSessionsResult.Success(listOf(AccountInfo.Valid(FIRST_USER_ID), AccountInfo.Valid(SECOND_USER_ID))) },
+            allSessions = {
+                GetAllSessionsResult.Success(listOf(AccountInfo.Valid(FIRST_USER_ID), AccountInfo.Valid(SECOND_USER_ID)))
+            },
             doesValidSessionExist = { DoesValidSessionExistResult.Success(true) },
             sendPendingMessagesAfterForegroundSync = {
                 if (it == FIRST_USER_ID) {
                     waiting.complete(Unit)
                     try { awaitCancellation() } finally { drained.complete(Unit) }
-                } else sent += it
+                } else {
+                    sent += it
+                }
             }
         )
         val batch = async { handler.sendPendingMessagesForAllValidSessions() }

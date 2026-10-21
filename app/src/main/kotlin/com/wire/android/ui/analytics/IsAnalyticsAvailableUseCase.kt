@@ -22,6 +22,7 @@ import com.wire.android.di.KaliumCoreLogic
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.UserSessionScope
 import com.wire.kalium.logic.feature.user.SelfServerConfigUseCase
 import kotlinx.coroutines.flow.first
 import dev.zacsweers.metro.Inject
@@ -36,14 +37,22 @@ class IsAnalyticsAvailableUseCase @Inject constructor(
     private val userDataStoreProvider: UserDataStoreProvider
 ) {
 
-    suspend operator fun invoke(userId: UserId): Boolean {
+    suspend operator fun invoke(userId: UserId): Boolean = isAvailable(userId) {
+        coreLogic.getSessionScope(userId).users.serverLinks()
+    }
+
+    internal suspend operator fun invoke(userId: UserId, session: UserSessionScope): Boolean = isAvailable(userId) {
+        session.users.serverLinks()
+    }
+
+    private suspend fun isAvailable(userId: UserId, serverConfig: suspend () -> SelfServerConfigUseCase.Result): Boolean {
         val dataStore = userDataStoreProvider.getOrCreate(userId)
         val isAnalyticsUsageEnabled = dataStore.isAnonymousUsageDataEnabled().first()
         val isAnalyticsConfigurationEnabled = analyticsEnabled is AnalyticsConfiguration.Enabled
-        val isProdBackend = when (val serverConfig = coreLogic.getSessionScope(userId).users.serverLinks()) {
+        val isProdBackend = when (val result = serverConfig()) {
             is SelfServerConfigUseCase.Result.Success ->
-                serverConfig.serverLinks.links.api == ServerConfig.PRODUCTION.api
-                        || serverConfig.serverLinks.links.api == ServerConfig.STAGING.api
+                result.serverLinks.links.api == ServerConfig.PRODUCTION.api
+                        || result.serverLinks.links.api == ServerConfig.STAGING.api
 
             is SelfServerConfigUseCase.Result.Failure -> false
         }

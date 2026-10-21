@@ -194,7 +194,7 @@ class CurrentSessionObserversTest {
         } catch (observed: IllegalStateException) {
             observed
         }
-        assertSame(failure, generateSequence(actual) { it.cause }.last())
+        assertSame(failure, generateSequence<Throwable>(actual) { it.cause }.last())
     }
 
     @Test

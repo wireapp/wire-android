@@ -29,6 +29,7 @@ import com.wire.kalium.logic.configuration.AppLockTeamConfig
 import com.wire.kalium.logic.configuration.FileSharingStatus
 import com.wire.kalium.logic.configuration.GuestRoomLinkStatus
 import com.wire.kalium.logic.data.auth.AccountInfo
+import com.wire.kalium.logic.data.logout.LogoutReason
 import com.wire.kalium.logic.data.sync.SyncState
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.UserSessionScope
@@ -46,16 +47,25 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.verify
 import io.mockk.impl.annotations.MockK
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.awaitCancellation
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.test.runCurrent
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import kotlin.time.Duration
@@ -301,6 +311,126 @@ class FeatureFlagNotificationViewModelTest {
         coVerify(exactly = 1) { arrangement.markNotifyForRevokedCertificateAsNotified() }
     }
 
+    @Test
+    fun `one admission owns all feature collectors through pending replacement invalidation and teardown`() = runTest {
+        val started = mutableListOf<String>()
+        val drained = mutableListOf<String>()
+        val current = MutableStateFlow<CurrentSessionResult>(CurrentSessionResult.Success(AccountInfo.Valid(TestUser.USER_ID)))
+        val arrangement = Arrangement().withCurrentSessionsFlow(current).withTrackedCollectors(started, drained)
+        arrangement.admission.publish(TestUser.USER_ID, null)
+        val (_, viewModel) = arrangement.arrange()
+        runCurrent()
+        assertEquals(emptyList<String>(), started)
+        arrangement.admission.publish(TestUser.USER_ID, arrangement.session)
+        runCurrent()
+        assertEquals(7, started.size)
+        arrangement.admission.publish(TestUser.USER_ID, null)
+        runCurrent()
+        assertEquals(7, drained.size)
+        arrangement.admission.publish(TestUser.USER_ID, arrangement.session)
+        runCurrent()
+        assertEquals(14, started.size) // Equal raw metadata still rebinds the provider revision.
+        current.value = CurrentSessionResult.Success(AccountInfo.Invalid(TestUser.USER_ID, LogoutReason.SELF_SOFT_LOGOUT))
+        runCurrent()
+        assertEquals(14, drained.size)
+        assertEquals(FeatureFlagState.FileSharingState.NoUser, viewModel.featureFlagState.isFileSharingState)
+        viewModel.dismissSelfDeletingMessagesDialog()
+        viewModel.dismissE2EICertificateRevokedDialog()
+        arrangement.admission.publish(TestUser.USER_ID, arrangement.session)
+        runCurrent()
+        assertEquals(14, started.size)
+        coVerify(exactly = 0) { arrangement.markSelfDeletingStatusAsNotified() }
+        coVerify(exactly = 0) { arrangement.markNotifyForRevokedCertificateAsNotified() }
+        verify(exactly = 0) { arrangement.coreLogic.getSessionScope(any()) }
+        viewModel.viewModelScope.cancel()
+    }
+
+    @Test
+    fun `pending valid admission retains enforced app lock feature state`() = runTest {
+        val (arrangement, viewModel) = Arrangement().withIsAppLockSetup(false)
+            .withTeamAppLockEnforce(AppLockTeamConfig(true, Duration.ZERO, false)).arrange()
+        runCurrent()
+        assertTrue(viewModel.featureFlagState.isTeamAppLockEnabled)
+        assertTrue(viewModel.featureFlagState.shouldShowTeamAppLockDialog)
+        arrangement.admission.publish(TestUser.USER_ID, null)
+        runCurrent()
+        assertTrue(viewModel.featureFlagState.isTeamAppLockEnabled)
+        assertTrue(viewModel.featureFlagState.shouldShowTeamAppLockDialog)
+        viewModel.viewModelScope.cancel()
+    }
+
+    @Test
+    fun `acknowledgement waiting for publication is abandoned when raw current becomes invalid`() = runTest {
+        val current = MutableStateFlow<CurrentSessionResult>(CurrentSessionResult.Success(AccountInfo.Valid(TestUser.USER_ID)))
+        val arrangement = Arrangement().withCurrentSessionsFlow(current)
+        arrangement.admission.publish(TestUser.USER_ID, null)
+        val (_, viewModel) = arrangement.arrange()
+        viewModel.dismissGuestRoomLinkDialog()
+        runCurrent()
+        coVerify(exactly = 0) { arrangement.markGuestLinkFeatureFlagAsNotChanged() }
+        current.value = CurrentSessionResult.Success(AccountInfo.Invalid(TestUser.USER_ID, LogoutReason.SELF_SOFT_LOGOUT))
+        runCurrent()
+        arrangement.admission.publish(TestUser.USER_ID, arrangement.session)
+        runCurrent()
+        coVerify(exactly = 0) { arrangement.markGuestLinkFeatureFlagAsNotChanged() }
+        verify(exactly = 0) { arrangement.coreLogic.getSessionScope(any()) }
+        viewModel.viewModelScope.cancel()
+    }
+
+    @Test
+    fun `revoked acknowledgement drains and is not replayed by an equal account revision`() = runTest {
+        val entered = CompletableDeferred<Unit>()
+        val drained = CompletableDeferred<Unit>()
+        val (arrangement, viewModel) = Arrangement().arrange()
+        coEvery { arrangement.markSelfDeletingStatusAsNotified() } coAnswers {
+            entered.complete(Unit)
+            try { awaitCancellation() } finally { drained.complete(Unit) }
+        }
+        viewModel.dismissSelfDeletingMessagesDialog()
+        entered.await()
+        arrangement.admission.publish(TestUser.USER_ID, null)
+        runCurrent()
+        assertTrue(drained.isCompleted)
+        arrangement.admission.publish(TestUser.USER_ID, arrangement.session)
+        runCurrent()
+        coVerify(exactly = 1) { arrangement.markSelfDeletingStatusAsNotified() }
+        verify(exactly = 0) { arrangement.coreLogic.getSessionScope(any()) }
+        viewModel.viewModelScope.cancel()
+    }
+
+    @Test
+    fun `cancelling the VM drains its initial and post live collectors`() = runTest {
+        val started = mutableListOf<String>()
+        val drained = mutableListOf<String>()
+        val (arrangement, viewModel) = Arrangement().withTrackedCollectors(started, drained).arrange()
+        runCurrent()
+        assertEquals(7, started.size)
+        viewModel.viewModelScope.cancel()
+        runCurrent()
+        assertEquals(started.toSet(), drained.toSet())
+        arrangement.admission.publish(TestUser.USER_ID, arrangement.session)
+        runCurrent()
+        assertEquals(7, started.size)
+    }
+
+    @Test
+    fun `genuine file observer failure escapes its admitted parent`() {
+        val failure = IllegalStateException("file sharing failed")
+        val observed = assertThrows(IllegalStateException::class.java) {
+            runTest {
+                val (_, viewModel) = Arrangement().withFileSharingStatus(flow { throw failure }).arrange()
+                runCurrent()
+                viewModel.viewModelScope.cancel()
+            }
+        }
+        assertEquals(failure.message, observed.message)
+    }
+
+    private fun tracked(started: MutableList<String>, drained: MutableList<String>, name: String): Flow<Nothing> = flow {
+        started += name
+        try { awaitCancellation() } finally { drained += name }
+    }
+
     private inner class Arrangement {
 
         @MockK
@@ -409,6 +539,16 @@ class FeatureFlagNotificationViewModelTest {
 
         fun withTeamAppLockEnforce(result: AppLockTeamConfig?) = apply {
             coEvery { ppLockTeamFeatureConfigObserver() } returns flowOf(result)
+        }
+
+        fun withTrackedCollectors(started: MutableList<String>, drained: MutableList<String>) = apply {
+            coEvery { session.observeFileSharingStatus() } returns tracked(started, drained, "file")
+            coEvery { session.observeTeamSettingsSelfDeletionStatus() } returns tracked(started, drained, "deletion")
+            coEvery { session.observeGuestRoomLinkFeatureFlag() } returns tracked(started, drained, "guest")
+            coEvery { session.observeE2EIRequired() } returns tracked(started, drained, "e2ei")
+            coEvery { ppLockTeamFeatureConfigObserver() } returns tracked(started, drained, "lock")
+            coEvery { session.calls.observeEndCallDueToDegradationDialog() } returns tracked(started, drained, "call")
+            coEvery { session.observeShouldNotifyForRevokedCertificate() } returns tracked(started, drained, "revoked")
         }
 
         fun arrange() = this to viewModel

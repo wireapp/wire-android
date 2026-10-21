@@ -36,38 +36,18 @@ import com.wire.android.di.accountScoped.SearchModule
 import com.wire.android.di.accountScoped.ServicesModule
 import com.wire.android.di.accountScoped.TeamModule
 import com.wire.android.di.accountScoped.UserModule
-import com.wire.android.feature.cells.ui.CellsMetroViewModelBindings
-import com.wire.android.feature.meetings.ui.MeetingsManualViewModelFactoryMetroBindings
-import com.wire.android.feature.meetings.ui.MeetingsMetroViewModelBindings
-import com.wire.android.feature.sketch.SketchMetroViewModelBindings
-import com.wire.android.pdfviewer.PdfViewerManualViewModelFactoryMetroBindings
-import com.wire.android.search.SearchManualViewModelFactoryMetroBindings
 import com.wire.android.ui.authentication.AuthenticationViewModelGraph
-import com.wire.android.ui.calling.CallingManualViewModelFactoryMetroBindings
-import com.wire.android.ui.calling.CallingMetroViewModelBindings
-import com.wire.android.ui.common.CommonManualViewModelFactoryMetroBindings
-import com.wire.android.ui.common.CommonMetroViewModelBindings
-import com.wire.android.ui.common.CoreUICommonManualViewModelFactoryMetroBindings
-import com.wire.android.ui.debug.DebugInfoManualViewModelFactoryMetroBindings
 import com.wire.android.ui.debug.DebugInfoViewModelGraph
-import com.wire.android.ui.debug.DebugMetroViewModelBindings
-import com.wire.android.ui.home.HomeMetroViewModelBindings
 import com.wire.android.ui.home.HomeViewModelGraph
-import com.wire.android.ui.home.conversations.ConversationCoreManualViewModelFactoryMetroBindings
-import com.wire.android.ui.home.conversations.ConversationDetailsManualViewModelFactoryMetroBindings
-import com.wire.android.ui.home.conversations.ConversationSearchFolderManualViewModelFactoryMetroBindings
-import com.wire.android.ui.home.conversations.ConversationSearchFolderMetroViewModelBindings
-import com.wire.android.ui.home.settings.SettingsManualViewModelFactoryMetroBindings
 import com.wire.android.util.ui.WireSessionImageLoader
-import com.wire.android.videoplayer.VideoPlayerManualViewModelFactoryMetroBindings
-import com.wire.android.audioplayer.AudioPlayerManualViewModelFactoryMetroBindings
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.UserSessionScope
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.ContributesTo
 import dev.zacsweers.metro.GraphExtension
 import dev.zacsweers.metro.Provides
 import dev.zacsweers.metro.asContribution
-import dev.zacsweers.metrox.viewmodel.ViewModelGraph
+import dev.zacsweers.metrox.viewmodel.MetroViewModelFactory
 
 @GraphExtension(
     MetroSessionScope::class,
@@ -89,33 +69,10 @@ import dev.zacsweers.metrox.viewmodel.ViewModelGraph
         TeamModule::class,
         UserModule::class,
         MeetingModule::class,
-        WireMetroViewModelBindings::class,
-        DebugInfoManualViewModelFactoryMetroBindings::class,
-        DebugMetroViewModelBindings::class,
-        HomeMetroViewModelBindings::class,
-        ConversationSearchFolderMetroViewModelBindings::class,
-        ConversationSearchFolderManualViewModelFactoryMetroBindings::class,
-        ConversationCoreManualViewModelFactoryMetroBindings::class,
-        ConversationDetailsManualViewModelFactoryMetroBindings::class,
-        SettingsManualViewModelFactoryMetroBindings::class,
-        CallingManualViewModelFactoryMetroBindings::class,
-        CallingMetroViewModelBindings::class,
-        CommonManualViewModelFactoryMetroBindings::class,
-        CommonMetroViewModelBindings::class,
-        CellsMetroViewModelBindings::class,
-        MeetingsMetroViewModelBindings::class,
-        MeetingsManualViewModelFactoryMetroBindings::class,
-        SketchMetroViewModelBindings::class,
-        CoreUICommonManualViewModelFactoryMetroBindings::class,
-        SearchManualViewModelFactoryMetroBindings::class,
-        VideoPlayerManualViewModelFactoryMetroBindings::class,
-        AudioPlayerManualViewModelFactoryMetroBindings::class,
-        PdfViewerManualViewModelFactoryMetroBindings::class,
         ImageLoadingModule::class,
     ]
 )
 interface AppSessionViewModelGraph :
-    ViewModelGraph,
     AuthenticationViewModelGraph,
     DebugInfoViewModelGraph,
     HomeViewModelGraph {
@@ -125,15 +82,24 @@ interface AppSessionViewModelGraph :
     override val viewModelScopeKey: String
         get() = currentAccount.toString()
 
+    val viewModelGraphFactory: AppViewModelGraph.Factory
+
+    val metroViewModelFactory: MetroViewModelFactory
+
     val wireSessionImageLoader: WireSessionImageLoader
 
     @ContributesTo(AppScope::class)
     @GraphExtension.Factory
     interface Factory {
-        fun createAppSessionViewModelGraph(@Provides @CurrentAccount currentAccount: UserId): AppSessionViewModelGraph
+        fun createAppSessionViewModelGraph(
+            @Provides @CurrentAccount currentAccount: UserId,
+            @Provides session: UserSessionScope,
+        ): AppSessionViewModelGraph
     }
 }
 
 fun WireApplicationGraph.createSessionViewModelGraph(currentAccount: UserId): AppSessionViewModelGraph {
-    return asContribution<AppSessionViewModelGraph.Factory>().createAppSessionViewModelGraph(currentAccount)
+    // Capture this generation now. A retained graph must never open a later same-account session.
+    val session = coreLogic.getSessionScope(currentAccount)
+    return asContribution<AppSessionViewModelGraph.Factory>().createAppSessionViewModelGraph(currentAccount, session)
 }

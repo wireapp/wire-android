@@ -25,6 +25,7 @@ import com.wire.android.appLogger
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.media.PingRinger
 import com.wire.android.services.ServicesManager
+import com.wire.android.session.observeCurrentValidSession
 import com.wire.android.util.CurrentScreen
 import com.wire.android.util.CurrentScreenManager
 import com.wire.android.util.dispatchers.DispatcherProvider
@@ -37,7 +38,7 @@ import com.wire.kalium.logic.data.notification.LocalNotification
 import com.wire.kalium.logic.data.notification.LocalNotificationMessage
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.message.MarkMessagesAsNotifiedUseCase
-import com.wire.kalium.logic.feature.session.CurrentSessionResult
+import com.wire.kalium.logic.feature.UserSessionScope
 import com.wire.kalium.logic.feature.session.DoesValidSessionExistResult
 import com.wire.kalium.logic.feature.session.GetAllSessionsResult
 import com.wire.kalium.logic.feature.user.E2EIRequiredResult
@@ -414,7 +415,8 @@ class WireNotificationManager @Inject constructor(
     ) {
         appLogger.d("$TAG observe incoming calls")
 
-        coreLogic.getSessionScope(userId).let { userSessionScope ->
+        coreLogic.observeValidSession(userId) {
+            val userSessionScope = this
             userSessionScope.observeE2EIRequired()
                 .map { it is E2EIRequiredResult.NoGracePeriod }
                 .distinctUntilChanged()
@@ -430,18 +432,27 @@ class WireNotificationManager @Inject constructor(
                             .let { it.handle ?: it.name ?: "" } to calls
                     }
                 }
-                .collect { (userName, calls) ->
+                .onEach { (userName, calls) ->
                     callNotificationManager.handleIncomingCalls(calls, userId, userName)
                 }
-        }
+        }.collect {}
     }
 
     /** Observes the shared local-notification stream once and routes each family to its handler. */
     private suspend fun observeLocalNotifications(
         userId: UserId,
         currentScreenState: StateFlow<CurrentScreen>
+    ) {
+        coreLogic.observeValidSession(userId) {
+            flow<Unit> { collectLocalNotifications(userId, currentScreenState) }
+        }.collect {}
+    }
+
+    private suspend fun UserSessionScope.collectLocalNotifications(
+        userId: UserId,
+        currentScreenState: StateFlow<CurrentScreen>,
     ) = coroutineScope {
-        val sessionScope = coreLogic.getSessionScope(userId)
+        val sessionScope = this@collectLocalNotifications
 
         // Cache state within this observation job without waiting before subscribing to notifications. Both use-case calls can suspend.
         // Wrapping them in flow { emitAll(...) } runs them in the stateIn coroutines, so loading this state does not delay listening
@@ -469,7 +480,7 @@ class WireNotificationManager @Inject constructor(
                 val meetingNotifications = newNotifications.filterIsInstance<LocalNotification.Meeting>()
                 val conversationNotifications = newNotifications.filterNot { it is LocalNotification.Meeting }
                     // we don't want to display notifications for the Conversation that user currently in.
-                    .filterAccordingToScreenAndUpdateNotifyDate(currentScreenState.value, userId)
+                    .filterAccordingToScreenAndUpdateNotifyDate(currentScreenState.value, sessionScope)
 
                 if (e2eiRequired.first()) {
                     appLogger.d("$TAG notifications were skipped as E2EI is required")
@@ -483,10 +494,10 @@ class WireNotificationManager @Inject constructor(
                     .filter { it.messages.isNotEmpty() }
                     .forEach { conversation ->
                         val lastNotified = conversation.messages.maxOf { it.time }
-                        markMessagesAsNotified(userId, conversation.id, lastNotified)
+                        sessionScope.markMessagesAsNotified(conversation.id, lastNotified)
                     }
 
-                markConnectionAsNotified(userId)
+                sessionScope.markConnectionAsNotified()
             }
     }
 
@@ -497,22 +508,17 @@ class WireNotificationManager @Inject constructor(
      */
     private suspend fun observeOutgoingOngoingCalls() {
         coreLogic.getGlobalScope().session.currentSessionFlow()
-            .flatMapLatest {
-                if (it is CurrentSessionResult.Success && it.accountInfo.isValid()) {
-                    val sessionScope = coreLogic.getSessionScope(it.accountInfo.userId)
-                    // wait for the initial cleanup of stale open calls to be completed before starting to observe the calls,
-                    // to avoid starting the service by mistake for the calls that are already stale
-                    sessionScope.calls.observeStaleOpenCallsCleanup()
-                        .dropWhile { completed -> !completed }
-                        .flatMapLatest {
-                            combine(
-                                sessionScope.calls.establishedCall(),
-                                sessionScope.calls.observeOutgoingCall()
-                            ) { establishedCalls, outgoingCalls -> (establishedCalls + outgoingCalls).isNotEmpty() }
-                        }
-                } else {
-                    flowOf(null)
-                }
+            .observeCurrentValidSession(coreLogic) {
+                val sessionScope = this
+                // Initial stale-call cleanup still precedes outgoing/established observation.
+                calls.observeStaleOpenCallsCleanup()
+                    .dropWhile { completed -> !completed }
+                    .flatMapLatest {
+                        combine(
+                            sessionScope.calls.establishedCall(),
+                            sessionScope.calls.observeOutgoingCall(),
+                        ) { establishedCalls, outgoingCalls -> (establishedCalls + outgoingCalls).isNotEmpty() }
+                    }
             }
             .distinctUntilChanged()
             .filter { it == true }
@@ -523,38 +529,28 @@ class WireNotificationManager @Inject constructor(
 
     private suspend fun List<LocalNotification>.filterAccordingToScreenAndUpdateNotifyDate(
         currentScreen: CurrentScreen,
-        userId: UserId,
+        session: UserSessionScope,
     ) =
         if (currentScreen is CurrentScreen.Conversation) {
-            markMessagesAsNotified(userId, currentScreen.id)
+            session.markMessagesAsNotified(currentScreen.id)
             this.filter { it.conversationId != currentScreen.id }
         } else {
             this
         }
 
-    private suspend fun markMessagesAsNotified(
-        userId: QualifiedID,
+    private suspend fun UserSessionScope.markMessagesAsNotified(
         conversationId: ConversationId? = null,
         lastNotified: Instant? = null,
     ) {
         val markNotified = conversationId?.let {
             MarkMessagesAsNotifiedUseCase.UpdateTarget.SingleConversation(conversationId, lastNotified)
         } ?: MarkMessagesAsNotifiedUseCase.UpdateTarget.AllConversations
-        coreLogic.getSessionScope(userId)
-            .messages
-            .markMessagesAsNotified(markNotified)
+        messages.markMessagesAsNotified(markNotified)
     }
 
-    private suspend fun markConnectionAsNotified(
-        userId: QualifiedID?,
-        connectionRequestUserId: QualifiedID? = null
-    ) {
+    private suspend fun UserSessionScope.markConnectionAsNotified(connectionRequestUserId: QualifiedID? = null) {
         appLogger.d("$TAG markConnectionAsNotified")
-        userId?.let {
-            coreLogic.getSessionScope(it)
-                .conversations
-                .markConnectionRequestAsNotified(connectionRequestUserId)
-        }
+        conversations.markConnectionRequestAsNotified(connectionRequestUserId)
     }
 
     private fun playPingSoundIfNeeded(

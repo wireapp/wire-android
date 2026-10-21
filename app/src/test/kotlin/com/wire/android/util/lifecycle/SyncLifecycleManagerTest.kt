@@ -19,6 +19,7 @@
 package com.wire.android.util.lifecycle
 
 import com.wire.android.framework.TestUser
+import com.wire.android.session.FakeSessionAdmission
 import com.wire.android.framework.fake.FakeSyncExecutor
 import com.wire.android.util.CurrentScreenManager
 import com.wire.kalium.common.error.CoreFailure
@@ -272,6 +273,7 @@ class SyncLifecycleManagerTest {
 
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
+            FakeSessionAdmission(coreLogic) { userSessionScope }
             every { coreLogic.getGlobalScope().observeAllValidSessionsFlow } returns observeValidAccountsUseCase
             every { coreLogic.getSessionScope(TestUser.SELF_USER_ID) } returns userSessionScope
             every { currentScreenManager.isAppVisibleFlow() } returns appVisibility

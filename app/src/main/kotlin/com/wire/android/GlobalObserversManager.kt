@@ -24,6 +24,8 @@ import com.wire.android.notification.NotificationChannelsManager
 import com.wire.android.notification.MeetingReminderScheduler
 import com.wire.android.notification.WireNotificationManager
 import com.wire.android.services.SendPendingMessagesAfterForegroundSyncUseCase
+import com.wire.android.session.observeCurrentValidSession
+import com.wire.android.session.runWithValidSession
 import com.wire.android.util.CurrentScreenManager
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.CoreLogic
@@ -32,6 +34,7 @@ import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.auth.LogoutCallback
 import com.wire.kalium.logic.featureFlags.KaliumConfigs
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
+import com.wire.kalium.logic.feature.session.GetAllSessionsResult
 import com.wire.kalium.logic.feature.user.webSocketStatus.ObservePersistentWebSocketConnectionStatusUseCase
 import com.wire.kalium.network.NetworkState
 import com.wire.kalium.network.NetworkStateObserver
@@ -43,7 +46,8 @@ import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
@@ -79,10 +83,14 @@ class GlobalObserversManager @Inject constructor(
         scope.launch { meetingReminderScheduler.observe() }
         scope.launch { setUpNotifications() }
         scope.launch {
-            coreLogic.getGlobalScope().observeValidAccounts().distinctUntilChanged().collectLatest {
+            coreLogic.getGlobalScope().observeAllValidSessionsFlow().collectLatest { result ->
                 coroutineScope {
-                    it.forEach {
-                        launch { coreLogic.getSessionScope(it.first.id).calls.endCallOnConversationChange() }
+                    (result as? GetAllSessionsResult.Success)?.sessions.orEmpty().filter { it.isValid() }.forEach { account ->
+                        launch {
+                            coreLogic.observeValidSession(account.userId) {
+                                flow<Unit> { calls.endCallOnConversationChange() }
+                            }.collect {}
+                        }
                     }
                 }
             }
@@ -110,39 +118,30 @@ class GlobalObserversManager @Inject constructor(
                 }
             }
 
-        coreLogic.getGlobalScope().observeValidAccounts()
-            .combine(persistentStatusesFlow) { list, persistentStatuses ->
-                val persistentStatusesMap = persistentStatuses.associate { it.userId to it.isPersistentWebSocketEnabled }
-                /*
-                  Intersect both lists as they can be slightly out of sync because both lists can be updated at slightly different times.
-                  When user is logged out, at this time one of them can still contain this invalid user - make sure that it's ignored.
-                  When user is logged in, at this time one of them can still not contain this new user - ignore for now,
-                  the user will be handled correctly in the next iteration when the second list becomes updated as well.
-                 */
-                list.map { (selfUser, _) -> selfUser }
-                    .filter { persistentStatusesMap.containsKey(it.id) }
-                    .map { it to persistentStatusesMap.getValue(it.id) }
-            }
+        combine(
+            coreLogic.getGlobalScope().observeAllValidSessionsFlow(),
+            coreLogic.getGlobalScope().observeValidAccounts(),
+            persistentStatusesFlow,
+        ) { sessions, accounts, statuses ->
+            val userIds = (sessions as? GetAllSessionsResult.Success)?.sessions.orEmpty()
+                .filter { it.isValid() }.map { it.userId }
+            val persistent = statuses.associate { it.userId to it.isPersistentWebSocketEnabled }
+            val users = accounts.map { it.first }.filter { it.id in userIds && persistent.containsKey(it.id) }
+            Triple(userIds, users, persistent)
+        }
             .distinctUntilChanged()
-            .collectLatest {
-                // create notification channels for all valid users
-                appLogger.i("GlobalObserversManager: creating notification channels for users: ${it.map { it.first.id }}")
-                notificationChannelsManager.createUserNotificationChannels(it.map { it.first })
-
-                if (it.isEmpty()) {
+            .collectLatest { (userIds, users, persistent) ->
+                // Admitted self-user values supply channel metadata; only raw accounts authorize global clearing.
+                notificationChannelsManager.createUserNotificationChannels(users)
+                if (userIds.isEmpty()) {
                     appLogger.i("GlobalObserversManager: no valid users, stopping observing notifications")
                     notificationManager.clearWhenNoUsers()
-                    return@collectLatest
+                } else {
+                    notificationManager.observeNotificationsAndCallsWhileRunning(
+                        userIds.filter { persistent[it] == false },
+                        scope,
+                    )
                 }
-
-                // do not observe notifications for users with PersistentWebSocketEnabled, it will be done in PersistentWebSocketService
-                it.filter { (_, isPersistentWebSocketEnabled) -> !isPersistentWebSocketEnabled }
-                    .map { (selfUser, _) -> selfUser.id }
-                    .run {
-                        notificationManager.observeNotificationsAndCallsWhileRunning(this, scope)
-                    }
-                // it would be nice to call all the notification observations in one place,
-                // but we can't start PersistentWebSocketService here, to avoid ForegroundServiceStartNotAllowedException
             }
     }
 
@@ -163,46 +162,33 @@ class GlobalObserversManager @Inject constructor(
 
     private fun CoroutineScope.handleDeleteEphemeralMessageEndDate() {
         launch {
-            currentScreenManager.isAppVisibleFlow()
-                .flatMapLatest { isAppVisible ->
-                    if (isAppVisible) {
-                        coreLogic.getGlobalScope().session.currentSessionFlow()
-                            .distinctUntilChanged()
-                            .filter { it is CurrentSessionResult.Success && it.accountInfo.isValid() }
-                            .map { (it as CurrentSessionResult.Success).accountInfo.userId }
-                    } else {
-                        emptyFlow()
-                    }
-                }
-                .collect { userId -> coreLogic.getSessionScope(userId).messages.deleteEphemeralMessageEndDate() }
+            coreLogic.getGlobalScope().session.currentSessionFlow()
+                .observeCurrentValidSession(coreLogic) {
+                    currentScreenManager.isAppVisibleFlow().filter { it }.map { messages.deleteEphemeralMessageEndDate() }
+                }.collect {}
         }
     }
 
     private fun CoroutineScope.retryPendingMessagesOnAppOpen() {
         launch {
-            currentScreenManager.isAppVisibleFlow()
-                .filter { isAppVisible -> isAppVisible }
-                .collectLatest {
-                    val networkState = networkStateObserver.observeNetworkState().value
-                    if (networkState !is NetworkState.ConnectedWithInternet) {
-                        appLogger.i("$TAG: no internet connection, skipping pending messages retry on app open")
-                        return@collectLatest
-                    }
-
-                    when (val result = coreLogic.getGlobalScope().session.currentSession()) {
-                        is CurrentSessionResult.Success -> {
-                            val accountInfo = result.accountInfo
-                            if (accountInfo.isValid()) {
-                                sendPendingMessagesAfterForegroundSync(accountInfo.userId)
-                            } else {
-                                appLogger.w("$TAG: current session is invalid, skipping pending messages retry on app open")
+            currentScreenManager.isAppVisibleFlow().collectLatest { isVisible ->
+                if (!isVisible) return@collectLatest
+                if (networkStateObserver.observeNetworkState().value !is NetworkState.ConnectedWithInternet) {
+                    appLogger.i("$TAG: no internet connection, skipping pending messages retry on app open")
+                    return@collectLatest
+                }
+                coreLogic.getGlobalScope().session.currentSessionFlow().flatMapLatest { result ->
+                    flow {
+                        val account = (result as? CurrentSessionResult.Success)?.accountInfo
+                        if (account?.isValid() == true) {
+                            coreLogic.runWithValidSession(account.userId) {
+                                sendPendingMessagesAfterForegroundSync(account.userId, this)
                             }
                         }
-
-                        is CurrentSessionResult.Failure ->
-                            appLogger.w("$TAG: unable to get current valid session, skipping pending messages retry on app open: $result")
+                        emit(Unit)
                     }
-                }
+                }.first()
+            }
         }
     }
 

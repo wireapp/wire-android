@@ -27,6 +27,7 @@ import com.wire.android.notification.NotificationChannelsManager
 import com.wire.android.notification.MeetingReminderScheduler
 import com.wire.android.notification.WireNotificationManager
 import com.wire.android.services.SendPendingMessagesAfterForegroundSyncUseCase
+import com.wire.android.session.FakeSessionAdmission
 import com.wire.android.util.CurrentScreenManager
 import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.logic.CoreLogic
@@ -42,6 +43,7 @@ import com.wire.kalium.logic.feature.call.usecase.EndCallOnConversationChangeUse
 import com.wire.kalium.logic.featureFlags.KaliumConfigs
 import com.wire.kalium.logic.feature.message.MessageScope
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
+import com.wire.kalium.logic.feature.session.GetAllSessionsResult
 import com.wire.kalium.logic.feature.user.webSocketStatus.ObservePersistentWebSocketConnectionStatusUseCase
 import com.wire.kalium.network.NetworkState
 import com.wire.kalium.network.NetworkStateObserver
@@ -55,6 +57,8 @@ import junit.framework.TestCase.assertEquals
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runCurrent
 import org.junit.jupiter.api.Test
@@ -180,7 +184,7 @@ class GlobalObserversManagerTest {
 
         manager.observe()
 
-        coVerify(exactly = 1) { arrangement.sendPendingMessagesAfterForegroundSync(TestUser.SELF_USER.id) }
+        coVerify(exactly = 1) { arrangement.sendPendingMessagesAfterForegroundSync(TestUser.SELF_USER.id, arrangement.userSessionScope) }
     }
 
     @Test
@@ -193,7 +197,7 @@ class GlobalObserversManagerTest {
 
         manager.observe()
 
-        coVerify(exactly = 0) { arrangement.sendPendingMessagesAfterForegroundSync(any()) }
+        coVerify(exactly = 0) { arrangement.sendPendingMessagesAfterForegroundSync(any(), any()) }
     }
 
     @Test
@@ -206,7 +210,7 @@ class GlobalObserversManagerTest {
 
         manager.observe()
 
-        coVerify(exactly = 0) { arrangement.sendPendingMessagesAfterForegroundSync(any()) }
+        coVerify(exactly = 0) { arrangement.sendPendingMessagesAfterForegroundSync(any(), any()) }
     }
 
     @Test
@@ -218,7 +222,7 @@ class GlobalObserversManagerTest {
 
         manager.observe()
 
-        coVerify(exactly = 0) { arrangement.sendPendingMessagesAfterForegroundSync(any()) }
+        coVerify(exactly = 0) { arrangement.sendPendingMessagesAfterForegroundSync(any(), any()) }
     }
 
     @Test
@@ -230,7 +234,7 @@ class GlobalObserversManagerTest {
 
         manager.observe()
 
-        coVerify(exactly = 0) { arrangement.sendPendingMessagesAfterForegroundSync(any()) }
+        coVerify(exactly = 0) { arrangement.sendPendingMessagesAfterForegroundSync(any(), any()) }
     }
 
     @Test
@@ -242,7 +246,7 @@ class GlobalObserversManagerTest {
 
         manager.observe()
 
-        coVerify(exactly = 0) { arrangement.sendPendingMessagesAfterForegroundSync(any()) }
+        coVerify(exactly = 0) { arrangement.sendPendingMessagesAfterForegroundSync(any(), any()) }
     }
 
     @Test
@@ -254,7 +258,7 @@ class GlobalObserversManagerTest {
 
         manager.observe()
 
-        coVerify(exactly = 0) { arrangement.sendPendingMessagesAfterForegroundSync(any()) }
+        coVerify(exactly = 0) { arrangement.sendPendingMessagesAfterForegroundSync(any(), any()) }
     }
 
     @Test
@@ -266,11 +270,11 @@ class GlobalObserversManagerTest {
             .arrange()
 
         manager.observe()
-        coVerify(exactly = 0) { arrangement.sendPendingMessagesAfterForegroundSync(any()) }
+        coVerify(exactly = 0) { arrangement.sendPendingMessagesAfterForegroundSync(any(), any()) }
 
         appVisibleFlow.value = true
 
-        coVerify(exactly = 1) { arrangement.sendPendingMessagesAfterForegroundSync(TestUser.SELF_USER.id) }
+        coVerify(exactly = 1) { arrangement.sendPendingMessagesAfterForegroundSync(TestUser.SELF_USER.id, arrangement.userSessionScope) }
     }
 
     @Test
@@ -285,7 +289,7 @@ class GlobalObserversManagerTest {
         manager.observe()
         appVisibleFlow.value = true
 
-        coVerify(exactly = 0) { arrangement.sendPendingMessagesAfterForegroundSync(any()) }
+        coVerify(exactly = 0) { arrangement.sendPendingMessagesAfterForegroundSync(any(), any()) }
     }
 
     @Test
@@ -343,6 +347,64 @@ class GlobalObserversManagerTest {
             assertEquals(1, cancelledObservers.get())
         }
 
+    @Test
+    fun `pending admitted account list does not clear notifications for raw valid accounts`() = runTestWithCancellation {
+        val admitted = MutableStateFlow<List<Pair<SelfUser, Team?>>>(listOf(TestUser.SELF_USER to null))
+        val raw = MutableStateFlow<GetAllSessionsResult>(
+            GetAllSessionsResult.Success(listOf(AccountInfo.Valid(TestUser.SELF_USER.id)))
+        )
+        val (arrangement, manager) = Arrangement().withValidAccountsFlow(admitted)
+            .withRawSessionsFlow(raw)
+            .withPersistentWebSocketConnectionStatuses(listOf(PersistentWebSocketStatus(TestUser.SELF_USER.id, false)))
+            .arrange()
+        manager.observe()
+        runCurrent()
+        admitted.value = emptyList()
+        runCurrent()
+        verify(exactly = 0) { arrangement.notificationManager.clearWhenNoUsers() }
+        coVerify(atLeast = 1) {
+            arrangement.notificationManager.observeNotificationsAndCallsWhileRunning(listOf(TestUser.SELF_USER.id), any())
+        }
+        raw.value = GetAllSessionsResult.Success(emptyList())
+        runCurrent()
+        verify(exactly = 1) { arrangement.notificationManager.clearWhenNoUsers() }
+    }
+
+    @Test
+    fun `visibility replay after revocation cannot reacquire ephemeral message resources`() = runTestWithCancellation {
+        val visible = MutableStateFlow(true)
+        val raw = MutableStateFlow<CurrentSessionResult>(CurrentSessionResult.Success(AccountInfo.Valid(TestUser.SELF_USER.id)))
+        val (arrangement, manager) = Arrangement().withCurrentSessionResults(raw).withAppVisibleFlow(visible).arrange()
+        manager.observe()
+        runCurrent()
+        coVerify(exactly = 1) { arrangement.messageScope.deleteEphemeralMessageEndDate() }
+        arrangement.admission.publish(TestUser.SELF_USER.id, null)
+        runCurrent()
+        visible.value = false
+        runCurrent()
+        visible.value = true
+        runCurrent()
+        raw.value = CurrentSessionResult.Success(AccountInfo.Invalid(TestUser.SELF_USER.id, LogoutReason.SESSION_EXPIRED))
+        runCurrent()
+        coVerify(exactly = 1) { arrangement.messageScope.deleteEphemeralMessageEndDate() }
+        verify(exactly = 0) { arrangement.coreLogic.getSessionScope(any()) }
+    }
+
+    @Test
+    fun `invalid current metadata cancels pending foreground send before publication`() = runTestWithCancellation {
+        val raw = MutableStateFlow<CurrentSessionResult>(CurrentSessionResult.Success(AccountInfo.Valid(TestUser.SELF_USER.id)))
+        val (arrangement, manager) = Arrangement().withSomeRawValidSession().withCurrentSessionResults(raw).arrange()
+        arrangement.admission.publish(TestUser.SELF_USER.id, null)
+        manager.observe()
+        runCurrent()
+        raw.value = CurrentSessionResult.Success(AccountInfo.Invalid(TestUser.SELF_USER.id, LogoutReason.SESSION_EXPIRED))
+        runCurrent()
+        arrangement.admission.publish(TestUser.SELF_USER.id, arrangement.userSessionScope)
+        runCurrent()
+        coVerify(exactly = 0) { arrangement.sendPendingMessagesAfterForegroundSync(any(), any()) }
+        verify(exactly = 0) { arrangement.coreLogic.getSessionScope(any()) }
+    }
+
     private class Arrangement {
 
         @MockK
@@ -385,6 +447,7 @@ class GlobalObserversManagerTest {
         lateinit var meetingReminderScheduler: MeetingReminderScheduler
 
         private var pendingMessagesEnabled = true
+        val admission by lazy { FakeSessionAdmission(coreLogic) { userSessionScope } }
 
         private val manager by lazy {
             GlobalObserversManager(
@@ -404,18 +467,18 @@ class GlobalObserversManagerTest {
         init {
             // Tests setup
             MockKAnnotations.init(this, relaxUnitFun = true)
+            admission
 
             // Default empty values
             mockUri()
             every { notificationChannelsManager.createUserNotificationChannels(any()) } returns Unit
             every { coreLogic.getGlobalScope().logoutCallbackManager } returns logoutCallbackManager
-            every { coreLogic.getSessionScope(any()) } returns userSessionScope
             every { callsScope.endCallOnConversationChange } returns endCallOnConversationChangeUseCase
             coEvery { endCallOnConversationChangeUseCase.invoke() } returns Unit
             every { userSessionScope.calls } returns callsScope
             every { userSessionScope.messages } returns messageScope
             coEvery { messageScope.deleteEphemeralMessageEndDate() } returns Unit
-            coEvery { sendPendingMessagesAfterForegroundSync(any()) } returns Unit
+            coEvery { sendPendingMessagesAfterForegroundSync(any(), any()) } returns Unit
             withPersistentWebSocketConnectionStatuses(emptyList())
             withValidAccounts(emptyList())
             withCurrentSessionFlow(CurrentSessionResult.Failure.SessionNotFound)
@@ -426,10 +489,14 @@ class GlobalObserversManagerTest {
 
         fun withValidAccounts(list: List<Pair<SelfUser, Team?>>): Arrangement = apply {
             coEvery { coreLogic.getGlobalScope().observeValidAccounts() } returns flowOf(list)
+            withRawSessionsFlow(flowOf(GetAllSessionsResult.Success(list.map { AccountInfo.Valid(it.first.id) })))
         }
 
         fun withValidAccountsFlow(flow: MutableStateFlow<List<Pair<SelfUser, Team?>>>): Arrangement = apply {
             coEvery { coreLogic.getGlobalScope().observeValidAccounts() } returns flow
+            withRawSessionsFlow(flow.map { accounts ->
+                GetAllSessionsResult.Success(accounts.map { AccountInfo.Valid(it.first.id) })
+            })
         }
 
         fun withPersistentWebSocketConnectionStatuses(list: List<PersistentWebSocketStatus>): Arrangement = apply {
@@ -443,6 +510,21 @@ class GlobalObserversManagerTest {
 
         fun withCurrentSession(result: CurrentSessionResult): Arrangement = apply {
             coEvery { coreLogic.getGlobalScope().session.currentSession() } returns result
+            withCurrentSessionResults(flowOf(result))
+            val account = (result as? CurrentSessionResult.Success)?.accountInfo
+            withRawSessionsFlow(flowOf(GetAllSessionsResult.Success(listOfNotNull(account).filter { it.isValid() })))
+        }
+
+        fun withCurrentSessionResults(results: Flow<CurrentSessionResult>): Arrangement = apply {
+            coEvery { coreLogic.getGlobalScope().session.currentSessionFlow() } returns results
+        }
+
+        fun withSomeRawValidSession(): Arrangement = withRawSessionsFlow(
+            flowOf(GetAllSessionsResult.Success(listOf(AccountInfo.Valid(TestUser.SELF_USER.id))))
+        )
+
+        fun withRawSessionsFlow(results: Flow<GetAllSessionsResult>): Arrangement = apply {
+            coEvery { coreLogic.getGlobalScope().observeAllValidSessionsFlow() } returns results
         }
 
         fun withNetworkState(state: NetworkState): Arrangement = apply {

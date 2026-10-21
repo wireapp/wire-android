@@ -22,18 +22,25 @@ import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.feature.analytics.model.AnalyticsProfileProperties
 import com.wire.android.feature.analytics.model.AnalyticsResult
 import com.wire.android.util.isHostValidForAnalytics
+import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.analytics.AnalyticsIdentifierResult
-import com.wire.kalium.logic.data.user.UserId
-import com.wire.kalium.logic.feature.analytics.AnalyticsContactsData
 import com.wire.kalium.logic.feature.analytics.AnalyticsIdentifierManager
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.user.SelfServerConfigUseCase
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.async
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.isActive
 
 interface ObserveCurrentSessionAnalyticsUseCase {
 
@@ -47,106 +54,103 @@ interface ObserveCurrentSessionAnalyticsUseCase {
     operator fun invoke(): Flow<AnalyticsResult<AnalyticsIdentifierManager>>
 }
 
-@Suppress("FunctionNaming", "LongParameterList")
+@Suppress("FunctionNaming")
 fun ObserveCurrentSessionAnalyticsUseCase(
     currentSessionFlow: Flow<CurrentSessionResult>,
-    getAnalyticsContactsData: suspend (UserId) -> AnalyticsContactsData,
-    observeAnalyticsTrackingIdentifierStatusFlow: suspend (UserId) -> Flow<AnalyticsIdentifierResult>,
-    analyticsIdentifierManagerProvider: (UserId) -> AnalyticsIdentifierManager,
+    coreLogic: CoreLogic,
     userDataStoreProvider: UserDataStoreProvider,
     globalDataStore: GlobalDataStore,
-    currentBackend: suspend (UserId) -> SelfServerConfigUseCase.Result
 ) = object : ObserveCurrentSessionAnalyticsUseCase {
 
-    private var previousAnalyticsResult: AnalyticsIdentifierResult? = null
-
     @Suppress("LongMethod")
-    override fun invoke(): Flow<AnalyticsResult<AnalyticsIdentifierManager>> {
-        return combine(
-            currentSessionFlow,
-            globalDataStore.isAnonymousRegistrationEnabled()
-        ) { currentSession, isAnonymousRegistrationEnabled ->
-            currentSession to isAnonymousRegistrationEnabled
-        }.flatMapLatest { (currentSession, isAnonymousRegistrationEnabled) ->
-            if (isAnonymousRegistrationEnabled) {
-                val anonymousRegistrationTrackId = globalDataStore.getOrCreateAnonymousRegistrationTrackId()
-                return@flatMapLatest flowOf(
-                    AnalyticsResult<AnalyticsIdentifierManager>(
-                        identifierResult = AnalyticsIdentifierResult.RegistrationIdentifier(anonymousRegistrationTrackId),
-                        profileProperties = {
-                            AnalyticsProfileProperties(
-                                isTeamMember = false,
-                                teamId = null,
-                                contactsAmount = null,
-                                teamMembersAmount = null,
-                                isEnterprise = null
-                            )
-                        },
-                        manager = null
-                    )
-                )
-            }
-
-            if (currentSession is CurrentSessionResult.Success && currentSession.accountInfo.isValid()) {
-                val userId = currentSession.accountInfo.userId
-                val analyticsIdentifierManager = analyticsIdentifierManagerProvider(userId)
-                combine(
-                    observeAnalyticsTrackingIdentifierStatusFlow(userId)
-                        .filter { currentIdentifierResult ->
-                            val currentResult = (currentIdentifierResult as? AnalyticsIdentifierResult.Enabled)
-                            val previousResult = (previousAnalyticsResult as? AnalyticsIdentifierResult.Enabled)
-
-                            currentIdentifierResult != previousAnalyticsResult &&
-                                    currentResult?.identifier != previousResult?.identifier
-                        },
-                    userDataStoreProvider.getOrCreate(userId).isAnonymousUsageDataEnabled(),
-                ) { analyticsIdentifierResult, enabled ->
-                    previousAnalyticsResult = analyticsIdentifierResult
-
-                    val isProdBackend = when (val serverConfig = currentBackend(userId)) {
-                        is SelfServerConfigUseCase.Result.Success -> serverConfig.serverLinks.isHostValidForAnalytics()
-                        is SelfServerConfigUseCase.Result.Failure -> false
-                    }
-
-                    val identifierResult = if (enabled && isProdBackend) {
-                        analyticsIdentifierResult
-                    } else {
-                        AnalyticsIdentifierResult.Disabled
-                    }
-
-                    AnalyticsResult(
-                        identifierResult = identifierResult,
-                        profileProperties = {
-                            getAnalyticsContactsData(userId).let { analyticsContactsData ->
-                                AnalyticsProfileProperties(
-                                    isTeamMember = analyticsContactsData.isTeamMember,
-                                    teamId = analyticsContactsData.teamId,
-                                    contactsAmount = analyticsContactsData.contactsSize,
-                                    teamMembersAmount = analyticsContactsData.teamSize,
-                                    isEnterprise = analyticsContactsData.isEnterprise
-                                )
-                            }
-                        },
-                        manager = analyticsIdentifierManager
-                    )
-                }
-            } else {
+    override fun invoke(): Flow<AnalyticsResult<AnalyticsIdentifierManager>> = combine(
+        currentSessionFlow,
+        globalDataStore.isAnonymousRegistrationEnabled(),
+    ) { currentSession, registrationEnabled -> currentSession to registrationEnabled }
+        .flatMapLatest { (currentSession, registrationEnabled) ->
+            if (registrationEnabled) {
+                val trackId = globalDataStore.getOrCreateAnonymousRegistrationTrackId()
                 flowOf(
                     AnalyticsResult<AnalyticsIdentifierManager>(
-                        identifierResult = AnalyticsIdentifierResult.Disabled,
-                        profileProperties = {
-                            AnalyticsProfileProperties(
-                                isTeamMember = false,
-                                teamId = null,
-                                contactsAmount = null,
-                                teamMembersAmount = null,
-                                isEnterprise = null
-                            )
-                        },
-                        manager = null
+                        AnalyticsIdentifierResult.RegistrationIdentifier(trackId),
+                        profileProperties = { EMPTY_ANALYTICS_PROFILE },
+                        manager = null,
                     )
                 )
+            } else {
+                val account = (currentSession as? CurrentSessionResult.Success)?.accountInfo
+                if (account?.isValid() == true) {
+                    coreLogic.observeValidSession(account.userId) {
+                        val session = this
+                        channelFlow {
+                            // Reset on each admitted generation, even if the identifier and AccountInfo are unchanged.
+                            var previousIdentifier: AnalyticsIdentifierResult? = null
+                            val manager = admittedAnalyticsManager(session.analyticsIdentifierManager)
+                            combine(
+                                session.observeAnalyticsTrackingIdentifierStatus().filter { identifier ->
+                                    val current = identifier as? AnalyticsIdentifierResult.Enabled
+                                    val previous = previousIdentifier as? AnalyticsIdentifierResult.Enabled
+                                    identifier != previousIdentifier && current?.identifier != previous?.identifier
+                                },
+                                userDataStoreProvider.getOrCreate(account.userId).isAnonymousUsageDataEnabled(),
+                            ) { identifier, enabled ->
+                                previousIdentifier = identifier
+                                val production = when (val config = session.users.serverLinks()) {
+                                    is SelfServerConfigUseCase.Result.Success -> config.serverLinks.isHostValidForAnalytics()
+                                    is SelfServerConfigUseCase.Result.Failure -> false
+                                }
+                                // Analytics consumes this callback later: emit a value snapshot, never a resource read.
+                                val contacts = session.getAnalyticsContactsData()
+                                val profile = AnalyticsProfileProperties(
+                                    isTeamMember = contacts.isTeamMember,
+                                    teamId = contacts.teamId,
+                                    contactsAmount = contacts.contactsSize,
+                                    teamMembersAmount = contacts.teamSize,
+                                    isEnterprise = contacts.isEnterprise,
+                                )
+                                AnalyticsResult(
+                                    identifierResult = if (enabled && production) identifier else AnalyticsIdentifierResult.Disabled,
+                                    profileProperties = { profile },
+                                    manager = manager,
+                                )
+                            }.collect { send(it) }
+                        }
+                    }.map { it ?: inactiveAnalyticsResult() }
+                } else {
+                    flowOf(inactiveAnalyticsResult())
+                }
             }
         }.distinctUntilChanged()
+}
+
+private val EMPTY_ANALYTICS_PROFILE = AnalyticsProfileProperties(false, null, null, null, null)
+
+private fun inactiveAnalyticsResult() = AnalyticsResult<AnalyticsIdentifierManager>(
+    identifierResult = AnalyticsIdentifierResult.Disabled,
+    profileProperties = { EMPTY_ANALYTICS_PROFILE },
+    manager = null,
+)
+
+/** Deferred analytics commands remain children of the exact observation that supplied the manager. */
+private fun CoroutineScope.admittedAnalyticsManager(delegate: AnalyticsIdentifierManager): AnalyticsIdentifierManager =
+    object : AnalyticsIdentifierManager {
+        override suspend fun onMigrationComplete() = runAnalyticsAction { delegate.onMigrationComplete() }
+
+        override suspend fun propagateTrackingIdentifier(identifier: String) =
+            runAnalyticsAction { delegate.propagateTrackingIdentifier(identifier) }
+    }
+
+private suspend fun CoroutineScope.runAnalyticsAction(action: suspend () -> Unit) {
+    currentCoroutineContext().ensureActive()
+    if (!isActive) return
+    val command = async { action() }
+    try {
+        command.await()
+    } catch (cancellation: CancellationException) {
+        currentCoroutineContext().ensureActive()
+        if (isActive) throw cancellation
+        // The supplying observation was revoked; a stale analytics callback has no work to do.
+    } finally {
+        command.cancel()
     }
 }

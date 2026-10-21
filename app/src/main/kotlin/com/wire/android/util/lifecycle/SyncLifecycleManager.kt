@@ -27,6 +27,7 @@ import com.wire.kalium.logger.obfuscateDomain
 import com.wire.kalium.logger.obfuscateId
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.UserSessionScope
 import com.wire.kalium.logic.feature.session.GetAllSessionsResult
 import com.wire.kalium.logic.sync.SyncRequestResult
 import dev.zacsweers.metro.AppScope
@@ -38,6 +39,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlin.time.Duration
@@ -91,9 +93,10 @@ class SyncLifecycleManager @Inject constructor(
                             )
                             logger.logAppSyncTelemetry(AppSyncTelemetryEvent.APP_SYNC_REQUEST_STARTED, requestData)
                             try {
-                                coreLogic.getSessionScope(userId).syncExecutor.request {
-                                    awaitCancellation()
-                                }
+                                coreLogic.observeValidSession(userId) {
+                                    val observedSyncExecutor = syncExecutor
+                                    flow<Unit> { observedSyncExecutor.request { awaitCancellation() } }
+                                }.collect {}
                             } finally {
                                 logger.logAppSyncTelemetry(AppSyncTelemetryEvent.APP_SYNC_REQUEST_RELEASED, requestData)
                             }
@@ -129,6 +132,16 @@ class SyncLifecycleManager @Inject constructor(
         waitForNextSyncState: Boolean = false,
         actionWhenLive: suspend () -> Unit
     ) {
+        syncTemporarily(userId, coreLogic.getSessionScope(userId), stayAliveExtraDuration, waitForNextSyncState, actionWhenLive)
+    }
+
+    internal suspend fun syncTemporarily(
+        userId: UserId,
+        session: UserSessionScope,
+        stayAliveExtraDuration: Duration,
+        waitForNextSyncState: Boolean,
+        actionWhenLive: suspend () -> Unit,
+    ) {
         val requestData = mapOf(
             "trigger" to AppSyncTelemetryTrigger.PUSH_NOTIFICATION.name,
             "userId" to userId.toTelemetryString(),
@@ -136,7 +149,7 @@ class SyncLifecycleManager @Inject constructor(
         )
         logger.logAppSyncTelemetry(AppSyncTelemetryEvent.APP_SYNC_REQUEST_STARTED, requestData)
         try {
-            coreLogic.getSessionScope(userId).run {
+            session.run {
                 syncExecutor.request {
                     logger.d("Waiting until live")
                     val syncRequestResult = if (waitForNextSyncState) {

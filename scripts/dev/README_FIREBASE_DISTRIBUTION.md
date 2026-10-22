@@ -24,4 +24,4 @@ PRs must belong to this repository and target `develop`. If their APK is missing
 rerun PR CI. Branch builds do not run the full PR quality gates. Package/signing configuration
 must match between sources; installing an older version code may require a reinstall.
 
-The design is recorded in [ADR 0016](../../docs/adr/0016-trusted-dev-distribution-from-branches-and-prs.md).
+The design is recorded in [ADR 0018](../../docs/adr/0018-trusted-dev-distribution-from-branches-and-prs.md).

@@ -1,10 +1,10 @@
-# 14. Firebase App Distribution for Dev builds
+# 17. Firebase App Distribution for Dev builds
 
 Date: 2026-08-20
 
 ## Status
 
-Superseded by [ADR 0016](0016-trusted-dev-distribution-from-branches-and-prs.md).
+Superseded by [ADR 0018](0018-trusted-dev-distribution-from-branches-and-prs.md).
 
 ## Context
 

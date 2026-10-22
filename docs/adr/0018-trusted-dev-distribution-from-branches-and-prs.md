@@ -1,10 +1,10 @@
-# 16. Manual Dev distribution from branches and PRs
+# 18. Manual Dev distribution from branches and PRs
 
 Date: 2026-10-12
 
 ## Status
 
-Accepted. Supersedes [ADR 0014](0014-firebase-app-distribution-for-dev-builds.md).
+Accepted. Supersedes [ADR 0017](0017-firebase-app-distribution-for-dev-builds.md).
 
 ## Context
 

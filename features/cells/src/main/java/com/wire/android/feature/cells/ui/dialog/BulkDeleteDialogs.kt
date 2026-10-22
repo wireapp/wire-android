@@ -69,7 +69,6 @@ private fun BulkDeleteConfirmationDialog(
 ) {
     val singleNode = confirmation.nodes.singleOrNull()
     if (singleNode != null) {
-        // Same wording as deleting it from its menu.
         DeleteConfirmationDialog(
             itemName = singleNode.name ?: "",
             isFolder = singleNode is CellNodeUi.Folder,

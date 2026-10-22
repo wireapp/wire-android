@@ -507,7 +507,6 @@ class CellViewModel @AssistedInject constructor(
     private fun showBulkDeleteConfirmation() {
         val nodes = bulkSelection.selectedNodes.value.values.toList()
         if (nodes.isEmpty()) return
-        // A snapshot: the selection itself gets cleared if bulk selection becomes unavailable (e.g. offline) meanwhile.
         _bulkDeleteDialog.value = BulkDeleteDialog.Confirmation(nodes)
     }
 
@@ -527,7 +526,6 @@ class CellViewModel @AssistedInject constructor(
             result
                 .onSuccess {
                     _bulkDeleteDialog.value = null
-                    // Hidden right away: the backend may still list them until its delete job is done.
                     nodes.forEach { removeFromListUi(it) }
                     sendAction(
                         nodes.singleOrNull()

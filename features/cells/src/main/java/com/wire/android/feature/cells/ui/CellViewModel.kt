@@ -240,12 +240,25 @@ class CellViewModel @AssistedInject constructor(
     internal val selectedNodes: StateFlow<Map<String, CellNodeUi>> = bulkSelection.selectedNodes
     internal val isBulkSelectionEnabled: StateFlow<Boolean> = bulkSelection.isEnabled
 
+    /** The bulk selection tip, shown wherever selection is available until dismissed or the gesture is first used. */
+    internal val showBulkSelectionHint: StateFlow<Boolean> = combine(
+        bulkSelection.isEnabled,
+        userDataStore.isBulkSelectionHintDismissed(),
+    ) { enabled, dismissed ->
+        enabled && !dismissed
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.Eagerly,
+        initialValue = false,
+    )
+
     init {
         loadWireCellConfig()
         checkCellAvailabilityAndRefresh()
         checkViewerAccess()
         refreshOnUploadsCompletedInThisFolder()
         refreshOnNodesMovedFromOrIntoThisFolder()
+        dismissBulkSelectionHintOnceSelectionIsUsed()
     }
 
     /**
@@ -278,6 +291,18 @@ class CellViewModel @AssistedInject constructor(
         if (!drivePermissionsEnabled) return@launch
         val conversationId = rootConversationId?.takeIf { isConversationFiles() } ?: return@launch
         _isSelfUserViewerOnly.value = !isSelfUserViewerOnConversation(qualifiedIdMapper.fromStringToQualifiedID(conversationId))
+    }
+
+    internal fun onBulkSelectionHintDismissed() {
+        viewModelScope.launch { userDataStore.setBulkSelectionHintDismissed() }
+    }
+
+    // Entering selection mode means the gesture was found: the tip isn't needed anymore.
+    private fun dismissBulkSelectionHintOnceSelectionIsUsed() = viewModelScope.launch {
+        // Only while the tip is shown: no need to store anything for users who already dismissed it.
+        showBulkSelectionHint.first { it }
+        bulkSelection.selectedNodes.first { it.isNotEmpty() }
+        userDataStore.setBulkSelectionHintDismissed()
     }
 
     internal fun onViewerAccessBannerDismissed() {

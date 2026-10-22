@@ -45,15 +45,19 @@ import com.wire.kalium.logic.data.meeting.CreateMeeting
 import com.wire.kalium.logic.data.meeting.UpdateMeeting
 import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.auth.ValidatePasswordUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationMembersUseCase
 import com.wire.kalium.logic.feature.conversation.RenameConversationUseCase
 import com.wire.kalium.logic.feature.conversation.RenamingResult
 import com.wire.kalium.logic.feature.meeting.CreateNewMeetingUseCase
 import com.wire.kalium.logic.feature.meeting.GetNextUnfinishedMeetingOccurrenceUseCase
 import com.wire.kalium.logic.feature.meeting.UpdateMeetingUseCase
+import com.wire.kalium.logic.feature.user.IsMeetingsEnabledUseCase
+import com.wire.kalium.logic.util.RandomPassword
 import dev.zacsweers.metro.Assisted
 import dev.zacsweers.metro.AssistedFactory
 import dev.zacsweers.metro.AssistedInject
+import dev.zacsweers.metro.Named
 import kotlin.time.Duration.Companion.hours
 import kotlinx.collections.immutable.ImmutableSet
 import kotlinx.collections.immutable.persistentSetOf
@@ -75,6 +79,7 @@ interface NewMeetingViewModel : ActionsManager<NewMeetingViewActions> {
     val currentTimeZoneProvider: CurrentTimeZoneProvider
     val type: NewMeetingType
     val titleTextState: TextFieldState
+    val passwordTextState: TextFieldState
     val state: NewMeetingState
 
     fun updateSelectedContact(selected: Boolean, contact: Contact) {}
@@ -84,6 +89,7 @@ interface NewMeetingViewModel : ActionsManager<NewMeetingViewActions> {
     fun updateStartTime(startTime: Instant) {}
     fun updateEndTime(endTime: Instant) {}
     fun updateRepeatingInterval(interval: MeetingItem.RepeatingInterval?) {}
+    fun onGenerateRandomPassword() {}
     fun submitCreation() {}
     fun submitUpdate() {}
     fun dismissCreationError() {}
@@ -100,10 +106,11 @@ class NewMeetingViewModelPreview(
     override val currentTimeProvider: CurrentTimeProvider = CurrentTimeProvider.Preview
     override val currentTimeZoneProvider: CurrentTimeZoneProvider = CurrentTimeZoneProvider.Preview
     override val titleTextState: TextFieldState = TextFieldState()
+    override val passwordTextState: TextFieldState = TextFieldState()
     override val state: NewMeetingState = initialState(currentTimeProvider, currentTimeZoneProvider)
 }
 
-@Suppress("TooManyFunctions")
+@Suppress("TooManyFunctions", "LongParameterList")
 @WireAssistedViewModelBinding(MeetingsManualViewModelFactoryGroup::class)
 class NewMeetingViewModelImpl @AssistedInject constructor(
     @Assisted val navArgs: NewMeetingNavArgs,
@@ -115,6 +122,10 @@ class NewMeetingViewModelImpl @AssistedInject constructor(
     private val observeConversationMembers: ObserveConversationMembersUseCase,
     private val renameConversationUseCase: RenameConversationUseCase,
     private val contactMapper: ContactMapper,
+    private val validatePassword: ValidatePasswordUseCase,
+    private val generatePassword: RandomPassword,
+    private val isMeetingsEnabledUseCase: IsMeetingsEnabledUseCase,
+    @Named("meetingsGuestsLinksEnabled") private val meetingsGuestsLinksEnabled: Boolean,
 ) : ActionsViewModel<NewMeetingViewActions>(), NewMeetingViewModel {
     @AssistedFactory
     interface Factory {
@@ -123,15 +134,17 @@ class NewMeetingViewModelImpl @AssistedInject constructor(
 
     override val type: NewMeetingType = navArgs.type
     override val titleTextState: TextFieldState = TextFieldState()
+    override val passwordTextState: TextFieldState = TextFieldState()
     override var state: NewMeetingState by mutableStateOf(initialState(currentTimeProvider, currentTimeZoneProvider))
         private set
 
     init {
         observeTitleChanges()
-        loadInitialDataForEditing()
+        observePasswordChanges()
+        loadInitialData()
     }
 
-    private fun loadInitialDataForEditing() {
+    private fun loadInitialData() {
         viewModelScope.launch {
             try {
                 val meetingType = navArgs.type
@@ -153,7 +166,12 @@ class NewMeetingViewModelImpl @AssistedInject constructor(
                         )
                     }
                 }
-                state = state.copy(initialLoading = InitialLoadingState.Loaded)
+                state = state.copy(
+                    isGuestLinkSharingEnabled = meetingType == NewMeetingType.Schedule
+                            && meetingsGuestsLinksEnabled
+                            && isMeetingsEnabledUseCase.isGuestLinkSharingEnabled(),
+                    initialLoading = InitialLoadingState.Loaded,
+                )
             } catch (_: Exception) {
                 state = state.copy(initialLoading = InitialLoadingState.Error)
             }
@@ -168,6 +186,39 @@ class NewMeetingViewModelImpl @AssistedInject constructor(
                     validateTitle()
                 }
         }
+    }
+
+    private fun observePasswordChanges() {
+        viewModelScope.launch {
+            passwordTextState.textAsFlow().drop(1).collectLatest {
+                clearPasswordError()
+            }
+        }
+    }
+
+    private fun clearPasswordError() {
+        state = state.copy(
+            invalidPassword = false,
+            continueButtonEnabled = titleTextState.text.trim().isNotEmpty() &&
+                    state.titleError == null && state.startTimeError == null && state.endTimeError == null && !state.isSubmitting
+        )
+    }
+
+    override fun onGenerateRandomPassword() {
+        if (type == NewMeetingType.Schedule && state.isGuestLinkSharingEnabled) {
+            passwordTextState.setTextAndPlaceCursorAtEnd(generatePassword())
+        }
+    }
+
+    private val optionalPassword: String?
+        get() = passwordTextState.text.toString().takeIf {
+            type == NewMeetingType.Schedule && state.isGuestLinkSharingEnabled && it.isNotEmpty()
+        }
+
+    private fun validateOptionalPassword(): Boolean {
+        val invalidPassword = optionalPassword?.let { !validatePassword(it).isValid } ?: false
+        state = state.copy(invalidPassword = invalidPassword, continueButtonEnabled = state.continueButtonEnabled && !invalidPassword)
+        return !invalidPassword
     }
 
     override fun updateSelectedContact(selected: Boolean, contact: Contact) {
@@ -243,7 +294,7 @@ class NewMeetingViewModelImpl @AssistedInject constructor(
             continueButtonEnabled = titleTextState.text.trim().isNotEmpty() &&
                     titleError == null &&
                     state.startTimeError == null &&
-                    state.endTimeError == null
+                    state.endTimeError == null && !state.invalidPassword
         )
         return titleError == null
     }
@@ -265,13 +316,14 @@ class NewMeetingViewModelImpl @AssistedInject constructor(
             continueButtonEnabled = titleTextState.text.trim().isNotEmpty() &&
                     state.titleError == null &&
                     startTimeError == null &&
-                    endTimeError == null
+                    endTimeError == null && !state.invalidPassword
         )
         return startTimeError == null && endTimeError == null
     }
 
     override fun submitCreation() {
         viewModelScope.launch {
+            if (state.isSubmitting) return@launch
             val titleValid = validateTitle()
             val startAndEndTimeValid = when (type) {
                 NewMeetingType.MeetNow -> {
@@ -283,7 +335,8 @@ class NewMeetingViewModelImpl @AssistedInject constructor(
                 NewMeetingType.Schedule -> validateStartAndEndTime()
                 is NewMeetingType.Edit -> false
             }
-            if (titleValid && startAndEndTimeValid && !state.isSubmitting) {
+            val passwordValid = validateOptionalPassword()
+            if (titleValid && startAndEndTimeValid && passwordValid) {
                 state = state.copy(isSubmitting = true, continueButtonEnabled = false)
                 val creationResult = createNewMeeting(
                     createMeeting = CreateMeeting(
@@ -293,7 +346,7 @@ class NewMeetingViewModelImpl @AssistedInject constructor(
                         tzid = state.tzid,
                         recurrence = state.repeatingInterval?.let { Meeting.Recurrence(it.frequency, it.interval.toLong(), null) },
                         type = if (type == NewMeetingType.MeetNow) Meeting.Type.IMMEDIATE else Meeting.Type.SCHEDULED,
-                        password = null, // TODO: optional password input to be implemented soon
+                        password = optionalPassword,
                         otherParticipants = state.confirmedContacts.map { UserId(it.id, it.domain) }
                     )
                 )
@@ -304,6 +357,7 @@ class NewMeetingViewModelImpl @AssistedInject constructor(
                             conversationIdToStartACall = creationResult.conversationId.takeIf { type == NewMeetingType.MeetNow }
                         )
                     )
+
                     is CreateNewMeetingUseCase.Result.Failure -> state = state.copy(submitError = NewMeetingState.SubmitError.Other)
                 }
             }
@@ -353,6 +407,7 @@ class NewMeetingViewModelImpl @AssistedInject constructor(
                 when (it) {
                     is RenamingResult.Failure ->
                         state = state.copy(submitError = NewMeetingState.SubmitError.UpdateConversationNameFailure(conversationId))
+
                     RenamingResult.Success -> sendAction(NewMeetingViewActions.Success())
                 }
             }
@@ -401,6 +456,8 @@ data class NewMeetingState(
     val confirmedGroups: ImmutableSet<SearchGroup> = persistentSetOf(),
     val continueButtonEnabled: Boolean = false,
     val titleError: TitleError? = null,
+    val invalidPassword: Boolean = false,
+    val isGuestLinkSharingEnabled: Boolean = false,
     val startTime: Instant,
     val startTimeError: TimeError? = null,
     val endTime: Instant,

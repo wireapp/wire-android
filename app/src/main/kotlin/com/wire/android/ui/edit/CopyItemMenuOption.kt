@@ -22,13 +22,14 @@ import androidx.compose.ui.res.stringResource
 import com.wire.android.R
 import com.wire.android.ui.common.bottomsheet.MenuBottomSheetItem
 import com.wire.android.ui.common.bottomsheet.MenuItemIcon
+import com.wire.android.ui.common.R as CommonR
 
 @Composable
 fun CopyItemMenuOption(onCopyItemClick: () -> Unit) {
     MenuBottomSheetItem(
         leading = {
             MenuItemIcon(
-                id = R.drawable.ic_copy,
+                id = CommonR.drawable.ic_copy,
                 contentDescription = stringResource(R.string.content_description_copy_the_message),
             )
         },

@@ -77,6 +77,7 @@ import com.wire.kalium.logic.feature.user.MarkFileSharingChangeAsNotifiedUseCase
 import com.wire.kalium.logic.feature.user.MarkSelfDeletionStatusAsNotifiedUseCase
 import com.wire.kalium.logic.feature.user.ObserveValidAccountsUseCase
 import com.wire.kalium.logic.feature.user.ObserveFileSharingStatusUseCase
+import com.wire.kalium.logic.feature.user.IsMeetingsEnabledUseCase
 import com.wire.kalium.logic.feature.user.ObserveIsMeetingsEnabledUseCase
 import com.wire.kalium.logic.feature.user.guestroomlink.MarkGuestLinkFeatureFlagAsNotChangedUseCase
 import com.wire.kalium.logic.feature.user.guestroomlink.ObserveGuestRoomLinkFeatureFlagUseCase
@@ -497,6 +498,12 @@ class UseCaseModule {
 
     @Provides
     fun provideGenerateRandomPasswordUseCase(): RandomPassword = RandomPassword()
+
+    @Provides
+    fun provideIsMeetingsEnabledUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ): IsMeetingsEnabledUseCase = coreLogic.getSessionScope(currentAccount).isMeetingsEnabled
 
     @Provides
     fun provideObserveIsMeetingsEnabledUse(

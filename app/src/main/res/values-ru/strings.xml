@@ -1360,10 +1360,6 @@
         <item quantity="other">Одновременно можно авторизоваться только в %1$d аккаунтах. Выйдите, чтобы добавить другой.</item>
     </plurals>
     <string name="max_account_reached_dialog_button_open_profile">Открыть профиль</string>
-    <!--nomad account blocks login dialog-->
-    <string name="nomad_login_blocked_message">Невозможно авторизоваться, пока активен другой аккаунт</string>
-    <string name="nomad_account_blocks_login_title">Вход заблокирован</string>
-    <string name="nomad_account_blocks_login_message">В данный момент в системе авторизован управляемый профиль. Перед добавлением другого аккаунта необходимо сначала осуществить выход.</string>
     <string name="cant_switch_account_in_call">Невозможно переключать аккаунты во время звонка</string>
     <string name="cross_backend_login_blocked_title">Переключение бэкэндов заблокировано</string>
     <string name="cross_backend_login_blocked_message">В данный момент вы не можете войти в другой бэкенд. Сначала необходимо осуществить выход, а затем войти в другой бэкенд.</string>

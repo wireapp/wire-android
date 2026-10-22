@@ -46,7 +46,6 @@ import com.wire.kalium.common.error.StorageFailure
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.message.MessageContent
-import com.wire.kalium.logic.data.message.paging.NomadMessagePagingResult
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.conversation.GetConversationUnreadEventsCountUseCase
 import com.wire.kalium.network.NetworkState
@@ -55,7 +54,6 @@ import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import kotlin.time.Instant
@@ -439,24 +437,6 @@ class ConversationMessagesViewModelTest {
         }
     }
 
-    @Test
-    fun `given nomad paging result, when fetching older messages, then view state updates`() = runTest {
-        val arrangement = ConversationMessagesViewModelArrangement()
-            .withSuccessfulViewModelInit()
-        val gate = arrangement.withSuspendedNomadPagingResult(NomadMessagePagingResult(hasMore = true))
-        val (_, viewModel) = arrangement.arrange()
-
-        viewModel.fetchOlderMessagesIfNeeded()
-        advanceUntilIdle()
-        assertEquals(true, viewModel.conversationViewState.isFetchingOlderMessages)
-
-        gate.complete(Unit)
-        advanceUntilIdle()
-
-        assertEquals(false, viewModel.conversationViewState.isFetchingOlderMessages)
-        assertEquals(true, viewModel.conversationViewState.hasMoreRemoteMessages)
-    }
-
     private fun regularMessage(
         id: String,
         flowStatus: MessageFlowStatus = MessageFlowStatus.Sent,
@@ -490,30 +470,6 @@ class ConversationMessagesViewModelTest {
     private companion object {
         val TEST_CONVERSATION_ID = ConversationId("conversation", "domain")
         const val MAX_PAGING_EMISSIONS_TO_CHECK = 3
-    }
-
-    @Test
-    fun `given nomad fetch in progress, when fetching older messages twice, then use case is invoked only once`() = runTest {
-        val arrangement = ConversationMessagesViewModelArrangement()
-            .withSuccessfulViewModelInit()
-        val gate = arrangement.withSuspendedNomadPagingResult(NomadMessagePagingResult(hasMore = true))
-        val (_, viewModel) = arrangement.arrange()
-
-        val firstFetch = launch { viewModel.fetchOlderMessagesIfNeeded() }
-        advanceUntilIdle()
-        assertEquals(true, viewModel.conversationViewState.isFetchingOlderMessages)
-
-        viewModel.fetchOlderMessagesIfNeeded()
-        advanceUntilIdle()
-
-        coVerify(exactly = 1) { arrangement.fetchOlderNomadMessagesByConversationUseCase(any(), any()) }
-
-        gate.complete(Unit)
-        advanceUntilIdle()
-        firstFetch.join()
-
-        assertEquals(false, viewModel.conversationViewState.isFetchingOlderMessages)
-        assertEquals(true, viewModel.conversationViewState.hasMoreRemoteMessages)
     }
 
     @Test

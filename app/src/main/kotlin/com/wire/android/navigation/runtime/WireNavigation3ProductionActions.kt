@@ -13,11 +13,7 @@
 package com.wire.android.navigation.runtime
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import com.wire.android.feature.cells.ui.AllFilesNavigationActions
 import com.wire.android.feature.cells.navigation.AddRemoveTagsRoute
 import com.wire.android.feature.cells.navigation.CellImageViewerRoute
@@ -107,7 +103,6 @@ internal data class WireNavigation3ActivityCallbacks(
     val cancelAppLock: () -> Unit,
     val hardLogout: () -> Unit,
     val restartAfterLogout: () -> Unit,
-    val moveTaskToBackground: () -> Unit,
     val completeSessionBackedAuthenticationCancellation: (WireSessionId) -> Unit,
 )
 
@@ -138,9 +133,6 @@ internal class WireNavigation3ProductionActions(
     private val loginTypeSelector: LoginTypeSelector,
     private val authenticationRouter: AuthenticationNavigation3Router,
 ) : WireNavigation3CompositeActions {
-
-    internal var pendingBackgroundAfterHomeSession by mutableStateOf<WireSessionId?>(null)
-        private set
 
     override val cells: AllFilesNavigationActions = AllFilesNavigationActions(
         openSearch = { sortCriteria ->
@@ -510,9 +502,7 @@ internal class WireNavigation3ProductionActions(
             )
         )
 
-    override fun completeInitialSync(route: InitialSyncRoute, shouldMoveToBackground: Boolean) {
-        // The remember wrapper observes Home before invoking the Activity effect, matching legacy.
-        pendingBackgroundAfterHomeSession = route.sessionId.takeIf { shouldMoveToBackground }
+    override fun completeInitialSync(route: InitialSyncRoute) {
         authenticationRouter.completeSessionSetup(route.sessionId, SessionSetupDestination.HOME)
     }
 
@@ -526,15 +516,6 @@ internal class WireNavigation3ProductionActions(
 
     override fun openUserProfile(userId: MeetingParticipantId) =
         openUserProfile(userId.value, userId.domain)
-
-    internal fun moveTaskToBackgroundAfterHomeIsVisible() {
-        val expectedSession = pendingBackgroundAfterHomeSession
-        val current = runtime.navigator.currentRoute as? HomeRoute
-        if (expectedSession != null && current?.sessionId == expectedSession) {
-            pendingBackgroundAfterHomeSession = null
-            activity.moveTaskToBackground()
-        }
-    }
 
     private fun authenticationRoute(): WireRoute =
         if (canUseNewLogin()) NewLoginRoute.start() else WelcomeRoute()
@@ -570,11 +551,6 @@ internal fun rememberWireNavigation3ProductionActions(
             loginTypeSelector,
             authenticationRouter,
         )
-    }
-    val currentEntryId = runtime.navigator.currentRoute?.entryId
-    val pendingBackgroundSession = actions.pendingBackgroundAfterHomeSession
-    LaunchedEffect(currentEntryId, pendingBackgroundSession) {
-        actions.moveTaskToBackgroundAfterHomeIsVisible()
     }
     return actions
 }

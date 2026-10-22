@@ -131,5 +131,9 @@
     <string name="meeting_share_link_not_password_protected">This link is not password protected. Make sure to share it only with the right people. To add a password, generate a new link.</string>
     <string name="meeting_share_link_unavailable">The meeting link is unavailable.</string>
     <string name="meeting_share_copy_link">Copy Link</string>
-    <string name="meeting_share_link_copied">Copied to clipboard</string>
+    <string name="meeting_share_link_copied">Link copied to clipboard</string>
+    <string name="new_meeting_password_input_label">Password (optional)</string>
+    <string name="new_meeting_password_input_placeholder">Enter password</string>
+    <string name="new_meeting_password_description">Make sure to share the password with your guests.</string>
+    <string name="new_meeting_password_error">Use at least 8 characters, with one lowercase letter, one capital letter, a number, and a special character.</string>
 </resources>

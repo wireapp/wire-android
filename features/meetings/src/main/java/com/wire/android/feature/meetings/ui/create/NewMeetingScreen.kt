@@ -26,6 +26,7 @@ import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -78,6 +79,8 @@ import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.WireDropDown
 import com.wire.android.ui.common.animation.ShakeAnimation
+import com.wire.android.ui.common.button.CopyPasswordButton
+import com.wire.android.ui.common.button.GeneratePasswordButton
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.colorsScheme
@@ -91,7 +94,9 @@ import com.wire.android.ui.common.rememberTopBarElevationState
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.common.textfield.DefaultEmailDone
+import com.wire.android.ui.common.textfield.DefaultPassword
 import com.wire.android.ui.common.textfield.DefaultText
+import com.wire.android.ui.common.textfield.WirePasswordTextField
 import com.wire.android.ui.common.textfield.WireTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.common.textfield.maxLengthWithCallback
@@ -113,20 +118,22 @@ import com.wire.kalium.logic.data.user.ConnectionState
 import kotlinx.collections.immutable.ImmutableSet
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.collections.immutable.toPersistentSet
-import kotlin.time.Instant
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toInstant
 import kotlinx.datetime.toLocalDateTime
 import kotlin.time.Duration.Companion.hours
+import kotlin.time.Instant
 import com.wire.android.ui.common.R as commonR
 
 @Composable
 fun NewMeetingContent(
     state: NewMeetingState,
     titleState: TextFieldState,
+    passwordState: TextFieldState,
     type: NewMeetingType,
     modifier: Modifier = Modifier,
+    onGenerateRandomPassword: () -> Unit = {},
     onBackPressed: () -> Unit = {},
     onParticipantsClicked: () -> Unit = {},
     onCreateClicked: () -> Unit = {},
@@ -198,6 +205,14 @@ fun NewMeetingContent(
                     participants = state.confirmedContacts,
                     onClick = onParticipantsClicked,
                 )
+                if (type == NewMeetingType.Schedule && state.isGuestLinkSharingEnabled) {
+                    VerticalSpace.x24()
+                    PasswordInput(
+                        passwordState = passwordState,
+                        invalidPassword = state.invalidPassword,
+                        onGenerateRandomPassword = onGenerateRandomPassword,
+                    )
+                }
             }
             if (state.isSubmitting || state.initialLoading != NewMeetingState.InitialLoadingState.Loaded) {
                 Box(
@@ -253,6 +268,44 @@ fun NewMeetingContent(
         }
     )
     BackHandler(state.isSubmitting) { /* block until submitted */ }
+}
+
+@Composable
+private fun PasswordInput(
+    passwordState: TextFieldState,
+    invalidPassword: Boolean,
+    onGenerateRandomPassword: () -> Unit,
+) {
+    val keyboardController = LocalSoftwareKeyboardController.current
+    Column(modifier = Modifier.fillMaxWidth()) {
+        WirePasswordTextField(
+            textState = passwordState,
+            labelText = stringResource(R.string.new_meeting_password_input_label),
+            placeholderText = stringResource(R.string.new_meeting_password_input_placeholder),
+            state = if (invalidPassword) {
+                WireTextFieldState.Error(stringResource(R.string.new_meeting_password_error))
+            } else {
+                WireTextFieldState.Default
+            },
+            keyboardOptions = KeyboardOptions.DefaultPassword,
+            onKeyboardAction = { keyboardController?.hide() },
+            testTag = "meetingPasswordInput",
+        )
+        VerticalSpace.x8()
+        FlowRow(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+        ) {
+            CopyPasswordButton(password = passwordState.text.toString())
+            GeneratePasswordButton(onClick = onGenerateRandomPassword)
+        }
+        VerticalSpace.x8()
+        Text(
+            text = stringResource(R.string.new_meeting_password_description),
+            style = typography().body01,
+            color = colorsScheme().secondaryText,
+        )
+    }
 }
 
 @Composable
@@ -573,6 +626,7 @@ internal fun FailedToLoadEditMeetingDataError(navigateBack: () -> Unit) {
 fun PreviewNewMeetingScreen_MeetNow() = WireTheme {
     NewMeetingContent(
         titleState = rememberTextFieldState("Meeting with 9 users"),
+        passwordState = rememberTextFieldState(),
         type = NewMeetingType.MeetNow,
         state = NewMeetingState.initialState(CurrentTimeProvider.Preview, CurrentTimeZoneProvider.Preview).copy(
             confirmedIndividualContacts = buildContacts(names.size),
@@ -587,12 +641,14 @@ fun PreviewNewMeetingScreen_MeetNow() = WireTheme {
 fun PreviewNewMeetingScreen_Schedule() = WireTheme {
     NewMeetingContent(
         titleState = rememberTextFieldState(),
+        passwordState = rememberTextFieldState(),
         type = NewMeetingType.Schedule,
         state = NewMeetingState.initialState(CurrentTimeProvider.Preview, CurrentTimeZoneProvider.Preview).copy(
             startTime = getNextFullHour(CurrentTimeProvider.Preview.invoke(), CurrentTimeZoneProvider.Preview.invoke()),
             endTime = getNextFullHour(CurrentTimeProvider.Preview.invoke(), CurrentTimeZoneProvider.Preview.invoke()).plus(1.hours),
             repeatingInterval = MeetingItem.RepeatingInterval.Supported.first(),
             initialLoading = NewMeetingState.InitialLoadingState.Loaded,
+            isGuestLinkSharingEnabled = true,
         ),
     )
 }
@@ -602,6 +658,7 @@ fun PreviewNewMeetingScreen_Schedule() = WireTheme {
 fun PreviewNewMeetingScreen_Edit() = WireTheme {
     NewMeetingContent(
         titleState = rememberTextFieldState(),
+        passwordState = rememberTextFieldState(),
         type = NewMeetingType.Edit(MeetingId("meetingId", "domain")),
         state = NewMeetingState.initialState(CurrentTimeProvider.Preview, CurrentTimeZoneProvider.Preview).copy(
             startTime = getNextFullHour(CurrentTimeProvider.Preview.invoke(), CurrentTimeZoneProvider.Preview.invoke()),

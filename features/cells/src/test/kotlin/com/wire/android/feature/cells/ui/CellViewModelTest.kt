@@ -24,10 +24,13 @@ import androidx.paging.PagingData
 import androidx.paging.testing.asSnapshot
 import app.cash.turbine.test
 import com.wire.android.datastore.UserDataStore
+import com.wire.kalium.common.error.CoreFailure
+import com.wire.kalium.common.error.NetworkFailure
 import com.wire.kalium.common.functional.Either
 import com.wire.kalium.logic.featureFlags.KaliumConfigs
 import com.wire.android.feature.cells.ui.edit.OnlineEditor
 import com.wire.android.feature.cells.ui.model.CellNodeUi
+import com.wire.android.feature.cells.ui.dialog.BulkDeleteDialog
 import com.wire.android.feature.cells.ui.model.pdfRenditionUrl
 import com.wire.android.feature.cells.ui.model.NodeBottomSheetAction
 import com.wire.android.feature.cells.ui.model.OpenLoadState
@@ -44,7 +47,10 @@ import com.wire.kalium.cells.domain.CellUploadItem
 import com.wire.kalium.cells.domain.CellUploadRequest
 import com.wire.kalium.cells.domain.CellUploadState
 import com.wire.kalium.cells.domain.model.Node
+import com.wire.kalium.cells.domain.model.NodeLocator
+import com.wire.kalium.cells.domain.model.NodeToDelete
 import com.wire.kalium.cells.domain.usecase.DeleteCellAssetUseCase
+import com.wire.kalium.cells.domain.usecase.DeleteCellAssetsUseCase
 import com.wire.kalium.cells.domain.usecase.GetConversationNameUseCase
 import com.wire.kalium.cells.domain.usecase.GetEditorUrlUseCase
 import com.wire.kalium.cells.domain.usecase.GetPaginatedFilesFlowUseCase
@@ -58,6 +64,7 @@ import com.wire.kalium.cells.domain.usecase.offline.GetOfflineFileUseCase
 import com.wire.kalium.cells.domain.usecase.offline.ObserveOfflineFilesUseCase
 import com.wire.kalium.cells.domain.usecase.offline.OfflineFileInfo
 import com.wire.kalium.cells.domain.usecase.offline.SaveOfflineFileUseCase
+import com.wire.kalium.common.functional.left
 import com.wire.kalium.common.functional.right
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
@@ -76,6 +83,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
@@ -605,6 +613,113 @@ class CellViewModelTest {
     }
 
     @Test
+    fun `given selected nodes when delete is clicked then the confirmation shows them`() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withConversationId("conversationId")
+            .withEditorAccess()
+            .arrange()
+        val nodes = testFiles.map { it.toUiModel() }
+        selectNodes(viewModel, nodes)
+
+        viewModel.sendIntent(CellViewIntent.OnDeleteSelectedNodesClick)
+
+        assertEquals(BulkDeleteDialog.Confirmation(nodes), viewModel.bulkDeleteDialog.value)
+    }
+
+    @Test
+    fun `given a bulk delete confirmation when confirmed then delete all nodes in one request and confirm it`() = runTest {
+        val (arrangement, viewModel) = Arrangement()
+            .withConversationId("conversationId")
+            .withEditorAccess()
+            .withBulkDeleteReturning(Unit.right())
+            .arrange()
+        val nodes = testFiles.map { it.toUiModel() }
+        selectNodes(viewModel, nodes)
+        viewModel.sendIntent(CellViewIntent.OnDeleteSelectedNodesClick)
+
+        viewModel.actions.test {
+            viewModel.sendIntent(CellViewIntent.OnBulkDeleteConfirmed)
+            advanceUntilIdle()
+
+            assertEquals(ShowNodesDeletedMessage(deletedCount = 2), awaitItem())
+        }
+        coVerify(exactly = 1) {
+            arrangement.deleteCellAssetsUseCase(
+                listOf(
+                    NodeToDelete(NodeLocator("fileUuid", "conversationId/fileName"), localPath = "localPath"),
+                    NodeToDelete(NodeLocator("fileUuid2", "conversationId/fileName2"), localPath = null),
+                )
+            )
+        }
+        assertNull(viewModel.bulkDeleteDialog.value)
+        assertTrue(viewModel.selectedNodes.value.isEmpty())
+    }
+
+    @Test
+    fun `given a single selected node when its bulk delete succeeds then show the single item message`() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withConversationId("conversationId")
+            .withEditorAccess()
+            .withBulkDeleteReturning(Unit.right())
+            .arrange()
+        selectNodes(viewModel, listOf(testFiles[0].toUiModel()))
+        viewModel.sendIntent(CellViewIntent.OnDeleteSelectedNodesClick)
+
+        viewModel.actions.test {
+            viewModel.sendIntent(CellViewIntent.OnBulkDeleteConfirmed)
+            advanceUntilIdle()
+
+            assertEquals(ShowFileDeletedMessage(isFile = true, permanently = false), awaitItem())
+        }
+    }
+
+    @Test
+    fun `given no network when the bulk delete fails then show a no network failure and clear the selection`() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withConversationId("conversationId")
+            .withEditorAccess()
+            .withBulkDeleteReturning(NetworkFailure.NoNetworkConnection(null).left())
+            .arrange()
+        selectNodes(viewModel, testFiles.map { it.toUiModel() })
+        viewModel.sendIntent(CellViewIntent.OnDeleteSelectedNodesClick)
+
+        viewModel.sendIntent(CellViewIntent.OnBulkDeleteConfirmed)
+        advanceUntilIdle()
+
+        assertEquals(BulkDeleteDialog.Failure(totalCount = 2, isNoNetworkConnection = true), viewModel.bulkDeleteDialog.value)
+        assertTrue(viewModel.selectedNodes.value.isEmpty())
+    }
+
+    @Test
+    fun `given a bulk delete in progress when dismissed or confirmed again then ignore it`() = runTest {
+        val result = CompletableDeferred<Either<CoreFailure, Unit>>()
+        val (arrangement, viewModel) = Arrangement()
+            .withConversationId("conversationId")
+            .withEditorAccess()
+            .arrange()
+        coEvery { arrangement.deleteCellAssetsUseCase(any()) } coAnswers { result.await() }
+        val nodes = testFiles.map { it.toUiModel() }
+        selectNodes(viewModel, nodes)
+        viewModel.sendIntent(CellViewIntent.OnDeleteSelectedNodesClick)
+
+        viewModel.sendIntent(CellViewIntent.OnBulkDeleteConfirmed)
+        viewModel.sendIntent(CellViewIntent.OnBulkDeleteDialogDismissed)
+        viewModel.sendIntent(CellViewIntent.OnBulkDeleteConfirmed)
+        advanceUntilIdle()
+
+        assertEquals(BulkDeleteDialog.Confirmation(nodes, isInProgress = true), viewModel.bulkDeleteDialog.value)
+        result.complete(Unit.right())
+        advanceUntilIdle()
+        coVerify(exactly = 1) { arrangement.deleteCellAssetsUseCase(any()) }
+    }
+
+    private fun TestScope.selectNodes(viewModel: CellViewModel, nodes: List<CellNodeUi>) {
+        advanceUntilIdle() // Lets the viewer access check enable bulk selection.
+        viewModel.sendIntent(CellViewIntent.OnItemLongClick(nodes.first()))
+        nodes.drop(1).forEach { viewModel.sendIntent(CellViewIntent.OnItemClick(it)) }
+    }
+
+    @Test
     fun `GIVEN no cells available WHEN ViewModel initialized THEN no load request is sent`() = runTest {
         val (arrangement, viewModel) = Arrangement()
             .withNoCellsAvailable()
@@ -946,6 +1061,9 @@ class CellViewModelTest {
         lateinit var deleteCellAssetUseCase: DeleteCellAssetUseCase
 
         @MockK
+        lateinit var deleteCellAssetsUseCase: DeleteCellAssetsUseCase
+
+        @MockK
         lateinit var downloadCellFileUseCase: DownloadCellFileUseCase
 
         @MockK
@@ -1110,6 +1228,15 @@ class CellViewModelTest {
             this.conversationId = conversationId
         }
 
+        /** More than viewer access, which bulk selection requires. */
+        fun withEditorAccess() = apply {
+            coEvery { isSelfUserViewerOnConversation(any()) } returns false
+        }
+
+        fun withBulkDeleteReturning(result: Either<CoreFailure, Unit>) = apply {
+            coEvery { deleteCellAssetsUseCase(any()) } returns result
+        }
+
         fun withSearchScreenArgsOnly(initialSortingCriteria: SortCriteriaNavArg? = null) = apply {
             searchNavArgs = SearchNavArgs(
                 conversationId = conversationId,
@@ -1144,6 +1271,7 @@ class CellViewModelTest {
                 searchNavArgs = searchNavArgs,
                 getCellFilesPaged = getCellFilesPagedUseCase,
                 deleteCellAsset = deleteCellAssetUseCase,
+                deleteCellAssets = deleteCellAssetsUseCase,
                 restoreNodeFromRecycleBinUseCase = restoreNodeFromRecycleBinUseCase,
                 isCellAvailable = isCellAvailableUseCase,
                 fileHelper = fileHelper,

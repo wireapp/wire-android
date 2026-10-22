@@ -27,6 +27,7 @@ import androidx.paging.filter
 import androidx.paging.map
 import com.wire.android.datastore.UserDataStore
 import com.wire.android.feature.cells.domain.model.AttachmentFileType
+import com.wire.android.feature.cells.ui.dialog.BulkDeleteDialog
 import com.wire.android.feature.cells.ui.edit.OnlineEditor
 import com.wire.android.feature.cells.ui.model.CellNodeUi
 import com.wire.android.feature.cells.ui.model.NodeBottomSheetAction
@@ -52,7 +53,10 @@ import com.wire.kalium.cells.data.SortingSpec
 import com.wire.kalium.cells.domain.CellUploadCoordinator
 import com.wire.kalium.cells.domain.CellUploadState
 import com.wire.kalium.cells.domain.model.Node
+import com.wire.kalium.cells.domain.model.NodeLocator
+import com.wire.kalium.cells.domain.model.NodeToDelete
 import com.wire.kalium.cells.domain.usecase.DeleteCellAssetUseCase
+import com.wire.kalium.cells.domain.usecase.DeleteCellAssetsUseCase
 import com.wire.kalium.cells.domain.usecase.GetConversationNameUseCase
 import com.wire.kalium.cells.domain.usecase.GetEditorUrlUseCase
 import com.wire.kalium.cells.domain.usecase.GetPaginatedFilesFlowUseCase
@@ -63,6 +67,7 @@ import com.wire.kalium.cells.domain.usecase.RestoreNodeFromRecycleBinUseCase
 import com.wire.kalium.cells.domain.usecase.offline.DeleteOfflineFileUseCase
 import com.wire.kalium.cells.domain.usecase.offline.GetOfflineFileUseCase
 import com.wire.kalium.cells.domain.usecase.offline.ObserveOfflineFilesUseCase
+import com.wire.kalium.common.error.NetworkFailure
 import com.wire.kalium.common.functional.fold
 import com.wire.kalium.common.functional.onFailure
 import com.wire.kalium.common.functional.onSuccess
@@ -106,6 +111,7 @@ class CellViewModel @AssistedInject constructor(
     @Assisted private val searchNavArgs: SearchNavArgs?,
     private val getCellFilesPaged: GetPaginatedFilesFlowUseCase,
     private val deleteCellAsset: DeleteCellAssetUseCase,
+    private val deleteCellAssets: DeleteCellAssetsUseCase,
     private val restoreNodeFromRecycleBinUseCase: RestoreNodeFromRecycleBinUseCase,
     private val isCellAvailable: IsAtLeastOneCellAvailableUseCase,
     private val fileHelper: FileHelper,
@@ -151,6 +157,10 @@ class CellViewModel @AssistedInject constructor(
 
     private val _isDeleteInProgress = MutableStateFlow(false)
     val isDeleteInProgress = _isDeleteInProgress.asStateFlow()
+
+    // Kept in the state, not sent as actions, so the dialogs survive configuration changes.
+    private val _bulkDeleteDialog = MutableStateFlow<BulkDeleteDialog?>(null)
+    internal val bulkDeleteDialog: StateFlow<BulkDeleteDialog?> = _bulkDeleteDialog.asStateFlow()
 
     internal val fileReadyFlow: Flow<CellNodeUi.File> = sharedPathCache.fileReadyEvents
 
@@ -414,7 +424,9 @@ class CellViewModel @AssistedInject constructor(
             is CellViewIntent.OnDragSelectionEnd -> bulkSelection.onDragSelectionEnd()
             is CellViewIntent.OnClearSelection -> bulkSelection.clear()
             is CellViewIntent.OnMoveSelectedNodesClick -> moveSelectedNodes()
-            is CellViewIntent.OnDeleteSelectedNodesClick,
+            is CellViewIntent.OnDeleteSelectedNodesClick -> showBulkDeleteConfirmation()
+            is CellViewIntent.OnBulkDeleteConfirmed -> deleteSelectedNodes()
+            is CellViewIntent.OnBulkDeleteDialogDismissed -> dismissBulkDeleteDialog()
             is CellViewIntent.OnMakeSelectedNodesAvailableOfflineClick -> Unit
 
             is CellViewIntent.OnItemMenuClick -> onItemMenuClick(intent.cellNode)
@@ -491,6 +503,58 @@ class CellViewModel @AssistedInject constructor(
         bulkSelection.clear()
         sendAction(ShowBulkMoveToFolderScreen(currentPath = folderPath.substringBefore("/"), nodes = nodes))
     }
+
+    private fun showBulkDeleteConfirmation() {
+        val nodes = bulkSelection.selectedNodes.value.values.toList()
+        if (nodes.isEmpty()) return
+        // A snapshot: the selection itself gets cleared if bulk selection becomes unavailable (e.g. offline) meanwhile.
+        _bulkDeleteDialog.value = BulkDeleteDialog.Confirmation(nodes)
+    }
+
+    /**
+     * Moves the confirmed nodes to the recycle bin in a single request. There is no rollback: if it fails midway, some of
+     * them may still have been deleted, so the list is refreshed and the selection cleared either way.
+     */
+    private fun deleteSelectedNodes() {
+        val confirmation = _bulkDeleteDialog.value as? BulkDeleteDialog.Confirmation ?: return
+        if (confirmation.isInProgress) return
+        val folderPath = currentNodeUuid() ?: return
+        val nodes = confirmation.nodes
+        _bulkDeleteDialog.value = confirmation.copy(isInProgress = true)
+        viewModelScope.launch {
+            val result = deleteCellAssets(nodes.map { it.toNodeToDelete(folderPath) })
+            bulkSelection.clear()
+            result
+                .onSuccess {
+                    _bulkDeleteDialog.value = null
+                    // Hidden right away: the backend may still list them until its delete job is done.
+                    nodes.forEach { removeFromListUi(it) }
+                    sendAction(
+                        nodes.singleOrNull()
+                            ?.let { ShowFileDeletedMessage(isFile = it is CellNodeUi.File, permanently = false) }
+                            ?: ShowNodesDeletedMessage(deletedCount = nodes.size)
+                    )
+                }
+                .onFailure { failure ->
+                    _bulkDeleteDialog.value = BulkDeleteDialog.Failure(
+                        totalCount = nodes.size,
+                        isNoNetworkConnection = failure is NetworkFailure.NoNetworkConnection,
+                    )
+                }
+            refreshNodes()
+        }
+    }
+
+    private fun dismissBulkDeleteDialog() {
+        // The confirmation stays up until the request completes.
+        if ((_bulkDeleteDialog.value as? BulkDeleteDialog.Confirmation)?.isInProgress == true) return
+        _bulkDeleteDialog.value = null
+    }
+
+    private fun CellNodeUi.toNodeToDelete(folderPath: String) = NodeToDelete(
+        locator = NodeLocator(uuid = uuid, path = "$folderPath/$name"),
+        localPath = (this as? CellNodeUi.File)?.localPath,
+    )
 
     internal fun currentNodeUuid(): String? = navArgs.conversationId
     internal fun isRecycleBin(): Boolean = navArgs.isRecycleBin ?: false
@@ -856,6 +920,8 @@ sealed interface CellViewIntent {
     data object OnClearSelection : CellViewIntent
     data object OnMoveSelectedNodesClick : CellViewIntent
     data object OnDeleteSelectedNodesClick : CellViewIntent
+    data object OnBulkDeleteConfirmed : CellViewIntent
+    data object OnBulkDeleteDialogDismissed : CellViewIntent
     data object OnMakeSelectedNodesAvailableOfflineClick : CellViewIntent
     data class OnMenuItemActionSelected(val node: CellNodeUi, val action: NodeBottomSheetAction) : CellViewIntent
     data class OnNodeDeleteConfirmed(val node: CellNodeUi) : CellViewIntent

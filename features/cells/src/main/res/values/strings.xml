@@ -340,11 +340,25 @@
         <item quantity="one">%1$d item was moved to the recycle bin</item>
         <item quantity="other">%1$d items were moved to the recycle bin</item>
     </plurals>
+    <plurals name="cells_bulk_permanent_delete_confirmation_title">
+        <item quantity="one">Permanently delete %1$d item</item>
+        <item quantity="other">Permanently delete %1$d items</item>
+    </plurals>
+    <plurals name="cells_bulk_permanent_delete_confirmation_message">
+        <item quantity="one">%1$d item will be permanently deleted for all participants. This can\'t be undone.</item>
+        <item quantity="other">These %1$d items will be permanently deleted for all participants. This can\'t be undone.</item>
+    </plurals>
+    <plurals name="cells_bulk_permanent_delete_success">
+        <item quantity="one">%1$d item was permanently deleted</item>
+        <item quantity="other">%1$d items were permanently deleted</item>
+    </plurals>
     <string name="cells_bulk_delete_failure_title_one">Item not deleted</string>
     <string name="cells_bulk_delete_failure_title_many">Items not deleted</string>
     <string name="cells_bulk_delete_failure_message_one">Something went wrong while deleting the item. Please try again.</string>
     <string name="cells_bulk_delete_failure_message_one_no_network">The item couldn’t be deleted because you’re offline. Check your internet connection and try again.</string>
     <string name="cells_bulk_delete_failure_message_many">Something went wrong while deleting the items. Some of them may have been moved to the recycle bin, so check both before trying again.</string>
     <string name="cells_bulk_delete_failure_message_many_no_network">The connection was lost while deleting the items. Some of them may have been moved to the recycle bin, so check both before trying again.</string>
+    <string name="cells_bulk_permanent_delete_failure_message_many">Something went wrong while deleting the items. Some of them may have been permanently deleted, so check the recycle bin before trying again.</string>
+    <string name="cells_bulk_permanent_delete_failure_message_many_no_network">The connection was lost while deleting the items. Some of them may have been permanently deleted, so check the recycle bin before trying again.</string>
     <string name="cells_bulk_action_offline">Offline</string>
 </resources>

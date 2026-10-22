@@ -639,18 +639,79 @@ class CellViewModelTest {
             viewModel.sendIntent(CellViewIntent.OnBulkDeleteConfirmed)
             advanceUntilIdle()
 
-            assertEquals(ShowNodesDeletedMessage(deletedCount = 2), awaitItem())
+            assertEquals(ShowNodesDeletedMessage(deletedCount = 2, permanently = false), awaitItem())
         }
         coVerify(exactly = 1) {
             arrangement.deleteCellAssetsUseCase(
                 listOf(
-                    NodeToDelete(NodeLocator("fileUuid", "conversationId/fileName"), localPath = "localPath"),
-                    NodeToDelete(NodeLocator("fileUuid2", "conversationId/fileName2"), localPath = null),
-                )
+                    // Their server paths, not built from the folder being browsed.
+                    NodeToDelete(NodeLocator("fileUuid", "remotePath"), localPath = "localPath"),
+                    NodeToDelete(NodeLocator("fileUuid2", "remotePath2"), localPath = null),
+                ),
+                permanentDelete = false,
             )
         }
         assertNull(viewModel.bulkDeleteDialog.value)
         assertTrue(viewModel.selectedNodes.value.isEmpty())
+    }
+
+    @Test
+    fun `given the recycle bin when selected nodes are deleted then they are deleted for good`() = runTest {
+        val (arrangement, viewModel) = Arrangement()
+            .withConversationId("conversationId")
+            .withRecycleBin()
+            .withBulkDeleteReturning(Unit.right())
+            .arrange()
+        val nodes = testFiles.map { it.toUiModel() }
+        selectNodes(viewModel, nodes)
+
+        viewModel.sendIntent(CellViewIntent.OnDeleteSelectedNodesClick)
+        assertEquals(BulkDeleteDialog.Confirmation(nodes, isPermanentDelete = true), viewModel.bulkDeleteDialog.value)
+
+        viewModel.actions.test {
+            viewModel.sendIntent(CellViewIntent.OnBulkDeleteConfirmed)
+            advanceUntilIdle()
+
+            assertEquals(ShowNodesDeletedMessage(deletedCount = 2, permanently = true), awaitItem())
+        }
+        coVerify(exactly = 1) { arrangement.deleteCellAssetsUseCase(any(), permanentDelete = true) }
+    }
+
+    @Test
+    fun `given the recycle bin when a single selected node is deleted then show the permanently deleted message`() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withConversationId("conversationId")
+            .withRecycleBin()
+            .withBulkDeleteReturning(Unit.right())
+            .arrange()
+        selectNodes(viewModel, listOf(testFiles[0].toUiModel()))
+        viewModel.sendIntent(CellViewIntent.OnDeleteSelectedNodesClick)
+
+        viewModel.actions.test {
+            viewModel.sendIntent(CellViewIntent.OnBulkDeleteConfirmed)
+            advanceUntilIdle()
+
+            assertEquals(ShowFileDeletedMessage(isFile = true, permanently = true), awaitItem())
+        }
+    }
+
+    @Test
+    fun `given the recycle bin when the bulk delete fails then show a permanent delete failure`() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withConversationId("conversationId")
+            .withRecycleBin()
+            .withBulkDeleteReturning(NetworkFailure.NoNetworkConnection(null).left())
+            .arrange()
+        selectNodes(viewModel, testFiles.map { it.toUiModel() })
+        viewModel.sendIntent(CellViewIntent.OnDeleteSelectedNodesClick)
+
+        viewModel.sendIntent(CellViewIntent.OnBulkDeleteConfirmed)
+        advanceUntilIdle()
+
+        assertEquals(
+            BulkDeleteDialog.Failure(totalCount = 2, isNoNetworkConnection = true, isPermanentDelete = true),
+            viewModel.bulkDeleteDialog.value
+        )
     }
 
     @Test
@@ -692,7 +753,7 @@ class CellViewModelTest {
         val (arrangement, viewModel) = Arrangement()
             .withConversationId("conversationId")
             .arrange()
-        coEvery { arrangement.deleteCellAssetsUseCase(any()) } coAnswers { result.await() }
+        coEvery { arrangement.deleteCellAssetsUseCase(any(), any()) } coAnswers { result.await() }
         val nodes = testFiles.map { it.toUiModel() }
         selectNodes(viewModel, nodes)
         viewModel.sendIntent(CellViewIntent.OnDeleteSelectedNodesClick)
@@ -705,7 +766,7 @@ class CellViewModelTest {
         assertEquals(BulkDeleteDialog.Confirmation(nodes, isInProgress = true), viewModel.bulkDeleteDialog.value)
         result.complete(Unit.right())
         advanceUntilIdle()
-        coVerify(exactly = 1) { arrangement.deleteCellAssetsUseCase(any()) }
+        coVerify(exactly = 1) { arrangement.deleteCellAssetsUseCase(any(), any()) }
     }
 
     @Test
@@ -1093,6 +1154,7 @@ class CellViewModelTest {
     ) {
 
         private var searchNavArgs: SearchNavArgs? = null
+        private var isRecycleBin: Boolean = false
 
         @MockK
         lateinit var getCellFilesPagedUseCase: GetPaginatedFilesFlowUseCase
@@ -1274,12 +1336,16 @@ class CellViewModelTest {
          * Restricts the self user to viewer access, which turns bulk selection off. Note the inverted use case: it returns
          * false for viewer-only users (and true, the default here, for everyone else).
          */
+        fun withRecycleBin() = apply {
+            isRecycleBin = true
+        }
+
         fun withViewerOnlyAccess() = apply {
             coEvery { isSelfUserViewerOnConversation(any()) } returns false
         }
 
         fun withBulkDeleteReturning(result: Either<CoreFailure, Unit>) = apply {
-            coEvery { deleteCellAssetsUseCase(any()) } returns result
+            coEvery { deleteCellAssetsUseCase(any(), any()) } returns result
         }
 
         fun withSearchScreenArgsOnly(initialSortingCriteria: SortCriteriaNavArg? = null) = apply {
@@ -1312,7 +1378,7 @@ class CellViewModelTest {
             )
 
             return this to CellViewModel(
-                navArgs = CellFilesNavArgs(conversationId = conversationId),
+                navArgs = CellFilesNavArgs(conversationId = conversationId, isRecycleBin = isRecycleBin),
                 searchNavArgs = searchNavArgs,
                 getCellFilesPaged = getCellFilesPagedUseCase,
                 deleteCellAsset = deleteCellAssetUseCase,

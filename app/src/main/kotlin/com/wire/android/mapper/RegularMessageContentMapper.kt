@@ -237,6 +237,9 @@ class RegularMessageMapper @Inject constructor(
                 }
 
                 is MessageContent.QuotedMessageDetails.Text -> UIQuotedMessage.UIQuotedData.Text(UIText.DynamicString(quotedContent.value))
+                is MessageContent.QuotedMessageDetails.Poll -> UIQuotedMessage.UIQuotedData.Text(
+                    UIText.DynamicString(quotedContent.question)
+                )
                 is MessageContent.QuotedMessageDetails.Location -> UIQuotedMessage.UIQuotedData.Location(
                     quotedContent.locationName.orEmpty()
                 )

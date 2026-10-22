@@ -26,6 +26,7 @@ import com.wire.android.framework.TestMessage.buildAssetMessage
 import com.wire.android.framework.TestUser
 import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.ui.home.conversations.model.UIMessageContent.AssetMessage
+import com.wire.android.ui.home.conversations.model.UIQuotedMessage
 import com.wire.android.util.time.ISOFormatter
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.id.QualifiedID
@@ -52,6 +53,7 @@ import kotlinx.coroutines.test.runTest
 import okio.Path
 import okio.Path.Companion.toPath
 import okio.buffer
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
@@ -82,6 +84,31 @@ class RegularMessageContentMapperTest {
                         (messageBody.message as UIText.StringResource).resId == arrangement.messageResourceProvider.sentAMessageWithContent
             )
         }
+    }
+
+    @Test
+    fun givenQuotedPoll_whenMappingToTextMessageContent_thenPollQuestionShouldBeDisplayed() = runTest {
+        val (_, mapper) = Arrangement().arrange()
+        val pollQuestion = "Where should we meet?"
+        val quotedMessageDetails = MessageContent.QuotedMessageDetails(
+            senderId = TestUser.OTHER_USER.id,
+            senderName = TestUser.OTHER_USER.name,
+            accentId = null,
+            isQuotingSelfUser = false,
+            isVerified = true,
+            messageId = "poll-message-id",
+            timeInstant = TestMessage.TEXT_MESSAGE.date,
+            editInstant = null,
+            quotedContent = MessageContent.QuotedMessageDetails.Poll(pollQuestion)
+        )
+        val content = MessageContent.Text("Let's meet here", quotedMessageDetails = quotedMessageDetails)
+
+        val result = mapper.toText(TestConversation.ID, content, userMembers, DeliveryStatus.CompleteDelivery)
+
+        val quotedMessage = result.messageBody.quotedMessage as UIQuotedMessage.UIQuotedData
+        assertEquals(quotedMessageDetails.messageId, quotedMessage.messageId)
+        assertEquals(quotedMessageDetails.senderId, quotedMessage.senderId)
+        assertEquals(UIQuotedMessage.UIQuotedData.Text(UIText.DynamicString(pollQuestion)), quotedMessage.quotedContent)
     }
 
     @Test

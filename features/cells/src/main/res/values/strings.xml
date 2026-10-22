@@ -317,6 +317,11 @@
         <item quantity="other">%1$d selected</item>
     </plurals>
     <string name="cells_bulk_selection_cancel_content_description">Cancel selection</string>
+    <!-- Badge marking a newly released feature, not the "create new" action of cells_new_label -->
+    <string name="cells_new_feature_badge">NEW</string>
+    <string name="cells_bulk_selection_hint_title">Select multiple files</string>
+    <string name="cells_bulk_selection_hint_message">Long-press a file, then drag up or down to select more.</string>
+    <string name="cells_bulk_selection_hint_dismiss_content_description">Dismiss tip</string>
     <string name="cells_bulk_action_move">Move</string>
     <string name="cells_bulk_action_delete">Delete</string>
     <plurals name="cells_bulk_delete_confirmation_title">

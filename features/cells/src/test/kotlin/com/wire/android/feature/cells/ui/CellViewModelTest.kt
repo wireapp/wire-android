@@ -616,7 +616,6 @@ class CellViewModelTest {
     fun `given selected nodes when delete is clicked then the confirmation shows them`() = runTest {
         val (_, viewModel) = Arrangement()
             .withConversationId("conversationId")
-            .withEditorAccess()
             .arrange()
         val nodes = testFiles.map { it.toUiModel() }
         selectNodes(viewModel, nodes)
@@ -630,7 +629,6 @@ class CellViewModelTest {
     fun `given a bulk delete confirmation when confirmed then delete all nodes in one request and confirm it`() = runTest {
         val (arrangement, viewModel) = Arrangement()
             .withConversationId("conversationId")
-            .withEditorAccess()
             .withBulkDeleteReturning(Unit.right())
             .arrange()
         val nodes = testFiles.map { it.toUiModel() }
@@ -659,7 +657,6 @@ class CellViewModelTest {
     fun `given a single selected node when its bulk delete succeeds then show the single item message`() = runTest {
         val (_, viewModel) = Arrangement()
             .withConversationId("conversationId")
-            .withEditorAccess()
             .withBulkDeleteReturning(Unit.right())
             .arrange()
         selectNodes(viewModel, listOf(testFiles[0].toUiModel()))
@@ -677,7 +674,6 @@ class CellViewModelTest {
     fun `given no network when the bulk delete fails then show a no network failure and clear the selection`() = runTest {
         val (_, viewModel) = Arrangement()
             .withConversationId("conversationId")
-            .withEditorAccess()
             .withBulkDeleteReturning(NetworkFailure.NoNetworkConnection(null).left())
             .arrange()
         selectNodes(viewModel, testFiles.map { it.toUiModel() })
@@ -695,7 +691,6 @@ class CellViewModelTest {
         val result = CompletableDeferred<Either<CoreFailure, Unit>>()
         val (arrangement, viewModel) = Arrangement()
             .withConversationId("conversationId")
-            .withEditorAccess()
             .arrange()
         coEvery { arrangement.deleteCellAssetsUseCase(any()) } coAnswers { result.await() }
         val nodes = testFiles.map { it.toUiModel() }
@@ -711,6 +706,51 @@ class CellViewModelTest {
         result.complete(Unit.right())
         advanceUntilIdle()
         coVerify(exactly = 1) { arrangement.deleteCellAssetsUseCase(any()) }
+    }
+
+    @Test
+    fun `given bulk selection available and the tip not dismissed then the tip is shown`() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withConversationId("conversationId")
+            .arrange()
+        advanceUntilIdle()
+
+        assertTrue(viewModel.showBulkSelectionHint.value)
+    }
+
+    @Test
+    fun `given viewer only access then the bulk selection tip is not shown`() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withConversationId("conversationId")
+            .withViewerOnlyAccess()
+            .arrange()
+        advanceUntilIdle()
+
+        assertFalse(viewModel.showBulkSelectionHint.value)
+    }
+
+    @Test
+    fun `given the tip is shown when it is dismissed then remember it`() = runTest {
+        val (arrangement, viewModel) = Arrangement()
+            .withConversationId("conversationId")
+            .arrange()
+
+        viewModel.onBulkSelectionHintDismissed()
+        advanceUntilIdle()
+
+        coVerify(exactly = 1) { arrangement.userDataStore.setBulkSelectionHintDismissed() }
+    }
+
+    @Test
+    fun `given the tip is shown when selection mode is entered then the tip is dismissed`() = runTest {
+        val (arrangement, viewModel) = Arrangement()
+            .withConversationId("conversationId")
+            .arrange()
+
+        selectNodes(viewModel, listOf(testFiles[0].toUiModel()))
+        advanceUntilIdle()
+
+        coVerify(exactly = 1) { arrangement.userDataStore.setBulkSelectionHintDismissed() }
     }
 
     private fun TestScope.selectNodes(viewModel: CellViewModel, nodes: List<CellNodeUi>) {
@@ -1130,6 +1170,7 @@ class CellViewModelTest {
         lateinit var uploadCoordinator: CellUploadCoordinator
 
         val uploadsFlow = MutableStateFlow<List<CellUploadItem>>(emptyList())
+        val bulkSelectionHintDismissed = MutableStateFlow(false)
 
         init {
 
@@ -1144,6 +1185,7 @@ class CellViewModelTest {
             coEvery { getUserNames(any()) } returns null
             coEvery { isSelfUserViewerOnConversation(any()) } returns true
             every { userDataStore.isViewerAccessBannerDismissed(any()) } returns flowOf(false)
+            every { userDataStore.isBulkSelectionHintDismissed() } returns bulkSelectionHintDismissed
             every { qualifiedIdMapper.fromStringToQualifiedID(any()) } returns ConversationId("conversationId", "domain")
             coEvery { uploadFilePreparer.prepare(any(), any()) } returns null
             coEvery { uploadFilePreparer.fileName(any()) } returns "file"
@@ -1228,8 +1270,11 @@ class CellViewModelTest {
             this.conversationId = conversationId
         }
 
-        /** More than viewer access, which bulk selection requires. */
-        fun withEditorAccess() = apply {
+        /**
+         * Restricts the self user to viewer access, which turns bulk selection off. Note the inverted use case: it returns
+         * false for viewer-only users (and true, the default here, for everyone else).
+         */
+        fun withViewerOnlyAccess() = apply {
             coEvery { isSelfUserViewerOnConversation(any()) } returns false
         }
 

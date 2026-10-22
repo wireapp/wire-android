@@ -105,7 +105,7 @@ import okio.Path.Companion.toPath
 import java.io.File
 import kotlin.time.Duration.Companion.milliseconds
 
-@Suppress("TooManyFunctions", "LongParameterList")
+@Suppress("TooManyFunctions", "LongParameterList", "LargeClass")
 class CellViewModel @AssistedInject constructor(
     @Assisted private val navArgs: CellFilesNavArgs,
     @Assisted private val searchNavArgs: SearchNavArgs?,
@@ -514,6 +514,7 @@ class CellViewModel @AssistedInject constructor(
      * Moves the confirmed nodes to the recycle bin in a single request. There is no rollback: if it fails midway, some of
      * them may still have been deleted, so the list is refreshed and the selection cleared either way.
      */
+    @Suppress("ReturnCount")
     private fun deleteSelectedNodes() {
         val confirmation = _bulkDeleteDialog.value as? BulkDeleteDialog.Confirmation ?: return
         if (confirmation.isInProgress) return

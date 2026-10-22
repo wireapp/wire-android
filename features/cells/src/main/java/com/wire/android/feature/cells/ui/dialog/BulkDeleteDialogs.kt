@@ -15,6 +15,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
+@file:Suppress("MatchingDeclarationName")
+
 package com.wire.android.feature.cells.ui.dialog
 
 import androidx.compose.runtime.Composable
@@ -85,8 +87,12 @@ private fun BulkDeleteConfirmationDialog(
     WireDialog(
         title = pluralStringResource(R.plurals.cells_bulk_delete_confirmation_title, count, count),
         text = pluralStringResource(
-            if (hasFolders) R.plurals.cells_bulk_delete_confirmation_message_with_folders else R.plurals.cells_bulk_delete_confirmation_message,
-            count,
+            id = if (hasFolders) {
+                R.plurals.cells_bulk_delete_confirmation_message_with_folders
+            } else {
+                R.plurals.cells_bulk_delete_confirmation_message
+            },
+            count = count,
             count,
         ),
         onDismiss = onDismiss,

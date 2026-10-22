@@ -1021,6 +1021,93 @@ before they can use this process.</li>
                 </div>
             </div>
             
+            <div class="panel panel-default">
+                <div class="panel-heading adr-superseded">
+                    <h4 class="panel-title">
+                        <a data-toggle="collapse" href="#collapse17">17. Firebase App Distribution for Dev builds</a>
+
+                        
+                        <i class="adr-icon fas fa-fw fa-times"></i>
+                        
+
+                    </h4>
+                </div>
+                <div id="collapse17" class="panel-collapse collapse">
+                    <div class="panel-body"><h1>17. Firebase App Distribution for Dev builds</h1>
+<p>Date: 2026-08-20</p>
+<h2>Status</h2>
+<p>Superseded by <a href="0018-trusted-dev-distribution-from-branches-and-prs.md">ADR 0018</a>.</p>
+<h2>Context</h2>
+<p>We need to distribute DevDebug APKs to testers without adding App Distribution uploads to the
+shared build workflow. Firebase App Distribution requires the APK package name to match the
+selected Firebase Android app.</p>
+<h2>Decision</h2>
+<p>Use the Firebase CLI from the distribution workflow. CI writes
+<code>FIREBASE_APP_DISTRIBUTION_SERVICE_ACCOUNT_JSON</code> to a temporary credentials file and passes it as
+Application Default Credentials. Local builds do not include App Distribution tooling or tasks.</p>
+<p>Use a manual <code>Distribute Dev Build</code> workflow for uploads. The workflow accepts a PR number to reuse
+the existing DevDebug artifact from its successful Develop PR build. Without a PR number, it builds
+DevDebug from the branch selected when the workflow is dispatched.</p>
+<p>Dev's base application ID is <code>com.wire.android.dev</code>, so DevDebug uses
+<code>com.wire.android.dev.debug</code>, matching the Firebase Android app used for distribution.</p>
+<h2>Consequences</h2>
+<ul>
+<li>App Distribution is opt-in and does not alter the shared build workflow.</li>
+<li>The Dev package-ID change does not change <code>firebase_app_id</code>, <code>firebase_push_sender_id</code>, or the
+Firebase project used for push notifications.</li>
+<li>Existing <code>com.waz.zclient.dev.debug</code> installations do not update in place and should be treated
+as ephemeral Dev installations.</li>
+</ul>
+</div>
+                </div>
+            </div>
+            
+            <div class="panel panel-default">
+                <div class="panel-heading adr-accepted">
+                    <h4 class="panel-title">
+                        <a data-toggle="collapse" href="#collapse18">18. Manual Dev distribution from branches and PRs</a>
+
+                        
+                        <i class="adr-icon fas fa-fw fa-check"></i>
+                        
+
+                    </h4>
+                </div>
+                <div id="collapse18" class="panel-collapse collapse">
+                    <div class="panel-body"><h1>18. Manual Dev distribution from branches and PRs</h1>
+<p>Date: 2026-10-12</p>
+<h2>Status</h2>
+<p>Accepted. Supersedes <a href="0017-firebase-app-distribution-for-dev-builds.md">ADR 0017</a>.</p>
+<h2>Context</h2>
+<p>Testers need branch builds and existing PR APKs. Keep this a small manual workflow rather than
+adding a separate verification pipeline around Firebase uploads.</p>
+<h2>Decision</h2>
+<p>Manual dispatch from <code>develop</code> builds a repository <code>source-branch</code> (default <code>develop</code>) with
+<code>make build-dev</code> and the shared debug signing configuration. For PRs, a new comment containing
+exactly <code>/distribute-dev</code> invokes the same workflow through <code>workflow_call</code>, using the PR number
+and title as release notes. The shortcut checks the original commenter's effective repository
+permission and allows write access or higher. It reacts with thumbs up on acceptance or thumbs
+down on rejection; reactions acknowledge the request, while deployment results remain in Actions.
+The comment workflow lives on the default branch, which must be <code>develop</code> for this trusted flow.</p>
+<p>For a same-repository PR targeting <code>develop</code>, download the successful Develop CI APK for its head
+revision at selection time. Missing or expired artifacts fail at download; there is no rebuild fallback.</p>
+<p>Prepare one APK, transfer it to a separate upload job, and distribute it using the Firebase CLI.
+Keep the Firebase key in a <code>firebase-dev</code> environment restricted to <code>develop</code>, with no accessible
+repository/organization copy. Use a temporary credentials file, owner-only permissions, and exit
+cleanup. Require the internal tester group and append source/CI details to release notes.</p>
+<p>Use CI and Firebase's normal validation rather than custom package/certificate inspection,
+artifact-expiration preflight, or a second PR-head check. PR builds are CI test merges; branch
+builds receive an APK build only. Both must use the DevDebug package and shared signing identity.</p>
+<h2>Consequences</h2>
+<p>The workflow retains PR-number convenience and the credential boundary with fewer moving parts.
+It distributes the PR revision selected at the start even if the PR subsequently changes. Stable
+package/signing are build-configuration requirements; we do not inspect them before upload.
+GitHub environment/secret configuration remains required; updates to older version codes may
+require reinstalling. See the <a href="../../scripts/dev/README_FIREBASE_DISTRIBUTION.md">setup guide</a>.</p>
+</div>
+                </div>
+            </div>
+            
         </div>
         <footer>
             Generated with &lt;3 using ADR Viewer

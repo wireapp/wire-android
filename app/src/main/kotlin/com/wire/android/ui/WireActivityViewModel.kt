@@ -75,7 +75,6 @@ import com.wire.kalium.logic.data.logout.LogoutReason
 import com.wire.kalium.logic.data.sync.SyncState
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.appVersioning.ObserveIfAppUpdateRequiredUseCase
-import com.wire.kalium.logic.feature.auth.autoVersioningAuth.AutoVersionAuthScopeUseCase
 import com.wire.kalium.logic.feature.client.ClearNewClientsForUserUseCase
 import com.wire.kalium.logic.feature.client.NewClientResult
 import com.wire.kalium.logic.feature.client.ObserveNewClientsUseCase
@@ -115,7 +114,6 @@ import kotlin.time.Instant
 import kotlinx.serialization.json.Json
 import java.io.InputStream
 import java.io.InputStreamReader
-
 
 @Suppress("LongParameterList", "TooManyFunctions", "LargeClass")
 @OptIn(ExperimentalCoroutinesApi::class)

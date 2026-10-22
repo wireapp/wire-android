@@ -24,6 +24,7 @@ import com.wire.android.framework.TestConversation
 import com.wire.android.framework.TestMessage
 import com.wire.android.framework.TestMessage.buildAssetMessage
 import com.wire.android.framework.TestUser
+import com.wire.android.ui.home.conversations.model.MessageBody
 import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.ui.home.conversations.model.UIMessageContent.AssetMessage
 import com.wire.android.ui.home.conversations.model.UIQuotedMessage
@@ -87,7 +88,7 @@ class RegularMessageContentMapperTest {
     }
 
     @Test
-    fun givenQuotedPoll_whenMappingToTextMessageContent_thenPollQuestionShouldBeDisplayed() = runTest {
+    fun givenQuotedPoll_whenMappingReplyMessageContent_thenQuotedContentShouldBeOmitted() = runTest {
         val (_, mapper) = Arrangement().arrange()
         val pollQuestion = "Where should we meet?"
         val quotedMessageDetails = MessageContent.QuotedMessageDetails(
@@ -101,14 +102,29 @@ class RegularMessageContentMapperTest {
             editInstant = null,
             quotedContent = MessageContent.QuotedMessageDetails.Poll(pollQuestion)
         )
-        val content = MessageContent.Text("Let's meet here", quotedMessageDetails = quotedMessageDetails)
+        val content = MessageContent.Text(
+            "Let's meet here",
+            quotedMessageReference = MessageContent.QuoteReference(quotedMessageDetails.messageId, null, true),
+            quotedMessageDetails = quotedMessageDetails
+        )
 
-        val result = mapper.toText(TestConversation.ID, content, userMembers, DeliveryStatus.CompleteDelivery)
+        mapReplyBodies(mapper, content).forEach { messageBody ->
+            assertEquals(UIText.DynamicString(content.value), messageBody.message)
+            assertNull(messageBody.quotedMessage)
+        }
+    }
 
-        val quotedMessage = result.messageBody.quotedMessage as UIQuotedMessage.UIQuotedData
-        assertEquals(quotedMessageDetails.messageId, quotedMessage.messageId)
-        assertEquals(quotedMessageDetails.senderId, quotedMessage.senderId)
-        assertEquals(UIQuotedMessage.UIQuotedData.Text(UIText.DynamicString(pollQuestion)), quotedMessage.quotedContent)
+    @Test
+    fun givenMissingQuoteDetails_whenMappingReplyMessageContent_thenQuoteUnavailableShouldBeDisplayed() = runTest {
+        val (_, mapper) = Arrangement().arrange()
+        val content = MessageContent.Text(
+            "A reply",
+            quotedMessageReference = MessageContent.QuoteReference("missing-message-id", null, false)
+        )
+
+        mapReplyBodies(mapper, content).forEach { messageBody ->
+            assertEquals(UIQuotedMessage.UnavailableData, messageBody.quotedMessage)
+        }
     }
 
     @Test
@@ -249,6 +265,28 @@ class RegularMessageContentMapperTest {
             // Then
             assertTrue(resultContentImage1 is AssetMessage)
             assertTrue(resultContentImage2 is UIMessageContent.IncompleteAssetMessage)
+        }
+    }
+
+    private fun mapReplyBodies(mapper: RegularMessageMapper, content: MessageContent.Text): List<MessageBody> {
+        val replyContents = listOf(
+            content,
+            MessageContent.Composite(content, emptyList()),
+            MessageContent.Multipart(
+                value = content.value,
+                quotedMessageReference = content.quotedMessageReference,
+                quotedMessageDetails = content.quotedMessageDetails
+            )
+        )
+
+        return replyContents.map { replyContent ->
+            val message = TestMessage.TEXT_MESSAGE.copy(content = replyContent)
+            when (val result = mapper.mapMessage(message, sender, userMembers)) {
+                is UIMessageContent.TextMessage -> result.messageBody
+                is UIMessageContent.Composite -> requireNotNull(result.messageBody)
+                is UIMessageContent.Multipart -> requireNotNull(result.messageBody)
+                else -> error("Unexpected reply content: $result")
+            }
         }
     }
 

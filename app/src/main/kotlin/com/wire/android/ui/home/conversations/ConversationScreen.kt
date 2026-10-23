@@ -552,9 +552,6 @@ internal fun ConversationScreenRouteContent(
             )
         },
         currentTimeInMillisFlow = conversationMessagesViewModel.currentTimeInMillisFlow,
-        onReachedOldestMessage = {
-            conversationMessagesViewModel.fetchOlderMessagesIfNeeded()
-        },
         onAttachmentClick = messageAttachmentsViewModel::onAttachmentClicked,
         onAttachmentMenuClick = messageAttachmentsViewModel::onAttachmentMenuClicked,
         isWireCellsEnabled = conversationInfoViewModel.conversationInfoViewState.isWireCellEnabled,
@@ -687,7 +684,6 @@ private fun ConversationScreenContent(
     onAttachmentClick: (AttachmentDraftUi) -> Unit,
     onAttachmentMenuClick: (AttachmentDraftUi) -> Unit,
     currentTimeInMillisFlow: Flow<Long> = flow { },
-    onReachedOldestMessage: () -> Unit = {},
     isWireCellsEnabled: Boolean = false,
 ) {
     val context = LocalContext.current
@@ -790,13 +786,10 @@ private fun ConversationScreenContent(
                         onLinkClick = onLinkClick,
                         onNavigateToReplyOriginalMessage = onNavigateToReplyOriginalMessage,
                         currentTimeInMillisFlow = currentTimeInMillisFlow,
-                        onReachedOldestMessage = onReachedOldestMessage,
                         openDrawingCanvas = openDrawingCanvas,
                         onAttachmentClick = onAttachmentClick,
                         onAttachmentMenuClick = onAttachmentMenuClick,
                         showHistoryLoadingIndicator = conversationInfoViewState.showHistoryLoadingIndicator,
-                        isFetchingOlderMessages = conversationMessagesViewState.isFetchingOlderMessages,
-                        hasMoreRemoteMessages = conversationMessagesViewState.hasMoreRemoteMessages,
                         isBubbleUiEnabled = IS_BUBBLE_UI_ENABLED,
                         isWireCellsEnabled = isWireCellsEnabled,
                         initialLoading = conversationInfoViewState.initialLoadingState != InitialLoadingState.LOADED,

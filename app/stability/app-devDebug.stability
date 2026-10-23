@@ -997,7 +997,7 @@ public fun com.wire.android.ui.authentication.devices.remove.RemoveDeviceVerific
     - viewModel: UNSTABLE (has mutable properties or unstable members)
 
 @Composable
-private fun com.wire.android.ui.authentication.login.LoginContent(onBackPressed: kotlin.Function0<kotlin.Unit>, onSuccess: kotlin.Function3<@[ParameterName(name = \, onRemoveDeviceNeeded: kotlin.Function1<com.wire.kalium.logic.data.id.QualifiedID, kotlin.Unit>, loginNavArgs: com.wire.android.ui.authentication.login.LoginNavArgs, loginEmailViewModel: com.wire.android.ui.authentication.login.email.LoginEmailViewModel, ssoLoginResult: com.wire.android.util.deeplink.DeepLinkResult.SSOLogin?, ssoCodeAutoLogin: com.wire.android.ui.authentication.login.SSOCodeAutoLogin?): kotlin.Unit
+private fun com.wire.android.ui.authentication.login.LoginContent(onBackPressed: kotlin.Function0<kotlin.Unit>, onSuccess: kotlin.Function3<@[ParameterName(name = \, onRemoveDeviceNeeded: kotlin.Function1<com.wire.kalium.logic.data.id.QualifiedID, kotlin.Unit>, loginNavArgs: com.wire.android.ui.authentication.login.LoginNavArgs, loginEmailViewModel: com.wire.android.ui.authentication.login.email.LoginEmailViewModel, ssoLoginResult: com.wire.android.util.deeplink.DeepLinkResult.SSOLogin?): kotlin.Unit
   skippable: false
   restartable: true
   params:
@@ -1007,7 +1007,6 @@ private fun com.wire.android.ui.authentication.login.LoginContent(onBackPressed:
     - loginNavArgs: UNSTABLE (has mutable properties or unstable members)
     - loginEmailViewModel: UNSTABLE (has mutable properties or unstable members)
     - ssoLoginResult: STABLE (class with no mutable properties)
-    - ssoCodeAutoLogin: STABLE (class with no mutable properties)
 
 @Composable
 public fun com.wire.android.ui.authentication.login.LoginErrorDialog(dialogErrorData: com.wire.android.ui.authentication.login.LoginDialogErrorData, onDialogDismiss: kotlin.Function0<kotlin.Unit>): kotlin.Unit
@@ -1029,7 +1028,7 @@ internal fun com.wire.android.ui.authentication.login.LoginRouteScreen(loginNavA
     - onRemoveDeviceNeeded: STABLE (function type)
 
 @Composable
-private fun com.wire.android.ui.authentication.login.MainLoginContent(onBackPressed: kotlin.Function0<kotlin.Unit>, onSuccess: kotlin.Function3<@[ParameterName(name = \, onRemoveDeviceNeeded: kotlin.Function1<com.wire.kalium.logic.data.id.QualifiedID, kotlin.Unit>, loginNavArgs: com.wire.android.ui.authentication.login.LoginNavArgs, loginEmailViewModel: com.wire.android.ui.authentication.login.email.LoginEmailViewModel, ssoLoginResult: com.wire.android.util.deeplink.DeepLinkResult.SSOLogin?, ssoCodeAutoLogin: com.wire.android.ui.authentication.login.SSOCodeAutoLogin?): kotlin.Unit
+private fun com.wire.android.ui.authentication.login.MainLoginContent(onBackPressed: kotlin.Function0<kotlin.Unit>, onSuccess: kotlin.Function3<@[ParameterName(name = \, onRemoveDeviceNeeded: kotlin.Function1<com.wire.kalium.logic.data.id.QualifiedID, kotlin.Unit>, loginNavArgs: com.wire.android.ui.authentication.login.LoginNavArgs, loginEmailViewModel: com.wire.android.ui.authentication.login.email.LoginEmailViewModel, ssoLoginResult: com.wire.android.util.deeplink.DeepLinkResult.SSOLogin?): kotlin.Unit
   skippable: false
   restartable: true
   params:
@@ -1039,7 +1038,6 @@ private fun com.wire.android.ui.authentication.login.MainLoginContent(onBackPres
     - loginNavArgs: UNSTABLE (has mutable properties or unstable members)
     - loginEmailViewModel: UNSTABLE (has mutable properties or unstable members)
     - ssoLoginResult: STABLE (class with no mutable properties)
-    - ssoCodeAutoLogin: STABLE (class with no mutable properties)
 
 @Composable
 public fun com.wire.android.ui.authentication.login.WireAuthBackgroundLayout(modifier: androidx.compose.ui.Modifier, content: @[Composable] @[ExtensionFunctionType] androidx.compose.runtime.internal.ComposableFunction1<androidx.compose.foundation.layout.BoxScope, kotlin.Unit>): kotlin.Unit
@@ -1197,7 +1195,7 @@ private fun com.wire.android.ui.authentication.login.sso.LoginSSOContent(scrollS
     - onSsoIdentityChangeConfirmed: STABLE (function type)
 
 @Composable
-public fun com.wire.android.ui.authentication.login.sso.LoginSSOScreen(onSuccess: kotlin.Function3<@[ParameterName(name = \, onRemoveDeviceNeeded: kotlin.Function1<com.wire.kalium.logic.data.id.QualifiedID, kotlin.Unit>, loginNavArgs: com.wire.android.ui.authentication.login.LoginNavArgs, ssoLoginResult: com.wire.android.util.deeplink.DeepLinkResult.SSOLogin?, ssoCodeAutoLogin: com.wire.android.ui.authentication.login.SSOCodeAutoLogin?, loginSSOViewModel: com.wire.android.ui.authentication.login.sso.LoginSSOViewModel, scrollState: androidx.compose.foundation.ScrollState): kotlin.Unit
+public fun com.wire.android.ui.authentication.login.sso.LoginSSOScreen(onSuccess: kotlin.Function3<@[ParameterName(name = \, onRemoveDeviceNeeded: kotlin.Function1<com.wire.kalium.logic.data.id.QualifiedID, kotlin.Unit>, loginNavArgs: com.wire.android.ui.authentication.login.LoginNavArgs, ssoLoginResult: com.wire.android.util.deeplink.DeepLinkResult.SSOLogin?, loginSSOViewModel: com.wire.android.ui.authentication.login.sso.LoginSSOViewModel, scrollState: androidx.compose.foundation.ScrollState): kotlin.Unit
   skippable: false
   restartable: true
   params:
@@ -1205,7 +1203,6 @@ public fun com.wire.android.ui.authentication.login.sso.LoginSSOScreen(onSuccess
     - onRemoveDeviceNeeded: STABLE (function type)
     - loginNavArgs: UNSTABLE (has mutable properties or unstable members)
     - ssoLoginResult: STABLE (class with no mutable properties)
-    - ssoCodeAutoLogin: STABLE (class with no mutable properties)
     - loginSSOViewModel: UNSTABLE (has mutable properties or unstable members)
     - scrollState: STABLE (marked @Stable or @Immutable)
 
@@ -1367,13 +1364,12 @@ private fun com.wire.android.ui.authentication.welcome.WelcomeCarouselItem(pageI
     - pageText: STABLE (String is immutable)
 
 @Composable
-private fun com.wire.android.ui.authentication.welcome.WelcomeContent(isThereActiveSession: kotlin.Boolean, maxAccountsReached: kotlin.Boolean, nomadAccountBlocksLogin: kotlin.Boolean, state: com.wire.kalium.logic.configuration.server.ServerConfig.Links, navigateBack: kotlin.Function0<kotlin.Unit>, onAction: kotlin.Function1<com.wire.android.ui.authentication.welcome.WelcomeScreenAction, kotlin.Unit>): kotlin.Unit
+private fun com.wire.android.ui.authentication.welcome.WelcomeContent(isThereActiveSession: kotlin.Boolean, maxAccountsReached: kotlin.Boolean, state: com.wire.kalium.logic.configuration.server.ServerConfig.Links, navigateBack: kotlin.Function0<kotlin.Unit>, onAction: kotlin.Function1<com.wire.android.ui.authentication.welcome.WelcomeScreenAction, kotlin.Unit>): kotlin.Unit
   skippable: false
   restartable: true
   params:
     - isThereActiveSession: STABLE (primitive type)
     - maxAccountsReached: STABLE (primitive type)
-    - nomadAccountBlocksLogin: STABLE (primitive type)
     - state: UNSTABLE (has mutable properties or unstable members)
     - navigateBack: STABLE (function type)
     - onAction: STABLE (function type)
@@ -2865,14 +2861,6 @@ public fun com.wire.android.ui.common.dialogs.MaxAccountsReachedDialog(dialogSta
     - onActionButtonClicked: STABLE (function type)
 
 @Composable
-public fun com.wire.android.ui.common.dialogs.NomadAccountBlocksLoginDialog(dialogState: com.wire.android.ui.common.visbility.VisibilityState<com.wire.android.ui.common.dialogs.NomadAccountBlocksLoginDialogState>, onActionButtonClicked: kotlin.Function0<kotlin.Unit>): kotlin.Unit
-  skippable: false
-  restartable: true
-  params:
-    - dialogState: UNSTABLE (has mutable properties or unstable members)
-    - onActionButtonClicked: STABLE (function type)
-
-@Composable
 public fun com.wire.android.ui.common.dialogs.PermissionPermanentlyDeniedDialog(dialogState: com.wire.android.ui.common.visbility.VisibilityState<com.wire.android.ui.home.conversations.PermissionPermanentlyDeniedDialogState>, hideDialog: kotlin.Function0<kotlin.Unit>): kotlin.Unit
   skippable: false
   restartable: true
@@ -4344,7 +4332,7 @@ private fun com.wire.android.ui.home.conversations.ConversationFoldersNavigation
     - runtime: STABLE (marked @Stable or @Immutable)
 
 @Composable
-internal fun com.wire.android.ui.home.conversations.ConversationMessageComposer(conversationId: com.wire.kalium.logic.data.id.QualifiedID, bottomSheetVisible: kotlin.Boolean, lastUnreadMessageInstant: kotlinx.datetime.Instant?, adminlessGroupDeletionTimestamp: kotlinx.datetime.Instant?, unreadEventCount: kotlin.Int, playingAudioMessage: com.wire.android.media.audiomessage.PlayingAudioMessage, assetStatuses: kotlinx.collections.immutable.PersistentMap<kotlin.String, com.wire.kalium.logic.data.message.MessageAssetStatus>, selectedMessageId: kotlin.String?, messageComposerStateHolder: com.wire.android.ui.home.messagecomposer.state.MessageComposerStateHolder, attachments: kotlin.collections.List<com.wire.android.ui.common.attachmentdraft.model.AttachmentDraftUi>, messages: kotlinx.coroutines.flow.Flow<androidx.paging.PagingData<com.wire.android.ui.home.conversations.model.UIMessage>>, onSendMessage: kotlin.Function1<com.wire.android.ui.home.messagecomposer.model.MessageBundle, kotlin.Unit>, onPingOptionClicked: kotlin.Function0<kotlin.Unit>, onImagesPicked: kotlin.Function2<kotlin.collections.List<android.net.Uri>, kotlin.Boolean, kotlin.Unit>, onAttachmentPicked: kotlin.Function1<com.wire.android.ui.home.conversations.model.UriAsset, kotlin.Unit>, onAudioRecorded: kotlin.Function1<com.wire.android.ui.home.conversations.model.UriAsset, kotlin.Unit>, onAssetItemClicked: kotlin.Function1<kotlin.String, kotlin.Unit>, onImageFullScreenMode: kotlin.Function3<com.wire.android.ui.home.conversations.model.UIMessage.Regular, kotlin.Boolean, kotlin.String?, kotlin.Unit>, onVideoClick: kotlin.Function3<@[ParameterName(name = \, onAudioClick: kotlin.Function3<@[ParameterName(name = \, onPdfClick: kotlin.Function1<com.wire.android.pdfviewer.PdfDocumentSource, kotlin.Unit>, onReactionClicked: kotlin.Function2<kotlin.String, kotlin.String, kotlin.Unit>, onResetSessionClicked: kotlin.Function2<@[ParameterName(name = \, onOpenProfile: kotlin.Function1<@[ParameterName(name = \, onUpdateConversationReadDate: kotlin.Function1<kotlinx.datetime.Instant, kotlin.Unit>, onShowEditingOptions: kotlin.Function1<com.wire.android.ui.home.conversations.model.UIMessage.Regular, kotlin.Unit>, onSwipedToReply: kotlin.Function1<com.wire.android.ui.home.conversations.model.UIMessage.Regular, kotlin.Unit>, onSelfDeletingMessageRead: kotlin.Function1<com.wire.android.ui.home.conversations.model.UIMessage, kotlin.Unit>, conversationDetailsData: com.wire.android.ui.home.conversations.info.ConversationDetailsData, onFailedMessageRetryClicked: kotlin.Function2<kotlin.String, com.wire.kalium.logic.data.id.QualifiedID, kotlin.Unit>, onFailedMessageCancelClicked: kotlin.Function1<kotlin.String, kotlin.Unit>, onChangeSelfDeletionClicked: kotlin.Function1<com.wire.kalium.logic.data.message.SelfDeletionTimer, kotlin.Unit>, onClearMentionSearchResult: kotlin.Function0<kotlin.Unit>, onLocationClicked: kotlin.Function0<kotlin.Unit>, onPermissionPermanentlyDenied: kotlin.Function1<@[ParameterName(name = \, tempWritableImageUri: android.net.Uri?, tempWritableVideoUri: android.net.Uri?, onLinkClick: kotlin.Function1<kotlin.String, kotlin.Unit>, onNavigateToReplyOriginalMessage: kotlin.Function1<com.wire.android.ui.home.conversations.model.UIMessage, kotlin.Unit>, openDrawingCanvas: kotlin.Function0<kotlin.Unit>, onAttachmentClick: kotlin.Function1<com.wire.android.ui.common.attachmentdraft.model.AttachmentDraftUi, kotlin.Unit>, onAttachmentMenuClick: kotlin.Function1<com.wire.android.ui.common.attachmentdraft.model.AttachmentDraftUi, kotlin.Unit>, currentTimeInMillisFlow: kotlinx.coroutines.flow.Flow<kotlin.Long>, onReachedOldestMessage: kotlin.Function0<kotlin.Unit>, showHistoryLoadingIndicator: kotlin.Boolean, isFetchingOlderMessages: kotlin.Boolean, hasMoreRemoteMessages: kotlin.Boolean, isBubbleUiEnabled: kotlin.Boolean, isWireCellsEnabled: kotlin.Boolean, initialLoading: kotlin.Boolean): kotlin.Unit
+internal fun com.wire.android.ui.home.conversations.ConversationMessageComposer(conversationId: com.wire.kalium.logic.data.id.QualifiedID, bottomSheetVisible: kotlin.Boolean, lastUnreadMessageInstant: kotlin.time.Instant?, adminlessGroupDeletionTimestamp: kotlin.time.Instant?, unreadEventCount: kotlin.Int, playingAudioMessage: com.wire.android.media.audiomessage.PlayingAudioMessage, assetStatuses: kotlinx.collections.immutable.PersistentMap<kotlin.String, com.wire.kalium.logic.data.message.MessageAssetStatus>, selectedMessageId: kotlin.String?, messageComposerStateHolder: com.wire.android.ui.home.messagecomposer.state.MessageComposerStateHolder, attachments: kotlin.collections.List<com.wire.android.ui.common.attachmentdraft.model.AttachmentDraftUi>, messages: kotlinx.coroutines.flow.Flow<androidx.paging.PagingData<com.wire.android.ui.home.conversations.model.UIMessage>>, onSendMessage: kotlin.Function1<com.wire.android.ui.home.messagecomposer.model.MessageBundle, kotlin.Unit>, onPingOptionClicked: kotlin.Function0<kotlin.Unit>, onImagesPicked: kotlin.Function2<kotlin.collections.List<android.net.Uri>, kotlin.Boolean, kotlin.Unit>, onAttachmentPicked: kotlin.Function1<com.wire.android.ui.home.conversations.model.UriAsset, kotlin.Unit>, onAudioRecorded: kotlin.Function1<com.wire.android.ui.home.conversations.model.UriAsset, kotlin.Unit>, onAssetItemClicked: kotlin.Function1<kotlin.String, kotlin.Unit>, onImageFullScreenMode: kotlin.Function3<com.wire.android.ui.home.conversations.model.UIMessage.Regular, kotlin.Boolean, kotlin.String?, kotlin.Unit>, onVideoClick: kotlin.Function3<@[ParameterName(name = \, onAudioClick: kotlin.Function3<@[ParameterName(name = \, onPdfClick: kotlin.Function1<com.wire.android.pdfviewer.PdfDocumentSource, kotlin.Unit>, onReactionClicked: kotlin.Function2<kotlin.String, kotlin.String, kotlin.Unit>, onResetSessionClicked: kotlin.Function2<@[ParameterName(name = \, onOpenProfile: kotlin.Function1<@[ParameterName(name = \, onUpdateConversationReadDate: kotlin.Function1<kotlin.time.Instant, kotlin.Unit>, onShowEditingOptions: kotlin.Function1<com.wire.android.ui.home.conversations.model.UIMessage.Regular, kotlin.Unit>, onSwipedToReply: kotlin.Function1<com.wire.android.ui.home.conversations.model.UIMessage.Regular, kotlin.Unit>, onSelfDeletingMessageRead: kotlin.Function1<com.wire.android.ui.home.conversations.model.UIMessage, kotlin.Unit>, conversationDetailsData: com.wire.android.ui.home.conversations.info.ConversationDetailsData, onFailedMessageRetryClicked: kotlin.Function2<kotlin.String, com.wire.kalium.logic.data.id.QualifiedID, kotlin.Unit>, onFailedMessageCancelClicked: kotlin.Function1<kotlin.String, kotlin.Unit>, onChangeSelfDeletionClicked: kotlin.Function1<com.wire.kalium.logic.data.message.SelfDeletionTimer, kotlin.Unit>, onClearMentionSearchResult: kotlin.Function0<kotlin.Unit>, onLocationClicked: kotlin.Function0<kotlin.Unit>, onPermissionPermanentlyDenied: kotlin.Function1<@[ParameterName(name = \, tempWritableImageUri: android.net.Uri?, tempWritableVideoUri: android.net.Uri?, onLinkClick: kotlin.Function1<kotlin.String, kotlin.Unit>, onNavigateToReplyOriginalMessage: kotlin.Function1<com.wire.android.ui.home.conversations.model.UIMessage, kotlin.Unit>, openDrawingCanvas: kotlin.Function0<kotlin.Unit>, onAttachmentClick: kotlin.Function1<com.wire.android.ui.common.attachmentdraft.model.AttachmentDraftUi, kotlin.Unit>, onAttachmentMenuClick: kotlin.Function1<com.wire.android.ui.common.attachmentdraft.model.AttachmentDraftUi, kotlin.Unit>, currentTimeInMillisFlow: kotlinx.coroutines.flow.Flow<kotlin.Long>, showHistoryLoadingIndicator: kotlin.Boolean, isBubbleUiEnabled: kotlin.Boolean, isWireCellsEnabled: kotlin.Boolean, initialLoading: kotlin.Boolean): kotlin.Unit
   skippable: false
   restartable: true
   params:
@@ -4391,10 +4379,7 @@ internal fun com.wire.android.ui.home.conversations.ConversationMessageComposer(
     - onAttachmentClick: STABLE (function type)
     - onAttachmentMenuClick: STABLE (function type)
     - currentTimeInMillisFlow: RUNTIME (requires runtime check)
-    - onReachedOldestMessage: STABLE (function type)
     - showHistoryLoadingIndicator: STABLE (primitive type)
-    - isFetchingOlderMessages: STABLE (primitive type)
-    - hasMoreRemoteMessages: STABLE (primitive type)
     - isBubbleUiEnabled: STABLE (primitive type)
     - isWireCellsEnabled: STABLE (primitive type)
     - initialLoading: STABLE (primitive type)
@@ -4426,7 +4411,7 @@ internal fun com.wire.android.ui.home.conversations.ConversationRouteScreen(navi
     - messageAttachmentsViewModel: UNSTABLE (has mutable properties or unstable members)
 
 @Composable
-private fun com.wire.android.ui.home.conversations.ConversationScreenContent(bannerMessage: com.wire.android.util.ui.UIText?, messageComposerViewState: com.wire.android.ui.home.conversations.MessageComposerViewState, conversationCallViewState: com.wire.android.ui.home.conversations.call.ConversationCallViewState, conversationInfoViewState: com.wire.android.ui.home.conversations.info.ConversationInfoViewState, conversationMessagesViewState: com.wire.android.ui.home.conversations.messages.ConversationMessagesViewState, attachments: kotlin.collections.List<com.wire.android.ui.common.attachmentdraft.model.AttachmentDraftUi>, bottomSheetVisible: kotlin.Boolean, onOpenProfile: kotlin.Function1<@[ParameterName(name = \, onMessageDetailsClick: kotlin.Function2<@[ParameterName(name = \, onSendMessage: kotlin.Function1<com.wire.android.ui.home.messagecomposer.model.MessageBundle, kotlin.Unit>, onPingOptionClicked: kotlin.Function0<kotlin.Unit>, onImagesPicked: kotlin.Function2<kotlin.collections.List<android.net.Uri>, kotlin.Boolean, kotlin.Unit>, onAttachmentPicked: kotlin.Function1<com.wire.android.ui.home.conversations.model.UriAsset, kotlin.Unit>, onAudioRecorded: kotlin.Function1<com.wire.android.ui.home.conversations.model.UriAsset, kotlin.Unit>, onDeleteMessage: kotlin.Function2<kotlin.String, kotlin.Boolean, kotlin.Unit>, onAssetItemClicked: kotlin.Function1<kotlin.String, kotlin.Unit>, onImageFullScreenMode: kotlin.Function3<com.wire.android.ui.home.conversations.model.UIMessage.Regular, kotlin.Boolean, kotlin.String?, kotlin.Unit>, onVideoClick: kotlin.Function3<@[ParameterName(name = \, onAudioClick: kotlin.Function3<@[ParameterName(name = \, onPdfClick: kotlin.Function1<com.wire.android.pdfviewer.PdfDocumentSource, kotlin.Unit>, onStartCall: kotlin.Function0<kotlin.Unit>, onJoinCall: kotlin.Function0<kotlin.Unit>, onReactionClick: kotlin.Function2<@[ParameterName(name = \, onResetSessionClick: kotlin.Function2<@[ParameterName(name = \, onUpdateConversationReadDate: kotlin.Function1<kotlinx.datetime.Instant, kotlin.Unit>, onDropDownClick: kotlin.Function0<kotlin.Unit>, onBackButtonClick: kotlin.Function0<kotlin.Unit>, composerMessages: kotlinx.coroutines.flow.SharedFlow<com.wire.android.model.SnackBarMessage>, conversationMessages: kotlinx.coroutines.flow.SharedFlow<com.wire.android.model.SnackBarMessage>, shareAsset: kotlin.Function2<android.content.Context, @[ParameterName(name = \, shareAssetViaWire: kotlin.Function1<@[ParameterName(name = \, onDownloadAssetClick: kotlin.Function1<@[ParameterName(name = \, onOpenAssetClick: kotlin.Function1<@[ParameterName(name = \, onNavigateToReplyOriginalMessage: kotlin.Function1<com.wire.android.ui.home.conversations.model.UIMessage, kotlin.Unit>, onSelfDeletingMessageRead: kotlin.Function1<com.wire.android.ui.home.conversations.model.UIMessage, kotlin.Unit>, onNewSelfDeletingMessagesStatus: kotlin.Function1<com.wire.kalium.logic.data.message.SelfDeletionTimer, kotlin.Unit>, tempWritableImageUri: android.net.Uri?, tempWritableVideoUri: android.net.Uri?, onFailedMessageRetryClicked: kotlin.Function2<kotlin.String, com.wire.kalium.logic.data.id.QualifiedID, kotlin.Unit>, onClearMentionSearchResult: kotlin.Function0<kotlin.Unit>, onPermissionPermanentlyDenied: kotlin.Function1<@[ParameterName(name = \, conversationScreenState: com.wire.android.ui.home.conversations.ConversationScreenState, messageComposerStateHolder: com.wire.android.ui.home.messagecomposer.state.MessageComposerStateHolder, onLinkClick: kotlin.Function1<kotlin.String, kotlin.Unit>, openDrawingCanvas: kotlin.Function0<kotlin.Unit>, onAttachmentClick: kotlin.Function1<com.wire.android.ui.common.attachmentdraft.model.AttachmentDraftUi, kotlin.Unit>, onAttachmentMenuClick: kotlin.Function1<com.wire.android.ui.common.attachmentdraft.model.AttachmentDraftUi, kotlin.Unit>, currentTimeInMillisFlow: kotlinx.coroutines.flow.Flow<kotlin.Long>, onReachedOldestMessage: kotlin.Function0<kotlin.Unit>, isWireCellsEnabled: kotlin.Boolean): kotlin.Unit
+private fun com.wire.android.ui.home.conversations.ConversationScreenContent(bannerMessage: com.wire.android.util.ui.UIText?, messageComposerViewState: com.wire.android.ui.home.conversations.MessageComposerViewState, conversationCallViewState: com.wire.android.ui.home.conversations.call.ConversationCallViewState, conversationInfoViewState: com.wire.android.ui.home.conversations.info.ConversationInfoViewState, conversationMessagesViewState: com.wire.android.ui.home.conversations.messages.ConversationMessagesViewState, attachments: kotlin.collections.List<com.wire.android.ui.common.attachmentdraft.model.AttachmentDraftUi>, bottomSheetVisible: kotlin.Boolean, onOpenProfile: kotlin.Function1<@[ParameterName(name = \, onMessageDetailsClick: kotlin.Function2<@[ParameterName(name = \, onSendMessage: kotlin.Function1<com.wire.android.ui.home.messagecomposer.model.MessageBundle, kotlin.Unit>, onPingOptionClicked: kotlin.Function0<kotlin.Unit>, onImagesPicked: kotlin.Function2<kotlin.collections.List<android.net.Uri>, kotlin.Boolean, kotlin.Unit>, onAttachmentPicked: kotlin.Function1<com.wire.android.ui.home.conversations.model.UriAsset, kotlin.Unit>, onAudioRecorded: kotlin.Function1<com.wire.android.ui.home.conversations.model.UriAsset, kotlin.Unit>, onDeleteMessage: kotlin.Function2<kotlin.String, kotlin.Boolean, kotlin.Unit>, onAssetItemClicked: kotlin.Function1<kotlin.String, kotlin.Unit>, onImageFullScreenMode: kotlin.Function3<com.wire.android.ui.home.conversations.model.UIMessage.Regular, kotlin.Boolean, kotlin.String?, kotlin.Unit>, onVideoClick: kotlin.Function3<@[ParameterName(name = \, onAudioClick: kotlin.Function3<@[ParameterName(name = \, onPdfClick: kotlin.Function1<com.wire.android.pdfviewer.PdfDocumentSource, kotlin.Unit>, onStartCall: kotlin.Function0<kotlin.Unit>, onJoinCall: kotlin.Function0<kotlin.Unit>, onReactionClick: kotlin.Function2<@[ParameterName(name = \, onResetSessionClick: kotlin.Function2<@[ParameterName(name = \, onUpdateConversationReadDate: kotlin.Function1<kotlin.time.Instant, kotlin.Unit>, onDropDownClick: kotlin.Function0<kotlin.Unit>, onBackButtonClick: kotlin.Function0<kotlin.Unit>, composerMessages: kotlinx.coroutines.flow.SharedFlow<com.wire.android.model.SnackBarMessage>, conversationMessages: kotlinx.coroutines.flow.SharedFlow<com.wire.android.model.SnackBarMessage>, shareAsset: kotlin.Function2<android.content.Context, @[ParameterName(name = \, shareAssetViaWire: kotlin.Function1<@[ParameterName(name = \, onDownloadAssetClick: kotlin.Function1<@[ParameterName(name = \, onOpenAssetClick: kotlin.Function1<@[ParameterName(name = \, onNavigateToReplyOriginalMessage: kotlin.Function1<com.wire.android.ui.home.conversations.model.UIMessage, kotlin.Unit>, onSelfDeletingMessageRead: kotlin.Function1<com.wire.android.ui.home.conversations.model.UIMessage, kotlin.Unit>, onNewSelfDeletingMessagesStatus: kotlin.Function1<com.wire.kalium.logic.data.message.SelfDeletionTimer, kotlin.Unit>, tempWritableImageUri: android.net.Uri?, tempWritableVideoUri: android.net.Uri?, onFailedMessageRetryClicked: kotlin.Function2<kotlin.String, com.wire.kalium.logic.data.id.QualifiedID, kotlin.Unit>, onClearMentionSearchResult: kotlin.Function0<kotlin.Unit>, onPermissionPermanentlyDenied: kotlin.Function1<@[ParameterName(name = \, conversationScreenState: com.wire.android.ui.home.conversations.ConversationScreenState, messageComposerStateHolder: com.wire.android.ui.home.messagecomposer.state.MessageComposerStateHolder, onLinkClick: kotlin.Function1<kotlin.String, kotlin.Unit>, openDrawingCanvas: kotlin.Function0<kotlin.Unit>, onAttachmentClick: kotlin.Function1<com.wire.android.ui.common.attachmentdraft.model.AttachmentDraftUi, kotlin.Unit>, onAttachmentMenuClick: kotlin.Function1<com.wire.android.ui.common.attachmentdraft.model.AttachmentDraftUi, kotlin.Unit>, currentTimeInMillisFlow: kotlinx.coroutines.flow.Flow<kotlin.Long>, isWireCellsEnabled: kotlin.Boolean): kotlin.Unit
   skippable: false
   restartable: true
   params:
@@ -4478,7 +4463,6 @@ private fun com.wire.android.ui.home.conversations.ConversationScreenContent(ban
     - onAttachmentClick: STABLE (function type)
     - onAttachmentMenuClick: STABLE (function type)
     - currentTimeInMillisFlow: RUNTIME (requires runtime check)
-    - onReachedOldestMessage: STABLE (function type)
     - isWireCellsEnabled: STABLE (primitive type)
 
 @Composable
@@ -6049,7 +6033,7 @@ private fun com.wire.android.ui.home.conversations.messagedetails.MessageDetails
     - onReadReceiptsLearnMore: STABLE (function type)
 
 @Composable
-public fun com.wire.android.ui.home.conversations.messagelist.ConversationMessageList(lazyPagingMessages: androidx.paging.compose.LazyPagingItems<com.wire.android.ui.home.conversations.model.UIMessage>, lazyListState: androidx.compose.foundation.lazy.LazyListState, lastUnreadMessageInstant: kotlinx.datetime.Instant?, adminlessGroupDeletionTimestamp: kotlinx.datetime.Instant?, playingAudioMessage: com.wire.android.media.audiomessage.PlayingAudioMessage, assetStatuses: kotlinx.collections.immutable.PersistentMap<kotlin.String, com.wire.kalium.logic.data.message.MessageAssetStatus>, onUpdateConversationReadDate: kotlin.Function1<kotlinx.datetime.Instant, kotlin.Unit>, onSwipedToReply: kotlin.Function1<com.wire.android.ui.home.conversations.model.UIMessage.Regular, kotlin.Unit>, onSwipedToReact: kotlin.Function1<com.wire.android.ui.home.conversations.model.UIMessage.Regular, kotlin.Unit>, onSelfDeletingMessageRead: kotlin.Function1<com.wire.android.ui.home.conversations.model.UIMessage, kotlin.Unit>, conversationDetailsData: com.wire.android.ui.home.conversations.info.ConversationDetailsData, selectedMessageId: kotlin.String?, interactionAvailability: com.wire.kalium.logic.data.conversation.InteractionAvailability, clickActions: com.wire.android.ui.home.conversations.messages.item.MessageClickActions.Content, modifier: androidx.compose.ui.Modifier, currentTimeInMillisFlow: kotlinx.coroutines.flow.Flow<kotlin.Long>, showHistoryLoadingIndicator: kotlin.Boolean, isFetchingOlderMessages: kotlin.Boolean, hasMoreRemoteMessages: kotlin.Boolean, isBubbleUiEnabled: kotlin.Boolean, isWireCellsEnabled: kotlin.Boolean, onReachedOldestMessage: kotlin.Function0<kotlin.Unit>): kotlin.Unit
+public fun com.wire.android.ui.home.conversations.messagelist.ConversationMessageList(lazyPagingMessages: androidx.paging.compose.LazyPagingItems<com.wire.android.ui.home.conversations.model.UIMessage>, lazyListState: androidx.compose.foundation.lazy.LazyListState, lastUnreadMessageInstant: kotlin.time.Instant?, adminlessGroupDeletionTimestamp: kotlin.time.Instant?, playingAudioMessage: com.wire.android.media.audiomessage.PlayingAudioMessage, assetStatuses: kotlinx.collections.immutable.PersistentMap<kotlin.String, com.wire.kalium.logic.data.message.MessageAssetStatus>, onUpdateConversationReadDate: kotlin.Function1<kotlin.time.Instant, kotlin.Unit>, onSwipedToReply: kotlin.Function1<com.wire.android.ui.home.conversations.model.UIMessage.Regular, kotlin.Unit>, onSwipedToReact: kotlin.Function1<com.wire.android.ui.home.conversations.model.UIMessage.Regular, kotlin.Unit>, onSelfDeletingMessageRead: kotlin.Function1<com.wire.android.ui.home.conversations.model.UIMessage, kotlin.Unit>, conversationDetailsData: com.wire.android.ui.home.conversations.info.ConversationDetailsData, selectedMessageId: kotlin.String?, interactionAvailability: com.wire.kalium.logic.data.conversation.InteractionAvailability, clickActions: com.wire.android.ui.home.conversations.messages.item.MessageClickActions.Content, modifier: androidx.compose.ui.Modifier, currentTimeInMillisFlow: kotlinx.coroutines.flow.Flow<kotlin.Long>, showHistoryLoadingIndicator: kotlin.Boolean, isBubbleUiEnabled: kotlin.Boolean, isWireCellsEnabled: kotlin.Boolean): kotlin.Unit
   skippable: false
   restartable: true
   params:
@@ -6070,11 +6054,8 @@ public fun com.wire.android.ui.home.conversations.messagelist.ConversationMessag
     - modifier: STABLE (marked @Stable or @Immutable)
     - currentTimeInMillisFlow: RUNTIME (requires runtime check)
     - showHistoryLoadingIndicator: STABLE (primitive type)
-    - isFetchingOlderMessages: STABLE (primitive type)
-    - hasMoreRemoteMessages: STABLE (primitive type)
     - isBubbleUiEnabled: STABLE (primitive type)
     - isWireCellsEnabled: STABLE (primitive type)
-    - onReachedOldestMessage: STABLE (function type)
 
 @Composable
 public fun com.wire.android.ui.home.conversations.messagelist.JumpToLastMessageButton(lazyListState: androidx.compose.foundation.lazy.LazyListState, modifier: androidx.compose.ui.Modifier, coroutineScope: kotlinx.coroutines.CoroutineScope): kotlin.Unit
@@ -6097,7 +6078,7 @@ public fun com.wire.android.ui.home.conversations.messagelist.JumpToPlayingAudio
     - coroutineScope: RUNTIME (requires runtime check)
 
 @Composable
-private fun com.wire.android.ui.home.conversations.messagelist.MessageGroupDateTime(now: kotlin.Long, messageDateTime: kotlinx.datetime.Instant, messageDateTimeGroup: com.wire.android.mapper.MessageDateTimeGroup, isBubbleUiEnabled: kotlin.Boolean): kotlin.Unit
+private fun com.wire.android.ui.home.conversations.messagelist.MessageGroupDateTime(now: kotlin.Long, messageDateTime: kotlin.time.Instant, messageDateTimeGroup: com.wire.android.mapper.MessageDateTimeGroup, isBubbleUiEnabled: kotlin.Boolean): kotlin.Unit
   skippable: true
   restartable: true
   params:
@@ -6113,6 +6094,14 @@ private fun com.wire.android.ui.home.conversations.messagelist.ScrollDateOverlay
   params:
     - lazyListState: STABLE (marked @Stable or @Immutable)
     - lazyPagingMessages: UNSTABLE (has mutable properties or unstable members)
+
+@Composable
+internal fun com.wire.android.ui.home.conversations.messagelist.rememberMessageContentFocusRestoration(fallback: androidx.compose.ui.focus.FocusRequester, onRestore: kotlin.Function0<kotlin.Unit>): com.wire.android.ui.home.conversations.messagelist.MessageContentFocusRestoration
+  skippable: true
+  restartable: true
+  params:
+    - fallback: STABLE (marked @Stable or @Immutable)
+    - onRestore: STABLE (function type)
 
 @Composable
 private fun com.wire.android.ui.home.conversations.messages.AutosizeContainer(asset: com.wire.android.model.ImageAsset.PrivateAsset, modifier: androidx.compose.ui.Modifier, clickable: com.wire.android.model.Clickable?, content: @[Composable] androidx.compose.runtime.internal.ComposableFunction0<kotlin.Unit>): kotlin.Unit
@@ -6371,7 +6360,7 @@ private fun com.wire.android.ui.home.conversations.messages.imageModel(): coil3.
   params:
 
 @Composable
-public fun com.wire.android.ui.home.conversations.messages.item.AdminlessGroupDeleteReminderItem(deletionScheduledFor: kotlinx.datetime.Instant, modifier: androidx.compose.ui.Modifier, is24HourFormat: kotlin.Boolean?): kotlin.Unit
+public fun com.wire.android.ui.home.conversations.messages.item.AdminlessGroupDeleteReminderItem(deletionScheduledFor: kotlin.time.Instant, modifier: androidx.compose.ui.Modifier, is24HourFormat: kotlin.Boolean?): kotlin.Unit
   skippable: true
   restartable: true
   params:
@@ -6778,7 +6767,7 @@ private fun com.wire.android.ui.home.conversations.messages.item.Username(userna
     - modifier: STABLE (marked @Stable or @Immutable)
 
 @Composable
-private fun com.wire.android.ui.home.conversations.messages.item.adminlessGroupDeleteReminderContent(deletionScheduledFor: kotlinx.datetime.Instant, is24HourFormat: kotlin.Boolean?): com.wire.android.ui.home.conversations.messages.item.SystemMessageContent
+private fun com.wire.android.ui.home.conversations.messages.item.adminlessGroupDeleteReminderContent(deletionScheduledFor: kotlin.time.Instant, is24HourFormat: kotlin.Boolean?): com.wire.android.ui.home.conversations.messages.item.SystemMessageContent
   skippable: true
   restartable: true
   params:
@@ -10303,7 +10292,7 @@ public fun com.wire.android.ui.initialSyncViewModel(): com.wire.android.ui.initi
   params:
 
 @Composable
-internal fun com.wire.android.ui.initialsync.InitialSyncRouteScreen(viewModel: com.wire.android.ui.initialsync.InitialSyncViewModel, onSyncCompleted: kotlin.Function1<@[ParameterName(name = \): kotlin.Unit
+internal fun com.wire.android.ui.initialsync.InitialSyncRouteScreen(viewModel: com.wire.android.ui.initialsync.InitialSyncViewModel, onSyncCompleted: kotlin.Function0<kotlin.Unit>): kotlin.Unit
   skippable: false
   restartable: true
   params:
@@ -10472,22 +10461,24 @@ public fun com.wire.android.ui.legalhold.dialog.subject.LegalHoldSubjectProfileS
     - dialogDismissed: STABLE (function type)
 
 @Composable
-public fun com.wire.android.ui.markdown.MarkdownBlockQuote(blockQuote: com.wire.android.ui.markdown.MarkdownNode.Block.BlockQuote, nodeData: com.wire.android.ui.markdown.NodeData, modifier: androidx.compose.ui.Modifier): kotlin.Unit
+public fun com.wire.android.ui.markdown.MarkdownBlockQuote(blockQuote: com.wire.android.ui.markdown.MarkdownNode.Block.BlockQuote, nodeData: com.wire.android.ui.markdown.NodeData, modifier: androidx.compose.ui.Modifier, clickable: kotlin.Boolean): kotlin.Unit
   skippable: false
   restartable: true
   params:
     - blockQuote: RUNTIME (requires runtime check)
     - nodeData: RUNTIME (requires runtime check)
     - modifier: STABLE (marked @Stable or @Immutable)
+    - clickable: STABLE (primitive type)
 
 @Composable
-public fun com.wire.android.ui.markdown.MarkdownBulletList(bulletList: com.wire.android.ui.markdown.MarkdownNode.Block.ListBlock.Bullet, nodeData: com.wire.android.ui.markdown.NodeData, modifier: androidx.compose.ui.Modifier): kotlin.Unit
+public fun com.wire.android.ui.markdown.MarkdownBulletList(bulletList: com.wire.android.ui.markdown.MarkdownNode.Block.ListBlock.Bullet, nodeData: com.wire.android.ui.markdown.NodeData, modifier: androidx.compose.ui.Modifier, clickable: kotlin.Boolean): kotlin.Unit
   skippable: false
   restartable: true
   params:
     - bulletList: RUNTIME (requires runtime check)
     - nodeData: RUNTIME (requires runtime check)
     - modifier: STABLE (marked @Stable or @Immutable)
+    - clickable: STABLE (primitive type)
 
 @Composable
 public fun com.wire.android.ui.markdown.MarkdownDocument(document: com.wire.android.ui.markdown.MarkdownNode.Document, nodeData: com.wire.android.ui.markdown.NodeData, clickable: kotlin.Boolean): kotlin.Unit
@@ -10508,13 +10499,14 @@ public fun com.wire.android.ui.markdown.MarkdownFencedCodeBlock(fencedCodeBlock:
     - modifier: STABLE (marked @Stable or @Immutable)
 
 @Composable
-public fun com.wire.android.ui.markdown.MarkdownHeading(heading: com.wire.android.ui.markdown.MarkdownNode.Block.Heading, nodeData: com.wire.android.ui.markdown.NodeData, modifier: androidx.compose.ui.Modifier): kotlin.Unit
+public fun com.wire.android.ui.markdown.MarkdownHeading(heading: com.wire.android.ui.markdown.MarkdownNode.Block.Heading, nodeData: com.wire.android.ui.markdown.NodeData, modifier: androidx.compose.ui.Modifier, clickable: kotlin.Boolean): kotlin.Unit
   skippable: false
   restartable: true
   params:
     - heading: RUNTIME (requires runtime check)
     - nodeData: RUNTIME (requires runtime check)
     - modifier: STABLE (marked @Stable or @Immutable)
+    - clickable: STABLE (primitive type)
 
 @Composable
 public fun com.wire.android.ui.markdown.MarkdownIndentedCodeBlock(indentedCodeBlock: com.wire.android.ui.markdown.MarkdownNode.Block.IntendedCode, nodeData: com.wire.android.ui.markdown.NodeData, modifier: androidx.compose.ui.Modifier): kotlin.Unit
@@ -10546,13 +10538,14 @@ public fun com.wire.android.ui.markdown.MarkdownNodeBlockChildren(children: kotl
     - clickable: STABLE (primitive type)
 
 @Composable
-public fun com.wire.android.ui.markdown.MarkdownOrderedList(orderedList: com.wire.android.ui.markdown.MarkdownNode.Block.ListBlock.Ordered, nodeData: com.wire.android.ui.markdown.NodeData, modifier: androidx.compose.ui.Modifier): kotlin.Unit
+public fun com.wire.android.ui.markdown.MarkdownOrderedList(orderedList: com.wire.android.ui.markdown.MarkdownNode.Block.ListBlock.Ordered, nodeData: com.wire.android.ui.markdown.NodeData, modifier: androidx.compose.ui.Modifier, clickable: kotlin.Boolean): kotlin.Unit
   skippable: false
   restartable: true
   params:
     - orderedList: RUNTIME (requires runtime check)
     - nodeData: RUNTIME (requires runtime check)
     - modifier: STABLE (marked @Stable or @Immutable)
+    - clickable: STABLE (primitive type)
 
 @Composable
 public fun com.wire.android.ui.markdown.MarkdownParagraph(paragraph: com.wire.android.ui.markdown.MarkdownNode.Block.Paragraph, nodeData: com.wire.android.ui.markdown.NodeData, clickable: kotlin.Boolean, onMentionsUpdate: kotlin.Function1<kotlin.collections.List<com.wire.android.ui.markdown.DisplayMention>, kotlin.Unit>, modifier: androidx.compose.ui.Modifier): kotlin.Unit
@@ -10566,7 +10559,7 @@ public fun com.wire.android.ui.markdown.MarkdownParagraph(paragraph: com.wire.an
     - modifier: STABLE (marked @Stable or @Immutable)
 
 @Composable
-public fun com.wire.android.ui.markdown.MarkdownTable(tableBlock: com.wire.android.ui.markdown.MarkdownNode.Block.Table, nodeData: com.wire.android.ui.markdown.NodeData, onMentionsUpdate: kotlin.Function1<kotlin.collections.List<com.wire.android.ui.markdown.DisplayMention>, kotlin.Unit>, modifier: androidx.compose.ui.Modifier): kotlin.Unit
+public fun com.wire.android.ui.markdown.MarkdownTable(tableBlock: com.wire.android.ui.markdown.MarkdownNode.Block.Table, nodeData: com.wire.android.ui.markdown.NodeData, onMentionsUpdate: kotlin.Function1<kotlin.collections.List<com.wire.android.ui.markdown.DisplayMention>, kotlin.Unit>, modifier: androidx.compose.ui.Modifier, clickable: kotlin.Boolean): kotlin.Unit
   skippable: false
   restartable: true
   params:
@@ -10574,6 +10567,7 @@ public fun com.wire.android.ui.markdown.MarkdownTable(tableBlock: com.wire.andro
     - nodeData: RUNTIME (requires runtime check)
     - onMentionsUpdate: STABLE (function type)
     - modifier: STABLE (marked @Stable or @Immutable)
+    - clickable: STABLE (primitive type)
 
 @Composable
 public fun com.wire.android.ui.markdown.MarkdownText(annotatedString: androidx.compose.ui.text.AnnotatedString, modifier: androidx.compose.ui.Modifier, color: androidx.compose.ui.graphics.Color, textAlign: androidx.compose.ui.text.style.TextAlign?, lineHeight: androidx.compose.ui.unit.TextUnit, overflow: androidx.compose.ui.text.style.TextOverflow, softWrap: kotlin.Boolean, maxLines: kotlin.Int, onTextLayout: kotlin.Function1<androidx.compose.ui.text.TextLayoutResult, kotlin.Unit>, style: androidx.compose.ui.text.TextStyle, clickable: kotlin.Boolean, onClickLink: kotlin.Function1<@[ParameterName(name = \, onLongClick: kotlin.Function0<kotlin.Unit>?, onOpenProfile: kotlin.Function1<@[ParameterName(name = \): kotlin.Unit
@@ -10609,6 +10603,12 @@ private fun com.wire.android.ui.markdown.getMentions(onOpenProfile: kotlin.Funct
   restartable: true
   params:
     - onOpenProfile: STABLE (function type)
+
+@Composable
+internal fun com.wire.android.ui.markdown.rememberInlineActionFocus(): com.wire.android.ui.markdown.InlineActionFocus
+  skippable: true
+  restartable: true
+  params:
 
 @Composable
 public fun com.wire.android.ui.miscViewModel(owner: androidx.lifecycle.ViewModelStoreOwner): VM of com.wire.android.ui.miscViewModel
@@ -10710,11 +10710,10 @@ public fun com.wire.android.ui.newauthentication.login.NewAuthTitle(title: kotli
     - modifier: STABLE (marked @Stable or @Immutable)
 
 @Composable
-internal fun com.wire.android.ui.newauthentication.login.NewLoginRouteScreen(navArgs: com.wire.android.ui.authentication.login.LoginNavArgs, viewModel: com.wire.android.ui.newauthentication.login.NewLoginViewModel, canNavigateBack: kotlin.Boolean, navigateBack: kotlin.Function0<kotlin.Unit>, onAction: kotlin.Function1<com.wire.android.ui.newauthentication.login.NewLoginAction, kotlin.Unit>): kotlin.Unit
+internal fun com.wire.android.ui.newauthentication.login.NewLoginRouteScreen(viewModel: com.wire.android.ui.newauthentication.login.NewLoginViewModel, canNavigateBack: kotlin.Boolean, navigateBack: kotlin.Function0<kotlin.Unit>, onAction: kotlin.Function1<com.wire.android.ui.newauthentication.login.NewLoginAction, kotlin.Unit>): kotlin.Unit
   skippable: false
   restartable: true
   params:
-    - navArgs: UNSTABLE (has mutable properties or unstable members)
     - viewModel: UNSTABLE (has mutable properties or unstable members)
     - canNavigateBack: STABLE (primitive type)
     - navigateBack: STABLE (function type)
@@ -11569,7 +11568,7 @@ private fun com.wire.android.ui.userprofile.common.TeamInformation(teamName: kot
     - modifier: STABLE (marked @Stable or @Immutable)
 
 @Composable
-public fun com.wire.android.ui.userprofile.common.UserProfileInfo(userId: com.wire.kalium.logic.data.id.QualifiedID?, isLoading: kotlin.Boolean, avatarAsset: com.wire.android.model.ImageAsset.UserAvatarAsset?, fullName: kotlin.String, userName: kotlin.String, teamName: kotlin.String?, membership: com.wire.android.ui.home.conversationslist.model.Membership, onUserProfileClick: kotlin.Function0<kotlin.Unit>?, editableState: com.wire.android.ui.userprofile.common.EditableState, modifier: androidx.compose.ui.Modifier, connection: com.wire.kalium.logic.data.user.ConnectionState, delayToShowPlaceholderIfNoAsset: kotlin.time.Duration, isProteusVerified: kotlin.Boolean, isMLSVerified: kotlin.Boolean, expiresAt: kotlinx.datetime.Instant?, onQrCodeClick: kotlin.Function0<kotlin.Unit>?, accentId: kotlin.Int, showQrCode: kotlin.Boolean): kotlin.Unit
+public fun com.wire.android.ui.userprofile.common.UserProfileInfo(userId: com.wire.kalium.logic.data.id.QualifiedID?, isLoading: kotlin.Boolean, avatarAsset: com.wire.android.model.ImageAsset.UserAvatarAsset?, fullName: kotlin.String, userName: kotlin.String, teamName: kotlin.String?, membership: com.wire.android.ui.home.conversationslist.model.Membership, onUserProfileClick: kotlin.Function0<kotlin.Unit>?, editableState: com.wire.android.ui.userprofile.common.EditableState, modifier: androidx.compose.ui.Modifier, connection: com.wire.kalium.logic.data.user.ConnectionState, delayToShowPlaceholderIfNoAsset: kotlin.time.Duration, isProteusVerified: kotlin.Boolean, isMLSVerified: kotlin.Boolean, expiresAt: kotlin.time.Instant?, onQrCodeClick: kotlin.Function0<kotlin.Unit>?, accentId: kotlin.Int, showQrCode: kotlin.Boolean): kotlin.Unit
   skippable: false
   restartable: true
   params:
@@ -11603,7 +11602,7 @@ private fun com.wire.android.ui.userprofile.common.processFullName(fullName: kot
     - isMLSVerified: STABLE (primitive type)
 
 @Composable
-private fun com.wire.android.ui.userprofile.common.processUsername(userName: kotlin.String, membership: com.wire.android.ui.home.conversationslist.model.Membership, expiresAt: kotlinx.datetime.Instant?): kotlin.String
+private fun com.wire.android.ui.userprofile.common.processUsername(userName: kotlin.String, membership: com.wire.android.ui.home.conversationslist.model.Membership, expiresAt: kotlin.time.Instant?): kotlin.String
   skippable: false
   restartable: true
   params:

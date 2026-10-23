@@ -24,7 +24,6 @@ import com.wire.android.navigation.routes.auth.AuthenticationLoginPasswordPath
 import com.wire.android.navigation.routes.auth.AuthenticationNavigation3Router
 import com.wire.android.navigation.routes.auth.AuthenticationNavigationTransition
 import com.wire.android.navigation.routes.auth.AuthenticationPrefilledUserIdentifier
-import com.wire.android.navigation.routes.auth.AuthenticationSsoCodeAutoLogin
 import com.wire.android.navigation.routes.auth.LoginRoute
 import com.wire.android.navigation.routes.auth.NewLoginRoute
 import com.wire.android.navigation.routes.auth.NewWelcomeEmptyStartRoute
@@ -102,7 +101,6 @@ internal object WireActivityNavigation3EffectResolver {
     ): WireActivityNavigation3EffectResolution = when (action) {
         OnAuthorizationNeeded -> authorizationNeeded(routes)
         is OnMigrationLogin -> migration(action, routes, canUseNewLogin)
-        is OnAutomaticLogin -> automaticLogin(action, routes)
         is OnCustomBackendLogin -> customBackendLogin(action, routes)
         is OnOpenUserProfile -> openUserProfile(action, currentSessionId)
         is OnSSOLogin -> ssoLogin(action, routes)
@@ -144,33 +142,6 @@ internal object WireActivityNavigation3EffectResolver {
             userHandle = AuthenticationPrefilledUserIdentifier(action.result.userHandle)
         )
         return if (canUseNewLogin) {
-            newLoginNavigation(args, routes)
-        } else {
-            singleNavigation(
-                LoginRoute(args = args, flowId = routes.legacyAuthenticationFlowId()),
-                routes.welcomeOrLoginReplacementMode(),
-            )
-        }
-    }
-
-    private fun automaticLogin(
-        action: OnAutomaticLogin,
-        routes: List<WireRoute>,
-    ): WireActivityNavigation3EffectResolution {
-        val args = AuthenticationLoginArguments(
-            loginPasswordPath = AuthenticationLoginPasswordPath(
-                customServerConfig = action.serverLinks?.toAuthenticationServerLinks()
-            ),
-            ssoCodeAutoLogin = action.ssoCode?.let {
-                AuthenticationSsoCodeAutoLogin(
-                    ssoCode = it,
-                    autoInitiateLogin = true,
-                    nomadServiceUrl = action.nomadServiceUrl,
-                    cookieLabel = action.cookieLabel,
-                )
-            },
-        )
-        return if (action.useNewLogin) {
             newLoginNavigation(args, routes)
         } else {
             singleNavigation(

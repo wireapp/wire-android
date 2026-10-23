@@ -41,6 +41,7 @@ import backendUtils.team.disableFileSharingFeature
 import backendUtils.team.enableAppsFeatureTeam
 import backendUtils.team.enableChannelFeatureViaBackdoorTeam
 import backendUtils.team.enableForceAppLockFeature
+import backendUtils.team.enableMeetingsFeatureTeam
 import backendUtils.team.enableMLSFeatureTeam
 import backendUtils.team.getTeamByName
 import backendUtils.team.setSearchVisibilityInbound
@@ -510,5 +511,10 @@ class BackendSetupHelper(
         val convoName = usersManager.replaceAliasesOccurrences(convoName, ClientUserManager.FindBy.NAME_ALIAS)
         val backend = backendFor(owner)
         return backend.getConversationByName(owner, convoName)
+    }
+
+    fun userEnablesMeetingsForTeam(userAlias: String) {
+        val owner = toClientUser(userAlias)
+        backendFor(owner).enableMeetingsFeatureTeam(requireNotNull(owner.teamId))
     }
 }

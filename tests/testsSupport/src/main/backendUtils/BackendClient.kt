@@ -59,7 +59,7 @@ class BackendClient(
         const val accept = "Accept"
         const val applicationJson = "application/json"
         const val AUTHORIZATION = "Authorization"
-        private const val API_VERSION = 16
+        private const val API_VERSION = 17
         private const val DEFAULT_BACKEND_NAME = "STAGING"
         private const val INTERNAL_API_PREFIX = "i"
 

@@ -1,0 +1,286 @@
+/*
+ * Wire
+ * Copyright (C) 2026 Wire Swiss GmbH
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ */
+package com.wire.android.tests.core.pages
+
+import androidx.test.uiautomator.By
+import androidx.test.uiautomator.Direction
+import androidx.test.uiautomator.StaleObjectException
+import androidx.test.uiautomator.UiDevice
+import androidx.test.uiautomator.UiObject2
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
+import service.models.Meeting
+import uiautomatorutils.UiSelectorParams
+import uiautomatorutils.UiWaitUtils
+import uiautomatorutils.UiWaitUtils.toBySelector
+import java.time.LocalDate
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
+import java.util.Locale
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
+
+/** UIAutomator assertions against rendered meeting cards, including off-screen paged entries. */
+@Suppress("TooManyFunctions")
+class MeetingsPage(private val device: UiDevice) {
+    private val mainMenuButton = UiSelectorParams(description = "Main navigation")
+    private val germanMainMenuButton = UiSelectorParams(description = "Hauptnavigation")
+    private val meetingsHeading = UiSelectorParams(text = "Meetings")
+    private val remindersDialogTitle = UiSelectorParams(text = "Enable precise meeting reminders")
+    private val cancelButton = UiSelectorParams(text = "Cancel")
+    private val germanCancelButton = UiSelectorParams(text = "Abbrechen")
+    private val emptyTitle = UiSelectorParams(text = "No upcoming meetings yet", timeout = 30.seconds)
+    private val emptyDescription = UiSelectorParams(text = "Start a meeting with your team members.")
+    private val moreMenuButton = UiSelectorParams(description = "Meeting more menu icon")
+    private val manualLoadButton = UiSelectorParams(textMatches = "(?i)^(Show More|Load More)$")
+    private val participantAvatar = UiSelectorParams(resourceId = "User avatar")
+    private val anyText = UiSelectorParams(textMatches = ".+")
+    private val listEntry = UiSelectorParams(
+        textMatches = "^(ML-.*|(Today|Tomorrow|Yesterday|Heute|Morgen|Gestern) \\(.*\\)|" +
+            "(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday|Montag|Dienstag|Mittwoch|Donnerstag|Freitag|Samstag|Sonntag), .*)$"
+    )
+    private fun meetingTitle(title: String) = UiSelectorParams(text = title)
+    private fun dateHeader(text: String) = UiSelectorParams(text = text)
+
+    fun open(locale: Locale = Locale.US) {
+        UiWaitUtils.waitElement(if (locale.language == "de") germanMainMenuButton else mainMenuButton).click()
+        UiWaitUtils.waitElement(meetingsHeading).click()
+        UiWaitUtils.waitElement(meetingsHeading)
+        // The app asks for exact-alarm access the first time this screen opens.
+        if (UiWaitUtils.retryUntilTimeout(2.seconds) { device.hasObject(remindersDialogTitle.toBySelector()) }) {
+            UiWaitUtils.waitElement(if (locale.language == "de") germanCancelButton else cancelButton).click()
+        }
+    }
+
+    fun assertEmpty() {
+        UiWaitUtils.waitElement(emptyTitle)
+        UiWaitUtils.waitElement(emptyDescription)
+        assertFalse("Empty list contains meeting cards", device.hasObject(moreMenuButton.toBySelector()))
+    }
+
+    fun assertMeeting(
+        meeting: Meeting,
+        zone: ZoneId,
+        locale: Locale = Locale.US,
+        participantCount: Int? = null,
+    ) {
+        assertTrue(
+            "Meeting '${meeting.title}' did not display its latest information",
+            UiWaitUtils.retryUntilTimeout(30.seconds) {
+                try {
+                    val titles = device.findObjects(meetingTitle(meeting.title).toBySelector())
+                    titles.size == 1 && rowTexts(titles.single()).contains(timeRange(meeting, zone, locale))
+                } catch (_: StaleObjectException) {
+                    false
+                }
+            }
+        )
+        val title = device.findObjects(meetingTitle(meeting.title).toBySelector()).single()
+        assertCardDetails(title, meeting, zone, locale, participantCount)
+    }
+
+    fun assertGone(title: String, timeout: Duration = 30.seconds) {
+        UiWaitUtils.waitUntilGoneOrThrow(
+            meetingTitle(title).toBySelector(),
+            timeout = timeout,
+            errorMessage = "Stale meeting '$title' is still displayed"
+        )
+    }
+
+    fun assertNotVisible(title: String) {
+        assertFalse("Meeting '$title' should require scrolling", device.hasObject(meetingTitle(title).toBySelector()))
+    }
+
+    fun assertNoCountdown(title: String) {
+        val node = UiWaitUtils.waitElement(meetingTitle(title))
+        assertFalse("Unexpected starting-soon countdown for $title", rowTexts(node).any { it.startsWith("Starting in ") })
+    }
+
+    fun assertHasCountdown(title: String) {
+        val node = UiWaitUtils.waitElement(meetingTitle(title))
+        assertTrue("Expected a starting-soon countdown for $title", rowTexts(node).any { it.startsWith("Starting in ") })
+    }
+
+    fun awaitCountdown(title: String, countdown: String, timeout: Duration) {
+        assertTrue(
+            "Expected '$countdown' for $title",
+            UiWaitUtils.retryUntilTimeout(timeout, 100.milliseconds) {
+                device.findObject(meetingTitle(title).toBySelector())?.let { rowTexts(it).contains("Starting in $countdown") } == true
+            }
+        )
+    }
+
+    fun awaitJoin(title: String, timeout: Duration = 30.seconds) {
+        assertTrue(
+            "Meeting $title did not automatically transition to Join",
+            UiWaitUtils.retryUntilTimeout(timeout) {
+                device.findObject(meetingTitle(title).toBySelector())?.let {
+                    val texts = rowTexts(it)
+                    "Join" in texts && texts.none { text -> text.startsWith("Starting in ") }
+                } == true
+            }
+        )
+        assertEquals("Duplicate live meeting", 1, device.findObjects(meetingTitle(title).toBySelector()).size)
+    }
+
+    /**
+     * Traverse overlapping viewports. Each viewport must be a contiguous slice of the expected header/card sequence.
+     * This checks grouping, ordering, empty sections, duplicates, missing entries and unexpected jumps to the top.
+     */
+    fun assertCompleteList(
+        meetings: List<Meeting>,
+        zone: ZoneId,
+        today: LocalDate,
+        locale: Locale = Locale.US,
+        participants: Map<String, Int> = emptyMap(),
+    ) {
+        require(meetings.isNotEmpty() && meetings.map { it.title }.distinct().size == meetings.size)
+        val expected = expectedEntries(meetings, zone, today, locale)
+        val observed = mutableSetOf<Int>()
+        val checkedCards = mutableSetOf<String>()
+        var previousFirst = -1
+        var lastReached = -1
+        var atEnd = false
+        repeat(MAX_SCROLLS) {
+            val entries = visibleEntries()
+            assertTrue("No meeting entries visible while scrolling", entries.isNotEmpty())
+            val indices = entries.map { entry ->
+                expected.indexOf(entry.text).also { index ->
+                    assertTrue("Unexpected or incorrectly formatted entry: ${entry.text}; expected $expected", index >= 0)
+                }
+            }
+            if (previousFirst == -1) assertEquals("List did not open at its beginning", 0, indices.first())
+            assertTrue("List jumped backwards while appending pages", indices.first() >= previousFirst)
+            assertTrue("Scrolling skipped entries after index $lastReached", indices.first() <= lastReached + 1)
+            indices.zipWithNext().forEach { (before, after) ->
+                assertEquals("Duplicate, missing or incorrectly grouped card in ${entries.map { it.text }}", before + 1, after)
+            }
+            observed.addAll(indices)
+            previousFirst = indices.first()
+            lastReached = maxOf(lastReached, indices.last())
+            assertFalse("Pagination requires a manual load button", device.hasObject(manualLoadButton.toBySelector()))
+            entries.forEachIndexed { index, node ->
+                val meeting = meetings.find { it.title == node.text }
+                // A following entry proves this card is fully in view. The final viewport covers the last card.
+                if (meeting != null && (index < entries.lastIndex || atEnd)) {
+                    assertCardDetails(node, meeting, zone, locale, participants[meeting.title])
+                    checkedCards.add(meeting.title)
+                }
+            }
+            if (atEnd) {
+                assertEquals("Meetings were skipped or missing", expected.indices.toSet(), observed)
+                assertEquals("Not all meeting information was checked", meetings.map { it.title }.toSet(), checkedCards)
+                return
+            }
+            atEnd = scrollToNextViewport(entries.map { it.text }, expected.last())
+        }
+        throw AssertionError("Meetings list did not reach its end in $MAX_SCROLLS scrolls")
+    }
+
+    fun returnToTopAndAssertFirst(title: String) {
+        repeat(MAX_SCROLLS) {
+            if (list()?.scroll(Direction.UP, 0.8f) != true) {
+                assertEquals("Previously loaded meeting disappeared", title, visibleEntries().first { it.text.startsWith("ML-") }.text)
+                return
+            }
+        }
+        throw AssertionError("Could not return to the beginning of the Meetings list")
+    }
+
+    fun assertHeader(meeting: Meeting, zone: ZoneId, today: LocalDate, locale: Locale = Locale.US) {
+        UiWaitUtils.waitElement(dateHeader(header(meeting.start.atZone(zone).toLocalDate(), today, locale)))
+    }
+
+    private fun assertCardDetails(
+        node: UiObject2,
+        meeting: Meeting,
+        zone: ZoneId,
+        locale: Locale,
+        participantCount: Int?,
+    ) {
+        val texts = rowTexts(node)
+        assertTrue("Wrong start/end time for ${meeting.title}: $texts", timeRange(meeting, zone, locale) in texts)
+        val recurrence = if (locale.language == "de") "Täglich" else "Daily"
+        assertEquals("Wrong recurrence marker for ${meeting.title}", meeting.recurring, recurrence in texts)
+        participantCount?.let { count ->
+            val avatars = rowNodes(participantAvatar, node)
+            assertEquals("Wrong participant avatar count in ${meeting.title}", minOf(count, 5), avatars.size)
+            if (count > 5) assertTrue("Missing participant overflow count", "+${count - 5}" in texts)
+        }
+    }
+
+    private fun rowTexts(title: UiObject2): List<String> = rowNodes(anyText, title).map { it.text }
+
+    private fun rowNodes(selector: UiSelectorParams, title: UiObject2): List<UiObject2> {
+        val top = title.visibleBounds.top
+        val bottom = visibleEntries().filter { it.visibleBounds.top > top }.minOfOrNull { it.visibleBounds.top }
+            ?: device.displayHeight
+        return device.findObjects(selector.toBySelector()).filter {
+            it.visibleBounds.top >= top && it.visibleBounds.bottom <= bottom
+        }
+    }
+
+    private fun visibleEntries(): List<UiObject2> = device.findObjects(listEntry.toBySelector())
+        .filter { !it.visibleBounds.isEmpty }
+        .sortedBy { it.visibleBounds.top }
+
+    private fun list(): UiObject2? = device.findObjects(By.scrollable(true))
+        .lastOrNull { it.hasObject(moreMenuButton.toBySelector()) }
+
+    private fun scrollToNextViewport(before: List<String>, finalEntry: String): Boolean {
+        if (list()?.scroll(Direction.DOWN, 0.45f) == true || visibleEntries().map { it.text } != before) return false
+        val atEnd = before.last() == finalEntry
+        if (!atEnd) {
+            assertTrue(
+                "Additional meetings did not load after scrolling",
+                UiWaitUtils.retryUntilTimeout(30.seconds) {
+                    visibleEntries().map { it.text } != before || list()?.scroll(Direction.DOWN, 0.45f) == true ||
+                        visibleEntries().map { it.text } != before
+                }
+            )
+        }
+        return atEnd
+    }
+
+    private fun expectedEntries(meetings: List<Meeting>, zone: ZoneId, today: LocalDate, locale: Locale): List<String> {
+        val entries = mutableListOf<String>()
+        var day: LocalDate? = null
+        meetings.forEach { meeting ->
+            val date = meeting.start.atZone(zone).toLocalDate()
+            if (date != day) entries.add(header(date, today, locale))
+            entries.add(meeting.title)
+            day = date
+        }
+        return entries
+    }
+
+    private fun header(date: LocalDate, today: LocalDate, locale: Locale): String {
+        // Meetings currently use textual headers; they do not render a numeric date field.
+        val dateText = date.format(DateTimeFormatter.ofPattern("EEEE, MMMM d", locale))
+        val relative = when (date) {
+            today -> if (locale.language == "de") "Heute" else "Today"
+            today.plusDays(1) -> if (locale.language == "de") "Morgen" else "Tomorrow"
+            else -> null
+        }
+        return relative?.let { "$it ($dateText)" } ?: dateText
+    }
+
+    private fun timeRange(meeting: Meeting, zone: ZoneId, locale: Locale): String {
+        val format = DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT).withLocale(locale).withZone(zone)
+        return "${format.format(meeting.start)} - ${format.format(meeting.end)}"
+    }
+
+    private companion object {
+        const val MAX_SCROLLS = 250
+    }
+}

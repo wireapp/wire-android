@@ -892,3 +892,15 @@ enum class TeamRoles(val role: String, val permissionBitMask: Int) {
 
     override fun toString(): String = role
 }
+
+fun BackendClient.enableMeetingsFeatureTeam(teamId: String) {
+    val path = "teams/${Uri.encode(teamId)}/features/meetings"
+    listOf("$path/unlocked" to "PUT", path to "PATCH").forEach { (endpoint, method) ->
+        NetworkBackendClient.sendJsonRequestWithCookies(
+            url = URI(endpoint.composeInternalApiUrl()).toURL(),
+            method = method,
+            headers = defaultheaders + ("Authorization" to basicAuth.getEncoded()),
+            body = (if (method == "PATCH") JSONObject().put("status", "enabled") else JSONObject()).toString()
+        )
+    }
+}

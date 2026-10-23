@@ -31,6 +31,7 @@ import androidx.annotation.RawRes
 import backendUtils.BackendClient
 import backendUtils.conversation.getConversationByName
 import backendUtils.conversation.getPersonalConversationByName
+import backendUtils.meeting.getMeetingConversation
 import backendUtils.team.getSelfDeletingMessagesSettings
 import backendUtils.team.getTeamMembers
 import backendUtils.user.getPropertyValues
@@ -45,6 +46,7 @@ import org.json.JSONArray
 import org.json.JSONObject
 import service.enums.LegalHoldStatus
 import service.models.Conversation
+import service.models.Meeting
 import service.models.Mentions
 import service.models.QualifiedID
 import service.models.SendFileParams
@@ -514,6 +516,33 @@ class TestServiceHelper(
             chatName = conversationName,
             deviceName = deviceName
         )
+    }
+
+    fun userAddsContactsToMeeting(meeting: Meeting, contactsToAddNameAliases: String, hostDevice: String) {
+        val backend = backendFor(meeting.creator)
+        val users = usersManager.splitAliases(contactsToAddNameAliases).map { toClientUser(it) }
+        // The host's real test-service client must establish the MLS conversation before inviting members.
+        check(
+            UiWaitUtils.retryUntilTimeout(60.seconds, 1.seconds) {
+                backend.getMeetingConversation(meeting).optLong("epoch", 0) > 0
+            }
+        ) { "Host did not establish MLS for meeting ${meeting.title}" }
+        testServiceClient.addMembersToConversation(
+            owner = meeting.creator,
+            deviceName = hostDevice,
+            convoId = meeting.conversationId.id,
+            convoDomain = meeting.conversationId.domain,
+            users = users.map { QualifiedID(requireNotNull(it.id), backendFor(it).domain) }
+        )
+        // Verify membership through the host response before UI assertions, without refreshing the Android app.
+        check(
+            UiWaitUtils.retryUntilTimeout(30.seconds, 1.seconds) {
+                val members = backend.getMeetingConversation(meeting)
+                    .getJSONObject("members").getJSONArray("others")
+                val ids = (0 until members.length()).map { members.getJSONObject(it).getJSONObject("qualified_id").getString("id") }
+                users.all { it.id in ids }
+            }
+        ) { "Meeting invitations were not persisted for ${meeting.title}" }
     }
 
     fun userXAddedContactsToGroupChat(

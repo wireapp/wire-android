@@ -209,7 +209,7 @@ private fun LoginContent(
 
                         else -> null
                     }
-                    EmailOrSSOCodeInput(userIdentifierState, error)
+                    EmailOrSSOCodeInput(userIdentifierState, error, loginEmailSSOState.userIdentifierEnabled)
                     VerticalSpace.x8()
                     LoginNextButton(
                         loading = loginEmailSSOState.flowState is NewLoginFlowState.Loading,
@@ -245,16 +245,18 @@ private fun LoginNextButton(
 }
 
 @Composable
-private fun EmailOrSSOCodeInput(
+internal fun EmailOrSSOCodeInput(
     userIdentifierState: TextFieldState,
-    error: String?
+    error: String?,
+    enabled: Boolean,
 ) {
     WireTextField(
-        autoFillType = WireAutoFillType.Login,
+        autoFillType = if (enabled) WireAutoFillType.Login else WireAutoFillType.None,
         textState = userIdentifierState,
         placeholderText = stringResource(R.string.enterprise_login_user_identifier_label_placeholder),
         labelText = stringResource(R.string.enterprise_login_user_identifier_label),
         state = when {
+            !enabled -> WireTextFieldState.Disabled
             error != null -> WireTextFieldState.Error(error)
             else -> WireTextFieldState.Default
         },
@@ -292,6 +294,25 @@ fun PreviewNewLoginScreenCustomConfig() = WireTheme {
             LoginContent(
                 loginEmailSSOState = NewLoginScreenState(),
                 userIdentifierState = TextFieldState(),
+                serverConfig = ServerConfig.DEFAULT.copy(isOnPremises = true),
+                onNextClicked = {},
+                onBackendConfigLinkEntered = {},
+                onBackendConfigSuccessContinue = {},
+                canNavigateBack = false,
+                navigateBack = {},
+            )
+        }
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewNewLoginScreenDisabledSSOCode() = WireTheme {
+    EdgeToEdgePreview(useDarkIcons = false) {
+        WireAuthBackgroundLayout {
+            LoginContent(
+                loginEmailSSOState = NewLoginScreenState(userIdentifierEnabled = false, nextEnabled = true),
+                userIdentifierState = TextFieldState("wire-fd994b20-b9af-11ec-ae36-00163e9b33ca"),
                 serverConfig = ServerConfig.DEFAULT.copy(isOnPremises = true),
                 onNextClicked = {},
                 onBackendConfigLinkEntered = {},

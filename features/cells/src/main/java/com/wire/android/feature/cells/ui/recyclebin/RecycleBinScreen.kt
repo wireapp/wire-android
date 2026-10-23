@@ -47,6 +47,7 @@ import com.wire.android.feature.cells.ui.CellsFilesNavigation
 import com.wire.android.feature.cells.ui.SelectionAwareTitle
 import com.wire.android.feature.cells.ui.common.Breadcrumbs
 import com.wire.android.feature.cells.ui.dialog.BulkDeleteDialogs
+import com.wire.android.feature.cells.ui.dialog.BulkRestoreDialogs
 import com.wire.android.feature.cells.ui.toIntent
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.scaffold.WireScaffold
@@ -63,6 +64,7 @@ internal fun RecycleBinRouteScreen(
     val selectedNodes by cellViewModel.selectedNodes.collectAsState()
     val isSelectionMode = selectedNodes.isNotEmpty()
     val bulkDeleteDialog by cellViewModel.bulkDeleteDialog.collectAsState()
+    val bulkRestoreDialog by cellViewModel.bulkRestoreDialog.collectAsState()
 
     BackHandler(enabled = isSelectionMode) {
         cellViewModel.sendIntent(CellViewIntent.OnClearSelection)
@@ -152,7 +154,7 @@ internal fun RecycleBinRouteScreen(
             exit = slideOutVertically { it } + fadeOut(),
         ) {
             CellBulkActionsBar(
-                actions = persistentListOf(CellBulkAction.DeletePermanently),
+                actions = persistentListOf(CellBulkAction.Restore, CellBulkAction.DeletePermanently),
                 onActionClick = { action -> cellViewModel.sendIntent(action.toIntent()) },
             )
         }
@@ -163,6 +165,14 @@ internal fun RecycleBinRouteScreen(
             dialog = dialog,
             onConfirm = { cellViewModel.sendIntent(CellViewIntent.OnBulkDeleteConfirmed) },
             onDismiss = { cellViewModel.sendIntent(CellViewIntent.OnBulkDeleteDialogDismissed) },
+        )
+    }
+
+    bulkRestoreDialog?.let { dialog ->
+        BulkRestoreDialogs(
+            dialog = dialog,
+            onConfirm = { cellViewModel.sendIntent(CellViewIntent.OnBulkRestoreConfirmed) },
+            onDismiss = { cellViewModel.sendIntent(CellViewIntent.OnBulkRestoreDialogDismissed) },
         )
     }
 }

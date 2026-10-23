@@ -100,6 +100,7 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.permission.rememberChooseMultipleFilesFlow
 import com.wire.kalium.cells.domain.CellUploadItem
 import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toPersistentList
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -184,7 +185,6 @@ internal fun ConversationFilesRouteScreen(
     }
 }
 
-@OptIn(ExperimentalSharedTransitionApi::class)
 @Suppress("CyclomaticComplexMethod")
 @Composable
 internal fun ConversationFilesScreenContent(
@@ -423,8 +423,9 @@ internal fun ConversationFilesScreenContent(
                         }
 
                         // Hidden while selecting; with fewer than two items there is nothing to select several of.
+                        // Not in the recycle bin's folders: the tip isn't shown in the recycle bin either.
                         AnimatedVisibility(
-                            visible = showBulkSelectionHint && !isSelectionMode && pagingListItems.itemCount >= 2,
+                            visible = showBulkSelectionHint && !isRecycleBin && !isSelectionMode && pagingListItems.itemCount >= 2,
                             enter = expandVertically(expandFrom = Alignment.Top) + fadeIn(),
                             exit = shrinkVertically(shrinkTowards = Alignment.Top) + fadeOut(),
                         ) {
@@ -555,7 +556,7 @@ internal fun ConversationFilesScreenContent(
                         if (state == EnterExitState.Visible) pillCornerRadius() else fabCornerRadius()
                     }
                     CellBulkActionsBar(
-                        actions = remember(offlineFilesEnabled) { bulkActions(offlineFilesEnabled) },
+                        actions = remember(offlineFilesEnabled, isRecycleBin) { bulkActions(offlineFilesEnabled, isRecycleBin) },
                         onActionClick = { action -> sendIntent(action.toIntent()) },
                         shape = RoundedCornerShape(barCornerRadius),
                         modifier = Modifier.sharedBounds(
@@ -580,12 +581,17 @@ private fun fabCornerRadius(): Dp = dimensions().corner16x
 @Composable
 private fun pillCornerRadius(): Dp = dimensions().spacing32x
 
-private fun bulkActions(offlineFilesEnabled: Boolean): ImmutableList<CellBulkAction> =
-    listOfNotNull(
-        CellBulkAction.Move,
-        CellBulkAction.Delete,
-        CellBulkAction.MakeAvailableOffline.takeIf { offlineFilesEnabled },
-    ).toPersistentList()
+// This screen also shows the folders inside the recycle bin, where only the recycle bin actions apply.
+private fun bulkActions(offlineFilesEnabled: Boolean, isRecycleBin: Boolean): ImmutableList<CellBulkAction> =
+    if (isRecycleBin) {
+        persistentListOf(CellBulkAction.Restore, CellBulkAction.DeletePermanently)
+    } else {
+        listOfNotNull(
+            CellBulkAction.Move,
+            CellBulkAction.Delete,
+            CellBulkAction.MakeAvailableOffline.takeIf { offlineFilesEnabled },
+        ).toPersistentList()
+    }
 
 /**
  * Rolls the title up when the selection count grows and down when it shrinks, so entering selection mode

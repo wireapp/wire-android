@@ -28,6 +28,7 @@ import androidx.paging.map
 import com.wire.android.datastore.UserDataStore
 import com.wire.android.feature.cells.domain.model.AttachmentFileType
 import com.wire.android.feature.cells.ui.dialog.BulkDeleteDialog
+import com.wire.android.feature.cells.ui.dialog.BulkRestoreDialog
 import com.wire.android.feature.cells.ui.edit.OnlineEditor
 import com.wire.android.feature.cells.ui.model.CellNodeUi
 import com.wire.android.feature.cells.ui.model.NodeBottomSheetAction
@@ -37,7 +38,6 @@ import com.wire.android.feature.cells.ui.model.canOpenWithUrl
 import com.wire.android.feature.cells.ui.model.localFileAvailable
 import com.wire.android.feature.cells.ui.model.pdfRenditionUrl
 import com.wire.android.feature.cells.ui.model.toUiModel
-import com.wire.android.feature.cells.ui.movetofolder.CellNodeMoveEvents
 import com.wire.android.feature.cells.ui.search.DriveSearchScreenType
 import com.wire.android.feature.cells.ui.search.SearchNavArgs
 import com.wire.android.feature.cells.ui.search.defaultCriteriaFor
@@ -64,6 +64,7 @@ import com.wire.kalium.cells.domain.usecase.GetUserNameUseCase
 import com.wire.kalium.cells.domain.usecase.GetWireCellConfigurationUseCase
 import com.wire.kalium.cells.domain.usecase.IsAtLeastOneCellAvailableUseCase
 import com.wire.kalium.cells.domain.usecase.RestoreNodeFromRecycleBinUseCase
+import com.wire.kalium.cells.domain.usecase.RestoreNodesFromRecycleBinUseCase
 import com.wire.kalium.cells.domain.usecase.offline.DeleteOfflineFileUseCase
 import com.wire.kalium.cells.domain.usecase.offline.GetOfflineFileUseCase
 import com.wire.kalium.cells.domain.usecase.offline.ObserveOfflineFilesUseCase
@@ -113,6 +114,7 @@ class CellViewModel @AssistedInject constructor(
     private val deleteCellAsset: DeleteCellAssetUseCase,
     private val deleteCellAssets: DeleteCellAssetsUseCase,
     private val restoreNodeFromRecycleBinUseCase: RestoreNodeFromRecycleBinUseCase,
+    private val restoreNodesFromRecycleBin: RestoreNodesFromRecycleBinUseCase,
     private val isCellAvailable: IsAtLeastOneCellAvailableUseCase,
     private val fileHelper: FileHelper,
     private val getEditorUrl: GetEditorUrlUseCase,
@@ -134,7 +136,7 @@ class CellViewModel @AssistedInject constructor(
     private val qualifiedIdMapper: QualifiedIdMapper,
     private val uploadFilePreparer: DriveUploadFilePreparer,
     private val uploadCoordinator: CellUploadCoordinator,
-    private val nodeMoveEvents: CellNodeMoveEvents,
+    private val nodeChangeEvents: CellNodeChangeEvents,
     /** When disabled, all offline-files UI (save actions, offline banner, offline browsing) is hidden. */
     @Named("offlineFilesEnabled") val offlineFilesEnabled: Boolean,
     @Named("inAppImageViewerEnabled") private val inAppImageViewerEnabled: Boolean,
@@ -161,6 +163,9 @@ class CellViewModel @AssistedInject constructor(
     // Kept in the state, not sent as actions, so the dialogs survive configuration changes.
     private val _bulkDeleteDialog = MutableStateFlow<BulkDeleteDialog?>(null)
     internal val bulkDeleteDialog: StateFlow<BulkDeleteDialog?> = _bulkDeleteDialog.asStateFlow()
+
+    private val _bulkRestoreDialog = MutableStateFlow<BulkRestoreDialog?>(null)
+    internal val bulkRestoreDialog: StateFlow<BulkRestoreDialog?> = _bulkRestoreDialog.asStateFlow()
 
     internal val fileReadyFlow: Flow<CellNodeUi.File> = sharedPathCache.fileReadyEvents
 
@@ -258,6 +263,7 @@ class CellViewModel @AssistedInject constructor(
         checkViewerAccess()
         refreshOnUploadsCompletedInThisFolder()
         refreshOnNodesMovedFromOrIntoThisFolder()
+        refreshOnNodesRestoredInThisConversation()
         dismissBulkSelectionHintOnceSelectionIsUsed()
     }
 
@@ -283,8 +289,21 @@ class CellViewModel @AssistedInject constructor(
     private fun refreshOnNodesMovedFromOrIntoThisFolder() {
         val folderPath = currentNodeUuid()?.trim('/') ?: return
         viewModelScope.launch {
-            nodeMoveEvents.changedFolderPaths.collect { paths -> if (paths.any { it.trim('/') == folderPath }) refreshNodes() }
+            nodeChangeEvents.changedFolderPaths.collect { paths -> if (paths.any { it.trim('/') == folderPath }) refreshNodes() }
         }
+    }
+
+    private fun refreshOnNodesRestoredInThisConversation() {
+        if (isRecycleBin()) return
+        viewModelScope.launch {
+            nodeChangeEvents.restoredInConversations.collect { conversationId ->
+                if (rootConversationId == null || rootConversationId == conversationId) refreshNodes()
+            }
+        }
+    }
+
+    private fun notifyNodesRestored() {
+        rootConversationId?.let { nodeChangeEvents.onNodesRestored(it) }
     }
 
     private fun checkViewerAccess() = viewModelScope.launch {
@@ -452,6 +471,9 @@ class CellViewModel @AssistedInject constructor(
             is CellViewIntent.OnDeleteSelectedNodesClick -> showBulkDeleteConfirmation()
             is CellViewIntent.OnBulkDeleteConfirmed -> deleteSelectedNodes()
             is CellViewIntent.OnBulkDeleteDialogDismissed -> dismissBulkDeleteDialog()
+            is CellViewIntent.OnRestoreSelectedNodesClick -> showBulkRestoreConfirmation()
+            is CellViewIntent.OnBulkRestoreConfirmed -> restoreSelectedNodes()
+            is CellViewIntent.OnBulkRestoreDialogDismissed -> dismissBulkRestoreDialog()
             is CellViewIntent.OnMakeSelectedNodesAvailableOfflineClick -> Unit
 
             is CellViewIntent.OnItemMenuClick -> onItemMenuClick(intent.cellNode)
@@ -577,6 +599,53 @@ class CellViewModel @AssistedInject constructor(
         // The confirmation stays up until the request completes.
         if ((_bulkDeleteDialog.value as? BulkDeleteDialog.Confirmation)?.isInProgress == true) return
         _bulkDeleteDialog.value = null
+    }
+
+    private fun showBulkRestoreConfirmation() {
+        val nodes = bulkSelection.selectedNodes.value.values.toList()
+        if (nodes.isEmpty()) return
+        if (navArgs.parentFolderUuid != null) {
+            // Inside a deleted folder, nothing can be restored on its own: like for a single node, it's the folder or nothing.
+            sendAction(ShowRestoreParentFolderDialog(nodes.first()))
+        } else {
+            _bulkRestoreDialog.value = BulkRestoreDialog.Confirmation(nodes)
+        }
+    }
+
+    /**
+     * Restores the confirmed nodes in a single request. There is no rollback: if it fails midway, some of them may still
+     * have been restored, so the list is refreshed and the selection cleared either way.
+     */
+    private fun restoreSelectedNodes() {
+        val confirmation = _bulkRestoreDialog.value as? BulkRestoreDialog.Confirmation ?: return
+        if (confirmation.isInProgress) return
+        val nodes = confirmation.nodes
+        _bulkRestoreDialog.value = confirmation.copy(isInProgress = true)
+        viewModelScope.launch {
+            val result = restoreNodesFromRecycleBin(nodes.map { it.uuid })
+            // Even on failure: without rollback, part of the nodes may have been restored.
+            notifyNodesRestored()
+            bulkSelection.clear()
+            result
+                .onSuccess {
+                    _bulkRestoreDialog.value = null
+                    nodes.forEach { removeFromListUi(it) }
+                    sendAction(ShowNodesRestoredMessage(restoredCount = nodes.size))
+                }
+                .onFailure { failure ->
+                    _bulkRestoreDialog.value = BulkRestoreDialog.Failure(
+                        totalCount = nodes.size,
+                        isNoNetworkConnection = failure is NetworkFailure.NoNetworkConnection,
+                    )
+                }
+            refreshNodes()
+        }
+    }
+
+    private fun dismissBulkRestoreDialog() {
+        // The confirmation stays up until the request completes.
+        if ((_bulkRestoreDialog.value as? BulkRestoreDialog.Confirmation)?.isInProgress == true) return
+        _bulkRestoreDialog.value = null
     }
 
     // The server path when known: in the recycle bin, nodes don't live under the folder being browsed.
@@ -894,6 +963,7 @@ class CellViewModel @AssistedInject constructor(
             restoreNodeFromRecycleBinUseCase(navArgs.parentFolderUuid ?: node.uuid)
                 .onSuccess {
                     _isRestoreInProgress.value = false
+                    notifyNodesRestored()
                     if (navArgs.parentFolderUuid != null) {
                         sendAction(HideRestoreParentFolderDialog)
                         _navigateToRecycleBinRoot.value = true
@@ -951,6 +1021,9 @@ sealed interface CellViewIntent {
     data object OnDeleteSelectedNodesClick : CellViewIntent
     data object OnBulkDeleteConfirmed : CellViewIntent
     data object OnBulkDeleteDialogDismissed : CellViewIntent
+    data object OnRestoreSelectedNodesClick : CellViewIntent
+    data object OnBulkRestoreConfirmed : CellViewIntent
+    data object OnBulkRestoreDialogDismissed : CellViewIntent
     data object OnMakeSelectedNodesAvailableOfflineClick : CellViewIntent
     data class OnMenuItemActionSelected(val node: CellNodeUi, val action: NodeBottomSheetAction) : CellViewIntent
     data class OnNodeDeleteConfirmed(val node: CellNodeUi) : CellViewIntent

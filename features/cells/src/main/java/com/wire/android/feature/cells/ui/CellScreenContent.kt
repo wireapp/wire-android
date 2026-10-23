@@ -272,6 +272,11 @@ internal fun CellScreenContent(
             is HideRestoreParentFolderDialog -> restoreParentFolderConfirmation = null
             is HideDeleteConfirmation -> deleteConfirmation = null
             is ShowFileDeletedMessage -> showDeleteConfirmation(context, action.isFile, action.permanently)
+            is ShowNodesRestoredMessage -> Toast.makeText(
+                context,
+                context.resources.getQuantityString(R.plurals.cells_bulk_restore_success, action.restoredCount, action.restoredCount),
+                Toast.LENGTH_LONG
+            ).show()
             is ShowNodesDeletedMessage -> Toast.makeText(
                 context,
                 context.resources.getQuantityString(

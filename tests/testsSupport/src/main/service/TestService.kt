@@ -51,6 +51,8 @@ import java.io.OutputStreamWriter
 import java.net.HttpURLConnection
 import java.net.URL
 import java.nio.charset.StandardCharsets
+import java.time.Instant
+import java.time.ZoneId
 import java.time.Duration
 import java.util.concurrent.ConcurrentHashMap
 import java.util.logging.Level
@@ -1138,8 +1140,39 @@ class TestService(private val baseUri: String, private val testName: String) {
         sendHttpRequest(connection, requestBody)
     }
 
-    fun isKaliumTestservice(): Boolean {
-        val c = buildRequest("api/v1/", "GET")
+    fun createMeeting(
+        owner: ClientUser,
+        participants: List<ClientUser>,
+        title: String,
+        start: Instant,
+        end: Instant,
+        zone: ZoneId,
+        recurring: Boolean,
+        deviceName: String
+    ) {
+        val instanceId = getInstanceId(owner, deviceName)
+        val connection = buildRequest("api/v1/instance/$instanceId/meeting", "POST")
+        val requestBody = JSONObject().apply {
+            put("title", title)
+            put("startTime", start.toString())
+            put("endTime", end.toString())
+            put("tzid", zone.id)
+            val userIds = participants.map { user ->
+                "${user.id}@${BackendClient.loadBackend(user.backendName.orEmpty()).domain}"
+            }
+            put("userIds", JSONArray(userIds))
+            if (recurring) {
+                put("recurrence", JSONObject().put("frequency", "daily").put("interval", 1).put("until", end.toString()))
+            }
+        }
+        sendHttpRequest(connection, requestBody)
+    }
+
+    fun isKaliumTestservice(timeout: Duration = Duration.ofMillis(CONNECT_TIMEOUT.toLong())): Boolean {
+        val c = buildRequest("api/v1/", "GET").apply {
+            connectTimeout = timeout.toMillis().toInt()
+            readTimeout = timeout.toMillis().toInt()
+        }
         var response = ""
         var status = -1
         try {

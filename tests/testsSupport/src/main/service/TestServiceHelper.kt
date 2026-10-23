@@ -31,7 +31,7 @@ import androidx.annotation.RawRes
 import backendUtils.BackendClient
 import backendUtils.conversation.getConversationByName
 import backendUtils.conversation.getPersonalConversationByName
-import backendUtils.meeting.getMeetingConversation
+import backendUtils.meeting.getMeetingByTitleAndStartTime
 import backendUtils.team.getSelfDeletingMessagesSettings
 import backendUtils.team.getTeamMembers
 import backendUtils.user.getPropertyValues
@@ -64,6 +64,7 @@ import java.io.RandomAccessFile
 import java.nio.ByteBuffer
 import java.security.MessageDigest
 import java.time.Duration
+import java.time.ZoneId
 import java.time.Instant
 import java.util.concurrent.Callable
 import java.util.concurrent.TimeUnit
@@ -474,6 +475,7 @@ class TestServiceHelper(
         ownerAlias: String,
         verificationCode: String? = null,
         deviceName: String? = null,
+        retryOnFailure: Boolean = true,
     ) {
         val owner = toClientUser(ownerAlias)
         val developmentApiEnabled = backendFor(owner).isDevelopmentApiEnabled(owner)
@@ -484,7 +486,8 @@ class TestServiceHelper(
                 deviceName,
                 developmentApiEnabled
             )
-        } catch (_: HttpRequestException) {
+        } catch (error: HttpRequestException) {
+            if (!retryOnFailure) throw error
             try {
                 TimeUnit.SECONDS.sleep(300)
                 testServiceClient.login(
@@ -518,31 +521,25 @@ class TestServiceHelper(
         )
     }
 
-    fun userAddsContactsToMeeting(meeting: Meeting, contactsToAddNameAliases: String, hostDevice: String) {
-        val backend = backendFor(meeting.creator)
-        val users = usersManager.splitAliases(contactsToAddNameAliases).map { toClientUser(it) }
-        // The host's real test-service client must establish the MLS conversation before inviting members.
-        check(
-            UiWaitUtils.retryUntilTimeout(60.seconds, 1.seconds) {
-                backend.getMeetingConversation(meeting).optLong("epoch", 0) > 0
-            }
-        ) { "Host did not establish MLS for meeting ${meeting.title}" }
-        testServiceClient.addMembersToConversation(
-            owner = meeting.creator,
-            deviceName = hostDevice,
-            convoId = meeting.conversationId.id,
-            convoDomain = meeting.conversationId.domain,
-            users = users.map { QualifiedID(requireNotNull(it.id), backendFor(it).domain) }
-        )
-        // Verify membership through the host response before UI assertions, without refreshing the Android app.
-        check(
-            UiWaitUtils.retryUntilTimeout(30.seconds, 1.seconds) {
-                val members = backend.getMeetingConversation(meeting)
-                    .getJSONObject("members").getJSONArray("others")
-                val ids = (0 until members.length()).map { members.getJSONObject(it).getJSONObject("qualified_id").getString("id") }
-                users.all { it.id in ids }
-            }
-        ) { "Meeting invitations were not persisted for ${meeting.title}" }
+    @Suppress("LongParameterList")
+    fun userCreatesMeeting(
+        ownerAlias: String,
+        participantAliases: String,
+        title: String,
+        start: Instant,
+        end: Instant,
+        zone: ZoneId,
+        recurring: Boolean,
+        deviceName: String
+    ): Meeting {
+        val owner = toClientUser(ownerAlias)
+        val participants = if (participantAliases.isBlank()) {
+            emptyList()
+        } else {
+            usersManager.splitAliases(participantAliases).map(::toClientUser)
+        }
+        testServiceClient.createMeeting(owner, participants, title, start, end, zone, recurring, deviceName)
+        return backendFor(owner).getMeetingByTitleAndStartTime(owner, title, start)
     }
 
     fun userXAddedContactsToGroupChat(

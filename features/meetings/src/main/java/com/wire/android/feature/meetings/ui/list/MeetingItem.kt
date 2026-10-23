@@ -36,12 +36,12 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.produceState
 import androidx.compose.ui.Alignment
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -78,7 +78,6 @@ import com.wire.android.util.DateAndTimeParsers
 import com.wire.android.util.rememberCurrentTimeProvider
 import com.wire.kalium.logic.data.id.ConversationId
 import kotlinx.coroutines.delay
-import kotlin.time.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toJavaZoneId
 import kotlin.time.Duration.Companion.minutes
@@ -335,25 +334,25 @@ private fun MeetingAttendingPrimaryBodyText(onClick: () -> Unit, startNegativePa
 }
 
 @Composable
-private fun MeetingStartingInPrimaryBodyText(startTime: Instant) {
+private fun MeetingStartingInPrimaryBodyText(status: Status.Scheduled) {
     val currentTime = rememberCurrentTimeProvider()
-    var remainingDuration by remember {
-        mutableStateOf(startTime.minus(currentTime()))
+    val lifecycle = LocalLifecycleOwner.current.lifecycle
+    val remainingDuration by produceState(status.remainingDuration, status, currentTime, lifecycle) {
+        lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            // A new scheduled status or foregrounding cancels the old delay and recalculates from wall-clock time.
+            value = status.startTime - currentTime()
+            while (value.isPositive()) {
+                val untilNextUpdate = if (value > 5.minutes) {
+                    value - 5.minutes
+                } else {
+                    value - value.inWholeSeconds.toDuration(DurationUnit.SECONDS)
+                }
+                delay(untilNextUpdate.inWholeMilliseconds.coerceAtLeast(1))
+                value = status.startTime - currentTime()
+            }
+        }
     }
-    if (remainingDuration.inWholeSeconds > 5.minutes.inWholeSeconds) {
-        // when more than 5 minutes remaining, wait until 5 minutes are left to start updating every second
-        LaunchedEffect(remainingDuration) {
-            delay(remainingDuration.minus(5.minutes))
-            remainingDuration = startTime.minus(currentTime())
-        }
-    } else if (remainingDuration.isPositive()) {
-        // when 5 or less minutes remaining, update every second and show countdown
-        LaunchedEffect(remainingDuration) {
-            val durationInWholeSeconds = remainingDuration.inWholeSeconds.toDuration(DurationUnit.SECONDS)
-            val durationToNextFullSecond = remainingDuration - durationInWholeSeconds
-            delay(durationToNextFullSecond.inWholeMilliseconds)
-            remainingDuration = startTime.minus(currentTime())
-        }
+    if (remainingDuration.isPositive() && remainingDuration <= 5.minutes) {
         val remainingDurationText = "%d:%02d".format(remainingDuration.inWholeSeconds / 60, remainingDuration.inWholeSeconds % 60)
         PrimaryBodyText(text = stringResource(R.string.meeting_starting_in, remainingDurationText))
     }
@@ -386,7 +385,7 @@ private fun MeetingOngoingAttendingRow(
                 }
             }
         } else if (status is Status.Scheduled) {
-            MeetingStartingInPrimaryBodyText(startTime = status.startTime)
+            MeetingStartingInPrimaryBodyText(status = status)
         }
     }
 }

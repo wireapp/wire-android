@@ -47,7 +47,8 @@ fun MeetingOccurrence.toMeetingItem(
     status = when {
         occurrenceStartTime > time -> Status.Scheduled(
             startTime = occurrenceStartTime,
-            endTime = occurrenceEndTime
+            endTime = occurrenceEndTime,
+            remainingDuration = occurrenceStartTime - time,
         )
 
         occurrenceStartTime < time && occurrenceEndTime + BUFFER_TIME < time -> Status.Ended(

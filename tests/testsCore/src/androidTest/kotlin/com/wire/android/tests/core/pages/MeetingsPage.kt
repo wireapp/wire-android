@@ -9,7 +9,10 @@
  */
 package com.wire.android.tests.core.pages
 
+import android.graphics.Rect
+import android.os.SystemClock
 import androidx.test.uiautomator.By
+import androidx.test.uiautomator.Configurator
 import androidx.test.uiautomator.Direction
 import androidx.test.uiautomator.StaleObjectException
 import androidx.test.uiautomator.UiDevice
@@ -44,6 +47,8 @@ class MeetingsPage(private val device: UiDevice) {
     private val moreMenuButton = UiSelectorParams(description = "Meeting more menu icon")
     private val manualLoadButton = UiSelectorParams(textMatches = "(?i)^(Show More|Load More)$")
     private val participantAvatar = UiSelectorParams(resourceId = "User avatar")
+    private val dailyRecurrence = UiSelectorParams(description = "Daily")
+    private val germanDailyRecurrence = UiSelectorParams(description = "Täglich")
     private val anyText = UiSelectorParams(textMatches = ".+")
     private val listEntry = UiSelectorParams(
         textMatches = "^(ML-.*|(Today|Tomorrow|Yesterday|Heute|Morgen|Gestern) \\(.*\\)|" +
@@ -53,13 +58,34 @@ class MeetingsPage(private val device: UiDevice) {
     private fun dateHeader(text: String) = UiSelectorParams(text = text)
 
     fun open(locale: Locale = Locale.US) {
-        UiWaitUtils.waitElement(if (locale.language == "de") germanMainMenuButton else mainMenuButton).click()
-        UiWaitUtils.waitElement(meetingsHeading).click()
-        UiWaitUtils.waitElement(meetingsHeading)
+        val navigationButton = if (locale.language == "de") germanMainMenuButton else mainMenuButton
+        var lastNavigationClick = 0L
+        assertTrue(
+            "Meetings navigation entry did not become available",
+            UiWaitUtils.retryUntilTimeout(30.seconds) {
+                if (UiWaitUtils.clickWhenClickable(meetingsHeading, timeout = UiWaitUtils.POLLING_DEFAULT)) {
+                    true
+                } else {
+                    val now = SystemClock.uptimeMillis()
+                    if (now - lastNavigationClick >= 1.seconds.inWholeMilliseconds &&
+                        UiWaitUtils.clickWhenClickable(navigationButton, timeout = UiWaitUtils.POLLING_DEFAULT)
+                    ) {
+                        lastNavigationClick = now
+                    }
+                    false
+                }
+            }
+        )
         // The app asks for exact-alarm access the first time this screen opens.
-        if (UiWaitUtils.retryUntilTimeout(2.seconds) { device.hasObject(remindersDialogTitle.toBySelector()) }) {
+        if (UiWaitUtils.retryUntilTimeout(5.seconds) { device.hasObject(remindersDialogTitle.toBySelector()) }) {
             UiWaitUtils.waitElement(if (locale.language == "de") germanCancelButton else cancelButton).click()
+            UiWaitUtils.waitUntilGoneOrThrow(
+                remindersDialogTitle.toBySelector(),
+                timeout = 5.seconds,
+                errorMessage = "Precise meeting reminders dialog was not dismissed"
+            )
         }
+        UiWaitUtils.waitElement(meetingsHeading, timeout = 30.seconds)
     }
 
     fun assertEmpty() {
@@ -85,7 +111,7 @@ class MeetingsPage(private val device: UiDevice) {
                 }
             }
         )
-        val title = device.findObjects(meetingTitle(meeting.title).toBySelector()).single()
+        val title = visibleEntries().single { it.text == meeting.title }
         assertCardDetails(title, meeting, zone, locale, participantCount)
     }
 
@@ -107,25 +133,36 @@ class MeetingsPage(private val device: UiDevice) {
     }
 
     fun assertHasCountdown(title: String) {
-        val node = UiWaitUtils.waitElement(meetingTitle(title))
-        assertTrue("Expected a starting-soon countdown for $title", rowTexts(node).any { it.startsWith("Starting in ") })
+        assertTrue(
+            "Expected a starting-soon countdown for $title",
+            UiWaitUtils.retryUntilTimeout(10.seconds) {
+                currentRowTexts(title)?.any { it.startsWith("Starting in ") } == true
+            }
+        )
     }
 
     fun awaitCountdown(title: String, countdown: String, timeout: Duration) {
-        assertTrue(
-            "Expected '$countdown' for $title",
-            UiWaitUtils.retryUntilTimeout(timeout, 100.milliseconds) {
-                device.findObject(meetingTitle(title).toBySelector())?.let { rowTexts(it).contains("Starting in $countdown") } == true
-            }
-        )
+        val configuration = Configurator.getInstance()
+        val originalIdleTimeout = configuration.waitForIdleTimeout
+        try {
+            // Waiting for UI idle can skip a one-second countdown value on an actively updating screen.
+            configuration.waitForIdleTimeout = 0
+            assertTrue(
+                "Expected '$countdown' for $title",
+                UiWaitUtils.retryUntilTimeout(timeout, 100.milliseconds) {
+                    currentRowTexts(title)?.contains("Starting in $countdown") == true
+                }
+            )
+        } finally {
+            configuration.waitForIdleTimeout = originalIdleTimeout
+        }
     }
 
     fun awaitJoin(title: String, timeout: Duration = 30.seconds) {
         assertTrue(
             "Meeting $title did not automatically transition to Join",
             UiWaitUtils.retryUntilTimeout(timeout) {
-                device.findObject(meetingTitle(title).toBySelector())?.let {
-                    val texts = rowTexts(it)
+                currentRowTexts(title)?.let { texts ->
                     "Join" in texts && texts.none { text -> text.startsWith("Starting in ") }
                 } == true
             }
@@ -152,7 +189,7 @@ class MeetingsPage(private val device: UiDevice) {
         var lastReached = -1
         var atEnd = false
         repeat(MAX_SCROLLS) {
-            val entries = visibleEntries()
+            val entries = settledEntries(expected)
             assertTrue("No meeting entries visible while scrolling", entries.isNotEmpty())
             val indices = entries.map { entry ->
                 expected.indexOf(entry.text).also { index ->
@@ -189,20 +226,34 @@ class MeetingsPage(private val device: UiDevice) {
 
     fun returnToTopAndAssertFirst(title: String) {
         repeat(MAX_SCROLLS) {
-            if (list()?.scroll(Direction.UP, 0.8f) != true) {
+            val before = visibleEntries().map { it.text }
+            if (before.firstOrNull { it.startsWith("ML-") } == title) {
+                // Reveal the section header too if the first card is only partially visible.
+                list()?.scroll(Direction.UP, 1f)
                 assertEquals("Previously loaded meeting disappeared", title, visibleEntries().first { it.text.startsWith("ML-") }.text)
                 return
             }
+            assertTrue(
+                "Could not scroll back to previously loaded meeting '$title'; visible entries: $before",
+                UiWaitUtils.retryUntilTimeout(10.seconds) {
+                    list()?.scroll(Direction.UP, 0.8f)
+                    visibleEntries().map { it.text } != before
+                }
+            )
         }
         throw AssertionError("Could not return to the beginning of the Meetings list")
     }
 
     fun assertHeader(meeting: Meeting, zone: ZoneId, today: LocalDate, locale: Locale = Locale.US) {
-        UiWaitUtils.waitElement(dateHeader(header(meeting.start.atZone(zone).toLocalDate(), today, locale)))
+        val expected = header(meeting.start.atZone(zone).toLocalDate(), today, locale)
+        assertTrue(
+            "Expected header '$expected'; visible entries: ${visibleEntries().map { it.text }}",
+            UiWaitUtils.retryUntilTimeout(10.seconds) { device.hasObject(dateHeader(expected).toBySelector()) }
+        )
     }
 
     private fun assertCardDetails(
-        node: UiObject2,
+        node: VisibleEntry,
         meeting: Meeting,
         zone: ZoneId,
         locale: Locale,
@@ -210,8 +261,8 @@ class MeetingsPage(private val device: UiDevice) {
     ) {
         val texts = rowTexts(node)
         assertTrue("Wrong start/end time for ${meeting.title}: $texts", timeRange(meeting, zone, locale) in texts)
-        val recurrence = if (locale.language == "de") "Täglich" else "Daily"
-        assertEquals("Wrong recurrence marker for ${meeting.title}", meeting.recurring, recurrence in texts)
+        val recurrence = if (locale.language == "de") germanDailyRecurrence else dailyRecurrence
+        assertEquals("Wrong recurrence marker for ${meeting.title}", meeting.recurring, rowNodes(recurrence, node).isNotEmpty())
         participantCount?.let { count ->
             val avatars = rowNodes(participantAvatar, node)
             assertEquals("Wrong participant avatar count in ${meeting.title}", minOf(count, 5), avatars.size)
@@ -219,9 +270,17 @@ class MeetingsPage(private val device: UiDevice) {
         }
     }
 
-    private fun rowTexts(title: UiObject2): List<String> = rowNodes(anyText, title).map { it.text }
+    private fun currentRowTexts(title: String): List<String>? = try {
+        device.findObject(meetingTitle(title).toBySelector())?.let { rowTexts(it) }
+    } catch (_: StaleObjectException) {
+        null
+    }
 
-    private fun rowNodes(selector: UiSelectorParams, title: UiObject2): List<UiObject2> {
+    private fun rowTexts(title: UiObject2): List<String> = rowTexts(VisibleEntry(title.text, title.visibleBounds))
+
+    private fun rowTexts(title: VisibleEntry): List<String> = readFreshNodes { rowNodes(anyText, title).map { it.text } }
+
+    private fun rowNodes(selector: UiSelectorParams, title: VisibleEntry): List<UiObject2> {
         val top = title.visibleBounds.top
         val bottom = visibleEntries().filter { it.visibleBounds.top > top }.minOfOrNull { it.visibleBounds.top }
             ?: device.displayHeight
@@ -230,9 +289,51 @@ class MeetingsPage(private val device: UiDevice) {
         }
     }
 
-    private fun visibleEntries(): List<UiObject2> = device.findObjects(listEntry.toBySelector())
-        .filter { !it.visibleBounds.isEmpty }
-        .sortedBy { it.visibleBounds.top }
+    private data class VisibleEntry(val text: String, val visibleBounds: Rect)
+
+    private fun visibleEntries(): List<VisibleEntry> = readFreshNodes {
+        device.findObjects(listEntry.toBySelector())
+            .map { VisibleEntry(it.text, it.visibleBounds) }
+            .filter { !it.visibleBounds.isEmpty }
+            .sortedBy { it.visibleBounds.top }
+    }
+
+    private fun settledEntries(expected: List<String>): List<VisibleEntry> {
+        var previous = emptyList<VisibleEntry>()
+        var latest = emptyList<VisibleEntry>()
+        val settled = UiWaitUtils.retryUntilTimeout(5.seconds) {
+            latest = visibleEntries()
+            val indices = latest.map { expected.indexOf(it.text) }
+            // Paging and animateItem can briefly expose a partial accessibility tree without stale-node errors.
+            // Require two matching snapshots, including bounds, before checking cards or scrolling again.
+            val complete = indices.isNotEmpty() && indices.all { it >= 0 } &&
+                indices.zipWithNext().all { (before, after) -> after == before + 1 }
+            val stable = complete && latest == previous
+            previous = latest
+            stable
+        }
+        assertTrue(
+            "Meeting viewport did not settle into a contiguous sequence; visible entries: ${latest.map { it.text }}",
+            settled
+        )
+        return latest
+    }
+
+    private fun <T : Any> readFreshNodes(read: () -> T): T {
+        var snapshot: T? = null
+        assertTrue(
+            "Meeting nodes kept changing while reading the viewport",
+            UiWaitUtils.retryUntilTimeout(5.seconds) {
+                try {
+                    snapshot = read()
+                    true
+                } catch (_: StaleObjectException) {
+                    false
+                }
+            }
+        )
+        return requireNotNull(snapshot)
+    }
 
     private fun list(): UiObject2? = device.findObjects(By.scrollable(true))
         .lastOrNull { it.hasObject(moreMenuButton.toBySelector()) }

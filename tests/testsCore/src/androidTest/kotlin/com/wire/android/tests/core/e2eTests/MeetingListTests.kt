@@ -10,7 +10,6 @@
 package com.wire.android.tests.core.e2eTests
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import backendUtils.meeting.createMeeting
 import backendUtils.meeting.deleteMeeting
 import backendUtils.meeting.getMeeting
 import backendUtils.meeting.updateMeeting
@@ -134,8 +133,8 @@ class MeetingListTests : BaseUiTest() {
     @Test
     fun givenCompletedMeetingToday_whenLocalMidnightPasses_thenOnlyTheOldMeetingDisappears() {
         val today = LocalDate.now(zone).plusDays(1)
-        val completed = createMeeting(member, "ML-Completed", today.atTime(20, 0).atZone(zone).toInstant())
-        val future = createMeeting(member, "ML-Future", today.plusDays(1).atTime(10, 0).atZone(zone).toInstant())
+        val completed = createMeeting("ML-Completed", today.atTime(20, 0).atZone(zone).toInstant())
+        val future = createMeeting("ML-Future", today.plusDays(1).atTime(10, 0).atZone(zone).toInstant())
         step("Open Meetings shortly before local midnight and verify the completed meeting remains under Today") {
             settings.setTime(today.plusDays(1).atStartOfDay(zone).minusSeconds(45).toInstant())
             pages.meetingsPage.open()
@@ -144,9 +143,11 @@ class MeetingListTests : BaseUiTest() {
             pages.meetingsPage.assertCompleteList(listOf(completed, future), zone, today)
             pages.meetingsPage.returnToTopAndAssertFirst(completed.title)
         }
-        step("Allow the local date to roll over naturally and verify removal without restarting or refreshing") {
-            pages.meetingsPage.assertGone(completed.title, timeout = 60.seconds)
+        step("Advance to five seconds before midnight, then verify the natural rollover without restarting or refreshing") {
+            settings.setTime(today.plusDays(1).atStartOfDay(zone).minusSeconds(5).toInstant())
+            pages.meetingsPage.assertGone(completed.title, timeout = 20.seconds)
             pages.meetingsPage.assertMeeting(future, zone)
+            pages.meetingsPage.returnToTopAndAssertFirst(future.title)
             pages.meetingsPage.assertHeader(future, zone, today.plusDays(1))
             pages.meetingsPage.assertCompleteList(listOf(future), zone, today.plusDays(1))
         }
@@ -159,7 +160,7 @@ class MeetingListTests : BaseUiTest() {
         val firstStart = LocalDate.now(zone).plusDays(1).atTime(9, 0).atZone(zone).toInstant()
         val meetings = stepWithResult("Create 65 distinct meetings, exceeding the initial 40-entry page") {
             (0 until 65).map { index ->
-                createMeeting(member, "ML-Paging-${index.toString().padStart(2, '0')}", firstStart.plusSeconds(index * 900L))
+                createMeeting("ML-Paging-${index.toString().padStart(2, '0')}", firstStart.plusSeconds(index * 900L))
             }
         }
         step("Open Meetings and verify only the initial viewport is visible") {
@@ -219,7 +220,7 @@ class MeetingListTests : BaseUiTest() {
     @Test
     fun givenOneMeeting_whenDeviceLocaleChangesFromGermanToUs_thenFormattingChangesButOccurrenceDoesNot() {
         val start = LocalDate.now(zone).plusDays(3).atTime(13, 5).atZone(zone).toInstant()
-        val meeting = createMeeting(member, "ML-Locale", start)
+        val meeting = createMeeting("ML-Locale", start)
         step("Set German device locale and verify the localized day heading and 24-hour time") {
             settings.setLocale(Locale.GERMANY)
             pages.meetingsPage.open(Locale.GERMANY)
@@ -242,25 +243,29 @@ class MeetingListTests : BaseUiTest() {
     @Category("regression", "RC", "meetings")
     @Test
     fun givenUpcomingMeetings_whenCountdownReachesStartAndAppReturnsFromBackground_thenJoinStateIsCurrent() {
-        val start = Instant.now().plusSeconds(600).truncatedTo(ChronoUnit.MINUTES)
-        val foreground = createMeeting(member, "ML-Countdown", start)
-        val background = createMeeting(member, "ML-Resume", start.plusSeconds(120))
+        val start = LocalDate.now(zone).plusDays(1).atTime(12, 0).atZone(zone).toInstant()
+        val foreground = createMeeting("ML-Countdown", start)
+        val background = createMeeting("ML-Resume", start.plusSeconds(120))
         step("Open Meetings more than five minutes before start and verify countdown is absent") {
-            settings.setTime(start.minusSeconds(310))
+            settings.setTime(start.minusSeconds(330))
             pages.meetingsPage.open()
             pages.meetingsPage.assertMeeting(foreground, zone)
             pages.meetingsPage.assertNoCountdown(foreground.title)
         }
-        step("Observe the five-minute boundary and successive second updates without refreshing") {
-            pages.meetingsPage.awaitCountdown(foreground.title, "5:00", 15.seconds)
-            pages.meetingsPage.awaitCountdown(foreground.title, "4:59", 3.seconds)
+        step("Advance to five seconds before the countdown boundary and observe successive updates without refreshing") {
+            settings.setTime(start.minusSeconds(305))
+            // The UI floors remaining seconds, so the first full second below the boundary displays 4:59.
+            pages.meetingsPage.awaitCountdown(foreground.title, "4:59", 10.seconds)
             pages.meetingsPage.awaitCountdown(foreground.title, "4:58", 3.seconds)
+            pages.meetingsPage.awaitCountdown(foreground.title, "4:57", 3.seconds)
         }
-        step("Keep Meetings open until the first meeting automatically shows Join") {
-            pages.meetingsPage.awaitJoin(foreground.title, 305.seconds)
+        step("Advance the clock to just before start and verify the open list automatically shows Join") {
+            settings.setTime(start.minusSeconds(2))
+            pages.meetingsPage.awaitJoin(foreground.title, 15.seconds)
             pages.meetingsPage.assertMeeting(foreground, zone)
         }
         step("Background Wire before the second meeting, advance the device clock past its start, then return") {
+            pages.meetingsPage.assertMeeting(background, zone)
             pages.meetingsPage.assertHasCountdown(background.title)
             device.pressHome()
             settings.setTime(background.start.plusSeconds(1))
@@ -272,13 +277,27 @@ class MeetingListTests : BaseUiTest() {
 
     @Suppress("LongParameterList")
     private fun createMeeting(
-        creator: ClientUser,
         title: String,
         start: Instant,
         end: Instant = start.plusSeconds(1800),
         zone: ZoneId = this.zone,
         recurring: Boolean = false,
-    ): Meeting = backendClient.createMeeting(creator, title, start, end, zone, recurring).also { createdMeetings.add(it) }
+    ): Meeting {
+        if (!hostServiceStarted) {
+            hostServiceStarted = true
+            testServiceHelper.addDevice("user1Name", null, HOST_DEVICE, retryOnFailure = false)
+        }
+        return testServiceHelper.userCreatesMeeting(
+            ownerAlias = "user1Name",
+            participantAliases = "user2Name",
+            title = title,
+            start = start,
+            end = end,
+            zone = zone,
+            recurring = recurring,
+            deviceName = HOST_DEVICE
+        ).also { createdMeetings.add(it) }
+    }
 
     private fun removeCreatedMeetings() {
         var failure: Throwable? = null
@@ -293,16 +312,12 @@ class MeetingListTests : BaseUiTest() {
         failure?.let { throw it }
     }
 
-    private fun invitedMeeting(title: String, start: Instant, recurring: Boolean = false): Meeting {
-        if (!hostServiceStarted) {
-            // Track before login so cleanup also runs when service login partially succeeds.
-            hostServiceStarted = true
-            testServiceHelper.addDevice("user1Name", null, HOST_DEVICE)
-        }
-        return createMeeting(host, title, start, zone = ZoneId.of("America/Los_Angeles"), recurring = recurring).also {
-            testServiceHelper.userAddsContactsToMeeting(it, "user2Name", HOST_DEVICE)
-        }
-    }
+    private fun invitedMeeting(title: String, start: Instant, recurring: Boolean = false): Meeting = createMeeting(
+        title,
+        start,
+        zone = ZoneId.of("America/Los_Angeles"),
+        recurring = recurring
+    )
 
     private fun givenTeamMemberIsLoggedIn() {
         step("Create an MLS team with Meetings enabled and an Android invitee") {

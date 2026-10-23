@@ -17,26 +17,20 @@ import backendUtils.auth.getAuthToken
 import kotlinx.coroutines.runBlocking
 import network.NetworkBackendClient
 import network.RequestOptions
+import org.json.JSONArray
 import org.json.JSONObject
 import service.models.Meeting
 import service.models.QualifiedID
 import user.utils.ClientUser
 import java.net.URI
-import java.time.Duration
 import java.time.Instant
 import java.time.ZoneId
 
-@Suppress("LongParameterList")
-fun BackendClient.createMeeting(
-    creator: ClientUser,
-    title: String,
-    start: Instant,
-    end: Instant = start.plus(Duration.ofMinutes(DEFAULT_MEETING_DURATION_MINUTES)),
-    zone: ZoneId = ZoneId.of("UTC"),
-    recurring: Boolean = false,
-): Meeting {
-    val body = meetingBody(title, start, end, zone, recurring)
-    val response = JSONObject(sendMeetingRequest(creator, "meetings", "POST", body))
+fun BackendClient.getMeetingByTitleAndStartTime(creator: ClientUser, title: String, start: Instant): Meeting {
+    val meetings = JSONArray(sendMeetingRequest(creator, "meetings/list", "GET"))
+    val response = (0 until meetings.length()).map { meetings.getJSONObject(it) }.single {
+        it.getString("title") == title && Instant.parse(it.getString("start_time")) == start
+    }
     return Meeting(
         id = QualifiedID.fromJSON(response.getJSONObject("qualified_id")),
         conversationId = QualifiedID.fromJSON(response.getJSONObject("qualified_conversation")),
@@ -44,8 +38,8 @@ fun BackendClient.createMeeting(
         title = response.getString("title"),
         start = Instant.parse(response.getString("start_time")),
         end = Instant.parse(response.getString("end_time")),
-        zone = zone,
-        recurring = recurring,
+        zone = ZoneId.of(response.getString("tzid")),
+        recurring = !response.isNull("recurrence"),
     )
 }
 
@@ -76,9 +70,6 @@ private fun meetingBody(title: String, start: Instant, end: Instant, zone: ZoneI
 }
 
 private fun meetingPath(meeting: Meeting) = "meetings/${Uri.encode(meeting.id.domain)}/${Uri.encode(meeting.id.id)}"
-private fun conversationPath(meeting: Meeting) =
-    "conversations/${Uri.encode(meeting.conversationId.domain)}/${Uri.encode(meeting.conversationId.id)}"
-
 private fun BackendClient.sendMeetingRequest(
     user: ClientUser,
     path: String,
@@ -94,8 +85,3 @@ private fun BackendClient.sendMeetingRequest(
         options = RequestOptions(accessToken = token)
     ).body
 }
-
-fun BackendClient.getMeetingConversation(meeting: Meeting): JSONObject =
-    JSONObject(sendMeetingRequest(meeting.creator, conversationPath(meeting), "GET"))
-
-private const val DEFAULT_MEETING_DURATION_MINUTES = 30L

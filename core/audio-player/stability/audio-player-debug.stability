@@ -6,7 +6,7 @@
 
 @Composable
 public fun com.wire.android.audioplayer.AudioPlayer(localPath: kotlin.String?, contentUrl: kotlin.String?, fileName: kotlin.String?, onNavigateBack: kotlin.Function0<kotlin.Unit>, modifier: androidx.compose.ui.Modifier, viewModel: com.wire.android.audioplayer.AudioPlayerViewModel): kotlin.Unit
-  skippable: false
+  skippable: true
   restartable: true
   params:
     - localPath: STABLE (class with no mutable properties)
@@ -38,8 +38,8 @@ private fun com.wire.android.audioplayer.EqualizerBars(isPlaying: kotlin.Boolean
 
 @Composable
 public fun com.wire.android.audioplayer.audioPlayerViewModel(localPath: kotlin.String?, contentUrl: kotlin.String?, fileName: kotlin.String?): com.wire.android.audioplayer.AudioPlayerViewModel
-  skippable: true
-  restartable: true
+  skippable: false
+  restartable: false
   params:
     - localPath: STABLE (class with no mutable properties)
     - contentUrl: STABLE (class with no mutable properties)

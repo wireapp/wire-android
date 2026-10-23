@@ -92,6 +92,9 @@ private fun NewMeetingDetailsNavigation3Entry(
         onBackPressed = navigateBack,
         state = viewModel.state,
         titleState = viewModel.titleTextState,
+        passwordState = viewModel.passwordTextState,
+        confirmPasswordState = viewModel.confirmPasswordTextState,
+        onGenerateRandomPassword = viewModel::onGenerateRandomPassword,
         onParticipantsClicked = {
             runtime.navigator.navigate(
                 WireNavigationCommand(

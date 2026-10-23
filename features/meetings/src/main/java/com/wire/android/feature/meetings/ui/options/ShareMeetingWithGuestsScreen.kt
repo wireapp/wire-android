@@ -132,7 +132,7 @@ internal fun ShareMeetingWithGuestsContent(
                         modifier = Modifier.weight(1f),
                         leadingIcon = {
                             Icon(
-                                painter = painterResource(R.drawable.ic_copy),
+                                painter = painterResource(CommonR.drawable.ic_copy),
                                 contentDescription = null,
                                 modifier = Modifier.padding(end = dimensions().spacing4x)
                             )

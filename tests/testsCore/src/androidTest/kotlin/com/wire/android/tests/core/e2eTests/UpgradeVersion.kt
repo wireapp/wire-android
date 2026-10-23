@@ -845,6 +845,7 @@ class UpgradeVersion : BaseUiTest() {
             pages.conversationListPage.clickGroupConversation("HappyUpgrade")
             pages.conversationViewPage.apply {
                 assertImageIsVisible()
+                scrollToLatestFile("qa_random.txt")
                 assertFileWithNameIsVisible("testing.mp4")
                 assertFileWithNameIsVisible("qa_random.txt")
             }

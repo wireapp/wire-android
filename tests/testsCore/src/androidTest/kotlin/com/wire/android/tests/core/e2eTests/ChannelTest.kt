@@ -26,6 +26,7 @@ import com.wire.android.tests.support.tags.TestCaseId
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import uiautomatorutils.KeyboardUtils.closeKeyboardIfOpened
 import uiautomatorutils.UiWaitUtils
 import uiautomatorutils.UiWaitUtils.iSeeSystemMessageContainingAll
 import uiautomatorutils.UiWaitUtils.waitUntilToastIsDisplayed
@@ -47,7 +48,7 @@ class ChannelTest : BaseUiTest() {
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
     @TestCaseId("TC-10985", "TC-10986", "TC-10992")
-    @Category("channels", "regression", "RC", "TEMP")
+    @Category("channels", "regression", "RC")
     @Test
     fun givenTeamMemberWithChannelFeatureEnabled_whenCreatingChannelWithTeammateAndDeletingCreatedChannel_thenChannelConversationIsCreatedAndDeleted() {
         step("There is TeamOwner with team ChannelCreation on Staging backend") {
@@ -286,7 +287,7 @@ class ChannelTest : BaseUiTest() {
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
     @TestCaseId("TC-10988", "TC-10989", "TC-10990")
-    @Category("channels", "regression", "RC", "TEMP")
+    @Category("channels", "regression", "RC")
     @Test
     fun givenTeamMemberWithChannelFeatureEnabled_whenLeavingChannel_thenChannelHistoryRemainsVisibleAndNewMessagesAreNotVisible() {
         step("There is TeamOwner with team LeaveChannel on Staging backend") {
@@ -533,7 +534,7 @@ class ChannelTest : BaseUiTest() {
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
     @TestCaseId("TC-10993", "TC-10994", "TC-10996")
-    @Category("channels", "regression", "RC", "TEMP")
+    @Category("channels", "regression", "RC")
     @Test
     fun givenChannelConversationDeleted_whenSendingAndReceivingMessages_thenMessagesAreSentAndReceivedSuccessfully() {
         step("There is TeamOwner with team DeleteChannel on Staging backend") {
@@ -796,7 +797,7 @@ class ChannelTest : BaseUiTest() {
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
     @TestCaseId("TC-10991", "TC-10995", "TC-10998")
-    @Category("channels", "regression", "RC", "TEMP")
+    @Category("channels", "regression", "RC")
     @Test
     fun givenChannelConversationMembersAreRemovedAndAdded_whenViewingParticipantList_thenParticipantListIsUpdatedCorrectly() {
         step("Given there is TeamOwner with team UpdateParticipantList on Staging backend") {
@@ -1010,7 +1011,7 @@ class ChannelTest : BaseUiTest() {
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
     @TestCaseId("TC-11000")
-    @Category("channels", "regression", "RC", "TEMP")
+    @Category("channels", "regression", "RC")
     @Test
     fun givenExternalUserInTeam_whenAttemptingToCreateChannelConversation_thenChannelConversationCannotBeCreated() {
         step("There is TeamOwner with team CreateChannel on Staging backend") {
@@ -1100,7 +1101,7 @@ class ChannelTest : BaseUiTest() {
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
     @TestCaseId("TC-10987")
-    @Category("channels", "regression", "RC", "TEMP")
+    @Category("channels", "regression", "RC")
     @Test
     fun givenUserIsNotCreatorOfChannelConversation_whenViewingChannelConversationOptions_thenDeleteConversationButtonIsNotVisible() {
         step("There is TeamOwner with team DeleteChannel on Staging backend") {
@@ -1318,7 +1319,7 @@ class ChannelTest : BaseUiTest() {
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
     @TestCaseId("TC-10997")
-    @Category("channels", "regression", "RC", "TEMP")
+    @Category("channels", "regression", "RC")
     @Test
     fun givenAnotherChannelConversationIsDeletedByAnotherUser_whenSendingAndReceivingMessagesInRemainingChannel_thenMessagesAreSentAndReceivedSuccessfully() {
         step("Given there is TeamOwner with team GroupDeletion on Staging backend") {
@@ -1621,6 +1622,7 @@ class ChannelTest : BaseUiTest() {
 
         step("Then I see the message Hello from Member2 in current conversation") {
             pages.conversationViewPage.apply {
+                closeKeyboardIfOpened()
                 assertReceivedMessageIsVisibleInCurrentConversation("Hello from Member2")
             }
         }

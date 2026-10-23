@@ -220,7 +220,7 @@ private fun MeetingOptionsModalContent(
             }
             addIf(meetingState.shareWithGuestsEnabled) {
                 MenuBottomSheetItem(
-                    title = stringResource(R.string.meeting_share_with_guests),
+                    title = stringResource(R.string.meeting_link_title),
                     leading = {
                         Icon(
                             painter = painterResource(UICommonR.drawable.ic_link_indicator),

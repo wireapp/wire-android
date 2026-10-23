@@ -65,6 +65,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.role
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextAlign
 import com.wire.android.feature.meetings.R
@@ -131,6 +132,7 @@ fun NewMeetingContent(
     state: NewMeetingState,
     titleState: TextFieldState,
     passwordState: TextFieldState,
+    confirmPasswordState: TextFieldState,
     type: NewMeetingType,
     modifier: Modifier = Modifier,
     onGenerateRandomPassword: () -> Unit = {},
@@ -209,6 +211,8 @@ fun NewMeetingContent(
                     VerticalSpace.x24()
                     PasswordInput(
                         passwordState = passwordState,
+                        confirmPasswordState = confirmPasswordState,
+                        passwordsDoNotMatch = state.passwordsDoNotMatch,
                         invalidPassword = state.invalidPassword,
                         onGenerateRandomPassword = onGenerateRandomPassword,
                     )
@@ -273,7 +277,9 @@ fun NewMeetingContent(
 @Composable
 private fun PasswordInput(
     passwordState: TextFieldState,
+    confirmPasswordState: TextFieldState,
     invalidPassword: Boolean,
+    passwordsDoNotMatch: Boolean,
     onGenerateRandomPassword: () -> Unit,
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
@@ -282,14 +288,28 @@ private fun PasswordInput(
             textState = passwordState,
             labelText = stringResource(R.string.new_meeting_password_input_label),
             placeholderText = stringResource(R.string.new_meeting_password_input_placeholder),
+            descriptionText = stringResource(R.string.new_meeting_password_error),
             state = if (invalidPassword) {
-                WireTextFieldState.Error(stringResource(R.string.new_meeting_password_error))
+                WireTextFieldState.Error()
+            } else {
+                WireTextFieldState.Default
+            },
+            keyboardOptions = KeyboardOptions.DefaultPassword.copy(imeAction = ImeAction.Next),
+            testTag = "meetingPasswordInput",
+        )
+        VerticalSpace.x16()
+        WirePasswordTextField(
+            textState = confirmPasswordState,
+            labelText = stringResource(R.string.new_meeting_confirm_password_input_label),
+            placeholderText = stringResource(R.string.new_meeting_confirm_password_input_placeholder),
+            state = if (passwordsDoNotMatch) {
+                WireTextFieldState.Error(stringResource(R.string.new_meeting_password_mismatch_error))
             } else {
                 WireTextFieldState.Default
             },
             keyboardOptions = KeyboardOptions.DefaultPassword,
             onKeyboardAction = { keyboardController?.hide() },
-            testTag = "meetingPasswordInput",
+            testTag = "meetingConfirmPasswordInput",
         )
         VerticalSpace.x8()
         FlowRow(
@@ -627,6 +647,7 @@ fun PreviewNewMeetingScreen_MeetNow() = WireTheme {
     NewMeetingContent(
         titleState = rememberTextFieldState("Meeting with 9 users"),
         passwordState = rememberTextFieldState(),
+        confirmPasswordState = rememberTextFieldState(),
         type = NewMeetingType.MeetNow,
         state = NewMeetingState.initialState(CurrentTimeProvider.Preview, CurrentTimeZoneProvider.Preview).copy(
             confirmedIndividualContacts = buildContacts(names.size),
@@ -642,6 +663,7 @@ fun PreviewNewMeetingScreen_Schedule() = WireTheme {
     NewMeetingContent(
         titleState = rememberTextFieldState(),
         passwordState = rememberTextFieldState(),
+        confirmPasswordState = rememberTextFieldState(),
         type = NewMeetingType.Schedule,
         state = NewMeetingState.initialState(CurrentTimeProvider.Preview, CurrentTimeZoneProvider.Preview).copy(
             startTime = getNextFullHour(CurrentTimeProvider.Preview.invoke(), CurrentTimeZoneProvider.Preview.invoke()),
@@ -659,6 +681,7 @@ fun PreviewNewMeetingScreen_Edit() = WireTheme {
     NewMeetingContent(
         titleState = rememberTextFieldState(),
         passwordState = rememberTextFieldState(),
+        confirmPasswordState = rememberTextFieldState(),
         type = NewMeetingType.Edit(MeetingId("meetingId", "domain")),
         state = NewMeetingState.initialState(CurrentTimeProvider.Preview, CurrentTimeZoneProvider.Preview).copy(
             startTime = getNextFullHour(CurrentTimeProvider.Preview.invoke(), CurrentTimeZoneProvider.Preview.invoke()),

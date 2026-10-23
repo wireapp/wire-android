@@ -63,6 +63,7 @@ import kotlinx.collections.immutable.ImmutableSet
 import kotlinx.collections.immutable.persistentSetOf
 import kotlinx.collections.immutable.toPersistentSet
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
@@ -80,6 +81,7 @@ interface NewMeetingViewModel : ActionsManager<NewMeetingViewActions> {
     val type: NewMeetingType
     val titleTextState: TextFieldState
     val passwordTextState: TextFieldState
+    val confirmPasswordTextState: TextFieldState
     val state: NewMeetingState
 
     fun updateSelectedContact(selected: Boolean, contact: Contact) {}
@@ -107,6 +109,7 @@ class NewMeetingViewModelPreview(
     override val currentTimeZoneProvider: CurrentTimeZoneProvider = CurrentTimeZoneProvider.Preview
     override val titleTextState: TextFieldState = TextFieldState()
     override val passwordTextState: TextFieldState = TextFieldState()
+    override val confirmPasswordTextState: TextFieldState = TextFieldState()
     override val state: NewMeetingState = initialState(currentTimeProvider, currentTimeZoneProvider)
 }
 
@@ -135,6 +138,7 @@ class NewMeetingViewModelImpl @AssistedInject constructor(
     override val type: NewMeetingType = navArgs.type
     override val titleTextState: TextFieldState = TextFieldState()
     override val passwordTextState: TextFieldState = TextFieldState()
+    override val confirmPasswordTextState: TextFieldState = TextFieldState()
     override var state: NewMeetingState by mutableStateOf(initialState(currentTimeProvider, currentTimeZoneProvider))
         private set
 
@@ -190,7 +194,11 @@ class NewMeetingViewModelImpl @AssistedInject constructor(
 
     private fun observePasswordChanges() {
         viewModelScope.launch {
-            passwordTextState.textAsFlow().drop(1).collectLatest {
+            combine(
+                passwordTextState.textAsFlow(),
+                confirmPasswordTextState.textAsFlow(),
+                ::Pair,
+            ).drop(1).collectLatest {
                 clearPasswordError()
             }
         }
@@ -199,6 +207,7 @@ class NewMeetingViewModelImpl @AssistedInject constructor(
     private fun clearPasswordError() {
         state = state.copy(
             invalidPassword = false,
+            passwordsDoNotMatch = false,
             continueButtonEnabled = titleTextState.text.trim().isNotEmpty() &&
                     state.titleError == null && state.startTimeError == null && state.endTimeError == null && !state.isSubmitting
         )
@@ -206,7 +215,9 @@ class NewMeetingViewModelImpl @AssistedInject constructor(
 
     override fun onGenerateRandomPassword() {
         if (type == NewMeetingType.Schedule && state.isGuestLinkSharingEnabled) {
-            passwordTextState.setTextAndPlaceCursorAtEnd(generatePassword())
+            val password = generatePassword()
+            passwordTextState.setTextAndPlaceCursorAtEnd(password)
+            confirmPasswordTextState.setTextAndPlaceCursorAtEnd(password)
         }
     }
 
@@ -216,9 +227,16 @@ class NewMeetingViewModelImpl @AssistedInject constructor(
         }
 
     private fun validateOptionalPassword(): Boolean {
-        val invalidPassword = optionalPassword?.let { !validatePassword(it).isValid } ?: false
-        state = state.copy(invalidPassword = invalidPassword, continueButtonEnabled = state.continueButtonEnabled && !invalidPassword)
-        return !invalidPassword
+        val password = optionalPassword
+        val invalidPassword = password?.let { !validatePassword(it).isValid } ?: false
+        val passwordsDoNotMatch = password != null && password != confirmPasswordTextState.text.toString()
+        val passwordValid = !invalidPassword && !passwordsDoNotMatch
+        state = state.copy(
+            invalidPassword = invalidPassword,
+            passwordsDoNotMatch = passwordsDoNotMatch,
+            continueButtonEnabled = state.continueButtonEnabled && passwordValid,
+        )
+        return passwordValid
     }
 
     override fun updateSelectedContact(selected: Boolean, contact: Contact) {
@@ -294,7 +312,7 @@ class NewMeetingViewModelImpl @AssistedInject constructor(
             continueButtonEnabled = titleTextState.text.trim().isNotEmpty() &&
                     titleError == null &&
                     state.startTimeError == null &&
-                    state.endTimeError == null && !state.invalidPassword
+                    state.endTimeError == null && !state.hasPasswordError
         )
         return titleError == null
     }
@@ -316,7 +334,7 @@ class NewMeetingViewModelImpl @AssistedInject constructor(
             continueButtonEnabled = titleTextState.text.trim().isNotEmpty() &&
                     state.titleError == null &&
                     startTimeError == null &&
-                    endTimeError == null && !state.invalidPassword
+                    endTimeError == null && !state.hasPasswordError
         )
         return startTimeError == null && endTimeError == null
     }
@@ -457,6 +475,7 @@ data class NewMeetingState(
     val continueButtonEnabled: Boolean = false,
     val titleError: TitleError? = null,
     val invalidPassword: Boolean = false,
+    val passwordsDoNotMatch: Boolean = false,
     val isGuestLinkSharingEnabled: Boolean = false,
     val startTime: Instant,
     val startTimeError: TimeError? = null,
@@ -469,6 +488,8 @@ data class NewMeetingState(
     val isSubmitting: Boolean = false,
     val initialLoading: InitialLoadingState = InitialLoadingState.Loading,
 ) {
+    val hasPasswordError: Boolean get() = invalidPassword || passwordsDoNotMatch
+
     val selectedContacts: ImmutableSet<Contact> = mergeContacts(selectedIndividualContacts, selectedGroups)
     val confirmedContacts: ImmutableSet<Contact> = mergeContacts(confirmedIndividualContacts, confirmedGroups)
 

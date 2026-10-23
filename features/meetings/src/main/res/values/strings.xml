@@ -136,4 +136,7 @@
     <string name="new_meeting_password_input_placeholder">Enter password</string>
     <string name="new_meeting_password_description">Make sure to share the password with your guests.</string>
     <string name="new_meeting_password_error">Use at least 8 characters, with one lowercase letter, one capital letter, a number, and a special character.</string>
+    <string name="new_meeting_confirm_password_input_label">Confirm password</string>
+    <string name="new_meeting_confirm_password_input_placeholder">Re-enter password</string>
+    <string name="new_meeting_password_mismatch_error">Passwords do not match</string>
 </resources>

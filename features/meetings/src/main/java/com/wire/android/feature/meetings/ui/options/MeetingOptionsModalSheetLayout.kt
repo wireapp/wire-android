@@ -218,7 +218,7 @@ private fun MeetingOptionsModalContent(
                     onItemClick = onEditMeeting,
                 )
             }
-            addIf(meetingState.shareWithGuestsEnabled) {
+            addIf(meetingState.meetingLinkEnabled) {
                 MenuBottomSheetItem(
                     title = stringResource(R.string.meeting_link_title),
                     leading = {

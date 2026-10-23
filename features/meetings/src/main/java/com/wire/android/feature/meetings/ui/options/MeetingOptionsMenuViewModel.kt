@@ -107,8 +107,8 @@ class MeetingOptionsMenuViewModelImpl @Inject constructor(
                             conversationId = it.meeting.conversationId,
                             title = it.meeting.title,
                             selfRole = it.selfRole.toItemSelfRole(),
-                            shareWithGuestsEnabled = it.selfRole == MeetingOccurrence.SelfRole.Creator &&
-                                meetingsGuestsLinksEnabled && guestLinkSharingEnabled,
+                            meetingLinkEnabled = it.selfRole == MeetingOccurrence.SelfRole.Creator &&
+                                meetingsGuestsLinksEnabled && guestLinkSharingEnabled && !hasEnded,
                             editMeetingEnabled = it.selfRole == MeetingOccurrence.SelfRole.Creator && !hasEnded,
                             deleteOption = when (it.selfRole) {
                                 MeetingOccurrence.SelfRole.Creator -> MeetingOptionsMenuState.Meeting.DeleteOption.ForEveryone
@@ -187,7 +187,7 @@ sealed interface MeetingOptionsMenuState {
         val selfRole: MeetingItem.SelfRole = MeetingItem.SelfRole.Member,
         val deleteOption: DeleteOption = DeleteOption.None,
         val createConversationEnabled: Boolean = false,
-        val shareWithGuestsEnabled: Boolean = false,
+        val meetingLinkEnabled: Boolean = false,
         val editMeetingEnabled: Boolean = false,
     ) : MeetingOptionsMenuState {
         enum class DeleteOption {

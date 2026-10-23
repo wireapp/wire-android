@@ -84,7 +84,7 @@ class MeetingOptionsMenuViewModelTest {
         viewModel.observeMeetingStateFlow(OCCURRENCE_ID).test {
             assertEquals(MeetingOptionsMenuState.Loading, awaitItem())
             runCurrent()
-            assertFalse(assertInstanceOf<MeetingOptionsMenuState.Meeting>(awaitItem()).shareWithGuestsEnabled)
+            assertFalse(assertInstanceOf<MeetingOptionsMenuState.Meeting>(awaitItem()).meetingLinkEnabled)
             cancelAndConsumeRemainingEvents()
         }
     }
@@ -99,7 +99,7 @@ class MeetingOptionsMenuViewModelTest {
         viewModel.observeMeetingStateFlow(OCCURRENCE_ID).test {
             assertEquals(MeetingOptionsMenuState.Loading, awaitItem())
             runCurrent()
-            assertFalse(assertInstanceOf<MeetingOptionsMenuState.Meeting>(awaitItem()).shareWithGuestsEnabled)
+            assertFalse(assertInstanceOf<MeetingOptionsMenuState.Meeting>(awaitItem()).meetingLinkEnabled)
             cancelAndConsumeRemainingEvents()
         }
     }
@@ -121,7 +121,7 @@ class MeetingOptionsMenuViewModelTest {
 
             assertInstanceOf<MeetingOptionsMenuState.Meeting>(awaitItem()).also {
                 assertEquals(MeetingOptionsMenuState.Meeting.DeleteOption.ForEveryone, it.deleteOption)
-                assertEquals(true, it.shareWithGuestsEnabled)
+                assertEquals(true, it.meetingLinkEnabled)
                 assertEquals(true, it.editMeetingEnabled)
             }
             cancelAndConsumeRemainingEvents()
@@ -145,7 +145,7 @@ class MeetingOptionsMenuViewModelTest {
 
             assertInstanceOf<MeetingOptionsMenuState.Meeting>(awaitItem()).also {
                 assertEquals(MeetingOptionsMenuState.Meeting.DeleteOption.ForMe, it.deleteOption)
-                assertEquals(false, it.shareWithGuestsEnabled)
+                assertEquals(false, it.meetingLinkEnabled)
                 assertEquals(false, it.editMeetingEnabled)
             }
             cancelAndConsumeRemainingEvents()
@@ -153,7 +153,7 @@ class MeetingOptionsMenuViewModelTest {
     }
 
     @Test
-    fun givenPastMeeting_andSelfUserIsCreator_whenObserving_thenEditIsNotAvailableAndDeleteForEveryoneIsAvailable() = runTest(dispatcher) {
+    fun givenPastMeeting_andSelfUserIsCreator_whenObserving_thenMeetingLinkAndEditAreNotAvailable() = runTest(dispatcher) {
         val meeting = meeting(
             selfRole = MeetingOccurrence.SelfRole.Creator,
             occurrenceStartTime = CURRENT_TIME - 2.hours,
@@ -169,7 +169,7 @@ class MeetingOptionsMenuViewModelTest {
 
             assertInstanceOf<MeetingOptionsMenuState.Meeting>(awaitItem()).also {
                 assertEquals(MeetingOptionsMenuState.Meeting.DeleteOption.ForEveryone, it.deleteOption)
-                assertEquals(true, it.shareWithGuestsEnabled)
+                assertEquals(false, it.meetingLinkEnabled)
                 assertEquals(false, it.editMeetingEnabled)
             }
             cancelAndConsumeRemainingEvents()
@@ -193,7 +193,7 @@ class MeetingOptionsMenuViewModelTest {
 
             assertInstanceOf<MeetingOptionsMenuState.Meeting>(awaitItem()).also {
                 assertEquals(MeetingOptionsMenuState.Meeting.DeleteOption.ForMe, it.deleteOption)
-                assertEquals(false, it.shareWithGuestsEnabled)
+                assertEquals(false, it.meetingLinkEnabled)
                 assertEquals(false, it.editMeetingEnabled)
             }
             cancelAndConsumeRemainingEvents()

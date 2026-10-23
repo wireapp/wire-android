@@ -33,7 +33,12 @@ import com.wire.android.ui.home.conversations.messages.item.textColor
 import com.wire.android.ui.theme.wireTypography
 
 @Composable
-fun MarkdownBlockQuote(blockQuote: MarkdownNode.Block.BlockQuote, nodeData: NodeData, modifier: Modifier = Modifier) {
+fun MarkdownBlockQuote(
+    blockQuote: MarkdownNode.Block.BlockQuote,
+    nodeData: NodeData,
+    modifier: Modifier = Modifier,
+    clickable: Boolean = true
+) {
     val color = nodeData.messageStyle.textColor()
     val xOffset = dimensions().spacing12x.value
     Column(
@@ -55,7 +60,7 @@ fun MarkdownBlockQuote(blockQuote: MarkdownNode.Block.BlockQuote, nodeData: Node
 
         blockQuote.children.map { child ->
             when (child) {
-                is MarkdownNode.Block.BlockQuote -> MarkdownBlockQuote(child, nodeData)
+                is MarkdownNode.Block.BlockQuote -> MarkdownBlockQuote(child, nodeData, clickable = clickable)
                 is MarkdownNode.Block.Paragraph -> {
                     val text = buildAnnotatedString {
                         pushStyle(
@@ -68,13 +73,16 @@ fun MarkdownBlockQuote(blockQuote: MarkdownNode.Block.BlockQuote, nodeData: Node
                     MarkdownText(
                         text,
                         onLongClick = nodeData.actions?.onLongClick,
-                        onOpenProfile = nodeData.actions?.onOpenProfile
+                        onOpenProfile = nodeData.actions?.onOpenProfile,
+                        onClickLink = nodeData.actions?.onLinkClick,
+                        clickable = clickable
                     )
                 }
 
                 else -> MarkdownNodeBlockChildren(
                     children = child.children.filterIsInstance<MarkdownNode.Block>(),
-                    nodeData = nodeData
+                    nodeData = nodeData,
+                    clickable = clickable
                 )
             }
         }

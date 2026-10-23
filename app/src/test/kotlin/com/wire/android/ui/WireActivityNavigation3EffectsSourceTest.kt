@@ -37,7 +37,6 @@ class WireActivityNavigation3EffectsSourceTest {
         listOf(
             "OnAuthorizationNeeded",
             "OnMigrationLogin",
-            "OnAutomaticLogin",
             "OnCustomBackendLogin",
             "OnOpenUserProfile",
             "OnSSOLogin",

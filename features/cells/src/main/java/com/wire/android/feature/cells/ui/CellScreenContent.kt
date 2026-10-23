@@ -59,6 +59,7 @@ import com.wire.android.feature.cells.ui.dialog.DeleteConfirmationDialog
 import com.wire.android.feature.cells.ui.dialog.NodeActionsBottomSheet
 import com.wire.android.feature.cells.ui.edit.OnlineEditor
 import com.wire.android.feature.cells.ui.model.CellNodeUi
+import com.wire.android.feature.cells.ui.movetofolder.NodeToMove
 import com.wire.android.feature.cells.ui.publiclink.PublicLinkScreenData
 import com.wire.android.feature.cells.ui.recyclebin.RestoreConfirmationDialog
 import com.wire.android.feature.cells.ui.recyclebin.RestoreParentFolderConfirmationDialog
@@ -88,6 +89,7 @@ internal fun CellScreenContent(
     showPublicLinkScreen: (PublicLinkScreenData) -> Unit,
     showRenameScreen: (CellNodeUi) -> Unit,
     showMoveToFolderScreen: (String, String, String) -> Unit,
+    showBulkMoveToFolderScreen: (String, List<NodeToMove>) -> Unit,
     showAddRemoveTagsScreen: (CellNodeUi) -> Unit,
     isRefreshing: State<Boolean>,
     onRefresh: () -> Unit,
@@ -164,6 +166,8 @@ internal fun CellScreenContent(
                 } else {
                     null
                 },
+                onDragSelection = { sendIntent(CellViewIntent.OnDragSelection(it)) },
+                onDragSelectionEnd = { sendIntent(CellViewIntent.OnDragSelectionEnd) },
             )
     }
 
@@ -258,6 +262,7 @@ internal fun CellScreenContent(
 
             is ShowRenameScreen -> showRenameScreen(action.cellNode)
             is ShowMoveToFolderScreen -> showMoveToFolderScreen(action.currentPath, action.nodeToMovePath, action.uuid)
+            is ShowBulkMoveToFolderScreen -> showBulkMoveToFolderScreen(action.currentPath, action.nodes)
             is ShowAddRemoveTagsScreen -> showAddRemoveTagsScreen(action.cellNode)
             is ShowVersionHistoryScreen -> showVersionHistoryScreen(action.uuid, action.fileName)
             is RefreshData -> pagingListItems.refresh()

@@ -121,7 +121,10 @@ jobs:
         id: zizmor
         uses: zizmorcore/zizmor-action@5f14fd08f7cf1cb1609c1e344975f152c7ee938d # v0.5.6
         with:
-          inputs: .github/workflows/build-unified.yml
+          inputs: |
+            .github/workflows/build-unified.yml
+            .github/workflows/distribute-dev-firebase.yml
+            .github/workflows/distribute-dev-pr-comment.yml
           version: 1.25.2
           persona: pedantic
           min-severity: informational
@@ -140,7 +143,7 @@ jobs:
   lint:
     name: Lint
     needs: [workflow-security]
-    runs-on: ubuntu-latest
+    runs-on: warp-ubuntu-2404-x64-8x
     steps:
       - name: Checkout
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
@@ -184,7 +187,7 @@ jobs:
   compose-stability:
     name: Compose Stability
     needs: [workflow-security]
-    runs-on: ubuntu-latest
+    runs-on: warp-ubuntu-2404-x64-8x
     steps:
       - name: Checkout
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
@@ -391,6 +394,7 @@ jobs:
           OLD_STORE_PASSWORD: ${{ secrets.SIGNING_STORE_PASSWORD_PUBLIC_RELEASE_OLD }}
           APK_SIGNING_LINEAGE_B64: ${{ secrets.APK_SIGNING_LINEAGE_PUBLIC_RELEASE_B64 }}
         run: |
+          export APK_DIR="$(printf '%s' "$APK_DIR" | tr '[:upper:]' '[:lower:]')"
           make signing-lineage
 
       - name: Build AAB

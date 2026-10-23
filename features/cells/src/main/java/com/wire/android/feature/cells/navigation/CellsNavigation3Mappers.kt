@@ -51,7 +51,7 @@ internal fun CreateFileRoute.toScreenArgs() = CreateFileScreenNavArgs(
     },
 )
 internal fun MoveToFolderRoute.toScreenArgs() =
-    MoveToFolderNavArgs(currentPath, nodeToMovePath, uuid, breadcrumbs.toTypedArray())
+    MoveToFolderNavArgs(currentPath, nodesToMove, breadcrumbs.toTypedArray())
 internal fun PublicLinkRoute.toScreenArgs() =
     PublicLinkNavArgs(assetId, fileName, publicLinkId, isFolder)
 internal fun PublicLinkExpirationRoute.toScreenArgs() =

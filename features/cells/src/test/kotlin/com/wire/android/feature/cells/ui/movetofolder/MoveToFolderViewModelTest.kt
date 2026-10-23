@@ -20,20 +20,26 @@ package com.wire.android.feature.cells.ui.movetofolder
 import app.cash.turbine.test
 import com.wire.android.feature.cells.ui.model.toUiModel
 import com.wire.kalium.cells.domain.model.Node
+import com.wire.kalium.cells.domain.model.NodeLocator
 import com.wire.kalium.cells.domain.usecase.GetFoldersUseCase
-import com.wire.kalium.cells.domain.usecase.MoveNodeUseCase
+import com.wire.kalium.cells.domain.usecase.MoveNodesUseCase
 import com.wire.kalium.common.error.CoreFailure
+import com.wire.kalium.common.error.NetworkFailure
 import com.wire.kalium.common.functional.Either
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.impl.annotations.MockK
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -62,7 +68,7 @@ class MoveToFolderViewModelTest {
                             name = "folderName",
                             userName = "userName",
                             conversationName = "conversationName",
-                            uuid = "uuid",
+                            uuid = "folderUuid",
                             modifiedTime = 0L,
                             remotePath = "",
                             size = 12434,
@@ -93,33 +99,43 @@ class MoveToFolderViewModelTest {
     }
 
     @Test
-    fun `given moveNodeUseCase success, when moveToFolder is called, then send success action`() = runTest {
+    fun `given moveNodesUseCase success, when moveToFolder is called, then send success action`() = runTest {
         val (_, viewModel) = Arrangement()
             .withGetFoldersUseCaseReturning(Either.Right(listOf()))
-            .withMoveNodeUseCaseReturning(Either.Right(Unit))
+            .withMoveNodesUseCaseReturning(Either.Right(Unit))
             .arrange()
 
         viewModel.actions.test {
             viewModel.onMoveToFolderClick()
-            with(awaitItem()) {
-                assertTrue(this is MoveToFolderViewAction.Success)
-            }
+            assertEquals(MoveToFolderViewAction.Success(movedCount = 1, destinationFolderName = "Folder3"), awaitItem())
         }
     }
 
     @Test
-    fun `given moveNodeUseCase failure, when moveToFolder is called, then send failure action`() = runTest {
+    fun `given moveNodesUseCase failure, when moveToFolder is called, then expose the move failure`() = runTest {
         val (_, viewModel) = Arrangement()
             .withGetFoldersUseCaseReturning(Either.Right(listOf()))
-            .withMoveNodeUseCaseReturning(Either.Left(CoreFailure.InvalidEventSenderID))
+            .withMoveNodesUseCaseReturning(Either.Left(CoreFailure.InvalidEventSenderID))
             .arrange()
 
-        viewModel.actions.test {
-            viewModel.onMoveToFolderClick()
-            with(awaitItem()) {
-                assertTrue(this is MoveToFolderViewAction.Failure)
-            }
-        }
+        viewModel.onMoveToFolderClick()
+        advanceUntilIdle()
+
+        assertEquals(MoveFailure(totalCount = 1, isNoNetworkConnection = false), viewModel.state.value.moveFailure)
+        assertFalse(viewModel.isMoving())
+    }
+
+    @Test
+    fun `given no network connection, when moveToFolder fails, then expose it as a no network move failure`() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withGetFoldersUseCaseReturning(Either.Right(listOf()))
+            .withMoveNodesUseCaseReturning(Either.Left(NetworkFailure.NoNetworkConnection(null)))
+            .arrange()
+
+        viewModel.onMoveToFolderClick()
+        advanceUntilIdle()
+
+        assertEquals(MoveFailure(totalCount = 1, isNoNetworkConnection = true), viewModel.state.value.moveFailure)
     }
 
     @Test
@@ -176,20 +192,142 @@ class MoveToFolderViewModelTest {
                     (this as MoveToFolderViewAction.OpenFolder).path
                 )
                 assertEquals(
-                    NODE_TO_MOVE_PATH,
-                    this.nodePath
+                    listOf(NodeToMove(UUID, NODE_TO_MOVE_PATH)),
+                    this.nodesToMove
                 )
             }
         }
     }
 
-    private class Arrangement {
+    @Test
+    fun `given several nodes, when moved, then move them all in a single request and send success`() = runTest {
+        val nodes = bulkNodes()
+        val (arrangement, viewModel) = Arrangement(nodes)
+            .withGetFoldersUseCaseReturning(Either.Right(listOf()))
+            .withMoveNodesUseCaseReturning(Either.Right(Unit))
+            .arrange()
+
+        viewModel.actions.test {
+            viewModel.onMoveToFolderClick()
+            assertEquals(MoveToFolderViewAction.Success(movedCount = 3, destinationFolderName = "Folder3"), awaitItem())
+        }
+        coVerify(exactly = 1) {
+            arrangement.moveNodesUseCase(nodes.map { NodeLocator(uuid = it.uuid, path = it.path) }, CURRENT_PATH)
+        }
+    }
+
+    @Test
+    fun `given several nodes, when moved, then report the source and destination folders as changed`() = runTest {
+        val (arrangement, viewModel) = Arrangement(bulkNodes())
+            .withGetFoldersUseCaseReturning(Either.Right(listOf()))
+            .withMoveNodesUseCaseReturning(Either.Right(Unit))
+            .arrange()
+
+        arrangement.nodeMoveEvents.changedFolderPaths.test {
+            viewModel.onMoveToFolderClick()
+            assertEquals(setOf("$CURRENT_PATH/parent", CURRENT_PATH), awaitItem())
+        }
+    }
+
+    @Test
+    fun `given the conversation root as destination, when moved, then send success without a folder name`() = runTest {
+        val (_, viewModel) = Arrangement(breadcrumbs = emptyArray())
+            .withGetFoldersUseCaseReturning(Either.Right(listOf()))
+            .withMoveNodesUseCaseReturning(Either.Right(Unit))
+            .arrange()
+
+        viewModel.actions.test {
+            viewModel.onMoveToFolderClick()
+            assertEquals(MoveToFolderViewAction.Success(movedCount = 1, destinationFolderName = null), awaitItem())
+        }
+    }
+
+    @Test
+    fun `given a move in progress, when clicking move or navigating, then ignore it until the move completes`() = runTest {
+        val moveResult = CompletableDeferred<Either<CoreFailure, Unit>>()
+        val (arrangement, viewModel) = Arrangement()
+            .withGetFoldersUseCaseReturning(Either.Right(listOf()))
+            .arrange()
+        coEvery { arrangement.moveNodesUseCase(any(), any()) } coAnswers { moveResult.await() }
+        advanceUntilIdle()
+
+        viewModel.actions.test {
+            viewModel.onMoveToFolderClick()
+            advanceUntilIdle()
+            assertTrue(viewModel.isMoving())
+
+            viewModel.onMoveToFolderClick()
+            viewModel.onFolderClick(folder("folderUuid").toUiModel())
+            viewModel.onBreadcrumbClick(0)
+            viewModel.onCreateFolderClick()
+            advanceUntilIdle()
+            expectNoEvents()
+
+            moveResult.complete(Either.Right(Unit))
+            assertEquals(MoveToFolderViewAction.Success(movedCount = 1, destinationFolderName = "Folder3"), awaitItem())
+        }
+        assertFalse(viewModel.isMoving())
+        coVerify(exactly = 1) { arrangement.moveNodesUseCase(any(), any()) }
+    }
+
+    @Test
+    fun `given several nodes, when the move fails, then expose the failure and still report the folders as changed`() = runTest {
+        val (arrangement, viewModel) = Arrangement(bulkNodes())
+            .withGetFoldersUseCaseReturning(Either.Right(listOf()))
+            .withMoveNodesUseCaseReturning(Either.Left(CoreFailure.InvalidEventSenderID))
+            .arrange()
+
+        arrangement.nodeMoveEvents.changedFolderPaths.test {
+            viewModel.onMoveToFolderClick()
+            assertEquals(setOf("$CURRENT_PATH/parent", CURRENT_PATH), awaitItem())
+        }
+        advanceUntilIdle()
+        assertEquals(MoveFailure(totalCount = 3, isNoNetworkConnection = false), viewModel.state.value.moveFailure)
+    }
+
+    @Test
+    fun `given a folder being moved, when folders are loaded, then it is not offered as a destination`() = runTest {
+        val movedFolder = NodeToMove(uuid = "movedFolderUuid", path = "$CURRENT_PATH/parent/moved")
+        val (_, viewModel) = Arrangement(listOf(movedFolder))
+            .withGetFoldersUseCaseReturning(
+                Either.Right(listOf(folder(uuid = movedFolder.uuid), folder(uuid = "otherFolderUuid")))
+            )
+            .arrange()
+
+        viewModel.state.test {
+            skipItems(1)
+            assertEquals(listOf("otherFolderUuid"), awaitItem().folders.map { it.uuid })
+        }
+    }
+
+    private fun bulkNodes() = listOf(
+        NodeToMove(uuid = "uuid1", path = "$CURRENT_PATH/parent/file1.txt"),
+        NodeToMove(uuid = "uuid2", path = "$CURRENT_PATH/parent/folder"),
+        NodeToMove(uuid = "uuid3", path = "$CURRENT_PATH/parent/file2.pdf"),
+    )
+
+    private fun folder(uuid: String) = Node.Folder(
+        name = uuid,
+        userName = "userName",
+        conversationName = "conversationName",
+        uuid = uuid,
+        modifiedTime = 0L,
+        remotePath = "",
+        size = 0,
+    )
+
+    private class Arrangement(
+        private val nodesToMove: List<NodeToMove> = listOf(NodeToMove(UUID, NODE_TO_MOVE_PATH)),
+        private val breadcrumbs: Array<String> = BREADCRUMBS,
+    ) {
 
         @MockK
         lateinit var getFoldersUseCase: GetFoldersUseCase
 
         @MockK
-        lateinit var moveNodeUseCase: MoveNodeUseCase
+        lateinit var moveNodesUseCase: MoveNodesUseCase
+
+        val nodeMoveEvents = CellNodeMoveEvents()
 
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
@@ -197,9 +335,10 @@ class MoveToFolderViewModelTest {
 
         private val viewModel by lazy {
             MoveToFolderViewModel(
-                navArgs = MoveToFolderNavArgs(CURRENT_PATH, NODE_TO_MOVE_PATH, UUID, BREADCRUMBS),
+                navArgs = MoveToFolderNavArgs(CURRENT_PATH, nodesToMove, breadcrumbs),
                 getFoldersUseCase = getFoldersUseCase,
-                moveNodeUseCase = moveNodeUseCase,
+                moveNodesUseCase = moveNodesUseCase,
+                nodeMoveEvents = nodeMoveEvents,
             )
         }
 
@@ -207,8 +346,8 @@ class MoveToFolderViewModelTest {
             coEvery { getFoldersUseCase(any()) } returns result
         }
 
-        fun withMoveNodeUseCaseReturning(result: Either<CoreFailure, Unit>) = apply {
-            coEvery { moveNodeUseCase(any(), any(), any()) } returns result
+        fun withMoveNodesUseCaseReturning(result: Either<CoreFailure, Unit>) = apply {
+            coEvery { moveNodesUseCase(any(), any()) } returns result
         }
 
         fun arrange() = this to viewModel

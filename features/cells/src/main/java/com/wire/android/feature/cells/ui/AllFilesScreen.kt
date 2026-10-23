@@ -99,6 +99,7 @@ fun AllFilesScreen(
             isSearchResult = false,
             showPublicLinkScreen = navigationActions.showPublicLink,
             showMoveToFolderScreen = { _, _, _ -> },
+            showBulkMoveToFolderScreen = { _, _ -> },
             showRenameScreen = {},
             showAddRemoveTagsScreen = navigationActions.showAddRemoveTags,
             isRefreshing = viewModel.isPullToRefresh.collectAsState(),

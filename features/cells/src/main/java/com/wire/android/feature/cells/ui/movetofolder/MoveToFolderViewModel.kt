@@ -21,8 +21,10 @@ import androidx.lifecycle.viewModelScope
 import com.wire.android.feature.cells.ui.model.CellNodeUi
 import com.wire.android.feature.cells.ui.model.toUiModel
 import com.wire.android.ui.common.ActionsViewModel
+import com.wire.kalium.cells.domain.model.NodeLocator
 import com.wire.kalium.cells.domain.usecase.GetFoldersUseCase
-import com.wire.kalium.cells.domain.usecase.MoveNodeUseCase
+import com.wire.kalium.cells.domain.usecase.MoveNodesUseCase
+import com.wire.kalium.common.error.NetworkFailure
 import com.wire.kalium.common.functional.onFailure
 import com.wire.kalium.common.functional.onSuccess
 import dev.zacsweers.metro.Assisted
@@ -36,7 +38,8 @@ import kotlinx.coroutines.launch
 class MoveToFolderViewModel @AssistedInject constructor(
     @Assisted private val navArgs: MoveToFolderNavArgs,
     private val getFoldersUseCase: GetFoldersUseCase,
-    private val moveNodeUseCase: MoveNodeUseCase
+    private val moveNodesUseCase: MoveNodesUseCase,
+    private val nodeMoveEvents: CellNodeMoveEvents,
 ) : ActionsViewModel<MoveToFolderViewAction>() {
 
     @AssistedFactory
@@ -45,13 +48,12 @@ class MoveToFolderViewModel @AssistedInject constructor(
     }
 
     private val currentPath: String = navArgs.currentPath
-    private val nodeToMovePath: String = navArgs.nodeToMovePath
-    private val nodeUuid: String = navArgs.uuid
+    private val nodesToMove: List<NodeToMove> = navArgs.nodesToMove
+    private val uuidsToMove: Set<String> = nodesToMove.map { it.uuid }.toSet()
 
-    private fun isMoveAllowedToCurrentPath(): Boolean {
-        val nodePath = nodeToMovePath.substringBeforeLast("/")
-        return currentPath != nodePath
-    }
+    // Moving into the folder the nodes are already in would be a no-op.
+    private fun isMoveAllowedToCurrentPath(): Boolean =
+        nodesToMove.none { it.path.substringBeforeLast("/") == currentPath }
 
     private val _state: MutableStateFlow<MoveToFolderViewState> = MutableStateFlow(
         MoveToFolderViewState(
@@ -73,7 +75,8 @@ class MoveToFolderViewModel @AssistedInject constructor(
                     updateState {
                         copy(
                             screenState = MoveToFolderScreenState.SUCCESS,
-                            folders = folders.map { it.toUiModel() },
+                            // A folder can't be moved into itself, so the folders being moved are not offered as destinations.
+                            folders = folders.filter { it.uuid !in uuidsToMove }.map { it.toUiModel() },
                             isAllowedToMoveToCurrentPath = isMoveAllowedToCurrentPath(),
                         )
                     }
@@ -88,18 +91,50 @@ class MoveToFolderViewModel @AssistedInject constructor(
         }
     }
 
-    fun onMoveToFolderClick() = viewModelScope.launch {
+    /**
+     * Moves all the nodes in a single request. There is no rollback: if it fails midway (e.g. lost connection),
+     * the nodes already moved stay moved and nothing is retried.
+     */
+    fun onMoveToFolderClick() {
+        if (isMoving()) return
+        // Set synchronously so a second tap before the coroutine runs is ignored too.
         updateState { copy(screenState = MoveToFolderScreenState.LOADING_IN_FULL_SCREEN) }
-        moveNodeUseCase(nodeUuid, nodeToMovePath, currentPath)
+        viewModelScope.launch { moveNodes() }
+    }
+
+    private suspend fun moveNodes() {
+        val result = moveNodesUseCase(nodesToMove.map { NodeLocator(uuid = it.uuid, path = it.path) }, currentPath)
+        // Refresh even on failure: without rollback, part of the nodes may have been moved.
+        nodeMoveEvents.onNodesMoved(nodesToMove.map { it.path.substringBeforeLast("/") }.toSet() + currentPath)
+        result
             .onSuccess {
                 updateState { copy(screenState = MoveToFolderScreenState.SUCCESS) }
-                sendAction(MoveToFolderViewAction.Success)
+                sendAction(
+                    MoveToFolderViewAction.Success(
+                        movedCount = nodesToMove.size,
+                        destinationFolderName = state.value.breadcrumbs.lastOrNull(),
+                    )
+                )
             }
-            .onFailure {
-                updateState { copy(screenState = MoveToFolderScreenState.ERROR) }
-                sendAction(MoveToFolderViewAction.Failure)
+            .onFailure { failure ->
+                // Kept in the state, not sent as an action, so the error dialog survives configuration changes.
+                updateState {
+                    copy(
+                        screenState = MoveToFolderScreenState.ERROR,
+                        moveFailure = MoveFailure(
+                            totalCount = nodesToMove.size,
+                            isNoNetworkConnection = failure is NetworkFailure.NoNetworkConnection,
+                        ),
+                    )
+                }
             }
     }
+
+    /**
+     * While a move is in flight, navigation is ignored: leaving the screen would clear this ViewModel and cancel the move
+     * before the folders are refreshed and the result is reported.
+     */
+    fun isMoving(): Boolean = state.value.screenState == MoveToFolderScreenState.LOADING_IN_FULL_SCREEN
 
     private fun updateState(block: MoveToFolderViewState.() -> MoveToFolderViewState) {
         _state.update { currentState ->
@@ -108,20 +143,22 @@ class MoveToFolderViewModel @AssistedInject constructor(
     }
 
     fun onBreadcrumbClick(index: Int) {
+        if (isMoving()) return
         val steps = state.value.breadcrumbs.size - index - 1
         sendAction(MoveToFolderViewAction.NavigateToBreadcrumb(steps))
     }
 
     fun onCreateFolderClick() {
+        if (isMoving()) return
         sendAction(MoveToFolderViewAction.OpenCreateFolderScreen(currentPath))
     }
 
     fun onFolderClick(folder: CellNodeUi.Folder) {
+        if (isMoving()) return
         sendAction(
             MoveToFolderViewAction.OpenFolder(
                 path = "$currentPath/${folder.name}",
-                nodePath = nodeToMovePath,
-                nodeUuid = nodeUuid,
+                nodesToMove = nodesToMove,
                 breadcrumbs = folder.name?.let { state.value.breadcrumbs + it } ?: emptyList(),
             )
         )
@@ -134,17 +171,26 @@ data class MoveToFolderViewState(
     val breadcrumbs: List<String> = emptyList(),
     val isAllowedToMoveToCurrentPath: Boolean = false,
     val isInRootFolder: Boolean = false,
+    val moveFailure: MoveFailure? = null,
+)
+
+/**
+ * The move of [totalCount] nodes failed. Without rollback, some of them may still have been moved.
+ * @param isNoNetworkConnection the device was offline, as opposed to a server side error.
+ */
+data class MoveFailure(
+    val totalCount: Int,
+    val isNoNetworkConnection: Boolean,
 )
 
 sealed interface MoveToFolderViewAction {
-    data object Success : MoveToFolderViewAction
-    data object Failure : MoveToFolderViewAction
+    /** @param destinationFolderName null when moved into the conversation root, which has no folder name. */
+    data class Success(val movedCount: Int, val destinationFolderName: String?) : MoveToFolderViewAction
     data class NavigateToBreadcrumb(val steps: Int) : MoveToFolderViewAction
     data class OpenCreateFolderScreen(val currentPath: String) : MoveToFolderViewAction
     data class OpenFolder(
         val path: String,
-        val nodePath: String,
-        val nodeUuid: String,
+        val nodesToMove: List<NodeToMove>,
         val breadcrumbs: List<String>
     ) : MoveToFolderViewAction
 }

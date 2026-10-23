@@ -156,7 +156,6 @@ data class AuthenticationLoginArguments(
     val userHandle: AuthenticationPrefilledUserIdentifier? = null,
     val ssoLoginResult: AuthenticationSsoLoginResult? = null,
     val loginPasswordPath: AuthenticationLoginPasswordPath? = null,
-    val ssoCodeAutoLogin: AuthenticationSsoCodeAutoLogin? = null,
     val showBackendConfigSuccess: Boolean = false,
 )
 
@@ -194,14 +193,6 @@ enum class AuthenticationSsoFailureCode {
     INSUFFICIENT_PERMISSIONS,
     UNKNOWN,
 }
-
-@Serializable
-data class AuthenticationSsoCodeAutoLogin(
-    val ssoCode: String,
-    val autoInitiateLogin: Boolean = true,
-    val nomadServiceUrl: String? = null,
-    val cookieLabel: String? = null,
-)
 
 @Serializable
 data class AuthenticationLoginPasswordPath(

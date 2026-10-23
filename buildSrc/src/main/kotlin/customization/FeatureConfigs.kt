@@ -151,12 +151,6 @@ enum class FeatureConfigs(val value: String, val configType: ConfigType) {
 
     DB_INVALIDATION_CONTROL_ENABLED("db_invalidation_control_enabled", ConfigType.BOOLEAN),
 
-    CONFIGURATION_SIGNATURE_KEYS("configuration_signature_keys", ConfigType.MapOfStrings),
-
-    ENFORCE_CONFIGURATION_SIGNATURE("enforce_configuration_signature", ConfigType.BOOLEAN),
-
-    NOMAD_PROFILES_ENABLED("nomad_profiles_enabled", ConfigType.BOOLEAN),
-
     CALL_QUALITY_MENU_ENABLED("call_quality_menu_enabled", ConfigType.BOOLEAN),
 
     CALL_REACTIONS_ENABLED("call_reactions_enabled", ConfigType.BOOLEAN),
@@ -168,6 +162,8 @@ enum class FeatureConfigs(val value: String, val configType: ConfigType) {
     LINK_PREVIEW_ENABLED("link_preview_enabled", ConfigType.BOOLEAN),
 
     DRIVE_PERMISSIONS_ENABLED("drive_permissions_enabled", ConfigType.BOOLEAN),
+
+    MEETINGS_GUESTS_LINKS_ENABLED("meetings_guests_links_enabled", ConfigType.BOOLEAN),
 
     DRIVE_DIRECT_UPLOAD_ENABLED("drive_direct_upload_enabled", ConfigType.BOOLEAN),
 

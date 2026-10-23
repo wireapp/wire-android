@@ -21,7 +21,6 @@ import com.wire.android.appLogger
 import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.configuration.server.ServerConfig
-import com.wire.kalium.logic.data.auth.AccountTokens
 import com.wire.kalium.logic.data.logout.LogoutReason
 import com.wire.kalium.logic.data.session.StoreSessionParam
 import com.wire.kalium.logic.data.user.UserId
@@ -70,13 +69,12 @@ class LoginSSOViewModelExtension(
     suspend fun initiateSSO(
         serverConfig: ServerConfig.Links,
         ssoCode: String,
-        cookieLabel: String? = null,
         onAuthScopeFailure: (AutoVersionAuthScopeUseCase.Result.Failure) -> Unit,
         onSSOInitiateFailure: (SSOInitiateLoginResult.Failure) -> Unit,
         onSuccess: suspend (SSOInitiateLoginResult.Success) -> Unit,
     ) {
         withAuthenticationScope(serverConfig, onAuthScopeFailure) { authScope ->
-            authScope.ssoLoginScope.initiate(SSOInitiateLoginUseCase.Param.WithRedirect(ssoCode, cookieLabel)).let { result ->
+            authScope.ssoLoginScope.initiate(SSOInitiateLoginUseCase.Param.WithRedirect(ssoCode)).let { result ->
                 when (result) {
                     is SSOInitiateLoginResult.Failure -> onSSOInitiateFailure(result)
                     is SSOInitiateLoginResult.Success -> onSuccess(result)
@@ -105,8 +103,6 @@ class LoginSSOViewModelExtension(
     suspend fun establishSSOSession(
         cookie: String,
         serverConfigId: String,
-        consumeNomadServiceUrl: () -> String? = { null },
-        consumeCookieLabel: () -> String? = { null },
         onAuthScopeFailure: (AutoVersionAuthScopeUseCase.Result.Failure) -> Unit,
         onSSOLoginFailure: (SSOLoginSessionResult.Failure) -> Unit,
         onAddAuthenticatedUserFailure: (AddAuthenticatedUserUseCase.Result.Failure) -> Unit,
@@ -143,13 +139,12 @@ class LoginSSOViewModelExtension(
             is SSOLoginSessionResult.Failure -> onSSOLoginFailure(ssoLoginResult)
             is SSOLoginSessionResult.Success -> {
                 val session = StoreSessionParam(
-                    accountTokens = ssoLoginResult.accountTokens.withCookieLabelIfMissing(consumeCookieLabel()),
+                    accountTokens = ssoLoginResult.accountTokens,
                     ssoId = ssoLoginResult.ssoId,
                     serverConfigId = serverConfigId,
                     proxyCredentials = ssoLoginResult.proxyCredentials,
                     managedBy = ssoLoginResult.managedBy,
                     isPersistentWebSocketEnabled = defaultWebSocketEnabledByDefault,
-                    nomadServiceUrl = consumeNomadServiceUrl(),
                     ssoIdentityProviderId = if (pendingSsoLogin.requiresCapabilityCheck) {
                         pendingSsoLogin.identityProviderId.takeIf { ssoLoginResult.isIdpChangeDetectionEnabled }
                     } else {
@@ -195,13 +190,6 @@ private fun AddAuthenticatedUserUseCase.Result.toReplaceRetainedSsoSessionResult
     when (this) {
         is AddAuthenticatedUserUseCase.Result.Failure -> ReplaceRetainedSsoSessionResult.Failure(this)
         is AddAuthenticatedUserUseCase.Result.Success -> ReplaceRetainedSsoSessionResult.Success(userId)
-    }
-
-private fun AccountTokens.withCookieLabelIfMissing(cookieLabel: String?): AccountTokens =
-    if (this.cookieLabel != null || cookieLabel == null) {
-        this
-    } else {
-        copy(cookieLabel = cookieLabel)
     }
 
 fun String.ssoCodeWithPrefix() = if (this.startsWith(SSO_CODE_WIRE_PREFIX)) this else "$SSO_CODE_WIRE_PREFIX$this"

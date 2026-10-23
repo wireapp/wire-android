@@ -125,4 +125,11 @@
         <item quantity="other">Every %d years</item>
     </plurals>
 
+    <string name="meeting_link_title">Meeting link</string>
+    <string name="meeting_share_link_description">Anyone with the link can access the meeting.</string>
+    <string name="meeting_share_link_password_protected">The link is password protected. To set a new password, generate a new link.</string>
+    <string name="meeting_share_link_not_password_protected">This link is not password protected. Make sure to share it only with the right people. To add a password, generate a new link.</string>
+    <string name="meeting_share_link_unavailable">The meeting link is unavailable.</string>
+    <string name="meeting_share_copy_link">Copy Link</string>
+    <string name="meeting_share_link_copied">Copied to clipboard</string>
 </resources>

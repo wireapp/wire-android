@@ -41,7 +41,7 @@ import com.wire.kalium.cells.domain.usecase.GetPaginatedNodesUseCase
 import com.wire.kalium.cells.domain.usecase.GetUserNameUseCase
 import com.wire.kalium.cells.domain.usecase.GetWireCellConfigurationUseCase
 import com.wire.kalium.cells.domain.usecase.IsAtLeastOneCellAvailableUseCase
-import com.wire.kalium.cells.domain.usecase.MoveNodeUseCase
+import com.wire.kalium.cells.domain.usecase.MoveNodesUseCase
 import com.wire.kalium.cells.domain.usecase.ObserveAttachmentDraftsUseCase
 import com.wire.kalium.cells.domain.usecase.ObserveIsAtLeastOneCellAvailableUseCase
 import com.wire.kalium.cells.domain.usecase.PublishAttachmentsUseCase
@@ -157,7 +157,7 @@ class CellsModule {
         cellsScope.createPresentationFileUseCase
 
     @Provides
-    fun provideMoveNodeUseCase(cellsScope: CellsScope): MoveNodeUseCase = cellsScope.moveNodeUseCase
+    fun provideMoveNodesUseCase(cellsScope: CellsScope): MoveNodesUseCase = cellsScope.moveNodesUseCase
 
     @Provides
     fun provideGetFoldersUseCase(cellsScope: CellsScope): GetFoldersUseCase = cellsScope.getFoldersUseCase

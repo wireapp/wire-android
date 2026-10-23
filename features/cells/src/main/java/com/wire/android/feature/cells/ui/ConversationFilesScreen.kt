@@ -488,6 +488,7 @@ internal fun ConversationFilesScreenContent(
                     },
                     showPublicLinkScreen = navigation::publicLink,
                     showMoveToFolderScreen = navigation::move,
+                    showBulkMoveToFolderScreen = navigation::moveNodes,
                     showRenameScreen = navigation::rename,
                     showAddRemoveTagsScreen = navigation::tags,
                     showVersionHistoryScreen = navigation::versionHistory,

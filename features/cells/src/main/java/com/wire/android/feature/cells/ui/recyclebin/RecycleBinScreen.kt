@@ -101,6 +101,7 @@ internal fun RecycleBinRouteScreen(
                     },
                     showPublicLinkScreen = navigation::publicLink,
                     showMoveToFolderScreen = navigation::move,
+                    showBulkMoveToFolderScreen = navigation::moveNodes,
                     showRenameScreen = { },
                     showAddRemoveTagsScreen = {},
                     showImageViewer = navigation::image,

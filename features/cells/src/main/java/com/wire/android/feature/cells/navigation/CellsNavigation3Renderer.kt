@@ -34,6 +34,7 @@ import com.wire.android.feature.cells.ui.model.CellNodeUi
 import com.wire.android.feature.cells.ui.model.pdfRenditionUrl
 import com.wire.android.feature.cells.ui.moveToFolderViewModel
 import com.wire.android.feature.cells.ui.movetofolder.MoveToFolderRouteScreen
+import com.wire.android.feature.cells.ui.movetofolder.NodeToMove
 import com.wire.android.feature.cells.ui.publicLinkExpirationViewModel
 import com.wire.android.feature.cells.ui.publicLinkPasswordViewModel
 import com.wire.android.feature.cells.ui.publicLinkViewModel
@@ -153,14 +154,13 @@ internal fun CellsNavigation3RouteScreen(
                         CellsBooleanNavigation3ResultType,
                     ).also { booleanRequestIdValue = it?.value }
                 },
-                onOpenFolder = { path, nodePath, nodeUuid, breadcrumbs ->
+                onOpenFolder = { path, nodesToMove, breadcrumbs ->
                     runtime.navigator.navigate(
                         WireNavigationCommand(
                             MoveToFolderRoute(
                                 route.sessionId,
                                 path,
-                                nodePath,
-                                nodeUuid,
+                                nodesToMove,
                                 breadcrumbs,
                             ),
                             launchSingleTop = false,
@@ -370,9 +370,9 @@ private class Navigation3CellsFilesNavigation(
         )
     }
 
-    override fun move(currentPath: String, nodePath: String, uuid: String) {
+    override fun moveNodes(currentPath: String, nodes: List<NodeToMove>) {
         runtime.navigator.navigate(
-            WireNavigationCommand(MoveToFolderRoute(sessionId, currentPath, nodePath, uuid))
+            WireNavigationCommand(MoveToFolderRoute(sessionId, currentPath, nodes))
         )
     }
 

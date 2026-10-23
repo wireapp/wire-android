@@ -514,6 +514,30 @@ class NewMeetingViewModelTest {
     }
 
     @Test
+    fun givenImmediateMeeting_whenSubmitUpdateIsCalled_thenTypeIsPreserved() = runTest(dispatcher) {
+        val editType = NewMeetingType.Edit(MEETING_OCCURRENCE.meeting.meetingId)
+        val immediateOccurrence = MEETING_OCCURRENCE.copy(
+            meeting = MEETING_OCCURRENCE.meeting.copy(type = Meeting.Type.IMMEDIATE)
+        )
+        val (arrangement, viewModel) = arrangeViewModel(
+            Arrangement(dispatcher)
+                .withNewMeetingType(editType)
+                .withNextUnfinishedMeetingOccurrence(immediateOccurrence)
+                .withUpdateMeetingResult(editType.id, UpdateMeetingUseCase.Result.Success)
+        )
+
+        advanceUntilIdle()
+        assertEquals(Meeting.Type.IMMEDIATE, viewModel.state.meetingType)
+
+        viewModel.submitUpdate()
+        advanceUntilIdle()
+
+        coVerify(exactly = 1) {
+            arrangement.updateMeeting(editType.id, match { it.type == Meeting.Type.IMMEDIATE })
+        }
+    }
+
+    @Test
     fun givenEditTypeWithStartAndEndTimesInPast_whenSubmitUpdateIsCalled_thenPastTimesAreAllowedAndMeetingIsEdited() =
         runTest(dispatcher) {
             val currentTime = Instant.parse("2026-01-01T12:00:00Z")
@@ -535,7 +559,8 @@ class NewMeetingViewModelTest {
                 endTime = pastEndTime,
                 tzid = MEETING_TIME_ZONE_ID,
                 recurrence = null,
-                otherParticipants = emptyList()
+                otherParticipants = emptyList(),
+                type = Meeting.Type.SCHEDULED,
             )
             val (arrangement, viewModel) = arrangeViewModel(
                 Arrangement(dispatcher)
@@ -1179,5 +1204,6 @@ class NewMeetingViewModelTest {
         tzid = CREATE_MEETING.tzid,
         recurrence = CREATE_MEETING.recurrence,
         otherParticipants = CREATE_MEETING.otherParticipants,
+        type = Meeting.Type.SCHEDULED,
     )
 }

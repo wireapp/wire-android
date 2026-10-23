@@ -391,6 +391,7 @@ jobs:
           OLD_STORE_PASSWORD: ${{ secrets.SIGNING_STORE_PASSWORD_PUBLIC_RELEASE_OLD }}
           APK_SIGNING_LINEAGE_B64: ${{ secrets.APK_SIGNING_LINEAGE_PUBLIC_RELEASE_B64 }}
         run: |
+          export APK_DIR="$(printf '%s' "$APK_DIR" | tr '[:upper:]' '[:lower:]')"
           make signing-lineage
 
       - name: Build AAB

@@ -228,7 +228,8 @@ private suspend fun BackendClient.requestInviteLink(
 suspend fun BackendClient.createChannelTeamConversation(
     user: ClientUser,
     conversationName: String?,
-    team: Team
+    team: Team,
+    cellsEnabled: Boolean = false
 ): String {
     val token = getAuthToken(user)
     val url = URI("conversations".composePublicApiUrl()).toURL()
@@ -259,6 +260,7 @@ suspend fun BackendClient.createChannelTeamConversation(
         )
         put("protocol", "mls")
         put("group_conv_type", "channel")
+        put("cells", cellsEnabled)
     }
 
     val response = NetworkBackendClient.sendJsonRequest(

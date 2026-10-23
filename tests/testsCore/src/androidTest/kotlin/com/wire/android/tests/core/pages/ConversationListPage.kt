@@ -48,6 +48,7 @@ data class ConversationListPage(private val device: UiDevice) {
 
     private val conversationsButton = UiSelectorParams(text = "Conversations")
     private val archiveButton = UiSelectorParams(text = "Archive")
+    private val driveButton = UiSelectorParams(text = "Drive")
 
     private fun displayedUserName(userName: String) = UiSelectorParams(text = userName)
     private val conversationNameSelector: (String) -> UiSelectorParams = { conversationName ->
@@ -245,6 +246,21 @@ data class ConversationListPage(private val device: UiDevice) {
 
     fun clickConversationsButtonOnMenuEntry(): ConversationListPage {
         UiWaitUtils.waitElement(conversationsButton).click()
+        return this
+    }
+
+    fun tapDriveButtonOnMenuEntry(): ConversationListPage {
+        UiWaitUtils.waitElement(driveButton).click()
+        return this
+    }
+
+    fun assertDriveButtonNotVisibleOnMenuEntry(): ConversationListPage {
+        UiWaitUtils.waitElement(settingsButton)
+        UiWaitUtils.waitUntilGoneOrThrow(
+            selector = driveButton.toBySelector(),
+            timeout = UiWaitUtils.STABLE_TIMEOUT,
+            errorMessage = "Drive is visible in the main navigation menu"
+        )
         return this
     }
 
@@ -763,6 +779,11 @@ data class ConversationListPage(private val device: UiDevice) {
 
     fun tapStartNewConversationButton(): ConversationListPage {
         UiWaitUtils.waitElement(startNewConversation).click()
+        return this
+    }
+
+    fun tapCreateNewChannelButtonOnNewConversationScreen(): ConversationListPage {
+        UiWaitUtils.waitElement(createNewChannelButton).click()
         return this
     }
 

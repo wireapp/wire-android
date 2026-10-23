@@ -26,8 +26,8 @@ import com.wire.android.feature.cells.navigation.PublicLinkRoute
 import com.wire.android.feature.cells.navigation.SearchRoute
 import com.wire.android.feature.cells.navigation.VideoPlayerRoute
 import com.wire.android.feature.meetings.ui.MeetingsHomeNavigationActions
-import com.wire.android.feature.meetings.ui.create.MeetingParticipantId
-import com.wire.android.feature.meetings.ui.create.NewMeetingDetailsRoute
+import com.wire.android.feature.meetings.ui.MeetingParticipantId
+import com.wire.android.feature.meetings.ui.NewMeetingDetailsRoute
 import com.wire.android.navigation.LoginTypeSelector
 import com.wire.android.navigation.navigation3.WireNavigation3Runtime
 import com.wire.android.navigation.routes.auth.AuthenticationLoginCompletion

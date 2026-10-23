@@ -8,15 +8,16 @@
  * (at your option) any later version.
  */
 
-package com.wire.android.feature.meetings.ui.create
+package com.wire.android.feature.meetings.ui
 
+import com.wire.android.feature.meetings.ui.create.NewMeetingType
+import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.id.MeetingId
 import com.wire.navigation.SessionRoute
 import com.wire.navigation.WireNavEntryId
 import com.wire.navigation.WireNavResultContract
 import com.wire.navigation.WireNavResultContractId
-import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.navigation.WireSessionId
-import com.wire.kalium.logic.data.id.MeetingId
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -110,4 +111,13 @@ internal fun NewMeetingRouteType.toLegacyType(meetingId: MeetingId? = null): New
     NewMeetingRouteType.MEET_NOW -> NewMeetingType.MeetNow
     NewMeetingRouteType.SCHEDULE -> NewMeetingType.Schedule
     NewMeetingRouteType.EDIT -> NewMeetingType.Edit(requireNotNull(meetingId))
+}
+
+@Serializable
+data class ShareMeetingWithGuestsRoute(
+    override val sessionId: WireSessionId,
+    val occurrenceId: String,
+    override val entryId: WireNavEntryId = WireNavEntryId.random(),
+) : SessionRoute {
+    override val routeId: String = "meetings/share_with_guests"
 }

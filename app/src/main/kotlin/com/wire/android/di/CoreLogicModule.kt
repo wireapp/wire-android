@@ -64,7 +64,6 @@ import com.wire.kalium.logic.feature.server.GetTeamUrlUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionFlowUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
 import com.wire.kalium.logic.feature.session.DeleteSessionUseCase
-import com.wire.kalium.logic.feature.session.DoesValidNomadAccountExistUseCase
 import com.wire.kalium.logic.feature.session.DoesValidSessionExistUseCase
 import com.wire.kalium.logic.feature.session.GetSessionsUseCase
 import com.wire.kalium.logic.feature.session.ObserveSessionsUseCase
@@ -331,10 +330,6 @@ class UseCaseModule {
     @Provides
     fun provideDoesValidSessionExistsUseCase(@KaliumCoreLogic coreLogic: CoreLogic): DoesValidSessionExistUseCase =
         coreLogic.getGlobalScope().doesValidSessionExist
-
-    @Provides
-    fun provideDoesValidNomadAccountExistUseCase(@KaliumCoreLogic coreLogic: CoreLogic): DoesValidNomadAccountExistUseCase =
-        coreLogic.getGlobalScope().doesValidNomadAccountExist
 
     @Provides
     fun observeSecurityClassificationLabelUseCase(

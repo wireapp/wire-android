@@ -38,8 +38,6 @@ data class ConversationMessagesViewState(
     val playingAudioMessage: PlayingAudioMessage = PlayingAudioMessage.None,
     val assetStatuses: PersistentMap<String, MessageAssetStatus> = persistentMapOf(),
     val searchedMessageId: String? = null,
-    val isFetchingOlderMessages: Boolean = false,
-    val hasMoreRemoteMessages: Boolean = true,
     val isNetworkAvailable: Boolean = false,
 )
 

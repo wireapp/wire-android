@@ -474,7 +474,7 @@ class WireApplication : BaseApp() {
 
     internal companion object {
         fun minimalLoggerConfig() = KaliumLogger.Config(
-            KaliumLogLevel.VERBOSE,
+            KaliumLogLevel.WARN,
             listOf(platformLogWriter())
         )
 

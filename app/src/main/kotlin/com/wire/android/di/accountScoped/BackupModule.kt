@@ -23,12 +23,10 @@ import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.ui.home.settings.backup.MPBackupSettings
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.user.UserId
-import com.wire.kalium.logic.feature.backup.BackupAndUploadCryptoStateUseCase
 import com.wire.kalium.logic.feature.backup.BackupScope
 import com.wire.kalium.logic.feature.backup.CreateBackupUseCase
 import com.wire.kalium.logic.feature.backup.CreateObfuscatedCopyUseCase
 import com.wire.kalium.logic.feature.backup.RestoreBackupUseCase
-import com.wire.kalium.logic.feature.backup.SetLastDeviceIdUseCase
 import com.wire.kalium.logic.feature.backup.VerifyBackupUseCase
 import com.wire.kalium.util.DelicateKaliumApi
 import dev.zacsweers.metro.BindingContainer
@@ -64,12 +62,4 @@ class BackupModule {
     @Provides
     fun provideOnboardingBackupUseCase(backupScope: BackupScope): CreateObfuscatedCopyUseCase =
         backupScope.createUnEncryptedCopy
-
-    @Provides
-    fun provideBackupAndUploadCryptoState(backupScope: BackupScope): BackupAndUploadCryptoStateUseCase =
-        backupScope.backupAndUploadCryptoState
-
-    @Provides
-    fun provideSetLastDeviceIdUseCase(backupScope: BackupScope): SetLastDeviceIdUseCase =
-        backupScope.setLastDeviceId
 }

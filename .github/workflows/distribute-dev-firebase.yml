@@ -1,0 +1,180 @@
+name: "Distribute Dev Build"
+
+on:
+  workflow_dispatch:
+    inputs:
+      source-branch:
+        description: "Branch to build (defaults to develop); run the workflow itself from develop"
+        required: false
+        type: string
+      release-notes:
+        description: "What testers should test"
+        required: true
+        type: string
+  workflow_call:
+    inputs:
+      pull-request:
+        required: true
+        type: string
+      release-notes:
+        required: true
+        type: string
+    secrets:
+      FIREBASE_APP_DISTRIBUTION_SERVICE_ACCOUNT_JSON:
+        required: true
+      ENCODED_KEYSTORE_DEBUG: {required: false}
+      SIGNING_KEY_ALIAS_DEBUG: {required: false}
+      SIGNING_KEY_PASSWORD_DEBUG: {required: false}
+      SIGNING_STORE_PASSWORD_DEBUG: {required: false}
+      DATADOG_APP_ID: {required: false}
+      DATADOG_CLIENT_TOKEN: {required: false}
+      DOMAIN_REMOVAL_KEYS_FOR_REPAIR: {required: false}
+
+permissions:
+  actions: read # find and download existing PR build artifacts
+  contents: read # check out workflow tools and branch sources
+  pull-requests: read # resolve the selected PR's repository and current revision
+
+concurrency:
+  group: firebase-app-distribution-dev-${{ inputs.pull-request || inputs.source-branch || 'develop' }}
+  cancel-in-progress: false
+
+jobs:
+  prepare:
+    name: Prepare DevDebug APK
+    runs-on: warp-ubuntu-2404-x64-8x
+    timeout-minutes: 45
+    outputs:
+      details: ${{ steps.apk.outputs.details }}
+    steps:
+      - name: Validate selection
+        env:
+          SOURCE_BRANCH: ${{ inputs.source-branch }}
+          PULL_REQUEST: ${{ inputs.pull-request }}
+        run: |
+          [[ "${GITHUB_REF}" == refs/heads/develop ]] || { echo "Run the workflow from develop"; exit 1; }
+          [[ -z "${SOURCE_BRANCH}" || -z "${PULL_REQUEST}" ]] || { echo "Choose a branch or a PR, not both"; exit 1; }
+          [[ -z "${PULL_REQUEST}" || "${PULL_REQUEST}" =~ ^[1-9][0-9]*$ ]] || { echo "PR number must be a positive integer"; exit 1; }
+          git check-ref-format "refs/heads/${SOURCE_BRANCH:-develop}"
+
+      - name: Checkout workflow tools
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          persist-credentials: false
+
+      - name: Download PR APK
+        if: inputs.pull-request != ''
+        id: pr
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PULL_REQUEST: ${{ inputs.pull-request }}
+        run: |
+          pr="$(gh api "repos/${GITHUB_REPOSITORY}/pulls/${PULL_REQUEST}")"
+          jq -e '.base.ref == "develop" and .head.repo.full_name == env.GITHUB_REPOSITORY' <<< "${pr}" > /dev/null || {
+            echo "Choose a repository PR targeting develop"; exit 1;
+          }
+          sha="$(jq -er '.head.sha' <<< "${pr}")"
+          run_id="$(gh api "repos/${GITHUB_REPOSITORY}/actions/workflows/build-develop-pr.yml/runs?event=pull_request&head_sha=${sha}&status=success&per_page=100" \
+            --jq "[.workflow_runs[] | select(any(.pull_requests[]; .number == ${PULL_REQUEST}))][0].id // empty")"
+          [[ -n "${run_id}" ]] || { echo "No successful CI build for this PR revision; run PR CI first"; exit 1; }
+          gh run download "${run_id}" --repo "${GITHUB_REPOSITORY}" --name Dev-Debug-artifacts --dir apk-input
+          echo "details=PR #${PULL_REQUEST} | head ${sha} | CI test merge, successful Develop CI | ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${run_id}" >> "${GITHUB_OUTPUT}"
+
+      - name: Checkout build branch
+        if: inputs.pull-request == ''
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          ref: refs/heads/${{ inputs.source-branch || 'develop' }}
+          path: source
+          persist-credentials: false
+          submodules: recursive
+          fetch-depth: 1
+
+      - name: Set up Java and Gradle
+        if: inputs.pull-request == ''
+        uses: ./.github/actions/setup-java-gradle
+
+      - name: Setup shared debug keystore
+        if: inputs.pull-request == ''
+        uses: ./.github/actions/setup-keystore
+        with:
+          keystore-type: debug
+        env:
+          ENCODED_KEYSTORE_DEBUG: ${{ secrets.ENCODED_KEYSTORE_DEBUG }}
+
+      - name: Build branch APK
+        if: inputs.pull-request == ''
+        env:
+          ENABLE_SIGNING: "TRUE"
+          KEYSTORE_KEY_NAME_DEBUG: ${{ secrets.SIGNING_KEY_ALIAS_DEBUG }}
+          KEYPWD_DEBUG: ${{ secrets.SIGNING_KEY_PASSWORD_DEBUG }}
+          KEYSTOREPWD_DEBUG: ${{ secrets.SIGNING_STORE_PASSWORD_DEBUG }}
+          DATADOG_APP_ID: ${{ secrets.DATADOG_APP_ID }}
+          DATADOG_CLIENT_TOKEN: ${{ secrets.DATADOG_CLIENT_TOKEN }}
+          DOMAIN_REMOVAL_KEYS_FOR_REPAIR: ${{ secrets.DOMAIN_REMOVAL_KEYS_FOR_REPAIR }}
+        run: make -C source build-dev
+
+      - name: Stage DevDebug APK
+        id: apk
+        env:
+          SOURCE_BRANCH: ${{ inputs.source-branch }}
+          PULL_REQUEST: ${{ inputs.pull-request }}
+          PR_DETAILS: ${{ steps.pr.outputs.details }}
+        run: |
+          search_root=apk-input
+          details="${PR_DETAILS}"
+          if [[ -z "${PULL_REQUEST}" ]]; then
+            search_root=source/app/build/outputs
+            details="Branch ${SOURCE_BRANCH:-develop} | commit $(git -C source rev-parse HEAD) | APK build only | ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+          fi
+          mapfile -t apks < <(find "${search_root}" -type f -path '*/apk/dev/debug/*.apk' -print)
+          (( ${#apks[@]} == 1 )) || { echo "Expected one DevDebug APK, found ${#apks[@]}"; exit 1; }
+          mkdir -p distribution-apk
+          cp -- "${apks[0]}" distribution-apk/app.apk
+          echo "details=${details}" >> "${GITHUB_OUTPUT}"
+
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: firebase-dev-apk
+          path: distribution-apk/app.apk
+          if-no-files-found: error
+          retention-days: 1
+
+  distribute:
+    name: Distribute DevDebug
+    needs: prepare
+    runs-on: warp-ubuntu-2404-x64-8x
+    timeout-minutes: 15
+    environment: firebase-dev
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          persist-credentials: false
+
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
+        with:
+          name: firebase-dev-apk
+          path: distribution-apk
+
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: 24
+
+      - name: Upload to Firebase
+        env:
+          FIREBASE_APP_DISTRIBUTION_SERVICE_ACCOUNT_JSON: ${{ secrets.FIREBASE_APP_DISTRIBUTION_SERVICE_ACCOUNT_JSON }}
+          FIREBASE_APP_DISTRIBUTION_GROUPS: ${{ vars.FIREBASE_APP_DISTRIBUTION_GROUPS }}
+          BUILD_DETAILS: ${{ needs.prepare.outputs.details }}
+          RELEASE_NOTES: ${{ inputs.release-notes }}
+        run: |
+          : "${FIREBASE_APP_DISTRIBUTION_SERVICE_ACCOUNT_JSON:?Configure the firebase-dev environment secret}"
+          : "${FIREBASE_APP_DISTRIBUTION_GROUPS:?Configure the internal tester group aliases}"
+          credentials_file="$(mktemp "${RUNNER_TEMP}/firebase-app-distribution.XXXXXX.json")"
+          trap 'rm -f "${credentials_file}"' EXIT
+          printf '%s' "${FIREBASE_APP_DISTRIBUTION_SERVICE_ACCOUNT_JSON}" > "${credentials_file}"
+          chmod 600 "${credentials_file}"
+          export GOOGLE_APPLICATION_CREDENTIALS="${credentials_file}"
+          firebase_app_id="$(jq -er '.flavors.dev.firebase_app_id | strings | select(length > 0)' default.json)"
+          npx --yes firebase-tools@15.27.0 appdistribution:distribute distribution-apk/app.apk \
+            "--app=${firebase_app_id}" "--groups=${FIREBASE_APP_DISTRIBUTION_GROUPS}" \
+            "--release-notes=${RELEASE_NOTES}"$'\n\n'"${BUILD_DETAILS}" --non-interactive

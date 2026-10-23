@@ -45,23 +45,25 @@ public fun com.wire.android.feature.cells.ui.AllFilesScreen(navigationActions: c
     - viewModel: UNSTABLE (has mutable properties or unstable members)
 
 @Composable
-private fun com.wire.android.feature.cells.ui.BulkActionItem(action: com.wire.android.feature.cells.ui.CellBulkAction): kotlin.Unit
+private fun com.wire.android.feature.cells.ui.BulkActionItem(action: com.wire.android.feature.cells.ui.CellBulkAction, onClick: kotlin.Function0<kotlin.Unit>): kotlin.Unit
   skippable: true
   restartable: true
   params:
     - action: STABLE (class with no mutable properties)
+    - onClick: STABLE (function type)
 
 @Composable
-internal fun com.wire.android.feature.cells.ui.CellBulkActionsBar(actions: kotlin.collections.List<com.wire.android.feature.cells.ui.CellBulkAction>, modifier: androidx.compose.ui.Modifier, shape: androidx.compose.ui.graphics.Shape): kotlin.Unit
-  skippable: false
+internal fun com.wire.android.feature.cells.ui.CellBulkActionsBar(actions: kotlinx.collections.immutable.ImmutableList<com.wire.android.feature.cells.ui.CellBulkAction>, onActionClick: kotlin.Function1<com.wire.android.feature.cells.ui.CellBulkAction, kotlin.Unit>, modifier: androidx.compose.ui.Modifier, shape: androidx.compose.ui.graphics.Shape): kotlin.Unit
+  skippable: true
   restartable: true
   params:
-    - actions: RUNTIME (requires runtime check)
+    - actions: STABLE (known stable type)
+    - onActionClick: STABLE (function type)
     - modifier: STABLE (marked @Stable or @Immutable)
     - shape: STABLE (marked @Stable or @Immutable)
 
 @Composable
-internal fun com.wire.android.feature.cells.ui.CellFilesScreen(cellNodes: androidx.paging.compose.LazyPagingItems<com.wire.android.feature.cells.ui.model.CellNodeUi>, isRefreshing: androidx.compose.runtime.State<kotlin.Boolean>, onRefresh: kotlin.Function0<kotlin.Unit>, onItemClick: kotlin.Function1<com.wire.android.feature.cells.ui.model.CellNodeUi, kotlin.Unit>, modifier: androidx.compose.ui.Modifier, isPullToRefreshEnabled: kotlin.Boolean, lazyListState: androidx.compose.foundation.lazy.LazyListState, showConversationName: kotlin.Boolean, showViewerOnlyIcon: kotlin.Boolean, sortBy: com.wire.android.feature.cells.ui.search.sort.SortBy, selectedNodeIds: kotlin.collections.Set<kotlin.String>, onItemLongClick: kotlin.Function1<com.wire.android.feature.cells.ui.model.CellNodeUi, kotlin.Unit>?, onItemMenuClick: kotlin.Function1<com.wire.android.feature.cells.ui.model.CellNodeUi, kotlin.Unit>): kotlin.Unit
+internal fun com.wire.android.feature.cells.ui.CellFilesScreen(cellNodes: androidx.paging.compose.LazyPagingItems<com.wire.android.feature.cells.ui.model.CellNodeUi>, isRefreshing: androidx.compose.runtime.State<kotlin.Boolean>, onRefresh: kotlin.Function0<kotlin.Unit>, onItemClick: kotlin.Function1<com.wire.android.feature.cells.ui.model.CellNodeUi, kotlin.Unit>, modifier: androidx.compose.ui.Modifier, isPullToRefreshEnabled: kotlin.Boolean, lazyListState: androidx.compose.foundation.lazy.LazyListState, showConversationName: kotlin.Boolean, showViewerOnlyIcon: kotlin.Boolean, sortBy: com.wire.android.feature.cells.ui.search.sort.SortBy, selectedNodeIds: kotlin.collections.Set<kotlin.String>, onItemLongClick: kotlin.Function1<com.wire.android.feature.cells.ui.model.CellNodeUi, kotlin.Unit>?, onDragSelection: kotlin.Function1<kotlin.collections.List<com.wire.android.feature.cells.ui.model.CellNodeUi>, kotlin.Unit>, onDragSelectionEnd: kotlin.Function0<kotlin.Unit>, onItemMenuClick: kotlin.Function1<com.wire.android.feature.cells.ui.model.CellNodeUi, kotlin.Unit>): kotlin.Unit
   skippable: false
   restartable: true
   params:
@@ -77,6 +79,8 @@ internal fun com.wire.android.feature.cells.ui.CellFilesScreen(cellNodes: androi
     - sortBy: STABLE (class with no mutable properties)
     - selectedNodeIds: RUNTIME (requires runtime check)
     - onItemLongClick: STABLE (function type)
+    - onDragSelection: STABLE (function type)
+    - onDragSelectionEnd: STABLE (function type)
     - onItemMenuClick: STABLE (function type)
 
 @Composable
@@ -159,7 +163,7 @@ private fun com.wire.android.feature.cells.ui.CircularSelectionIndicator(isSelec
     - modifier: STABLE (marked @Stable or @Immutable)
 
 @Composable
-private fun com.wire.android.feature.cells.ui.ContentList(cellNodes: androidx.paging.compose.LazyPagingItems<com.wire.android.feature.cells.ui.model.CellNodeUi>, lazyListState: androidx.compose.foundation.lazy.LazyListState, onItemClick: kotlin.Function1<com.wire.android.feature.cells.ui.model.CellNodeUi, kotlin.Unit>, onItemMenuClick: kotlin.Function1<com.wire.android.feature.cells.ui.model.CellNodeUi, kotlin.Unit>, modifier: androidx.compose.ui.Modifier, showConversationName: kotlin.Boolean, showViewerOnlyIcon: kotlin.Boolean, sortBy: com.wire.android.feature.cells.ui.search.sort.SortBy, selectedNodeIds: kotlin.collections.Set<kotlin.String>, onItemLongClick: kotlin.Function1<com.wire.android.feature.cells.ui.model.CellNodeUi, kotlin.Unit>?): kotlin.Unit
+private fun com.wire.android.feature.cells.ui.ContentList(cellNodes: androidx.paging.compose.LazyPagingItems<com.wire.android.feature.cells.ui.model.CellNodeUi>, lazyListState: androidx.compose.foundation.lazy.LazyListState, onItemClick: kotlin.Function1<com.wire.android.feature.cells.ui.model.CellNodeUi, kotlin.Unit>, onItemMenuClick: kotlin.Function1<com.wire.android.feature.cells.ui.model.CellNodeUi, kotlin.Unit>, modifier: androidx.compose.ui.Modifier, showConversationName: kotlin.Boolean, showViewerOnlyIcon: kotlin.Boolean, sortBy: com.wire.android.feature.cells.ui.search.sort.SortBy, selectedNodeIds: kotlin.collections.Set<kotlin.String>, onItemLongClick: kotlin.Function1<com.wire.android.feature.cells.ui.model.CellNodeUi, kotlin.Unit>?, onDragSelection: kotlin.Function1<kotlin.collections.List<com.wire.android.feature.cells.ui.model.CellNodeUi>, kotlin.Unit>, onDragSelectionEnd: kotlin.Function0<kotlin.Unit>): kotlin.Unit
   skippable: false
   restartable: true
   params:
@@ -173,6 +177,8 @@ private fun com.wire.android.feature.cells.ui.ContentList(cellNodes: androidx.pa
     - sortBy: STABLE (class with no mutable properties)
     - selectedNodeIds: RUNTIME (requires runtime check)
     - onItemLongClick: STABLE (function type)
+    - onDragSelection: STABLE (function type)
+    - onDragSelectionEnd: STABLE (function type)
 
 @Composable
 internal fun com.wire.android.feature.cells.ui.ConversationFilesRouteScreen(navigation: com.wire.android.feature.cells.ui.CellsFilesNavigation, animatedVisibilityScope: androidx.compose.animation.AnimatedVisibilityScope, viewModel: com.wire.android.feature.cells.ui.CellViewModel): kotlin.Unit
@@ -572,6 +578,12 @@ private fun com.wire.android.feature.cells.ui.dialog.UploadFilesSheetItem(title:
     - onClicked: STABLE (function type)
 
 @Composable
+private fun com.wire.android.feature.cells.ui.fabCornerRadius(): androidx.compose.ui.unit.Dp
+  skippable: true
+  restartable: true
+  params:
+
+@Composable
 private fun com.wire.android.feature.cells.ui.formattedModifiedTime(): kotlin.String?
   skippable: true
   restartable: true
@@ -675,6 +687,12 @@ private fun com.wire.android.feature.cells.ui.ownerSubtitle(sortBy: com.wire.and
   restartable: true
   params:
     - sortBy: STABLE (class with no mutable properties)
+
+@Composable
+private fun com.wire.android.feature.cells.ui.pillCornerRadius(): androidx.compose.ui.unit.Dp
+  skippable: true
+  restartable: true
+  params:
 
 @Composable
 internal fun com.wire.android.feature.cells.ui.publicLinkExpirationViewModel(navArgs: com.wire.android.feature.cells.ui.publiclink.settings.expiration.PublicLinkExpirationScreenNavArgs): com.wire.android.feature.cells.ui.publiclink.settings.expiration.PublicLinkExpirationScreenViewModel
@@ -953,6 +971,16 @@ public fun com.wire.android.feature.cells.ui.recyclebin.UnableToRestoreDialog(is
   params:
     - isFolder: STABLE (primitive type)
     - onDismiss: STABLE (function type)
+
+@Composable
+internal fun com.wire.android.feature.cells.ui.rememberCellDragSelectionState(lazyListState: androidx.compose.foundation.lazy.LazyListState, cellNodes: androidx.paging.compose.LazyPagingItems<com.wire.android.feature.cells.ui.model.CellNodeUi>, onDragSelection: kotlin.Function1<kotlin.collections.List<com.wire.android.feature.cells.ui.model.CellNodeUi>, kotlin.Unit>, onDragSelectionEnd: kotlin.Function0<kotlin.Unit>): com.wire.android.feature.cells.ui.CellDragSelectionState
+  skippable: false
+  restartable: true
+  params:
+    - lazyListState: STABLE (marked @Stable or @Immutable)
+    - cellNodes: UNSTABLE (has mutable properties or unstable members)
+    - onDragSelection: STABLE (function type)
+    - onDragSelectionEnd: STABLE (function type)
 
 @Composable
 internal fun com.wire.android.feature.cells.ui.rename.RenameNodeRouteScreen(onNavigateBack: kotlin.Function0<kotlin.Unit>, renameNodeViewModel: com.wire.android.feature.cells.ui.rename.RenameNodeViewModel, modifier: androidx.compose.ui.Modifier): kotlin.Unit

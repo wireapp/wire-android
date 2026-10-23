@@ -38,7 +38,7 @@ const val TIMEOUT_IN_MILLISECONDS = 20_000L
 
 object UiAutomatorSetup {
 
-    const val APP_DEV: String = "com.waz.zclient.dev.debug"
+    const val APP_DEV: String = "com.wire.android.dev.debug"
     const val APP_STAGING: String = "com.waz.zclient.dev"
     const val APP_BETA: String = "com.wire.android.internal"
     const val APP_PROD: String = "com.wire"
@@ -116,6 +116,21 @@ object UiAutomatorSetup {
     fun stopApp() {
         val device = getDevice()
         device.executeShellCommand("am force-stop $appPackage")
+    }
+
+    // Upgrade tests must each start on the old APK, including tests in the same batch.
+    // Local runs without oldApkPath keep using the manually preinstalled old APK.
+    fun installOldWireApkIfProvided() {
+        val arguments = InstrumentationRegistry.getArguments()
+        val oldApkPath = arguments.getString("oldApkPath") ?: return
+        val packageName = arguments.getString(APP_PACKAGE_ARGUMENT) ?: APP_ALPHA
+        require(oldApkPath.matches(Regex("[A-Za-z0-9_./-]+\\.apk"))) { "Invalid oldApkPath: $oldApkPath" }
+        require(packageName.matches(Regex("[A-Za-z0-9_.]+"))) { "Invalid appPackage: $packageName" }
+
+        val device = getDevice()
+        device.executeShellCommand("pm uninstall $packageName")
+        val output = device.executeShellCommand("pm install -r -g $oldApkPath").trim()
+        check(output.contains("Success")) { "Failed to install old Wire APK '$oldApkPath': $output" }
     }
 
     fun upgradeWireToRecentVersion(apkPath: String) {

@@ -15,12 +15,16 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
+package com.wire.android.feature.cells.ui
 
-package com.wire.android.config
+import com.wire.android.feature.cells.R
 
-import com.wire.android.BuildConfig
-import dev.zacsweers.metro.Inject
-
-class NomadProfilesFeatureConfig @Inject constructor() {
-    fun isEnabled(): Boolean = BuildConfig.NOMAD_PROFILES_ENABLED
+enum class CellError(val message: Int) {
+    FILE_NOT_SUPPORTED(R.string.file_not_supported),
+    NO_APP_FOUND(R.string.no_app_found),
+    OTHER_ERROR(R.string.action_failed),
+    DOWNLOAD_FAILED(R.string.action_failed),
+    NO_SPACE_LEFT(R.string.no_space_left_error),
+    UPLOAD_PREPARATION_FAILED(R.string.cells_upload_preparation_failed),
+    UPLOAD_PREPARATION_PARTIALLY_FAILED(R.string.cells_upload_preparation_partially_failed),
 }

@@ -89,7 +89,7 @@ import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
-import kotlinx.datetime.Instant
+import kotlin.time.Instant
 import com.wire.kalium.logic.feature.conversation.CheckConversationInviteCodeUseCase
 import java.text.NumberFormat
 import kotlinx.coroutines.flow.collectLatest

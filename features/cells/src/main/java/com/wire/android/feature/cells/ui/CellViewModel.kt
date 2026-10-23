@@ -26,7 +26,6 @@ import androidx.paging.cachedIn
 import androidx.paging.filter
 import androidx.paging.map
 import com.wire.android.datastore.UserDataStore
-import com.wire.android.feature.cells.R
 import com.wire.android.feature.cells.domain.model.AttachmentFileType
 import com.wire.android.feature.cells.ui.edit.OnlineEditor
 import com.wire.android.feature.cells.ui.model.CellNodeUi
@@ -34,17 +33,17 @@ import com.wire.android.feature.cells.ui.model.NodeBottomSheetAction
 import com.wire.android.feature.cells.ui.model.NodeMenuItem
 import com.wire.android.feature.cells.ui.model.OpenLoadState
 import com.wire.android.feature.cells.ui.model.canOpenWithUrl
-import com.wire.android.feature.cells.ui.model.pdfRenditionUrl
 import com.wire.android.feature.cells.ui.model.localFileAvailable
+import com.wire.android.feature.cells.ui.model.pdfRenditionUrl
 import com.wire.android.feature.cells.ui.model.toUiModel
 import com.wire.android.feature.cells.ui.search.DriveSearchScreenType
-import com.wire.android.feature.cells.ui.upload.DriveUploadFilePreparer
 import com.wire.android.feature.cells.ui.search.SearchNavArgs
 import com.wire.android.feature.cells.ui.search.defaultCriteriaFor
 import com.wire.android.feature.cells.ui.search.sort.SortBy
 import com.wire.android.feature.cells.ui.search.sort.SortingCriteria
 import com.wire.android.feature.cells.ui.search.sort.toKaliumCriteria
 import com.wire.android.feature.cells.ui.search.sort.toSortingCriteria
+import com.wire.android.feature.cells.ui.upload.DriveUploadFilePreparer
 import com.wire.android.feature.cells.util.FileHelper
 import com.wire.android.ui.common.ActionsViewModel
 import com.wire.kalium.cells.data.FileFilters
@@ -63,7 +62,6 @@ import com.wire.kalium.cells.domain.usecase.RestoreNodeFromRecycleBinUseCase
 import com.wire.kalium.cells.domain.usecase.offline.DeleteOfflineFileUseCase
 import com.wire.kalium.cells.domain.usecase.offline.GetOfflineFileUseCase
 import com.wire.kalium.cells.domain.usecase.offline.ObserveOfflineFilesUseCase
-import com.wire.kalium.cells.domain.usecase.offline.OfflineFileInfo
 import com.wire.kalium.common.functional.fold
 import com.wire.kalium.common.functional.onFailure
 import com.wire.kalium.common.functional.onSuccess
@@ -134,6 +132,7 @@ class CellViewModel @AssistedInject constructor(
     @Named("inAppImageViewerEnabled") private val inAppImageViewerEnabled: Boolean,
     @Named("drivePermissionsEnabled") val drivePermissionsEnabled: Boolean,
     @Named("driveDirectUploadEnabled") val driveDirectUploadEnabled: Boolean,
+    @Named("driveBulkActionsEnabled") private val driveBulkActionsEnabled: Boolean,
 ) : ActionsViewModel<CellViewAction>() {
 
     @AssistedFactory
@@ -218,6 +217,16 @@ class CellViewModel @AssistedInject constructor(
         started = SharingStarted.Eagerly,
         initialValue = false,
     )
+
+    // Bulk selection is only offered in a shared drive; search results, the recycle bin and All Files keep the single-item flow.
+    private val bulkSelection = CellBulkSelection(
+        isSupported = driveBulkActionsEnabled && searchNavArgs == null && isConversationFiles(),
+        isOnline = isOnline,
+        isSelfUserViewerOnly = isSelfUserViewerOnly,
+        scope = viewModelScope,
+    )
+    internal val selectedNodes: StateFlow<Map<String, CellNodeUi>> = bulkSelection.selectedNodes
+    internal val isBulkSelectionEnabled: StateFlow<Boolean> = bulkSelection.isEnabled
 
     init {
         loadWireCellConfig()
@@ -373,18 +382,28 @@ class CellViewModel @AssistedInject constructor(
         refreshNodes()
     }
 
+    fun onNodeCreated() = refreshNodes()
+
     private fun refreshNodes() {
         viewModelScope.launch {
             refreshTrigger.tryEmit(Unit)
         }
     }
 
+    @Suppress("CyclomaticComplexMethod")
     internal fun sendIntent(intent: CellViewIntent) {
         when (intent) {
-            is CellViewIntent.OnItemClick -> when (intent.file) {
-                is CellNodeUi.File -> onFileClick(intent.file)
-                is CellNodeUi.Folder -> onFolderClick(intent.file)
+            is CellViewIntent.OnItemClick -> when {
+                bulkSelection.isActive -> bulkSelection.toggle(intent.file)
+                intent.file is CellNodeUi.File -> onFileClick(intent.file)
+                intent.file is CellNodeUi.Folder -> onFolderClick(intent.file)
             }
+
+            is CellViewIntent.OnItemLongClick -> bulkSelection.onLongClick(intent.cellNode)
+            is CellViewIntent.OnClearSelection -> bulkSelection.clear()
+            is CellViewIntent.OnMoveSelectedNodesClick,
+            is CellViewIntent.OnDeleteSelectedNodesClick,
+            is CellViewIntent.OnMakeSelectedNodesAvailableOfflineClick -> Unit
 
             is CellViewIntent.OnItemMenuClick -> onItemMenuClick(intent.cellNode)
             is CellViewIntent.OnMenuItemActionSelected -> onMenuItemAction(intent.node, intent.action)
@@ -795,50 +814,6 @@ class CellViewModel @AssistedInject constructor(
     }
 
     /** Folder rebuilt from offline files: it only carries what is needed to render and open it. */
-    private fun OfflineListingEntry.FolderEntry.toCellNodeUi(): CellNodeUi.Folder = CellNodeUi.Folder(
-        uuid = remotePath,
-        name = name,
-        remotePath = remotePath,
-        modifiedTime = modifiedTime,
-        size = null,
-        userName = null,
-        userHandle = null,
-        ownerUserId = null,
-        conversationName = null,
-    )
-
-    private fun OfflineFileInfo.toCellNodeUi(
-        conversationName: String? = null,
-        userName: String? = null,
-        openLoadState: OpenLoadState? = null,
-        downloadProgress: Float? = null,
-    ): CellNodeUi.File {
-        val resolvedMimeType = mimeType.orEmpty()
-        val extension = name.substringAfterLast('.', "")
-        return CellNodeUi.File(
-            uuid = id,
-            conversationId = conversationId,
-            name = name,
-            mimeType = resolvedMimeType,
-            assetType = if (resolvedMimeType.isNotBlank()) {
-                AttachmentFileType.fromMimeType(resolvedMimeType)
-            } else {
-                AttachmentFileType.fromExtension(extension)
-            },
-            size = size,
-            localPath = localPath,
-            remotePath = remotePath,
-            ownerUserId = owner.ifEmpty { null },
-            userName = userName,
-            userHandle = null,
-            conversationName = conversationName,
-            modifiedTime = modifiedAt,
-            isAvailableOffline = true,
-            openLoadState = openLoadState,
-            downloadProgress = downloadProgress,
-        )
-    }
-
     companion object {
         private val emptyData: PagingData<CellNodeUi> = PagingData.empty(
             LoadStates(
@@ -853,6 +828,11 @@ class CellViewModel @AssistedInject constructor(
 sealed interface CellViewIntent {
     data class OnItemClick(val file: CellNodeUi) : CellViewIntent
     data class OnItemMenuClick(val cellNode: CellNodeUi) : CellViewIntent
+    data class OnItemLongClick(val cellNode: CellNodeUi) : CellViewIntent
+    data object OnClearSelection : CellViewIntent
+    data object OnMoveSelectedNodesClick : CellViewIntent
+    data object OnDeleteSelectedNodesClick : CellViewIntent
+    data object OnMakeSelectedNodesAvailableOfflineClick : CellViewIntent
     data class OnMenuItemActionSelected(val node: CellNodeUi, val action: NodeBottomSheetAction) : CellViewIntent
     data class OnNodeDeleteConfirmed(val node: CellNodeUi) : CellViewIntent
     data class OnNodeRestoreConfirmed(val node: CellNodeUi) : CellViewIntent
@@ -861,45 +841,10 @@ sealed interface CellViewIntent {
     data class OnFilesPickedForUpload(val uris: List<Uri>) : CellViewIntent
 }
 
-sealed interface CellViewAction
-internal data class ShowDeleteConfirmation(val node: CellNodeUi, val isPermanentDelete: Boolean) : CellViewAction
-internal data object HideDeleteConfirmation : CellViewAction
-internal data class ShowRestoreConfirmation(val node: CellNodeUi) : CellViewAction
-internal data object HideRestoreConfirmation : CellViewAction
-internal data class ShowError(val error: CellError) : CellViewAction
-internal data class ShowPublicLinkScreen(val cellNode: CellNodeUi) : CellViewAction
-internal data class ShowRenameScreen(val cellNode: CellNodeUi) : CellViewAction
-internal data class ShowAddRemoveTagsScreen(val cellNode: CellNodeUi) : CellViewAction
-internal data class ShowMoveToFolderScreen(val currentPath: String, val nodeToMovePath: String, val uuid: String) : CellViewAction
-internal data class ShowVersionHistoryScreen(val uuid: String, val fileName: String) : CellViewAction
-internal data class ShowUnableToRestoreDialog(val isFolder: Boolean) : CellViewAction
-internal data class ShowRestoreParentFolderDialog(val cellNode: CellNodeUi) : CellViewAction
-internal data object HideRestoreParentFolderDialog : CellViewAction
-internal data class ShowFileDeletedMessage(val isFile: Boolean, val permanently: Boolean) : CellViewAction
-internal data object RefreshData : CellViewAction
-internal data class OpenFolder(val path: String, val title: String, val parentFolderUuid: String?) : CellViewAction
-internal data class ShowEditErrorDialog(val nodeUuid: String) : CellViewAction
-internal data object ShowOfflineFileSaved : CellViewAction
-internal data class OpenImageViewer(val file: CellNodeUi.File) : CellViewAction
-internal data class OpenVideoViewer(val file: CellNodeUi.File) : CellViewAction
-internal data class OpenAudioPlayer(val file: CellNodeUi.File) : CellViewAction
-internal data class OpenPdfViewer(val file: CellNodeUi.File) : CellViewAction
-internal data class FilesPickedForUpload(val uris: List<Uri>) : CellViewAction
-
 internal data class UploadConfirmation(
     val fileNames: List<String>,
     val destinationFolderPath: String,
 )
-
-enum class CellError(val message: Int) {
-    FILE_NOT_SUPPORTED(R.string.file_not_supported),
-    NO_APP_FOUND(R.string.no_app_found),
-    OTHER_ERROR(R.string.action_failed),
-    DOWNLOAD_FAILED(R.string.action_failed),
-    NO_SPACE_LEFT(R.string.no_space_left_error),
-    UPLOAD_PREPARATION_FAILED(R.string.cells_upload_preparation_failed),
-    UPLOAD_PREPARATION_PARTIALLY_FAILED(R.string.cells_upload_preparation_partially_failed),
-}
 
 data class MenuOptions(
     val node: CellNodeUi,

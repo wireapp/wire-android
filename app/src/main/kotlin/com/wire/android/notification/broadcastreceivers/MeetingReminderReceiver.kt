@@ -11,7 +11,7 @@ import com.wire.android.notification.MeetingReminderScheduler
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.id.toQualifiedID
 import dev.zacsweers.metro.Inject
-import kotlinx.datetime.Instant
+import kotlin.time.Instant
 
 class MeetingReminderReceiver : CoroutineReceiver() {
     @Inject

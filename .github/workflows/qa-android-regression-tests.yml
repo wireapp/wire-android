@@ -1,14 +1,14 @@
-name: QA Android Critical Flow Tests
-run-name: ${{ inputs.runMode == 'Deflake failed tests' && format('QA Android Critical Flow Tests - Manual Deflake from {0}', inputs.sourceRunId || 'latest completed run') || 'QA Android Critical Flow Tests' }}
+name: QA Android Regression Tests
+run-name: ${{ inputs.runMode == 'Deflake failed tests' && format('QA Android Regression Tests - Manual Deflake from {0}', inputs.sourceRunId || 'latest completed run') || 'QA Android Regression Tests' }}
 
 # Lock each configured device group independently. Groups must be disjoint, so
 # criticalFlow, e2eTests, GrapheneOS, and future pools can run concurrently.
 concurrency:
-  group: qa-android-ui-tests-office-${{ inputs.androidDeviceGroup || 'criticalFlow' }}
+  group: qa-android-ui-tests-office-${{ inputs.androidDeviceGroup || 'e2eTests' }}
   cancel-in-progress: false
 
 on:
-  # Other suites reuse these jobs, while direct runs keep Critical Flow defaults.
+  # Other suites reuse these jobs, while direct runs use Regression defaults.
   workflow_call:
     inputs:
       runMode:
@@ -20,15 +20,12 @@ on:
       testServiceUrl:
         type: string
         default: ""
-      deflakeRetrySettings:
-        type: string
-        default: "Use original run settings"
       appBuildNumber:
         type: string
         default: "latest"
       isUpgrade:
         type: boolean
-        default: false
+        default: true
       oldBuildNumber:
         type: string
         default: ""
@@ -37,7 +34,7 @@ on:
         default: "alpha release candidate"
       TAGS:
         type: string
-        default: "@criticalFlow"
+        default: "@regression"
       testinyRunName:
         type: string
         default: ""
@@ -46,13 +43,10 @@ on:
         default: ""
       androidDeviceGroup:
         type: string
-        default: "criticalFlow"
-      rerunFailedEnabled:
-        type: boolean
-        default: true
+        default: "e2eTests"
       rerunFailedCount:
         type: string
-        default: "1"
+        default: ""
       workflowTitle:
         description: "Display title for the calling suite and its report page."
         type: string
@@ -69,21 +63,22 @@ on:
         description: "Report directory under gh-pages/docs."
         type: string
         required: true
+      jobTimeoutMinutes:
+        description: "Maximum execution-job duration, including setup, tests, retries, and reporting."
+        type: number
+        default: 150
       requiredDeviceGroup:
         description: Optional device-group restriction for the calling suite.
         type: string
         default: ""
 
-  # Uncomment merge_group when the team is ready to enable automatic merge queue runs.
-  # merge_group:
-  #   types: [checks_requested]
-  # GitHub schedules use UTC. 04:00 UTC is 06:00 in Berlin in summer, 05:00 in winter.
   schedule:
-    - cron: "0 4 * * *"
+    - cron: "0 1 * * *"
+      timezone: "Europe/Berlin"
   workflow_dispatch:
     inputs:
       runMode:
-        description: "Run tests (default '@criticalFlow') or deflake failures from this workflow."
+        description: "Run tests (default '@regression') or deflake failures from this workflow."
         required: true
         default: "Normal tests"
         type: choice
@@ -92,25 +87,16 @@ on:
           - Deflake failed tests
 
       sourceRunId:
-        description: "Deflake only: leave empty for the latest completed Critical Flow run, or enter a specific 'manual deflake id'."
+        description: "Deflake only: leave empty for the latest completed Regression run, or enter a specific 'manual deflake id'."
         required: false
         default: ""
         type: string
 
       testServiceUrl:
-        description: "Test Service HTTP(S) origin. Empty uses TEST_SERVICE_URL for normal runs or the source run URL for deflake."
+        description: "Test Service URL. Leave empty to use the default test service."
         required: false
         default: ""
         type: string
-
-      deflakeRetrySettings:
-        description: "Deflake only: inherit retries or use the retry checkbox and count below."
-        required: true
-        default: "Use original run settings"
-        type: choice
-        options:
-          - Use original run settings
-          - Use settings entered below
 
       appBuildNumber:
         description: "Normal runs only: 'latest' or build number (e.g. 71389). Deflake reuses the source build."
@@ -119,13 +105,13 @@ on:
         type: string
 
       isUpgrade:
-        description: "Normal runs only: upgrade test? oldBuildNumber defaults to the previous APK."
+        description: "Include upgrade tests that update Wire from an older build."
         required: true
-        default: false
+        default: true
         type: boolean
 
       oldBuildNumber:
-        description: "Normal upgrade runs only: optional old build number. Empty auto-picks the previous APK."
+        description: "Old build number (optional). Upgrade tests use the previous build unless specified."
         required: false
         default: ""
         type: string
@@ -144,9 +130,9 @@ on:
         default: alpha release candidate
 
       TAGS:
-        description: "Normal runs: defaults to '@criticalFlow'. Replace with another tag or test ID, e.g. '@regression' or '@TC-8143'. Deflake reruns only source failures."
+        description: "Defaults to '@regression'. Enter another tag or test ID, e.g. '@criticalFlow' or '@TC-8143'."
         required: false
-        default: "@criticalFlow"
+        default: "@regression"
         type: string
 
       testinyRunName:
@@ -156,27 +142,21 @@ on:
         type: string
 
       androidDeviceId:
-        description: "Normal runs only: target one device from the group. Deflake reuses the source selection."
+        description: "Device ID (optional). Enter a device serial to run on one device instead of the whole group."
         required: false
         default: ""
         type: string
 
       androidDeviceGroup:
-        description: "Named group from ANDROID_DEVICE_GROUPS_JSON. For deflake, select the source run's group."
+        description: "Device group to run tests on."
         required: true
-        default: "criticalFlow"
+        default: "e2eTests"
         type: string
 
-      rerunFailedEnabled:
-        description: "Automatically retry failed tests. For deflake, applies only with 'Use settings entered below'."
-        required: true
-        default: true
-        type: boolean
-
       rerunFailedCount:
-        description: "Additional retries after the first execution (0-3). Deflake uses this only with 'Use settings entered below'."
-        required: true
-        default: "1"
+        description: "Retry count (0–3). Leave blank to use the default. Normal runs: 1 retry · Deflake: 0 retries."
+        required: false
+        default: ""
         type: string
 
 permissions:
@@ -206,8 +186,8 @@ jobs:
       resolvedTestinyRunName: ${{ steps.resolve_run_inputs.outputs.testinyRunName }}
       resolvedAndroidDeviceId: ${{ steps.resolve_run_inputs.outputs.androidDeviceId }}
       resolvedAndroidDeviceGroup: ${{ steps.resolve_run_inputs.outputs.androidDeviceGroup }}
-      resolvedRerunFailedEnabled: ${{ steps.resolve_run_inputs.outputs.rerunFailedEnabled }}
-      resolvedRerunFailedCount: ${{ steps.resolve_run_inputs.outputs.rerunFailedCount }}
+      resolvedRerunFailedEnabled: ${{ steps.resolve_retries.outputs.rerunFailedEnabled }}
+      resolvedRerunFailedCount: ${{ steps.resolve_retries.outputs.rerunFailedCount }}
       resolvedTestCaseId: ${{ steps.resolve_selector.outputs.testCaseId }}
       resolvedCategory: ${{ steps.resolve_selector.outputs.category }}
 
@@ -218,7 +198,7 @@ jobs:
         env:
           ACTUAL_REF: ${{ github.ref }}
           TRUSTED_REF: refs/heads/${{ github.event.repository.default_branch }}
-          WORKFLOW_TITLE: ${{ inputs.workflowTitle || 'QA Android Critical Flow Tests' }}
+          WORKFLOW_TITLE: ${{ inputs.workflowTitle || 'QA Android Regression Tests' }}
         run: |
           if [[ "${ACTUAL_REF}" != "${TRUSTED_REF}" ]]; then
             echo "ERROR: ${WORKFLOW_TITLE} runs are restricted to ${TRUSTED_REF}."
@@ -249,7 +229,6 @@ jobs:
           RUN_MODE: ${{ inputs.runMode || 'Normal tests' }}
           SOURCE_RUN_ID: ${{ inputs.sourceRunId }}
           ALLOW_LATEST_SOURCE_RUN: "true"
-          DEFLAKE_RETRY_SETTINGS: ${{ inputs.deflakeRetrySettings || 'Use original run settings' }}
         run: make qa-ui-validate cmd=validate-run-mode
 
       - name: Validate selected GitHub Actions run
@@ -257,7 +236,7 @@ jobs:
         if: steps.validate_run_mode.outputs.runMode == 'deflake'
         env:
           SOURCE_RUN_ID: ${{ inputs.sourceRunId }}
-          EXPECTED_SOURCE_WORKFLOW_FILE: ${{ inputs.sourceWorkflowFile || '.github/workflows/qa-android-critical-flow-tests.yml' }}
+          EXPECTED_SOURCE_WORKFLOW_FILE: ${{ inputs.sourceWorkflowFile || '.github/workflows/qa-android-regression-tests.yml' }}
           ALLOW_LATEST_SOURCE_RUN: "true"
           DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
           GITHUB_TOKEN: ${{ github.token }}
@@ -276,13 +255,12 @@ jobs:
           FLAVOR_INPUT: ${{ inputs.flavor }}
           NIGHTLY_FLAVOR: ${{ inputs.flavor || 'alpha release candidate' }}
           TAGS_INPUT: ${{ inputs.TAGS }}
-          NIGHTLY_TAGS: ${{ inputs.TAGS || '@criticalFlow' }}
+          NIGHTLY_TAGS: ${{ inputs.TAGS || '@regression' }}
+          NIGHTLY_IS_UPGRADE: ${{ inputs.workflowTitle == '' || inputs.isUpgrade }}
           TESTINY_RUN_NAME_INPUT: ${{ inputs.testinyRunName }}
           ANDROID_DEVICE_ID_INPUT: ${{ inputs.androidDeviceId }}
           ANDROID_DEVICE_GROUP_INPUT: ${{ inputs.androidDeviceGroup }}
-          NIGHTLY_DEVICE_GROUP: ${{ inputs.androidDeviceGroup || 'criticalFlow' }}
-          RERUN_FAILED_ENABLED_INPUT: ${{ inputs.rerunFailedEnabled }}
-          RERUN_FAILED_COUNT_INPUT: ${{ inputs.rerunFailedCount }}
+          NIGHTLY_DEVICE_GROUP: ${{ inputs.androidDeviceGroup || 'e2eTests' }}
         run: |
           trim_surrounding_whitespace() {
             local value="$1"
@@ -302,24 +280,20 @@ jobs:
               echo "testinyRunName=${testiny_run_name}"
               echo "androidDeviceId=${ANDROID_DEVICE_ID_INPUT}"
               echo "androidDeviceGroup=${ANDROID_DEVICE_GROUP_INPUT}"
-              echo "rerunFailedEnabled=${RERUN_FAILED_ENABLED_INPUT}"
-              echo "rerunFailedCount=${RERUN_FAILED_COUNT_INPUT}"
             } >> "${GITHUB_OUTPUT}"
             exit 0
           fi
 
-          # Scheduled callers supply their suite defaults; direct runs use Critical Flow.
+          # Scheduled callers supply their suite defaults; direct runs use Regression.
           {
             echo "appBuildNumber=latest"
-            echo "isUpgrade=false"
+            echo "isUpgrade=${NIGHTLY_IS_UPGRADE}"
             echo "oldBuildNumber="
             echo "flavor=${NIGHTLY_FLAVOR}"
             echo "TAGS=${NIGHTLY_TAGS}"
             echo "testinyRunName="
             echo "androidDeviceId="
             echo "androidDeviceGroup=${NIGHTLY_DEVICE_GROUP}"
-            echo "rerunFailedEnabled=true"
-            echo "rerunFailedCount=1"
           } >> "${GITHUB_OUTPUT}"
 
       # Validate upgrade inputs before runner work starts.
@@ -331,13 +305,13 @@ jobs:
           OLD_BUILD_NUMBER: ${{ steps.resolve_run_inputs.outputs.oldBuildNumber }}
         run: make qa-ui-validate cmd=validate-upgrade-inputs
 
-      # Validate retry toggle/count before any runner work starts.
-      - name: Validate rerun inputs
-        if: steps.validate_run_mode.outputs.runMode == 'normal' || inputs.deflakeRetrySettings == 'Use settings entered below'
+      # Resolve and validate the optional count before any runner work starts.
+      - name: Resolve retry count
+        id: resolve_retries
         shell: bash
         env:
-          RERUN_FAILED_ENABLED: ${{ steps.resolve_run_inputs.outputs.rerunFailedEnabled || inputs.rerunFailedEnabled }}
-          RERUN_FAILED_COUNT: ${{ steps.resolve_run_inputs.outputs.rerunFailedCount || inputs.rerunFailedCount }}
+          RUN_MODE: ${{ inputs.runMode || 'Normal tests' }}
+          RERUN_FAILED_COUNT: ${{ inputs.rerunFailedCount }}
         run: make qa-ui-validate cmd=validate-rerun-inputs
 
       # Resolve TAGS into CI selectors and expose them as job outputs.
@@ -363,12 +337,13 @@ jobs:
         run: make qa-ui-validate cmd=print-resolved-values
 
   run-android-ui-tests:
-    name: ${{ inputs.workflowTitle && format('Run {0}', inputs.workflowTitle) || 'Run critical-flow tests' }}
+    name: ${{ inputs.workflowTitle && format('Run {0}', inputs.workflowTitle) || 'Run regression tests' }}
     if: needs.validate-and-resolve-inputs.outputs.resolvedRunMode == 'normal'
     # Configure this environment with required reviewers and a deployment-branch
     # rule limited to the default branch. Move the workflow secrets into it so a
     # modified workflow on another ref cannot bypass this trust boundary.
     environment: android-e2e
+    timeout-minutes: ${{ inputs.jobTimeoutMinutes || 150 }}
     runs-on:
       - self-hosted
       - Linux
@@ -506,12 +481,11 @@ jobs:
           TESTINY_SOURCE_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
           if [[ "${IS_UPGRADE}" == "true" && ( "${RESOLVED_CATEGORY}" == "upgrade" || -n "${RESOLVED_TESTCASE_ID}" ) ]]; then
-            # Single upgrade-tagged runs do not need the normal phase. They only
-            # pin execution to one device and install the old APK before launch.
+            # A single test uses one device. Only upgrade-tagged tests reinstall
+            # the old APK in their per-test setup; ordinary tests keep the new APK.
             upgrade_device="${DEVICE_LIST%% *}"
             DEVICE_LIST="${upgrade_device}" \
               DEVICE_COUNT="1" \
-              APP_APK_BEFORE_ATTEMPT="${OLD_APK_DEVICE_PATH:-/data/local/tmp/Wire.old.apk}" \
               RETRY_STATE_DIR="${RUNNER_TEMP}/retry-state-upgrade" \
               make qa-ui-run
           elif [[ "${IS_UPGRADE}" == "true" && -z "${RESOLVED_TESTCASE_ID}" ]]; then
@@ -569,7 +543,7 @@ jobs:
           DEFLAKE_BUNDLE_DIR: ${{ runner.temp }}/deflake-input
           TEST_SERVICE_URL: ${{ steps.resolve_test_service.outputs.testServiceUrl }}
           SOURCE_WORKFLOW_NAME: ${{ github.workflow }}
-          SOURCE_WORKFLOW_FILE: ${{ inputs.sourceWorkflowFile || '.github/workflows/qa-android-critical-flow-tests.yml' }}
+          SOURCE_WORKFLOW_FILE: ${{ inputs.sourceWorkflowFile || '.github/workflows/qa-android-regression-tests.yml' }}
           SOURCE_REPOSITORY: ${{ github.repository }}
           SOURCE_RUN_ID: ${{ github.run_id }}
           SOURCE_RUN_NUMBER: ${{ github.run_number }}
@@ -648,7 +622,7 @@ jobs:
         env:
           REPORT_DIR: ${{ runner.temp }}/allure-report
           PAGES_DIR: gh-pages/docs/${{ inputs.reportDirectory || 'qa-ui-tests' }}
-          PAGES_TITLE: ${{ inputs.workflowTitle || 'QA Android Critical Flow Tests' }}
+          PAGES_TITLE: ${{ inputs.workflowTitle || 'QA Android Regression Tests' }}
           KEEP_DAYS: "90"
           INPUT_TAGS: ${{ needs.validate-and-resolve-inputs.outputs.resolvedTags }}
           APK_VERSION: ${{ env.REAL_BUILD_NUMBER }}
@@ -666,7 +640,7 @@ jobs:
         id: build_wire_notification
         if: always()
         env:
-          REPORT_TITLE: ${{ inputs.reportTitle || 'android critical flows' }}
+          REPORT_TITLE: ${{ inputs.reportTitle || 'android regression tests' }}
           EVENT_NAME: ${{ github.event_name }}
           BRANCH_NAME: ${{ github.ref_name }}
           RUN_NUMBER: ${{ github.run_number }}
@@ -678,7 +652,6 @@ jobs:
           TESTS_SKIPPED: ${{ steps.summarize_allure_results.outputs.skipped }}
           TESTS_TOTAL: ${{ steps.summarize_allure_results.outputs.total }}
           TESTS_SUCCESS_PERCENT: ${{ steps.summarize_allure_results.outputs.success_percent }}
-          PASSED_ON_RERUN_COUNT: ${{ env.PASSED_ON_RERUN_COUNT }}
           JOB_STATUS: ${{ job.status }}
         run: python3 scripts/qa/android-ui/build_wire_notification.py
 
@@ -706,13 +679,14 @@ jobs:
 
   # Both modes share one entry point; only the selected execution job can run.
   run-manual-deflake:
-    name: ${{ inputs.workflowTitle && format('Run {0} manual deflake', inputs.workflowTitle) || 'Run critical-flow manual deflake' }}
+    name: ${{ inputs.workflowTitle && format('Run {0} manual deflake', inputs.workflowTitle) || 'Run regression manual deflake' }}
     needs: validate-and-resolve-inputs
     if: needs.validate-and-resolve-inputs.outputs.resolvedRunMode == 'deflake'
     # Configure this environment with required reviewers and a deployment-branch
     # rule limited to the default branch. Move the workflow secrets into it so a
     # modified workflow on another ref cannot bypass this trust boundary.
     environment: android-e2e
+    timeout-minutes: ${{ inputs.jobTimeoutMinutes || 150 }}
     runs-on:
       - self-hosted
       - Linux
@@ -817,28 +791,6 @@ jobs:
           OLD_BUILD_NUMBER: ${{ steps.validate_deflake_input.outputs.oldBuildNumber }}
         run: make qa-ui-validate cmd=validate-upgrade-inputs
 
-      # Resolve retries once and use the same values for execution and the next
-      # artifact. That keeps chained deflake runs consistent after an override.
-      - name: Resolve deflake retry settings
-        id: resolve_deflake_retries
-        env:
-          RERUN_FAILED_ENABLED: ${{ steps.validate_deflake_input.outputs.rerunFailedEnabled }}
-          RERUN_FAILED_COUNT: ${{ steps.validate_deflake_input.outputs.rerunFailedCount }}
-          DEFLAKE_RETRY_SETTINGS: ${{ inputs.deflakeRetrySettings }}
-          RERUN_FAILED_ENABLED_INPUT: ${{ inputs.rerunFailedEnabled }}
-          RERUN_FAILED_COUNT_INPUT: ${{ inputs.rerunFailedCount }}
-        run: |
-          if [[ "${DEFLAKE_RETRY_SETTINGS}" == "Use settings entered below" ]]; then
-            export RERUN_FAILED_ENABLED="${RERUN_FAILED_ENABLED_INPUT}"
-            export RERUN_FAILED_COUNT="${RERUN_FAILED_COUNT_INPUT}"
-          fi
-          make qa-ui-validate cmd=validate-rerun-inputs
-          {
-            echo "rerunFailedEnabled=${RERUN_FAILED_ENABLED}"
-            echo "rerunFailedCount=${RERUN_FAILED_COUNT}"
-          } >> "${GITHUB_OUTPUT}"
-          echo "Deflake retries: ${DEFLAKE_RETRY_SETTINGS}; enabled=${RERUN_FAILED_ENABLED}, additionalAttempts=${RERUN_FAILED_COUNT}"
-
       # Reuse the same flavor resolver and pass its S3 folder output into the APK
       # download step so deflake stays aligned with the source run.
       - name: Resolve flavor (runner config)
@@ -910,8 +862,8 @@ jobs:
           RESOLVED_TESTCASE_ID: ${{ steps.validate_deflake_input.outputs.selectorType == 'testCaseId' && steps.validate_deflake_input.outputs.selectorValue || '' }}
           RESOLVED_CATEGORY: ${{ steps.validate_deflake_input.outputs.selectorType == 'category' && steps.validate_deflake_input.outputs.selectorValue || '' }}
           IS_UPGRADE: ${{ steps.validate_deflake_input.outputs.isUpgrade }}
-          RERUN_FAILED_ENABLED: ${{ steps.resolve_deflake_retries.outputs.rerunFailedEnabled }}
-          RERUN_FAILED_COUNT: ${{ steps.resolve_deflake_retries.outputs.rerunFailedCount }}
+          RERUN_FAILED_ENABLED: ${{ needs.validate-and-resolve-inputs.outputs.resolvedRerunFailedEnabled }}
+          RERUN_FAILED_COUNT: ${{ needs.validate-and-resolve-inputs.outputs.resolvedRerunFailedCount }}
           ALLURE_RESULTS_ROOT: ${{ runner.temp }}/allure-results
           # Reuse the same Testiny run so deflake updates the original run.
           TESTINY_PROJECT_NAME: Wire Android
@@ -924,8 +876,9 @@ jobs:
             normal_status=0
             upgrade_status=0
             retry_state_dirs=""
-            grep 'tests\.UpgradeVersion#' "${INITIAL_FAILED_TESTS_FILE}" > "${upgrade_failed_file}" || true
-            grep -v 'tests\.UpgradeVersion#' "${INITIAL_FAILED_TESTS_FILE}" > "${normal_failed_file}" || true
+            upgrade_test_pattern='\.UpgradeVersion#|\.BackupTest#givenIWantToImportABackupCreatedOnPreviousVersion_whenIImportIt_thenMessagesAreRestored$'
+            grep -E "${upgrade_test_pattern}" "${INITIAL_FAILED_TESTS_FILE}" > "${upgrade_failed_file}" || true
+            grep -Ev "${upgrade_test_pattern}" "${INITIAL_FAILED_TESTS_FILE}" > "${normal_failed_file}" || true
 
             if [[ -s "${normal_failed_file}" ]]; then
               INITIAL_FAILED_TESTS_FILE="${normal_failed_file}" \
@@ -971,7 +924,7 @@ jobs:
           DEFLAKE_BUNDLE_DIR: ${{ runner.temp }}/deflake-input-next
           TEST_SERVICE_URL: ${{ steps.validate_deflake_input.outputs.testServiceUrl }}
           SOURCE_WORKFLOW_NAME: ${{ github.workflow }}
-          SOURCE_WORKFLOW_FILE: ${{ inputs.sourceWorkflowFile || '.github/workflows/qa-android-critical-flow-tests.yml' }}
+          SOURCE_WORKFLOW_FILE: ${{ inputs.sourceWorkflowFile || '.github/workflows/qa-android-regression-tests.yml' }}
           SOURCE_REPOSITORY: ${{ github.repository }}
           SOURCE_RUN_ID: ${{ github.run_id }}
           SOURCE_RUN_NUMBER: ${{ github.run_number }}
@@ -990,8 +943,8 @@ jobs:
           TESTINY_RUN_NAME: ${{ steps.validate_deflake_input.outputs.effectiveTestinyRunName }}
           ANDROID_DEVICE_ID: ${{ steps.validate_deflake_input.outputs.androidDeviceId }}
           ANDROID_DEVICE_GROUP: ${{ inputs.androidDeviceGroup }}
-          RERUN_FAILED_ENABLED: ${{ steps.resolve_deflake_retries.outputs.rerunFailedEnabled }}
-          RERUN_FAILED_COUNT: ${{ steps.resolve_deflake_retries.outputs.rerunFailedCount }}
+          RERUN_FAILED_ENABLED: ${{ needs.validate-and-resolve-inputs.outputs.resolvedRerunFailedEnabled }}
+          RERUN_FAILED_COUNT: ${{ needs.validate-and-resolve-inputs.outputs.resolvedRerunFailedCount }}
         run: make qa-ui-report cmd=prepare-deflake-bundle
 
       - name: Upload deflake input artifact
@@ -1019,6 +972,7 @@ jobs:
         env:
           OUT_DIR: ${{ runner.temp }}/allure-results
           MERGED_DIR: ${{ runner.temp }}/allure-results-merged
+          DEFLAKE_FAILED_TESTS_FILE: ${{ steps.validate_deflake_input.outputs.failedTestsFile }}
           REAL_BUILD_NUMBER: ${{ env.REAL_BUILD_NUMBER }}
           NEW_APK_NAME: ${{ env.NEW_APK_NAME }}
           INPUT_TAGS: ${{ steps.validate_deflake_input.outputs.tags }}
@@ -1046,7 +1000,7 @@ jobs:
         env:
           REPORT_DIR: ${{ runner.temp }}/allure-report
           PAGES_DIR: gh-pages/docs/${{ inputs.reportDirectory || 'qa-ui-tests' }}
-          PAGES_TITLE: ${{ inputs.workflowTitle || 'QA Android Critical Flow Tests' }}
+          PAGES_TITLE: ${{ inputs.workflowTitle || 'QA Android Regression Tests' }}
           KEEP_DAYS: "90"
           INPUT_TAGS: ${{ steps.validate_deflake_input.outputs.tags }}
           APK_VERSION: ${{ env.REAL_BUILD_NUMBER }}
@@ -1058,25 +1012,28 @@ jobs:
         if: always()
         env:
           MERGED_DIR: ${{ runner.temp }}/allure-results-merged
+          DEFLAKE_FAILED_TESTS_FILE: ${{ steps.validate_deflake_input.outputs.failedTestsFile }}
         run: make qa-ui-report cmd=summarize-allure-results
 
       - name: Build Wire notification body
         id: build_wire_notification
         if: always()
         env:
-          REPORT_TITLE: ${{ format('{0} manual deflake', inputs.reportTitle || 'android critical flows') }}
+          REPORT_TITLE: ${{ format('{0} manual deflake', inputs.reportTitle || 'android regression tests') }}
+          RUN_MODE: deflake
           EVENT_NAME: ${{ github.event_name }}
           BRANCH_NAME: ${{ github.ref_name }}
           RUN_NUMBER: ${{ github.run_number }}
           RESOLVED_TAGS: ${{ steps.validate_deflake_input.outputs.tags }}
           APK_NAME: ${{ env.NEW_APK_NAME }}
           ALLURE_REPORT_URL: ${{ steps.publish_allure_report.outputs.allure_report_url }}
+          TESTS_SELECTED: ${{ steps.summarize_allure_results.outputs.selected }}
+          TESTS_MISSING: ${{ steps.summarize_allure_results.outputs.missing }}
           TESTS_PASSED: ${{ steps.summarize_allure_results.outputs.passed }}
           TESTS_FAILED: ${{ steps.summarize_allure_results.outputs.failed }}
           TESTS_SKIPPED: ${{ steps.summarize_allure_results.outputs.skipped }}
           TESTS_TOTAL: ${{ steps.summarize_allure_results.outputs.total }}
           TESTS_SUCCESS_PERCENT: ${{ steps.summarize_allure_results.outputs.success_percent }}
-          PASSED_ON_RERUN_COUNT: ${{ env.PASSED_ON_RERUN_COUNT }}
           JOB_STATUS: ${{ job.status }}
         run: python3 scripts/qa/android-ui/build_wire_notification.py
 

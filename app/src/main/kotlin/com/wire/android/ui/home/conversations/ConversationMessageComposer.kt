@@ -42,7 +42,7 @@ import com.wire.kalium.logic.data.user.UserId
 import kotlinx.collections.immutable.PersistentMap
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
-import kotlinx.datetime.Instant
+import kotlin.time.Instant
 
 @Suppress("LongParameterList")
 @Composable
@@ -90,10 +90,7 @@ internal fun ConversationMessageComposer(
     onAttachmentClick: (AttachmentDraftUi) -> Unit,
     onAttachmentMenuClick: (AttachmentDraftUi) -> Unit,
     currentTimeInMillisFlow: Flow<Long> = flow {},
-    onReachedOldestMessage: () -> Unit = {},
     showHistoryLoadingIndicator: Boolean = false,
-    isFetchingOlderMessages: Boolean = false,
-    hasMoreRemoteMessages: Boolean = false,
     isBubbleUiEnabled: Boolean = false,
     isWireCellsEnabled: Boolean = false,
     initialLoading: Boolean = false,
@@ -148,10 +145,7 @@ internal fun ConversationMessageComposer(
                 selectedMessageId = selectedMessageId,
                 interactionAvailability = messageComposerStateHolder.messageComposerViewState.value.interactionAvailability,
                 currentTimeInMillisFlow = currentTimeInMillisFlow,
-                onReachedOldestMessage = onReachedOldestMessage,
                 showHistoryLoadingIndicator = showHistoryLoadingIndicator,
-                isFetchingOlderMessages = isFetchingOlderMessages,
-                hasMoreRemoteMessages = hasMoreRemoteMessages,
                 isBubbleUiEnabled = isBubbleUiEnabled,
                 isWireCellsEnabled = isWireCellsEnabled,
             )

@@ -66,7 +66,7 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.launch
-import kotlinx.datetime.Instant
+import kotlin.time.Instant
 import com.wire.android.di.metro.WireAssistedViewModelBinding
 import com.wire.android.ui.home.conversations.ConversationCoreManualViewModelFactoryGroup
 

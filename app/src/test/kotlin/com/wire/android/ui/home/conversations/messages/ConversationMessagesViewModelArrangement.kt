@@ -49,10 +49,8 @@ import com.wire.kalium.logic.feature.conversation.ClearUsersTypingEventsUseCase
 import com.wire.kalium.logic.feature.conversation.GetConversationUnreadEventsCountUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
-import com.wire.kalium.logic.feature.message.FetchOlderNomadMessagesByConversationUseCase
 import com.wire.kalium.logic.feature.message.GetMessageByIdUseCase
 import com.wire.kalium.logic.feature.message.GetSearchedConversationMessagePositionUseCase
-import com.wire.kalium.logic.data.message.paging.NomadMessagePagingResult
 import com.wire.kalium.logic.feature.message.MessageOperationResult
 import com.wire.kalium.logic.feature.message.ToggleReactionResult
 import com.wire.kalium.logic.feature.message.ToggleReactionUseCase
@@ -71,7 +69,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
-import kotlinx.datetime.Instant
+import kotlin.time.Instant
 import okio.Path
 
 class ConversationMessagesViewModelArrangement {
@@ -83,9 +81,6 @@ class ConversationMessagesViewModelArrangement {
 
     @MockK
     lateinit var getMessagesForConversationUseCase: GetMessagesForConversationUseCase
-
-    @MockK
-    lateinit var fetchOlderNomadMessagesByConversationUseCase: FetchOlderNomadMessagesByConversationUseCase
 
     @MockK
     lateinit var getMessageById: GetMessageByIdUseCase
@@ -143,7 +138,6 @@ class ConversationMessagesViewModelArrangement {
             fileManager,
             TestDispatcherProvider(),
             getMessagesForConversationUseCase,
-            fetchOlderNomadMessagesByConversationUseCase,
             toggleReaction,
             resetSession,
             conversationAudioMessagePlayer,
@@ -163,7 +157,6 @@ class ConversationMessagesViewModelArrangement {
         coEvery { toggleReaction(any(), any(), any()) } returns ToggleReactionResult.Success
         coEvery { observeConversationDetails(any()) } returns flowOf()
         coEvery { getMessagesForConversationUseCase(any(), any()) } returns messagesFlow
-        coEvery { fetchOlderNomadMessagesByConversationUseCase(any(), any()) } returns NomadMessagePagingResult(hasMore = false)
         coEvery { getConversationUnreadEventsCount(any()) } returns GetConversationUnreadEventsCountUseCase.Result.Success(0L)
         coEvery { updateAssetMessageDownloadStatus(any(), any(), any()) } returns UpdateTransferStatusResult.Success
         coEvery { clearUsersTypingEvents() } returns Unit
@@ -242,19 +235,6 @@ class ConversationMessagesViewModelArrangement {
 
     suspend fun withResetSessionResult(resetSessionResult: ResetSessionResult = ResetSessionResult.Success) = apply {
         coEvery { resetSession(any(), any(), any()) } returns resetSessionResult
-    }
-
-    fun withNomadPagingResult(result: NomadMessagePagingResult) = apply {
-        coEvery { fetchOlderNomadMessagesByConversationUseCase(any(), any()) } returns result
-    }
-
-    fun withSuspendedNomadPagingResult(result: NomadMessagePagingResult): CompletableDeferred<Unit> {
-        val gate = CompletableDeferred<Unit>()
-        coEvery { fetchOlderNomadMessagesByConversationUseCase(any(), any()) } coAnswers {
-            gate.await()
-            result
-        }
-        return gate
     }
 
     fun withSuccessfulSaveAssetMessage(

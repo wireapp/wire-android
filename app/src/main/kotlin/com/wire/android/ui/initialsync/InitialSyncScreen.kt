@@ -26,14 +26,11 @@ import com.wire.android.ui.initialSyncViewModel
 @Composable
 internal fun InitialSyncRouteScreen(
     viewModel: InitialSyncViewModel = initialSyncViewModel(),
-    onSyncCompleted: (shouldMoveToBackground: Boolean) -> Unit,
+    onSyncCompleted: () -> Unit,
 ) {
-    val syncCompletionState = viewModel.syncCompletionState
-
     SettingUpWireScreenContent()
 
-    LaunchedEffect(syncCompletionState) {
-        syncCompletionState ?: return@LaunchedEffect
-        onSyncCompleted(syncCompletionState.shouldMoveToBackground)
+    LaunchedEffect(viewModel.isSyncCompleted) {
+        if (viewModel.isSyncCompleted) onSyncCompleted()
     }
 }

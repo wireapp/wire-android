@@ -1,0 +1,1 @@
+[{"values":["sdk_gphone64_x86_64 - 16 (device-1)"],"name":"devices"},{"values":["4.38.0-47161"],"name":"apk"},{"values":["4"],"name":"run"},{"values":["2026-10-23"],"name":"date"},{"values":["@TC-8601"],"name":"input_tags"},{"values":["0"],"name":"failed_first_attempt"},{"values":["0"],"name":"passed_on_rerun"},{"values":["0"],"name":"failed_after_retries"}]

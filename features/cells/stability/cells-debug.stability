@@ -117,7 +117,7 @@ internal fun com.wire.android.feature.cells.ui.CellListItem(cell: com.wire.andro
     - isSelected: STABLE (primitive type)
 
 @Composable
-internal fun com.wire.android.feature.cells.ui.CellScreenContent(actionsFlow: kotlinx.coroutines.flow.Flow<com.wire.android.feature.cells.ui.CellViewAction>, pagingListItems: androidx.paging.compose.LazyPagingItems<com.wire.android.feature.cells.ui.model.CellNodeUi>, sendIntent: kotlin.Function1<com.wire.android.feature.cells.ui.CellViewIntent, kotlin.Unit>, openFolder: kotlin.Function3<kotlin.String, kotlin.String, kotlin.String?, kotlin.Unit>, menuState: kotlinx.coroutines.flow.Flow<com.wire.android.feature.cells.ui.MenuOptions?>, showPublicLinkScreen: kotlin.Function1<com.wire.android.feature.cells.ui.publiclink.PublicLinkScreenData, kotlin.Unit>, showRenameScreen: kotlin.Function1<com.wire.android.feature.cells.ui.model.CellNodeUi, kotlin.Unit>, showMoveToFolderScreen: kotlin.Function3<kotlin.String, kotlin.String, kotlin.String, kotlin.Unit>, showAddRemoveTagsScreen: kotlin.Function1<com.wire.android.feature.cells.ui.model.CellNodeUi, kotlin.Unit>, isRefreshing: androidx.compose.runtime.State<kotlin.Boolean>, onRefresh: kotlin.Function0<kotlin.Unit>, isRestoreInProgress: kotlin.Boolean, isDeleteInProgress: kotlin.Boolean, modifier: androidx.compose.ui.Modifier, showViewerOnlyIcon: kotlin.Boolean, isRecycleBin: kotlin.Boolean, isAllFiles: kotlin.Boolean, isSearchResult: kotlin.Boolean, isOffline: kotlin.Boolean, isPullToRefreshEnabled: kotlin.Boolean, lazyListState: androidx.compose.foundation.lazy.LazyListState, retryEditNodeError: kotlin.Function1<kotlin.String, kotlin.Unit>, showVersionHistoryScreen: kotlin.Function2<kotlin.String, kotlin.String, kotlin.Unit>, showImageViewer: kotlin.Function1<com.wire.android.feature.cells.ui.model.CellNodeUi.File, kotlin.Unit>, showVideoViewer: kotlin.Function1<com.wire.android.feature.cells.ui.model.CellNodeUi.File, kotlin.Unit>, showAudioPlayer: kotlin.Function1<com.wire.android.feature.cells.ui.model.CellNodeUi.File, kotlin.Unit>, showPdfViewer: kotlin.Function1<com.wire.android.feature.cells.ui.model.CellNodeUi.File, kotlin.Unit>, showUploadStatusBottomSheet: kotlin.Function0<kotlin.Unit>, fileReadyFlow: kotlinx.coroutines.flow.Flow<com.wire.android.feature.cells.ui.model.CellNodeUi.File>?, sortBy: com.wire.android.feature.cells.ui.search.sort.SortBy, selectedNodeIds: kotlin.collections.Set<kotlin.String>, isSelectionEnabled: kotlin.Boolean): kotlin.Unit
+internal fun com.wire.android.feature.cells.ui.CellScreenContent(actionsFlow: kotlinx.coroutines.flow.Flow<com.wire.android.feature.cells.ui.CellViewAction>, pagingListItems: androidx.paging.compose.LazyPagingItems<com.wire.android.feature.cells.ui.model.CellNodeUi>, sendIntent: kotlin.Function1<com.wire.android.feature.cells.ui.CellViewIntent, kotlin.Unit>, openFolder: kotlin.Function3<kotlin.String, kotlin.String, kotlin.String?, kotlin.Unit>, menuState: kotlinx.coroutines.flow.Flow<com.wire.android.feature.cells.ui.MenuOptions?>, showPublicLinkScreen: kotlin.Function1<com.wire.android.feature.cells.ui.publiclink.PublicLinkScreenData, kotlin.Unit>, showRenameScreen: kotlin.Function1<com.wire.android.feature.cells.ui.model.CellNodeUi, kotlin.Unit>, showMoveToFolderScreen: kotlin.Function3<kotlin.String, kotlin.String, kotlin.String, kotlin.Unit>, showBulkMoveToFolderScreen: kotlin.Function2<kotlin.String, kotlin.collections.List<com.wire.android.feature.cells.ui.movetofolder.NodeToMove>, kotlin.Unit>, showAddRemoveTagsScreen: kotlin.Function1<com.wire.android.feature.cells.ui.model.CellNodeUi, kotlin.Unit>, isRefreshing: androidx.compose.runtime.State<kotlin.Boolean>, onRefresh: kotlin.Function0<kotlin.Unit>, isRestoreInProgress: kotlin.Boolean, isDeleteInProgress: kotlin.Boolean, modifier: androidx.compose.ui.Modifier, showViewerOnlyIcon: kotlin.Boolean, isRecycleBin: kotlin.Boolean, isAllFiles: kotlin.Boolean, isSearchResult: kotlin.Boolean, isOffline: kotlin.Boolean, isPullToRefreshEnabled: kotlin.Boolean, lazyListState: androidx.compose.foundation.lazy.LazyListState, retryEditNodeError: kotlin.Function1<kotlin.String, kotlin.Unit>, showVersionHistoryScreen: kotlin.Function2<kotlin.String, kotlin.String, kotlin.Unit>, showImageViewer: kotlin.Function1<com.wire.android.feature.cells.ui.model.CellNodeUi.File, kotlin.Unit>, showVideoViewer: kotlin.Function1<com.wire.android.feature.cells.ui.model.CellNodeUi.File, kotlin.Unit>, showAudioPlayer: kotlin.Function1<com.wire.android.feature.cells.ui.model.CellNodeUi.File, kotlin.Unit>, showPdfViewer: kotlin.Function1<com.wire.android.feature.cells.ui.model.CellNodeUi.File, kotlin.Unit>, showUploadStatusBottomSheet: kotlin.Function0<kotlin.Unit>, fileReadyFlow: kotlinx.coroutines.flow.Flow<com.wire.android.feature.cells.ui.model.CellNodeUi.File>?, sortBy: com.wire.android.feature.cells.ui.search.sort.SortBy, selectedNodeIds: kotlin.collections.Set<kotlin.String>, isSelectionEnabled: kotlin.Boolean): kotlin.Unit
   skippable: false
   restartable: true
   params:
@@ -129,6 +129,7 @@ internal fun com.wire.android.feature.cells.ui.CellScreenContent(actionsFlow: ko
     - showPublicLinkScreen: STABLE (function type)
     - showRenameScreen: STABLE (function type)
     - showMoveToFolderScreen: STABLE (function type)
+    - showBulkMoveToFolderScreen: STABLE (function type)
     - showAddRemoveTagsScreen: STABLE (function type)
     - isRefreshing: STABLE (marked @Stable or @Immutable)
     - onRefresh: STABLE (function type)
@@ -644,7 +645,15 @@ private fun com.wire.android.feature.cells.ui.movetofolder.EmptyScreen(isRootFol
     - isRootFolder: STABLE (primitive type)
 
 @Composable
-internal fun com.wire.android.feature.cells.ui.movetofolder.MoveToFolderRouteScreen(onNavigateBack: kotlin.Function0<kotlin.Unit>, onCloseFlow: kotlin.Function0<kotlin.Unit>, onNavigateBackSteps: kotlin.Function1<kotlin.Int, kotlin.Unit>, onOpenCreateFolder: kotlin.Function1<kotlin.String, kotlin.Unit>, onOpenFolder: kotlin.Function4<kotlin.String, kotlin.String, kotlin.String, kotlin.collections.List<kotlin.String>, kotlin.Unit>, moveToFolderViewModel: com.wire.android.feature.cells.ui.movetofolder.MoveToFolderViewModel, modifier: androidx.compose.ui.Modifier): kotlin.Unit
+private fun com.wire.android.feature.cells.ui.movetofolder.MoveFailureDialog(failure: com.wire.android.feature.cells.ui.movetofolder.MoveFailure, onDismiss: kotlin.Function0<kotlin.Unit>): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - failure: STABLE (class with no mutable properties)
+    - onDismiss: STABLE (function type)
+
+@Composable
+internal fun com.wire.android.feature.cells.ui.movetofolder.MoveToFolderRouteScreen(onNavigateBack: kotlin.Function0<kotlin.Unit>, onCloseFlow: kotlin.Function0<kotlin.Unit>, onNavigateBackSteps: kotlin.Function1<kotlin.Int, kotlin.Unit>, onOpenCreateFolder: kotlin.Function1<kotlin.String, kotlin.Unit>, onOpenFolder: kotlin.Function3<kotlin.String, kotlin.collections.List<com.wire.android.feature.cells.ui.movetofolder.NodeToMove>, kotlin.collections.List<kotlin.String>, kotlin.Unit>, moveToFolderViewModel: com.wire.android.feature.cells.ui.movetofolder.MoveToFolderViewModel, modifier: androidx.compose.ui.Modifier): kotlin.Unit
   skippable: false
   restartable: true
   params:
@@ -673,11 +682,12 @@ private fun com.wire.android.feature.cells.ui.movetofolder.RowItem(cell: com.wir
     - onFolderClick: STABLE (function type)
 
 @Composable
-private fun com.wire.android.feature.cells.ui.movetofolder.TopScreenBar(breadcrumbs: kotlin.Array<kotlin.String>, onBreadcrumbClick: kotlin.Function1<kotlin.Int, kotlin.Unit>, onNavigateBack: kotlin.Function0<kotlin.Unit>): kotlin.Unit
+private fun com.wire.android.feature.cells.ui.movetofolder.TopScreenBar(breadcrumbs: kotlin.Array<kotlin.String>, isNavigateBackVisible: kotlin.Boolean, onBreadcrumbClick: kotlin.Function1<kotlin.Int, kotlin.Unit>, onNavigateBack: kotlin.Function0<kotlin.Unit>): kotlin.Unit
   skippable: false
   restartable: true
   params:
     - breadcrumbs: UNSTABLE (has mutable properties or unstable members)
+    - isNavigateBackVisible: STABLE (primitive type)
     - onBreadcrumbClick: STABLE (function type)
     - onNavigateBack: STABLE (function type)
 

@@ -9,6 +9,8 @@
  */
 package com.wire.android.tests.core.e2eTests
 
+import android.os.Build
+import androidx.test.filters.SdkSuppress
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import backendUtils.meeting.deleteMeeting
 import backendUtils.meeting.getMeeting
@@ -52,7 +54,7 @@ class MeetingListTests : BaseUiTest() {
         settings.useLocaleTimeFormat()
         // Like the other testsCore pages, the login flow uses English UI selectors.
         check(context.resources.configuration.locales[0].toLanguageTag() == "en-US") {
-            "Meeting UI automation starts on an en-US test device; TC-12051 changes and restores the device locale"
+            "Meeting UI automation starts on an en-US test device; TC-12051 changes and restores the app locale"
         }
         givenTeamMemberIsLoggedIn()
     }
@@ -215,20 +217,21 @@ class MeetingListTests : BaseUiTest() {
         }
     }
 
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.TIRAMISU)
     @TestCaseId("TC-12051")
     @Category("regression", "RC", "meetings")
     @Test
-    fun givenOneMeeting_whenDeviceLocaleChangesFromGermanToUs_thenFormattingChangesButOccurrenceDoesNot() {
+    fun givenOneMeeting_whenAppLocaleChangesFromGermanToUs_thenFormattingChangesButOccurrenceDoesNot() {
         val start = LocalDate.now(zone).plusDays(3).atTime(13, 5).atZone(zone).toInstant()
         val meeting = createMeeting("ML-Locale", start)
-        step("Set German device locale and verify the localized day heading and 24-hour time") {
-            settings.setLocale(Locale.GERMANY)
+        step("Set German app locale and verify the localized day heading and 24-hour time") {
+            settings.setAppLocale(UiAutomatorSetup.APP_ALPHA, Locale.GERMANY)
             pages.meetingsPage.open(Locale.GERMANY)
             pages.meetingsPage.assertMeeting(meeting, zone, Locale.GERMANY)
             pages.meetingsPage.assertHeader(meeting, zone, LocalDate.now(zone), Locale.GERMANY)
         }
-        step("Change only device locale to US English and verify the same meeting uses localized time and date") {
-            settings.setLocale(Locale.US)
+        step("Change only app locale to US English and verify the same meeting uses localized time and date") {
+            settings.setAppLocale(UiAutomatorSetup.APP_ALPHA, Locale.US)
             pages.commonAppPage.restartWireApp().assertWireAppIsInForeground()
             pages.meetingsPage.assertMeeting(meeting, zone, Locale.US)
             pages.meetingsPage.assertHeader(meeting, zone, LocalDate.now(zone), Locale.US)

@@ -145,7 +145,8 @@ internal fun MoveToFolderRouteScreen(
     HandleActions(moveToFolderViewModel.actions) { action ->
         when (action) {
             is MoveToFolderViewAction.Success -> {
-                Toast.makeText(context, context.moveSuccessMessage(action.movedCount, action.destinationFolderName), Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, context.moveSuccessMessage(action.movedCount, action.destinationFolderName), Toast.LENGTH_SHORT)
+                    .show()
                 onCloseFlow()
             }
 

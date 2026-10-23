@@ -67,7 +67,7 @@ internal fun ShareMeetingWithGuestsScreen(
     viewModel: ShareMeetingWithGuestsViewModel = shareMeetingWithGuestsViewModel(occurrenceId),
 ) {
     val context = LocalContext.current
-    val title = stringResource(R.string.meeting_share_with_guests)
+    val title = stringResource(R.string.meeting_link_title)
     val copiedMessage = stringResource(R.string.meeting_share_link_copied)
     when (val state = viewModel.state) {
         ShareMeetingWithGuestsState.Loading -> Unit
@@ -102,7 +102,7 @@ internal fun ShareMeetingWithGuestsContent(
         modifier = modifier.fillMaxSize(),
         topBar = {
             WireCenterAlignedTopAppBar(
-                title = stringResource(R.string.meeting_share_with_guests),
+                title = stringResource(R.string.meeting_link_title),
                 navigationIconType = NavigationIconType.Close(),
                 onNavigationPressed = onDismiss,
                 elevation = scrollState.rememberTopBarElevationState().value,

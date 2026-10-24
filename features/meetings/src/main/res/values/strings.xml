@@ -125,4 +125,7 @@
         <item quantity="other">Every %d years</item>
     </plurals>
 
+    <string name="new_meeting_discard_title">Discard changes?</string>
+    <string name="new_meeting_discard_message">If you leave, your updates will be lost.</string>
+    <string name="new_meeting_discard_action">Discard</string>
 </resources>

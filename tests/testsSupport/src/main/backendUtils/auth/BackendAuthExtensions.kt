@@ -50,7 +50,7 @@ private suspend fun BackendClient.getAuthCredentials(user: ClientUser): AccessCr
         }
 
         credentials.accessToken == null || credentials.accessToken.isInvalid() || credentials.accessToken.isExpired() ->
-            access(credentials).also {
+            (if (credentials.accessCookie == null || credentials.accessCookie.isExpired()) login(user) else access(credentials)).also {
                 user.accessCredentials = it
             }
 
@@ -107,7 +107,8 @@ private fun BackendClient.access(credentials: AccessCredentials): AccessCredenti
             cookie = credentials.accessCookie
         ),
     )
-    return connection.accessCredentials(connection.response())
+    // Refresh responses need not rotate the session cookie; keep it for the next refresh.
+    return connection.accessCredentials(connection.response(), fallbackCookie = credentials.accessCookie)
 }
 
 val defaultheaders = mapOf(

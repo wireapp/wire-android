@@ -384,4 +384,44 @@ class MeetingsPage(private val device: UiDevice) {
     private companion object {
         const val MAX_SCROLLS = 250
     }
+
+    /** Check a rendered prefix of an unbounded series, including date spacing and duplicate cards. */
+    @Suppress("LongParameterList")
+    fun assertOccurrencePrefix(meeting: Meeting, zone: ZoneId, today: LocalDate, recurrenceLabel: String, daysBetween: Int) {
+        val firstDate = meeting.start.atZone(zone).toLocalDate()
+        val expected = (0 until 12).flatMap { index ->
+            listOf(header(firstDate.plusDays(index.toLong() * daysBetween), today, Locale.US), meeting.title)
+        }
+        var previousOffset = 0
+        val observed = mutableSetOf<Int>()
+        val checkedCards = mutableSetOf<Int>()
+        repeat(MAX_SCROLLS) {
+            val entries = visibleEntries()
+            val texts = entries.map { it.text }
+            val offset = (previousOffset until expected.size).firstOrNull { candidate ->
+                candidate + texts.size <= expected.size && expected.subList(candidate, candidate + texts.size) == texts
+            }
+            assertTrue("Unexpected, duplicate or incorrectly spaced occurrences: $texts", offset != null)
+            val start = requireNotNull(offset)
+            assertTrue("Scrolling skipped occurrences", start <= (observed.maxOrNull() ?: -1) + 1)
+            observed.addAll(start until start + entries.size)
+            entries.forEachIndexed { index, node ->
+                // A following entry proves the card's details are fully visible.
+                if (node.text == meeting.title && index < entries.lastIndex) {
+                    val details = rowTexts(node)
+                    val recurrenceVisible = readFreshNodes {
+                        rowNodes(UiSelectorParams(description = recurrenceLabel), node).isNotEmpty()
+                    }
+                    assertTrue("Incorrect recurrence label: expected $recurrenceLabel", recurrenceVisible)
+                    assertTrue("Incorrect occurrence duration", timeRange(meeting, zone, Locale.US) in details)
+                    checkedCards.add(start + index)
+                }
+            }
+            // Three complete header/card pairs prove the recurrence interval over two successive gaps.
+            if ((0 until 6).all { it in observed } && listOf(1, 3, 5).all { it in checkedCards }) return
+            previousOffset = start
+            assertTrue("Cannot scroll to the next occurrence", list()?.scroll(Direction.DOWN, 0.45f) == true)
+        }
+        throw AssertionError("Could not verify recurring meeting occurrences")
+    }
 }

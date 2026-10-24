@@ -26,22 +26,8 @@ import java.net.URI
 import java.time.Instant
 import java.time.ZoneId
 
-fun BackendClient.getMeetingByTitleAndStartTime(creator: ClientUser, title: String, start: Instant): Meeting {
-    val meetings = JSONArray(sendMeetingRequest(creator, "meetings/list", "GET"))
-    val response = (0 until meetings.length()).map { meetings.getJSONObject(it) }.single {
-        it.getString("title") == title && Instant.parse(it.getString("start_time")) == start
-    }
-    return Meeting(
-        id = QualifiedID.fromJSON(response.getJSONObject("qualified_id")),
-        conversationId = QualifiedID.fromJSON(response.getJSONObject("qualified_conversation")),
-        creator = creator,
-        title = response.getString("title"),
-        start = Instant.parse(response.getString("start_time")),
-        end = Instant.parse(response.getString("end_time")),
-        zone = ZoneId.of(response.getString("tzid")),
-        recurring = !response.isNull("recurrence"),
-    )
-}
+fun BackendClient.getMeetingByTitleAndStartTime(creator: ClientUser, title: String, start: Instant): Meeting =
+    listMeetings(creator).single { it.title == title && it.start == start }
 
 fun BackendClient.updateMeeting(meeting: Meeting, title: String, start: Instant, end: Instant): Meeting {
     sendMeetingRequest(meeting.creator, meetingPath(meeting), "PUT", meetingBody(title, start, end, meeting.zone, meeting.recurring))
@@ -84,4 +70,31 @@ private fun BackendClient.sendMeetingRequest(
         body = body?.toString(),
         options = RequestOptions(accessToken = token)
     ).body
+}
+
+fun BackendClient.getMeetingConversation(meeting: Meeting): JSONObject =
+    JSONObject(
+        sendMeetingRequest(
+            meeting.creator,
+            "conversations/${Uri.encode(meeting.conversationId.domain)}/${Uri.encode(meeting.conversationId.id)}",
+            "GET"
+        )
+    )
+
+/** Fetch actual saved series, including meetings created by the Android UI. */
+fun BackendClient.listMeetings(creator: ClientUser): List<Meeting> {
+    val response = JSONArray(sendMeetingRequest(creator, "meetings/list", "GET"))
+    return (0 until response.length()).map { index ->
+        val meeting = response.getJSONObject(index)
+        Meeting(
+            id = QualifiedID.fromJSON(meeting.getJSONObject("qualified_id")),
+            conversationId = QualifiedID.fromJSON(meeting.getJSONObject("qualified_conversation")),
+            creator = creator,
+            title = meeting.getString("title"),
+            start = Instant.parse(meeting.getString("start_time")),
+            end = Instant.parse(meeting.getString("end_time")),
+            zone = ZoneId.of(meeting.getString("tzid")),
+            recurring = !meeting.isNull("recurrence"),
+        )
+    }
 }

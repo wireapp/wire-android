@@ -91,6 +91,8 @@ interface NewMeetingViewModel : ActionsManager<NewMeetingViewActions> {
     companion object {
         const val MEETING_NAME_MAX_COUNT = 64
     }
+
+    fun hasUnsavedChanges(): Boolean = false
 }
 
 class NewMeetingViewModelPreview(
@@ -124,6 +126,8 @@ class NewMeetingViewModelImpl @AssistedInject constructor(
     override val titleTextState: TextFieldState = TextFieldState()
     override var state: NewMeetingState by mutableStateOf(initialState(currentTimeProvider, currentTimeZoneProvider))
         private set
+    private var initialDraftState = state
+    private var initialDraftTitle = titleTextState.text.toString()
 
     init {
         observeTitleChanges()
@@ -151,6 +155,8 @@ class NewMeetingViewModelImpl @AssistedInject constructor(
                         )
                     }
                 }
+                initialDraftState = state
+                initialDraftTitle = titleTextState.text.toString()
                 state = state.copy(initialLoading = InitialLoadingState.Loaded)
             } catch (_: Exception) {
                 state = state.copy(initialLoading = InitialLoadingState.Error)
@@ -356,6 +362,14 @@ class NewMeetingViewModelImpl @AssistedInject constructor(
 
     override fun dismissCreationError() {
         state = state.copy(submitError = null)
+    }
+
+    override fun hasUnsavedChanges(): Boolean {
+        if (state.initialLoading != InitialLoadingState.Loaded) return false
+        return titleTextState.text.toString() != initialDraftTitle ||
+            state.startTime != initialDraftState.startTime || state.endTime != initialDraftState.endTime ||
+            state.repeatingInterval != initialDraftState.repeatingInterval ||
+            state.confirmedContacts != initialDraftState.confirmedContacts
     }
 }
 

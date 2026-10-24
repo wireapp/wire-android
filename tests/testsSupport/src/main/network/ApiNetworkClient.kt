@@ -285,7 +285,7 @@ object NetworkBackendClient {
         }
     }
 
-    fun HttpURLConnection.accessCredentials(response: String): AccessCredentials {
+    fun HttpURLConnection.accessCredentials(response: String, fallbackCookie: AccessCookie? = null): AccessCredentials {
         val json = JSONObject(response)
         val cookie = getHeaderField("Set-Cookie")?.let {
             val parsedCookies = HttpCookie.parse(it)
@@ -300,7 +300,7 @@ object NetworkBackendClient {
             json.getString("token_type"),
             json.getLong("expires_in")
         )
-        return AccessCredentials(token, cookie)
+        return AccessCredentials(token, cookie ?: fallbackCookie)
     }
 
     fun HttpURLConnection.response() = inputStream.bufferedReader().use { it.readText() }

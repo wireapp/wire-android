@@ -78,6 +78,7 @@ private fun NewMeetingDetailsNavigation3Entry(
         onBackPressed = navigateBack,
         state = viewModel.state,
         titleState = viewModel.titleTextState,
+        hasUnsavedChanges = viewModel.hasUnsavedChanges(),
         onParticipantsClicked = {
             runtime.navigator.navigate(
                 WireNavigationCommand(

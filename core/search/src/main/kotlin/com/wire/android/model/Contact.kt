@@ -20,6 +20,7 @@ package com.wire.android.model
 import androidx.compose.runtime.Stable
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.kalium.logic.data.user.ConnectionState
+import com.wire.kalium.logic.data.user.ContactStatus
 
 @Stable
 data class Contact(
@@ -30,5 +31,8 @@ data class Contact(
     val avatarData: UserAvatarData = UserAvatarData(),
     val label: String = "",
     val connectionState: ConnectionState,
-    val membership: Membership
-)
+    val membership: Membership,
+    val contactStatus: ContactStatus? = null,
+) {
+    val isOnboardingPending: Boolean get() = contactStatus == ContactStatus.NON_CONTACTABLE
+}

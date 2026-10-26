@@ -19,15 +19,16 @@ package com.wire.android.ui.home.conversations.search.adddembertoconversation
 
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.TestDispatcherProvider
+import com.wire.android.model.Contact
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.home.conversations.search.AddMembersSearchNavArgs
 import com.wire.android.ui.home.conversationslist.model.Membership
-import com.wire.android.model.Contact
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.conversation.AddMemberToConversationUseCase
+import com.wire.kalium.logic.featureFlags.KaliumConfigs
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -41,6 +42,72 @@ import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(CoroutineTestExtension::class)
 class AddMembersToConversationViewModelTest {
+
+    @Test
+    fun `disabled feature allows pending snapshots to be selected`() = runTest {
+        val (_, viewModel) = Arrangement().arrange {
+            pendingConnectionsEnabled = false
+            withAddMembersSearchNavArgs(
+                AddMembersSearchNavArgs(
+                    conversationId = ConversationId("conversation", "domain"),
+                    isConversationAppsEnabled = false,
+                    isSelfPartOfATeam = true,
+                    protocolInfo = Conversation.ProtocolInfo.Proteus
+                )
+            )
+        }
+        val pending = Contact(
+            "pending",
+            "domain",
+            "Pending",
+            "pending",
+            connectionState = ConnectionState.ACCEPTED,
+            membership = Membership.Standard,
+            contactStatus = com.wire.kalium.logic.data.user.ContactStatus.NON_CONTACTABLE
+        )
+        viewModel.updateContactStatuses(mapOf(com.wire.kalium.logic.data.user.UserId(pending.id, pending.domain) to pending.contactStatus))
+        viewModel.updateSelectedContacts(true, pending)
+        assertEquals(false, viewModel.newGroupState.selectedContacts.single().isOnboardingPending)
+        viewModel.updateSelectedContacts(false, pending)
+        assertEquals(true, viewModel.newGroupState.selectedContacts.isEmpty())
+    }
+
+    @Test
+    fun `pending users cannot be selected but can be deselected`() {
+        val (_, viewModel) = Arrangement().arrange {
+            withAddMembersSearchNavArgs(
+                AddMembersSearchNavArgs(
+                    conversationId = ConversationId("conversation", "domain"),
+                    isConversationAppsEnabled = false,
+                    isSelfPartOfATeam = true,
+                    protocolInfo = Conversation.ProtocolInfo.Proteus
+                )
+            )
+        }
+        val pending = Contact(
+            "pending",
+            "domain",
+            "Pending",
+            "pending",
+            connectionState = ConnectionState.ACCEPTED,
+            membership = Membership.Standard,
+            contactStatus = com.wire.kalium.logic.data.user.ContactStatus.NON_CONTACTABLE
+        )
+        viewModel.updateSelectedContacts(true, pending)
+        assertEquals(persistentSetOf<Contact>(), viewModel.newGroupState.selectedContacts)
+        viewModel.updateSelectedContacts(true, pending.copy(contactStatus = null))
+        val userId = com.wire.kalium.logic.data.user.UserId(pending.id, pending.domain)
+        viewModel.updateContactStatuses(mapOf(userId to pending.contactStatus))
+        assertEquals(true, viewModel.newGroupState.selectedContacts.single().isOnboardingPending)
+        viewModel.updateSelectedContacts(false, pending)
+        viewModel.updateSelectedContacts(true, pending.copy(contactStatus = null))
+        assertEquals(true, viewModel.newGroupState.selectedContacts.isEmpty())
+        viewModel.updateContactStatuses(mapOf(userId to null))
+        viewModel.updateSelectedContacts(true, pending)
+        assertEquals(false, viewModel.newGroupState.selectedContacts.single().isOnboardingPending)
+        viewModel.updateSelectedContacts(false, pending)
+        assertEquals(persistentSetOf<Contact>(), viewModel.newGroupState.selectedContacts)
+    }
 
     @Test
     fun `given content, when adding to selected contacts, then it is added`() {
@@ -155,6 +222,8 @@ class AddMembersToConversationViewModelTest {
             MockKAnnotations.init(this, relaxUnitFun = true)
         }
 
+        var pendingConnectionsEnabled = true
+
         lateinit var viewModel: AddMembersToConversationViewModel
 
         private lateinit var navArgs: AddMembersSearchNavArgs
@@ -172,6 +241,7 @@ class AddMembersToConversationViewModelTest {
                 addMemberToConversation = addMemberToConversationUseCase,
                 dispatchers = testDispatchers,
                 addMembersSearchNavArgs = navArgs,
+                kaliumConfigs = KaliumConfigs(pendingConnections = pendingConnectionsEnabled),
             )
             this to viewModel
         }

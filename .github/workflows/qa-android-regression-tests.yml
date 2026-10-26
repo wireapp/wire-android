@@ -1,10 +1,10 @@
-name: QA Android Regression Tests
-run-name: ${{ inputs.runMode == 'Deflake failed tests' && format('QA Android Regression Tests - Manual Deflake from {0}', inputs.sourceRunId || 'latest completed run') || 'QA Android Regression Tests' }}
+name: QA Android Alpha Regression
+run-name: ${{ inputs.runMode == 'Deflake failed tests' && format('QA Android Alpha Regression - Manual Deflake from {0}', inputs.sourceRunId || 'latest completed run') || 'QA Android Alpha Regression' }}
 
 # The reused pipeline owns the device-group and runner locks.
 on:
   schedule:
-    - cron: "0 1 * * *"
+    - cron: "0 0 * * *"
       timezone: "Europe/Berlin"
   workflow_dispatch:
     inputs:
@@ -18,7 +18,7 @@ on:
           - Deflake failed tests
 
       sourceRunId:
-        description: "Deflake only: leave empty for the latest completed Regression run, or enter a specific 'manual deflake id'."
+        description: "Deflake only: leave empty for the latest completed Alpha Regression run, or enter a specific 'manual deflake id'."
         required: false
         default: ""
         type: string
@@ -100,11 +100,11 @@ jobs:
       contents: write
       actions: read
     with:
-      workflowTitle: QA Android Regression Tests
+      workflowTitle: QA Android Alpha Regression
       sourceWorkflowFile: .github/workflows/qa-android-regression-tests.yml
-      reportTitle: android regression tests
+      reportTitle: android alpha regression
       reportDirectory: qa-ui-tests
-      jobTimeoutMinutes: 150
+      jobTimeoutMinutes: 200
       runMode: ${{ inputs.runMode || 'Normal tests' }}
       sourceRunId: ${{ inputs.sourceRunId || '' }}
       testServiceUrl: ${{ inputs.testServiceUrl || '' }}

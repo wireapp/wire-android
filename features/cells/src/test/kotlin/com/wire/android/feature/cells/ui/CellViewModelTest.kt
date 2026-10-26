@@ -1258,9 +1258,12 @@ class CellViewModelTest {
             this.conversationId = conversationId
         }
 
-        /** More than viewer access, which bulk selection requires. */
+        /**
+         * More than viewer access, which bulk selection requires. Despite its name, the use case returns true when the
+         * self user has full access (the view model negates it).
+         */
         fun withEditorAccess() = apply {
-            coEvery { isSelfUserViewerOnConversation(any()) } returns false
+            coEvery { isSelfUserViewerOnConversation(any()) } returns true
         }
 
         fun withBulkDeleteReturning(result: Either<CoreFailure, Unit>) = apply {

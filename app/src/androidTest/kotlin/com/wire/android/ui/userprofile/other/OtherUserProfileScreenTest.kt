@@ -17,20 +17,47 @@
  */
 package com.wire.android.ui.userprofile.other
 
+import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
 import com.wire.android.ui.WireTestTheme
 import com.wire.android.ui.common.connection.CONNECTION_ACTION_BUTTONS_TEST_TAG
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.userprofile.other.OtherUserStubs.provideState
+import com.wire.kalium.logic.data.user.ContactStatus
 import kotlinx.coroutines.test.runTest
-import kotlin.time.Instant
+import org.junit.Assert.assertFalse
 import org.junit.Rule
 import org.junit.Test
+import kotlin.time.Instant
 
 class OtherUserProfileScreenTest {
     @get:Rule
     val composeTestRule by lazy { createComposeRule() }
+
+    @Test
+    fun pendingProfileExplainsOnboardingAndDisablesConversationAction() {
+        var conversationOpened = false
+        composeTestRule.setContent {
+            WireTestTheme {
+                androidx.compose.foundation.layout.Column {
+                    OnboardingPendingInfo()
+                    ContentFooter(
+                        state = provideState().copy(contactStatus = ContactStatus.NON_CONTACTABLE),
+                        onOpenConversation = { conversationOpened = true }
+                    )
+                }
+            }
+        }
+        composeTestRule.onNodeWithText("Onboarding pending").assertExists()
+        composeTestRule.onNodeWithText(
+            "You can start a conversation with this team member once they are fully onboarded."
+        ).assertExists()
+        composeTestRule.onNodeWithTag(CONNECTION_ACTION_BUTTONS_TEST_TAG).assertIsNotEnabled().performClick()
+        assertFalse(conversationOpened)
+    }
 
     @Test
     fun givenOtherUserProfileFooter_ShouldNotShowConnectButtonForTempUsers() = runTest {

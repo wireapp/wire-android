@@ -26,6 +26,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
+import com.wire.android.model.Contact
 import com.wire.android.ui.common.groupname.GroupMetadataState
 import com.wire.android.ui.common.groupname.GroupNameValidator
 import com.wire.android.ui.common.textfield.textAsFlow
@@ -36,11 +37,11 @@ import com.wire.android.ui.home.newconversation.channelaccess.toDomainEnum
 import com.wire.android.ui.home.newconversation.channelhistory.ChannelHistoryType
 import com.wire.android.ui.home.newconversation.common.CreateGroupState
 import com.wire.android.ui.home.newconversation.groupOptions.GroupOptionState
-import com.wire.android.model.Contact
 import com.wire.android.util.AppsUtil
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.CreateConversationParam
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.user.ContactStatus
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.data.user.type.isExternal
 import com.wire.kalium.logic.feature.channels.ChannelCreationPermission
@@ -53,6 +54,7 @@ import com.wire.kalium.logic.feature.featureConfig.AppsAllowedResult
 import com.wire.kalium.logic.feature.featureConfig.ObserveIsAppsAllowedForUsageUseCase
 import com.wire.kalium.logic.feature.user.GetDefaultProtocolUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
+import com.wire.kalium.logic.featureFlags.KaliumConfigs
 import dev.zacsweers.metro.Inject
 import kotlinx.collections.immutable.toImmutableSet
 import kotlinx.coroutines.flow.collectLatest
@@ -67,7 +69,8 @@ class NewConversationViewModel @Inject constructor(
     private val getSelfUser: GetSelfUserUseCase,
     private val getDefaultProtocol: GetDefaultProtocolUseCase,
     private val isWireCellsFeatureEnabled: IsWireCellsEnabledUseCase,
-    private val observeIsAppsAllowedForUsage: ObserveIsAppsAllowedForUsageUseCase
+    private val observeIsAppsAllowedForUsage: ObserveIsAppsAllowedForUsageUseCase,
+    private val kaliumConfigs: KaliumConfigs,
 ) : ViewModel() {
 
     private data class GroupCreationAttempt(
@@ -190,9 +193,32 @@ class NewConversationViewModel @Inject constructor(
         }
     }
 
+    private var contactStatuses: Map<UserId, ContactStatus?> = emptyMap()
+
+    fun updateContactStatuses(statuses: Map<UserId, ContactStatus?>) {
+        contactStatuses = if (kaliumConfigs.pendingConnections) statuses else emptyMap()
+        newGroupState = newGroupState.copy(
+            selectedUsers = newGroupState.selectedUsers.map { contact ->
+                contact.copy(contactStatus = contactStatuses[UserId(contact.id, contact.domain)])
+            }.toImmutableSet()
+        )
+    }
+
     fun updateSelectedContacts(selected: Boolean, contact: Contact) {
+        val userId = UserId(contact.id, contact.domain)
+        val status = if (kaliumConfigs.pendingConnections) {
+            if (contactStatuses.containsKey(userId)) contactStatuses[userId] else contact.contactStatus
+        } else {
+            null
+        }
+        if (selected && status == ContactStatus.NON_CONTACTABLE) return
         if (selected) {
-            newGroupState = newGroupState.copy(selectedUsers = (newGroupState.selectedUsers + contact).toImmutableSet())
+            newGroupState = newGroupState.copy(
+                selectedUsers = newGroupState.selectedUsers
+                    .filterNot { it.id == contact.id && it.domain == contact.domain }
+                    .plus(contact.copy(contactStatus = status))
+                    .toImmutableSet()
+            )
         } else {
             newGroupState = newGroupState.copy(
                 selectedUsers = newGroupState.selectedUsers.filterNot {

@@ -24,9 +24,9 @@ import com.wire.android.framework.TestUser
 import com.wire.android.mapper.UserTypeMapper
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveConversationRoleForUserUseCase
 import com.wire.android.ui.home.conversationslist.model.Membership
-import com.wire.android.ui.userprofile.toUserProfileQualifiedId
 import com.wire.android.ui.userprofile.other.OtherUserProfileScreenViewModelTest.Companion.CONVERSATION_ID
 import com.wire.android.ui.userprofile.other.OtherUserProfileScreenViewModelTest.Companion.USER_ID
+import com.wire.android.ui.userprofile.toUserProfileQualifiedId
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.feature.client.FetchUsersClientsFromRemoteUseCase
 import com.wire.kalium.logic.feature.client.ObserveClientsByUserIdUseCase
@@ -39,10 +39,12 @@ import com.wire.kalium.logic.feature.e2ei.MLSClientIdentity
 import com.wire.kalium.logic.feature.e2ei.usecase.GetMLSClientIdentityResult
 import com.wire.kalium.logic.feature.e2ei.usecase.GetMLSClientIdentityUseCase
 import com.wire.kalium.logic.feature.e2ei.usecase.IsOtherUserE2EIVerifiedUseCase
+import com.wire.kalium.logic.feature.search.RefreshContactStatusesUseCase
 import com.wire.kalium.logic.feature.user.GetUserInfoResult
 import com.wire.kalium.logic.feature.user.IsE2EIEnabledUseCase
 import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
 import com.wire.kalium.logic.feature.user.ObserveUserInfoUseCase
+import com.wire.kalium.logic.featureFlags.KaliumConfigs
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.every
@@ -53,6 +55,9 @@ internal class OtherUserProfileViewModelArrangement {
 
     @MockK
     lateinit var getOneToOneConversation: GetOneToOneConversationDetailsUseCase
+
+    @MockK
+    lateinit var refreshContactStatuses: RefreshContactStatusesUseCase
 
     @MockK
     lateinit var observeUserInfo: ObserveUserInfoUseCase
@@ -98,9 +103,12 @@ internal class OtherUserProfileViewModelArrangement {
         groupConversationId = CONVERSATION_ID.toUserProfileQualifiedId(),
     )
 
+    var pendingConnectionsEnabled = true
+
     private val viewModel by lazy {
         OtherUserProfileScreenViewModel(
             TestDispatcherProvider(),
+            refreshContactStatuses,
             observeUserInfo,
             userTypeMapper,
             observeConversationRoleForUserUseCase,
@@ -113,12 +121,14 @@ internal class OtherUserProfileViewModelArrangement {
             mlsClientIdentity,
             isE2EIEnabled,
             navigationArgs,
+            KaliumConfigs(pendingConnections = pendingConnectionsEnabled),
         )
     }
 
     init {
         MockKAnnotations.init(this, relaxUnitFun = true)
         mockUri()
+        coEvery { refreshContactStatuses(any()) } returns emptyMap()
 
         coEvery {
             observeConversationRoleForUserUseCase.invoke(any(), any())

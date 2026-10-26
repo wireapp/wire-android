@@ -21,7 +21,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
+import com.wire.android.di.metro.WireAssistedViewModelBinding
 import com.wire.android.mapper.UserTypeMapper
+import com.wire.android.mapper.UsernameMapper.fromOtherUser
 import com.wire.android.model.ImageAsset
 import com.wire.android.model.SnackBarMessage
 import com.wire.android.ui.authentication.devices.model.Device
@@ -29,7 +31,7 @@ import com.wire.android.ui.common.ActionsViewModel
 import com.wire.android.ui.common.visbility.VisibilityState
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveConversationRoleForUserUseCase
 import com.wire.android.ui.home.conversationslist.model.BlockState
-import com.wire.android.mapper.UsernameMapper.fromOtherUser
+import com.wire.android.ui.home.settings.SettingsManualViewModelFactoryGroup
 import com.wire.android.ui.userprofile.group.RemoveConversationMemberState
 import com.wire.android.ui.userprofile.other.OtherUserProfileInfoMessageType.ChangeGroupRoleError
 import com.wire.android.ui.userprofile.other.OtherUserProfileInfoMessageType.RemoveConversationMemberError
@@ -46,9 +48,15 @@ import com.wire.kalium.logic.feature.conversation.UpdateConversationMemberRoleUs
 import com.wire.kalium.logic.feature.e2ei.usecase.GetMLSClientIdentityResult
 import com.wire.kalium.logic.feature.e2ei.usecase.GetMLSClientIdentityUseCase
 import com.wire.kalium.logic.feature.e2ei.usecase.IsOtherUserE2EIVerifiedUseCase
+import com.wire.kalium.logic.feature.search.RefreshContactStatusesUseCase
 import com.wire.kalium.logic.feature.user.GetUserInfoResult
 import com.wire.kalium.logic.feature.user.IsE2EIEnabledUseCase
 import com.wire.kalium.logic.feature.user.ObserveUserInfoUseCase
+import com.wire.kalium.logic.featureFlags.KaliumConfigs
+import dev.zacsweers.metro.Assisted
+import dev.zacsweers.metro.AssistedFactory
+import dev.zacsweers.metro.AssistedInject
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.Flow
@@ -58,15 +66,11 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import dev.zacsweers.metro.Assisted
-import dev.zacsweers.metro.AssistedFactory
-import dev.zacsweers.metro.AssistedInject
-import com.wire.android.di.metro.WireAssistedViewModelBinding
-import com.wire.android.ui.home.settings.SettingsManualViewModelFactoryGroup
 @Suppress("LongParameterList", "TooManyFunctions")
 @WireAssistedViewModelBinding(SettingsManualViewModelFactoryGroup::class)
 class OtherUserProfileScreenViewModel @AssistedInject constructor(
     private val dispatchers: DispatcherProvider,
+    private val refreshContactStatuses: RefreshContactStatusesUseCase,
     private val observeUserInfo: ObserveUserInfoUseCase,
     private val userTypeMapper: UserTypeMapper,
     private val observeConversationRoleForUser: ObserveConversationRoleForUserUseCase,
@@ -79,6 +83,7 @@ class OtherUserProfileScreenViewModel @AssistedInject constructor(
     private val mlsClientIdentity: GetMLSClientIdentityUseCase,
     private val isE2EIEnabled: IsE2EIEnabledUseCase,
     @Assisted navigationArgs: OtherUserProfileViewModelArgs,
+    private val kaliumConfigs: KaliumConfigs,
 ) : ActionsViewModel<OtherUserProfileViewAction>(), OtherUserProfileEventsHandler {
     @AssistedFactory
     interface Factory {
@@ -100,13 +105,42 @@ class OtherUserProfileScreenViewModel @AssistedInject constructor(
         )
     )
     val removeConversationMemberDialogState: VisibilityState<RemoveConversationMemberState> by mutableStateOf(VisibilityState())
+    private var refreshJob: Job? = null
+    private var refreshGeneration = 0
+    private var enteredForeground = false
+
     init {
         observeUserInfoAndUpdateViewState()
+        if (kaliumConfigs.pendingConnections) refreshContactStatus()
         persistClients()
         getMLSVerificationStatus()
         getIfConversationExist()
         getE2EIStatus()
     }
+    fun onForeground() {
+        if (!kaliumConfigs.pendingConnections) return
+        if (enteredForeground) refreshContactStatus()
+        enteredForeground = true
+    }
+
+    fun onBackground() {
+        if (!kaliumConfigs.pendingConnections) return
+        refreshGeneration++
+        refreshJob?.cancel()
+    }
+
+    private fun refreshContactStatus() {
+        refreshJob?.cancel()
+        val generation = ++refreshGeneration
+        state = state.copy(contactStatus = null)
+        refreshJob = viewModelScope.launch {
+            val status = refreshContactStatuses(setOf(userId))[userId]
+            if (generation == refreshGeneration) {
+                state = state.copy(contactStatus = status)
+            }
+        }
+    }
+
     private fun getIfConversationExist() {
         viewModelScope.launch {
             val readiness = checkOneToOneConversationIsReady(userId)
@@ -241,6 +275,7 @@ class OtherUserProfileScreenViewModel @AssistedInject constructor(
             isDataLoading = false,
             isAvatarLoading = false,
             userAvatarAsset = userAvatarAsset,
+            errorLoadingUser = null,
             fullName = otherUser.name.orEmpty(),
             userName = fromOtherUser(otherUser),
             teamName = userResult.team?.name.orEmpty(),

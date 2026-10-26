@@ -46,8 +46,10 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
+import androidx.lifecycle.compose.LifecycleResumeEffect
 import com.wire.android.R
 import com.wire.android.ui.authentication.devices.model.Device
 import com.wire.android.ui.common.CollapsingTopBarScaffold
@@ -61,7 +63,9 @@ import com.wire.android.ui.common.bottomsheet.conversation.ConversationOptionsMo
 import com.wire.android.ui.common.bottomsheet.conversation.ConversationSheetState
 import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
 import com.wire.android.ui.common.button.WireButtonState
+import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.calculateCurrentTab
+import com.wire.android.ui.common.connection.ConnectionActionButton
 import com.wire.android.ui.common.dialogs.UserNotFoundDialog
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
@@ -71,10 +75,8 @@ import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.topappbar.WireTopAppBarTitle
 import com.wire.android.ui.common.visbility.VisibilityState
 import com.wire.android.ui.common.visbility.rememberVisibilityState
-import com.wire.android.ui.common.connection.ConnectionActionButton
 import com.wire.android.ui.home.conversations.details.SearchAndMediaRow
 import com.wire.android.ui.home.conversations.folder.ConversationFoldersNavArgs
-import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.legalhold.banner.LegalHoldSubjectBanner
 import com.wire.android.ui.legalhold.dialog.subject.LegalHoldSubjectProfileDialog
 import com.wire.android.ui.theme.WireTheme
@@ -107,6 +109,11 @@ internal fun OtherUserProfileRouteScreen(
     onMoveToFolder: (ConversationFoldersNavArgs) -> Unit,
     onOpenConversationDebugMenu: (ConversationId) -> Unit,
 ) {
+    LifecycleResumeEffect(viewModel) {
+        viewModel.onForeground()
+        onPauseOrDispose { viewModel.onBackground() }
+    }
+
     val snackbarHostState = LocalSnackbarHostState.current
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -340,7 +347,10 @@ private fun TopBarCollapsing(
                     modifier = Modifier.padding(top = dimensions().spacing8x)
                 )
             }
-            if (state.shouldShowSearchButton()) {
+            if (state.isOnboardingPending && !state.isDataLoading && state.canShowConnectionActions()) {
+                OnboardingPendingInfo()
+            }
+            if (state.shouldShowSearchButton() && !state.isOnboardingPending) {
                 VerticalSpace.x24()
                 SearchAndMediaRow(
                     isWireCellEnabled = false,
@@ -391,7 +401,7 @@ private fun Content(
 
     Crossfade(targetState = tabItems to state, label = "OtherUserProfile") { (tabItems, state) ->
         Column {
-            if (!state.isDataLoading && !state.isTemporaryUser()) {
+            if (!state.isDataLoading && !state.isTemporaryUser() && !state.isOnboardingPending) {
                 OtherUserConnectionStatusInfo(state.connectionState, state.membership)
                 OtherUserConnectionUnverifiedWarning(state.fullName, state.connectionState)
             }
@@ -471,22 +481,30 @@ fun ContentFooter(
         exit = fadeOut(),
     ) {
         // TODO show open conversation button for service bots after AR-2135
-        val isNotTemporaryAndNotDeleted = !state.isTemporaryUser() && !state.isDeletedUser
-        if (!state.isMetadataEmpty() && state.membership != Membership.Service && isNotTemporaryAndNotDeleted) {
+        if (state.canShowConnectionActions()) {
             Surface(
                 shadowElevation = dimensions().bottomNavigationShadowElevation,
                 color = MaterialTheme.wireColorScheme.background
             ) {
                 Box(modifier = Modifier.padding(all = dimensions().spacing16x)) {
-                    ConnectionActionButton(
-                        state.userId,
-                        state.userName,
-                        state.fullName,
-                        state.connectionState,
-                        state.isConversationStarted,
-                        onConnectionRequestIgnored = onIgnoreConnectionRequest,
-                        onOpenConversation = onOpenConversation
-                    )
+                    if (state.isOnboardingPending) {
+                        WirePrimaryButton(
+                            text = stringResource(com.wire.android.ui.common.R.string.label_open_conversation),
+                            onClick = {},
+                            state = WireButtonState.Disabled,
+                            modifier = Modifier.testTag(com.wire.android.ui.common.connection.CONNECTION_ACTION_BUTTONS_TEST_TAG),
+                        )
+                    } else {
+                        ConnectionActionButton(
+                            state.userId,
+                            state.userName,
+                            state.fullName,
+                            state.connectionState,
+                            state.isConversationStarted,
+                            onConnectionRequestIgnored = onIgnoreConnectionRequest,
+                            onOpenConversation = onOpenConversation
+                        )
+                    }
                 }
             }
         }

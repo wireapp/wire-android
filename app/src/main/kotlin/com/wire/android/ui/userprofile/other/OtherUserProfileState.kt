@@ -27,9 +27,10 @@ import com.wire.kalium.logic.data.conversation.Conversation.Member
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.BotService
 import com.wire.kalium.logic.data.user.ConnectionState
+import com.wire.kalium.logic.data.user.ContactStatus
 import com.wire.kalium.logic.data.user.UserId
-import kotlin.time.Instant
 import kotlinx.serialization.Serializable
+import kotlin.time.Instant
 
 data class OtherUserProfileState(
     val userId: UserId,
@@ -58,7 +59,10 @@ data class OtherUserProfileState(
     val errorLoadingUser: ErrorLoadingUser? = null,
     val isDeletedUser: Boolean = false,
     val isE2EIEnabled: Boolean = true,
+    val contactStatus: ContactStatus? = null,
 ) {
+    val isOnboardingPending: Boolean get() = contactStatus == ContactStatus.NON_CONTACTABLE
+
     companion object {
         val PREVIEW = OtherUserProfileState(
             userId = UserId("some_user", "domain.com"),
@@ -73,6 +77,9 @@ data class OtherUserProfileState(
     fun isMetadataEmpty(): Boolean {
         return fullName.isEmpty() && userName.isEmpty()
     }
+
+    fun canShowConnectionActions(): Boolean =
+        !isMetadataEmpty() && membership != Membership.Service && !isTemporaryUser() && !isDeletedUser
 
     fun isTemporaryUser() = expiresAt != null
 

@@ -173,4 +173,6 @@
     <string name="app_permission_dialog_settings_negative_button">Not Now</string>
     <string name="copy_password_button_text">Copy password</string>
     <string name="password_copied">Password copied to clipboard</string>
+    <string name="onboarding_pending">Onboarding pending</string>
+    <string name="onboarding_pending_description">You can start a conversation with this team member once they are fully onboarded.</string>
 </resources>

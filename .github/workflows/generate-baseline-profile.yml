@@ -23,6 +23,10 @@ env:
 jobs:
   generate:
     name: Generate baseline profile (prod compatrelease)
+    concurrency:
+      group: qa-android-ui-tests-office-runner
+      queue: max
+      cancel-in-progress: false
     runs-on:
       - self-hosted
       - Linux

@@ -23,7 +23,6 @@ import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.config.mockUri
 import com.wire.android.datastore.UserDataStore
 import com.wire.android.datastore.UserDataStoreProvider
-import com.wire.android.util.lifecycle.AutomatedLoginManager
 import com.wire.kalium.logic.data.sync.SyncState
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.sync.ObserveSyncStateUseCase
@@ -36,7 +35,6 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
-import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
@@ -57,7 +55,6 @@ class InitialSyncViewModelTest {
 
         // then
         assertTrue(viewModel.isSyncCompleted)
-        assertEquals(SyncCompletionState(shouldMoveToBackground = false), viewModel.syncCompletionState)
     }
 
     @Test
@@ -74,39 +71,6 @@ class InitialSyncViewModelTest {
 
         // then
         assertFalse(viewModel.isSyncCompleted)
-        assertEquals(null, viewModel.syncCompletionState)
-    }
-
-    @Test
-    fun `given automated login pending, when sync completes, then shouldMoveToBackground is true and flag is cleared`() = runTest {
-        // given
-        val (viewModel, arrangement) = Arrangement()
-            .withAutomatedLoginPending()
-            .withSyncState(SyncState.Live)
-            .arrange()
-
-        advanceUntilIdle()
-
-        // then
-        assertTrue(viewModel.isSyncCompleted)
-        assertTrue(viewModel.shouldMoveToBackground)
-        assertEquals(SyncCompletionState(shouldMoveToBackground = true), viewModel.syncCompletionState)
-        assertFalse(arrangement.automatedLoginManager.pendingMoveToBackgroundAfterSync)
-    }
-
-    @Test
-    fun `given no automated login pending, when sync completes, then shouldMoveToBackground is false`() = runTest {
-        // given
-        val (viewModel, _) = Arrangement()
-            .withSyncState(SyncState.Live)
-            .arrange()
-
-        advanceUntilIdle()
-
-        // then
-        assertTrue(viewModel.isSyncCompleted)
-        assertFalse(viewModel.shouldMoveToBackground)
-        assertEquals(SyncCompletionState(shouldMoveToBackground = false), viewModel.syncCompletionState)
     }
 
     private class Arrangement {
@@ -121,10 +85,8 @@ class InitialSyncViewModelTest {
         lateinit var userDataStore: UserDataStore
         val userId = UserId("id", "domain")
 
-        val automatedLoginManager = AutomatedLoginManager()
-
         val viewModel by lazy {
-            InitialSyncViewModel(observeSyncState, userDataStoreProvider, userId, TestDispatcherProvider(), automatedLoginManager)
+            InitialSyncViewModel(observeSyncState, userDataStoreProvider, userId, TestDispatcherProvider())
         }
 
         private val syncStateChannel = Channel<SyncState>(capacity = Channel.UNLIMITED)
@@ -141,10 +103,6 @@ class InitialSyncViewModelTest {
             every { observeSyncState.invoke() } returns syncStateChannel.consumeAsFlow()
             syncStateChannel.send(syncState)
             return this
-        }
-
-        fun withAutomatedLoginPending(): Arrangement = apply {
-            automatedLoginManager.markPendingMoveToBackgroundAfterSync()
         }
 
         fun arrange() = viewModel to this

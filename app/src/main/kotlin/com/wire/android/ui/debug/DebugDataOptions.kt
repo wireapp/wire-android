@@ -127,7 +127,7 @@ fun DebugDataOptionsContent(
         SettingsItem(
             title = stringResource(R.string.app_version),
             text = appVersion,
-            trailingIcon = R.drawable.ic_copy,
+            trailingIcon = commonR.drawable.ic_copy,
             onIconPressed = Clickable(
                 enabled = true,
                 onClick = { onCopyText(appVersion) }
@@ -137,7 +137,7 @@ fun DebugDataOptionsContent(
         SettingsItem(
             title = stringResource(R.string.build_variant_name),
             text = buildVariant,
-            trailingIcon = R.drawable.ic_copy,
+            trailingIcon = commonR.drawable.ic_copy,
             onIconPressed = Clickable(
                 enabled = true,
                 onClick = { onCopyText(buildVariant) }
@@ -147,7 +147,7 @@ fun DebugDataOptionsContent(
         SettingsItem(
             title = stringResource(R.string.label_code_commit_id),
             text = state.commitish,
-            trailingIcon = R.drawable.ic_copy,
+            trailingIcon = commonR.drawable.ic_copy,
             onIconPressed = Clickable(
                 enabled = true,
                 onClick = { onCopyText(state.commitish) }
@@ -158,7 +158,7 @@ fun DebugDataOptionsContent(
             SettingsItem(
                 title = stringResource(R.string.debug_id),
                 text = state.debugId,
-                trailingIcon = R.drawable.ic_copy,
+                trailingIcon = commonR.drawable.ic_copy,
                 onIconPressed = Clickable(
                     enabled = true,
                     onClick = { onCopyText(state.debugId) }
@@ -173,7 +173,7 @@ fun DebugDataOptionsContent(
             SettingsItem(
                 title = stringResource(id = R.string.debug_analytics_tracking_identifier_title),
                 text = state.analyticsTrackingId,
-                trailingIcon = R.drawable.ic_copy,
+                trailingIcon = commonR.drawable.ic_copy,
                 onIconPressed = Clickable(
                     enabled = true,
                     onClick = { onCopyText(state.analyticsTrackingId) }
@@ -355,7 +355,7 @@ private fun MLSOptions(
             SettingsItem(
                 title = stringResource(R.string.label_key_packages_count),
                 text = keyPackagesCount.toString(),
-                trailingIcon = R.drawable.ic_copy,
+                trailingIcon = commonR.drawable.ic_copy,
                 onIconPressed = Clickable(
                     enabled = true,
                     onClick = { onCopyText(keyPackagesCount.toString()) }
@@ -364,7 +364,7 @@ private fun MLSOptions(
             SettingsItem(
                 title = stringResource(R.string.label_mls_client_id),
                 text = mlsClientId,
-                trailingIcon = R.drawable.ic_copy,
+                trailingIcon = commonR.drawable.ic_copy,
                 onIconPressed = Clickable(
                     enabled = true,
                     onClick = { onCopyText(mlsClientId) }

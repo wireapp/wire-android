@@ -30,7 +30,6 @@ import com.wire.android.appLogger
 import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.di.CurrentAccount
 import com.wire.android.util.dispatchers.DispatcherProvider
-import com.wire.android.util.lifecycle.AutomatedLoginManager
 import com.wire.kalium.logic.data.sync.SyncState
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.sync.ObserveSyncStateUseCase
@@ -44,17 +43,10 @@ class InitialSyncViewModel @Inject constructor(
     private val userDataStoreProvider: UserDataStoreProvider,
     @CurrentAccount private val userId: UserId,
     private val dispatchers: DispatcherProvider,
-    private val automatedLoginManager: AutomatedLoginManager,
 ) : ViewModel() {
 
-    internal var syncCompletionState: SyncCompletionState? by mutableStateOf(null)
+    internal var isSyncCompleted: Boolean by mutableStateOf(false)
         private set
-
-    internal val isSyncCompleted: Boolean
-        get() = syncCompletionState != null
-
-    internal val shouldMoveToBackground: Boolean
-        get() = syncCompletionState?.shouldMoveToBackground == true
 
     init {
         waitUntilSyncIsCompleted()
@@ -68,15 +60,9 @@ class InitialSyncViewModel @Inject constructor(
                     userDataStoreProvider.getOrCreate(userId).setInitialSyncCompleted()
                 }
             }?.let {
-                syncCompletionState = SyncCompletionState(
-                    shouldMoveToBackground = automatedLoginManager.consumePendingMoveToBackgroundAfterSync()
-                )
+                isSyncCompleted = true
             } ?: run {
                 appLogger.e("InitialSyncViewModel: SyncState is null")
             }
         }
 }
-
-internal data class SyncCompletionState(
-    val shouldMoveToBackground: Boolean,
-)

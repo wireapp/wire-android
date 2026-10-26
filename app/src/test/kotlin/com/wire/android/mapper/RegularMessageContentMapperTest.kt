@@ -24,8 +24,10 @@ import com.wire.android.framework.TestConversation
 import com.wire.android.framework.TestMessage
 import com.wire.android.framework.TestMessage.buildAssetMessage
 import com.wire.android.framework.TestUser
+import com.wire.android.ui.home.conversations.model.MessageBody
 import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.ui.home.conversations.model.UIMessageContent.AssetMessage
+import com.wire.android.ui.home.conversations.model.UIQuotedMessage
 import com.wire.android.util.time.ISOFormatter
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.id.QualifiedID
@@ -52,6 +54,7 @@ import kotlinx.coroutines.test.runTest
 import okio.Path
 import okio.Path.Companion.toPath
 import okio.buffer
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
@@ -81,6 +84,46 @@ class RegularMessageContentMapperTest {
                 messageBody.message is UIText.StringResource &&
                         (messageBody.message as UIText.StringResource).resId == arrangement.messageResourceProvider.sentAMessageWithContent
             )
+        }
+    }
+
+    @Test
+    fun givenQuotedPoll_whenMappingReplyMessageContent_thenQuotedContentShouldBeOmitted() = runTest {
+        val (_, mapper) = Arrangement().arrange()
+        val pollQuestion = "Where should we meet?"
+        val quotedMessageDetails = MessageContent.QuotedMessageDetails(
+            senderId = TestUser.OTHER_USER.id,
+            senderName = TestUser.OTHER_USER.name,
+            accentId = null,
+            isQuotingSelfUser = false,
+            isVerified = true,
+            messageId = "poll-message-id",
+            timeInstant = TestMessage.TEXT_MESSAGE.date,
+            editInstant = null,
+            quotedContent = MessageContent.QuotedMessageDetails.Poll(pollQuestion)
+        )
+        val content = MessageContent.Text(
+            "Let's meet here",
+            quotedMessageReference = MessageContent.QuoteReference(quotedMessageDetails.messageId, null, true),
+            quotedMessageDetails = quotedMessageDetails
+        )
+
+        mapReplyBodies(mapper, content).forEach { messageBody ->
+            assertEquals(UIText.DynamicString(content.value), messageBody.message)
+            assertNull(messageBody.quotedMessage)
+        }
+    }
+
+    @Test
+    fun givenMissingQuoteDetails_whenMappingReplyMessageContent_thenQuoteUnavailableShouldBeDisplayed() = runTest {
+        val (_, mapper) = Arrangement().arrange()
+        val content = MessageContent.Text(
+            "A reply",
+            quotedMessageReference = MessageContent.QuoteReference("missing-message-id", null, false)
+        )
+
+        mapReplyBodies(mapper, content).forEach { messageBody ->
+            assertEquals(UIQuotedMessage.UnavailableData, messageBody.quotedMessage)
         }
     }
 
@@ -222,6 +265,28 @@ class RegularMessageContentMapperTest {
             // Then
             assertTrue(resultContentImage1 is AssetMessage)
             assertTrue(resultContentImage2 is UIMessageContent.IncompleteAssetMessage)
+        }
+    }
+
+    private fun mapReplyBodies(mapper: RegularMessageMapper, content: MessageContent.Text): List<MessageBody> {
+        val replyContents = listOf(
+            content,
+            MessageContent.Composite(content, emptyList()),
+            MessageContent.Multipart(
+                value = content.value,
+                quotedMessageReference = content.quotedMessageReference,
+                quotedMessageDetails = content.quotedMessageDetails
+            )
+        )
+
+        return replyContents.map { replyContent ->
+            val message = TestMessage.TEXT_MESSAGE.copy(content = replyContent)
+            when (val result = mapper.mapMessage(message, sender, userMembers)) {
+                is UIMessageContent.TextMessage -> result.messageBody
+                is UIMessageContent.Composite -> requireNotNull(result.messageBody)
+                is UIMessageContent.Multipart -> requireNotNull(result.messageBody)
+                else -> error("Unexpected reply content: $result")
+            }
         }
     }
 

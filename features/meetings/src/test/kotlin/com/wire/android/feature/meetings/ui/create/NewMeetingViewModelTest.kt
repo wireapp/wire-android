@@ -42,15 +42,20 @@ import com.wire.kalium.logic.data.meeting.UpdateMeeting
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.auth.ValidatePasswordUseCase
+import com.wire.kalium.logic.feature.auth.ValidatePasswordResult
 import com.wire.kalium.logic.feature.conversation.ObserveConversationMembersUseCase
 import com.wire.kalium.logic.feature.conversation.RenameConversationUseCase
 import com.wire.kalium.logic.feature.conversation.RenamingResult
 import com.wire.kalium.logic.feature.meeting.CreateNewMeetingUseCase
 import com.wire.kalium.logic.feature.meeting.GetNextUnfinishedMeetingOccurrenceUseCase
 import com.wire.kalium.logic.feature.meeting.UpdateMeetingUseCase
+import com.wire.kalium.logic.feature.user.IsMeetingsEnabledUseCase
+import com.wire.kalium.logic.util.RandomPassword
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
+import io.mockk.verify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlin.time.Duration.Companion.hours
@@ -495,6 +500,7 @@ class NewMeetingViewModelTest {
                 .withCurrentTimeProvider { currentTime }
         )
 
+        viewModel.passwordTextState.setTextAndPlaceCursorAtEnd("ignored password")
         enterTitle(viewModel, updateMeeting.title)
         viewModel.updateStartTime(updateMeeting.startTime)
         viewModel.updateEndTime(updateMeeting.endTime)
@@ -506,6 +512,7 @@ class NewMeetingViewModelTest {
             viewModel.submitUpdate()
             advanceUntilIdle()
             coVerify(exactly = 1) { arrangement.updateMeeting(editType.id, updateMeeting) }
+            verify(exactly = 0) { arrangement.validatePassword(any()) }
             assertFalse(viewModel.state.isSubmitting)
             assertNull(viewModel.state.submitError)
             assertEquals(NewMeetingViewActions.Success(), awaitItem())
@@ -1055,6 +1062,258 @@ class NewMeetingViewModelTest {
             }
         }
 
+    @Test
+    fun givenEmptySchedulePassword_whenSubmitting_thenValidationIsSkippedAndNullIsPassed() = runTest(dispatcher) {
+        val (arrangement, viewModel) = arrangeViewModel(
+            Arrangement(dispatcher)
+                .withNewMeetingType(NewMeetingType.Schedule)
+                .withCreateMeetingResult(CreateNewMeetingUseCase.Result.Success(ConversationId("meeting", "domain")))
+        )
+        enterTitle(viewModel, "Weekly sync")
+
+        viewModel.submitCreation()
+        advanceUntilIdle()
+
+        verify(exactly = 0) { arrangement.validatePassword(any()) }
+        coVerify(exactly = 1) { arrangement.createNewMeeting(match { it.password == null }) }
+        assertFalse(viewModel.state.invalidPassword)
+    }
+
+    @Test
+    fun givenValidSchedulePassword_whenSubmitting_thenExactPasswordIsPassed() = runTest(dispatcher) {
+        val password = " ValidPassword1! "
+        val (arrangement, viewModel) = arrangeViewModel(
+            Arrangement(dispatcher)
+                .withNewMeetingType(NewMeetingType.Schedule)
+                .withCreateMeetingResult(CreateNewMeetingUseCase.Result.Success(ConversationId("meeting", "domain")))
+        )
+        every { arrangement.validatePassword(password) } returns ValidatePasswordResult.Valid
+        enterTitle(viewModel, "Weekly sync")
+        viewModel.passwordTextState.setTextAndPlaceCursorAtEnd(password)
+        viewModel.confirmPasswordTextState.setTextAndPlaceCursorAtEnd(password)
+        advanceUntilIdle()
+
+        viewModel.submitCreation()
+        advanceUntilIdle()
+
+        verify(exactly = 1) { arrangement.validatePassword(password) }
+        coVerify(exactly = 1) { arrangement.createNewMeeting(match { it.password == password }) }
+        assertFalse(viewModel.state.invalidPassword)
+    }
+
+    @Test
+    fun givenInvalidSchedulePassword_whenSubmitting_thenCreationIsBlocked() = runTest(dispatcher) {
+        val (arrangement, viewModel) = arrangeViewModel(Arrangement(dispatcher).withNewMeetingType(NewMeetingType.Schedule))
+        every { arrangement.validatePassword("invalid") } returns ValidatePasswordResult.Invalid()
+        enterTitle(viewModel, "Weekly sync")
+        viewModel.passwordTextState.setTextAndPlaceCursorAtEnd("invalid")
+        advanceUntilIdle()
+
+        viewModel.submitCreation()
+        advanceUntilIdle()
+        enterTitle(viewModel, "Updated title")
+        viewModel.updateEndTime(viewModel.state.endTime + 1.hours)
+
+        assertEquals(true, viewModel.state.invalidPassword)
+        assertFalse(viewModel.state.continueButtonEnabled)
+        coVerify(exactly = 0) { arrangement.createNewMeeting(any()) }
+    }
+
+    @Test
+    fun givenInvalidSchedulePassword_whenCleared_thenErrorIsClearedAndMeetingCanBeCreatedWithoutPassword() = runTest(dispatcher) {
+        val (arrangement, viewModel) = arrangeViewModel(
+            Arrangement(dispatcher)
+                .withNewMeetingType(NewMeetingType.Schedule)
+                .withCreateMeetingResult(CreateNewMeetingUseCase.Result.Success(ConversationId("meeting", "domain")))
+        )
+        every { arrangement.validatePassword("invalid") } returns ValidatePasswordResult.Invalid()
+        enterTitle(viewModel, "Weekly sync")
+        viewModel.passwordTextState.setTextAndPlaceCursorAtEnd("invalid")
+        advanceUntilIdle()
+        viewModel.submitCreation()
+        advanceUntilIdle()
+
+        viewModel.passwordTextState.setTextAndPlaceCursorAtEnd("")
+        advanceUntilIdle()
+
+        assertFalse(viewModel.state.invalidPassword)
+        assertEquals(true, viewModel.state.continueButtonEnabled)
+        viewModel.submitCreation()
+        advanceUntilIdle()
+        verify(exactly = 1) { arrangement.validatePassword(any()) }
+        coVerify(exactly = 1) { arrangement.createNewMeeting(match { it.password == null }) }
+    }
+
+    @Test
+    fun givenScheduleType_whenGeneratingPassword_thenGeneratedPasswordIsUsedForCreation() = runTest(dispatcher) {
+        val password = "GeneratedPassword1!"
+        val (arrangement, viewModel) = arrangeViewModel(
+            Arrangement(dispatcher)
+                .withNewMeetingType(NewMeetingType.Schedule)
+                .withCreateMeetingResult(CreateNewMeetingUseCase.Result.Success(ConversationId("meeting", "domain")))
+        )
+        every { arrangement.generatePassword() } returns password
+        every { arrangement.validatePassword(password) } returns ValidatePasswordResult.Valid
+        enterTitle(viewModel, "Weekly sync")
+
+        viewModel.onGenerateRandomPassword()
+        advanceUntilIdle()
+        assertEquals(password, viewModel.passwordTextState.text.toString())
+        assertEquals(password, viewModel.confirmPasswordTextState.text.toString())
+        viewModel.submitCreation()
+        advanceUntilIdle()
+
+        verify(exactly = 1) { arrangement.generatePassword() }
+        coVerify(exactly = 1) { arrangement.createNewMeeting(match { it.password == password }) }
+    }
+
+    @Test
+    fun givenMeetNowTypeWithPassword_whenSubmitting_thenPasswordIsIgnored() = runTest(dispatcher) {
+        val (arrangement, viewModel) = arrangeViewModel(
+            Arrangement(dispatcher)
+                .withCreateMeetingResult(CreateNewMeetingUseCase.Result.Success(ConversationId("meeting", "domain")))
+        )
+        enterTitle(viewModel, "Quick sync")
+        viewModel.passwordTextState.setTextAndPlaceCursorAtEnd("invalid")
+
+        viewModel.submitCreation()
+        advanceUntilIdle()
+
+        verify(exactly = 0) { arrangement.validatePassword(any()) }
+        coVerify(exactly = 1) { arrangement.createNewMeeting(match { it.password == null }) }
+    }
+
+    @Test
+    fun givenMeetNowOrEditType_whenGeneratingPassword_thenPasswordIsNotGenerated() = runTest(dispatcher) {
+        listOf(NewMeetingType.MeetNow, NewMeetingType.Edit(MeetingId("meeting", "domain"))).forEach { type ->
+            val (arrangement, viewModel) = arrangeViewModel(Arrangement(dispatcher).withNewMeetingType(type))
+
+            viewModel.onGenerateRandomPassword()
+
+            verify(exactly = 0) { arrangement.generatePassword() }
+            assertEquals("", viewModel.passwordTextState.text.toString())
+        }
+    }
+
+    @Test
+    fun givenGuestLinksDisabled_whenSubmittingSchedule_thenPasswordIsIgnored() = runTest(dispatcher) {
+        listOf(false to true, true to false).forEach { (buildFlag, guestLinkSupport) ->
+            val (arrangement, viewModel) = arrangeViewModel(
+                Arrangement(dispatcher)
+                    .withNewMeetingType(NewMeetingType.Schedule)
+                    .withMeetingsGuestsLinksEnabled(buildFlag)
+                    .withGuestLinkSharingEnabled(guestLinkSupport)
+                    .withCreateMeetingResult(CreateNewMeetingUseCase.Result.Success(ConversationId("meeting", "domain")))
+            )
+            enterTitle(viewModel, "Weekly sync")
+            viewModel.passwordTextState.setTextAndPlaceCursorAtEnd("hidden password")
+            advanceUntilIdle()
+
+            viewModel.onGenerateRandomPassword()
+            viewModel.submitCreation()
+            advanceUntilIdle()
+
+            assertFalse(viewModel.state.isGuestLinkSharingEnabled)
+            assertFalse(viewModel.state.invalidPassword)
+            verify(exactly = 0) { arrangement.generatePassword() }
+            verify(exactly = 0) { arrangement.validatePassword(any()) }
+            coVerify(exactly = 1) { arrangement.createNewMeeting(match { it.password == null }) }
+        }
+    }
+
+    @Test
+    fun givenGuestLinksEnabledInitially_whenSubmitting_thenAvailabilityIsNotCheckedAgain() = runTest(dispatcher) {
+        val password = "ValidPassword1!"
+        val (arrangement, viewModel) = arrangeViewModel(
+            Arrangement(dispatcher)
+                .withNewMeetingType(NewMeetingType.Schedule)
+                .withCreateMeetingResult(CreateNewMeetingUseCase.Result.Success(ConversationId("meeting", "domain")))
+        )
+        every { arrangement.validatePassword(password) } returns ValidatePasswordResult.Valid
+        assertEquals(true, viewModel.state.isGuestLinkSharingEnabled)
+        assertEquals(NewMeetingState.InitialLoadingState.Loaded, viewModel.state.initialLoading)
+        arrangement.withGuestLinkSharingEnabled(false)
+        enterTitle(viewModel, "Weekly sync")
+        viewModel.passwordTextState.setTextAndPlaceCursorAtEnd(password)
+        viewModel.confirmPasswordTextState.setTextAndPlaceCursorAtEnd(password)
+        advanceUntilIdle()
+
+        viewModel.submitCreation()
+        advanceUntilIdle()
+
+        assertEquals(true, viewModel.state.isGuestLinkSharingEnabled)
+        coVerify(exactly = 1) { arrangement.isMeetingsEnabledUseCase.isGuestLinkSharingEnabled() }
+        coVerify(exactly = 1) { arrangement.createNewMeeting(match { it.password == password }) }
+    }
+
+    @Test
+    fun givenMissingOrMismatchedConfirmation_whenSubmitting_thenCreationIsBlocked() = runTest(dispatcher) {
+        val password = "ValidPassword1!"
+        listOf("", "DifferentPassword1!").forEach { confirmation ->
+            val (arrangement, viewModel) = arrangeViewModel(Arrangement(dispatcher).withNewMeetingType(NewMeetingType.Schedule))
+            every { arrangement.validatePassword(password) } returns ValidatePasswordResult.Valid
+            enterTitle(viewModel, "Weekly sync")
+            viewModel.passwordTextState.setTextAndPlaceCursorAtEnd(password)
+            viewModel.confirmPasswordTextState.setTextAndPlaceCursorAtEnd(confirmation)
+            advanceUntilIdle()
+
+            viewModel.submitCreation()
+            advanceUntilIdle()
+            enterTitle(viewModel, "Updated title")
+            viewModel.updateEndTime(viewModel.state.endTime + 1.hours)
+
+            assertEquals(true, viewModel.state.passwordsDoNotMatch)
+            assertFalse(viewModel.state.invalidPassword)
+            assertFalse(viewModel.state.continueButtonEnabled)
+            coVerify(exactly = 0) { arrangement.createNewMeeting(any()) }
+        }
+    }
+
+    @Test
+    fun givenMismatchedConfirmation_whenCorrected_thenErrorClearsAndCreationSucceeds() = runTest(dispatcher) {
+        val password = "ValidPassword1!"
+        val (arrangement, viewModel) = arrangeViewModel(
+            Arrangement(dispatcher)
+                .withNewMeetingType(NewMeetingType.Schedule)
+                .withCreateMeetingResult(CreateNewMeetingUseCase.Result.Success(ConversationId("meeting", "domain")))
+        )
+        every { arrangement.validatePassword(password) } returns ValidatePasswordResult.Valid
+        enterTitle(viewModel, "Weekly sync")
+        viewModel.passwordTextState.setTextAndPlaceCursorAtEnd(password)
+        advanceUntilIdle()
+        viewModel.submitCreation()
+        advanceUntilIdle()
+        assertEquals(true, viewModel.state.passwordsDoNotMatch)
+
+        viewModel.confirmPasswordTextState.setTextAndPlaceCursorAtEnd(password)
+        advanceUntilIdle()
+
+        assertFalse(viewModel.state.passwordsDoNotMatch)
+        assertEquals(true, viewModel.state.continueButtonEnabled)
+        viewModel.submitCreation()
+        advanceUntilIdle()
+        coVerify(exactly = 1) { arrangement.createNewMeeting(match { it.password == password }) }
+    }
+
+    @Test
+    fun givenOnlyConfirmationEntered_whenSubmitting_thenPasswordRemainsOptional() = runTest(dispatcher) {
+        val (arrangement, viewModel) = arrangeViewModel(
+            Arrangement(dispatcher)
+                .withNewMeetingType(NewMeetingType.Schedule)
+                .withCreateMeetingResult(CreateNewMeetingUseCase.Result.Success(ConversationId("meeting", "domain")))
+        )
+        enterTitle(viewModel, "Weekly sync")
+        viewModel.confirmPasswordTextState.setTextAndPlaceCursorAtEnd("IgnoredPassword1!")
+        advanceUntilIdle()
+
+        viewModel.submitCreation()
+        advanceUntilIdle()
+
+        assertFalse(viewModel.state.hasPasswordError)
+        verify(exactly = 0) { arrangement.validatePassword(any()) }
+        coVerify(exactly = 1) { arrangement.createNewMeeting(match { it.password == null }) }
+    }
+
     private fun TestScope.arrangeViewModel(
         arrangement: Arrangement = Arrangement(dispatcher)
     ): Pair<Arrangement, NewMeetingViewModelImpl> =
@@ -1100,13 +1359,33 @@ class NewMeetingViewModelTest {
         @MockK
         lateinit var contactMapper: ContactMapper
 
+        @MockK
+        lateinit var validatePassword: ValidatePasswordUseCase
+
+        @MockK
+        lateinit var generatePassword: RandomPassword
+
+        @MockK
+        lateinit var isMeetingsEnabledUseCase: IsMeetingsEnabledUseCase
+
+        private var meetingsGuestsLinksEnabled = true
+
         private var newMeetingType: NewMeetingType = NewMeetingType.MeetNow
 
         init {
             MockKAnnotations.init(this)
+            coEvery { isMeetingsEnabledUseCase.isGuestLinkSharingEnabled() } returns true
             every { currentTimeZoneProvider.invoke() } returns TimeZone.of(MEETING_OCCURRENCE.meeting.tzid)
             coEvery { getNextUnfinishedMeetingOccurrence(any(), any()) } returns null
             coEvery { observeConversationMembers(any()) } returns flowOf(emptyList())
+        }
+
+        fun withGuestLinkSharingEnabled(enabled: Boolean) = apply {
+            coEvery { isMeetingsEnabledUseCase.isGuestLinkSharingEnabled() } returns enabled
+        }
+
+        fun withMeetingsGuestsLinksEnabled(enabled: Boolean) = apply {
+            meetingsGuestsLinksEnabled = enabled
         }
 
         fun withNewMeetingType(type: NewMeetingType) = apply {
@@ -1161,6 +1440,10 @@ class NewMeetingViewModelTest {
             observeConversationMembers = observeConversationMembers,
             renameConversationUseCase = renameConversationUseCase,
             contactMapper = contactMapper,
+            validatePassword = validatePassword,
+            generatePassword = generatePassword,
+            isMeetingsEnabledUseCase = isMeetingsEnabledUseCase,
+            meetingsGuestsLinksEnabled = meetingsGuestsLinksEnabled,
         )
     }
 

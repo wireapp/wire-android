@@ -47,7 +47,7 @@ class MultiAccountSessionScope : BaseUiTest() {
     }
 
     @TestCaseId("TC-11259")
-    @Category("regression", "RC", "multiAccountSessionScope", "TEMP")
+    @Category("regression", "RC", "multiAccountSessionScope")
     @Test
     fun givenLoggedInAccount_whenSecondAccountHitsTooManyDevicesAndLoginIsCancelled_thenPreviousSessionIsRestored() {
         step("Prepare staging users and make the second account reach the client limit") {
@@ -86,7 +86,7 @@ class MultiAccountSessionScope : BaseUiTest() {
     }
 
     @TestCaseId("TC-11260")
-    @Category("regression", "RC", "multiAccountSessionScope", "TEMP")
+    @Category("regression", "RC", "multiAccountSessionScope")
     @Test
     fun givenTwoLoggedInAccounts_whenSwitchingFromProfile_thenConversationListUsesSelectedSession() {
         step("Prepare staging users") {
@@ -122,7 +122,7 @@ class MultiAccountSessionScope : BaseUiTest() {
     }
 
     @TestCaseId("TC-11261")
-    @Category("regression", "RC", "multiAccountSessionScope", "TEMP")
+    @Category("regression", "RC", "multiAccountSessionScope")
     @Test
     fun givenSingleLoggedInAccount_whenCurrentClientIsRemovedAndUserLogsInAgain_thenMlsSessionIsRestored() {
         val backendClientsBeforeAppLogin = prepareRemovedClientScenario()
@@ -209,7 +209,7 @@ class MultiAccountSessionScope : BaseUiTest() {
     }
 
     @TestCaseId("TC-11262")
-    @Category("regression", "RC", "multiAccountSessionScope", "TEMP")
+    @Category("regression", "RC", "multiAccountSessionScope")
     @Test
     fun givenTwoLoggedInAccounts_whenCurrentClientIsRemovedRemotely_thenNextSessionIsRestored() {
         step("Prepare staging users") {
@@ -239,7 +239,7 @@ class MultiAccountSessionScope : BaseUiTest() {
     }
 
     @TestCaseId("TC-11263")
-    @Category("regression", "RC", "multiAccountSessionScope", "TEMP")
+    @Category("regression", "RC", "multiAccountSessionScope")
     @Test
     fun givenTwoLoggedInAccounts_whenLoggingOutCurrentAccount_thenNextSessionIsRestored() {
         step("Prepare staging users") {
@@ -271,7 +271,7 @@ class MultiAccountSessionScope : BaseUiTest() {
     }
 
     @TestCaseId("TC-11264")
-    @Category("regression", "RC", "multiAccountSessionScope", "TEMP")
+    @Category("regression", "RC", "multiAccountSessionScope")
     @Test
     fun givenNoLoggedInAccount_whenLoginHitsTooManyDevicesAndIsCancelled_thenLoginScreenOpens() {
         step("Prepare staging user with the client limit reached") {
@@ -294,7 +294,7 @@ class MultiAccountSessionScope : BaseUiTest() {
     }
 
     @TestCaseId("TC-11265")
-    @Category("regression", "RC", "multiAccountSessionScope", "TEMP")
+    @Category("regression", "RC", "multiAccountSessionScope")
     @Test
     fun givenNoLoggedInAccount_whenRemovingDeviceFromTooManyDevices_thenLoginCompletes() {
         step("Prepare staging user with the client limit reached") {

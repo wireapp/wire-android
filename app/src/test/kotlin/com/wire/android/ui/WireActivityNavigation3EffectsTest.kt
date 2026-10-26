@@ -24,6 +24,7 @@ import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.android.util.deeplink.SSOFailureCodes
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.data.id.QualifiedID
+import com.wire.navigation.SessionRoute
 import com.wire.navigation.WireBackStackMode
 import com.wire.navigation.WireNavEntryId
 import com.wire.navigation.WireSessionId
@@ -34,6 +35,44 @@ import org.junit.jupiter.api.Test
 
 class WireActivityNavigation3EffectsTest {
     private val session = WireSessionId("user", "wire.example")
+
+    @Test
+    fun givenNoTargetOrCurrentSession_whenResolvingAuthenticatedActions_thenNoNavigationOrToast() {
+        authenticatedActions().forEach { action ->
+            val result = resolve(action, listOf(HomeRoute(session)), currentSessionId = null)
+
+            assertEquals(WireActivityNavigation3EffectResolution(), result, action.toString())
+        }
+    }
+
+    @Test
+    fun givenExplicitTargetSession_whenResolvingAuthenticatedActions_thenTargetRemainsAuthoritative() {
+        val target = QualifiedID("target", "wire.example")
+        listOf(session, null).forEach { currentSession ->
+            authenticatedActions(target).forEach { action ->
+                val result = resolve(action, listOf(HomeRoute(session)), currentSession)
+                val route = assertInstanceOf(SessionRoute::class.java, result.singleCommand().destination)
+
+                assertEquals(WireSessionId(target.value, target.domain), route.sessionId, action.toString())
+            }
+        }
+    }
+
+    @Test
+    fun givenOnlyCurrentSession_whenResolvingAuthenticatedActions_thenCurrentSessionIsUsed() {
+        authenticatedActions().forEach { action ->
+            val result = resolve(action, listOf(HomeRoute(session)))
+            val command = result.singleCommand()
+            val route = assertInstanceOf(SessionRoute::class.java, command.destination)
+
+            assertEquals(session, route.sessionId, action.toString())
+            assertEquals(
+                if (action is OpenMeetings) WireBackStackMode.CLEAR_WHOLE else WireBackStackMode.UPDATE_EXISTING,
+                command.backStackMode,
+                action.toString(),
+            )
+        }
+    }
 
     @Test
     fun givenMeetingInvite_whenResolving_thenOpenMeetingsForReceivingAccount() {
@@ -265,11 +304,19 @@ class WireActivityNavigation3EffectsTest {
     private fun resolve(
         action: WireActivityViewAction,
         routes: List<com.wire.navigation.WireRoute>,
+        currentSessionId: WireSessionId? = session,
     ) = WireActivityNavigation3EffectResolver.resolve(
         action = action,
         routes = routes,
-        currentSessionId = session,
+        currentSessionId = currentSessionId,
         canUseNewLogin = true,
+    )
+
+    private fun authenticatedActions(targetSessionId: QualifiedID? = null): List<WireActivityViewAction> = listOf(
+        OpenConversation(DeepLinkResult.OpenConversation(QualifiedID("conversation", "wire.example"), targetSessionId = targetSessionId)),
+        OnOpenUserProfile(DeepLinkResult.OpenOtherUserProfile(QualifiedID("other", "wire.example"), targetSessionId = targetSessionId)),
+        OpenMeetings(DeepLinkResult.OpenMeetings(targetSessionId)),
+        OpenDriveFiles(DeepLinkResult.OpenDriveFiles(QualifiedID("conversation", "wire.example"), targetSessionId = targetSessionId)),
     )
 
     private fun WireActivityNavigation3EffectResolution.singleCommand() =

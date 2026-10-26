@@ -216,7 +216,7 @@ internal object WireActivityNavigation3EffectResolver {
     ): WireActivityNavigation3EffectResolution {
         val sessionId = action.result.targetSessionId?.let {
             WireSessionId(it.value, it.domain)
-        } ?: requireSession(currentSessionId, action)
+        } ?: currentSessionId ?: return WireActivityNavigation3EffectResolution()
         val mutations = buildList {
             if (action.result.switchedAccount) {
                 add(navigate(HomeRoute(sessionId), WireBackStackMode.CLEAR_WHOLE))
@@ -243,7 +243,7 @@ internal object WireActivityNavigation3EffectResolver {
     ): WireActivityNavigation3EffectResolution {
         val sessionId = action.result.targetSessionId?.let {
             WireSessionId(it.value, it.domain)
-        } ?: requireSession(currentSessionId, action)
+        } ?: currentSessionId ?: return WireActivityNavigation3EffectResolution()
         val mutations = buildList {
             add(navigate(HomeRoute(sessionId, homeDestination = HomeRoute.HomeDestination.MEETINGS), WireBackStackMode.CLEAR_WHOLE))
         }
@@ -256,7 +256,7 @@ internal object WireActivityNavigation3EffectResolver {
     ): WireActivityNavigation3EffectResolution {
         val sessionId = action.result.targetSessionId?.let {
             WireSessionId(it.value, it.domain)
-        } ?: requireSession(currentSessionId, action)
+        } ?: currentSessionId ?: return WireActivityNavigation3EffectResolution()
         val mutations = buildList {
             if (action.result.switchedAccount) {
                 add(navigate(HomeRoute(sessionId), WireBackStackMode.CLEAR_WHOLE))
@@ -282,7 +282,7 @@ internal object WireActivityNavigation3EffectResolver {
     ): WireActivityNavigation3EffectResolution {
         val sessionId = action.result.targetSessionId?.let {
             WireSessionId(it.value, it.domain)
-        } ?: requireSession(currentSessionId, action)
+        } ?: currentSessionId ?: return WireActivityNavigation3EffectResolution()
         val mutations = buildList {
             if (action.result.switchedAccount) {
                 add(navigate(HomeRoute(sessionId), WireBackStackMode.CLEAR_WHOLE))
@@ -339,13 +339,6 @@ internal object WireActivityNavigation3EffectResolver {
     ) = WireActivityNavigation3Mutation.Navigate(
         WireNavigationCommand(destination = destination, backStackMode = mode)
     )
-
-    private fun requireSession(
-        currentSessionId: WireSessionId?,
-        action: WireActivityViewAction,
-    ): WireSessionId = checkNotNull(currentSessionId) {
-        "${action::class.simpleName} requires an active session"
-    }
 
     private fun newLoginRoute(
         args: AuthenticationLoginArguments = AuthenticationLoginArguments(),

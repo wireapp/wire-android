@@ -33,11 +33,17 @@ import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.Assertions.assertSame
+import io.mockk.verify
 import org.junit.jupiter.api.Test
 import kotlin.time.Duration.Companion.seconds
 
+@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 class ObserveAppLockConfigUseCaseTest {
 
     @Test
@@ -127,6 +133,55 @@ class ObserveAppLockConfigUseCaseTest {
                 cancelAndIgnoreRemainingEvents()
             }
         }
+
+    @Test
+    fun `enforced config survives pending admission then replacement and invalidation reach the collector`() = runTest {
+        val (arrangement, useCase) = Arrangement().withTeamAppLockEnabled().withAppLockedByCurrentUser(false).arrange()
+        val current = MutableStateFlow<CurrentSessionResult>(CurrentSessionResult.Success(accountInfo))
+        coEvery { arrangement.coreLogic.getGlobalScope().session.currentSessionFlow() } returns current
+        arrangement.admission.publish(userId, null)
+        useCase().test {
+            runCurrent()
+            expectNoEvents()
+            arrangement.admission.publish(userId, arrangement.userSessionScope)
+            assertEquals(AppLockConfig.EnforcedByTeam(timeout), awaitItem())
+            arrangement.admission.publish(userId, null)
+            runCurrent()
+            expectNoEvents()
+            assertTrue(arrangement.userSessionScope in arrangement.admission.drained)
+            arrangement.admission.publish(userId, arrangement.userSessionScope)
+            assertEquals(AppLockConfig.EnforcedByTeam(timeout), awaitItem())
+            current.value = CurrentSessionResult.Success(accountInfoInvalid)
+            assertEquals(AppLockConfig.Disabled(timeout), awaitItem())
+            cancelAndIgnoreRemainingEvents()
+        }
+        verify(exactly = 0) { arrangement.coreLogic.getSessionScope(any()) }
+    }
+
+    @Test
+    fun `enabled config is retained through unavailable revision and caller cancellation drains it`() = runTest {
+        val (arrangement, useCase) = Arrangement().withValidSession().withTeamAppLockDisabled()
+            .withAppLockedByCurrentUser(true).arrange()
+        useCase().test {
+            assertEquals(AppLockConfig.Enabled(timeout), awaitItem())
+            arrangement.admission.publish(userId, null)
+            runCurrent()
+            expectNoEvents()
+            arrangement.admission.publish(userId, arrangement.userSessionScope)
+            assertEquals(AppLockConfig.Enabled(timeout), awaitItem())
+            cancelAndIgnoreRemainingEvents()
+        }
+        assertEquals(2, arrangement.admission.drained.size)
+    }
+
+    @Test
+    fun `genuine app lock observer failure propagates`() = runTest {
+        val (arrangement, useCase) = Arrangement().withValidSession().withTeamAppLockEnabled()
+            .withAppLockedByCurrentUser(false).arrange()
+        val failure = IllegalStateException("config failed")
+        every { arrangement.appLockTeamFeatureConfigObserver() } throws failure
+        useCase().test { assertSame(failure, generateSequence(awaitError()) { it.cause }.last()) }
+    }
 
     inner class Arrangement {
 

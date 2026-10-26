@@ -37,9 +37,11 @@ internal class FakeSessionAdmission(
     val coreLogic: CoreLogic = mockk(),
     private val initiallyReady: (UserId) -> UserSessionScope? = { null },
 ) {
-    private data class Publication(val session: UserSessionScope?)
+    private data class Publication(val revision: Int, val session: UserSessionScope?)
 
     private val publications = mutableMapOf<UserId, MutableStateFlow<Publication>>()
+    val attached = mutableListOf<UserSessionScope>()
+    val drained = mutableListOf<UserSessionScope>()
 
     init {
         every { coreLogic.observeValidSession<Any>(any(), any()) } answers {
@@ -51,14 +53,24 @@ internal class FakeSessionAdmission(
                     flowOf(null)
                 } else {
                     flow<Any?> {
-                        emitAll(observe(session))
+                        attached += session
+                        try {
+                            emitAll(observe(session))
+                        } finally {
+                            drained += session
+                        }
                     }
                 }
             }
         }
     }
 
+    fun publish(userId: UserId, session: UserSessionScope?) {
+        val state = state(userId)
+        state.value = Publication(state.value.revision + 1, session)
+    }
+
     private fun state(userId: UserId) = publications.getOrPut(userId) {
-        MutableStateFlow(Publication(initiallyReady(userId)))
+        MutableStateFlow(Publication(0, initiallyReady(userId)))
     }
 }

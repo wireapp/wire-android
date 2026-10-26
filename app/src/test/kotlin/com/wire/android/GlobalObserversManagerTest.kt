@@ -351,6 +351,64 @@ class GlobalObserversManagerTest {
             assertEquals(1, cancelledObservers.get())
         }
 
+    @Test
+    fun `pending admitted account list does not clear notifications for raw valid accounts`() = runTestWithCancellation {
+        val admitted = MutableStateFlow<List<Pair<SelfUser, Team?>>>(listOf(TestUser.SELF_USER to null))
+        val raw = MutableStateFlow<GetAllSessionsResult>(
+            GetAllSessionsResult.Success(listOf(AccountInfo.Valid(TestUser.SELF_USER.id)))
+        )
+        val (arrangement, manager) = Arrangement().withValidAccountsFlow(admitted)
+            .withRawSessionsFlow(raw)
+            .withPersistentWebSocketConnectionStatuses(listOf(PersistentWebSocketStatus(TestUser.SELF_USER.id, false)))
+            .arrange()
+        manager.observe()
+        runCurrent()
+        admitted.value = emptyList()
+        runCurrent()
+        verify(exactly = 0) { arrangement.notificationManager.clearWhenNoUsers() }
+        coVerify(atLeast = 1) {
+            arrangement.notificationManager.observeNotificationsAndCallsWhileRunning(listOf(TestUser.SELF_USER.id), any())
+        }
+        raw.value = GetAllSessionsResult.Success(emptyList())
+        runCurrent()
+        verify(exactly = 1) { arrangement.notificationManager.clearWhenNoUsers() }
+    }
+
+    @Test
+    fun `visibility replay after revocation cannot reacquire ephemeral message resources`() = runTestWithCancellation {
+        val visible = MutableStateFlow(true)
+        val raw = MutableStateFlow<CurrentSessionResult>(CurrentSessionResult.Success(AccountInfo.Valid(TestUser.SELF_USER.id)))
+        val (arrangement, manager) = Arrangement().withCurrentSessionResults(raw).withAppVisibleFlow(visible).arrange()
+        manager.observe()
+        runCurrent()
+        coVerify(exactly = 1) { arrangement.messageScope.deleteEphemeralMessageEndDate() }
+        arrangement.admission.publish(TestUser.SELF_USER.id, null)
+        runCurrent()
+        visible.value = false
+        runCurrent()
+        visible.value = true
+        runCurrent()
+        raw.value = CurrentSessionResult.Success(AccountInfo.Invalid(TestUser.SELF_USER.id, LogoutReason.SESSION_EXPIRED))
+        runCurrent()
+        coVerify(exactly = 1) { arrangement.messageScope.deleteEphemeralMessageEndDate() }
+        verify(exactly = 0) { arrangement.coreLogic.getSessionScope(any()) }
+    }
+
+    @Test
+    fun `invalid current metadata cancels pending foreground send before publication`() = runTestWithCancellation {
+        val raw = MutableStateFlow<CurrentSessionResult>(CurrentSessionResult.Success(AccountInfo.Valid(TestUser.SELF_USER.id)))
+        val (arrangement, manager) = Arrangement().withSomeRawValidSession().withCurrentSessionResults(raw).arrange()
+        arrangement.admission.publish(TestUser.SELF_USER.id, null)
+        manager.observe()
+        runCurrent()
+        raw.value = CurrentSessionResult.Success(AccountInfo.Invalid(TestUser.SELF_USER.id, LogoutReason.SESSION_EXPIRED))
+        runCurrent()
+        arrangement.admission.publish(TestUser.SELF_USER.id, arrangement.userSessionScope)
+        runCurrent()
+        coVerify(exactly = 0) { arrangement.sendPendingMessagesAfterForegroundSync(any(), any()) }
+        verify(exactly = 0) { arrangement.coreLogic.getSessionScope(any()) }
+    }
+
     private class Arrangement {
 
         @MockK
@@ -458,10 +516,18 @@ class GlobalObserversManagerTest {
 
         fun withCurrentSession(result: CurrentSessionResult): Arrangement = apply {
             coEvery { coreLogic.getGlobalScope().session.currentSession() } returns result
-            withCurrentSessionFlow(result)
+            withCurrentSessionResults(flowOf(result))
             val account = (result as? CurrentSessionResult.Success)?.accountInfo
             withRawSessionsFlow(flowOf(GetAllSessionsResult.Success(listOfNotNull(account).filter { it.isValid() })))
         }
+
+        fun withCurrentSessionResults(results: Flow<CurrentSessionResult>): Arrangement = apply {
+            coEvery { coreLogic.getGlobalScope().session.currentSessionFlow() } returns results
+        }
+
+        fun withSomeRawValidSession(): Arrangement = withRawSessionsFlow(
+            flowOf(GetAllSessionsResult.Success(listOf(AccountInfo.Valid(TestUser.SELF_USER.id))))
+        )
 
         fun withRawSessionsFlow(results: Flow<GetAllSessionsResult>): Arrangement = apply {
             coEvery { coreLogic.getGlobalScope().observeAllValidSessionsFlow() } returns results

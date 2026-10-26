@@ -25,6 +25,7 @@ includeBuild("kalium") {
         substitute(module("com.wire.kalium:kalium-cells")).using(project(":domain:cells"))
         substitute(module("com.wire.kalium:kalium-core-libsodium")).using(project(":core:libsodium"))
         // test modules
+        substitute(module("com.wire.kalium:kalium-persistence")).using(project(":data:persistence"))
         substitute(module("com.wire.kalium:kalium-mocks")).using(project(":test:mocks"))
         substitute(module("com.wire.kalium:kalium-network")).using(project(":data:network"))
     }

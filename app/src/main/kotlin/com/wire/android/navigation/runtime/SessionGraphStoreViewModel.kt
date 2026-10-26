@@ -21,6 +21,7 @@ package com.wire.android.navigation.runtime
 import androidx.compose.runtime.Composable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelStoreOwner
+import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
@@ -33,6 +34,10 @@ import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.auth.LogoutCallback
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionException
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 /**
  * The single creation boundary for the Activity-retained session graph registry.
@@ -71,6 +76,12 @@ internal class SessionGraphStoreViewModel(
         REMOVED,
     }
 
+    internal enum class Availability {
+        AVAILABLE,
+        DEFERRED,
+        STALE,
+    }
+
     private sealed interface Entry {
         data class Creating(val result: CompletableFuture<AppSessionViewModelGraph>) : Entry
         data class Active(val graph: AppSessionViewModelGraph) : Entry
@@ -86,6 +97,8 @@ internal class SessionGraphStoreViewModel(
     )
 
     private val entries = mutableMapOf<UserId, Entry>()
+    private val invalidations = mutableMapOf<UserId, Long>()
+    private val pendingRemovals = mutableMapOf<UserId, CompletableDeferred<Unit>>()
     private var cleared = false
     private val logoutCallback = object : LogoutCallback {
         override suspend fun invoke(userId: UserId, reason: LogoutReason) {
@@ -167,6 +180,7 @@ internal class SessionGraphStoreViewModel(
     internal fun markInvalidating(userId: UserId) {
         synchronized(this) {
             if (cleared) return
+            invalidations[userId] = invalidationVersion(userId) + 1
             when (val entry = entries[userId]) {
                 is Entry.Active -> entries[userId] = Entry.Invalidating(entry.graph)
                 is Entry.Creating -> {
@@ -205,28 +219,53 @@ internal class SessionGraphStoreViewModel(
     }
 
     /** Starts a new graph generation after the session has been independently confirmed valid. */
-    internal fun markAvailable(userId: UserId) {
-        val reopened = synchronized(this) {
-            if (cleared) return
+    internal fun markAvailable(userId: UserId, expectedInvalidation: Long): Availability = synchronized(this) {
+        if (cleared || invalidationVersion(userId) != expectedInvalidation) {
+            Availability.STALE
+        } else if (userId in pendingRemovals) {
+            Availability.DEFERRED
+        } else {
             when (entries[userId]) {
                 Entry.Removed -> {
                     entries.remove(userId)
-                    true
+                    appLogger.i("WireActivity reopened session graph lifecycle for $REDACTED_SESSION_LABEL")
+                    Availability.AVAILABLE
                 }
 
-                is Entry.Invalidating -> error(
-                    "Session graph must be REMOVED before it can become available again"
-                )
+                is Entry.Invalidating,
+                is Entry.Releasing -> Availability.DEFERRED
 
                 is Entry.Active,
                 is Entry.Creating,
-                is Entry.Releasing,
-                null -> false
+                null -> Availability.AVAILABLE
             }
         }
-        if (reopened) {
-            appLogger.i("WireActivity reopened session graph lifecycle for $REDACTED_SESSION_LABEL")
+    }
+
+    internal fun invalidationVersion(userId: UserId): Long = synchronized(this) {
+        invalidations[userId] ?: 0L
+    }
+
+    /** Call only after detaching consumers. Awaiting compositions may cancel without cancelling removal. */
+    @Suppress("ReturnCount")
+    internal fun removeAfterOwnerCleared(userId: UserId, clearOwner: (() -> Unit) -> Unit): Deferred<Unit> {
+        val completion = synchronized(this) {
+            if (cleared) return CompletableDeferred<Unit>().apply { cancel() }
+            pendingRemovals[userId]?.let { return it }
+            CompletableDeferred<Unit>().also { pendingRemovals[userId] = it }
         }
+        clearOwner {
+            // The observer runs inside ViewModelStore.clear(); let every onCleared() finish first.
+            // This work belongs to the retained store, not the composition awaiting the result.
+            viewModelScope.launch(Dispatchers.Main) {
+                if (synchronized(this@SessionGraphStoreViewModel) { pendingRemovals[userId] === completion }) {
+                    markRemoved(userId)
+                    synchronized(this@SessionGraphStoreViewModel) { pendingRemovals.remove(userId) }
+                    completion.complete(Unit)
+                }
+            }
+        }
+        return completion
     }
 
     /**
@@ -307,6 +346,9 @@ internal class SessionGraphStoreViewModel(
                 }
             }
             entries.clear()
+            pendingRemovals.values.forEach { it.cancel() }
+            pendingRemovals.clear()
+            invalidations.clear()
             retainedGraphs
         }
         graphs.forEach { graph -> dispose(graph, "cleared") }

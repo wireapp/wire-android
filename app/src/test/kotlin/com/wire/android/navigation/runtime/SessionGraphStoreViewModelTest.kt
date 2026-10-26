@@ -177,7 +177,7 @@ class SessionGraphStoreViewModelTest {
         val resolvedBeforeRemoval = store.graphFor(userId)
 
         store.markRemoved(userId)
-        store.markAvailable(userId)
+        store.markAvailable(userId, store.invalidationVersion(userId))
         val resolvedAfterReactivation = store.graphFor(userId)
 
         assertSame(firstGraph, resolvedBeforeRemoval)
@@ -194,7 +194,10 @@ class SessionGraphStoreViewModelTest {
         store.graphFor(userId)
         store.markInvalidating(userId)
 
-        assertThrows(IllegalStateException::class.java) { store.markAvailable(userId) }
+        assertEquals(
+            SessionGraphStoreViewModel.Availability.DEFERRED,
+            store.markAvailable(userId, store.invalidationVersion(userId)),
+        )
         assertEquals(SessionGraphStoreViewModel.Lifecycle.INVALIDATING, store.lifecycle(userId))
         assertThrows(SessionGraphUnavailableException::class.java) { store.graphFor(userId) }
     }

@@ -30,6 +30,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -195,18 +196,32 @@ private fun WireActivityNavigation3ThemedHost(
         sessionTransitionReason = sessionTransitionReason,
     )
     val currentRouteSessionId = (currentRoute as? com.wire.navigation.SessionRoute)?.sessionId
-    val appliedSessionGeneration = rememberConfirmedSessionGraphAvailability(
+    val sessionAvailability = rememberConfirmedSessionGraphAvailability(
         confirmedSessionGeneration = viewModel.globalAppState.confirmedSessionGeneration,
         currentUserId = currentUserId,
         currentRouteSessionId = currentRouteSessionId,
         invalidated = shouldInvalidateRetainedSessionGraph,
         sessionGraphStore = sessionGraphStore,
+        clearOwner = { userId, onCleared ->
+            val ownerKey = WireViewModelOwner.Session(userId.toWireSessionId()).stableKey()
+            clearWireViewModelStoreOwner(sharedViewModelStoreProvider, ownerKey) {
+                WireViewModelDiagnostics.ownerCleared(ownerKey)
+                onCleared()
+            }
+        },
+        confirmCurrentSession = viewModel::confirmCurrentSession,
+        isStillCurrent = { userId, generation ->
+            val state = viewModel.globalAppState
+            state.currentUserId == userId && state.confirmedSessionGeneration == generation &&
+                (runtime.navigator.currentRoute as? com.wire.navigation.SessionRoute)?.sessionId == userId.toWireSessionId() &&
+                !shouldInvalidateWireActivitySessionGraph(state.blockUserUI != null, state.sessionTransitionReason)
+        },
     )
     val graphResolver = remember(
         dependencies.appGraph,
         authenticationViewModelGraph,
         sessionGraphStore,
-        appliedSessionGeneration,
+        sessionAvailability.appliedGeneration,
     ) {
         MetroWireEntryGraphResolver(
             appGraph = dependencies.appGraph,
@@ -218,7 +233,7 @@ private fun WireActivityNavigation3ThemedHost(
         route = currentRoute,
         graphResolver = graphResolver,
         isUserUiBlocked = isUserUiBlocked,
-    )
+    ).takeUnless { sessionAvailability.blocked }
     val sessionLifecycle = rememberWireActivitySessionLifecycle(
         routeSessionId = currentRouteSessionId,
         graphContext = graphContext,
@@ -296,13 +311,13 @@ private fun WireActivityNavigation3ThemedHost(
             completeSessionBackedAuthenticationCancellation = { sessionId ->
                 teardownWireActivitySession(
                     sessionId = sessionId,
-                    markInvalidating = sessionGraphStore::markInvalidating,
-                    clearOwner = { ownerKey ->
+                    sessionGraphStore = sessionGraphStore,
+                    clearOwner = { ownerKey, onCleared ->
                         clearWireViewModelStoreOwner(sharedViewModelStoreProvider, ownerKey) {
                             WireViewModelDiagnostics.ownerCleared(ownerKey)
+                            onCleared()
                         }
                     },
-                    markRemoved = sessionGraphStore::markRemoved,
                 )
             },
         )
@@ -363,31 +378,89 @@ private fun WireActivityNavigation3ThemedHost(
 }
 
 @Composable
-private fun rememberConfirmedSessionGraphAvailability(
+internal fun rememberConfirmedSessionGraphAvailability(
     confirmedSessionGeneration: Long,
     currentUserId: UserId?,
     currentRouteSessionId: WireSessionId?,
     invalidated: Boolean,
     sessionGraphStore: SessionGraphStoreViewModel,
-): Long {
+    clearOwner: (UserId, onCleared: () -> Unit) -> Unit,
+    confirmCurrentSession: suspend (UserId) -> Boolean,
+    isStillCurrent: (UserId, Long) -> Boolean,
+): ConfirmedSessionGraphAvailability {
     var appliedGeneration by remember(sessionGraphStore) { mutableLongStateOf(-1L) }
+    var blockedUserId by remember(sessionGraphStore) { mutableStateOf<UserId?>(null) }
+    val currentClearOwner by rememberUpdatedState(clearOwner)
+    val currentConfirmation by rememberUpdatedState(confirmCurrentSession)
+    val currentRequestCheck by rememberUpdatedState(isStillCurrent)
     LaunchedEffect(
         confirmedSessionGeneration,
         currentUserId,
         currentRouteSessionId,
         invalidated,
         sessionGraphStore,
+        blockedUserId,
     ) {
         val generationCanBeApplied = confirmedSessionGeneration > appliedGeneration && !invalidated
         val confirmedUserId = currentUserId?.takeIf {
             it.toWireSessionId() == currentRouteSessionId
         }
-        if (generationCanBeApplied && confirmedUserId != null) {
-            sessionGraphStore.markAvailable(confirmedUserId)
-            appliedGeneration = confirmedSessionGeneration
+        if (generationCanBeApplied && confirmedUserId != null && currentRequestCheck(confirmedUserId, confirmedSessionGeneration)) {
+            if (blockedUserId != confirmedUserId) {
+                val version = sessionGraphStore.invalidationVersion(confirmedUserId)
+                val lifecycle = sessionGraphStore.lifecycle(confirmedUserId)
+                if ((lifecycle == null || lifecycle == SessionGraphStoreViewModel.Lifecycle.ACTIVE) &&
+                    sessionGraphStore.markAvailable(confirmedUserId, version) == SessionGraphStoreViewModel.Availability.AVAILABLE
+                ) {
+                    appliedGeneration = confirmedSessionGeneration
+                } else {
+                    // Restart after a committed composition has detached this account's consumers.
+                    blockedUserId = confirmedUserId
+                }
+            } else if (reactivateSessionGraph(
+                    store = sessionGraphStore,
+                    userId = confirmedUserId,
+                    clearOwner = { onCleared -> currentClearOwner(confirmedUserId, onCleared) },
+                    confirmCurrentSession = currentConfirmation,
+                    isStillCurrent = { currentRequestCheck(confirmedUserId, confirmedSessionGeneration) },
+                )
+            ) {
+                appliedGeneration = confirmedSessionGeneration
+                blockedUserId = null
+            }
         }
     }
-    return appliedGeneration
+    return ConfirmedSessionGraphAvailability(
+        appliedGeneration,
+        blockedUserId != null && blockedUserId?.toWireSessionId() == currentRouteSessionId,
+    )
+}
+
+internal data class ConfirmedSessionGraphAvailability(val appliedGeneration: Long, val blocked: Boolean)
+
+@Suppress("ReturnCount")
+internal suspend fun reactivateSessionGraph(
+    store: SessionGraphStoreViewModel,
+    userId: UserId,
+    clearOwner: (() -> Unit) -> Unit,
+    confirmCurrentSession: suspend (UserId) -> Boolean,
+    isStillCurrent: () -> Boolean,
+): Boolean {
+    while (isStillCurrent()) {
+        if (store.lifecycle(userId) == SessionGraphStoreViewModel.Lifecycle.INVALIDATING) {
+            store.removeAfterOwnerCleared(userId, clearOwner).await()
+        }
+        val version = store.invalidationVersion(userId)
+        if (!confirmCurrentSession(userId) || !isStillCurrent()) return false
+        when (store.markAvailable(userId, version)) {
+            SessionGraphStoreViewModel.Availability.AVAILABLE -> return true
+            SessionGraphStoreViewModel.Availability.STALE ->
+                if (store.invalidationVersion(userId) == version) return false // The store was cleared.
+            SessionGraphStoreViewModel.Availability.DEFERRED ->
+                if (store.lifecycle(userId) != SessionGraphStoreViewModel.Lifecycle.INVALIDATING) return false
+        }
+    }
+    return false
 }
 
 private data class WireActivitySessionLifecycle(
@@ -423,14 +496,14 @@ private fun rememberWireActivitySessionLifecycle(
             // shared ViewModels first, then the Metro graph. A tombstone rejects stale entries.
             teardownWireActivitySession(
                 sessionId = teardownSessionId,
-                markInvalidating = sessionGraphStore::markInvalidating,
-                clearOwner = { ownerKey ->
+                sessionGraphStore = sessionGraphStore,
+                clearOwner = { ownerKey, onCleared ->
                     clearWireViewModelStoreOwner(provider, ownerKey) {
                         WireViewModelDiagnostics.ownerCleared(ownerKey)
+                        onCleared()
                     }
                 },
-                markRemoved = sessionGraphStore::markRemoved,
-            )
+            ).await()
             retainedRouteSessionId = null
         }
     }
@@ -458,14 +531,14 @@ private fun rememberWireActivitySessionLifecycle(
 
 internal fun teardownWireActivitySession(
     sessionId: WireSessionId,
-    markInvalidating: (UserId) -> Unit,
-    clearOwner: (String) -> Unit,
-    markRemoved: (UserId) -> Unit,
-) {
+    sessionGraphStore: SessionGraphStoreViewModel,
+    clearOwner: (String, onCleared: () -> Unit) -> Unit,
+): kotlinx.coroutines.Deferred<Unit> {
     val userId = sessionId.toKaliumUserId()
-    markInvalidating(userId)
-    clearOwner(WireViewModelOwner.Session(sessionId).stableKey())
-    markRemoved(userId)
+    sessionGraphStore.markInvalidating(userId)
+    return sessionGraphStore.removeAfterOwnerCleared(userId) { onCleared ->
+        clearOwner(WireViewModelOwner.Session(sessionId).stableKey(), onCleared)
+    }
 }
 
 internal fun shouldInvalidateWireActivitySessionGraph(

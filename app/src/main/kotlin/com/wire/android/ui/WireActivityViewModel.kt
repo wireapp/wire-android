@@ -735,6 +735,10 @@ class WireActivityViewModel @Inject constructor(
             ?.takeIf { it.isValid() }
             ?.userId
 
+    internal suspend fun confirmCurrentSession(userId: UserId): Boolean = withContext(dispatchers.io()) {
+        currentSessionUserId() == userId
+    }
+
     private suspend fun syncCurrentUserIdFromSession() {
         val userId = withContext(dispatchers.io()) {
             currentSessionUserId()

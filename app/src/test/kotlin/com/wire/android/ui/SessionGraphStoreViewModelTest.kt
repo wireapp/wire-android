@@ -42,7 +42,7 @@ class SessionGraphStoreViewModelTest {
 
         store.markInvalidating(USER_ID)
         store.markRemoved(USER_ID)
-        store.markAvailable(USER_ID)
+        store.markAvailable(USER_ID, store.invalidationVersion(USER_ID))
         val newRetainedGraph = store.graphFor(USER_ID)
 
         assertNotSame(oldRetainedGraph, newRetainedGraph)
@@ -61,7 +61,7 @@ class SessionGraphStoreViewModelTest {
 
         store.markInvalidating(USER_ID)
         store.markRemoved(USER_ID)
-        store.markAvailable(USER_ID)
+        store.markAvailable(USER_ID, store.invalidationVersion(USER_ID))
         val newRetainedGraph = store.graphFor(USER_ID)
 
         assertNotSame(oldRetainedGraph, newRetainedGraph)
@@ -92,7 +92,7 @@ class SessionGraphStoreViewModelTest {
                 if (index < RELOGIN_COUNT - 1) {
                     store.markInvalidating(USER_ID)
                     store.markRemoved(USER_ID)
-                    store.markAvailable(USER_ID)
+                    store.markAvailable(USER_ID, store.invalidationVersion(USER_ID))
                 }
             }
         }
@@ -127,7 +127,7 @@ class SessionGraphStoreViewModelTest {
 
         store.markInvalidating(USER_ID)
         store.markRemoved(USER_ID)
-        store.markAvailable(USER_ID)
+        store.markAvailable(USER_ID, store.invalidationVersion(USER_ID))
 
         assertSame(otherUsersGraph, store.graphFor(OTHER_USER_ID))
         assertNotSame(removedUsersGraph, store.graphFor(USER_ID))

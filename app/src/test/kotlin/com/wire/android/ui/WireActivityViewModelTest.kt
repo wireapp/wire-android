@@ -880,6 +880,22 @@ class WireActivityViewModelTest {
     }
 
     @Test
+    fun givenCurrentSessionChanges_whenConfirmingGraph_thenUseFreshValidAccountInsteadOfObservedState() = runTest {
+        val (arrangement, viewModel) = Arrangement()
+            .withCurrentSessionFlow(flowOf(CurrentSessionResult.Success(TEST_ACCOUNT_INFO)))
+            .withCurrentSession(CurrentSessionResult.Success(TEST_ACCOUNT_INFO))
+            .arrange()
+
+        viewModel.confirmCurrentSession(USER_ID) shouldBeEqualTo true
+        arrangement.withCurrentSession(CurrentSessionResult.Success(invalidAccountInfo(LogoutReason.REMOVED_CLIENT)))
+        viewModel.confirmCurrentSession(USER_ID) shouldBeEqualTo false
+        arrangement.withCurrentSession(CurrentSessionResult.Failure.SessionNotFound)
+        viewModel.confirmCurrentSession(USER_ID) shouldBeEqualTo false
+        arrangement.withCurrentSession(CurrentSessionResult.Success(TEST_ACCOUNT_INFO))
+        viewModel.confirmCurrentSession(UserId("other", USER_ID.domain)) shouldBeEqualTo false
+    }
+
+    @Test
     fun givenSameAlreadyValidAccount_whenObservedAgain_thenDoNotConfirmANewSessionGeneration() {
         val initialState = GlobalAppState(
             currentUserId = USER_ID,

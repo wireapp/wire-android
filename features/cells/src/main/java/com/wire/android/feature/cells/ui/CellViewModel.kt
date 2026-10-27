@@ -54,7 +54,6 @@ import com.wire.kalium.cells.data.SortingSpec
 import com.wire.kalium.cells.domain.CellUploadCoordinator
 import com.wire.kalium.cells.domain.CellUploadState
 import com.wire.kalium.cells.domain.model.Node
-import com.wire.kalium.cells.domain.model.NodeLocator
 import com.wire.kalium.cells.domain.model.NodeToDelete
 import com.wire.kalium.cells.domain.usecase.DeleteCellAssetUseCase
 import com.wire.kalium.cells.domain.usecase.DeleteCellAssetsUseCase
@@ -139,7 +138,6 @@ class CellViewModel @AssistedInject constructor(
     private val qualifiedIdMapper: QualifiedIdMapper,
     private val uploadFilePreparer: DriveUploadFilePreparer,
     private val uploadCoordinator: CellUploadCoordinator,
-    private val nodeMoveEvents: CellNodeMoveEvents,
     private val nodeChangeEvents: CellNodeChangeEvents,
     /** When disabled, all offline-files UI (save actions, offline banner, offline browsing) is hidden. */
     @Named("offlineFilesEnabled") val offlineFilesEnabled: Boolean,
@@ -582,16 +580,14 @@ class CellViewModel @AssistedInject constructor(
      * There is no rollback: if it fails midway, some of them may still have been deleted, so the list is refreshed and
      * the selection cleared either way.
      */
-    @Suppress("ReturnCount")
     private fun deleteSelectedNodes() {
         val confirmation = _bulkDeleteDialog.value as? BulkDeleteDialog.Confirmation ?: return
         if (confirmation.isInProgress) return
-        val folderPath = currentNodeUuid() ?: return
         val nodes = confirmation.nodes
         _bulkDeleteDialog.value = confirmation.copy(isInProgress = true)
         viewModelScope.launch {
             val isPermanentDelete = confirmation.isPermanentDelete
-            val result = deleteCellAssets(nodes.map { it.toNodeToDelete(folderPath) }, permanentDelete = isPermanentDelete)
+            val result = deleteCellAssets(nodes.map { it.toNodeToDelete() }, permanentDelete = isPermanentDelete)
             bulkSelection.clear()
             result
                 .onSuccess {
@@ -702,10 +698,11 @@ class CellViewModel @AssistedInject constructor(
         _bulkRestoreDialog.value = null
     }
 
-    // The server path when known: in the recycle bin, nodes don't live under the folder being browsed.
-    private fun CellNodeUi.toNodeToDelete(folderPath: String) = NodeToDelete(
-        locator = NodeLocator(uuid = uuid, path = remotePath ?: "$folderPath/$name"),
+    // Deleted by uuid, so it doesn't matter where the node lives, e.g. in the recycle bin rather than the folder browsed.
+    private fun CellNodeUi.toNodeToDelete() = NodeToDelete(
+        uuid = uuid,
         localPath = (this as? CellNodeUi.File)?.localPath,
+        folderPath = (this as? CellNodeUi.Folder)?.remotePath,
     )
 
     internal fun currentNodeUuid(): String? = navArgs.conversationId

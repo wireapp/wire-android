@@ -647,15 +647,45 @@ class CellViewModelTest {
         coVerify(exactly = 1) {
             arrangement.deleteCellAssetsUseCase(
                 listOf(
-                    // Their server paths, not built from the folder being browsed.
-                    NodeToDelete(NodeLocator("fileUuid", "remotePath"), localPath = "localPath"),
-                    NodeToDelete(NodeLocator("fileUuid2", "remotePath2"), localPath = null),
+                    NodeToDelete(uuid = "fileUuid", localPath = "localPath"),
+                    NodeToDelete(uuid = "fileUuid2", localPath = null),
                 ),
                 permanentDelete = false,
             )
         }
         assertNull(viewModel.bulkDeleteDialog.value)
         assertTrue(viewModel.selectedNodes.value.isEmpty())
+    }
+
+    @Test
+    fun `given a selected folder when deleted then its path is passed to clean up the files inside it`() = runTest {
+        val (arrangement, viewModel) = Arrangement()
+            .withConversationId("conversationId")
+            .withBulkDeleteReturning(Unit.right())
+            .arrange()
+        val folder = Node.Folder(
+            uuid = "folderUuid",
+            name = "reports",
+            remotePath = "conversationId/reports",
+            modifiedTime = 0L,
+            size = 0,
+        ).toUiModel()
+        val file = testFiles[0].toUiModel()
+        selectNodes(viewModel, listOf(folder, file))
+        viewModel.sendIntent(CellViewIntent.OnDeleteSelectedNodesClick)
+
+        viewModel.sendIntent(CellViewIntent.OnBulkDeleteConfirmed)
+        advanceUntilIdle()
+
+        coVerify(exactly = 1) {
+            arrangement.deleteCellAssetsUseCase(
+                listOf(
+                    NodeToDelete(uuid = "folderUuid", localPath = null, folderPath = "conversationId/reports"),
+                    NodeToDelete(uuid = "fileUuid", localPath = "localPath", folderPath = null),
+                ),
+                any(),
+            )
+        }
     }
 
     @Test

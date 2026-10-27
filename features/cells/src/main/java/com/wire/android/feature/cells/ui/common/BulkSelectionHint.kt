@@ -228,6 +228,7 @@ private fun DrawScope.drawDemoFrame(t: Float, sizes: DemoSizes, colors: DemoColo
     }
 }
 
+@Suppress("MagicNumber")
 private fun DrawScope.drawDemoRow(top: Float, height: Float, selection: Float, sizes: DemoSizes, colors: DemoColors) {
     drawRoundRect(
         color = lerp(colors.row, colors.selectedRow, selection),
@@ -267,6 +268,7 @@ private fun DrawScope.drawDemoRow(top: Float, height: Float, selection: Float, s
     )
 }
 
+@Suppress("MagicNumber")
 private fun DrawScope.drawCheckMark(center: Offset, radius: Float, alpha: Float, color: Color) {
     val path = Path().apply {
         moveTo(center.x - radius * 0.45f, center.y)

@@ -51,7 +51,10 @@ class ValidateSourceRunTest(unittest.TestCase):
         self.assertEqual("a" * 40, outputs["sourceHeadSha"])
 
     def test_blank_id_selects_latest_completed_run_of_requesting_workflow(self) -> None:
-        for filename in ("qa-android-regression-tests.yml", "qa-android-fdroid-tests.yml"):
+        for filename in (
+            "qa-android-regression-tests.yml", "qa-android-fdroid-tests.yml",
+            "qa-android-emulator-critical-flow-tests.yml",
+        ):
             with self.subTest(filename=filename):
                 workflow = f".github/workflows/{filename}"
                 self.metadata["path"] = workflow
@@ -65,7 +68,10 @@ class ValidateSourceRunTest(unittest.TestCase):
                 self.assertNotIn("12344", outputs)
 
     def test_explicit_id_uses_that_run_without_latest_lookup(self) -> None:
-        for filename in ("qa-android-regression-tests.yml", "qa-android-fdroid-tests.yml"):
+        for filename in (
+            "qa-android-regression-tests.yml", "qa-android-fdroid-tests.yml",
+            "qa-android-emulator-critical-flow-tests.yml",
+        ):
             with self.subTest(filename=filename):
                 workflow = f".github/workflows/{filename}"
                 self.metadata["path"] = workflow
@@ -98,6 +104,7 @@ class ValidateSourceRunTest(unittest.TestCase):
         workflows = (
             ".github/workflows/qa-android-regression-tests.yml",
             ".github/workflows/qa-android-fdroid-tests.yml",
+            ".github/workflows/qa-android-emulator-critical-flow-tests.yml",
         )
         for expected in workflows:
             for source in workflows:

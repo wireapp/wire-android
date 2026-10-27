@@ -47,7 +47,6 @@ import com.wire.kalium.cells.domain.CellUploadItem
 import com.wire.kalium.cells.domain.CellUploadRequest
 import com.wire.kalium.cells.domain.CellUploadState
 import com.wire.kalium.cells.domain.model.Node
-import com.wire.kalium.cells.domain.model.NodeLocator
 import com.wire.kalium.cells.domain.model.NodeToDelete
 import com.wire.kalium.cells.domain.usecase.DeleteCellAssetUseCase
 import com.wire.kalium.cells.domain.usecase.DeleteCellAssetsUseCase
@@ -608,7 +607,7 @@ class CellViewModelTest {
         viewModel.sendIntent(CellViewIntent.OnNodeDeleteConfirmed(testFile))
 
         coVerify(exactly = 1) {
-            arrangement.deleteCellAssetUseCase(any(), any())
+            arrangement.deleteCellAssetUseCase(any(), any(), any())
         }
     }
 
@@ -1297,7 +1296,7 @@ class CellViewModelTest {
         }
 
         fun withDeleteSuccess() = apply {
-            coEvery { deleteCellAssetUseCase(any(), any()) } returns Unit.right()
+            coEvery { deleteCellAssetUseCase(any(), any(), any()) } returns Unit.right()
         }
 
         fun withNoCellsAvailable() = apply {
@@ -1330,6 +1329,14 @@ class CellViewModelTest {
 
         fun withConversationId(conversationId: String) = apply {
             this.conversationId = conversationId
+        }
+
+        /**
+         * More than viewer access, which bulk selection requires. Despite its name, the use case returns true when the
+         * self user has full access (the view model negates it).
+         */
+        fun withEditorAccess() = apply {
+            coEvery { isSelfUserViewerOnConversation(any()) } returns true
         }
 
         /**

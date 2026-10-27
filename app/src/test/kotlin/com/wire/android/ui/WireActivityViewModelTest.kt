@@ -30,7 +30,6 @@ import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.assertions.shouldBeEqualTo
 import com.wire.android.config.CoroutineTestExtension
-import com.wire.android.config.NomadProfilesFeatureConfig
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.config.mockUri
 import com.wire.android.datastore.GlobalDataStore
@@ -62,9 +61,6 @@ import com.wire.android.util.SupportUrlResolver
 import com.wire.android.util.deeplink.DeepLinkProcessor
 import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.android.util.deeplink.LoginType
-import com.wire.android.util.lifecycle.AutomatedLoginManager
-import com.wire.android.util.lifecycle.AutomatedLoginViaSSO
-import com.wire.android.util.lifecycle.IntentsProcessor
 import com.wire.android.util.newServerConfig
 import com.wire.kalium.common.error.NetworkFailure
 import com.wire.kalium.logic.CoreLogic
@@ -81,9 +77,6 @@ import com.wire.kalium.logic.data.logout.LogoutReason
 import com.wire.kalium.logic.data.sync.SyncState
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.appVersioning.ObserveIfAppUpdateRequiredUseCase
-import com.wire.kalium.logic.feature.auth.AuthenticationScope
-import com.wire.kalium.logic.feature.auth.IsNomadProfilesEnabledUseCase
-import com.wire.kalium.logic.feature.auth.autoVersioningAuth.AutoVersionAuthScopeUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import com.wire.kalium.logic.feature.client.ClearNewClientsForUserUseCase
 import com.wire.kalium.logic.feature.client.IsProfileQRCodeEnabledUseCase
@@ -95,7 +88,6 @@ import com.wire.kalium.logic.feature.server.GetServerConfigUseCase
 import com.wire.kalium.logic.feature.server.IsCrossBackendLoginBlockedUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionFlowUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
-import com.wire.kalium.logic.feature.session.DoesValidNomadAccountExistUseCase
 import com.wire.kalium.logic.feature.session.DoesValidSessionExistResult
 import com.wire.kalium.logic.feature.session.DoesValidSessionExistUseCase
 import com.wire.kalium.logic.feature.session.GetAllSessionsResult
@@ -123,7 +115,6 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertInstanceOf
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.AfterEach
@@ -984,159 +975,6 @@ class WireActivityViewModelTest {
     }
 
     @Test
-    fun `given automated_login intent with only ssoCode, when handling intents, then intent is ignored`() = runTest {
-        val ssoCode = "wire-b6261497-5b7d-4a57-8f4d-3a94e936b2c0"
-        val (arrangement, viewModel) = Arrangement()
-            .withAutomatedLoginIntent(ssoCode = ssoCode)
-            .arrange()
-
-        val handled = viewModel.handleIntentsThatAreNotDeepLinks(mockedIntent())
-        advanceUntilIdle()
-
-        assertFalse(handled)
-        assertFalse(arrangement.automatedLoginManager.pendingMoveToBackgroundAfterSync)
-    }
-
-    @Test
-    fun `given automated login intent with backend config, when selector disables new login, then resolved action uses old login`() =
-        runTest {
-            val serverLinks = newServerConfig(1).links
-            val (_, viewModel) = Arrangement()
-                .withCanUseNewLogin(false)
-                .withAutomatedLoginIntent(
-                    ssoCode = "wire-b6261497-5b7d-4a57-8f4d-3a94e936b2c0",
-                    backendConfig = "url"
-                )
-                .arrange()
-
-            viewModel.actions.test {
-                val handled = viewModel.handleIntentsThatAreNotDeepLinks(mockedIntent())
-                advanceUntilIdle()
-
-                assertTrue(handled)
-                assertEquals(
-                    OnAutomaticLogin(
-                        serverLinks = serverLinks,
-                        ssoCode = "wire-b6261497-5b7d-4a57-8f4d-3a94e936b2c0",
-                        nomadServiceUrl = "https://nomad.example.com",
-                        cookieLabel = "shared-device",
-                        useNewLogin = false
-                    ),
-                    expectMostRecentItem()
-                )
-            }
-        }
-
-    @Test
-    fun `given automated login intent with only backend config, when handling intents, then intent is ignored`() = runTest {
-        val (arrangement, viewModel) = Arrangement()
-            .withAutomatedLoginIntent(backendConfig = "url")
-            .arrange()
-
-        val handled = viewModel.handleIntentsThatAreNotDeepLinks(mockedIntent())
-        advanceUntilIdle()
-
-        assertFalse(handled)
-        assertFalse(arrangement.automatedLoginManager.pendingMoveToBackgroundAfterSync)
-    }
-
-    @Test
-    fun `given existing session, when handling automated login intent, then login is blocked with toast`() = runTest {
-        val ssoCode = "wire-b6261497-5b7d-4a57-8f4d-3a94e936b2c0"
-        val (arrangement, viewModel) = Arrangement()
-            .withAutomatedLoginIntent(ssoCode = ssoCode, backendConfig = "url")
-            .withObserveSessionsFlow(flowOf(GetAllSessionsResult.Success(listOf(TEST_ACCOUNT_INFO))))
-            .arrange()
-
-        viewModel.actions.test {
-            viewModel.handleIntentsThatAreNotDeepLinks(mockedIntent())
-            advanceUntilIdle()
-
-            assertEquals(ShowToast(R.string.nomad_login_blocked_message), expectMostRecentItem())
-            assertFalse(arrangement.automatedLoginManager.pendingMoveToBackgroundAfterSync)
-        }
-    }
-
-    @Test
-    fun `given nomad profiles disabled, when handling non deep link intents, then intent is ignored`() = runTest {
-        val (arrangement, viewModel) = Arrangement()
-            .withNomadProfilesEnabled(false)
-            .withAutomatedLoginIntent(
-                ssoCode = "wire-b6261497-5b7d-4a57-8f4d-3a94e936b2c0",
-                backendConfig = "url"
-            )
-            .arrange()
-
-        viewModel.actions.test {
-            val handled = viewModel.handleIntentsThatAreNotDeepLinks(mockedIntent())
-            advanceUntilIdle()
-
-            assertEquals(true, handled)
-            assertEquals(false, arrangement.automatedLoginManager.pendingMoveToBackgroundAfterSync)
-            coVerify(exactly = 1) { arrangement.intentsProcessor(any()) }
-            coVerify(exactly = 0) { arrangement.isNomadProfilesEnabledUseCase.invoke() }
-            coVerify(exactly = 0) { arrangement.observeSessionsUseCase.invoke() }
-            expectNoEvents()
-        }
-    }
-
-    @Test
-    fun `given server does not support nomad profiles, when handling automated login intent, then login is ignored`() = runTest {
-        val (arrangement, viewModel) = Arrangement()
-            .withServerNomadProfilesEnabled(false)
-            .withAutomatedLoginIntent(
-                ssoCode = "wire-b6261497-5b7d-4a57-8f4d-3a94e936b2c0",
-                backendConfig = "url"
-            )
-            .arrange()
-
-        viewModel.actions.test {
-            val handled = viewModel.handleIntentsThatAreNotDeepLinks(mockedIntent())
-            advanceUntilIdle()
-
-            assertTrue(handled)
-            assertFalse(arrangement.automatedLoginManager.pendingMoveToBackgroundAfterSync)
-            coVerify(exactly = 1) { arrangement.isNomadProfilesEnabledUseCase.invoke() }
-            coVerify(exactly = 0) { arrangement.observeSessionsUseCase.invoke() }
-            expectNoEvents()
-        }
-    }
-
-    @Test
-    fun `given resolved backend is Wire production, when handling nomad intent, then login is ignored`() = runTest {
-        val (arrangement, viewModel) = Arrangement()
-            .withAutomatedLoginIntent(
-                ssoCode = "wire-b6261497-5b7d-4a57-8f4d-3a94e936b2c0",
-                backendConfig = "url"
-            )
-            .withProductionServerConfig()
-            .arrange()
-
-        viewModel.actions.test {
-            val handled = viewModel.handleIntentsThatAreNotDeepLinks(mockedIntent())
-            advanceUntilIdle()
-
-            assertTrue(handled)
-            assertFalse(arrangement.automatedLoginManager.pendingMoveToBackgroundAfterSync)
-            coVerify(exactly = 0) { arrangement.isNomadProfilesEnabledUseCase.invoke() }
-            expectNoEvents()
-        }
-    }
-
-    @Test
-    fun `given nomad profiles disabled, when handling sharing intent, then import media screen is still shown`() = runTest {
-        val (_, viewModel) = Arrangement()
-            .withNomadProfilesEnabled(false)
-            .withDeepLinkResult(DeepLinkResult.SharingIntent)
-            .arrange()
-
-        viewModel.actions.test {
-            viewModel.handleDeepLink(mockedIntent())
-            assertEquals(OnShowImportMediaScreen, expectMostRecentItem())
-        }
-    }
-
-    @Test
     fun `given untrusted sharing intent with mixed Wire and external provider uris, when handling deep link, then show ignored toast`() =
         runTest {
             val (_, viewModel) = Arrangement()
@@ -1408,7 +1246,6 @@ class WireActivityViewModelTest {
         val managedConfigurationsManager: ManagedConfigurationsManager = mockk(relaxed = true)
         private val persistentWebSocketEnforcedByMDMFlow = MutableStateFlow(false)
         private var defaultServerConfig = newServerConfig(0).links
-        val automatedLoginManager = AutomatedLoginManager()
 
         init {
             // Tests setup
@@ -1421,7 +1258,6 @@ class WireActivityViewModelTest {
             coEvery { coreLogic.getGlobalScope().session.currentSession() } returns CurrentSessionResult.Failure.SessionNotFound
             coEvery { getServerConfigUseCase(any()) } returns GetServerConfigResult.Success(newServerConfig(1).links)
             coEvery { deepLinkProcessor(any(), any()) } returns DeepLinkResult.Unknown
-            coEvery { intentsProcessor(any()) } returns null
             coEvery { observeSessionsUseCase.invoke() } returns flowOf(GetAllSessionsResult.Failure.NoSessionFound)
             every { observeSyncStateUseCaseProviderFactory.create(any()).observeSyncState } returns observeSyncStateUseCase
             every { observeSyncStateUseCase() } returns emptyFlow()
@@ -1444,13 +1280,7 @@ class WireActivityViewModelTest {
             coEvery { observeSelfUserUseCase() } returns flowOf(SELF_USER)
             every { managedConfigurationsManager.persistentWebSocketEnforcedByMDM } returns persistentWebSocketEnforcedByMDMFlow
             every { managedConfigurationsManager.currentServerConfig } returns null
-            every { nomadProfilesFeatureConfig.isEnabled() } returns true
-            every { coreLogic.versionedAuthenticationScope(any()) } returns autoVersionAuthScopeUseCase
-            coEvery { autoVersionAuthScopeUseCase(any()) } returns AutoVersionAuthScopeUseCase.Result.Success(authenticationScope)
-            every { authenticationScope.isNomadProfilesEnabled } returns isNomadProfilesEnabledUseCase
-            coEvery { isNomadProfilesEnabledUseCase() } returns IsNomadProfilesEnabledUseCase.Result.Success(true)
             coEvery { loginTypeSelector.canUseNewLogin(any()) } returns true
-            coEvery { doesValidNomadAccountExist() } returns false
             coEvery {
                 coreLogic.getGlobalScope().isCrossBackendLoginBlocked(any<IsCrossBackendLoginBlockedUseCase.Target>())
             } returns false
@@ -1469,9 +1299,6 @@ class WireActivityViewModelTest {
         lateinit var deepLinkProcessor: DeepLinkProcessor
 
         @MockK
-        lateinit var intentsProcessor: IntentsProcessor
-
-        @MockK
         lateinit var observeSessionsUseCase: ObserveSessionsUseCase
 
         @MockK
@@ -1485,15 +1312,6 @@ class WireActivityViewModelTest {
 
         @MockK
         private lateinit var coreLogic: CoreLogic
-
-        @MockK
-        private lateinit var autoVersionAuthScopeUseCase: AutoVersionAuthScopeUseCase
-
-        @MockK
-        private lateinit var authenticationScope: AuthenticationScope
-
-        @MockK
-        lateinit var isNomadProfilesEnabledUseCase: IsNomadProfilesEnabledUseCase
 
         @MockK
         lateinit var servicesManager: ServicesManager
@@ -1538,13 +1356,7 @@ class WireActivityViewModelTest {
         lateinit var monitorSyncWorkUseCase: MonitorSyncWorkUseCase
 
         @MockK
-        lateinit var nomadProfilesFeatureConfig: NomadProfilesFeatureConfig
-
-        @MockK
         lateinit var loginTypeSelector: LoginTypeSelector
-
-        @MockK
-        lateinit var doesValidNomadAccountExist: DoesValidNomadAccountExistUseCase
 
         private val viewModel by lazy {
             WireActivityViewModel(
@@ -1554,7 +1366,6 @@ class WireActivityViewModelTest {
                 doesValidSessionExist = lazyOf(doesValidSessionExist),
                 getServerConfigUseCase = lazyOf(getServerConfigUseCase),
                 deepLinkProcessor = lazyOf(deepLinkProcessor),
-                intentsProcessor = lazyOf(intentsProcessor),
                 observeSessions = lazyOf(observeSessionsUseCase),
                 accountSwitch = lazyOf(switchAccount),
                 servicesManager = lazyOf(servicesManager),
@@ -1572,10 +1383,7 @@ class WireActivityViewModelTest {
                 monitorSyncWorkUseCase = monitorSyncWorkUseCase,
                 managedConfigurationsManager = managedConfigurationsManager,
                 defaultServerConfig = defaultServerConfig,
-                automatedLoginManager = automatedLoginManager,
-                nomadProfilesFeatureConfig = nomadProfilesFeatureConfig,
                 loginTypeSelector = loginTypeSelector,
-                doesValidNomadAccountExist = lazyOf(doesValidNomadAccountExist),
                 startupAccountLimitGate = startupAccountLimitGate,
             )
         }
@@ -1737,34 +1545,8 @@ class WireActivityViewModelTest {
             coEvery { useCase() } returns isEnabled
         }
 
-        fun withAutomatedLoginIntent(
-            ssoCode: String? = null,
-            backendConfig: String? = null,
-        ): Arrangement = apply {
-            coEvery { intentsProcessor(any()) } returns when {
-                ssoCode == null || backendConfig == null -> null
-                else -> AutomatedLoginViaSSO(
-                    ssoCode = ssoCode,
-                    backendConfig = backendConfig,
-                    nomadProfilesHost = "https://nomad.example.com"
-                )
-            }
-        }
-
-        fun withNomadProfilesEnabled(enabled: Boolean): Arrangement = apply {
-            every { nomadProfilesFeatureConfig.isEnabled() } returns enabled
-        }
-
-        fun withServerNomadProfilesEnabled(enabled: Boolean): Arrangement = apply {
-            coEvery { isNomadProfilesEnabledUseCase() } returns IsNomadProfilesEnabledUseCase.Result.Success(enabled)
-        }
-
         fun withCanUseNewLogin(canUseNewLogin: Boolean): Arrangement = apply {
             coEvery { loginTypeSelector.canUseNewLogin(any()) } returns canUseNewLogin
-        }
-
-        fun withProductionServerConfig(): Arrangement = apply {
-            coEvery { getServerConfigUseCase(any()) } returns GetServerConfigResult.Success(ServerConfig.PRODUCTION)
         }
 
         fun arrange() = this to viewModel

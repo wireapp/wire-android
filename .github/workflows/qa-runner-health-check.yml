@@ -3,10 +3,19 @@ name: QA Runner Health Check
 
 on:
   workflow_dispatch:
+    inputs:
+      checkEmulators:
+        description: "Start and validate all four emulators, list connected devices, then stop the emulators."
+        type: boolean
+        default: false
 
 jobs:
   health-check:
     name: Health check (qa-runner-01)
+    concurrency:
+      group: qa-android-ui-tests-office-runner
+      queue: max
+      cancel-in-progress: false
     runs-on:
       - self-hosted
       - Linux
@@ -14,17 +23,29 @@ jobs:
       - office
       - android-qa
 
-    timeout-minutes: 4
+    timeout-minutes: ${{ inputs.checkEmulators && 12 || 2 }}
+
+    env:
+      DEVICE_GROUPS_JSON: ${{ vars.ANDROID_DEVICE_GROUPS_JSON }}
 
     steps:
       - name: Checkout
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+          persist-credentials: false
 
       - name: Setup Java 21
         uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
         with:
           java-version: "21"
           distribution: "temurin"
+
+      - name: Set up Android SDK for emulator checks
+        if: inputs.checkEmulators
+        uses: android-actions/setup-android@be39fa834029ff78f1a44aa3bb0819b8fc2bd8fd # v4
+        with:
+          packages: platform-tools
 
       - name: Ensure ADB is available (no sudo)
         shell: bash
@@ -53,7 +74,13 @@ jobs:
           # Sanity check
           "$HOME/platform-tools/adb" version
 
+      - name: Start and validate the four-emulator pool
+        if: inputs.checkEmulators
+        timeout-minutes: 8
+        run: python3 scripts/qa/android-ui/emulator_pool.py start
+
       - name: Check connected Android devices (must be authorized)
+        if: ${{ !cancelled() }}
         shell: bash
         run: |
           set -euo pipefail
@@ -78,6 +105,16 @@ jobs:
             echo " - optionally toggle USB debugging off/on"
             exit 1
           fi
+
+      - name: Check emulator logs for ANRs and crashes
+        if: always() && inputs.checkEmulators
+        timeout-minutes: 2
+        run: python3 scripts/qa/android-ui/emulator_pool.py collect
+
+      - name: Stop health-check emulators
+        if: always() && inputs.checkEmulators
+        timeout-minutes: 1
+        run: python3 scripts/qa/android-ui/emulator_pool.py stop
 
       - name: Runner identity (for audit)
         shell: bash

@@ -171,4 +171,6 @@
     <string name="app_permission_dialog_title">App permissions</string>
     <string name="app_permission_dialog_settings_positive_button">Settings</string>
     <string name="app_permission_dialog_settings_negative_button">Not Now</string>
+    <string name="copy_password_button_text">Copy password</string>
+    <string name="password_copied">Password copied to clipboard</string>
 </resources>

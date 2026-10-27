@@ -8,20 +8,28 @@
  * (at your option) any later version.
  */
 
-package com.wire.android.feature.meetings.ui.create
+package com.wire.android.feature.meetings.ui
 
 import androidx.compose.runtime.Composable
-import com.wire.android.feature.meetings.ui.newMeetingViewModel
+import com.wire.android.feature.meetings.ui.create.FailedToLoadEditMeetingDataError
+import com.wire.android.feature.meetings.ui.create.NewMeetingContent
+import com.wire.android.feature.meetings.ui.create.NewMeetingErrorDialog
+import com.wire.android.feature.meetings.ui.create.NewMeetingNavArgs
+import com.wire.android.feature.meetings.ui.create.NewMeetingParticipantsRouteContent
+import com.wire.android.feature.meetings.ui.create.NewMeetingState
+import com.wire.android.feature.meetings.ui.create.NewMeetingViewActions
+import com.wire.android.feature.meetings.ui.create.NewMeetingViewModel
+import com.wire.android.feature.meetings.ui.options.ShareMeetingWithGuestsScreen
 import com.wire.android.navigation.navigation3.WireEntryPresentation
 import com.wire.android.navigation.navigation3.WireEntryProviderInstaller
-import com.wire.android.navigation.navigation3.WireNavigation3Runtime
 import com.wire.android.navigation.navigation3.WireNavigation3ResultType
+import com.wire.android.navigation.navigation3.WireNavigation3Runtime
 import com.wire.android.navigation.navigation3.wireEntry
 import com.wire.android.navigation.navigation3.wireViewModelStoreOwner
 import com.wire.android.ui.common.HandleActions
+import com.wire.navigation.WireNavResult
 import com.wire.navigation.WireNavigationCommand
 import com.wire.navigation.WireViewModelOwner
-import com.wire.navigation.WireNavResult
 
 val NewMeetingNavigation3ResultType = WireNavigation3ResultType(
     contract = NewMeetingResultContract,
@@ -43,7 +51,7 @@ data class MeetingParticipantId(val value: String, val domain: String) {
 }
 
 object MeetingsNavigation3Contribution {
-    const val ROUTE_REGISTRATION_COUNT: Int = 2
+    const val ROUTE_REGISTRATION_COUNT: Int = 3
     val resultTypes: List<WireNavigation3ResultType<*>> = listOf(NewMeetingNavigation3ResultType)
 
     fun entryProviderInstallers(
@@ -63,6 +71,12 @@ fun meetingsNavigation3Entries(
     wireEntry<NewMeetingParticipantsRoute>(presentation = WireEntryPresentation.PopUp) {
         NewMeetingParticipantsNavigation3Entry(it, runtime, actions)
     }
+    wireEntry<ShareMeetingWithGuestsRoute>(presentation = WireEntryPresentation.PopUp) { route ->
+        ShareMeetingWithGuestsScreen(
+            occurrenceId = route.occurrenceId,
+            onBack = { if (!runtime.navigator.goBack()) actions.exitMeetingFlow() },
+        )
+    }
 }
 
 @Composable
@@ -78,6 +92,9 @@ private fun NewMeetingDetailsNavigation3Entry(
         onBackPressed = navigateBack,
         state = viewModel.state,
         titleState = viewModel.titleTextState,
+        passwordState = viewModel.passwordTextState,
+        confirmPasswordState = viewModel.confirmPasswordTextState,
+        onGenerateRandomPassword = viewModel::onGenerateRandomPassword,
         onParticipantsClicked = {
             runtime.navigator.navigate(
                 WireNavigationCommand(

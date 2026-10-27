@@ -20,7 +20,10 @@ package com.wire.navigation
 
 import kotlin.jvm.JvmInline
 import kotlin.random.Random
+import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
 
 private const val ENTRY_ID_BYTE_COUNT = 16
 private const val HEX_RADIX = 16
@@ -130,11 +133,31 @@ sealed interface WireNavResultState<out T> {
     data object Pending : WireNavResultState<Nothing>
 
     @Serializable
-    data class Completed<T>(val result: WireNavResult<T>) : WireNavResultState<T>
+    data class Completed<T>(
+        @Serializable(with = WireNavResultSerializer::class)
+        val result: WireNavResult<T>,
+    ) : WireNavResultState<T>
 }
 
 @Serializable
 data class WireNavResultRecord<T>(
     val request: WireNavResultRequest,
+    @Serializable(with = WireNavResultStateSerializer::class)
     val state: WireNavResultState<T> = WireNavResultState.Pending,
 )
+
+// Property serializers preserve T when Kotlin 2.4.20 generates decoders for nested sealed types.
+// Encoder/decoder dispatch also preserves the generated sealed serializer's JSON discriminator.
+internal class WireNavResultSerializer<T>(valueSerializer: KSerializer<T>) :
+    NavigationResultSerializer<WireNavResult<T>>(WireNavResult.serializer(valueSerializer))
+
+internal class WireNavResultStateSerializer<T>(valueSerializer: KSerializer<T>) :
+    NavigationResultSerializer<WireNavResultState<T>>(WireNavResultState.serializer(valueSerializer))
+
+internal abstract class NavigationResultSerializer<T>(private val delegate: KSerializer<T>) : KSerializer<T> {
+    override val descriptor get() = delegate.descriptor
+
+    override fun serialize(encoder: Encoder, value: T) = encoder.encodeSerializableValue(delegate, value)
+
+    override fun deserialize(decoder: Decoder): T = decoder.decodeSerializableValue(delegate)
+}

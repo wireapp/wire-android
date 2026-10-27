@@ -100,12 +100,11 @@ class RegularMessageMapper @Inject constructor(
 
         is MessageContent.Composite -> {
             val text = content.textContent?.let { textContent ->
-                val quotedMessage = textContent.quotedMessageDetails?.let { mapQuoteData(message.conversationId, it) }
-                    ?: if (textContent.quotedMessageReference?.quotedMessageId != null) {
-                        UIQuotedMessage.UnavailableData
-                    } else {
-                        null
-                    }
+                val quotedMessage = mapQuote(
+                    message.conversationId,
+                    textContent.quotedMessageDetails,
+                    textContent.quotedMessageReference
+                )
 
                 MessageBody(
                     message = UIText.DynamicString(textContent.value, content.textContent?.mentions.orEmpty()),
@@ -170,12 +169,11 @@ class RegularMessageMapper @Inject constructor(
     ): UIMessageContent.TextMessage {
         val messageTextContent = (content as? MessageContent.Text)
 
-        val quotedMessage = messageTextContent?.quotedMessageDetails?.let { mapQuoteData(conversationId, it) }
-            ?: if (messageTextContent?.quotedMessageReference?.quotedMessageId != null) {
-                UIQuotedMessage.UnavailableData
-            } else {
-                null
-            }
+        val quotedMessage = mapQuote(
+            conversationId,
+            messageTextContent?.quotedMessageDetails,
+            messageTextContent?.quotedMessageReference
+        )
 
         val uiText = when (content) {
             is MessageContent.Text -> UIText.DynamicString(content.value, content.mentions)
@@ -205,8 +203,21 @@ class RegularMessageMapper @Inject constructor(
         }
     }
 
-    private fun mapQuoteData(conversationId: ConversationId, details: MessageContent.QuotedMessageDetails) =
-        UIQuotedMessage.UIQuotedData(
+    private fun mapQuote(
+        conversationId: ConversationId,
+        details: MessageContent.QuotedMessageDetails?,
+        reference: MessageContent.QuoteReference?
+    ): UIQuotedMessage? = when {
+        details != null -> mapQuoteData(conversationId, details)
+        reference != null -> UIQuotedMessage.UnavailableData
+        else -> null
+    }
+
+    private fun mapQuoteData(
+        conversationId: ConversationId,
+        details: MessageContent.QuotedMessageDetails
+    ): UIQuotedMessage.UIQuotedData? {
+        return UIQuotedMessage.UIQuotedData(
             messageId = details.messageId,
             senderId = details.senderId,
             senderName = details.senderName.orUnknownName(),
@@ -237,6 +248,7 @@ class RegularMessageMapper @Inject constructor(
                 }
 
                 is MessageContent.QuotedMessageDetails.Text -> UIQuotedMessage.UIQuotedData.Text(UIText.DynamicString(quotedContent.value))
+                is MessageContent.QuotedMessageDetails.Poll -> return null
                 is MessageContent.QuotedMessageDetails.Location -> UIQuotedMessage.UIQuotedData.Location(
                     quotedContent.locationName.orEmpty()
                 )
@@ -250,6 +262,7 @@ class RegularMessageMapper @Inject constructor(
                 MessageContent.QuotedMessageDetails.Invalid -> UIQuotedMessage.UIQuotedData.Invalid
             }
         )
+    }
 
     fun toUIMessageContent(
         assetMessageContentMetadata: AssetMessageContentMetadata,
@@ -331,12 +344,7 @@ class RegularMessageMapper @Inject constructor(
         deliveryStatus: DeliveryStatus
     ): UIMessageContent.Multipart {
 
-        val quotedMessage = content.quotedMessageDetails?.let { mapQuoteData(conversationId = conversationId, details = it) }
-            ?: if (content.quotedMessageReference?.quotedMessageId != null) {
-                UIQuotedMessage.UnavailableData
-            } else {
-                null
-            }
+        val quotedMessage = mapQuote(conversationId, content.quotedMessageDetails, content.quotedMessageReference)
 
         return MessageBody(UIText.DynamicString(content.value ?: "", content.mentions), quotedMessage = quotedMessage).let { messageBody ->
             UIMessageContent.Multipart(

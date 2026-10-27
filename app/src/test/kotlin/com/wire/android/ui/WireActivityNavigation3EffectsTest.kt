@@ -8,7 +8,6 @@ package com.wire.android.ui
 import com.wire.android.navigation.routes.auth.AuthenticationLoginArguments
 import com.wire.android.navigation.routes.auth.AuthenticationLoginPasswordPath
 import com.wire.android.navigation.routes.auth.AuthenticationPrefilledUserIdentifier
-import com.wire.android.navigation.routes.auth.AuthenticationSsoCodeAutoLogin
 import com.wire.android.navigation.routes.auth.AuthenticationSsoFailureCode
 import com.wire.android.navigation.routes.auth.AuthenticationSsoLoginResult
 import com.wire.android.navigation.routes.auth.LoginRoute
@@ -71,26 +70,6 @@ class WireActivityNavigation3EffectsTest {
             route.args.userHandle,
         )
         assertEquals(WireBackStackMode.CLEAR_WHOLE, command.backStackMode)
-    }
-
-    @Test
-    fun givenAutomaticLegacyLogin_whenResolving_thenSsoAndUpdateModeArePreserved() {
-        val result = resolve(
-            OnAutomaticLogin(
-                serverLinks = null,
-                ssoCode = "code",
-                nomadServiceUrl = "https://nomad.example",
-                cookieLabel = "cookie",
-                useNewLogin = false,
-            ),
-            listOf(HomeRoute(session)),
-        )
-        val command = result.singleCommand()
-        val route = assertInstanceOf(LoginRoute::class.java, command.destination)
-
-        assertEquals("code", route.args.ssoCodeAutoLogin?.ssoCode)
-        assertTrue(route.args.ssoCodeAutoLogin?.autoInitiateLogin == true)
-        assertEquals(WireBackStackMode.UPDATE_EXISTING, command.backStackMode)
     }
 
     @Test
@@ -279,11 +258,6 @@ class WireActivityNavigation3EffectsTest {
         args = AuthenticationLoginArguments(
             userHandle = AuthenticationPrefilledUserIdentifier("alice"),
             loginPasswordPath = AuthenticationLoginPasswordPath(customServerConfig = serverLinks().toAuthenticationServerLinks()),
-            ssoCodeAutoLogin = AuthenticationSsoCodeAutoLogin(
-                ssoCode = "code",
-                nomadServiceUrl = "https://nomad.example",
-                cookieLabel = "cookie-label",
-            ),
             showBackendConfigSuccess = true,
         ),
     )

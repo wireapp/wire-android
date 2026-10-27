@@ -192,7 +192,7 @@ fun multipartAttachmentsViewModel(conversationId: ConversationId): MultipartAtta
     wireAssistedMetroViewModel<MultipartAttachmentsViewModelImpl, ConversationCoreManualViewModelFactory>(
         instanceKey = conversationId.value,
     ) { _ ->
-        multipartAttachmentsViewModel(conversationId)
+        this.multipartAttachmentsViewModel(conversationId)
     }
 
 @Composable

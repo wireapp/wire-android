@@ -10,11 +10,10 @@
             "analytics_app_key": "4483f7a58ae3e70b3780319c4ccb5c88a037be49",
             "analytics_server_url": "https://wire.count.ly/",
             "enable_new_registration": true,
-            "enforce_configuration_signature": true,
             "link_preview_enabled": true
         },
         "dev": {
-            "application_id": "com.waz.zclient.dev",
+            "application_id": "com.wire.android.dev",
             "developer_features_enabled": true,
             "logging_enabled": true,
             "application_is_private_build": true,
@@ -39,10 +38,11 @@
             "phone_landscape_enabled": true,
             "conversation_feeder_enabled": true,
             "db_invalidation_control_enabled": true,
-            "enforce_configuration_signature": false,
             "pending_messages": true,
             "link_preview_enabled": true,
-            "drive_bulk_actions_enabled": true
+            "drive_direct_upload_enabled": true,
+            "drive_bulk_actions_enabled": true,
+            "meetings_guests_links_enabled": true
         },
         "beta": {
             "application_id": "com.wire.android.internal",
@@ -54,7 +54,6 @@
             "analytics_app_key": "8ffae535f1836ed5f58fd5c8a11c00eca07c5438",
             "analytics_server_url": "https://wire.count.ly/",
             "enable_new_registration": true,
-            "enforce_configuration_signature": true,
             "link_preview_enabled": true
         },
         "alpha": {
@@ -67,7 +66,6 @@
             "analytics_app_key": "8ffae535f1836ed5f58fd5c8a11c00eca07c5438",
             "analytics_server_url": "https://wire.count.ly/",
             "enable_new_registration": true,
-            "enforce_configuration_signature": true,
             "use_strict_mls_filter": false,
             "phone_landscape_enabled": true,
             "conversation_feeder_enabled": true,
@@ -85,8 +83,7 @@
             "analytics_enabled": false,
             "analytics_app_key": "",
             "analytics_server_url": "",
-            "enable_new_registration": true,
-            "enforce_configuration_signature": true
+            "enable_new_registration": true
         }
     },
     "application_name": "Wire",
@@ -156,18 +153,13 @@
     "offline_files_enabled": true,
     "in_app_image_viewer_enabled": true,
     "db_invalidation_control_enabled": false,
-    "configuration_signature_keys": {
-        "0": "MCowBQYDK2VwAyEAxPrvUdt+531eDcnAFfLAv9K9gkxPDBMVEz75BkNgd1E=",
-        "1": "MCowBQYDK2VwAyEAA3lA6/1j+VJNKUsbHdlmTcjIOtjdnxzG4TkYr4nEFJw="
-    },
-    "enforce_configuration_signature": true,
     "call_quality_menu_enabled": true,
     "call_reactions_enabled": true,
-    "nomad_profiles_enabled": true,
     "block_cross_backend_login": false,
     "pending_messages": false,
     "link_preview_enabled": false,
     "drive_permissions_enabled": true,
     "drive_direct_upload_enabled": true,
-    "drive_bulk_actions_enabled": false
+    "drive_bulk_actions_enabled": false,
+    "meetings_guests_links_enabled": false
 }

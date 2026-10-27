@@ -72,12 +72,20 @@ fun MarkdownNodeBlockChildren(
     Column(modifier = modifier) {
         children.map { node ->
             when (node) {
-                is MarkdownNode.Block.BlockQuote -> MarkdownBlockQuote(node, updatedNodeData)
+                is MarkdownNode.Block.BlockQuote -> MarkdownBlockQuote(node, updatedNodeData, clickable = clickable)
                 is MarkdownNode.Block.IntendedCode -> MarkdownIndentedCodeBlock(indentedCodeBlock = node, nodeData = updatedNodeData)
                 is MarkdownNode.Block.FencedCode -> MarkdownFencedCodeBlock(fencedCodeBlock = node, nodeData = updatedNodeData)
-                is MarkdownNode.Block.Heading -> MarkdownHeading(heading = node, nodeData = updatedNodeData)
-                is MarkdownNode.Block.ListBlock.Ordered -> MarkdownOrderedList(orderedList = node, nodeData = updatedNodeData)
-                is MarkdownNode.Block.ListBlock.Bullet -> MarkdownBulletList(bulletList = node, nodeData = updatedNodeData)
+                is MarkdownNode.Block.Heading -> MarkdownHeading(heading = node, nodeData = updatedNodeData, clickable = clickable)
+                is MarkdownNode.Block.ListBlock.Ordered -> MarkdownOrderedList(
+                    orderedList = node,
+                    nodeData = updatedNodeData,
+                    clickable = clickable
+                )
+                is MarkdownNode.Block.ListBlock.Bullet -> MarkdownBulletList(
+                    bulletList = node,
+                    nodeData = updatedNodeData,
+                    clickable = clickable
+                )
 
                 is MarkdownNode.Block.Paragraph -> MarkdownParagraph(
                     paragraph = node,
@@ -91,6 +99,7 @@ fun MarkdownNodeBlockChildren(
                 is MarkdownNode.Block.Table -> MarkdownTable(
                     tableBlock = node,
                     nodeData = updatedNodeData,
+                    clickable = clickable,
                     onMentionsUpdate = {
                         updateMentions = it
                     }

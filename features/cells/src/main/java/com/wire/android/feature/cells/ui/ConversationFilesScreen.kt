@@ -65,6 +65,8 @@ import com.wire.android.feature.cells.R
 import com.wire.android.feature.cells.domain.model.AttachmentFileType
 import com.wire.android.feature.cells.ui.common.OfflineBanner
 import com.wire.android.feature.cells.ui.create.FileTypeBottomSheetDialog
+import com.wire.android.feature.cells.ui.dialog.BulkDeleteDialog
+import com.wire.android.feature.cells.ui.dialog.BulkDeleteDialogs
 import com.wire.android.feature.cells.ui.dialog.CellsNewActionBottomSheet
 import com.wire.android.feature.cells.ui.dialog.CellsOptionsBottomSheet
 import com.wire.android.feature.cells.ui.model.CellNodeUi
@@ -170,6 +172,7 @@ internal fun ConversationFilesRouteScreen(
         onViewerAccessBannerCloseClick = viewModel::onViewerAccessBannerDismissed,
         selectedNodes = viewModel.selectedNodes.collectAsState().value,
         isBulkSelectionEnabled = viewModel.isBulkSelectionEnabled.collectAsState().value,
+        bulkDeleteDialog = viewModel.bulkDeleteDialog.collectAsState().value,
         offlineFilesEnabled = viewModel.offlineFilesEnabled,
     )
 
@@ -220,6 +223,7 @@ internal fun ConversationFilesScreenContent(
     onCancelUploadConfirmation: () -> Unit = {},
     selectedNodes: Map<String, CellNodeUi> = emptyMap(),
     isBulkSelectionEnabled: Boolean = false,
+    bulkDeleteDialog: BulkDeleteDialog? = null,
     offlineFilesEnabled: Boolean = false,
 ) {
     val sharedScope = LocalSharedTransitionScope.current
@@ -332,6 +336,14 @@ internal fun ConversationFilesScreenContent(
             destinationName = destinationName,
             onConfirm = onConfirmUpload,
             onDismiss = onCancelUploadConfirmation,
+        )
+    }
+
+    bulkDeleteDialog?.let { dialog ->
+        BulkDeleteDialogs(
+            dialog = dialog,
+            onConfirm = { sendIntent(CellViewIntent.OnBulkDeleteConfirmed) },
+            onDismiss = { sendIntent(CellViewIntent.OnBulkDeleteDialogDismissed) },
         )
     }
 

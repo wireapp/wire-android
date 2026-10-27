@@ -191,7 +191,7 @@ internal fun com.wire.android.feature.cells.ui.ConversationFilesRouteScreen(navi
     - viewModel: UNSTABLE (has mutable properties or unstable members)
 
 @Composable
-internal fun com.wire.android.feature.cells.ui.ConversationFilesScreenContent(animatedVisibilityScope: androidx.compose.animation.AnimatedVisibilityScope, navigation: com.wire.android.feature.cells.ui.CellsFilesNavigation, currentNodeUuid: kotlin.String?, isSearchResult: kotlin.Boolean, actions: kotlinx.coroutines.flow.Flow<com.wire.android.feature.cells.ui.CellViewAction>, pagingListItems: androidx.paging.compose.LazyPagingItems<com.wire.android.feature.cells.ui.model.CellNodeUi>, menu: kotlinx.coroutines.flow.SharedFlow<com.wire.android.feature.cells.ui.MenuOptions>, sendIntent: kotlin.Function1<com.wire.android.feature.cells.ui.CellViewIntent, kotlin.Unit>, isRefreshing: androidx.compose.runtime.State<kotlin.Boolean>, onRefresh: kotlin.Function0<kotlin.Unit>, retryEditNodeError: kotlin.Function1<kotlin.String, kotlin.Unit>, modifier: androidx.compose.ui.Modifier, isDeleteInProgress: kotlin.Boolean, screenTitle: kotlin.String?, isRecycleBin: kotlin.Boolean, isRestoreInProgress: kotlin.Boolean, isOnline: kotlin.Boolean, breadcrumbs: kotlin.Array<kotlin.String>?, fileReadyFlow: kotlinx.coroutines.flow.Flow<com.wire.android.feature.cells.ui.model.CellNodeUi.File>, sortingCriteria: com.wire.android.feature.cells.ui.search.sort.SortingCriteria, onSortByClicked: kotlin.Function1<com.wire.android.feature.cells.ui.search.sort.SortBy, kotlin.Unit>, onSortOrderClicked: kotlin.Function1<com.wire.android.feature.cells.ui.search.sort.SortingCriteria, kotlin.Unit>, showViewerAccessBanner: kotlin.Boolean, isSelfUserViewerOnly: kotlin.Boolean, driveDirectUploadEnabled: kotlin.Boolean, onViewerAccessBannerCloseClick: kotlin.Function0<kotlin.Unit>, uploads: kotlin.collections.List<com.wire.kalium.cells.domain.CellUploadItem>, onCancelUpload: kotlin.Function1<kotlin.String, kotlin.Unit>, onCancelAllUploads: kotlin.Function0<kotlin.Unit>, onRetryUpload: kotlin.Function1<kotlin.String, kotlin.Unit>, onRetryAllFailedUploads: kotlin.Function0<kotlin.Unit>, onDismissUpload: kotlin.Function1<kotlin.String, kotlin.Unit>, onDismissAllUploads: kotlin.Function0<kotlin.Unit>, uploadConfirmation: com.wire.android.feature.cells.ui.UploadConfirmation?, onConfirmUpload: kotlin.Function0<kotlin.Unit>, onCancelUploadConfirmation: kotlin.Function0<kotlin.Unit>, selectedNodes: kotlin.collections.Map<kotlin.String, com.wire.android.feature.cells.ui.model.CellNodeUi>, isBulkSelectionEnabled: kotlin.Boolean, offlineFilesEnabled: kotlin.Boolean): kotlin.Unit
+internal fun com.wire.android.feature.cells.ui.ConversationFilesScreenContent(animatedVisibilityScope: androidx.compose.animation.AnimatedVisibilityScope, navigation: com.wire.android.feature.cells.ui.CellsFilesNavigation, currentNodeUuid: kotlin.String?, isSearchResult: kotlin.Boolean, actions: kotlinx.coroutines.flow.Flow<com.wire.android.feature.cells.ui.CellViewAction>, pagingListItems: androidx.paging.compose.LazyPagingItems<com.wire.android.feature.cells.ui.model.CellNodeUi>, menu: kotlinx.coroutines.flow.SharedFlow<com.wire.android.feature.cells.ui.MenuOptions>, sendIntent: kotlin.Function1<com.wire.android.feature.cells.ui.CellViewIntent, kotlin.Unit>, isRefreshing: androidx.compose.runtime.State<kotlin.Boolean>, onRefresh: kotlin.Function0<kotlin.Unit>, retryEditNodeError: kotlin.Function1<kotlin.String, kotlin.Unit>, modifier: androidx.compose.ui.Modifier, isDeleteInProgress: kotlin.Boolean, screenTitle: kotlin.String?, isRecycleBin: kotlin.Boolean, isRestoreInProgress: kotlin.Boolean, isOnline: kotlin.Boolean, breadcrumbs: kotlin.Array<kotlin.String>?, fileReadyFlow: kotlinx.coroutines.flow.Flow<com.wire.android.feature.cells.ui.model.CellNodeUi.File>, sortingCriteria: com.wire.android.feature.cells.ui.search.sort.SortingCriteria, onSortByClicked: kotlin.Function1<com.wire.android.feature.cells.ui.search.sort.SortBy, kotlin.Unit>, onSortOrderClicked: kotlin.Function1<com.wire.android.feature.cells.ui.search.sort.SortingCriteria, kotlin.Unit>, showViewerAccessBanner: kotlin.Boolean, isSelfUserViewerOnly: kotlin.Boolean, driveDirectUploadEnabled: kotlin.Boolean, onViewerAccessBannerCloseClick: kotlin.Function0<kotlin.Unit>, uploads: kotlin.collections.List<com.wire.kalium.cells.domain.CellUploadItem>, onCancelUpload: kotlin.Function1<kotlin.String, kotlin.Unit>, onCancelAllUploads: kotlin.Function0<kotlin.Unit>, onRetryUpload: kotlin.Function1<kotlin.String, kotlin.Unit>, onRetryAllFailedUploads: kotlin.Function0<kotlin.Unit>, onDismissUpload: kotlin.Function1<kotlin.String, kotlin.Unit>, onDismissAllUploads: kotlin.Function0<kotlin.Unit>, uploadConfirmation: com.wire.android.feature.cells.ui.UploadConfirmation?, onConfirmUpload: kotlin.Function0<kotlin.Unit>, onCancelUploadConfirmation: kotlin.Function0<kotlin.Unit>, selectedNodes: kotlin.collections.Map<kotlin.String, com.wire.android.feature.cells.ui.model.CellNodeUi>, isBulkSelectionEnabled: kotlin.Boolean, bulkDeleteDialog: com.wire.android.feature.cells.ui.dialog.BulkDeleteDialog?, offlineFilesEnabled: kotlin.Boolean): kotlin.Unit
   skippable: true
   restartable: true
   params:
@@ -233,6 +233,7 @@ internal fun com.wire.android.feature.cells.ui.ConversationFilesScreenContent(an
     - onCancelUploadConfirmation: STABLE (function type)
     - selectedNodes: RUNTIME (requires runtime check)
     - isBulkSelectionEnabled: STABLE (primitive type)
+    - bulkDeleteDialog: UNKNOWN (interface or non-final class; concrete implementation unknown)
     - offlineFilesEnabled: STABLE (primitive type)
 
 @Composable
@@ -483,6 +484,32 @@ public fun com.wire.android.feature.cells.ui.dialog.BottomSheetMenuItem(action: 
     - action: STABLE (class with no mutable properties)
     - modifier: STABLE (marked @Stable or @Immutable)
     - enabled: STABLE (primitive type)
+
+@Composable
+private fun com.wire.android.feature.cells.ui.dialog.BulkDeleteConfirmationDialog(confirmation: com.wire.android.feature.cells.ui.dialog.BulkDeleteDialog.Confirmation, onConfirm: kotlin.Function0<kotlin.Unit>, onDismiss: kotlin.Function0<kotlin.Unit>): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - confirmation: RUNTIME (requires runtime check)
+    - onConfirm: STABLE (function type)
+    - onDismiss: STABLE (function type)
+
+@Composable
+internal fun com.wire.android.feature.cells.ui.dialog.BulkDeleteDialogs(dialog: com.wire.android.feature.cells.ui.dialog.BulkDeleteDialog, onConfirm: kotlin.Function0<kotlin.Unit>, onDismiss: kotlin.Function0<kotlin.Unit>): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - dialog: UNKNOWN (interface or non-final class; concrete implementation unknown)
+    - onConfirm: STABLE (function type)
+    - onDismiss: STABLE (function type)
+
+@Composable
+private fun com.wire.android.feature.cells.ui.dialog.BulkDeleteFailureDialog(failure: com.wire.android.feature.cells.ui.dialog.BulkDeleteDialog.Failure, onDismiss: kotlin.Function0<kotlin.Unit>): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - failure: STABLE (class with no mutable properties)
+    - onDismiss: STABLE (function type)
 
 @Composable
 internal fun com.wire.android.feature.cells.ui.dialog.CellsNewActionBottomSheet(sheetState: com.wire.android.ui.common.bottomsheet.WireModalSheetState<kotlin.Unit>, onDismiss: kotlin.Function0<kotlin.Unit>, onCreateFolder: kotlin.Function0<kotlin.Unit>, onCreateFile: kotlin.Function0<kotlin.Unit>, onUploadFiles: kotlin.Function0<kotlin.Unit>, driveDirectUploadEnabled: kotlin.Boolean): kotlin.Unit

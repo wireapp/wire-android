@@ -37,6 +37,7 @@ internal data class ShowUnableToRestoreDialog(val isFolder: Boolean) : CellViewA
 internal data class ShowRestoreParentFolderDialog(val cellNode: CellNodeUi) : CellViewAction
 internal data object HideRestoreParentFolderDialog : CellViewAction
 internal data class ShowFileDeletedMessage(val isFile: Boolean, val permanently: Boolean) : CellViewAction
+internal data class ShowNodesDeletedMessage(val deletedCount: Int) : CellViewAction
 internal data object RefreshData : CellViewAction
 internal data class OpenFolder(val path: String, val title: String, val parentFolderUuid: String?) : CellViewAction
 internal data class ShowEditErrorDialog(val nodeUuid: String) : CellViewAction

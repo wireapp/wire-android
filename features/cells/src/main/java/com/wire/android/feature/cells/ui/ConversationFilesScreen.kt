@@ -63,8 +63,11 @@ import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.wire.android.feature.cells.R
 import com.wire.android.feature.cells.domain.model.AttachmentFileType
+import com.wire.android.feature.cells.ui.common.BulkSelectionHint
 import com.wire.android.feature.cells.ui.common.OfflineBanner
 import com.wire.android.feature.cells.ui.create.FileTypeBottomSheetDialog
+import com.wire.android.feature.cells.ui.dialog.BulkDeleteDialog
+import com.wire.android.feature.cells.ui.dialog.BulkDeleteDialogs
 import com.wire.android.feature.cells.ui.dialog.CellsNewActionBottomSheet
 import com.wire.android.feature.cells.ui.dialog.CellsOptionsBottomSheet
 import com.wire.android.feature.cells.ui.model.CellNodeUi
@@ -168,8 +171,11 @@ internal fun ConversationFilesRouteScreen(
         isSelfUserViewerOnly = viewModel.isSelfUserViewerOnly.collectAsState().value,
         driveDirectUploadEnabled = viewModel.driveDirectUploadEnabled,
         onViewerAccessBannerCloseClick = viewModel::onViewerAccessBannerDismissed,
+        showBulkSelectionHint = viewModel.showBulkSelectionHint.collectAsState().value,
+        onBulkSelectionHintDismiss = viewModel::onBulkSelectionHintDismissed,
         selectedNodes = viewModel.selectedNodes.collectAsState().value,
         isBulkSelectionEnabled = viewModel.isBulkSelectionEnabled.collectAsState().value,
+        bulkDeleteDialog = viewModel.bulkDeleteDialog.collectAsState().value,
         offlineFilesEnabled = viewModel.offlineFilesEnabled,
     )
 
@@ -208,6 +214,8 @@ internal fun ConversationFilesScreenContent(
     isSelfUserViewerOnly: Boolean = false,
     driveDirectUploadEnabled: Boolean = false,
     onViewerAccessBannerCloseClick: () -> Unit = {},
+    showBulkSelectionHint: Boolean = false,
+    onBulkSelectionHintDismiss: () -> Unit = {},
     uploads: List<CellUploadItem> = emptyList(),
     onCancelUpload: (String) -> Unit = {},
     onCancelAllUploads: () -> Unit = {},
@@ -220,6 +228,7 @@ internal fun ConversationFilesScreenContent(
     onCancelUploadConfirmation: () -> Unit = {},
     selectedNodes: Map<String, CellNodeUi> = emptyMap(),
     isBulkSelectionEnabled: Boolean = false,
+    bulkDeleteDialog: BulkDeleteDialog? = null,
     offlineFilesEnabled: Boolean = false,
 ) {
     val sharedScope = LocalSharedTransitionScope.current
@@ -335,6 +344,14 @@ internal fun ConversationFilesScreenContent(
         )
     }
 
+    bulkDeleteDialog?.let { dialog ->
+        BulkDeleteDialogs(
+            dialog = dialog,
+            onConfirm = { sendIntent(CellViewIntent.OnBulkDeleteConfirmed) },
+            onDismiss = { sendIntent(CellViewIntent.OnBulkDeleteDialogDismissed) },
+        )
+    }
+
     with(sharedScope) {
         WireScaffold(
             modifier = modifier,
@@ -403,6 +420,15 @@ internal fun ConversationFilesScreenContent(
                     if (isOnline) {
                         if (showViewerAccessBanner) {
                             ViewerAccessBanner(onCloseClick = onViewerAccessBannerCloseClick)
+                        }
+
+                        // Hidden while selecting; with fewer than two items there is nothing to select several of.
+                        AnimatedVisibility(
+                            visible = showBulkSelectionHint && !isSelectionMode && pagingListItems.itemCount >= 2,
+                            enter = expandVertically(expandFrom = Alignment.Top) + fadeIn(),
+                            exit = shrinkVertically(shrinkTowards = Alignment.Top) + fadeOut(),
+                        ) {
+                            BulkSelectionHint(onDismiss = onBulkSelectionHintDismiss)
                         }
 
                         if (!isRecycleBin) {

@@ -245,7 +245,7 @@ class SSOTests : BaseUiTest() {
     }
 
     @TestCaseId("TC-11928")
-    @Category("regression", "login", "SSO")
+    @Category("regression", "RC", "login", "SSO")
     @Test
     fun givenClaimedDomain_whenEnteringMatchingEmail_thenAppRedirectsToOnPremisesBackend() {
         val destinationBackend = BackendClient.loadBackend("QA-Federation-A")
@@ -292,7 +292,7 @@ class SSOTests : BaseUiTest() {
 
     @Suppress("LongMethod")
     @TestCaseId("TC-11929")
-    @Category("regression", "login", "SSO")
+    @Category("regression", "RC", "login", "SSO")
     @Test
     fun givenSsoClaimedDomain_whenLoggingInWithClaimedEmail_thenConversationListIsVisible() {
         var ssoCode = ""

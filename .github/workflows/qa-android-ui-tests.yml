@@ -1,0 +1,1093 @@
+name: QA Android UI Tests
+
+# Lock each device group across callers. Execution jobs also share the office
+# runner lock so builds and physical tests cannot compete with four emulators.
+concurrency:
+  group: qa-android-ui-tests-office-${{ inputs.androidDeviceGroup || 'e2eTests' }}
+  queue: max
+  cancel-in-progress: false
+
+on:
+  # Regression, F-Droid, and emulator critical flow share these execution jobs.
+  workflow_call:
+    secrets:
+      AWS_ACCESS_KEY_ID:
+        required: false
+      AWS_SECRET_ACCESS_KEY:
+        required: false
+      AWS_S3_BUCKET:
+        required: false
+      OP_SERVICE_ACCOUNT_TOKEN:
+        required: false
+      WIRE_QA_AUTOMATION_CHANNEL_URL:
+        required: false
+      WIRE_QA_AUTOMATION_CHANNEL_TOKEN:
+        required: false
+    inputs:
+      runMode:
+        type: string
+        default: "Normal tests"
+      sourceRunId:
+        type: string
+        default: ""
+      testServiceUrl:
+        type: string
+        default: ""
+      appBuildNumber:
+        type: string
+        default: "latest"
+      isUpgrade:
+        type: boolean
+        default: true
+      oldBuildNumber:
+        type: string
+        default: ""
+      flavor:
+        type: string
+        default: "alpha release candidate"
+      TAGS:
+        type: string
+        default: "@regression"
+      testinyRunName:
+        type: string
+        default: ""
+      androidDeviceId:
+        type: string
+        default: ""
+      androidDeviceGroup:
+        type: string
+        default: "e2eTests"
+      rerunFailedCount:
+        type: string
+        default: ""
+      workflowTitle:
+        description: "Display title for the calling suite and its report page."
+        type: string
+        required: true
+      sourceWorkflowFile:
+        description: "Calling workflow file; deflake accepts only runs of this workflow."
+        type: string
+        required: true
+      reportTitle:
+        description: "Wire notification heading for the calling suite."
+        type: string
+        required: true
+      reportDirectory:
+        description: "Report directory under gh-pages/docs."
+        type: string
+        required: true
+      jobTimeoutMinutes:
+        description: "Maximum execution-job duration, including setup, tests, retries, and reporting."
+        type: number
+        default: 150
+      emulatorPool:
+        description: "Manage the four pre-provisioned critical-flow emulators; upgrade tests are excluded."
+        type: boolean
+        default: false
+      requiredDeviceGroup:
+        description: Optional device-group restriction for the calling suite.
+        type: string
+        default: ""
+
+
+permissions:
+  contents: read
+
+jobs:
+  # Validate user inputs and derive selectors.
+  validate-and-resolve-inputs:
+    name: Validate + resolve run inputs
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: read
+
+    outputs:
+      resolvedRunMode: ${{ steps.validate_run_mode.outputs.runMode }}
+      sourceRunId: ${{ steps.validate_source_run.outputs.sourceRunId }}
+      sourceRepository: ${{ steps.validate_source_run.outputs.sourceRepository }}
+      sourceWorkflowFile: ${{ steps.validate_source_run.outputs.sourceWorkflowFile }}
+      sourceHeadSha: ${{ steps.validate_source_run.outputs.sourceHeadSha }}
+      sourceHeadBranch: ${{ steps.validate_source_run.outputs.sourceHeadBranch }}
+      resolvedAppBuildNumber: ${{ steps.resolve_run_inputs.outputs.appBuildNumber }}
+      resolvedIsUpgrade: ${{ !inputs.emulatorPool && (steps.resolve_run_inputs.outputs.isUpgrade == 'true' || steps.resolve_selector.outputs.category == 'upgrade') }}
+      resolvedOldBuildNumber: ${{ steps.resolve_run_inputs.outputs.oldBuildNumber }}
+      resolvedFlavor: ${{ steps.resolve_run_inputs.outputs.flavor }}
+      resolvedTags: ${{ steps.resolve_run_inputs.outputs.TAGS }}
+      resolvedTestinyRunName: ${{ steps.resolve_run_inputs.outputs.testinyRunName }}
+      resolvedAndroidDeviceId: ${{ steps.resolve_run_inputs.outputs.androidDeviceId }}
+      resolvedAndroidDeviceGroup: ${{ steps.resolve_run_inputs.outputs.androidDeviceGroup }}
+      resolvedRerunFailedEnabled: ${{ steps.resolve_retries.outputs.rerunFailedEnabled }}
+      resolvedRerunFailedCount: ${{ steps.resolve_retries.outputs.rerunFailedCount }}
+      resolvedTestCaseId: ${{ steps.resolve_selector.outputs.testCaseId }}
+      resolvedCategory: ${{ steps.resolve_selector.outputs.category }}
+
+    steps:
+      - name: Reject untrusted manual refs
+        if: github.event_name == 'workflow_dispatch'
+        shell: bash
+        env:
+          ACTUAL_REF: ${{ github.ref }}
+          TRUSTED_REF: refs/heads/${{ github.event.repository.default_branch }}
+          WORKFLOW_TITLE: ${{ inputs.workflowTitle || 'QA Android Regression Tests' }}
+        run: |
+          if [[ "${ACTUAL_REF}" != "${TRUSTED_REF}" ]]; then
+            echo "ERROR: ${WORKFLOW_TITLE} runs are restricted to ${TRUSTED_REF}."
+            exit 1
+          fi
+
+      - name: Checkout repository
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+
+      - name: Validate required device group
+        if: inputs.requiredDeviceGroup != ''
+        shell: bash
+        env:
+          DEVICE_GROUP: ${{ inputs.androidDeviceGroup }}
+          REQUIRED_DEVICE_GROUP: ${{ inputs.requiredDeviceGroup }}
+        run: |
+          if [[ "${DEVICE_GROUP}" != "${REQUIRED_DEVICE_GROUP}" ]]; then
+            echo "ERROR: This workflow requires the ${REQUIRED_DEVICE_GROUP} device group."
+            exit 1
+          fi
+
+      # Select the execution mode explicitly; a blank deflake ID resolves to
+      # the latest completed source run, never to normal test execution.
+      - name: Validate run mode
+        id: validate_run_mode
+        shell: bash
+        env:
+          RUN_MODE: ${{ inputs.runMode || 'Normal tests' }}
+          SOURCE_RUN_ID: ${{ inputs.sourceRunId }}
+          ALLOW_LATEST_SOURCE_RUN: "true"
+        run: make qa-ui-validate cmd=validate-run-mode
+
+      - name: Validate selected GitHub Actions run
+        id: validate_source_run
+        if: steps.validate_run_mode.outputs.runMode == 'deflake'
+        env:
+          SOURCE_RUN_ID: ${{ inputs.sourceRunId }}
+          EXPECTED_SOURCE_WORKFLOW_FILE: ${{ inputs.sourceWorkflowFile || '.github/workflows/qa-android-regression-tests.yml' }}
+          ALLOW_LATEST_SOURCE_RUN: "true"
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+          GITHUB_TOKEN: ${{ github.token }}
+        run: python3 scripts/qa/android-ui/validate_source_run.py
+
+      # Scheduled runs do not have UI inputs, so resolve one shared set
+      # of values here and let later jobs consume the same outputs.
+      - name: Resolve run inputs
+        id: resolve_run_inputs
+        if: steps.validate_run_mode.outputs.runMode == 'normal'
+        shell: bash
+        env:
+          APP_BUILD_NUMBER_INPUT: ${{ inputs.appBuildNumber }}
+          IS_UPGRADE_INPUT: ${{ inputs.isUpgrade }}
+          OLD_BUILD_NUMBER_INPUT: ${{ inputs.oldBuildNumber }}
+          FLAVOR_INPUT: ${{ inputs.flavor }}
+          NIGHTLY_FLAVOR: ${{ inputs.flavor || 'alpha release candidate' }}
+          TAGS_INPUT: ${{ inputs.TAGS }}
+          NIGHTLY_TAGS: ${{ inputs.TAGS || '@regression' }}
+          NIGHTLY_IS_UPGRADE: ${{ inputs.workflowTitle == '' || inputs.isUpgrade }}
+          TESTINY_RUN_NAME_INPUT: ${{ inputs.testinyRunName }}
+          ANDROID_DEVICE_ID_INPUT: ${{ inputs.androidDeviceId }}
+          ANDROID_DEVICE_GROUP_INPUT: ${{ inputs.androidDeviceGroup }}
+          NIGHTLY_DEVICE_GROUP: ${{ inputs.androidDeviceGroup || 'e2eTests' }}
+        run: |
+          trim_surrounding_whitespace() {
+            local value="$1"
+            value="${value#"${value%%[![:space:]]*}"}"
+            value="${value%"${value##*[![:space:]]}"}"
+            printf '%s' "${value}"
+          }
+
+          if [[ "${GITHUB_EVENT_NAME}" == "workflow_dispatch" ]]; then
+            testiny_run_name="$(trim_surrounding_whitespace "${TESTINY_RUN_NAME_INPUT}")"
+            {
+              echo "appBuildNumber=${APP_BUILD_NUMBER_INPUT}"
+              echo "isUpgrade=${IS_UPGRADE_INPUT}"
+              echo "oldBuildNumber=${OLD_BUILD_NUMBER_INPUT}"
+              echo "flavor=${FLAVOR_INPUT}"
+              echo "TAGS=${TAGS_INPUT}"
+              echo "testinyRunName=${testiny_run_name}"
+              echo "androidDeviceId=${ANDROID_DEVICE_ID_INPUT}"
+              echo "androidDeviceGroup=${ANDROID_DEVICE_GROUP_INPUT}"
+            } >> "${GITHUB_OUTPUT}"
+            exit 0
+          fi
+
+          # Scheduled callers supply their suite defaults; direct runs use Regression.
+          {
+            echo "appBuildNumber=latest"
+            echo "isUpgrade=${NIGHTLY_IS_UPGRADE}"
+            echo "oldBuildNumber="
+            echo "flavor=${NIGHTLY_FLAVOR}"
+            echo "TAGS=${NIGHTLY_TAGS}"
+            echo "testinyRunName="
+            echo "androidDeviceId="
+            echo "androidDeviceGroup=${NIGHTLY_DEVICE_GROUP}"
+          } >> "${GITHUB_OUTPUT}"
+
+      # Validate upgrade inputs before runner work starts.
+      - name: Validate upgrade inputs
+        if: steps.validate_run_mode.outputs.runMode == 'normal'
+        shell: bash
+        env:
+          IS_UPGRADE: ${{ steps.resolve_run_inputs.outputs.isUpgrade }}
+          OLD_BUILD_NUMBER: ${{ steps.resolve_run_inputs.outputs.oldBuildNumber }}
+        run: make qa-ui-validate cmd=validate-upgrade-inputs
+
+      # Resolve and validate the optional count before any runner work starts.
+      - name: Resolve retry count
+        id: resolve_retries
+        shell: bash
+        env:
+          RUN_MODE: ${{ inputs.runMode || 'Normal tests' }}
+          RERUN_FAILED_COUNT: ${{ inputs.rerunFailedCount }}
+        run: make qa-ui-validate cmd=validate-rerun-inputs
+
+      # Resolve TAGS into CI selectors and expose them as job outputs.
+      - name: Resolve selector from TAGS
+        id: resolve_selector
+        if: steps.validate_run_mode.outputs.runMode == 'normal'
+        shell: bash
+        env:
+          TAGS_RAW: ${{ steps.resolve_run_inputs.outputs.TAGS }}
+        run: make qa-ui-validate cmd=resolve-selector-from-tags
+
+      - name: Validate emulator suite inputs
+        if: inputs.emulatorPool && steps.validate_run_mode.outputs.runMode == 'normal'
+        env:
+          IS_UPGRADE: ${{ steps.resolve_run_inputs.outputs.isUpgrade }}
+          RESOLVED_CATEGORY: ${{ steps.resolve_selector.outputs.category }}
+          TARGET_DEVICE_GROUP: ${{ steps.resolve_run_inputs.outputs.androidDeviceGroup }}
+        run: make qa-ui-validate cmd=validate-emulator-inputs
+
+      # Print resolved values for traceability in workflow logs.
+      - name: Print resolved values
+        if: steps.validate_run_mode.outputs.runMode == 'normal'
+        shell: bash
+        env:
+          WORKFLOW_REF: ${{ github.ref_name }}
+          FLAVOR_INPUT: ${{ steps.resolve_run_inputs.outputs.flavor }}
+          IS_UPGRADE: ${{ steps.resolve_run_inputs.outputs.isUpgrade == 'true' || steps.resolve_selector.outputs.category == 'upgrade' }}
+          RESOLVED_TESTCASE_ID: ${{ steps.resolve_selector.outputs.testCaseId }}
+          RESOLVED_CATEGORY: ${{ steps.resolve_selector.outputs.category }}
+          TESTINY_RUN_NAME: ${{ steps.resolve_run_inputs.outputs.testinyRunName }}
+        run: make qa-ui-validate cmd=print-resolved-values
+
+  run-android-ui-tests:
+    name: ${{ inputs.workflowTitle && format('Run {0}', inputs.workflowTitle) || 'Run regression tests' }}
+    if: needs.validate-and-resolve-inputs.outputs.resolvedRunMode == 'normal'
+    # Configure this environment with required reviewers and a deployment-branch
+    # rule limited to the default branch. Move the workflow secrets into it so a
+    # modified workflow on another ref cannot bypass this trust boundary.
+    environment: android-e2e
+    timeout-minutes: ${{ inputs.jobTimeoutMinutes || 150 }}
+    concurrency:
+      group: qa-android-ui-tests-office-runner
+      queue: max
+      cancel-in-progress: false
+    runs-on:
+      - self-hosted
+      - Linux
+      - X64
+      - office
+      - android-qa
+
+    needs: validate-and-resolve-inputs
+    permissions:
+      contents: write
+
+    env:
+      FLAVORS_CONFIG_PATH: "/etc/android-qa/flavors.json"
+      DEVICE_GROUPS_JSON: ${{ vars.ANDROID_DEVICE_GROUPS_JSON }}
+      EXCLUDE_CATEGORY: ${{ inputs.emulatorPool && 'upgrade' || '' }}
+
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - name: Register log masks
+        run: |
+          echo "::add-mask::eu-west-1"
+
+      - name: Checkout (with submodules)
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          clean: true
+          ref: ${{ github.event.repository.default_branch }}
+          submodules: recursive
+          persist-credentials: false
+
+      - name: Resolve Test Service URL
+        id: resolve_test_service
+        env:
+          TEST_SERVICE_URL_INPUT: ${{ inputs.testServiceUrl }}
+          TEST_SERVICE_URL_DEFAULT: ${{ vars.TEST_SERVICE_URL }}
+        run: python3 scripts/qa/android-ui/resolve_test_service_url.py
+
+      - name: Set up Java and Gradle
+        uses: ./.github/actions/setup-java-gradle
+        with:
+          isolate-gradle-home: true
+
+      - name: Set up Android SDK (ANDROID_HOME + adb)
+        uses: android-actions/setup-android@be39fa834029ff78f1a44aa3bb0819b8fc2bd8fd # v4
+        with:
+          packages: platform-tools
+
+      # Verify required CLIs on the runner before setup continues.
+      - name: Ensure required tools exist
+        run: make qa-ui-setup cmd=ensure-required-tools
+
+      # Flavor resolution is runner-driven (from /etc/android-qa/flavors.json), not hardcoded in repo.
+      # Keep app install data job-wide, but pass the S3 folder only to the download step.
+      - name: Resolve flavor (runner config)
+        id: resolve_flavor
+        env:
+          FLAVOR_INPUT: ${{ needs.validate-and-resolve-inputs.outputs.resolvedFlavor }}
+        run: make qa-ui-setup cmd=resolve-flavor
+
+      - name: Configure AWS credentials (for S3)
+        uses: aws-actions/configure-aws-credentials@e1253824e5c10ff9df46874f81ed3ec929e19cfd # v6
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-west-1
+
+      # Download app APK(s) from S3 and export resolved build metadata.
+      - name: Download APK(s) from S3
+        id: download_apks
+        env:
+          APP_BUILD_NUMBER: ${{ needs.validate-and-resolve-inputs.outputs.resolvedAppBuildNumber }}
+          IS_UPGRADE: ${{ needs.validate-and-resolve-inputs.outputs.resolvedIsUpgrade }}
+          OLD_BUILD_NUMBER: ${{ needs.validate-and-resolve-inputs.outputs.resolvedOldBuildNumber }}
+          S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
+          S3_FOLDER: ${{ steps.resolve_flavor.outputs.s3Folder }}
+        run: make qa-ui-setup cmd=download-apks
+
+      - name: Install 1Password CLI
+        uses: 1password/install-cli-action@1a3160d5e9de1ae0803eaa08a88746f5ae3daa50 # v4
+
+      # Fetch runtime secrets only for this run.
+      - name: Fetch secrets.json (runtime only)
+        env:
+          OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
+        run: make qa-ui-setup cmd=fetch-runtime-secrets
+
+      # Build androidTest APK once and reuse it across selected devices.
+      - name: Build test APK (assemble once)
+        env:
+          TEST_SERVICE_URL: ${{ steps.resolve_test_service.outputs.testServiceUrl }}
+        run: |
+          : "${TEST_SERVICE_URL:?Test Service URL resolution failed}"
+          make qa-ui-setup cmd=build-test-apk
+
+      # Resolve the built androidTest APK path for execution steps.
+      - name: Resolve test APK path
+        run: make qa-ui-setup cmd=resolve-test-apk-path
+
+      # Resolve AndroidX Test Services APKs required for TestStorage/Allure.
+      - name: Resolve AndroidX Test Services APKs (for Allure TestStorage)
+        run: make qa-ui-setup cmd=resolve-test-services-apks
+
+      - name: Stop Gradle daemons before emulator startup
+        if: inputs.emulatorPool
+        run: ./gradlew --stop
+
+      - name: Start and wait for four emulators
+        if: inputs.emulatorPool
+        timeout-minutes: 15
+        run: python3 scripts/qa/android-ui/emulator_pool.py start
+
+      # Select device(s): use input device when provided, otherwise auto-pick.
+      - name: Detect target device(s)
+        env:
+          TARGET_DEVICE_ID: ${{ needs.validate-and-resolve-inputs.outputs.resolvedAndroidDeviceId }}
+          TARGET_DEVICE_GROUP: ${{ needs.validate-and-resolve-inputs.outputs.resolvedAndroidDeviceGroup }}
+          RESOLVED_TESTCASE_ID: ${{ needs.validate-and-resolve-inputs.outputs.resolvedTestCaseId }}
+        run: make qa-ui-setup cmd=detect-target-devices
+
+      # Clear stale device-side Allure files early so setup failures cannot publish old reports.
+      - name: Clear stale Allure results on device(s)
+        run: make qa-ui-setup cmd=clear-allure-results-on-devices
+
+      # Install app/test prerequisites on each selected device.
+      - name: Install APK(s) on device(s)
+        env:
+          IS_UPGRADE: ${{ needs.validate-and-resolve-inputs.outputs.resolvedIsUpgrade }}
+        run: make qa-ui-setup cmd=install-apks-on-devices
+
+      # Run attempt 0, pull results immediately, then rerun only the still-failing tests.
+      - name: Run UI tests (auto-rerun failed tests)
+        env:
+          RESOLVED_TESTCASE_ID: ${{ needs.validate-and-resolve-inputs.outputs.resolvedTestCaseId }}
+          RESOLVED_CATEGORY: ${{ needs.validate-and-resolve-inputs.outputs.resolvedCategory }}
+          IS_UPGRADE: ${{ needs.validate-and-resolve-inputs.outputs.resolvedIsUpgrade }}
+          RERUN_FAILED_ENABLED: ${{ needs.validate-and-resolve-inputs.outputs.resolvedRerunFailedEnabled }}
+          RERUN_FAILED_COUNT: ${{ needs.validate-and-resolve-inputs.outputs.resolvedRerunFailedCount }}
+          ALLURE_RESULTS_ROOT: ${{ runner.temp }}/allure-results
+          # Testiny sync is keyed by testcase ids but grouped under one run name.
+          TESTINY_PROJECT_NAME: Wire Android
+          TESTINY_RUN_NAME: ${{ needs.validate-and-resolve-inputs.outputs.resolvedTestinyRunName }}
+          TESTINY_SOURCE_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          if [[ "${IS_UPGRADE}" == "true" && ( "${RESOLVED_CATEGORY}" == "upgrade" || -n "${RESOLVED_TESTCASE_ID}" ) ]]; then
+            # A single test uses one device. Only upgrade-tagged tests reinstall
+            # the old APK in their per-test setup; ordinary tests keep the new APK.
+            upgrade_device="${DEVICE_LIST%% *}"
+            DEVICE_LIST="${upgrade_device}" \
+              DEVICE_COUNT="1" \
+              RETRY_STATE_DIR="${RUNNER_TEMP}/retry-state-upgrade" \
+              make qa-ui-run
+          elif [[ "${IS_UPGRADE}" == "true" && -z "${RESOLVED_TESTCASE_ID}" ]]; then
+            # For broad upgrade runs, run the selected normal tests on the new APK first.
+            # Then run only the selected upgrade subset afterward, starting from the old APK.
+            upgrade_device="${DEVICE_LIST%% *}"
+            normal_category="${RESOLVED_CATEGORY}"
+            normal_status=0
+            upgrade_status=0
+
+            echo "Running normal tests first on the new APK, excluding upgrade tests."
+            RESOLVED_CATEGORY="${normal_category}" \
+              EXCLUDE_CATEGORY="upgrade" \
+              RETRY_STATE_DIR="${RUNNER_TEMP}/retry-state-normal" \
+              ALLURE_RESULTS_ROOT="${RUNNER_TEMP}/allure-results/normal" \
+              make qa-ui-run || normal_status=$?
+
+            echo "Running upgrade tests last with old APK installed before each attempt."
+            DEVICE_LIST="${upgrade_device}" \
+              DEVICE_COUNT="1" \
+              RESOLVED_CATEGORY="${normal_category}" \
+              REQUIRED_CATEGORY="upgrade" \
+              APP_APK_BEFORE_ATTEMPT="${OLD_APK_DEVICE_PATH:-/data/local/tmp/Wire.old.apk}" \
+              RETRY_STATE_DIR="${RUNNER_TEMP}/retry-state-upgrade" \
+              ALLURE_RESULTS_ROOT="${RUNNER_TEMP}/allure-results/upgrade" \
+              make qa-ui-run || upgrade_status=$?
+
+            RETRY_STATE_DIRS="${RUNNER_TEMP}/retry-state-normal ${RUNNER_TEMP}/retry-state-upgrade" \
+              COMBINED_RETRY_STATE_DIR="${RUNNER_TEMP}/retry-state-combined" \
+              make qa-ui-report cmd=combine-retry-state
+
+            if (( normal_status != 0 )); then
+              exit "${normal_status}"
+            fi
+            if (( upgrade_status != 0 )); then
+              exit "${upgrade_status}"
+            fi
+          else
+            if [[ "${IS_UPGRADE}" != "true" && -n "${RESOLVED_CATEGORY}" ]]; then
+              # When upgrade mode is off, keep category runs in their selected
+              # scope but skip upgrade-tagged tests instead of executing them
+              # in the normal phase.
+              EXCLUDE_CATEGORY="upgrade" \
+                make qa-ui-run
+            else
+              make qa-ui-run
+            fi
+          fi
+
+      # Export one standard artifact so future manual deflake runs can reuse
+      # this workflow's exact run context and leftover failed test list.
+      - name: Prepare deflake input artifact
+        if: always()
+        env:
+          DEFLAKE_BUNDLE_DIR: ${{ runner.temp }}/deflake-input
+          TEST_SERVICE_URL: ${{ steps.resolve_test_service.outputs.testServiceUrl }}
+          SOURCE_WORKFLOW_NAME: ${{ github.workflow }}
+          SOURCE_WORKFLOW_FILE: ${{ inputs.sourceWorkflowFile || '.github/workflows/qa-android-regression-tests.yml' }}
+          SOURCE_REPOSITORY: ${{ github.repository }}
+          SOURCE_RUN_ID: ${{ github.run_id }}
+          SOURCE_RUN_NUMBER: ${{ github.run_number }}
+          SOURCE_RUN_ATTEMPT: ${{ github.run_attempt }}
+          SOURCE_REF: ${{ github.ref }}
+          SOURCE_REF_NAME: ${{ github.ref_name }}
+          SOURCE_SHA: ${{ github.sha }}
+          FLAVOR_INPUT: ${{ needs.validate-and-resolve-inputs.outputs.resolvedFlavor }}
+          TAGS_INPUT: ${{ needs.validate-and-resolve-inputs.outputs.resolvedTags }}
+          RESOLVED_TESTCASE_ID: ${{ needs.validate-and-resolve-inputs.outputs.resolvedTestCaseId }}
+          RESOLVED_CATEGORY: ${{ needs.validate-and-resolve-inputs.outputs.resolvedCategory }}
+          APP_BUILD_NUMBER_INPUT: ${{ needs.validate-and-resolve-inputs.outputs.resolvedAppBuildNumber }}
+          IS_UPGRADE: ${{ needs.validate-and-resolve-inputs.outputs.resolvedIsUpgrade }}
+          OLD_BUILD_NUMBER: ${{ steps.download_apks.outputs.OLD_BUILD_NUMBER }}
+          TESTINY_RUN_NAME: ${{ needs.validate-and-resolve-inputs.outputs.resolvedTestinyRunName }}
+          ANDROID_DEVICE_ID: ${{ needs.validate-and-resolve-inputs.outputs.resolvedAndroidDeviceId }}
+          ANDROID_DEVICE_GROUP: ${{ needs.validate-and-resolve-inputs.outputs.resolvedAndroidDeviceGroup }}
+          RERUN_FAILED_ENABLED: ${{ needs.validate-and-resolve-inputs.outputs.resolvedRerunFailedEnabled }}
+          RERUN_FAILED_COUNT: ${{ needs.validate-and-resolve-inputs.outputs.resolvedRerunFailedCount }}
+        run: |
+          test_source_sha="$(git rev-parse HEAD)"
+          TEST_SOURCE_SHA="${test_source_sha}" make qa-ui-report cmd=prepare-deflake-bundle
+
+      - name: Upload deflake input artifact
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: android-ui-test-deflake-input
+          path: ${{ runner.temp }}/deflake-input
+          if-no-files-found: warn
+
+      # Remove runtime secrets before report generation and publish steps.
+      - name: Remove runtime secrets (before Allure/Pages)
+        if: always()
+        run: make qa-ui-report cmd=remove-runtime-secrets
+
+      # Fallback pull: keep this as a safety net in case per-attempt pull was interrupted.
+      - name: Pull Allure results from device(s) (fallback)
+        if: always()
+        timeout-minutes: 2
+        env:
+          OUT_DIR: ${{ runner.temp }}/allure-results
+        run: make qa-ui-report cmd=pull-allure-results
+
+      - name: Collect emulator diagnostics and check for ANRs or crashes
+        id: emulator_diagnostics
+        if: always() && inputs.emulatorPool
+        timeout-minutes: 4
+        run: python3 scripts/qa/android-ui/emulator_pool.py collect
+
+      # Merge all attempts into one final dataset and stamp passed_on_rerun=true where needed.
+      - name: Merge Allure results (add device label)
+        if: always()
+        env:
+          OUT_DIR: ${{ runner.temp }}/allure-results
+          MERGED_DIR: ${{ runner.temp }}/allure-results-merged
+          REAL_BUILD_NUMBER: ${{ env.REAL_BUILD_NUMBER }}
+          NEW_APK_NAME: ${{ env.NEW_APK_NAME }}
+          INPUT_TAGS: ${{ needs.validate-and-resolve-inputs.outputs.resolvedTags }}
+        run: make qa-ui-report cmd=merge-allure-results
+
+      - name: Remove app and test packages from emulators
+        if: always() && inputs.emulatorPool
+        timeout-minutes: 2
+        run: make qa-ui-report cmd=cleanup-devices
+
+      - name: Stop job-owned emulators
+        if: always() && inputs.emulatorPool
+        timeout-minutes: 2
+        run: python3 scripts/qa/android-ui/emulator_pool.py stop
+
+      - name: Upload emulator diagnostic logs
+        if: always() && inputs.emulatorPool && env.EMULATOR_DIAGNOSTICS_DIR != ''
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: android-emulator-critical-flow-diagnostics
+          retention-days: 14
+          path: |
+            ${{ env.EMULATOR_DIAGNOSTICS_DIR }}/**/*.txt
+            ${{ env.EMULATOR_DIAGNOSTICS_DIR }}/**/*.log
+            ${{ env.EMULATOR_DIAGNOSTICS_DIR }}/**/anr/**
+            ${{ runner.temp }}/instrumentation-logs/*.log
+          if-no-files-found: warn
+
+      # Generate static Allure HTML from merged results.
+      - name: Generate Allure HTML report
+        if: always()
+        env:
+          MERGED_DIR: ${{ runner.temp }}/allure-results-merged
+          REPORT_DIR: ${{ runner.temp }}/allure-report
+        run: make qa-ui-report cmd=generate-allure-report
+
+      - name: Checkout GitHub Pages branch
+        if: always()
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: gh-pages
+          path: gh-pages
+          fetch-depth: 1
+          persist-credentials: true
+
+      # Publish report snapshots and apply retention cleanup.
+      - name: Publish Allure report to Pages branch
+        id: publish_allure_report
+        if: always()
+        env:
+          REPORT_DIR: ${{ runner.temp }}/allure-report
+          PAGES_DIR: gh-pages/docs/${{ inputs.reportDirectory || 'qa-ui-tests' }}
+          PAGES_TITLE: ${{ inputs.workflowTitle || 'QA Android Regression Tests' }}
+          KEEP_DAYS: "90"
+          INPUT_TAGS: ${{ needs.validate-and-resolve-inputs.outputs.resolvedTags }}
+          APK_VERSION: ${{ env.REAL_BUILD_NUMBER }}
+          APK_NAME: ${{ env.NEW_APK_NAME }}
+        run: make qa-ui-report cmd=publish-allure-report
+
+      - name: Summarize merged Allure results
+        id: summarize_allure_results
+        if: always()
+        env:
+          MERGED_DIR: ${{ runner.temp }}/allure-results-merged
+        run: make qa-ui-report cmd=summarize-allure-results
+
+      - name: Build Wire notification body
+        id: build_wire_notification
+        if: always()
+        env:
+          REPORT_TITLE: ${{ inputs.reportTitle || 'android regression tests' }}
+          EVENT_NAME: ${{ github.event_name }}
+          BRANCH_NAME: ${{ github.ref_name }}
+          RUN_NUMBER: ${{ github.run_number }}
+          RESOLVED_TAGS: ${{ needs.validate-and-resolve-inputs.outputs.resolvedTags }}
+          APK_NAME: ${{ env.NEW_APK_NAME }}
+          ALLURE_REPORT_URL: ${{ steps.publish_allure_report.outputs.allure_report_url }}
+          TESTS_PASSED: ${{ steps.summarize_allure_results.outputs.passed }}
+          TESTS_FAILED: ${{ steps.summarize_allure_results.outputs.failed }}
+          TESTS_SKIPPED: ${{ steps.summarize_allure_results.outputs.skipped }}
+          TESTS_TOTAL: ${{ steps.summarize_allure_results.outputs.total }}
+          TESTS_SUCCESS_PERCENT: ${{ steps.summarize_allure_results.outputs.success_percent }}
+          EMULATOR_CHECK_FAILED: ${{ steps.emulator_diagnostics.outcome == 'failure' }}
+          JOB_STATUS: ${{ job.status }}
+        run: python3 scripts/qa/android-ui/build_wire_notification.py
+
+      - name: Notify Wire
+        if: ${{ success() || failure() }}
+        uses: ./.github/actions/report-to-wire
+        with:
+          webhook-url: ${{ secrets.WIRE_QA_AUTOMATION_CHANNEL_URL }}
+          webhook-token: ${{ secrets.WIRE_QA_AUTOMATION_CHANNEL_TOKEN }}
+          body: ${{ steps.build_wire_notification.outputs.body }}
+
+      # Clean temporary artifacts on the runner, even after failures.
+      - name: Cleanup (remove secrets + build outputs)
+        if: always()
+        timeout-minutes: 3
+        env:
+          SKIP_DEVICE_CLEANUP: ${{ inputs.emulatorPool }}
+          ALLURE_RESULTS_DIR: ${{ runner.temp }}/allure-results
+          ALLURE_RESULTS_MERGED_DIR: ${{ runner.temp }}/allure-results-merged
+          ALLURE_REPORT_DIR: ${{ runner.temp }}/allure-report
+        run: make qa-ui-report cmd=cleanup-workspace
+
+      - name: Stop isolated Gradle daemons
+        if: always()
+        continue-on-error: true
+        run: ./gradlew --stop
+
+  # Both modes share one entry point; only the selected execution job can run.
+  run-manual-deflake:
+    name: ${{ inputs.workflowTitle && format('Run {0} manual deflake', inputs.workflowTitle) || 'Run regression manual deflake' }}
+    needs: validate-and-resolve-inputs
+    if: needs.validate-and-resolve-inputs.outputs.resolvedRunMode == 'deflake'
+    # Configure this environment with required reviewers and a deployment-branch
+    # rule limited to the default branch. Move the workflow secrets into it so a
+    # modified workflow on another ref cannot bypass this trust boundary.
+    environment: android-e2e
+    timeout-minutes: ${{ inputs.jobTimeoutMinutes || 150 }}
+    concurrency:
+      group: qa-android-ui-tests-office-runner
+      queue: max
+      cancel-in-progress: false
+    runs-on:
+      - self-hosted
+      - Linux
+      - X64
+      - office
+      - android-qa
+
+    permissions:
+      contents: write
+      actions: read
+
+    env:
+      FLAVORS_CONFIG_PATH: "/etc/android-qa/flavors.json"
+      DEVICE_GROUPS_JSON: ${{ vars.ANDROID_DEVICE_GROUPS_JSON }}
+      EXCLUDE_CATEGORY: ${{ inputs.emulatorPool && 'upgrade' || '' }}
+
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - name: Register log masks
+        run: |
+          echo "::add-mask::eu-west-1"
+
+      # Deflake uses the same runner setup, with execution settings recovered
+      # from the source artifact rather than today's normal-run inputs.
+      - name: Checkout (with submodules)
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          clean: true
+          ref: ${{ github.event.repository.default_branch }}
+          submodules: recursive
+          persist-credentials: false
+
+      - name: Set up Java and Gradle
+        uses: ./.github/actions/setup-java-gradle
+        with:
+          isolate-gradle-home: true
+
+      - name: Set up Android SDK (ANDROID_HOME + adb)
+        uses: android-actions/setup-android@be39fa834029ff78f1a44aa3bb0819b8fc2bd8fd # v4
+        with:
+          packages: platform-tools
+
+      - name: Ensure required tools exist
+        run: make qa-ui-setup cmd=ensure-required-tools
+
+      # Download the standard deflake artifact exported by a previous normal
+      # or manual deflake run of the same calling workflow.
+      - name: Download deflake input artifact
+        uses: dawidd6/action-download-artifact@b6e2e70617bc3265edd6dab6c906732b2f1ae151 # v21
+        with:
+          run_id: ${{ needs.validate-and-resolve-inputs.outputs.sourceRunId }}
+          name: android-ui-test-deflake-input
+          path: ${{ runner.temp }}/deflake-input
+          github_token: ${{ github.token }}
+
+      # Validate the downloaded deflake artifact and print the resolved run context.
+      - name: Validate deflake input artifact
+        id: validate_deflake_input
+        env:
+          DEFLAKE_BUNDLE_ROOT: ${{ runner.temp }}/deflake-input
+          EXCLUDE_UPGRADE_TESTS: ${{ inputs.emulatorPool }}
+          TEST_SERVICE_URL_OVERRIDE: ${{ inputs.testServiceUrl }}
+          EXPECTED_SOURCE_REPOSITORY: ${{ needs.validate-and-resolve-inputs.outputs.sourceRepository }}
+          EXPECTED_SOURCE_RUN_ID: ${{ needs.validate-and-resolve-inputs.outputs.sourceRunId }}
+          EXPECTED_SOURCE_SHA: ${{ needs.validate-and-resolve-inputs.outputs.sourceHeadSha }}
+          EXPECTED_SOURCE_WORKFLOW_FILE: ${{ needs.validate-and-resolve-inputs.outputs.sourceWorkflowFile }}
+          EXPECTED_SOURCE_REF_NAME: ${{ needs.validate-and-resolve-inputs.outputs.sourceHeadBranch }}
+        run: python3 scripts/qa/android-ui/inspect_deflake_bundle.py
+
+      - name: Checkout source run test revision
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: ${{ steps.validate_deflake_input.outputs.testSourceSha }}
+          path: source-run
+          sparse-checkout: |
+            tests/testsCore/src
+            tests/testsSupport/src
+          persist-credentials: false
+
+      - name: Apply source run test revision
+        run: |
+          command -v rsync >/dev/null 2>&1 || { echo "ERROR: rsync is required"; exit 1; }
+          rsync --archive --delete source-run/tests/testsCore/src/ tests/testsCore/src/
+          rsync --archive --delete source-run/tests/testsSupport/src/ tests/testsSupport/src/
+
+      - name: Validate source device group
+        env:
+          SOURCE_DEVICE_GROUP: ${{ steps.validate_deflake_input.outputs.androidDeviceGroup }}
+          REQUESTED_DEVICE_GROUP: ${{ inputs.androidDeviceGroup }}
+        run: |
+          if [[ -n "${SOURCE_DEVICE_GROUP}" && "${SOURCE_DEVICE_GROUP}" != "${REQUESTED_DEVICE_GROUP}" ]]; then
+            echo "ERROR: Source run used device group '${SOURCE_DEVICE_GROUP}', but this deflake requested '${REQUESTED_DEVICE_GROUP}'."
+            exit 1
+          fi
+
+      # Reuse the same input validators here so malformed selected-run metadata fails
+      # before the runner spends time on APK, device, or report setup.
+      - name: Validate upgrade inputs
+        env:
+          IS_UPGRADE: ${{ steps.validate_deflake_input.outputs.isUpgrade }}
+          OLD_BUILD_NUMBER: ${{ steps.validate_deflake_input.outputs.oldBuildNumber }}
+        run: make qa-ui-validate cmd=validate-upgrade-inputs
+
+      # Reuse the same flavor resolver and pass its S3 folder output into the APK
+      # download step so deflake stays aligned with the source run.
+      - name: Resolve flavor (runner config)
+        id: resolve_flavor
+        env:
+          FLAVOR_INPUT: ${{ steps.validate_deflake_input.outputs.flavor }}
+        run: make qa-ui-setup cmd=resolve-flavor
+
+      - name: Configure AWS credentials (for S3)
+        uses: aws-actions/configure-aws-credentials@e1253824e5c10ff9df46874f81ed3ec929e19cfd # v6
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-west-1
+
+      - name: Download APK(s) from S3
+        id: download_apks
+        env:
+          APP_BUILD_NUMBER: ${{ steps.validate_deflake_input.outputs.resolvedBuildNumber || steps.validate_deflake_input.outputs.appBuildNumberInput }}
+          IS_UPGRADE: ${{ steps.validate_deflake_input.outputs.isUpgrade }}
+          OLD_BUILD_NUMBER: ${{ steps.validate_deflake_input.outputs.oldBuildNumber }}
+          S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
+          S3_FOLDER: ${{ steps.resolve_flavor.outputs.s3Folder }}
+        run: make qa-ui-setup cmd=download-apks
+
+      - name: Install 1Password CLI
+        uses: 1password/install-cli-action@1a3160d5e9de1ae0803eaa08a88746f5ae3daa50 # v4
+
+      - name: Fetch secrets.json (runtime only)
+        env:
+          OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
+        run: make qa-ui-setup cmd=fetch-runtime-secrets
+
+      - name: Build test APK (assemble once)
+        env:
+          TEST_SERVICE_URL: ${{ steps.validate_deflake_input.outputs.testServiceUrl }}
+        run: |
+          : "${TEST_SERVICE_URL:?Test Service URL resolution failed}"
+          make qa-ui-setup cmd=build-test-apk
+
+      - name: Resolve test APK path
+        run: make qa-ui-setup cmd=resolve-test-apk-path
+
+      - name: Resolve AndroidX Test Services APKs (for Allure TestStorage)
+        run: make qa-ui-setup cmd=resolve-test-services-apks
+
+      - name: Stop Gradle daemons before emulator startup
+        if: inputs.emulatorPool
+        run: ./gradlew --stop
+
+      - name: Start and wait for four emulators
+        if: inputs.emulatorPool
+        timeout-minutes: 15
+        run: python3 scripts/qa/android-ui/emulator_pool.py start
+
+      # Keep device selection and app installation identical to the selected run
+      # contract so deflake executes against the same kind of target setup.
+      - name: Detect target device(s)
+        env:
+          TARGET_DEVICE_ID: ${{ steps.validate_deflake_input.outputs.androidDeviceId }}
+          TARGET_DEVICE_GROUP: ${{ inputs.androidDeviceGroup }}
+          RESOLVED_TESTCASE_ID: ${{ steps.validate_deflake_input.outputs.selectorType == 'testCaseId' && steps.validate_deflake_input.outputs.selectorValue || '' }}
+        run: make qa-ui-setup cmd=detect-target-devices
+
+      - name: Clear stale Allure results on device(s)
+        run: make qa-ui-setup cmd=clear-allure-results-on-devices
+
+      - name: Install APK(s) on device(s)
+        env:
+          IS_UPGRADE: ${{ steps.validate_deflake_input.outputs.isUpgrade }}
+        run: make qa-ui-setup cmd=install-apks-on-devices
+
+      # Start execution from the downloaded failed-tests.txt list, then let the
+      # existing rerun logic handle any failures that remain in this run.
+      - name: Run failed tests from deflake artifact
+        env:
+          INITIAL_FAILED_TESTS_FILE: ${{ steps.validate_deflake_input.outputs.failedTestsFile }}
+          RESOLVED_TESTCASE_ID: ${{ steps.validate_deflake_input.outputs.selectorType == 'testCaseId' && steps.validate_deflake_input.outputs.selectorValue || '' }}
+          RESOLVED_CATEGORY: ${{ steps.validate_deflake_input.outputs.selectorType == 'category' && steps.validate_deflake_input.outputs.selectorValue || '' }}
+          IS_UPGRADE: ${{ steps.validate_deflake_input.outputs.isUpgrade }}
+          RERUN_FAILED_ENABLED: ${{ needs.validate-and-resolve-inputs.outputs.resolvedRerunFailedEnabled }}
+          RERUN_FAILED_COUNT: ${{ needs.validate-and-resolve-inputs.outputs.resolvedRerunFailedCount }}
+          ALLURE_RESULTS_ROOT: ${{ runner.temp }}/allure-results
+          # Reuse the same Testiny run so deflake updates the original run.
+          TESTINY_PROJECT_NAME: Wire Android
+          TESTINY_RUN_NAME: ${{ steps.validate_deflake_input.outputs.effectiveTestinyRunName }}
+          TESTINY_SOURCE_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          if [[ "${IS_UPGRADE}" == "true" ]]; then
+            upgrade_failed_file="${RUNNER_TEMP}/deflake-upgrade-failed-tests.txt"
+            normal_failed_file="${RUNNER_TEMP}/deflake-normal-failed-tests.txt"
+            normal_status=0
+            upgrade_status=0
+            retry_state_dirs=""
+            upgrade_test_pattern='\.UpgradeVersion#|\.BackupTest#givenIWantToImportABackupCreatedOnPreviousVersion_whenIImportIt_thenMessagesAreRestored$'
+            grep -E "${upgrade_test_pattern}" "${INITIAL_FAILED_TESTS_FILE}" > "${upgrade_failed_file}" || true
+            grep -Ev "${upgrade_test_pattern}" "${INITIAL_FAILED_TESTS_FILE}" > "${normal_failed_file}" || true
+
+            if [[ -s "${normal_failed_file}" ]]; then
+              INITIAL_FAILED_TESTS_FILE="${normal_failed_file}" \
+                RETRY_STATE_DIR="${RUNNER_TEMP}/retry-state-normal-deflake" \
+                ALLURE_RESULTS_ROOT="${RUNNER_TEMP}/allure-results/normal" \
+                make qa-ui-run || normal_status=$?
+              retry_state_dirs="${retry_state_dirs} ${RUNNER_TEMP}/retry-state-normal-deflake"
+            fi
+
+            if [[ -s "${upgrade_failed_file}" ]]; then
+              upgrade_device="${DEVICE_LIST%% *}"
+              DEVICE_LIST="${upgrade_device}" \
+                DEVICE_COUNT="1" \
+                INITIAL_FAILED_TESTS_FILE="${upgrade_failed_file}" \
+                APP_APK_BEFORE_ATTEMPT="${OLD_APK_DEVICE_PATH:-/data/local/tmp/Wire.old.apk}" \
+                RETRY_STATE_DIR="${RUNNER_TEMP}/retry-state-upgrade-deflake" \
+                ALLURE_RESULTS_ROOT="${RUNNER_TEMP}/allure-results/upgrade" \
+                make qa-ui-run || upgrade_status=$?
+              retry_state_dirs="${retry_state_dirs} ${RUNNER_TEMP}/retry-state-upgrade-deflake"
+            fi
+
+            if [[ -n "${retry_state_dirs// /}" ]]; then
+              RETRY_STATE_DIRS="${retry_state_dirs}" \
+                COMBINED_RETRY_STATE_DIR="${RUNNER_TEMP}/retry-state-deflake-combined" \
+                make qa-ui-report cmd=combine-retry-state
+            fi
+
+            if (( normal_status != 0 )); then
+              exit "${normal_status}"
+            fi
+            if (( upgrade_status != 0 )); then
+              exit "${upgrade_status}"
+            fi
+          else
+            make qa-ui-run
+          fi
+
+      # Record this workflow as the source so remaining failures can be
+      # deflaked again through the same entry point.
+      - name: Prepare deflake input artifact
+        if: always()
+        env:
+          DEFLAKE_BUNDLE_DIR: ${{ runner.temp }}/deflake-input-next
+          TEST_SERVICE_URL: ${{ steps.validate_deflake_input.outputs.testServiceUrl }}
+          SOURCE_WORKFLOW_NAME: ${{ github.workflow }}
+          SOURCE_WORKFLOW_FILE: ${{ inputs.sourceWorkflowFile || '.github/workflows/qa-android-regression-tests.yml' }}
+          SOURCE_REPOSITORY: ${{ github.repository }}
+          SOURCE_RUN_ID: ${{ github.run_id }}
+          SOURCE_RUN_NUMBER: ${{ github.run_number }}
+          SOURCE_RUN_ATTEMPT: ${{ github.run_attempt }}
+          SOURCE_REF: ${{ github.ref }}
+          SOURCE_REF_NAME: ${{ github.ref_name }}
+          SOURCE_SHA: ${{ github.sha }}
+          TEST_SOURCE_SHA: ${{ steps.validate_deflake_input.outputs.testSourceSha }}
+          FLAVOR_INPUT: ${{ steps.validate_deflake_input.outputs.flavor }}
+          TAGS_INPUT: ${{ steps.validate_deflake_input.outputs.tags }}
+          RESOLVED_TESTCASE_ID: ${{ steps.validate_deflake_input.outputs.selectorType == 'testCaseId' && steps.validate_deflake_input.outputs.selectorValue || '' }}
+          RESOLVED_CATEGORY: ${{ steps.validate_deflake_input.outputs.selectorType == 'category' && steps.validate_deflake_input.outputs.selectorValue || '' }}
+          APP_BUILD_NUMBER_INPUT: ${{ steps.validate_deflake_input.outputs.resolvedBuildNumber || steps.validate_deflake_input.outputs.appBuildNumberInput }}
+          IS_UPGRADE: ${{ steps.validate_deflake_input.outputs.isUpgrade }}
+          OLD_BUILD_NUMBER: ${{ steps.download_apks.outputs.OLD_BUILD_NUMBER }}
+          TESTINY_RUN_NAME: ${{ steps.validate_deflake_input.outputs.effectiveTestinyRunName }}
+          ANDROID_DEVICE_ID: ${{ steps.validate_deflake_input.outputs.androidDeviceId }}
+          ANDROID_DEVICE_GROUP: ${{ inputs.androidDeviceGroup }}
+          RERUN_FAILED_ENABLED: ${{ needs.validate-and-resolve-inputs.outputs.resolvedRerunFailedEnabled }}
+          RERUN_FAILED_COUNT: ${{ needs.validate-and-resolve-inputs.outputs.resolvedRerunFailedCount }}
+        run: make qa-ui-report cmd=prepare-deflake-bundle
+
+      - name: Upload deflake input artifact
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: android-ui-test-deflake-input
+          path: ${{ runner.temp }}/deflake-input-next
+          if-no-files-found: warn
+
+      - name: Remove runtime secrets (before Allure/Pages)
+        if: always()
+        run: make qa-ui-report cmd=remove-runtime-secrets
+
+      - name: Pull Allure results from device(s) (fallback)
+        if: always()
+        timeout-minutes: 2
+        env:
+          OUT_DIR: ${{ runner.temp }}/allure-results
+        run: make qa-ui-report cmd=pull-allure-results
+
+      - name: Collect emulator diagnostics and check for ANRs or crashes
+        id: emulator_diagnostics
+        if: always() && inputs.emulatorPool
+        timeout-minutes: 4
+        run: python3 scripts/qa/android-ui/emulator_pool.py collect
+
+      # Publish a fresh Allure report for this manual deflake run only. The
+      # report does not merge results back into the selected previous run.
+      - name: Merge Allure results
+        if: always()
+        env:
+          OUT_DIR: ${{ runner.temp }}/allure-results
+          MERGED_DIR: ${{ runner.temp }}/allure-results-merged
+          DEFLAKE_FAILED_TESTS_FILE: ${{ steps.validate_deflake_input.outputs.failedTestsFile }}
+          REAL_BUILD_NUMBER: ${{ env.REAL_BUILD_NUMBER }}
+          NEW_APK_NAME: ${{ env.NEW_APK_NAME }}
+          INPUT_TAGS: ${{ steps.validate_deflake_input.outputs.tags }}
+        run: make qa-ui-report cmd=merge-allure-results
+
+      - name: Remove app and test packages from emulators
+        if: always() && inputs.emulatorPool
+        timeout-minutes: 2
+        run: make qa-ui-report cmd=cleanup-devices
+
+      - name: Stop job-owned emulators
+        if: always() && inputs.emulatorPool
+        timeout-minutes: 2
+        run: python3 scripts/qa/android-ui/emulator_pool.py stop
+
+      - name: Upload emulator diagnostic logs
+        if: always() && inputs.emulatorPool && env.EMULATOR_DIAGNOSTICS_DIR != ''
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: android-emulator-critical-flow-diagnostics
+          retention-days: 14
+          path: |
+            ${{ env.EMULATOR_DIAGNOSTICS_DIR }}/**/*.txt
+            ${{ env.EMULATOR_DIAGNOSTICS_DIR }}/**/*.log
+            ${{ env.EMULATOR_DIAGNOSTICS_DIR }}/**/anr/**
+            ${{ runner.temp }}/instrumentation-logs/*.log
+          if-no-files-found: warn
+
+      - name: Generate Allure HTML report
+        if: always()
+        env:
+          MERGED_DIR: ${{ runner.temp }}/allure-results-merged
+          REPORT_DIR: ${{ runner.temp }}/allure-report
+        run: make qa-ui-report cmd=generate-allure-report
+
+      - name: Checkout GitHub Pages branch
+        if: always()
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: gh-pages
+          path: gh-pages
+          fetch-depth: 1
+          persist-credentials: true
+
+      - name: Publish Allure report to Pages branch
+        id: publish_allure_report
+        if: always()
+        env:
+          REPORT_DIR: ${{ runner.temp }}/allure-report
+          PAGES_DIR: gh-pages/docs/${{ inputs.reportDirectory || 'qa-ui-tests' }}
+          PAGES_TITLE: ${{ inputs.workflowTitle || 'QA Android Regression Tests' }}
+          KEEP_DAYS: "90"
+          INPUT_TAGS: ${{ steps.validate_deflake_input.outputs.tags }}
+          APK_VERSION: ${{ env.REAL_BUILD_NUMBER }}
+          APK_NAME: ${{ env.NEW_APK_NAME }}
+        run: make qa-ui-report cmd=publish-allure-report
+
+      - name: Summarize merged Allure results
+        id: summarize_allure_results
+        if: always()
+        env:
+          MERGED_DIR: ${{ runner.temp }}/allure-results-merged
+          DEFLAKE_FAILED_TESTS_FILE: ${{ steps.validate_deflake_input.outputs.failedTestsFile }}
+        run: make qa-ui-report cmd=summarize-allure-results
+
+      - name: Build Wire notification body
+        id: build_wire_notification
+        if: always()
+        env:
+          REPORT_TITLE: ${{ format('{0} manual deflake', inputs.reportTitle || 'android regression tests') }}
+          RUN_MODE: deflake
+          EVENT_NAME: ${{ github.event_name }}
+          BRANCH_NAME: ${{ github.ref_name }}
+          RUN_NUMBER: ${{ github.run_number }}
+          RESOLVED_TAGS: ${{ steps.validate_deflake_input.outputs.tags }}
+          APK_NAME: ${{ env.NEW_APK_NAME }}
+          ALLURE_REPORT_URL: ${{ steps.publish_allure_report.outputs.allure_report_url }}
+          TESTS_SELECTED: ${{ steps.summarize_allure_results.outputs.selected }}
+          TESTS_MISSING: ${{ steps.summarize_allure_results.outputs.missing }}
+          TESTS_PASSED: ${{ steps.summarize_allure_results.outputs.passed }}
+          TESTS_FAILED: ${{ steps.summarize_allure_results.outputs.failed }}
+          TESTS_SKIPPED: ${{ steps.summarize_allure_results.outputs.skipped }}
+          TESTS_TOTAL: ${{ steps.summarize_allure_results.outputs.total }}
+          TESTS_SUCCESS_PERCENT: ${{ steps.summarize_allure_results.outputs.success_percent }}
+          EMULATOR_CHECK_FAILED: ${{ steps.emulator_diagnostics.outcome == 'failure' }}
+          JOB_STATUS: ${{ job.status }}
+        run: python3 scripts/qa/android-ui/build_wire_notification.py
+
+      - name: Notify Wire
+        if: ${{ success() || failure() }}
+        uses: ./.github/actions/report-to-wire
+        with:
+          webhook-url: ${{ secrets.WIRE_QA_AUTOMATION_CHANNEL_URL }}
+          webhook-token: ${{ secrets.WIRE_QA_AUTOMATION_CHANNEL_TOKEN }}
+          body: ${{ steps.build_wire_notification.outputs.body }}
+
+      - name: Cleanup (remove secrets + build outputs)
+        if: always()
+        timeout-minutes: 3
+        env:
+          SKIP_DEVICE_CLEANUP: ${{ inputs.emulatorPool }}
+          ALLURE_RESULTS_DIR: ${{ runner.temp }}/allure-results
+          ALLURE_RESULTS_MERGED_DIR: ${{ runner.temp }}/allure-results-merged
+          ALLURE_REPORT_DIR: ${{ runner.temp }}/allure-report
+        run: make qa-ui-report cmd=cleanup-workspace
+
+      - name: Stop isolated Gradle daemons
+        if: always()
+        continue-on-error: true
+        run: ./gradlew --stop

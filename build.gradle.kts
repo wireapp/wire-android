@@ -67,11 +67,11 @@ plugins {
 subprojects {
     plugins.withId("com.github.skydoves.compose.stability.analyzer") {
         extensions.configure<com.skydoves.compose.stability.gradle.StabilityAnalyzerExtension>("composeStabilityAnalyzer") {
+            stabilityConfigurationFiles.add(
+                rootProject.layout.projectDirectory.file("config/compose-stability.conf")
+            )
             stabilityValidation {
                 ignoreNonRegressiveChanges.set(true)
-                stabilityConfigurationFiles.add(
-                    rootProject.layout.projectDirectory.file("config/compose-stability.conf")
-                )
             }
         }
     }

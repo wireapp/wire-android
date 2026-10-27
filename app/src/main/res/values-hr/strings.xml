@@ -472,7 +472,6 @@
     <!--Privacy Settings, App lock -->
     <!--Devices -->
     <!--max account reached dialog-->
-    <!--nomad account blocks login dialog-->
     <string name="conversation_empty_list_description">Povežite se s drugima ili stvorite novu grupu da biste započeli suradnju!</string>
     <string name="label_textfield_optional_password">Lozinka (opcionalno)</string>
     <!--create and restore backup-->

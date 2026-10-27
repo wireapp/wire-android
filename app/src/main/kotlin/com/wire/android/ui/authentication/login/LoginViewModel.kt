@@ -86,7 +86,6 @@ fun AddAuthenticatedUserUseCase.Result.Failure.toLoginError(): LoginState.Error 
     is AddAuthenticatedUserUseCase.Result.Failure.Generic -> LoginState.Error.DialogError.GenericError(this.genericFailure)
     AddAuthenticatedUserUseCase.Result.Failure.UserAlreadyExists -> LoginState.Error.DialogError.UserAlreadyExists
     AddAuthenticatedUserUseCase.Result.Failure.SsoIdentityChanged -> LoginState.Error.DialogError.UserAlreadyExists
-    AddAuthenticatedUserUseCase.Result.Failure.NomadSingleUserViolation -> LoginState.Error.DialogError.UserAlreadyExists
 }
 
 val ServerConfig.Links.isProxyEnabled get() = this.apiProxy != null

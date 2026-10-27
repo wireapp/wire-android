@@ -39,6 +39,7 @@ import com.wire.android.feature.cells.ui.model.canOpenWithUrl
 import com.wire.android.feature.cells.ui.model.localFileAvailable
 import com.wire.android.feature.cells.ui.model.pdfRenditionUrl
 import com.wire.android.feature.cells.ui.model.toUiModel
+import com.wire.android.feature.cells.ui.movetofolder.CellNodeMoveEvents
 import com.wire.android.feature.cells.ui.search.DriveSearchScreenType
 import com.wire.android.feature.cells.ui.search.SearchNavArgs
 import com.wire.android.feature.cells.ui.search.defaultCriteriaFor
@@ -139,6 +140,7 @@ class CellViewModel @AssistedInject constructor(
     private val qualifiedIdMapper: QualifiedIdMapper,
     private val uploadFilePreparer: DriveUploadFilePreparer,
     private val uploadCoordinator: CellUploadCoordinator,
+    private val nodeMoveEvents: CellNodeMoveEvents,
     private val nodeChangeEvents: CellNodeChangeEvents,
     /** When disabled, all offline-files UI (save actions, offline banner, offline browsing) is hidden. */
     @Named("offlineFilesEnabled") val offlineFilesEnabled: Boolean,

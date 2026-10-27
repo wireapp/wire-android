@@ -92,7 +92,7 @@ permissions:
 
 jobs:
   run-tests:
-    uses: ./.github/workflows/qa-android-ui-tests.yml
+    uses: ./.github/workflows/qa-android-regression-tests.yml
     permissions:
       contents: write
       actions: read

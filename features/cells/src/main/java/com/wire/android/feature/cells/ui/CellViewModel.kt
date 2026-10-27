@@ -39,7 +39,6 @@ import com.wire.android.feature.cells.ui.model.canOpenWithUrl
 import com.wire.android.feature.cells.ui.model.localFileAvailable
 import com.wire.android.feature.cells.ui.model.pdfRenditionUrl
 import com.wire.android.feature.cells.ui.model.toUiModel
-import com.wire.android.feature.cells.ui.movetofolder.CellNodeMoveEvents
 import com.wire.android.feature.cells.ui.search.DriveSearchScreenType
 import com.wire.android.feature.cells.ui.search.SearchNavArgs
 import com.wire.android.feature.cells.ui.search.defaultCriteriaFor
@@ -765,7 +764,9 @@ class CellViewModel @AssistedInject constructor(
     private fun startOpenDownload(cellNode: CellNodeUi.File) {
         openFileDownloadController.start(
             scope = viewModelScope,
-            cellNode = cellNode.copy(conversationId = cellNode.conversationId ?: navArgs.conversationId),
+            // [navArgs.conversationId] is the path of the folder being browsed, so only its root
+            // segment is the conversation the file belongs to.
+            cellNode = cellNode.copy(conversationId = cellNode.conversationId ?: rootConversationId),
             onOpenFile = ::openLocalFile,
             onError = { sendAction(ShowError(it)) },
         )
@@ -993,7 +994,8 @@ class CellViewModel @AssistedInject constructor(
 
         removeFromListUi(node)
 
-        deleteCellAsset(node.uuid, localPath)
+        // For a folder, its path lets the local copies of the files inside it be cleaned up too.
+        deleteCellAsset(node.uuid, localPath, folderPath = (node as? CellNodeUi.Folder)?.remotePath)
             .onSuccess {
                 _isDeleteInProgress.value = false
                 sendAction(HideDeleteConfirmation)

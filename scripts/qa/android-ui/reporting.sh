@@ -4,7 +4,7 @@ set -euo pipefail
 # Reporting and publication utilities for QA Android UI test workflows.
 
 usage() {
-  echo "Usage: $0 {remove-runtime-secrets|pull-allure-results|combine-retry-state|prepare-deflake-bundle|merge-allure-results|summarize-allure-results|generate-allure-report|publish-allure-report|cleanup-workspace}" >&2
+  echo "Usage: $0 {remove-runtime-secrets|pull-allure-results|combine-retry-state|prepare-deflake-bundle|merge-allure-results|summarize-allure-results|generate-allure-report|publish-allure-report|cleanup-devices|cleanup-workspace}" >&2
   exit 2
 }
 
@@ -277,6 +277,24 @@ publish_allure_report() {
   fi
 }
 
+cleanup_devices() {
+  if [[ -n "${DEVICE_LIST:-}" ]]; then
+    # Remove app data and instrumentation packages as well as pushed upgrade
+    # APKs. The test APK contains the limited device credential set and must not
+    # remain extractable from a shared physical phone after the run.
+    read -ra DEVICES <<< "${DEVICE_LIST}"
+    for serial in "${DEVICES[@]}"; do
+      if [[ -n "${TEST_APP_ID:-}" ]]; then
+        timeout 10s adb -s "${serial}" uninstall "${TEST_APP_ID}" >/dev/null 2>&1 || true
+      fi
+      if [[ -n "${APP_ID:-}" ]]; then
+        timeout 10s adb -s "${serial}" uninstall "${APP_ID}" >/dev/null 2>&1 || true
+      fi
+      timeout 10s adb -s "${serial}" shell rm -f /data/local/tmp/Wire.old.apk /data/local/tmp/Wire.new.apk || true
+    done
+  fi
+}
+
 cleanup_workspace() {
   : "${ALLURE_RESULTS_DIR:?ALLURE_RESULTS_DIR not set}"
   : "${ALLURE_RESULTS_MERGED_DIR:?ALLURE_RESULTS_MERGED_DIR not set}"
@@ -287,20 +305,8 @@ cleanup_workspace() {
   rm -f "secrets.json" "${RUNNER_TEMP}/secrets.json" || true
   rm -f "${RUNNER_TEMP}/Wire.apk" "${RUNNER_TEMP}/Wire.old.apk" || true
 
-  if [[ -n "${DEVICE_LIST:-}" ]]; then
-    # Remove app data and instrumentation packages as well as pushed upgrade
-    # APKs. The test APK contains the limited device credential set and must not
-    # remain extractable from a shared physical phone after the run.
-    read -ra DEVICES <<< "${DEVICE_LIST}"
-    for serial in "${DEVICES[@]}"; do
-      if [[ -n "${TEST_APP_ID:-}" ]]; then
-        adb -s "${serial}" uninstall "${TEST_APP_ID}" >/dev/null 2>&1 || true
-      fi
-      if [[ -n "${APP_ID:-}" ]]; then
-        adb -s "${serial}" uninstall "${APP_ID}" >/dev/null 2>&1 || true
-      fi
-      adb -s "${serial}" shell rm -f /data/local/tmp/Wire.old.apk /data/local/tmp/Wire.new.apk || true
-    done
+  if [[ "${SKIP_DEVICE_CLEANUP:-false}" != "true" ]]; then
+    cleanup_devices
   fi
 
   rm -rf "${ALLURE_RESULTS_DIR}" || true
@@ -338,6 +344,9 @@ case "${1:-}" in
     ;;
   publish-allure-report)
     publish_allure_report
+    ;;
+  cleanup-devices)
+    cleanup_devices
     ;;
   cleanup-workspace)
     cleanup_workspace

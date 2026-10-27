@@ -53,7 +53,6 @@ import com.wire.kalium.cells.data.SortingSpec
 import com.wire.kalium.cells.domain.CellUploadCoordinator
 import com.wire.kalium.cells.domain.CellUploadState
 import com.wire.kalium.cells.domain.model.Node
-import com.wire.kalium.cells.domain.model.NodeLocator
 import com.wire.kalium.cells.domain.model.NodeToDelete
 import com.wire.kalium.cells.domain.usecase.DeleteCellAssetUseCase
 import com.wire.kalium.cells.domain.usecase.DeleteCellAssetsUseCase
@@ -539,15 +538,13 @@ class CellViewModel @AssistedInject constructor(
      * Moves the confirmed nodes to the recycle bin in a single request. There is no rollback: if it fails midway, some of
      * them may still have been deleted, so the list is refreshed and the selection cleared either way.
      */
-    @Suppress("ReturnCount")
     private fun deleteSelectedNodes() {
         val confirmation = _bulkDeleteDialog.value as? BulkDeleteDialog.Confirmation ?: return
         if (confirmation.isInProgress) return
-        val folderPath = currentNodeUuid() ?: return
         val nodes = confirmation.nodes
         _bulkDeleteDialog.value = confirmation.copy(isInProgress = true)
         viewModelScope.launch {
-            val result = deleteCellAssets(nodes.map { it.toNodeToDelete(folderPath) })
+            val result = deleteCellAssets(nodes.map { it.toNodeToDelete() })
             bulkSelection.clear()
             result
                 .onSuccess {
@@ -575,9 +572,10 @@ class CellViewModel @AssistedInject constructor(
         _bulkDeleteDialog.value = null
     }
 
-    private fun CellNodeUi.toNodeToDelete(folderPath: String) = NodeToDelete(
-        locator = NodeLocator(uuid = uuid, path = "$folderPath/$name"),
+    private fun CellNodeUi.toNodeToDelete() = NodeToDelete(
+        uuid = uuid,
         localPath = (this as? CellNodeUi.File)?.localPath,
+        folderPath = (this as? CellNodeUi.Folder)?.remotePath,
     )
 
     internal fun currentNodeUuid(): String? = navArgs.conversationId
@@ -633,7 +631,9 @@ class CellViewModel @AssistedInject constructor(
     private fun startOpenDownload(cellNode: CellNodeUi.File) {
         openFileDownloadController.start(
             scope = viewModelScope,
-            cellNode = cellNode.copy(conversationId = cellNode.conversationId ?: navArgs.conversationId),
+            // [navArgs.conversationId] is the path of the folder being browsed, so only its root
+            // segment is the conversation the file belongs to.
+            cellNode = cellNode.copy(conversationId = cellNode.conversationId ?: rootConversationId),
             onOpenFile = ::openLocalFile,
             onError = { sendAction(ShowError(it)) },
         )
@@ -861,7 +861,8 @@ class CellViewModel @AssistedInject constructor(
 
         removeFromListUi(node)
 
-        deleteCellAsset(node.uuid, localPath)
+        // For a folder, its path lets the local copies of the files inside it be cleaned up too.
+        deleteCellAsset(node.uuid, localPath, folderPath = (node as? CellNodeUi.Folder)?.remotePath)
             .onSuccess {
                 _isDeleteInProgress.value = false
                 sendAction(HideDeleteConfirmation)

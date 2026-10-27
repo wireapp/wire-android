@@ -1290,8 +1290,6 @@ Bei Gruppenunterhaltungen kann der Gruppen-Admin diese Einstellung überschreibe
         <item quantity="other">Sie können nur mit %1$d Benutzerkonten gleichzeitig angemeldet sein. Melden Sie sich von einem ab, um ein anderes hinzuzufügen.</item>
     </plurals>
     <string name="max_account_reached_dialog_button_open_profile">Profil öffnen</string>
-    <!--nomad account blocks login dialog-->
-    <string name="nomad_login_blocked_message">Anmeldung nicht möglich, wenn ein anderes Konto aktiv ist</string>
     <string name="cant_switch_account_in_call">Sie können während eines Anrufs nicht das Konto wechseln</string>
     <string name="cross_backend_login_blocked_title">Wechseln der Backends ist gesperrt</string>
     <string name="cross_backend_login_blocked_message">Derzeit können Sie sich nicht bei einem anderen Backend anmelden. Melden Sie sich zunächst ab und melden Sie sich dann bei einem anderen Backend an.</string>

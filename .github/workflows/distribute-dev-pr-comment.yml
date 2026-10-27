@@ -1,0 +1,57 @@
+name: "Distribute Dev PR"
+
+on:
+  issue_comment:
+    types: [created]
+
+permissions:
+  actions: read # the called workflow downloads existing PR build artifacts
+  contents: read # the called workflow checks out trusted upload configuration
+  pull-requests: read # the called workflow resolves the PR's current revision
+
+concurrency:
+  group: firebase-dev-comment-${{ github.event.issue.number }}
+  cancel-in-progress: false
+
+jobs:
+  authorize:
+    name: Authorize distribution request
+    if: github.event.issue.pull_request && github.event.comment.body == '/distribute-dev'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      issues: write # acknowledge accepted or rejected requests with comment reactions
+      pull-requests: write # required to react to comments belonging to pull requests
+    steps:
+      - name: Check commenter permission
+        id: permission
+        env:
+          GH_TOKEN: ${{ github.token }}
+          COMMENT_AUTHOR: ${{ github.event.comment.user.login }}
+        run: |
+          permission="$(gh api "repos/${GITHUB_REPOSITORY}/collaborators/${COMMENT_AUTHOR}/permission" --jq .permission)" || permission=none
+          reaction=-1
+          case "${permission}" in
+            write|admin) reaction=+1 ;;
+          esac
+          echo "reaction=${reaction}" >> "${GITHUB_OUTPUT}"
+
+      - name: Acknowledge request and enforce permission
+        env:
+          GH_TOKEN: ${{ github.token }}
+          COMMENT_ID: ${{ github.event.comment.id }}
+          REACTION: ${{ steps.permission.outputs.reaction }}
+        run: |
+          gh api --method POST "repos/${GITHUB_REPOSITORY}/issues/comments/${COMMENT_ID}/reactions" \
+            -f "content=${REACTION}" > /dev/null
+          [[ "${REACTION}" == +1 ]] || { echo "Repository write access is required"; exit 1; }
+
+  distribute:
+    name: Distribute requested PR build
+    needs: authorize
+    uses: ./.github/workflows/distribute-dev-firebase.yml
+    with:
+      pull-request: ${{ format('{0}', github.event.issue.number) }}
+      release-notes: ${{ github.event.issue.title }}
+    secrets:
+      FIREBASE_APP_DISTRIBUTION_SERVICE_ACCOUNT_JSON: ${{ secrets.FIREBASE_APP_DISTRIBUTION_SERVICE_ACCOUNT_JSON }}

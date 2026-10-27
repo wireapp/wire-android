@@ -21,6 +21,7 @@ import com.wire.android.feature.cells.ui.OpenFileDownloadController.Companion.SP
 import com.wire.android.feature.cells.ui.model.CellNodeUi
 import com.wire.android.feature.cells.ui.model.OpenLoadState
 import com.wire.android.feature.cells.util.FileHelper
+import com.wire.android.feature.cells.util.cellFileDestination
 import com.wire.kalium.cells.domain.usecase.download.DownloadCellFileUseCase
 import com.wire.kalium.common.functional.Either
 import com.wire.kalium.common.functional.onSuccess
@@ -88,10 +89,7 @@ class OpenFileDownloadController @Inject constructor(
             return
         }
 
-        val filePath = File(fileHelper.getExternalFilesDir(), cellNode.conversationId ?: cellNode.uuid)
-            .also { it.mkdirs() }
-            .let { File(it, nodeName) }
-            .toOkioPath()
+        val filePath = fileHelper.cellFileDestination(cellNode.conversationId, cellNode.uuid, nodeName).toOkioPath()
 
         val job = scope.launch {
             performDownload(cellNode, filePath, onOpenFile, onError)

@@ -24,6 +24,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.text.format.DateFormat
 import androidx.test.core.app.ApplicationProvider.getApplicationContext
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.By
@@ -33,17 +34,19 @@ import org.hamcrest.CoreMatchers
 import org.hamcrest.MatcherAssert.assertThat
 import uiautomatorutils.PermissionUtils.grantRuntimePermsForApp
 import uiautomatorutils.PermissionUtils.grantStoragePermissionsIfSupported
+import uiautomatorutils.UiWaitUtils
 
 const val TIMEOUT_IN_MILLISECONDS = 20_000L
 
 object UiAutomatorSetup {
 
-    const val APP_DEV: String = "com.waz.zclient.dev.debug"
+    const val APP_DEV: String = "com.wire.android.dev.debug"
     const val APP_STAGING: String = "com.waz.zclient.dev"
     const val APP_BETA: String = "com.wire.android.internal"
     const val APP_PROD: String = "com.wire"
     const val APP_ALPHA: String = "com.wire.internal"
     private const val APP_PACKAGE_ARGUMENT = "appPackage"
+    private const val ANDROID_17_API_LEVEL = 37
     lateinit var appPackage: String
 
     fun start(appPackage: String, clearData: Boolean = true): UiDevice {
@@ -55,6 +58,14 @@ object UiAutomatorSetup {
 
         this.appPackage = selectedPackage
 
+        if (Build.VERSION.SDK_INT >= ANDROID_17_API_LEVEL) {
+            val instrumentation = InstrumentationRegistry.getInstrumentation()
+            instrumentation.uiAutomation.grantRuntimePermission(
+                instrumentation.context.packageName,
+                Manifest.permission.ACCESS_LOCAL_NETWORK
+            )
+        }
+
         val device = getDevice()
         device.wakeUp()
 
@@ -64,6 +75,12 @@ object UiAutomatorSetup {
 
         grantNotificationPermissionIfSupported(selectedPackage)
         grantStoragePermissionsIfSupported(selectedPackage)
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+            grantRuntimePermsForApp(
+                InstrumentationRegistry.getInstrumentation().targetContext.packageName,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE
+            )
+        }
 
         device.executeShellCommand("settings put secure show_ime_with_hard_keyboard 0")
         device.executeShellCommand("settings put global window_animation_scale 0")
@@ -195,5 +212,26 @@ object UiAutomatorSetup {
         val versionCode: Long
     ) {
         override fun toString(): String = "versionName=$versionName versionCode=$versionCode"
+    }
+
+    // Reads the device time format so tests can save and restore the original setting.
+    fun getTimeFormat(): String = getDevice().executeShellCommand("settings get system time_12_24").trim()
+
+    // Uses Android's system setting directly so the test does not depend on OEM-specific Settings screens.
+    fun setTimeFormat(format: String) {
+        require(format in setOf("12", "24", "null")) { "Unsupported device time format: $format" }
+        if (getTimeFormat() == format) return
+        val device = getDevice()
+        val context: Context = getApplicationContext()
+        if (format == "null") {
+            device.executeShellCommand("settings delete system time_12_24")
+        } else {
+            device.executeShellCommand("settings put system time_12_24 $format")
+        }
+        val timeFormatApplied = UiWaitUtils.retryUntilTimeout(UiWaitUtils.STABLE_TIMEOUT) {
+            getTimeFormat() == format &&
+                (format == "null" || DateFormat.is24HourFormat(context) == (format == "24"))
+        }
+        check(timeFormatApplied) { "Android did not apply time format '$format'" }
     }
 }

@@ -47,7 +47,6 @@ import com.wire.kalium.cells.domain.CellUploadItem
 import com.wire.kalium.cells.domain.CellUploadRequest
 import com.wire.kalium.cells.domain.CellUploadState
 import com.wire.kalium.cells.domain.model.Node
-import com.wire.kalium.cells.domain.model.NodeLocator
 import com.wire.kalium.cells.domain.model.NodeToDelete
 import com.wire.kalium.cells.domain.usecase.DeleteCellAssetUseCase
 import com.wire.kalium.cells.domain.usecase.DeleteCellAssetsUseCase
@@ -608,7 +607,7 @@ class CellViewModelTest {
         viewModel.sendIntent(CellViewIntent.OnNodeDeleteConfirmed(testFile))
 
         coVerify(exactly = 1) {
-            arrangement.deleteCellAssetUseCase(any(), any())
+            arrangement.deleteCellAssetUseCase(any(), any(), any())
         }
     }
 
@@ -644,13 +643,44 @@ class CellViewModelTest {
         coVerify(exactly = 1) {
             arrangement.deleteCellAssetsUseCase(
                 listOf(
-                    NodeToDelete(NodeLocator("fileUuid", "conversationId/fileName"), localPath = "localPath"),
-                    NodeToDelete(NodeLocator("fileUuid2", "conversationId/fileName2"), localPath = null),
+                    NodeToDelete(uuid = "fileUuid", localPath = "localPath"),
+                    NodeToDelete(uuid = "fileUuid2", localPath = null),
                 )
             )
         }
         assertNull(viewModel.bulkDeleteDialog.value)
         assertTrue(viewModel.selectedNodes.value.isEmpty())
+    }
+
+    @Test
+    fun `given a selected folder when deleted then its path is passed to clean up the files inside it`() = runTest {
+        val (arrangement, viewModel) = Arrangement()
+            .withConversationId("conversationId")
+            .withBulkDeleteReturning(Unit.right())
+            .arrange()
+        val folder = Node.Folder(
+            uuid = "folderUuid",
+            name = "reports",
+            remotePath = "conversationId/reports",
+            modifiedTime = 0L,
+            size = 0,
+        ).toUiModel()
+        val file = testFiles[0].toUiModel()
+        selectNodes(viewModel, listOf(folder, file))
+        viewModel.sendIntent(CellViewIntent.OnDeleteSelectedNodesClick)
+
+        viewModel.sendIntent(CellViewIntent.OnBulkDeleteConfirmed)
+        advanceUntilIdle()
+
+        coVerify(exactly = 1) {
+            arrangement.deleteCellAssetsUseCase(
+                listOf(
+                    NodeToDelete(uuid = "folderUuid", localPath = null, folderPath = "conversationId/reports"),
+                    NodeToDelete(uuid = "fileUuid", localPath = "localPath", folderPath = null),
+                ),
+                any(),
+            )
+        }
     }
 
     @Test
@@ -692,7 +722,7 @@ class CellViewModelTest {
         val (arrangement, viewModel) = Arrangement()
             .withConversationId("conversationId")
             .arrange()
-        coEvery { arrangement.deleteCellAssetsUseCase(any()) } coAnswers { result.await() }
+        coEvery { arrangement.deleteCellAssetsUseCase(any(), any()) } coAnswers { result.await() }
         val nodes = testFiles.map { it.toUiModel() }
         selectNodes(viewModel, nodes)
         viewModel.sendIntent(CellViewIntent.OnDeleteSelectedNodesClick)
@@ -705,7 +735,7 @@ class CellViewModelTest {
         assertEquals(BulkDeleteDialog.Confirmation(nodes, isInProgress = true), viewModel.bulkDeleteDialog.value)
         result.complete(Unit.right())
         advanceUntilIdle()
-        coVerify(exactly = 1) { arrangement.deleteCellAssetsUseCase(any()) }
+        coVerify(exactly = 1) { arrangement.deleteCellAssetsUseCase(any(), any()) }
     }
 
     @Test
@@ -1235,7 +1265,7 @@ class CellViewModelTest {
         }
 
         fun withDeleteSuccess() = apply {
-            coEvery { deleteCellAssetUseCase(any(), any()) } returns Unit.right()
+            coEvery { deleteCellAssetUseCase(any(), any(), any()) } returns Unit.right()
         }
 
         fun withNoCellsAvailable() = apply {
@@ -1271,6 +1301,14 @@ class CellViewModelTest {
         }
 
         /**
+         * More than viewer access, which bulk selection requires. Despite its name, the use case returns true when the
+         * self user has full access (the view model negates it).
+         */
+        fun withEditorAccess() = apply {
+            coEvery { isSelfUserViewerOnConversation(any()) } returns true
+        }
+
+        /**
          * Restricts the self user to viewer access, which turns bulk selection off. Note the inverted use case: it returns
          * false for viewer-only users (and true, the default here, for everyone else).
          */
@@ -1279,7 +1317,7 @@ class CellViewModelTest {
         }
 
         fun withBulkDeleteReturning(result: Either<CoreFailure, Unit>) = apply {
-            coEvery { deleteCellAssetsUseCase(any()) } returns result
+            coEvery { deleteCellAssetsUseCase(any(), any()) } returns result
         }
 
         fun withSearchScreenArgsOnly(initialSortingCriteria: SortCriteriaNavArg? = null) = apply {

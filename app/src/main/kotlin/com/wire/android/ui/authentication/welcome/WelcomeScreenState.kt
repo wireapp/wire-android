@@ -23,5 +23,4 @@ data class WelcomeScreenState(
     val links: ServerConfig.Links,
     val isThereActiveSession: Boolean = false,
     val maxAccountsReached: Boolean = false,
-    val nomadAccountBlocksLogin: Boolean = false,
 )

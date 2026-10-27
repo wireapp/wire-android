@@ -58,7 +58,6 @@ import com.wire.kalium.logic.feature.auth.ValidateEmailUseCase
 import com.wire.kalium.logic.feature.auth.autoVersioningAuth.AutoVersionAuthScopeUseCase
 import com.wire.kalium.logic.feature.auth.sso.SSOInitiateLoginResult
 import com.wire.kalium.logic.feature.auth.sso.SSOLoginSessionResult
-import com.wire.kalium.logic.feature.backup.RestoreCryptoStateResult
 import com.wire.kalium.logic.feature.client.RegisterClientResult
 import com.wire.kalium.logic.feature.session.DoesValidSessionExistResult
 import dev.zacsweers.metro.Assisted
@@ -80,8 +79,6 @@ class LoginSSOViewModel : LoginViewModel {
     private val ssoExtension: LoginSSOViewModelExtension
     private val dispatchers: DispatcherProvider
 
-    private var pendingNomadServiceUrl: String? = null
-    private var pendingCookieLabel: String? = null
     private var pendingSsoSession: StoreSessionParam? = null
 
     constructor(
@@ -157,8 +154,6 @@ class LoginSSOViewModel : LoginViewModel {
         this.validateEmailUseCase = validateEmailUseCase
         this.ssoExtension = ssoExtension
         this.dispatchers = dispatchers
-        pendingNomadServiceUrl = loginNavArgs.ssoCodeAutoLogin?.nomadServiceUrl
-        pendingCookieLabel = loginNavArgs.ssoCodeAutoLogin?.cookieLabel
         observeSSOCodeInput()
     }
 
@@ -212,7 +207,7 @@ class LoginSSOViewModel : LoginViewModel {
                 is ReplaceRetainedSsoSessionResult.Failure ->
                     updateSSOFlowState(result.cause.toLoginError())
                 is ReplaceRetainedSsoSessionResult.Success ->
-                    continueAfterSsoSessionStored(result.userId, session.nomadServiceUrl != null)
+                    registerClientAndUpdateState(result.userId)
             }
         }
     }
@@ -248,7 +243,6 @@ class LoginSSOViewModel : LoginViewModel {
                             ssoExtension.initiateSSO(
                                 serverConfig = state.serverLinks,
                                 ssoCode = defaultSSOCode,
-                                cookieLabel = pendingCookieLabel,
                                 onAuthScopeFailure = { updateSSOFlowState(it.toLoginError()) },
                                 onSSOInitiateFailure = { updateSSOFlowState(it.toLoginSSOError()) },
                                 onSuccess = { result ->
@@ -262,21 +256,6 @@ class LoginSSOViewModel : LoginViewModel {
                     }
                 )
             }
-        }
-    }
-
-    fun handleSSOCodeAutoLogin(
-        ssoCode: String,
-        autoInitiateLogin: Boolean,
-        nomadServiceUrl: String?,
-        cookieLabel: String?,
-    ) {
-        pendingNomadServiceUrl = nomadServiceUrl
-        pendingCookieLabel = cookieLabel
-        ssoTextState.setTextAndPlaceCursorAtEnd(ssoCode)
-
-        if (autoInitiateLogin) {
-            login()
         }
     }
 
@@ -322,7 +301,6 @@ class LoginSSOViewModel : LoginViewModel {
             ssoExtension.initiateSSO(
                 serverConfig = serverConfig,
                 ssoCode = ssoTextState.text.toString(),
-                cookieLabel = pendingCookieLabel,
                 onAuthScopeFailure = { updateSSOFlowState(it.toLoginError()) },
                 onSSOInitiateFailure = { updateSSOFlowState(it.toLoginSSOError()) },
                 onSuccess = { result ->
@@ -347,14 +325,11 @@ class LoginSSOViewModel : LoginViewModel {
         }
 
         updateSSOFlowState(LoginState.Loading)
-        val isNomadFlow = pendingNomadServiceUrl != null
         viewModelScope.launch {
             ssoExtension.establishSSOSession(
                 cookie = cookie,
                 serverConfigId = serverConfigId,
                 pendingSsoLogin = pendingSsoLogin,
-                consumeNomadServiceUrl = ::consumePendingNomadServiceUrl,
-                consumeCookieLabel = ::consumePendingCookieLabel,
                 onAuthScopeFailure = { updateSSOFlowState(it.toLoginError()) },
                 onSSOLoginFailure = { updateSSOFlowState(it.toLoginError()) },
                 onAddAuthenticatedUserFailure = { updateSSOFlowState(it.toLoginError()) },
@@ -366,7 +341,7 @@ class LoginSSOViewModel : LoginViewModel {
                     )
                 },
                 onSuccess = { storedUserId ->
-                    continueAfterSsoSessionStored(storedUserId, isNomadFlow)
+                    registerClientAndUpdateState(storedUserId)
                 }
             )
         }
@@ -392,25 +367,12 @@ class LoginSSOViewModel : LoginViewModel {
         }
     }
 
-    private suspend fun continueAfterSsoSessionStored(userId: UserId, isNomadFlow: Boolean) {
-        if (!isNomadFlow) {
-            appLogger.i("$TAG Not a nomad flow, proceeding with regular login")
-            registerClientAndUpdateState(userId, setLastDeviceId = false)
-        } else {
-            appLogger.i("$TAG Nomad flow, attempting crypto state restore")
-            restoreCryptoStateAndContinue(userId)
-        }
-    }
-
-    private suspend fun registerClientAndUpdateState(userId: UserId, setLastDeviceId: Boolean = false) {
+    private suspend fun registerClientAndUpdateState(userId: UserId) {
         withContext(dispatchers.io()) {
             registerClient(userId = userId, password = null)
         }.let {
             when (it) {
                 is RegisterClientResult.Success -> {
-                    if (setLastDeviceId) {
-                        coreLogic.getSessionScope(userId).backup.setLastDeviceId(it.client.id.value)
-                    }
                     updateSSOFlowState(LoginState.Success(isInitialSyncCompleted(userId), false, userId))
                 }
 
@@ -431,44 +393,6 @@ class LoginSSOViewModel : LoginViewModel {
     private suspend fun isSessionStillValid(userId: UserId): Boolean =
         (coreLogic.getGlobalScope().doesValidSessionExist(userId) as? DoesValidSessionExistResult.Success)
             ?.doesValidSessionExist == true
-
-    @Suppress("ThrowsCount", "TooGenericExceptionCaught")
-    private suspend fun restoreCryptoStateAndContinue(storedUserId: UserId) {
-        val restoreResult = try {
-            withContext(dispatchers.io()) {
-                coreLogic.getSessionScope(storedUserId).backup.restoreCryptoState()
-            }
-        } catch (e: CancellationException) {
-            throw e
-        } catch (e: Exception) {
-            when (e) {
-                is IllegalStateException, is IOException, is SQLiteException -> {
-                    if (isSessionStillValid(storedUserId)) throw e
-                    appLogger.w("$TAG Crypto restore interrupted by concurrent logout: ${e.message}")
-                    return
-                }
-                else -> throw e
-            }
-        }
-
-        when (restoreResult) {
-            is RestoreCryptoStateResult.Success -> {
-                updateSSOFlowState(LoginState.Success(isInitialSyncCompleted(storedUserId), false, storedUserId))
-            }
-            is RestoreCryptoStateResult.NoBackupAvailable -> {
-                registerClientAndUpdateState(storedUserId, setLastDeviceId = true)
-            }
-            is RestoreCryptoStateResult.Failure -> {
-                appLogger.e("$TAG Failed to restore crypto state during SSO login")
-                revertSSOSession(storedUserId)
-                updateSSOFlowState(
-                    LoginState.Error.DialogError.GenericError(
-                        CoreFailure.Unknown(Exception("Failed to restore crypto state"))
-                    )
-                )
-            }
-        }
-    }
 
     @Suppress("ThrowsCount", "TooGenericExceptionCaught")
     private suspend fun revertSSOSession(userId: UserId) {
@@ -497,14 +421,6 @@ class LoginSSOViewModel : LoginViewModel {
 
     companion object {
         private const val TAG = "[LoginSSOViewModel]"
-    }
-
-    private fun consumePendingNomadServiceUrl(): String? = pendingNomadServiceUrl.also {
-        pendingNomadServiceUrl = null
-    }
-
-    private fun consumePendingCookieLabel(): String? = pendingCookieLabel.also {
-        pendingCookieLabel = null
     }
 
     private fun consumePendingSsoLogin(): PendingSsoLogin? = savedInputStore.pendingSsoLogin.also {

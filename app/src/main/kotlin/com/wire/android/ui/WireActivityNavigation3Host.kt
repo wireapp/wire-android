@@ -293,7 +293,6 @@ private fun WireActivityNavigation3ThemedHost(
                 )
             },
             restartAfterLogout = activityEffects::restartAfterLogout,
-            moveTaskToBackground = { dependencies.activity.moveTaskToBack(true) },
             completeSessionBackedAuthenticationCancellation = { sessionId ->
                 teardownWireActivitySession(
                     sessionId = sessionId,

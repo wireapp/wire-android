@@ -332,7 +332,6 @@
     <string name="devices_title">Sinu seadmed</string>
     <string name="other_devices_label">Teised seadmed</string>
     <!--max account reached dialog-->
-    <!--nomad account blocks login dialog-->
     <string name="label_client_option_title">Kliendi ID</string>
     <string name="label_device_id">Seadme ID: %1$s</string>
     <string name="label_client_id">Kliendi ID: %1$s</string>

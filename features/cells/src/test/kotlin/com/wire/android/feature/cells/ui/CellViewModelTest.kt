@@ -24,16 +24,12 @@ import androidx.paging.PagingData
 import androidx.paging.testing.asSnapshot
 import app.cash.turbine.test
 import com.wire.android.datastore.UserDataStore
-import com.wire.kalium.common.error.CoreFailure
-import com.wire.kalium.common.error.NetworkFailure
-import com.wire.kalium.common.functional.Either
-import com.wire.kalium.logic.featureFlags.KaliumConfigs
+import com.wire.android.feature.cells.ui.dialog.BulkDeleteDialog
 import com.wire.android.feature.cells.ui.edit.OnlineEditor
 import com.wire.android.feature.cells.ui.model.CellNodeUi
-import com.wire.android.feature.cells.ui.dialog.BulkDeleteDialog
-import com.wire.android.feature.cells.ui.model.pdfRenditionUrl
 import com.wire.android.feature.cells.ui.model.NodeBottomSheetAction
 import com.wire.android.feature.cells.ui.model.OpenLoadState
+import com.wire.android.feature.cells.ui.model.pdfRenditionUrl
 import com.wire.android.feature.cells.ui.model.toUiModel
 import com.wire.android.feature.cells.ui.movetofolder.CellNodeMoveEvents
 import com.wire.android.feature.cells.ui.search.DriveSearchScreenType
@@ -63,11 +59,15 @@ import com.wire.kalium.cells.domain.usecase.offline.GetOfflineFileUseCase
 import com.wire.kalium.cells.domain.usecase.offline.ObserveOfflineFilesUseCase
 import com.wire.kalium.cells.domain.usecase.offline.OfflineFileInfo
 import com.wire.kalium.cells.domain.usecase.offline.SaveOfflineFileUseCase
+import com.wire.kalium.common.error.CoreFailure
+import com.wire.kalium.common.error.NetworkFailure
+import com.wire.kalium.common.functional.Either
 import com.wire.kalium.common.functional.left
 import com.wire.kalium.common.functional.right
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.feature.conversation.IsSelfUserViewerOnConversationUseCase
+import com.wire.kalium.logic.featureFlags.KaliumConfigs
 import com.wire.kalium.network.NetworkState
 import com.wire.kalium.network.NetworkStateObserver
 import io.mockk.MockKAnnotations
@@ -615,7 +615,6 @@ class CellViewModelTest {
     fun `given selected nodes when delete is clicked then the confirmation shows them`() = runTest {
         val (_, viewModel) = Arrangement()
             .withConversationId("conversationId")
-            .withEditorAccess()
             .arrange()
         val nodes = testFiles.map { it.toUiModel() }
         selectNodes(viewModel, nodes)
@@ -629,7 +628,6 @@ class CellViewModelTest {
     fun `given a bulk delete confirmation when confirmed then delete all nodes in one request and confirm it`() = runTest {
         val (arrangement, viewModel) = Arrangement()
             .withConversationId("conversationId")
-            .withEditorAccess()
             .withBulkDeleteReturning(Unit.right())
             .arrange()
         val nodes = testFiles.map { it.toUiModel() }
@@ -652,6 +650,112 @@ class CellViewModelTest {
         }
         assertNull(viewModel.bulkDeleteDialog.value)
         assertTrue(viewModel.selectedNodes.value.isEmpty())
+    }
+
+    @Test
+    fun `given a single selected node when its bulk delete succeeds then show the single item message`() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withConversationId("conversationId")
+            .withBulkDeleteReturning(Unit.right())
+            .arrange()
+        selectNodes(viewModel, listOf(testFiles[0].toUiModel()))
+        viewModel.sendIntent(CellViewIntent.OnDeleteSelectedNodesClick)
+
+        viewModel.actions.test {
+            viewModel.sendIntent(CellViewIntent.OnBulkDeleteConfirmed)
+            advanceUntilIdle()
+
+            assertEquals(ShowFileDeletedMessage(isFile = true, permanently = false), awaitItem())
+        }
+    }
+
+    @Test
+    fun `given no network when the bulk delete fails then show a no network failure and clear the selection`() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withConversationId("conversationId")
+            .withBulkDeleteReturning(NetworkFailure.NoNetworkConnection(null).left())
+            .arrange()
+        selectNodes(viewModel, testFiles.map { it.toUiModel() })
+        viewModel.sendIntent(CellViewIntent.OnDeleteSelectedNodesClick)
+
+        viewModel.sendIntent(CellViewIntent.OnBulkDeleteConfirmed)
+        advanceUntilIdle()
+
+        assertEquals(BulkDeleteDialog.Failure(totalCount = 2, isNoNetworkConnection = true), viewModel.bulkDeleteDialog.value)
+        assertTrue(viewModel.selectedNodes.value.isEmpty())
+    }
+
+    @Test
+    fun `given a bulk delete in progress when dismissed or confirmed again then ignore it`() = runTest {
+        val result = CompletableDeferred<Either<CoreFailure, Unit>>()
+        val (arrangement, viewModel) = Arrangement()
+            .withConversationId("conversationId")
+            .arrange()
+        coEvery { arrangement.deleteCellAssetsUseCase(any(), any()) } coAnswers { result.await() }
+        val nodes = testFiles.map { it.toUiModel() }
+        selectNodes(viewModel, nodes)
+        viewModel.sendIntent(CellViewIntent.OnDeleteSelectedNodesClick)
+
+        viewModel.sendIntent(CellViewIntent.OnBulkDeleteConfirmed)
+        viewModel.sendIntent(CellViewIntent.OnBulkDeleteDialogDismissed)
+        viewModel.sendIntent(CellViewIntent.OnBulkDeleteConfirmed)
+        advanceUntilIdle()
+
+        assertEquals(BulkDeleteDialog.Confirmation(nodes, isInProgress = true), viewModel.bulkDeleteDialog.value)
+        result.complete(Unit.right())
+        advanceUntilIdle()
+        coVerify(exactly = 1) { arrangement.deleteCellAssetsUseCase(any(), any()) }
+    }
+
+    @Test
+    fun `given bulk selection available and the tip not dismissed then the tip is shown`() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withConversationId("conversationId")
+            .arrange()
+        advanceUntilIdle()
+
+        assertTrue(viewModel.showBulkSelectionHint.value)
+    }
+
+    @Test
+    fun `given viewer only access then the bulk selection tip is not shown`() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withConversationId("conversationId")
+            .withViewerOnlyAccess()
+            .arrange()
+        advanceUntilIdle()
+
+        assertFalse(viewModel.showBulkSelectionHint.value)
+    }
+
+    @Test
+    fun `given the tip is shown when it is dismissed then remember it`() = runTest {
+        val (arrangement, viewModel) = Arrangement()
+            .withConversationId("conversationId")
+            .arrange()
+
+        viewModel.onBulkSelectionHintDismissed()
+        advanceUntilIdle()
+
+        coVerify(exactly = 1) { arrangement.userDataStore.setBulkSelectionHintDismissed() }
+    }
+
+    @Test
+    fun `given the tip is shown when selection mode is entered then the tip is dismissed`() = runTest {
+        val (arrangement, viewModel) = Arrangement()
+            .withConversationId("conversationId")
+            .arrange()
+
+        selectNodes(viewModel, listOf(testFiles[0].toUiModel()))
+        advanceUntilIdle()
+
+        coVerify(exactly = 1) { arrangement.userDataStore.setBulkSelectionHintDismissed() }
+    }
+
+    private fun TestScope.selectNodes(viewModel: CellViewModel, nodes: List<CellNodeUi>) {
+        advanceUntilIdle() // Lets the viewer access check enable bulk selection.
+        viewModel.sendIntent(CellViewIntent.OnItemLongClick(nodes.first()))
+        nodes.drop(1).forEach { viewModel.sendIntent(CellViewIntent.OnItemClick(it)) }
     }
 
     @Test
@@ -683,70 +787,6 @@ class CellViewModelTest {
                 any(),
             )
         }
-    }
-
-    @Test
-    fun `given a single selected node when its bulk delete succeeds then show the single item message`() = runTest {
-        val (_, viewModel) = Arrangement()
-            .withConversationId("conversationId")
-            .withEditorAccess()
-            .withBulkDeleteReturning(Unit.right())
-            .arrange()
-        selectNodes(viewModel, listOf(testFiles[0].toUiModel()))
-        viewModel.sendIntent(CellViewIntent.OnDeleteSelectedNodesClick)
-
-        viewModel.actions.test {
-            viewModel.sendIntent(CellViewIntent.OnBulkDeleteConfirmed)
-            advanceUntilIdle()
-
-            assertEquals(ShowFileDeletedMessage(isFile = true, permanently = false), awaitItem())
-        }
-    }
-
-    @Test
-    fun `given no network when the bulk delete fails then show a no network failure and clear the selection`() = runTest {
-        val (_, viewModel) = Arrangement()
-            .withConversationId("conversationId")
-            .withEditorAccess()
-            .withBulkDeleteReturning(NetworkFailure.NoNetworkConnection(null).left())
-            .arrange()
-        selectNodes(viewModel, testFiles.map { it.toUiModel() })
-        viewModel.sendIntent(CellViewIntent.OnDeleteSelectedNodesClick)
-
-        viewModel.sendIntent(CellViewIntent.OnBulkDeleteConfirmed)
-        advanceUntilIdle()
-
-        assertEquals(BulkDeleteDialog.Failure(totalCount = 2, isNoNetworkConnection = true), viewModel.bulkDeleteDialog.value)
-        assertTrue(viewModel.selectedNodes.value.isEmpty())
-    }
-
-    @Test
-    fun `given a bulk delete in progress when dismissed or confirmed again then ignore it`() = runTest {
-        val result = CompletableDeferred<Either<CoreFailure, Unit>>()
-        val (arrangement, viewModel) = Arrangement()
-            .withConversationId("conversationId")
-            .withEditorAccess()
-            .arrange()
-        coEvery { arrangement.deleteCellAssetsUseCase(any(), any()) } coAnswers { result.await() }
-        val nodes = testFiles.map { it.toUiModel() }
-        selectNodes(viewModel, nodes)
-        viewModel.sendIntent(CellViewIntent.OnDeleteSelectedNodesClick)
-
-        viewModel.sendIntent(CellViewIntent.OnBulkDeleteConfirmed)
-        viewModel.sendIntent(CellViewIntent.OnBulkDeleteDialogDismissed)
-        viewModel.sendIntent(CellViewIntent.OnBulkDeleteConfirmed)
-        advanceUntilIdle()
-
-        assertEquals(BulkDeleteDialog.Confirmation(nodes, isInProgress = true), viewModel.bulkDeleteDialog.value)
-        result.complete(Unit.right())
-        advanceUntilIdle()
-        coVerify(exactly = 1) { arrangement.deleteCellAssetsUseCase(any(), any()) }
-    }
-
-    private fun TestScope.selectNodes(viewModel: CellViewModel, nodes: List<CellNodeUi>) {
-        advanceUntilIdle() // Lets the viewer access check enable bulk selection.
-        viewModel.sendIntent(CellViewIntent.OnItemLongClick(nodes.first()))
-        nodes.drop(1).forEach { viewModel.sendIntent(CellViewIntent.OnItemClick(it)) }
     }
 
     @Test
@@ -869,19 +909,20 @@ class CellViewModelTest {
     }
 
     @Test
-    fun `given no files stage successfully, when upload is confirmed, then the upload screen still opens and an error is shown`() = runTest {
-        val (_, viewModel) = Arrangement().withConversationId("conversationId").arrange()
-        val pickedUris = List(2) { mockk<Uri>() }
-        // default arrangement stubs uploadFilePreparer.prepare to return null for any uri
-        viewModel.sendIntent(CellViewIntent.OnFilesPickedForUpload(pickedUris))
+    fun `given no files stage successfully, when upload is confirmed, then the upload screen still opens and an error is shown`() =
+        runTest {
+            val (_, viewModel) = Arrangement().withConversationId("conversationId").arrange()
+            val pickedUris = List(2) { mockk<Uri>() }
+            // default arrangement stubs uploadFilePreparer.prepare to return null for any uri
+            viewModel.sendIntent(CellViewIntent.OnFilesPickedForUpload(pickedUris))
 
-        viewModel.actions.test {
-            viewModel.confirmUpload()
+            viewModel.actions.test {
+                viewModel.confirmUpload()
 
-            assertEquals(FilesPickedForUpload(pickedUris), awaitItem())
-            assertEquals(ShowError(CellError.UPLOAD_PREPARATION_FAILED), awaitItem())
+                assertEquals(FilesPickedForUpload(pickedUris), awaitItem())
+                assertEquals(ShowError(CellError.UPLOAD_PREPARATION_FAILED), awaitItem())
+            }
         }
-    }
 
     @Test
     fun `given some files fail to stage, when upload is confirmed, then upload screen opens and an error is also shown`() = runTest {
@@ -1160,6 +1201,7 @@ class CellViewModelTest {
         lateinit var uploadCoordinator: CellUploadCoordinator
 
         val uploadsFlow = MutableStateFlow<List<CellUploadItem>>(emptyList())
+        val bulkSelectionHintDismissed = MutableStateFlow(false)
 
         init {
 
@@ -1174,6 +1216,7 @@ class CellViewModelTest {
             coEvery { getUserNames(any()) } returns null
             coEvery { isSelfUserViewerOnConversation(any()) } returns true
             every { userDataStore.isViewerAccessBannerDismissed(any()) } returns flowOf(false)
+            every { userDataStore.isBulkSelectionHintDismissed() } returns bulkSelectionHintDismissed
             every { qualifiedIdMapper.fromStringToQualifiedID(any()) } returns ConversationId("conversationId", "domain")
             coEvery { uploadFilePreparer.prepare(any(), any()) } returns null
             coEvery { uploadFilePreparer.fileName(any()) } returns "file"
@@ -1264,6 +1307,14 @@ class CellViewModelTest {
          */
         fun withEditorAccess() = apply {
             coEvery { isSelfUserViewerOnConversation(any()) } returns true
+        }
+
+        /**
+         * Restricts the self user to viewer access, which turns bulk selection off. Note the inverted use case: it returns
+         * false for viewer-only users (and true, the default here, for everyone else).
+         */
+        fun withViewerOnlyAccess() = apply {
+            coEvery { isSelfUserViewerOnConversation(any()) } returns false
         }
 
         fun withBulkDeleteReturning(result: Either<CoreFailure, Unit>) = apply {

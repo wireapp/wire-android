@@ -29,12 +29,12 @@ import com.wire.android.assertions.shouldNotBeEqualTo
 import com.wire.android.assertions.shouldNotBeInstanceOf
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.SnapshotExtension
+import com.wire.android.model.Contact
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.common.groupname.GroupMetadataState
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.home.newconversation.NewConversationViewModelArrangement.Companion.CONVERSATION
 import com.wire.android.ui.home.newconversation.common.CreateGroupState
-import com.wire.android.model.Contact
 import com.wire.android.util.EMPTY
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.CreateConversationParam
@@ -61,6 +61,54 @@ import org.junit.jupiter.api.extension.ExtendWith
 @OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(CoroutineTestExtension::class, SnapshotExtension::class)
 class NewConversationViewModelTest {
+
+    @Test
+    fun `disabled feature allows pending snapshots to be selected`() = runTest {
+        val (_, viewModel) = NewConversationViewModelArrangement().apply { pendingConnectionsEnabled = false }
+            .withGetSelfUser(isTeamMember = true).arrange()
+        val pending = Contact(
+            "pending",
+            "domain",
+            "Pending",
+            "pending",
+            connectionState = ConnectionState.ACCEPTED,
+            membership = Membership.Standard,
+            contactStatus = com.wire.kalium.logic.data.user.ContactStatus.NON_CONTACTABLE
+        )
+        viewModel.updateContactStatuses(mapOf(com.wire.kalium.logic.data.user.UserId(pending.id, pending.domain) to pending.contactStatus))
+        viewModel.updateSelectedContacts(true, pending)
+        assertEquals(false, viewModel.newGroupState.selectedUsers.single().isOnboardingPending)
+        viewModel.updateSelectedContacts(false, pending)
+        assertEquals(true, viewModel.newGroupState.selectedUsers.isEmpty())
+    }
+
+    @Test
+    fun `pending users cannot be selected but can be deselected`() = runTest {
+        val (_, viewModel) = NewConversationViewModelArrangement().withGetSelfUser(isTeamMember = true).arrange()
+        val pending = Contact(
+            "pending",
+            "domain",
+            "Pending",
+            "pending",
+            connectionState = ConnectionState.ACCEPTED,
+            membership = Membership.Standard,
+            contactStatus = com.wire.kalium.logic.data.user.ContactStatus.NON_CONTACTABLE
+        )
+        viewModel.updateSelectedContacts(true, pending)
+        assertTrue(viewModel.newGroupState.selectedUsers.isEmpty())
+        viewModel.updateSelectedContacts(true, pending.copy(contactStatus = null))
+        val userId = com.wire.kalium.logic.data.user.UserId(pending.id, pending.domain)
+        viewModel.updateContactStatuses(mapOf(userId to pending.contactStatus))
+        assertEquals(true, viewModel.newGroupState.selectedUsers.single().isOnboardingPending)
+        viewModel.updateSelectedContacts(false, pending)
+        viewModel.updateSelectedContacts(true, pending.copy(contactStatus = null))
+        assertEquals(true, viewModel.newGroupState.selectedUsers.isEmpty())
+        viewModel.updateContactStatuses(mapOf(userId to null))
+        viewModel.updateSelectedContacts(true, pending)
+        assertEquals(false, viewModel.newGroupState.selectedUsers.single().isOnboardingPending)
+        viewModel.updateSelectedContacts(false, pending)
+        assertTrue(viewModel.newGroupState.selectedUsers.isEmpty())
+    }
 
     @Test
     fun `given sync failure, when creating group, then should update options state with connectivity error`() = runTest {

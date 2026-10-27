@@ -30,6 +30,7 @@ import com.wire.kalium.logic.data.id.GroupID
 import com.wire.kalium.logic.data.mls.CipherSuite
 import com.wire.kalium.logic.data.publicuser.model.UserSearchDetails
 import com.wire.kalium.logic.data.user.ConnectionState
+import com.wire.kalium.logic.data.user.ContactStatus
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.data.user.type.UserType
 import com.wire.kalium.logic.data.user.type.UserTypeInfo
@@ -37,9 +38,11 @@ import com.wire.kalium.logic.feature.auth.ValidateUserHandleResult
 import com.wire.kalium.logic.feature.auth.ValidateUserHandleUseCase
 import com.wire.kalium.logic.feature.search.FederatedSearchParser
 import com.wire.kalium.logic.feature.search.IsFederationSearchAllowedUseCase
-import com.wire.kalium.logic.feature.search.SearchUsersByHandleUseCase
+import com.wire.kalium.logic.feature.search.RefreshContactStatusesUseCase
 import com.wire.kalium.logic.feature.search.SearchUserResult
+import com.wire.kalium.logic.feature.search.SearchUsersByHandleUseCase
 import com.wire.kalium.logic.feature.search.SearchUsersByNameUseCase
+import com.wire.kalium.logic.featureFlags.KaliumConfigs
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -47,15 +50,185 @@ import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.persistentSetOf
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
-import kotlin.time.Instant
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import kotlin.time.Instant
 
 @ExtendWith(CoroutineTestExtension::class, SnapshotExtension::class)
 class SearchUserViewModelTest {
+
+    private fun pendingTestUser(id: String = "user", remote: Boolean = false) = UserSearchDetails(
+        id = UserId(id, "domain"),
+        name = "User",
+        handle = "user",
+        completeAssetId = null,
+        previewAssetId = null,
+        type = UserTypeInfo.Regular(UserType.INTERNAL),
+        connectionStatus = ConnectionState.ACCEPTED,
+        contactStatus = if (remote) ContactStatus.NON_CONTACTABLE else null,
+    )
+
+    private fun pendingArrangement(users: List<UserSearchDetails>) = Arrangement()
+        .withSearchResult(SearchUserResult(connected = users, notConnected = emptyList()))
+        .withFederatedSearchParserResult(FederatedSearchParser.Result("", "domain"))
+        .withIsValidHandleResult(ValidateUserHandleResult.Invalid.TooLong(""))
+
+    @Test
+    fun `disabled feature ignores returned and selected status and does not refresh on resume`() = runTest {
+        val user = pendingTestUser(remote = true)
+        val arrangement = pendingArrangement(listOf(user)).apply { pendingConnectionsEnabled = false }
+        val (_, viewModel) = arrangement.arrange()
+        val selected = arrangement.fromSearchUserResult(pendingTestUser("selected")).copy(contactStatus = ContactStatus.NON_CONTACTABLE)
+        viewModel.selectedContactsChanged(persistentSetOf(selected))
+        viewModel.onForeground()
+        advanceUntilIdle()
+        assertEquals(false, viewModel.state.contactsResult.single().isOnboardingPending)
+        assertEquals(false, viewModel.state.selectedResult.single().isOnboardingPending)
+        viewModel.onBackground()
+        viewModel.onForeground()
+        advanceUntilIdle()
+        coVerify(exactly = 0) { arrangement.refreshContactStatuses(any()) }
+        coVerify(exactly = 1) { arrangement.searchUsersByNameUseCase(any(), any(), any(), any()) }
+    }
+
+    @Test
+    fun `blank list shows loaded status throughout an unchanged foreground refresh`() = runTest {
+        val user = pendingTestUser()
+        val arrangement = pendingArrangement(listOf(user))
+        val response = CompletableDeferred<Map<UserId, ContactStatus?>>()
+        coEvery { arrangement.refreshContactStatuses(any()) } coAnswers { response.await() }
+        val (_, viewModel) = arrangement.arrange()
+        viewModel.onForeground()
+        advanceUntilIdle()
+        assertEquals(false, viewModel.state.contactsResult.single().isOnboardingPending)
+        response.complete(mapOf(user.id to ContactStatus.NON_CONTACTABLE))
+        advanceUntilIdle()
+        assertEquals(true, viewModel.state.contactsResult.single().isOnboardingPending)
+        coVerify(exactly = 1) { arrangement.refreshContactStatuses(setOf(user.id)) }
+        val loadedState = viewModel.state
+        val refresh = CompletableDeferred<Map<UserId, ContactStatus?>>()
+        coEvery { arrangement.refreshContactStatuses(any()) } coAnswers { refresh.await() }
+        viewModel.onBackground()
+        viewModel.onForeground()
+        assertEquals(loadedState, viewModel.state)
+        advanceUntilIdle()
+        assertEquals(loadedState, viewModel.state)
+        refresh.complete(mapOf(user.id to ContactStatus.NON_CONTACTABLE))
+        advanceUntilIdle()
+        assertEquals(loadedState, viewModel.state)
+        coVerify(exactly = 2) { arrangement.refreshContactStatuses(setOf(user.id)) }
+    }
+
+    @Test
+    fun `foreground refresh updates returned users and retains omitted statuses`() = runTest {
+        val changed = pendingTestUser("changed")
+        val unchanged = pendingTestUser("unchanged")
+        val arrangement = pendingArrangement(listOf(changed, unchanged))
+        val initialStatuses = mapOf(changed.id to ContactStatus.NON_CONTACTABLE, unchanged.id to ContactStatus.NON_CONTACTABLE)
+        coEvery { arrangement.refreshContactStatuses(any()) } returns initialStatuses
+        val (_, viewModel) = arrangement.arrange()
+        viewModel.onForeground()
+        advanceUntilIdle()
+        val refresh = CompletableDeferred<Map<UserId, ContactStatus?>>()
+        coEvery { arrangement.refreshContactStatuses(any()) } coAnswers { refresh.await() }
+        viewModel.onBackground()
+        viewModel.onForeground()
+        advanceUntilIdle()
+        assertEquals(initialStatuses, viewModel.state.contactStatuses)
+        refresh.complete(mapOf(changed.id to ContactStatus.CONTACTABLE))
+        advanceUntilIdle()
+        assertEquals(false, viewModel.state.contactsResult.first().isOnboardingPending)
+        assertEquals(true, viewModel.state.contactsResult.last().isOnboardingPending)
+        coVerify(exactly = 2) { arrangement.refreshContactStatuses(setOf(changed.id, unchanged.id)) }
+    }
+
+    @Test
+    fun `failed foreground refresh retains selected users status and selection owner snapshot`() = runTest {
+        val user = pendingTestUser()
+        val arrangement = pendingArrangement(emptyList())
+        coEvery { arrangement.refreshContactStatuses(any()) } returns mapOf(user.id to ContactStatus.NON_CONTACTABLE)
+        val (_, viewModel) = arrangement.arrange()
+        viewModel.selectedContactsChanged(persistentSetOf(arrangement.fromSearchUserResult(user)))
+        viewModel.onForeground()
+        advanceUntilIdle()
+        val loadedState = viewModel.state
+        coEvery { arrangement.refreshContactStatuses(any()) } returns emptyMap()
+        viewModel.onBackground()
+        viewModel.onForeground()
+        advanceUntilIdle()
+        assertEquals(loadedState, viewModel.state)
+        assertEquals(true, viewModel.state.selectedResult.single().isOnboardingPending)
+        assertEquals(ContactStatus.NON_CONTACTABLE, viewModel.state.contactStatuses[user.id])
+        coVerify(exactly = 2) { arrangement.refreshContactStatuses(setOf(user.id)) }
+    }
+
+    @Test
+    fun `remote hydrated users are not fetched twice and local results are hydrated`() = runTest {
+        val remote = pendingTestUser("remote", remote = true)
+        val contactableRemote = pendingTestUser("contactable").copy(contactStatus = ContactStatus.CONTACTABLE)
+        val local = pendingTestUser("local")
+        val (arrangement, viewModel) = pendingArrangement(listOf(remote, contactableRemote, local)).arrange()
+        advanceUntilIdle()
+        assertEquals(true, viewModel.state.contactsResult.first().isOnboardingPending)
+        assertEquals(false, viewModel.state.contactsResult[1].isOnboardingPending)
+        assertEquals(false, viewModel.state.contactsResult.last().isOnboardingPending)
+        coVerify(exactly = 1) { arrangement.refreshContactStatuses(setOf(local.id)) }
+    }
+
+    @Test
+    fun `selected users outside search results get fresh status`() = runTest {
+        val user = pendingTestUser()
+        val arrangement = pendingArrangement(emptyList())
+        coEvery { arrangement.refreshContactStatuses(any()) } returns mapOf(user.id to ContactStatus.NON_CONTACTABLE)
+        val (_, viewModel) = arrangement.arrange()
+        viewModel.selectedContactsChanged(persistentSetOf(arrangement.fromSearchUserResult(user)))
+        advanceUntilIdle()
+        assertEquals(true, viewModel.state.selectedResult.single().isOnboardingPending)
+        assertEquals(ContactStatus.NON_CONTACTABLE, viewModel.state.contactStatuses[user.id])
+        viewModel.selectedContactsChanged(persistentSetOf(viewModel.state.selectedResult.single()))
+        advanceUntilIdle()
+        coVerify(exactly = 1) { arrangement.refreshContactStatuses(setOf(user.id)) }
+    }
+
+    @Test
+    fun `late response from a background screen cannot restore pending status`() = runTest {
+        val user = pendingTestUser()
+        val arrangement = pendingArrangement(listOf(user))
+        val response = CompletableDeferred<Map<UserId, ContactStatus?>>()
+        coEvery { arrangement.refreshContactStatuses(any()) } coAnswers { response.await() }
+        val (_, viewModel) = arrangement.arrange()
+        viewModel.onForeground()
+        advanceUntilIdle()
+        viewModel.onBackground()
+        coEvery { arrangement.refreshContactStatuses(any()) } returns emptyMap()
+        viewModel.onForeground()
+        advanceUntilIdle()
+        response.complete(mapOf(user.id to ContactStatus.NON_CONTACTABLE))
+        advanceUntilIdle()
+        assertEquals(false, viewModel.state.contactsResult.single().isOnboardingPending)
+    }
+
+    @Test
+    fun `query reverted within debounce keeps publishing selection and status updates`() = runTest {
+        val user = pendingTestUser()
+        val arrangement = pendingArrangement(listOf(user))
+        coEvery { arrangement.refreshContactStatuses(any()) } returns mapOf(user.id to ContactStatus.NON_CONTACTABLE)
+        val (_, viewModel) = arrangement.arrange()
+        advanceUntilIdle()
+        viewModel.searchQueryChanged("x")
+        viewModel.searchQueryChanged("")
+        advanceUntilIdle()
+        assertEquals(true, viewModel.state.contactsResult.single().isOnboardingPending)
+        viewModel.selectedContactsChanged(persistentSetOf(viewModel.state.contactsResult.single()))
+        advanceUntilIdle()
+        assertEquals(user.id.value, viewModel.state.selectedResult.single().id)
+        assertEquals(true, viewModel.state.selectedResult.single().isOnboardingPending)
+        assertEquals(emptyList<Any>(), viewModel.state.contactsResult)
+    }
 
     @Test
     fun `given addMembersSearchNavArgs are null, when calling the searchUseCase, then excludingMembersOfConversation is null`() = runTest {
@@ -432,12 +605,18 @@ class SearchUserViewModelTest {
         @MockK
         lateinit var isFederationSearchAllowedUseCase: IsFederationSearchAllowedUseCase
 
+        @MockK
+        lateinit var refreshContactStatuses: RefreshContactStatusesUseCase
+
+        var pendingConnectionsEnabled = true
+
         private var conversationId: ConversationId? = null
 
         private var onlySelfTeamAndDomain: Boolean = false
 
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
+            coEvery { refreshContactStatuses(any()) } returns emptyMap()
             every { contactMapper.fromSearchUserResult(any()) } answers {
                 val user = args.get(0) as UserSearchDetails
                 fromSearchUserResult(user)
@@ -514,6 +693,8 @@ class SearchUserViewModelTest {
                 contactMapper = contactMapper,
                 federatedSearchParser = federatedSearchParser,
                 validateUserHandle = validateUserHandle,
+                refreshContactStatuses = refreshContactStatuses,
+                kaliumConfigs = KaliumConfigs(pendingConnections = pendingConnectionsEnabled),
                 isFederationSearchAllowed = isFederationSearchAllowedUseCase,
             )
         }.run {

@@ -39,6 +39,7 @@
             "conversation_feeder_enabled": true,
             "db_invalidation_control_enabled": true,
             "pending_messages": true,
+            "pending_connections": true,
             "link_preview_enabled": true,
             "drive_direct_upload_enabled": true,
             "drive_bulk_actions_enabled": true,
@@ -71,6 +72,7 @@
             "conversation_feeder_enabled": true,
             "db_invalidation_control_enabled": false,
             "pending_messages": true,
+            "pending_connections": true,
             "link_preview_enabled": true,
             "drive_bulk_actions_enabled": true
         },
@@ -157,6 +159,7 @@
     "call_reactions_enabled": true,
     "block_cross_backend_login": false,
     "pending_messages": false,
+    "pending_connections": false,
     "link_preview_enabled": false,
     "drive_permissions_enabled": true,
     "drive_direct_upload_enabled": true,

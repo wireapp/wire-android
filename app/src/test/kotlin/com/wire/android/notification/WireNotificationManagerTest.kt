@@ -18,11 +18,13 @@
 
 package com.wire.android.notification
 
+import com.wire.android.BuildConfig
 import com.wire.android.common.runTestWithCancellation
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.framework.TestUser
 import com.wire.android.media.PingRinger
 import com.wire.android.services.ServicesManager
+import com.wire.android.session.FakeSessionAdmission
 import com.wire.android.util.CurrentScreen
 import com.wire.android.util.CurrentScreenManager
 import com.wire.android.util.lifecycle.SyncLifecycleManager
@@ -65,7 +67,6 @@ import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
 import com.wire.kalium.logic.feature.user.UserScope
 import com.wire.kalium.logic.sync.SyncManager
 import io.mockk.MockKAnnotations
-import io.mockk.MockKMatcherScope
 import io.mockk.clearMocks
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -74,6 +75,7 @@ import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
@@ -92,12 +94,14 @@ import kotlin.time.Instant
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Duration.Companion.seconds
 
 @Suppress("LargeClass")
 @OptIn(ExperimentalCoroutinesApi::class)
 class WireNotificationManagerTest {
 
     private val dispatcherProvider = TestDispatcherProvider()
+    private val stayAliveDuration = BuildConfig.BACKGROUND_NOTIFICATION_STAY_ALIVE_SECONDS.seconds
 
     @Test
     fun givenMixedNotifications_whenObserved_thenRouteEachFamilySeparately() =
@@ -120,16 +124,26 @@ class WireNotificationManagerTest {
     @Test
     fun givenMeetingDuringOneShotSync_whenSyncFinishes_thenCancelMeetingObserver() = runTest(dispatcherProvider.main()) {
         val invite = meetingInvite()
+        val handled = CompletableDeferred<Unit>()
         val events = MutableSharedFlow<LocalNotification.Meeting>()
         val (arrangement, manager) = Arrangement()
             .withSession(GetAllSessionsResult.Success(listOf(TEST_AUTH_TOKEN)))
             .withMeetingNotificationsFlow(events)
             .withIncomingCalls(emptyList())
             .arrange()
-        coEvery { arrangement.syncLifecycleManager.syncTemporarily(TEST_AUTH_TOKEN.userId, any()) } coAnswers {
-            runCurrent()
+        every {
+            arrangement.meetingNotificationManager.handleNotifications(listOf(invite), TEST_AUTH_TOKEN.userId)
+        } answers {
+            handled.complete(Unit)
+            Unit
+        }
+        coEvery {
+            arrangement.syncLifecycleManager.syncTemporarily(
+                TEST_AUTH_TOKEN.userId, arrangement.userSessionScope, stayAliveDuration, false, any()
+            )
+        } coAnswers {
             events.emit(invite)
-            runCurrent()
+            handled.await()
         }
 
         manager.fetchAndShowNotificationsOnce(TEST_AUTH_TOKEN.userId.value)
@@ -154,11 +168,13 @@ class WireNotificationManagerTest {
                 .arrange()
             manager.observeNotificationsAndCallsPersistently(listOf(TEST_AUTH_TOKEN.userId), this)
             runCurrent()
-            coEvery { arrangement.syncLifecycleManager.syncTemporarily(TEST_AUTH_TOKEN.userId, any()) } coAnswers {
-                runCurrent()
+            coEvery {
+                arrangement.syncLifecycleManager.syncTemporarily(
+                    TEST_AUTH_TOKEN.userId, arrangement.userSessionScope, stayAliveDuration, false, any()
+                )
+            } coAnswers {
                 assertEquals(1, events.subscriptionCount.value)
                 events.emit(invite)
-                runCurrent()
             }
 
             manager.fetchAndShowNotificationsOnce(TEST_AUTH_TOKEN.userId.value)
@@ -303,7 +319,15 @@ class WireNotificationManagerTest {
             manager.fetchAndShowNotificationsOnce("user_id")
             advanceUntilIdle()
 
-            coVerify(exactly = 1) { arrangement.syncLifecycleManager.syncTemporarily(TEST_AUTH_TOKEN.userId, any()) }
+            coVerify(exactly = 1) {
+                arrangement.syncLifecycleManager.syncTemporarily(
+                    TEST_AUTH_TOKEN.userId,
+                    arrangement.userSessionScope,
+                    stayAliveDuration,
+                    false,
+                    any()
+                )
+            }
         }
 
     @Test
@@ -543,7 +567,11 @@ class WireNotificationManagerTest {
                 .withCurrentScreen(CurrentScreen.InBackground)
                 .arrange()
 
-            coEvery { arrangement.syncLifecycleManager.syncTemporarily(userId, any()) } coAnswers {
+            coEvery {
+                arrangement.syncLifecycleManager.syncTemporarily(
+                    userId, arrangement.userSessionScope, stayAliveDuration, false, any()
+                )
+            } coAnswers {
                 // Push handling is taking 10 minutes
                 delay(10.minutes)
             }
@@ -558,15 +586,39 @@ class WireNotificationManagerTest {
             }
             // After first call, should have handled push once
             advanceTimeBy(1.minutes.inWholeMilliseconds)
-            coVerify(exactly = 1) { arrangement.syncLifecycleManager.syncTemporarily(userId, any()) }
+            coVerify(exactly = 1) {
+                arrangement.syncLifecycleManager.syncTemporarily(
+                    userId,
+                    arrangement.userSessionScope,
+                    stayAliveDuration,
+                    false,
+                    any()
+                )
+            }
 
             // After second call, should have handled push once
             advanceTimeBy(6.minutes.inWholeMilliseconds)
-            coVerify(exactly = 1) { arrangement.syncLifecycleManager.syncTemporarily(userId, any()) }
+            coVerify(exactly = 1) {
+                arrangement.syncLifecycleManager.syncTemporarily(
+                    userId,
+                    arrangement.userSessionScope,
+                    stayAliveDuration,
+                    false,
+                    any()
+                )
+            }
 
             // After everything ends, should have handled push once
             advanceUntilIdle()
-            coVerify(exactly = 1) { arrangement.syncLifecycleManager.syncTemporarily(userId, any()) }
+            coVerify(exactly = 1) {
+                arrangement.syncLifecycleManager.syncTemporarily(
+                    userId,
+                    arrangement.userSessionScope,
+                    stayAliveDuration,
+                    false,
+                    any()
+                )
+            }
         }
 
     @Test
@@ -583,7 +635,9 @@ class WireNotificationManagerTest {
         manager.fetchAndShowNotificationsOnce(userId.value)
         advanceUntilIdle()
 
-        coVerify(exactly = 0) { arrangement.syncLifecycleManager.syncTemporarily(userId, any()) }
+        coVerify(exactly = 0) {
+            arrangement.syncLifecycleManager.syncTemporarily(userId, any(), any(), any(), any())
+        }
     }
 
     @Test
@@ -600,7 +654,15 @@ class WireNotificationManagerTest {
             manager.fetchAndShowNotificationsOnce(userId.value)
             advanceUntilIdle()
 
-            coVerify(exactly = 1) { arrangement.syncLifecycleManager.syncTemporarily(userId, any()) }
+            coVerify(exactly = 1) {
+                arrangement.syncLifecycleManager.syncTemporarily(
+                    userId,
+                    arrangement.userSessionScope,
+                    stayAliveDuration,
+                    false,
+                    any()
+                )
+            }
         }
 
     @Test
@@ -1374,6 +1436,9 @@ class WireNotificationManagerTest {
         lateinit var observeE2EIRequired: ObserveE2EIRequiredUseCase
 
         private val currentSessionChannel = Channel<CurrentSessionResult>(capacity = Channel.UNLIMITED)
+        val rawAccounts = MutableStateFlow<GetAllSessionsResult>(GetAllSessionsResult.Failure.NoSessionFound)
+        private val sessions = mutableMapOf<UserId, UserSessionScope>()
+        val admission by lazy { FakeSessionAdmission(coreLogic) { sessions[it] ?: userSessionScope } }
 
         val meetingNotificationManager = io.mockk.mockk<MeetingNotificationManager>(relaxUnitFun = true)
 
@@ -1393,6 +1458,7 @@ class WireNotificationManagerTest {
 
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
+            admission
 
             coEvery { observeE2EIRequired() } returns flowOf(E2EIRequiredResult.NotRequired)
             coEvery { userSessionScope.calls } returns callsScope
@@ -1406,7 +1472,7 @@ class WireNotificationManagerTest {
             coEvery { markConnectionRequestAsNotified(any()) } returns Unit
             coEvery { syncManager.waitUntilLive() } returns Unit
             coEvery { globalKaliumScope.getSessions } returns getSessionsUseCase
-            coEvery { coreLogic.getSessionScope(any()) } returns userSessionScope
+            coEvery { globalKaliumScope.observeAllValidSessionsFlow() } returns rawAccounts
             coEvery { coreLogic.getGlobalScope() } returns globalKaliumScope
             coEvery { messageNotificationManager.handleNotification(any(), any(), any()) } returns Unit
             coEvery { callsScope.getIncomingCalls } returns getIncomingCallsUseCase
@@ -1437,9 +1503,9 @@ class WireNotificationManagerTest {
             staleOpenCallsCleanupFinished: Boolean = true,
             notifications: List<LocalNotification> = emptyList(),
             selfUser: SelfUser = TestUser.SELF_USER,
-            userId: MockKMatcherScope.() -> UserId
+            userId: UserId
         ) {
-            coEvery { coreLogic.getSessionScope(userId()) } returns mockk {
+            sessions[userId] = mockk {
                 coEvery { syncManager } returns this@Arrangement.syncManager
                 coEvery { conversations } returns mockk {
                     coEvery { markConnectionRequestAsNotified } returns this@Arrangement.markConnectionRequestAsNotified
@@ -1463,6 +1529,7 @@ class WireNotificationManagerTest {
 
         fun withSession(session: GetAllSessionsResult): Arrangement {
             coEvery { getSessionsUseCase() } returns session
+            rawAccounts.value = session
             return this
         }
 
@@ -1520,7 +1587,7 @@ class WireNotificationManagerTest {
                 staleOpenCallsCleanupFinished = staleOpenCallsCleanupFinished,
                 notifications = notifications,
                 selfUser = selfUser,
-                userId = { eq(userId) }
+                userId = userId
             )
         }
 

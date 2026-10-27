@@ -25,21 +25,25 @@ import androidx.lifecycle.viewModelScope
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.feature.analytics.AnonymousAnalyticsManager
 import com.wire.android.feature.analytics.model.AnalyticsEvent
+import com.wire.android.session.runWithValidSession
 import com.wire.android.ui.analytics.IsAnalyticsAvailableUseCase
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.sync.SyncState
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.UserSessionScope
 import com.wire.kalium.logic.feature.session.CurrentSessionFlowUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.user.ShouldAskCallFeedbackUseCaseResult
 import dev.zacsweers.metro.Inject
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.launch
 
 class CallFeedbackViewModel @Inject constructor(
@@ -60,73 +64,40 @@ class CallFeedbackViewModel @Inject constructor(
     }
 
     private suspend fun observeAskCallFeedback() {
-        currentSessionFlow.value.invoke()
-            .distinctUntilChanged()
-            .flatMapLatest { session ->
-                if (session is CurrentSessionResult.Success && session.accountInfo.isValid()) {
-                    currentUserId = session.accountInfo.userId
-                    coreLogic.value.getSessionScope(currentUserId!!).observeSyncState()
-                } else {
-                    currentUserId = null
-                    emptyFlow()
-                }
+        currentSessionFlow.value.invoke().distinctUntilChanged().collectLatest { result ->
+            val account = (result as? CurrentSessionResult.Success)?.accountInfo
+            currentUserId = account?.takeIf { it.isValid() }?.userId
+            if (account?.isValid() == true) {
+                val userId = account.userId
+                coreLogic.value.observeValidSession(userId) {
+                    val session = this
+                    session.observeSyncState().filter { it == SyncState.Live }
+                        .flatMapLatest { session.calls.observeAskCallFeedbackUseCase() }
+                        .mapLatest { handleFeedback(userId, session, it) }
+                        .flowOn(Dispatchers.Main.immediate)
+                }.collect { }
             }
-            .filter { it == SyncState.Live }
-            .flatMapLatest {
-                coreLogic.value.getSessionScope(currentUserId!!).calls.observeAskCallFeedbackUseCase()
-            }
-            .collectLatest { shouldAskFeedback ->
-                if (isAnalyticsAvailable.value.invoke(currentUserId!!)) {
-                    when (shouldAskFeedback) {
-                        is ShouldAskCallFeedbackUseCaseResult.ShouldAskCallFeedback -> {
-                            showCallFeedbackFlow.emit(Unit)
-                        }
-
-                        is ShouldAskCallFeedbackUseCaseResult.ShouldNotAskCallFeedback.CallDurationIsLessThanOneMinute -> {
-                            val recentlyEndedCallMetadata =
-                                coreLogic.value.getSessionScope(currentUserId!!).calls.observeRecentlyEndedCallMetadata().first()
-                            analyticsManager.value.sendEvent(
-                                with(recentlyEndedCallMetadata) {
-                                    AnalyticsEvent.CallQualityFeedback.TooShort(
-                                        callDuration = shouldAskFeedback.callDurationInSeconds.toInt(),
-                                        isTeamMember = isTeamMember,
-                                        participantsCount = callDetails.callParticipantsCount,
-                                        isScreenSharedDuringCall = callDetails.isCallScreenShare,
-                                        isCameraEnabledDuringCall = callDetails.callVideoEnabled
-                                    )
-                                }
-                            )
-                        }
-
-                        is ShouldAskCallFeedbackUseCaseResult.ShouldNotAskCallFeedback.NextTimeForCallFeedbackIsNotReached -> {
-                            val recentlyEndedCallMetadata =
-                                coreLogic.value.getSessionScope(currentUserId!!).calls.observeRecentlyEndedCallMetadata().first()
-                            analyticsManager.value.sendEvent(
-                                with(recentlyEndedCallMetadata) {
-                                    AnalyticsEvent.CallQualityFeedback.Muted(
-                                        callDuration = shouldAskFeedback.callDurationInSeconds.toInt(),
-                                        isTeamMember = isTeamMember,
-                                        participantsCount = callDetails.callParticipantsCount,
-                                        isScreenSharedDuringCall = callDetails.isCallScreenShare,
-                                        isCameraEnabledDuringCall = callDetails.callVideoEnabled
-                                    )
-                                }
-                            )
-                        }
-                    }
-                }
-            }
+        }
     }
 
-    fun rateCall(rate: Int, doNotAsk: Boolean) {
-        currentUserId?.let {
-            viewModelScope.launch {
-                val recentlyEndedCallMetadata = coreLogic.value.getSessionScope(it).calls.observeRecentlyEndedCallMetadata().first()
+    private suspend fun handleFeedback(
+        userId: UserId,
+        session: UserSessionScope,
+        shouldAskFeedback: ShouldAskCallFeedbackUseCaseResult,
+    ) {
+        if (!isAnalyticsAvailable.value.invoke(userId, session)) return
+        when (shouldAskFeedback) {
+            is ShouldAskCallFeedbackUseCaseResult.ShouldAskCallFeedback -> {
+                showCallFeedbackFlow.emit(Unit)
+            }
+
+            is ShouldAskCallFeedbackUseCaseResult.ShouldNotAskCallFeedback.CallDurationIsLessThanOneMinute -> {
+                val recentlyEndedCallMetadata =
+                    session.calls.observeRecentlyEndedCallMetadata().first()
                 analyticsManager.value.sendEvent(
                     with(recentlyEndedCallMetadata) {
-                        AnalyticsEvent.CallQualityFeedback.Answered(
-                            score = rate,
-                            callDuration = callDetails.callDurationInSeconds.toInt(),
+                        AnalyticsEvent.CallQualityFeedback.TooShort(
+                            callDuration = shouldAskFeedback.callDurationInSeconds.toInt(),
                             isTeamMember = isTeamMember,
                             participantsCount = callDetails.callParticipantsCount,
                             isScreenSharedDuringCall = callDetails.isCallScreenShare,
@@ -134,27 +105,67 @@ class CallFeedbackViewModel @Inject constructor(
                         )
                     }
                 )
-                coreLogic.value.getSessionScope(it).calls.updateNextTimeCallFeedback(doNotAsk)
+            }
+
+            is ShouldAskCallFeedbackUseCaseResult.ShouldNotAskCallFeedback.NextTimeForCallFeedbackIsNotReached -> {
+                val recentlyEndedCallMetadata =
+                    session.calls.observeRecentlyEndedCallMetadata().first()
+                analyticsManager.value.sendEvent(
+                    with(recentlyEndedCallMetadata) {
+                        AnalyticsEvent.CallQualityFeedback.Muted(
+                            callDuration = shouldAskFeedback.callDurationInSeconds.toInt(),
+                            isTeamMember = isTeamMember,
+                            participantsCount = callDetails.callParticipantsCount,
+                            isScreenSharedDuringCall = callDetails.isCallScreenShare,
+                            isCameraEnabledDuringCall = callDetails.callVideoEnabled
+                        )
+                    }
+                )
+            }
+        }
+    }
+
+    fun rateCall(rate: Int, doNotAsk: Boolean) {
+        currentUserId?.let { userId ->
+            viewModelScope.launch {
+                coreLogic.value.runWithValidSession(userId) {
+                    val recentlyEndedCallMetadata = calls.observeRecentlyEndedCallMetadata().first()
+                    analyticsManager.value.sendEvent(
+                        with(recentlyEndedCallMetadata) {
+                            AnalyticsEvent.CallQualityFeedback.Answered(
+                                score = rate,
+                                callDuration = callDetails.callDurationInSeconds.toInt(),
+                                isTeamMember = isTeamMember,
+                                participantsCount = callDetails.callParticipantsCount,
+                                isScreenSharedDuringCall = callDetails.isCallScreenShare,
+                                isCameraEnabledDuringCall = callDetails.callVideoEnabled
+                            )
+                        }
+                    )
+                    calls.updateNextTimeCallFeedback(doNotAsk)
+                }
             }
         }
     }
 
     fun skipCallFeedback(doNotAsk: Boolean) {
-        currentUserId?.let {
+        currentUserId?.let { userId ->
             viewModelScope.launch {
-                val recentlyEndedCallMetadata = coreLogic.value.getSessionScope(it).calls.observeRecentlyEndedCallMetadata().first()
-                coreLogic.value.getSessionScope(it).calls.updateNextTimeCallFeedback(doNotAsk)
-                analyticsManager.value.sendEvent(
-                    with(recentlyEndedCallMetadata) {
-                        AnalyticsEvent.CallQualityFeedback.Dismissed(
-                            callDuration = callDetails.callDurationInSeconds.toInt(),
-                            isTeamMember = isTeamMember,
-                            participantsCount = callDetails.callParticipantsCount,
-                            isScreenSharedDuringCall = callDetails.isCallScreenShare,
-                            isCameraEnabledDuringCall = callDetails.callVideoEnabled
-                        )
-                    }
-                )
+                coreLogic.value.runWithValidSession(userId) {
+                    val recentlyEndedCallMetadata = calls.observeRecentlyEndedCallMetadata().first()
+                    calls.updateNextTimeCallFeedback(doNotAsk)
+                    analyticsManager.value.sendEvent(
+                        with(recentlyEndedCallMetadata) {
+                            AnalyticsEvent.CallQualityFeedback.Dismissed(
+                                callDuration = callDetails.callDurationInSeconds.toInt(),
+                                isTeamMember = isTeamMember,
+                                participantsCount = callDetails.callParticipantsCount,
+                                isScreenSharedDuringCall = callDetails.isCallScreenShare,
+                                isCameraEnabledDuringCall = callDetails.callVideoEnabled
+                            )
+                        }
+                    )
+                }
             }
         }
     }

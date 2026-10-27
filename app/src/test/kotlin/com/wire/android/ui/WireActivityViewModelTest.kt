@@ -33,11 +33,6 @@ import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.config.mockUri
 import com.wire.android.datastore.GlobalDataStore
-import com.wire.android.di.IsProfileQRCodeEnabledUseCaseProvider
-import com.wire.android.di.ObserveIfE2EIRequiredDuringLoginUseCaseProvider
-import com.wire.android.di.ObserveScreenshotCensoringConfigUseCaseProvider
-import com.wire.android.di.ObserveSelfUserUseCaseProvider
-import com.wire.android.di.ObserveSyncStateUseCaseProvider
 import com.wire.android.emm.ManagedConfigurationsManager
 import com.wire.android.feature.AccountSwitchUseCase
 import com.wire.android.feature.SwitchAccountParam
@@ -48,6 +43,7 @@ import com.wire.android.framework.TestUser
 import com.wire.android.framework.TestUser.SELF_USER
 import com.wire.android.navigation.LoginTypeSelector
 import com.wire.android.services.ServicesManager
+import com.wire.android.session.FakeSessionAdmission
 import com.wire.android.sync.MonitorSyncWorkUseCase
 import com.wire.android.ui.common.dialogs.CustomServerDetailsDialogState
 import com.wire.android.ui.common.dialogs.CustomServerNoNetworkDialogState
@@ -76,6 +72,7 @@ import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.logout.LogoutReason
 import com.wire.kalium.logic.data.sync.SyncState
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.UserSessionScope
 import com.wire.kalium.logic.feature.appVersioning.ObserveIfAppUpdateRequiredUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import com.wire.kalium.logic.feature.client.ClearNewClientsForUserUseCase
@@ -1246,10 +1243,26 @@ class WireActivityViewModelTest {
         val managedConfigurationsManager: ManagedConfigurationsManager = mockk(relaxed = true)
         private val persistentWebSocketEnforcedByMDMFlow = MutableStateFlow(false)
         private var defaultServerConfig = newServerConfig(0).links
+        private val observedSessions = mutableMapOf<UserId, UserSessionScope>()
+        private val observeSelfUserUseCase = mockk<ObserveSelfUserUseCase>()
+        private var e2eiRequired = false
+        private val admission by lazy { FakeSessionAdmission(coreLogic, ::capturedSession) }
+
+        private fun capturedSession(userId: UserId): UserSessionScope = observedSessions.getOrPut(userId) {
+            mockk<UserSessionScope>(relaxed = true).also { session ->
+                every { session.observeSyncState } returns observeSyncStateUseCase
+                every { session.observeScreenshotCensoringConfig } returns observeScreenshotCensoringConfigUseCase
+                every { session.users.observeSelfUser } returns observeSelfUserUseCase
+                coEvery { session.observeIfE2EIRequiredDuringLogin() } answers { flowOf(e2eiRequired) }
+                coEvery { session.users.serverLinks() } returns
+                    SelfServerConfigUseCase.Result.Failure(NetworkFailure.NoNetworkConnection(null))
+            }
+        }
 
         init {
             // Tests setup
             MockKAnnotations.init(this, relaxUnitFun = true)
+            admission // Bind the fake observation boundary; production never looks up a scope by ID in its callback.
 
             // Default empty values
             mockUri()
@@ -1259,24 +1272,15 @@ class WireActivityViewModelTest {
             coEvery { getServerConfigUseCase(any()) } returns GetServerConfigResult.Success(newServerConfig(1).links)
             coEvery { deepLinkProcessor(any(), any()) } returns DeepLinkResult.Unknown
             coEvery { observeSessionsUseCase.invoke() } returns flowOf(GetAllSessionsResult.Failure.NoSessionFound)
-            every { observeSyncStateUseCaseProviderFactory.create(any()).observeSyncState } returns observeSyncStateUseCase
             every { observeSyncStateUseCase() } returns emptyFlow()
             coEvery { observeIfAppUpdateRequired(any()) } returns flowOf(false)
             coEvery { observeNewClients() } returns flowOf()
-            every { observeScreenshotCensoringConfigUseCaseProviderFactory.create(any()).observeScreenshotCensoringConfig } returns
-                    observeScreenshotCensoringConfigUseCase
             every { observeScreenshotCensoringConfigUseCase.invoke() } returns
                     flowOf(ObserveScreenshotCensoringConfigResult.Disabled)
             coEvery { currentScreenManager.observeCurrentScreen(any()) } returns MutableStateFlow(CurrentScreen.SomeOther())
             coEvery { globalDataStore.selectedThemeOptionFlow() } returns flowOf(ThemeOption.LIGHT)
-            coEvery {
-                observeIfE2EIRequiredDuringLoginUseCaseProviderFactory.create(any()).observeIfE2EIIsRequiredDuringLogin()
-            } returns
-                    flowOf(false)
             every { workManager.cancelAllWorkByTag(any()) } returns mockk<Operation>()
             every { workManager.enqueueUniquePeriodicWork(any(), any(), any()) } returns mockk<Operation>()
-            val observeSelfUserUseCase = mockk<ObserveSelfUserUseCase>()
-            every { observeSelfUserFactory.create(any()).observeSelfUser } returns observeSelfUserUseCase
             coEvery { observeSelfUserUseCase() } returns flowOf(SELF_USER)
             every { managedConfigurationsManager.persistentWebSocketEnforcedByMDM } returns persistentWebSocketEnforcedByMDMFlow
             every { managedConfigurationsManager.currentServerConfig } returns null
@@ -1308,9 +1312,6 @@ class WireActivityViewModelTest {
         private lateinit var observeSyncStateUseCase: ObserveSyncStateUseCase
 
         @MockK
-        private lateinit var observeSyncStateUseCaseProviderFactory: ObserveSyncStateUseCaseProvider.Factory
-
-        @MockK
         private lateinit var coreLogic: CoreLogic
 
         @MockK
@@ -1332,12 +1333,6 @@ class WireActivityViewModelTest {
         lateinit var observeScreenshotCensoringConfigUseCase: ObserveScreenshotCensoringConfigUseCase
 
         @MockK
-        private lateinit var observeScreenshotCensoringConfigUseCaseProviderFactory: ObserveScreenshotCensoringConfigUseCaseProvider.Factory
-
-        @MockK
-        private lateinit var observeIfE2EIRequiredDuringLoginUseCaseProviderFactory: ObserveIfE2EIRequiredDuringLoginUseCaseProvider.Factory
-
-        @MockK
         lateinit var globalDataStore: GlobalDataStore
 
         @MockK
@@ -1345,12 +1340,6 @@ class WireActivityViewModelTest {
 
         @MockK
         lateinit var observeEstablishedCalls: ObserveEstablishedCallsUseCase
-
-        @MockK
-        lateinit var isProfileQRCodeEnabledFactory: IsProfileQRCodeEnabledUseCaseProvider.Factory
-
-        @MockK
-        lateinit var observeSelfUserFactory: ObserveSelfUserUseCaseProvider.Factory
 
         @MockK
         lateinit var monitorSyncWorkUseCase: MonitorSyncWorkUseCase
@@ -1369,17 +1358,12 @@ class WireActivityViewModelTest {
                 observeSessions = lazyOf(observeSessionsUseCase),
                 accountSwitch = lazyOf(switchAccount),
                 servicesManager = lazyOf(servicesManager),
-                observeSyncStateUseCaseProviderFactory = observeSyncStateUseCaseProviderFactory,
                 observeIfAppUpdateRequired = lazyOf(observeIfAppUpdateRequired),
                 observeNewClients = lazyOf(observeNewClients),
                 clearNewClientsForUser = lazyOf(clearNewClientsForUser),
                 currentScreenManager = lazyOf(currentScreenManager),
-                observeScreenshotCensoringConfigUseCaseProviderFactory = observeScreenshotCensoringConfigUseCaseProviderFactory,
                 globalDataStore = lazyOf(globalDataStore),
-                observeIfE2EIRequiredDuringLoginUseCaseProviderFactory = observeIfE2EIRequiredDuringLoginUseCaseProviderFactory,
                 workManager = lazyOf(workManager),
-                isProfileQRCodeEnabledFactory = isProfileQRCodeEnabledFactory,
-                observeSelfUserFactory = observeSelfUserFactory,
                 monitorSyncWorkUseCase = monitorSyncWorkUseCase,
                 managedConfigurationsManager = managedConfigurationsManager,
                 defaultServerConfig = defaultServerConfig,
@@ -1428,8 +1412,10 @@ class WireActivityViewModelTest {
         }
 
         fun withServerConfigForUser(userId: UserId, serverConfig: ServerConfig): Arrangement = apply {
+            val session = capturedSession(userId)
             coEvery { coreLogic.getSessionScope(userId).users.serverLinks() } returns
                     SelfServerConfigUseCase.Result.Success(serverConfig)
+            coEvery { session.users.serverLinks() } returns SelfServerConfigUseCase.Result.Success(serverConfig)
         }
 
         fun withDefaultServerConfig(serverConfig: ServerConfig.Links): Arrangement = apply {
@@ -1441,9 +1427,7 @@ class WireActivityViewModelTest {
         }
 
         fun withE2EIRequiredDuringLogin(required: Boolean): Arrangement = apply {
-            coEvery {
-                observeIfE2EIRequiredDuringLoginUseCaseProviderFactory.create(any()).observeIfE2EIIsRequiredDuringLogin()
-            } returns flowOf(required)
+            e2eiRequired = required
         }
 
         fun withObserveSessionsFlow(result: Flow<GetAllSessionsResult>): Arrangement = apply {
@@ -1522,16 +1506,18 @@ class WireActivityViewModelTest {
         }
 
         suspend fun withScreenshotCensoringConfigForUser(id: UserId, result: ObserveScreenshotCensoringConfigResult) = apply {
+            val session = capturedSession(id)
             val useCase = mockk<ObserveScreenshotCensoringConfigUseCase>()
             coEvery {
-                observeScreenshotCensoringConfigUseCaseProviderFactory.create(id).observeScreenshotCensoringConfig
+                session.observeScreenshotCensoringConfig
             } returns useCase
             coEvery { useCase() } returns flowOf(result)
         }
 
         fun withSyncStateForUser(id: UserId, result: SyncState) = apply {
+            val session = capturedSession(id)
             val useCase = mockk<ObserveSyncStateUseCase>()
-            coEvery { observeSyncStateUseCaseProviderFactory.create(id).observeSyncState } returns useCase
+            coEvery { session.observeSyncState } returns useCase
             coEvery { useCase() } returns flowOf(result)
         }
 
@@ -1540,9 +1526,12 @@ class WireActivityViewModelTest {
         }
 
         suspend fun withProfileQRCodeEnabled(isEnabled: Boolean = true) = apply {
+            val session = capturedSession(TEST_ACCOUNT_INFO.userId)
             val useCase = mockk<IsProfileQRCodeEnabledUseCase>()
-            coEvery { isProfileQRCodeEnabledFactory.create(any()).isProfileQRCodeEnabled } returns useCase
+            coEvery { session.users.isProfileQRCodeEnabled } returns useCase
             coEvery { useCase() } returns isEnabled
+            coEvery { coreLogic.getGlobalScope().observeAllValidSessionsFlow() } returns
+                flowOf(GetAllSessionsResult.Success(listOf(TEST_ACCOUNT_INFO)))
         }
 
         fun withCanUseNewLogin(canUseNewLogin: Boolean): Arrangement = apply {

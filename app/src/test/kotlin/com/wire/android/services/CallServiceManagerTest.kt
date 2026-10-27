@@ -22,6 +22,7 @@ import com.wire.android.assertIs
 import com.wire.android.framework.TestConversation
 import com.wire.android.framework.TestUser
 import com.wire.android.notification.CallNotificationData
+import com.wire.android.session.FakeSessionAdmission
 import com.wire.kalium.common.functional.Either
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.auth.AccountInfo
@@ -35,6 +36,8 @@ import com.wire.kalium.logic.feature.call.usecase.AnswerCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.DoesValidSessionExistResult
+import com.wire.kalium.logic.feature.session.GetAllSessionsResult
+import com.wire.kalium.logic.feature.UserSessionScope
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -297,11 +300,16 @@ class CallServiceManagerTest {
     inner class Arrangement {
         @MockK
         lateinit var coreLogic: CoreLogic
+        val sessions = mutableMapOf<UserId, UserSessionScope>()
+        val rawAccounts = MutableStateFlow<GetAllSessionsResult>(GetAllSessionsResult.Success(emptyList()))
+        internal val admission by lazy { FakeSessionAdmission(coreLogic) { sessions[it] } }
         private val answerCallForUser: MutableMap<UserId, AnswerCallUseCase> = mutableMapOf()
         private val endCallForUser: MutableMap<UserId, EndCallUseCase> = mutableMapOf()
 
         init {
             MockKAnnotations.init(this)
+            admission
+            coEvery { coreLogic.getGlobalScope().observeAllValidSessionsFlow() } returns rawAccounts
             withSpecificUserSession(TestUser.SELF_USER, flowOf(emptyList()), flowOf(emptyList()), flowOf(emptyList()),)
         }
 
@@ -312,7 +320,14 @@ class CallServiceManagerTest {
             coEvery { coreLogic.getGlobalScope().session.currentSessionFlow() } returns (result)
         }
         fun withValidSessionExists(userId: UserId, result: DoesValidSessionExistResult) = apply {
-            coEvery { coreLogic.getGlobalScope().doesValidSessionExist(userId) } returns (result)
+            val accounts = (rawAccounts.value as GetAllSessionsResult.Success).sessions.filter { it.userId != userId }
+            rawAccounts.value = GetAllSessionsResult.Success(
+                accounts + if (result is DoesValidSessionExistResult.Success && result.doesValidSessionExist) {
+                    listOf(AccountInfo.Valid(userId))
+                } else {
+                    emptyList()
+                }
+            )
         }
         fun withSpecificUserSession(
             selfUser: SelfUser = TestUser.SELF_USER,
@@ -320,13 +335,15 @@ class CallServiceManagerTest {
             outgoing: Flow<List<Call>> = flowOf(emptyList()),
             established: Flow<List<Call>> = flowOf(emptyList()),
         ) = apply {
+            val session = mockk<UserSessionScope>()
+            sessions[selfUser.id] = session
             withValidSessionExists(selfUser.id, DoesValidSessionExistResult.Success(true))
-            coEvery { coreLogic.getSessionScope(selfUser.id).users.observeSelfUser() } returns flowOf(selfUser)
-            coEvery { coreLogic.getSessionScope(selfUser.id).calls.getIncomingCalls() } returns incoming
-            coEvery { coreLogic.getSessionScope(selfUser.id).calls.observeOutgoingCall() } returns outgoing
-            coEvery { coreLogic.getSessionScope(selfUser.id).calls.establishedCall() } returns established
-            coEvery { coreLogic.getSessionScope(selfUser.id).calls.answerCall } returns answerCallForUser(selfUser.id)
-            coEvery { coreLogic.getSessionScope(selfUser.id).calls.endCall } returns endCallForUser(selfUser.id)
+            coEvery { session.users.observeSelfUser() } returns flowOf(selfUser)
+            coEvery { session.calls.getIncomingCalls() } returns incoming
+            coEvery { session.calls.observeOutgoingCall() } returns outgoing
+            coEvery { session.calls.establishedCall() } returns established
+            coEvery { session.calls.answerCall } returns answerCallForUser(selfUser.id)
+            coEvery { session.calls.endCall } returns endCallForUser(selfUser.id)
         }
     }
 

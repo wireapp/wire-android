@@ -19,6 +19,7 @@ package com.wire.android.feature
 
 import app.cash.turbine.test
 import com.wire.android.datastore.GlobalDataStore
+import com.wire.android.session.FakeSessionAdmission
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.configuration.AppLockTeamConfig
 import com.wire.kalium.logic.data.auth.AccountInfo
@@ -86,7 +87,7 @@ class ObserveAppLockConfigUseCaseTest {
                 val appLockStatus = awaitItem()
 
                 assertEquals(AppLockConfig.EnforcedByTeam(timeout), appLockStatus)
-                awaitComplete()
+                cancelAndIgnoreRemainingEvents()
             }
         }
 
@@ -105,7 +106,7 @@ class ObserveAppLockConfigUseCaseTest {
                 val appLockStatus = awaitItem()
 
                 assertEquals(AppLockConfig.Enabled(timeout), appLockStatus)
-                awaitComplete()
+                cancelAndIgnoreRemainingEvents()
             }
         }
 
@@ -123,7 +124,7 @@ class ObserveAppLockConfigUseCaseTest {
                 val appLockStatus = awaitItem()
 
                 assertEquals(AppLockConfig.Disabled(timeout), appLockStatus)
-                awaitComplete()
+                cancelAndIgnoreRemainingEvents()
             }
         }
 
@@ -141,6 +142,8 @@ class ObserveAppLockConfigUseCaseTest {
         @MockK
         lateinit var appLockTeamFeatureConfigObserver: AppLockTeamFeatureConfigObserver
 
+        internal val admission by lazy { FakeSessionAdmission(coreLogic) { userSessionScope } }
+
         val useCase by lazy {
             ObserveAppLockConfigUseCase(
                 globalDataStore = globalDataStore,
@@ -150,6 +153,7 @@ class ObserveAppLockConfigUseCaseTest {
 
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
+            admission
         }
 
         fun arrange() = this to useCase
@@ -170,7 +174,6 @@ class ObserveAppLockConfigUseCaseTest {
         }
 
         fun withTeamAppLockEnabled() = apply {
-            every { coreLogic.getSessionScope(any()) } returns userSessionScope
             every {
                 userSessionScope.appLockTeamFeatureConfigObserver
             } returns appLockTeamFeatureConfigObserver
@@ -180,7 +183,6 @@ class ObserveAppLockConfigUseCaseTest {
         }
 
         fun withTeamAppLockDisabled() = apply {
-            every { coreLogic.getSessionScope(any()) } returns userSessionScope
             every {
                 userSessionScope.appLockTeamFeatureConfigObserver
             } returns appLockTeamFeatureConfigObserver

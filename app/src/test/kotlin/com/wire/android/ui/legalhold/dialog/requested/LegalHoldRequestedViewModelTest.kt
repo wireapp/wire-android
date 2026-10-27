@@ -18,12 +18,14 @@
 package com.wire.android.ui.legalhold.dialog.requested
 
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
+import com.wire.android.session.FakeSessionAdmission
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.SnapshotExtension
 import com.wire.android.ui.legalhold.dialog.requested.LegalHoldRequestedViewModelTest.Arrangement.Companion.UNKNOWN_ERROR
 import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.auth.AccountInfo
+import com.wire.kalium.logic.feature.session.GetAllSessionsResult
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.UserSessionScope
 import com.wire.kalium.logic.feature.auth.ValidatePasswordResult
@@ -40,6 +42,7 @@ import io.mockk.impl.annotations.MockK
 import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import com.wire.android.assertions.shouldBeEqualTo
@@ -305,6 +308,8 @@ class LegalHoldRequestedViewModelTest {
         lateinit var userSessionScope: UserSessionScope
 
         val userId = UserId("userId", "domain")
+        val rawAccounts = MutableStateFlow<GetAllSessionsResult>(GetAllSessionsResult.Success(listOf(AccountInfo.Valid(userId))))
+        val admission by lazy { FakeSessionAdmission(coreLogic) { userSessionScope } }
 
         val viewModel by lazy {
             LegalHoldRequestedViewModel(
@@ -315,18 +320,19 @@ class LegalHoldRequestedViewModelTest {
 
         init {
             MockKAnnotations.init(this)
-            every { coreLogic.getSessionScope(userId) } returns userSessionScope
+            admission
+            coEvery { coreLogic.getGlobalScope().observeAllValidSessionsFlow() } returns rawAccounts
         }
         fun withNotCurrentSession() = apply {
-            every { coreLogic.globalScope { session.currentSessionFlow() } } returns
+            every { coreLogic.getGlobalScope().session.currentSessionFlow() } returns
                     flowOf(CurrentSessionResult.Failure.SessionNotFound)
         }
         fun withCurrentSessionFailure() = apply {
-            every { coreLogic.globalScope { session.currentSessionFlow() } } returns
+            every { coreLogic.getGlobalScope().session.currentSessionFlow() } returns
                     flowOf(CurrentSessionResult.Failure.Generic(UNKNOWN_ERROR))
         }
         fun withCurrentSessionExists() = apply {
-            every { coreLogic.globalScope { session.currentSessionFlow() } } returns
+            every { coreLogic.getGlobalScope().session.currentSessionFlow() } returns
                     flowOf(CurrentSessionResult.Success(AccountInfo.Valid(userId)))
         }
         fun withLegalHoldRequestResult(result: ObserveLegalHoldRequestUseCase.Result) = apply {

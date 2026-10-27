@@ -169,8 +169,8 @@ internal fun ConversationScreenRouteContent(
                 messageComposerStateHolder.messageCompositionInputStateHolder.setFocused()
             }
         ),
-        editSheetState = rememberWireModalSheetState(
-            onDismissAction = {
+        messageOptionsState = rememberMessageOptionsState(
+            onTouchDismiss = {
                 messageComposerStateHolder.messageCompositionInputStateHolder.setFocused()
             },
         ),
@@ -688,7 +688,7 @@ private fun ConversationScreenContent(
 ) {
     val context = LocalContext.current
     val snackbarHostState = LocalSnackbarHostState.current
-    Box(modifier = Modifier) {
+    Box {
         // only here we will use normal Scaffold because of specific behaviour of message composer
         Scaffold(
             contentColor = if (IS_BUBBLE_UI_ENABLED) {
@@ -773,6 +773,12 @@ private fun ConversationScreenContent(
                         onOpenProfile = onOpenProfile,
                         onUpdateConversationReadDate = onUpdateConversationReadDate,
                         onShowEditingOptions = conversationScreenState::showEditContextMenu,
+                        onKeyboardOptionsRequested = {
+                            conversationScreenState.messageOptionsState.open(it.header.messageId, fromKeyboard = true)
+                        },
+                        retainMessageNavigationForOptions = conversationScreenState.messageOptionsState.retainMessageNavigation,
+                        messageOptionsDismissal = conversationScreenState.messageOptionsState.dismissal,
+                        onMessageOptionsDismissalHandled = conversationScreenState.messageOptionsState::acknowledgeDismissal,
                         onSwipedToReply = messageComposerStateHolder::toReply,
                         onSelfDeletingMessageRead = onSelfDeletingMessageRead,
                         onFailedMessageCancelClicked = remember { { onDeleteMessage(it, false) } },
@@ -800,7 +806,7 @@ private fun ConversationScreenContent(
 
         MessageOptionsModalSheetLayout(
             conversationId = conversationInfoViewState.conversationId,
-            sheetState = conversationScreenState.editSheetState,
+            optionsState = conversationScreenState.messageOptionsState,
             isNetworkAvailable = conversationMessagesViewState.isNetworkAvailable,
             onCopyClick = conversationScreenState::copyMessage,
             onDeleteClick = onDeleteMessage,

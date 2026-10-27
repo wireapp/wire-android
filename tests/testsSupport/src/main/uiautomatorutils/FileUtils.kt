@@ -1,6 +1,9 @@
 import android.content.ContentValues
 import android.graphics.Bitmap
 import android.graphics.Color
+import android.graphics.Paint
+import android.graphics.pdf.PdfDocument
+import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
@@ -139,4 +142,49 @@ fun waitForNewDownloadedFileName(
         throw AssertionError("A new '$fileNamePrefix' file was not downloaded within ${timeout.inWholeSeconds} seconds.")
     }
     return requireNotNull(downloadedFile)
+}
+
+/** Creates a valid, identifiable PDF that Android's file picker can discover in Downloads. */
+@Suppress("MagicNumber", "ThrowsCount", "TooGenericExceptionCaught")
+fun createPdfInDeviceDownloadsFolder(fileName: String, text: String): Uri {
+    val resolver = InstrumentationRegistry.getInstrumentation().targetContext.contentResolver
+    val uri = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        val values = ContentValues().apply {
+            put(MediaStore.MediaColumns.DISPLAY_NAME, fileName)
+            put(MediaStore.MediaColumns.MIME_TYPE, "application/pdf")
+            put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS)
+            put(MediaStore.MediaColumns.IS_PENDING, 1)
+        }
+        resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, values)
+            ?: throw IOException("Could not create PDF '$fileName' in Downloads")
+    } else {
+        val directory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+        check(directory.exists() || directory.mkdirs()) { "Could not create Downloads directory" }
+        Uri.fromFile(File(directory, fileName))
+    }
+    val document = PdfDocument()
+    return try {
+        val page = document.startPage(PdfDocument.PageInfo.Builder(300, 400, 1).create())
+        page.canvas.drawText(text, 20f, 40f, Paint().apply { textSize = 14f })
+        document.finishPage(page)
+        val output = resolver.openOutputStream(uri) ?: throw IOException("Could not open PDF output '$fileName'")
+        output.use(document::writeTo)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            resolver.update(uri, ContentValues().apply { put(MediaStore.MediaColumns.IS_PENDING, 0) }, null, null)
+        }
+        uri
+    } catch (exception: Exception) {
+        deleteDeviceDownload(uri)
+        throw exception
+    } finally {
+        document.close()
+    }
+}
+
+fun deleteDeviceDownload(uri: Uri) {
+    if (uri.scheme == "file") {
+        File(requireNotNull(uri.path)).delete()
+    } else {
+        InstrumentationRegistry.getInstrumentation().targetContext.contentResolver.delete(uri, null, null)
+    }
 }

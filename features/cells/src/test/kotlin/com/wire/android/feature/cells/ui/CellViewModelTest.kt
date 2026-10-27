@@ -32,6 +32,7 @@ import com.wire.android.feature.cells.ui.edit.OnlineEditor
 import com.wire.android.feature.cells.ui.model.CellNodeUi
 import com.wire.android.feature.cells.ui.dialog.BulkDeleteDialog
 import com.wire.android.feature.cells.ui.dialog.BulkRestoreDialog
+import com.wire.android.feature.cells.ui.dialog.EmptyRecycleBinDialog
 import com.wire.android.feature.cells.ui.model.pdfRenditionUrl
 import com.wire.android.feature.cells.ui.model.NodeBottomSheetAction
 import com.wire.android.feature.cells.ui.model.OpenLoadState
@@ -51,6 +52,7 @@ import com.wire.kalium.cells.domain.model.NodeLocator
 import com.wire.kalium.cells.domain.model.NodeToDelete
 import com.wire.kalium.cells.domain.usecase.DeleteCellAssetUseCase
 import com.wire.kalium.cells.domain.usecase.DeleteCellAssetsUseCase
+import com.wire.kalium.cells.domain.usecase.EmptyRecycleBinUseCase
 import com.wire.kalium.cells.domain.usecase.GetConversationNameUseCase
 import com.wire.kalium.cells.domain.usecase.GetEditorUrlUseCase
 import com.wire.kalium.cells.domain.usecase.GetPaginatedFilesFlowUseCase
@@ -717,6 +719,102 @@ class CellViewModelTest {
     }
 
     @Test
+    fun `given the recycle bin root when emptying it is confirmed then empty the conversation recycle bin and confirm it`() = runTest {
+        val (arrangement, viewModel) = Arrangement()
+            .withConversationId("conversationId")
+            .withRecycleBin()
+            .withEmptyRecycleBinReturning(Unit.right())
+            .arrange()
+        advanceUntilIdle()
+        assertTrue(viewModel.canEmptyRecycleBin.value)
+
+        viewModel.sendIntent(CellViewIntent.OnEmptyRecycleBinClick)
+        assertEquals(EmptyRecycleBinDialog.Confirmation(), viewModel.emptyRecycleBinDialog.value)
+
+        viewModel.actions.test {
+            viewModel.sendIntent(CellViewIntent.OnEmptyRecycleBinConfirmed)
+            advanceUntilIdle()
+
+            assertEquals(ShowRecycleBinEmptiedMessage, awaitItem())
+        }
+        coVerify(exactly = 1) { arrangement.emptyRecycleBinUseCase("conversationId") }
+        assertNull(viewModel.emptyRecycleBinDialog.value)
+    }
+
+    @Test
+    fun `given no network when emptying the recycle bin fails then show a no network failure`() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withConversationId("conversationId")
+            .withRecycleBin()
+            .withEmptyRecycleBinReturning(NetworkFailure.NoNetworkConnection(null).left())
+            .arrange()
+        advanceUntilIdle()
+        viewModel.sendIntent(CellViewIntent.OnEmptyRecycleBinClick)
+
+        viewModel.sendIntent(CellViewIntent.OnEmptyRecycleBinConfirmed)
+        advanceUntilIdle()
+
+        assertEquals(EmptyRecycleBinDialog.Failure(isNoNetworkConnection = true), viewModel.emptyRecycleBinDialog.value)
+    }
+
+    @Test
+    fun `given emptying the recycle bin in progress when dismissed then keep the confirmation`() = runTest {
+        val result = CompletableDeferred<Either<CoreFailure, Unit>>()
+        val (arrangement, viewModel) = Arrangement()
+            .withConversationId("conversationId")
+            .withRecycleBin()
+            .arrange()
+        coEvery { arrangement.emptyRecycleBinUseCase(any()) } coAnswers { result.await() }
+        advanceUntilIdle()
+        viewModel.sendIntent(CellViewIntent.OnEmptyRecycleBinClick)
+
+        viewModel.sendIntent(CellViewIntent.OnEmptyRecycleBinConfirmed)
+        viewModel.sendIntent(CellViewIntent.OnEmptyRecycleBinDialogDismissed)
+        viewModel.sendIntent(CellViewIntent.OnEmptyRecycleBinConfirmed)
+        advanceUntilIdle()
+
+        assertEquals(EmptyRecycleBinDialog.Confirmation(isInProgress = true), viewModel.emptyRecycleBinDialog.value)
+        coVerify(exactly = 1) { arrangement.emptyRecycleBinUseCase(any()) }
+        result.complete(Unit.right())
+    }
+
+    @Test
+    fun `given a folder inside the recycle bin when emptying is requested then it is not offered`() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withConversationId("conversationId/recycle_bin/folder")
+            .withRecycleBin()
+            .arrange()
+        advanceUntilIdle()
+
+        viewModel.sendIntent(CellViewIntent.OnEmptyRecycleBinClick)
+
+        assertFalse(viewModel.canEmptyRecycleBin.value)
+        assertNull(viewModel.emptyRecycleBinDialog.value)
+    }
+
+    @Test
+    fun `given no network when on the recycle bin root then emptying it is not offered`() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withConversationId("conversationId")
+            .withRecycleBin()
+            .withNoNetwork()
+            .arrange()
+        advanceUntilIdle()
+
+        assertFalse(viewModel.canEmptyRecycleBin.value)
+    }
+
+    @Test
+    fun `given the conversation files when on their root then emptying the recycle bin is not offered`() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withConversationId("conversationId")
+            .arrange()
+        advanceUntilIdle()
+
+        assertFalse(viewModel.canEmptyRecycleBin.value)
+    }
+
+    @Test
     fun `given the recycle bin when selected nodes are restored then restore them all in one request`() = runTest {
         val (arrangement, viewModel) = Arrangement()
             .withConversationId("conversationId")
@@ -1301,6 +1399,9 @@ class CellViewModelTest {
         lateinit var restoreNodesFromRecycleBinUseCase: RestoreNodesFromRecycleBinUseCase
 
         @MockK
+        lateinit var emptyRecycleBinUseCase: EmptyRecycleBinUseCase
+
+        @MockK
         lateinit var isCellAvailableUseCase: IsAtLeastOneCellAvailableUseCase
 
         @MockK
@@ -1478,6 +1579,10 @@ class CellViewModelTest {
             coEvery { restoreNodesFromRecycleBinUseCase(any()) } returns result
         }
 
+        fun withEmptyRecycleBinReturning(result: Either<CoreFailure, Unit>) = apply {
+            coEvery { emptyRecycleBinUseCase(any()) } returns result
+        }
+
         fun withViewerOnlyAccess() = apply {
             coEvery { isSelfUserViewerOnConversation(any()) } returns false
         }
@@ -1523,6 +1628,7 @@ class CellViewModelTest {
                 deleteCellAssets = deleteCellAssetsUseCase,
                 restoreNodeFromRecycleBinUseCase = restoreNodeFromRecycleBinUseCase,
                 restoreNodesFromRecycleBin = restoreNodesFromRecycleBinUseCase,
+                emptyRecycleBinUseCase = emptyRecycleBinUseCase,
                 isCellAvailable = isCellAvailableUseCase,
                 fileHelper = fileHelper,
                 getEditorUrl = getEditorUrlUseCase,

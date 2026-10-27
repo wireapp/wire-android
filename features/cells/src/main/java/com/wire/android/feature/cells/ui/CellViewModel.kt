@@ -29,6 +29,7 @@ import com.wire.android.datastore.UserDataStore
 import com.wire.android.feature.cells.domain.model.AttachmentFileType
 import com.wire.android.feature.cells.ui.dialog.BulkDeleteDialog
 import com.wire.android.feature.cells.ui.dialog.BulkRestoreDialog
+import com.wire.android.feature.cells.ui.dialog.EmptyRecycleBinDialog
 import com.wire.android.feature.cells.ui.edit.OnlineEditor
 import com.wire.android.feature.cells.ui.model.CellNodeUi
 import com.wire.android.feature.cells.ui.model.NodeBottomSheetAction
@@ -57,6 +58,7 @@ import com.wire.kalium.cells.domain.model.NodeLocator
 import com.wire.kalium.cells.domain.model.NodeToDelete
 import com.wire.kalium.cells.domain.usecase.DeleteCellAssetUseCase
 import com.wire.kalium.cells.domain.usecase.DeleteCellAssetsUseCase
+import com.wire.kalium.cells.domain.usecase.EmptyRecycleBinUseCase
 import com.wire.kalium.cells.domain.usecase.GetConversationNameUseCase
 import com.wire.kalium.cells.domain.usecase.GetEditorUrlUseCase
 import com.wire.kalium.cells.domain.usecase.GetPaginatedFilesFlowUseCase
@@ -115,6 +117,7 @@ class CellViewModel @AssistedInject constructor(
     private val deleteCellAssets: DeleteCellAssetsUseCase,
     private val restoreNodeFromRecycleBinUseCase: RestoreNodeFromRecycleBinUseCase,
     private val restoreNodesFromRecycleBin: RestoreNodesFromRecycleBinUseCase,
+    private val emptyRecycleBinUseCase: EmptyRecycleBinUseCase,
     private val isCellAvailable: IsAtLeastOneCellAvailableUseCase,
     private val fileHelper: FileHelper,
     private val getEditorUrl: GetEditorUrlUseCase,
@@ -166,6 +169,9 @@ class CellViewModel @AssistedInject constructor(
 
     private val _bulkRestoreDialog = MutableStateFlow<BulkRestoreDialog?>(null)
     internal val bulkRestoreDialog: StateFlow<BulkRestoreDialog?> = _bulkRestoreDialog.asStateFlow()
+
+    private val _emptyRecycleBinDialog = MutableStateFlow<EmptyRecycleBinDialog?>(null)
+    internal val emptyRecycleBinDialog: StateFlow<EmptyRecycleBinDialog?> = _emptyRecycleBinDialog.asStateFlow()
 
     internal val fileReadyFlow: Flow<CellNodeUi.File> = sharedPathCache.fileReadyEvents
 
@@ -244,6 +250,15 @@ class CellViewModel @AssistedInject constructor(
     )
     internal val selectedNodes: StateFlow<Map<String, CellNodeUi>> = bulkSelection.selectedNodes
     internal val isBulkSelectionEnabled: StateFlow<Boolean> = bulkSelection.isEnabled
+
+    /** Emptying the recycle bin is offered at its root only, behind the bulk actions flag, while online and for editors. */
+    internal val canEmptyRecycleBin: StateFlow<Boolean> = combine(isOnline, isSelfUserViewerOnly) { online, viewerOnly ->
+        driveBulkActionsEnabled && isRecycleBinRoot() && online && !viewerOnly
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.Eagerly,
+        initialValue = false,
+    )
 
     /** The bulk selection tip, shown wherever selection is available until dismissed or the gesture is first used. */
     internal val showBulkSelectionHint: StateFlow<Boolean> = combine(
@@ -474,6 +489,9 @@ class CellViewModel @AssistedInject constructor(
             is CellViewIntent.OnRestoreSelectedNodesClick -> showBulkRestoreConfirmation()
             is CellViewIntent.OnBulkRestoreConfirmed -> restoreSelectedNodes()
             is CellViewIntent.OnBulkRestoreDialogDismissed -> dismissBulkRestoreDialog()
+            is CellViewIntent.OnEmptyRecycleBinClick -> showEmptyRecycleBinConfirmation()
+            is CellViewIntent.OnEmptyRecycleBinConfirmed -> emptyRecycleBin()
+            is CellViewIntent.OnEmptyRecycleBinDialogDismissed -> dismissEmptyRecycleBinDialog()
             is CellViewIntent.OnMakeSelectedNodesAvailableOfflineClick -> Unit
 
             is CellViewIntent.OnItemMenuClick -> onItemMenuClick(intent.cellNode)
@@ -601,6 +619,41 @@ class CellViewModel @AssistedInject constructor(
         _bulkDeleteDialog.value = null
     }
 
+    private fun showEmptyRecycleBinConfirmation() {
+        if (!canEmptyRecycleBin.value) return
+        _emptyRecycleBinDialog.value = EmptyRecycleBinDialog.Confirmation()
+    }
+
+    /**
+     * Permanently deletes everything in the conversation's recycle bin in a single request. There is no rollback: if it
+     * fails midway, some items may still have been deleted, so the list is refreshed either way.
+     */
+    private fun emptyRecycleBin() {
+        val confirmation = _emptyRecycleBinDialog.value as? EmptyRecycleBinDialog.Confirmation ?: return
+        if (confirmation.isInProgress) return
+        val conversationId = rootConversationId ?: return
+        _emptyRecycleBinDialog.value = confirmation.copy(isInProgress = true)
+        viewModelScope.launch {
+            emptyRecycleBinUseCase(conversationId)
+                .onSuccess {
+                    _emptyRecycleBinDialog.value = null
+                    sendAction(ShowRecycleBinEmptiedMessage)
+                }
+                .onFailure { failure ->
+                    _emptyRecycleBinDialog.value = EmptyRecycleBinDialog.Failure(
+                        isNoNetworkConnection = failure is NetworkFailure.NoNetworkConnection,
+                    )
+                }
+            refreshNodes()
+        }
+    }
+
+    private fun dismissEmptyRecycleBinDialog() {
+        // The confirmation stays up until the request completes.
+        if ((_emptyRecycleBinDialog.value as? EmptyRecycleBinDialog.Confirmation)?.isInProgress == true) return
+        _emptyRecycleBinDialog.value = null
+    }
+
     private fun showBulkRestoreConfirmation() {
         val nodes = bulkSelection.selectedNodes.value.values.toList()
         if (nodes.isEmpty()) return
@@ -656,6 +709,9 @@ class CellViewModel @AssistedInject constructor(
 
     internal fun currentNodeUuid(): String? = navArgs.conversationId
     internal fun isRecycleBin(): Boolean = navArgs.isRecycleBin ?: false
+
+    /** The recycle bin root is opened with the conversation id alone, its sub folders with their full path. */
+    private fun isRecycleBinRoot(): Boolean = isRecycleBin() && navArgs.conversationId?.contains('/') == false
     private fun isConversationFiles(): Boolean = navArgs.conversationId != null && !isRecycleBin()
     private fun isAllFiles(): Boolean = navArgs.conversationId == null && !isRecycleBin()
 
@@ -1024,6 +1080,9 @@ sealed interface CellViewIntent {
     data object OnRestoreSelectedNodesClick : CellViewIntent
     data object OnBulkRestoreConfirmed : CellViewIntent
     data object OnBulkRestoreDialogDismissed : CellViewIntent
+    data object OnEmptyRecycleBinClick : CellViewIntent
+    data object OnEmptyRecycleBinConfirmed : CellViewIntent
+    data object OnEmptyRecycleBinDialogDismissed : CellViewIntent
     data object OnMakeSelectedNodesAvailableOfflineClick : CellViewIntent
     data class OnMenuItemActionSelected(val node: CellNodeUi, val action: NodeBottomSheetAction) : CellViewIntent
     data class OnNodeDeleteConfirmed(val node: CellNodeUi) : CellViewIntent

@@ -48,12 +48,15 @@ import com.wire.android.feature.cells.ui.SelectionAwareTitle
 import com.wire.android.feature.cells.ui.common.Breadcrumbs
 import com.wire.android.feature.cells.ui.dialog.BulkDeleteDialogs
 import com.wire.android.feature.cells.ui.dialog.BulkRestoreDialogs
+import com.wire.android.feature.cells.ui.dialog.EmptyRecycleBinDialogs
 import com.wire.android.feature.cells.ui.toIntent
+import com.wire.android.ui.common.button.WireSecondaryIconButton
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import kotlinx.collections.immutable.persistentListOf
+import com.wire.android.ui.common.R as commonR
 
 @Composable
 internal fun RecycleBinRouteScreen(
@@ -65,6 +68,8 @@ internal fun RecycleBinRouteScreen(
     val isSelectionMode = selectedNodes.isNotEmpty()
     val bulkDeleteDialog by cellViewModel.bulkDeleteDialog.collectAsState()
     val bulkRestoreDialog by cellViewModel.bulkRestoreDialog.collectAsState()
+    val emptyRecycleBinDialog by cellViewModel.emptyRecycleBinDialog.collectAsState()
+    val canEmptyRecycleBin by cellViewModel.canEmptyRecycleBin.collectAsState()
 
     BackHandler(enabled = isSelectionMode) {
         cellViewModel.sendIntent(CellViewIntent.OnClearSelection)
@@ -93,6 +98,15 @@ internal fun RecycleBinRouteScreen(
                                 cellViewModel.sendIntent(CellViewIntent.OnClearSelection)
                             } else {
                                 navigation.back()
+                            }
+                        },
+                        actions = {
+                            if (canEmptyRecycleBin && !isSelectionMode) {
+                                WireSecondaryIconButton(
+                                    onButtonClicked = { cellViewModel.sendIntent(CellViewIntent.OnEmptyRecycleBinClick) },
+                                    iconResource = commonR.drawable.ic_delete,
+                                    contentDescription = R.string.cells_empty_recycle_bin_content_description,
+                                )
                             }
                         }
                     )
@@ -173,6 +187,14 @@ internal fun RecycleBinRouteScreen(
             dialog = dialog,
             onConfirm = { cellViewModel.sendIntent(CellViewIntent.OnBulkRestoreConfirmed) },
             onDismiss = { cellViewModel.sendIntent(CellViewIntent.OnBulkRestoreDialogDismissed) },
+        )
+    }
+
+    emptyRecycleBinDialog?.let { dialog ->
+        EmptyRecycleBinDialogs(
+            dialog = dialog,
+            onConfirm = { cellViewModel.sendIntent(CellViewIntent.OnEmptyRecycleBinConfirmed) },
+            onDismiss = { cellViewModel.sendIntent(CellViewIntent.OnEmptyRecycleBinDialogDismissed) },
         )
     }
 }

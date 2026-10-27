@@ -286,6 +286,11 @@ internal fun CellScreenContent(
                 ),
                 Toast.LENGTH_LONG
             ).show()
+            is ShowRecycleBinEmptiedMessage -> Toast.makeText(
+                context,
+                context.getString(R.string.cells_empty_recycle_bin_success),
+                Toast.LENGTH_LONG
+            ).show()
             is OpenFolder -> openFolder(action.path, action.title, action.parentFolderUuid)
             is ShowEditErrorDialog -> editNodeError = action.nodeUuid
             is ShowOfflineFileSaved -> {

@@ -790,6 +790,144 @@ class CellViewModelTest {
     }
 
     @Test
+    fun `given selected nodes when delete is clicked then the confirmation shows them`() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withConversationId("conversationId")
+            .withEditorAccess()
+            .arrange()
+        val nodes = testFiles.map { it.toUiModel() }
+        selectNodes(viewModel, nodes)
+
+        viewModel.sendIntent(CellViewIntent.OnDeleteSelectedNodesClick)
+
+        assertEquals(BulkDeleteDialog.Confirmation(nodes), viewModel.bulkDeleteDialog.value)
+    }
+
+    @Test
+    fun `given a bulk delete confirmation when confirmed then delete all nodes in one request and confirm it`() = runTest {
+        val (arrangement, viewModel) = Arrangement()
+            .withConversationId("conversationId")
+            .withEditorAccess()
+            .withBulkDeleteReturning(Unit.right())
+            .arrange()
+        val nodes = testFiles.map { it.toUiModel() }
+        selectNodes(viewModel, nodes)
+        viewModel.sendIntent(CellViewIntent.OnDeleteSelectedNodesClick)
+
+        viewModel.actions.test {
+            viewModel.sendIntent(CellViewIntent.OnBulkDeleteConfirmed)
+            advanceUntilIdle()
+
+            assertEquals(ShowNodesDeletedMessage(deletedCount = 2), awaitItem())
+        }
+        coVerify(exactly = 1) {
+            arrangement.deleteCellAssetsUseCase(
+                listOf(
+                    NodeToDelete(uuid = "fileUuid", localPath = "localPath"),
+                    NodeToDelete(uuid = "fileUuid2", localPath = null),
+                )
+            )
+        }
+        assertNull(viewModel.bulkDeleteDialog.value)
+        assertTrue(viewModel.selectedNodes.value.isEmpty())
+    }
+
+    @Test
+    fun `given a selected folder when deleted then its path is passed to clean up the files inside it`() = runTest {
+        val (arrangement, viewModel) = Arrangement()
+            .withConversationId("conversationId")
+            .withBulkDeleteReturning(Unit.right())
+            .arrange()
+        val folder = Node.Folder(
+            uuid = "folderUuid",
+            name = "reports",
+            remotePath = "conversationId/reports",
+            modifiedTime = 0L,
+            size = 0,
+        ).toUiModel()
+        val file = testFiles[0].toUiModel()
+        selectNodes(viewModel, listOf(folder, file))
+        viewModel.sendIntent(CellViewIntent.OnDeleteSelectedNodesClick)
+
+        viewModel.sendIntent(CellViewIntent.OnBulkDeleteConfirmed)
+        advanceUntilIdle()
+
+        coVerify(exactly = 1) {
+            arrangement.deleteCellAssetsUseCase(
+                listOf(
+                    NodeToDelete(uuid = "folderUuid", localPath = null, folderPath = "conversationId/reports"),
+                    NodeToDelete(uuid = "fileUuid", localPath = "localPath", folderPath = null),
+                ),
+                any(),
+            )
+        }
+    }
+
+    @Test
+    fun `given a single selected node when its bulk delete succeeds then show the single item message`() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withConversationId("conversationId")
+            .withEditorAccess()
+            .withBulkDeleteReturning(Unit.right())
+            .arrange()
+        selectNodes(viewModel, listOf(testFiles[0].toUiModel()))
+        viewModel.sendIntent(CellViewIntent.OnDeleteSelectedNodesClick)
+
+        viewModel.actions.test {
+            viewModel.sendIntent(CellViewIntent.OnBulkDeleteConfirmed)
+            advanceUntilIdle()
+
+            assertEquals(ShowFileDeletedMessage(isFile = true, permanently = false), awaitItem())
+        }
+    }
+
+    @Test
+    fun `given no network when the bulk delete fails then show a no network failure and clear the selection`() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withConversationId("conversationId")
+            .withEditorAccess()
+            .withBulkDeleteReturning(NetworkFailure.NoNetworkConnection(null).left())
+            .arrange()
+        selectNodes(viewModel, testFiles.map { it.toUiModel() })
+        viewModel.sendIntent(CellViewIntent.OnDeleteSelectedNodesClick)
+
+        viewModel.sendIntent(CellViewIntent.OnBulkDeleteConfirmed)
+        advanceUntilIdle()
+
+        assertEquals(BulkDeleteDialog.Failure(totalCount = 2, isNoNetworkConnection = true), viewModel.bulkDeleteDialog.value)
+        assertTrue(viewModel.selectedNodes.value.isEmpty())
+    }
+
+    @Test
+    fun `given a bulk delete in progress when dismissed or confirmed again then ignore it`() = runTest {
+        val result = CompletableDeferred<Either<CoreFailure, Unit>>()
+        val (arrangement, viewModel) = Arrangement()
+            .withConversationId("conversationId")
+            .withEditorAccess()
+            .arrange()
+        coEvery { arrangement.deleteCellAssetsUseCase(any(), any()) } coAnswers { result.await() }
+        val nodes = testFiles.map { it.toUiModel() }
+        selectNodes(viewModel, nodes)
+        viewModel.sendIntent(CellViewIntent.OnDeleteSelectedNodesClick)
+
+        viewModel.sendIntent(CellViewIntent.OnBulkDeleteConfirmed)
+        viewModel.sendIntent(CellViewIntent.OnBulkDeleteDialogDismissed)
+        viewModel.sendIntent(CellViewIntent.OnBulkDeleteConfirmed)
+        advanceUntilIdle()
+
+        assertEquals(BulkDeleteDialog.Confirmation(nodes, isInProgress = true), viewModel.bulkDeleteDialog.value)
+        result.complete(Unit.right())
+        advanceUntilIdle()
+        coVerify(exactly = 1) { arrangement.deleteCellAssetsUseCase(any(), any()) }
+    }
+
+    private fun TestScope.selectNodes(viewModel: CellViewModel, nodes: List<CellNodeUi>) {
+        advanceUntilIdle() // Lets the viewer access check enable bulk selection.
+        viewModel.sendIntent(CellViewIntent.OnItemLongClick(nodes.first()))
+        nodes.drop(1).forEach { viewModel.sendIntent(CellViewIntent.OnItemClick(it)) }
+    }
+
+    @Test
     fun `GIVEN no cells available WHEN ViewModel initialized THEN no load request is sent`() = runTest {
         val (arrangement, viewModel) = Arrangement()
             .withNoCellsAvailable()

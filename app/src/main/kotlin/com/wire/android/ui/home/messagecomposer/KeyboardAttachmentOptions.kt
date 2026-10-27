@@ -130,6 +130,7 @@ private fun KeyboardAttachmentOption(
                     focusContext = AttachmentFocusContext(index, enabledOptions, columnCount, focusRequesters),
                 )
             }
+            .focusable(enabled = option.isEnabled)
             .clearAndSetSemantics {
                 contentDescription = label
                 role = Role.Button
@@ -141,8 +142,7 @@ private fun KeyboardAttachmentOption(
                 } else {
                     disabled()
                 }
-            }
-            .focusable(enabled = option.isEnabled),
+            },
         contentAlignment = Alignment.Center,
     ) {
         AttachmentButton(

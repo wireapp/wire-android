@@ -133,7 +133,6 @@ fun EnabledMessageComposer(
     val navBarHeight = bottomNavigationBarHeight()
     val isImeVisible = WindowInsets.isImeVisible
     val isHardwareKeyboardConnected = isHardwareKeyboardConnected()
-    val useAttachmentKeyboardNavigation = isHardwareKeyboardConnected && !isImeVisible
     val keyboardControlsVisible = isImeVisible || isHardwareKeyboardConnected
     val offsetY = WindowInsets.ime.getBottom(density)
     val imeAnimationTarget = WindowInsets.imeAnimationTarget.getBottom(density)
@@ -484,13 +483,7 @@ fun EnabledMessageComposer(
                 }
             }
             if ((inputStateHolder.optionsVisible || rippleProgress.value > 0f) && !bottomSheetVisible) {
-                Popup(
-                    alignment = Alignment.BottomCenter,
-                    properties = PopupProperties(
-                        focusable = useAttachmentKeyboardNavigation,
-                        dismissOnBackPress = true,
-                        dismissOnClickOutside = true
-                    ),
+                AttachmentOptionsPopup(
                     offset = if (isImeVisible) {
                         IntOffset(0, 0)
                     } else {
@@ -500,7 +493,7 @@ fun EnabledMessageComposer(
                         hideRipple = true
                         showAttachments(false)
                     }
-                ) {
+                ) { useAttachmentKeyboardNavigation ->
                     val rippleColor = colorsScheme().surfaceContainerLowest
                     val borderColor = colorsScheme().divider
                     val borderWidthPx = if (isImeVisible) 0f else dimensions().spacing1x.toPx(density)
@@ -566,6 +559,29 @@ fun EnabledMessageComposer(
                 closeMentionSuggestions()
             }
         }
+    }
+}
+
+/** Shares hardware keyboard support between the popup window and its attachment controls. */
+@Composable
+internal fun AttachmentOptionsPopup(
+    offset: IntOffset,
+    onDismissRequest: () -> Unit,
+    content: @Composable (useKeyboardNavigation: Boolean) -> Unit,
+) {
+    // A physical keyboard remains usable when the user also displays the software keyboard.
+    val useKeyboardNavigation = isHardwareKeyboardConnected()
+    Popup(
+        alignment = Alignment.BottomCenter,
+        offset = offset,
+        onDismissRequest = onDismissRequest,
+        properties = PopupProperties(
+            focusable = useKeyboardNavigation,
+            dismissOnBackPress = true,
+            dismissOnClickOutside = true,
+        ),
+    ) {
+        content(useKeyboardNavigation)
     }
 }
 

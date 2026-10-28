@@ -19,6 +19,7 @@ package com.wire.android.feature.cells.ui
 
 import com.wire.android.feature.cells.ui.model.CellNodeUi
 import com.wire.android.feature.cells.util.FileHelper
+import com.wire.android.feature.cells.util.cellFileDestination
 import com.wire.kalium.cells.domain.usecase.download.DownloadCellFileUseCase
 import com.wire.kalium.cells.domain.usecase.offline.OfflineFileInfo
 import com.wire.kalium.cells.domain.usecase.offline.SaveOfflineFileUseCase
@@ -72,13 +73,7 @@ class OfflineFileDownloadController @Inject constructor(
             onError(CellError.OTHER_ERROR)
             return
         }
-        // Stored under <conversation>/<uuid>/ so files with the same name living in different
-        // folders of the same conversation do not overwrite each other.
-        val filePath = File(fileHelper.getExternalFilesDir(), cellNode.conversationId.orEmpty())
-            .let { File(it, cellNode.uuid) }
-            .also { it.mkdirs() }
-            .let { File(it, nodeName) }
-            .toOkioPath()
+        val filePath = fileHelper.cellFileDestination(cellNode.conversationId, cellNode.uuid, nodeName).toOkioPath()
 
         val job = scope.launch {
             performDownload(cellNode, nodeName, filePath, onSuccess, onError)

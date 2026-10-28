@@ -317,7 +317,34 @@
         <item quantity="other">%1$d selected</item>
     </plurals>
     <string name="cells_bulk_selection_cancel_content_description">Cancel selection</string>
+    <!-- Badge marking a newly released feature, not the "create new" action of cells_new_label -->
+    <string name="cells_new_feature_badge">NEW</string>
+    <string name="cells_bulk_selection_hint_title">Select multiple files</string>
+    <string name="cells_bulk_selection_hint_message">Long-press a file, then drag up or down to select more.</string>
+    <string name="cells_bulk_selection_hint_dismiss_content_description">Dismiss tip</string>
     <string name="cells_bulk_action_move">Move</string>
     <string name="cells_bulk_action_delete">Delete</string>
+    <plurals name="cells_bulk_delete_confirmation_title">
+        <item quantity="one">Delete %1$d item</item>
+        <item quantity="other">Delete %1$d items</item>
+    </plurals>
+    <plurals name="cells_bulk_delete_confirmation_message">
+        <item quantity="one">%1$d item will move to this conversation\'s recycle bin.</item>
+        <item quantity="other">These %1$d items will move to this conversation\'s recycle bin.</item>
+    </plurals>
+    <plurals name="cells_bulk_delete_confirmation_message_with_folders">
+        <item quantity="one">%1$d item, including all files and subfolders of the selected folders, will move to this conversation\'s recycle bin.</item>
+        <item quantity="other">These %1$d items, including all files and subfolders of the selected folders, will move to this conversation\'s recycle bin.</item>
+    </plurals>
+    <plurals name="cells_bulk_delete_success">
+        <item quantity="one">%1$d item was moved to the recycle bin</item>
+        <item quantity="other">%1$d items were moved to the recycle bin</item>
+    </plurals>
+    <string name="cells_bulk_delete_failure_title_one">Item not deleted</string>
+    <string name="cells_bulk_delete_failure_title_many">Items not deleted</string>
+    <string name="cells_bulk_delete_failure_message_one">Something went wrong while deleting the item. Please try again.</string>
+    <string name="cells_bulk_delete_failure_message_one_no_network">The item couldn’t be deleted because you’re offline. Check your internet connection and try again.</string>
+    <string name="cells_bulk_delete_failure_message_many">Something went wrong while deleting the items. Some of them may have been moved to the recycle bin, so check both before trying again.</string>
+    <string name="cells_bulk_delete_failure_message_many_no_network">The connection was lost while deleting the items. Some of them may have been moved to the recycle bin, so check both before trying again.</string>
     <string name="cells_bulk_action_offline">Offline</string>
 </resources>

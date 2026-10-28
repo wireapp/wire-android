@@ -110,6 +110,7 @@ internal class CellBulkSelection(
     /** The selected nodes as move targets, [folderPath] being the folder they are all listed in. */
     fun toNodesToMove(folderPath: String): List<NodeToMove> =
         _selectedNodes.value.values.map { node -> NodeToMove(uuid = node.uuid, path = "$folderPath/${node.name}") }
+
     private class DragSelection(
         val selectionBefore: Map<String, CellNodeUi>,
         val isDeselecting: Boolean,

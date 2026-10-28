@@ -15,6 +15,7 @@ import android.widget.Toast
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import com.wire.android.R
+import com.wire.android.appLogger
 import com.wire.android.feature.cells.navigation.CellsFilesArguments
 import com.wire.android.feature.cells.navigation.ConversationFilesRoute
 import com.wire.android.navigation.LoginTypeSelector
@@ -39,6 +40,7 @@ import com.wire.android.ui.home.conversations.ConversationRoute
 import com.wire.android.ui.home.conversations.ConversationRouteId
 import com.wire.android.ui.userprofile.UserProfileQualifiedId
 import com.wire.android.ui.userprofile.other.OtherUserProfileRoute
+import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.navigation.WireBackStackMode
 import com.wire.navigation.WireNavEntryId
 import com.wire.navigation.WireNavigationCommand
@@ -243,9 +245,8 @@ internal object WireActivityNavigation3EffectResolver {
         action: OpenConversation,
         currentSessionId: WireSessionId?,
     ): WireActivityNavigation3EffectResolution {
-        val sessionId = action.result.targetSessionId?.let {
-            WireSessionId(it.value, it.domain)
-        } ?: requireSession(currentSessionId, action)
+        val sessionId = resolveSession(action.result.targetSessionId, currentSessionId)
+            ?: return missingSession(action)
         val mutations = buildList {
             if (action.result.switchedAccount) {
                 add(navigate(HomeRoute(sessionId), WireBackStackMode.CLEAR_WHOLE))
@@ -270,9 +271,8 @@ internal object WireActivityNavigation3EffectResolver {
         action: OpenMeetings,
         currentSessionId: WireSessionId?,
     ): WireActivityNavigation3EffectResolution {
-        val sessionId = action.result.targetSessionId?.let {
-            WireSessionId(it.value, it.domain)
-        } ?: requireSession(currentSessionId, action)
+        val sessionId = resolveSession(action.result.targetSessionId, currentSessionId)
+            ?: return missingSession(action)
         val mutations = buildList {
             add(navigate(HomeRoute(sessionId, homeDestination = HomeRoute.HomeDestination.MEETINGS), WireBackStackMode.CLEAR_WHOLE))
         }
@@ -283,9 +283,8 @@ internal object WireActivityNavigation3EffectResolver {
         action: OpenDriveFiles,
         currentSessionId: WireSessionId?,
     ): WireActivityNavigation3EffectResolution {
-        val sessionId = action.result.targetSessionId?.let {
-            WireSessionId(it.value, it.domain)
-        } ?: requireSession(currentSessionId, action)
+        val sessionId = resolveSession(action.result.targetSessionId, currentSessionId)
+            ?: return missingSession(action)
         val mutations = buildList {
             if (action.result.switchedAccount) {
                 add(navigate(HomeRoute(sessionId), WireBackStackMode.CLEAR_WHOLE))
@@ -309,9 +308,8 @@ internal object WireActivityNavigation3EffectResolver {
         action: OnOpenUserProfile,
         currentSessionId: WireSessionId?,
     ): WireActivityNavigation3EffectResolution {
-        val sessionId = action.result.targetSessionId?.let {
-            WireSessionId(it.value, it.domain)
-        } ?: requireSession(currentSessionId, action)
+        val sessionId = resolveSession(action.result.targetSessionId, currentSessionId)
+            ?: return missingSession(action)
         val mutations = buildList {
             if (action.result.switchedAccount) {
                 add(navigate(HomeRoute(sessionId), WireBackStackMode.CLEAR_WHOLE))
@@ -369,11 +367,18 @@ internal object WireActivityNavigation3EffectResolver {
         WireNavigationCommand(destination = destination, backStackMode = mode)
     )
 
-    private fun requireSession(
+    private fun resolveSession(
+        targetSessionId: QualifiedID?,
         currentSessionId: WireSessionId?,
-        action: WireActivityViewAction,
-    ): WireSessionId = checkNotNull(currentSessionId) {
-        "${action::class.simpleName} requires an active session"
+    ): WireSessionId? = targetSessionId?.let { WireSessionId(it.value, it.domain) } ?: currentSessionId
+
+    /**
+     * The session can disappear between deep link processing and navigation (logout, removed client,
+     * account transition). Drop the navigation instead of crashing.
+     */
+    private fun missingSession(action: WireActivityViewAction): WireActivityNavigation3EffectResolution {
+        appLogger.w("${action::class.simpleName} ignored: no active session")
+        return WireActivityNavigation3EffectResolution()
     }
 
     private fun newLoginRoute(

@@ -181,13 +181,13 @@ fun RecordAudioButtonSend(
     applyAudioFilterState: Boolean,
     audioState: AudioState,
     wavesMask: List<Int>?,
-    onClick: () -> Unit,
     outputFile: File?,
+    onClick: () -> Unit,
     onPlayAudio: () -> Unit,
     onSliderPositionChange: (Int) -> Unit,
     modifier: Modifier = Modifier,
-    applyAudioFilterClick: (Boolean) -> Unit,
     buttonModifier: Modifier = Modifier,
+    applyAudioFilterClick: (Boolean) -> Unit
 ) {
     RecordAudioButton(
         onClick = onClick,
@@ -224,12 +224,12 @@ private fun RecordAudioButton(
     applyAudioFilterState: Boolean,
     applyAudioFilterClick: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
+    buttonModifier: Modifier = Modifier,
+    audioFilterModifier: Modifier = Modifier,
     buttonState: WireButtonState = WireButtonState.Default,
     isAudioFilterEnabled: Boolean = true,
     loading: Boolean = false,
-    trailingIconAlignment: IconAlignment = IconAlignment.Border,
-    buttonModifier: Modifier = Modifier,
-    audioFilterModifier: Modifier = Modifier,
+    trailingIconAlignment: IconAlignment = IconAlignment.Border
 ) {
     Column(
         modifier = modifier,

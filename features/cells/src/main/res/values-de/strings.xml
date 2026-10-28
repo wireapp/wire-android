@@ -80,12 +80,14 @@
     </plurals>
     <string name="cells_upload_status_title_complete">Upload abgeschlossen</string>
     <string name="cells_upload_status_title_partial">%1$d von %2$d hochgeladen</string>
+    <string name="cells_upload_status_title_failed_partial">%1$d von %2$d nicht hochgeladen</string>
     <plurals name="cells_upload_status_subtitle_failed_count">
         <item quantity="one">%1$d nicht hochgeladen</item>
         <item quantity="other">%1$d nicht hochgeladen</item>
     </plurals>
     <string name="cells_upload_status_subtitle_queued">Warten…</string>
     <string name="cells_upload_status_subtitle_uploading">Hochladen…</string>
+    <string name="cells_upload_status_subtitle_paused">Warten auf Netzwerk…</string>
     <string name="cells_upload_status_subtitle_completed_with_size">%1$s hochgeladen</string>
     <string name="cells_upload_status_subtitle_failed">Datei nicht hochgeladen</string>
     <string name="cells_upload_status_subtitle_cancelled">Abgebrochen</string>
@@ -290,4 +292,13 @@
     <string name="cells_video_mute">Stummschalten</string>
     <string name="cells_video_unmute">Benachrichtigen</string>
     <string name="cells_video_loading">Video wird geladen</string>
+    <plurals name="cells_bulk_selection_count">
+        <item quantity="one">%1$d ausgewählt</item>
+        <item quantity="other">%1$d ausgewählt</item>
+    </plurals>
+    <string name="cells_bulk_selection_cancel_content_description">Auswahl aufheben</string>
+    <!-- Badge marking a newly released feature, not the "create new" action of cells_new_label -->
+    <string name="cells_bulk_action_move">Verschieben</string>
+    <string name="cells_bulk_action_delete">Löschen</string>
+    <string name="cells_bulk_action_offline">Offline</string>
 </resources>

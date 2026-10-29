@@ -127,9 +127,11 @@ class ConversationMessagesViewModelArrangement {
     @MockK
     lateinit var networkStateObserver: NetworkStateObserver
 
+    private var navArgs = ConversationNavArgs(conversationId = conversationId)
+
     private val viewModel: ConversationMessagesViewModel by lazy {
         ConversationMessagesViewModel(
-            ConversationNavArgs(conversationId = conversationId),
+            navArgs,
             observeConversationDetails,
             getMessageAsset,
             getMessageById,
@@ -202,6 +204,19 @@ class ConversationMessagesViewModelArrangement {
             viewModel.hideOnAssetDownloadedDialog()
         }
     }
+
+    fun withSearchedMessageIdNavArg(messageId: String) = apply {
+        navArgs = navArgs.copy(searchedMessageId = messageId)
+    }
+
+    fun withSearchedMessagePosition(messageId: String, result: GetSearchedConversationMessagePositionUseCase.Result) = apply {
+        coEvery { getSearchedConversationMessagePosition(any(), messageId) } returns result
+    }
+
+    fun withSearchedMessagePosition(messageId: String, result: CompletableDeferred<GetSearchedConversationMessagePositionUseCase.Result>) =
+        apply {
+            coEvery { getSearchedConversationMessagePosition(any(), messageId) } coAnswers { result.await() }
+        }
 
     fun withConversationUnreadEventsCount(result: GetConversationUnreadEventsCountUseCase.Result) = apply {
         coEvery { getConversationUnreadEventsCount(any()) } returns result

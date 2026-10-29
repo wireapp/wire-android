@@ -512,6 +512,7 @@ internal fun ConversationScreenRouteContent(
         onDownloadAssetClick = conversationMessagesViewModel::openOrFetchAsset,
         onOpenAssetClick = conversationMessagesViewModel::downloadAndOpenAsset,
         onNavigateToReplyOriginalMessage = conversationMessagesViewModel::navigateToReplyOriginalMessage,
+        onReplyHighlightFinished = conversationMessagesViewModel::onReplyHighlightFinished,
         onSelfDeletingMessageRead = messageComposerViewModel::startSelfDeletion,
         onNewSelfDeletingMessagesStatus = messageComposerViewModel::updateSelfDeletingMessages,
         tempWritableImageUri = messageComposerViewModel.tempWritableImageUri,
@@ -569,6 +570,12 @@ internal fun ConversationScreenRouteContent(
     DisposableEffect(messageComposerViewModel) {
         onDispose {
             messageComposerViewModel.onConversationClosed()
+        }
+    }
+
+    DisposableEffect(conversationMessagesViewModel) {
+        onDispose {
+            conversationMessagesViewModel.clearReplyHighlight()
         }
     }
 
@@ -674,6 +681,7 @@ private fun ConversationScreenContent(
     onDownloadAssetClick: (messageId: String) -> Unit,
     onOpenAssetClick: (messageId: String) -> Unit,
     onNavigateToReplyOriginalMessage: (UIMessage) -> Unit,
+    onReplyHighlightFinished: (token: Long) -> Unit,
     onSelfDeletingMessageRead: (UIMessage) -> Unit,
     onNewSelfDeletingMessagesStatus: (SelfDeletionTimer) -> Unit,
     tempWritableImageUri: Uri?,
@@ -759,6 +767,8 @@ private fun ConversationScreenContent(
                         unreadEventCount = conversationMessagesViewState.firstUnreadEventIndex,
                         conversationDetailsData = conversationInfoViewState.conversationDetailsData,
                         selectedMessageId = conversationMessagesViewState.searchedMessageId,
+                        replyHighlightRequest = conversationMessagesViewState.replyHighlightRequest,
+                        onReplyHighlightFinished = onReplyHighlightFinished,
                         messageComposerStateHolder = messageComposerStateHolder,
                         attachments = attachments,
                         messages = conversationMessagesViewState.messages,
@@ -935,6 +945,7 @@ fun PreviewConversationScreen() = WireTheme {
         onOpenAssetClick = {},
         onDownloadAssetClick = {},
         onNavigateToReplyOriginalMessage = {},
+        onReplyHighlightFinished = {},
         onSelfDeletingMessageRead = {},
         onNewSelfDeletingMessagesStatus = {},
         tempWritableImageUri = null,

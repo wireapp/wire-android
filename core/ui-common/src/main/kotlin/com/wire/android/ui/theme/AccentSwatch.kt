@@ -189,7 +189,8 @@ data class AccentRoleMap(
     val bubbleSelfPrimary: Tone,
     val bubbleSelfSecondary: Tone,
     val bubbleSelfPrimaryOnSecondary: Tone,
-    val bubbleOtherPrimaryOnSecondary: Tone
+    val bubbleOtherPrimaryOnSecondary: Tone,
+    val bubbleSelfReplyHighlight: Tone,
 )
 
 private val LightRoles = AccentRoleMap(
@@ -225,6 +226,7 @@ private val LightRoles = AccentRoleMap(
     bubbleSelfSecondary = Tone.T600,
     bubbleSelfPrimaryOnSecondary = Tone.T200,
     bubbleOtherPrimaryOnSecondary = Tone.T500,
+    bubbleSelfReplyHighlight = Tone.T100,
 )
 private val DarkRoles = AccentRoleMap(
     primary = Tone.T500,
@@ -259,6 +261,7 @@ private val DarkRoles = AccentRoleMap(
     bubbleSelfSecondary = Tone.T900,
     bubbleSelfPrimaryOnSecondary = Tone.T400,
     bubbleOtherPrimaryOnSecondary = Tone.T500,
+    bubbleSelfReplyHighlight = Tone.T400,
 )
 
 fun WireColorScheme.withAccent(accent: Accent): WireColorScheme {
@@ -288,7 +291,9 @@ fun WireColorScheme.withAccent(accent: Accent): WireColorScheme {
         selfBubble = selfBubble.copy(
             primary = swatch[roles.bubbleSelfPrimary],
             secondary = swatch[roles.bubbleSelfSecondary],
-            primaryOnSecondary = swatch[roles.bubbleSelfPrimaryOnSecondary]
+            primaryOnSecondary = swatch[roles.bubbleSelfPrimaryOnSecondary],
+            // keep the theme's highlight strength, only the hue follows the accent
+            replyHighlight = swatch[roles.bubbleSelfReplyHighlight].copy(alpha = selfBubble.replyHighlight.alpha),
         ),
         otherBubble = otherBubble.copy(
             primaryOnSecondary = swatch[roles.bubbleOtherPrimaryOnSecondary]

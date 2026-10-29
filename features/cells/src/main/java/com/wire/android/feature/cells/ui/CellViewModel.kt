@@ -547,7 +547,7 @@ class CellViewModel @AssistedInject constructor(
         _bulkDeleteDialog.value = confirmation.copy(isInProgress = true)
         viewModelScope.launch {
             val isPermanentDelete = confirmation.isPermanentDelete
-            val result = deleteCellAssets(nodes.map { it.toNodeToDelete(folderPath) }, permanentDelete = isPermanentDelete)
+            val result = deleteCellAssets(nodes.map { it.toNodeToDelete() }, permanentDelete = isPermanentDelete)
             bulkSelection.clear()
             result
                 .onSuccess {
@@ -576,9 +576,8 @@ class CellViewModel @AssistedInject constructor(
         _bulkDeleteDialog.value = null
     }
 
-    // The server path when known: in the recycle bin, nodes don't live under the folder being browsed.
-    private fun CellNodeUi.toNodeToDelete(folderPath: String) = NodeToDelete(
-        locator = NodeLocator(uuid = uuid, path = remotePath ?: "$folderPath/$name"),
+    private fun CellNodeUi.toNodeToDelete() = NodeToDelete(
+        uuid = uuid,
         localPath = (this as? CellNodeUi.File)?.localPath,
         folderPath = (this as? CellNodeUi.Folder)?.remotePath,
     )

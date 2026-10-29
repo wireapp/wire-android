@@ -643,9 +643,8 @@ class CellViewModelTest {
         coVerify(exactly = 1) {
             arrangement.deleteCellAssetsUseCase(
                 listOf(
-                    // Their server paths, not built from the folder being browsed.
-                    NodeToDelete(NodeLocator("fileUuid", "remotePath"), localPath = "localPath"),
-                    NodeToDelete(NodeLocator("fileUuid2", "remotePath2"), localPath = null),
+                    NodeToDelete(uuid = "fileUuid", localPath = "localPath"),
+                    NodeToDelete(uuid = "fileUuid2", localPath = null),
                 ),
                 permanentDelete = false,
             )

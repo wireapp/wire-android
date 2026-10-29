@@ -10981,7 +10981,7 @@ internal fun com.wire.android.ui.registration.selector.CreateAccountSelectorRout
     - onNavigateBack: STABLE (function type)
 
 @Composable
-private fun com.wire.android.ui.rememberConfirmedSessionGraphAvailability(confirmedSessionGeneration: kotlin.Long, currentUserId: com.wire.kalium.logic.data.id.QualifiedID?, currentRouteSessionId: com.wire.navigation.WireSessionId?, invalidated: kotlin.Boolean, sessionGraphStore: com.wire.android.navigation.runtime.SessionGraphStoreViewModel): kotlin.Long
+private fun com.wire.android.ui.rememberConfirmedSessionGraphAvailability(confirmedSessionGeneration: kotlin.Long, currentUserId: com.wire.kalium.logic.data.id.QualifiedID?, currentRouteSessionId: com.wire.navigation.WireSessionId?, invalidated: kotlin.Boolean, sessionGraphStore: com.wire.android.navigation.runtime.SessionGraphStoreViewModel, provider: androidx.lifecycle.viewmodel.ViewModelStoreProvider): kotlin.Long
   skippable: false
   restartable: false
   params:
@@ -10990,6 +10990,7 @@ private fun com.wire.android.ui.rememberConfirmedSessionGraphAvailability(confir
     - currentRouteSessionId: STABLE (class with no mutable properties)
     - invalidated: STABLE (primitive type)
     - sessionGraphStore: UNSTABLE (has mutable properties or unstable members)
+    - provider: UNSTABLE (cross-module type without @Stable/@Immutable)
 
 @Composable
 private fun com.wire.android.ui.rememberWireActivitySessionLifecycle(routeSessionId: com.wire.navigation.WireSessionId?, graphContext: com.wire.android.navigation.runtime.WireActivityGraphContext?, invalidated: kotlin.Boolean, sessionGraphStore: com.wire.android.navigation.runtime.SessionGraphStoreViewModel, provider: androidx.lifecycle.viewmodel.ViewModelStoreProvider): com.wire.android.ui.WireActivitySessionLifecycle

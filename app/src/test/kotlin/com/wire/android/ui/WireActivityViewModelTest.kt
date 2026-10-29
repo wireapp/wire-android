@@ -104,6 +104,7 @@ import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -112,8 +113,11 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.joinAll
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.withContext
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertInstanceOf
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -733,6 +737,44 @@ class WireActivityViewModelTest {
             .arrange()
         advanceUntilIdle()
         assertEquals(true, viewModel.globalAppState.screenshotCensoringEnabled)
+    }
+
+    @Test
+    fun `given concurrent global app state updates from many threads, when all complete, then no update is lost`() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withNoCurrentSession()
+            .arrange()
+        advanceUntilIdle()
+        val initialGeneration = viewModel.globalAppState.confirmedSessionGeneration
+        val workers = 8
+        val iterations = 1_000
+
+        withContext(Dispatchers.Default) {
+            val counters = List(workers) {
+                launch {
+                    repeat(iterations) {
+                        viewModel.updateGlobalAppState { state ->
+                            state.copy(confirmedSessionGeneration = state.confirmedSessionGeneration + 1)
+                        }
+                    }
+                }
+            }
+            val fieldUpdates = listOf(
+                launch { viewModel.updateGlobalAppState { state -> state.copy(screenshotCensoringEnabled = false) } },
+                launch { viewModel.updateGlobalAppState { state -> state.copy(themeOption = ThemeOption.DARK) } },
+                launch { viewModel.updateGlobalAppState { state -> state.copy(maxAccountDialog = true) } },
+                launch { viewModel.updateGlobalAppState { state -> state.copy(crossBackendLoginBlockedDialog = true) } },
+            )
+            (counters + fieldUpdates).joinAll()
+        }
+
+        with(viewModel.globalAppState) {
+            assertEquals(initialGeneration + workers * iterations, confirmedSessionGeneration)
+            assertEquals(false, screenshotCensoringEnabled)
+            assertEquals(ThemeOption.DARK, themeOption)
+            assertEquals(true, maxAccountDialog)
+            assertEquals(true, crossBackendLoginBlockedDialog)
+        }
     }
 
     @Test

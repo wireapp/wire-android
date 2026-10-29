@@ -24,6 +24,7 @@ enum class CellError(val message: Int) {
     NO_APP_FOUND(R.string.no_app_found),
     OTHER_ERROR(R.string.action_failed),
     DOWNLOAD_FAILED(R.string.action_failed),
+    ITEM_NO_LONGER_AVAILABLE(R.string.cells_item_no_longer_available),
     NO_SPACE_LEFT(R.string.no_space_left_error),
     UPLOAD_PREPARATION_FAILED(R.string.cells_upload_preparation_failed),
     UPLOAD_PREPARATION_PARTIALLY_FAILED(R.string.cells_upload_preparation_partially_failed),

@@ -28,6 +28,7 @@ import com.wire.navigation.WireBackStackMode
 import com.wire.navigation.WireNavEntryId
 import com.wire.navigation.WireSessionId
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertInstanceOf
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
@@ -263,9 +264,9 @@ class WireActivityNavigation3EffectsTest {
 
     @Test
     fun givenImportMediaWithAndWithoutSession_whenResolving_thenScopeOwnerIsUnambiguous() {
-        val authenticated = resolve(OnShowImportMediaScreen, listOf(HomeRoute(session)))
+        val authenticated = resolve(OnShowImportMediaScreen(), listOf(HomeRoute(session)))
         val loggedOut = WireActivityNavigation3EffectResolver.resolve(
-            OnShowImportMediaScreen,
+            OnShowImportMediaScreen(),
             routes = listOf(NewWelcomeEmptyStartRoute()),
             currentSessionId = null,
             canUseNewLogin = true,
@@ -273,6 +274,17 @@ class WireActivityNavigation3EffectsTest {
 
         assertInstanceOf(AuthenticatedImportMediaRoute::class.java, authenticated.singleCommand().destination)
         assertInstanceOf(LoggedOutImportMediaRoute::class.java, loggedOut.singleCommand().destination)
+    }
+
+    @Test
+    fun givenImportMediaFromExternalApp_whenResolving_thenShareFinishesOnClose() {
+        fun finishOnClose(isSharedFromWire: Boolean) = assertInstanceOf(
+            AuthenticatedImportMediaRoute::class.java,
+            resolve(OnShowImportMediaScreen(isSharedFromWire), listOf(HomeRoute(session))).singleCommand().destination,
+        ).finishOnClose
+
+        assertTrue(finishOnClose(isSharedFromWire = false))
+        assertFalse(finishOnClose(isSharedFromWire = true))
     }
 
     @Test

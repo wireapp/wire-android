@@ -17,6 +17,7 @@
  */
 package com.wire.android.ui.home.conversations.attachment
 
+import android.net.Uri
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.ui.home.conversations.ConversationNavArgs
 import com.wire.android.ui.home.conversations.MessageSharedState
@@ -37,6 +38,7 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
+import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.test.runCurrent
@@ -50,6 +52,44 @@ import org.junit.jupiter.api.extension.ExtendWith
 @OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(CoroutineTestExtension::class)
 class MessageAttachmentsViewModelTest {
+
+    @Test
+    fun givenCameraCaptureHandled_whenCameraCaptured_thenCaptureFileIsDeleted() = runTest {
+        val captureUri = mockk<Uri>()
+        val (arrangement, viewModel) = Arrangement()
+            .withHandleUriAssetSuccess("image_attachment.jpg")
+            .withAddAttachmentSuccess()
+            .arrange()
+
+        viewModel.onCameraCaptured(captureUri)
+
+        coVerify(exactly = 1) { arrangement.addAttachment(any(), any(), any(), any(), any(), any()) }
+        verify(exactly = 1) { arrangement.fileManager.deleteCameraCapture(captureUri) }
+    }
+
+    @Test
+    fun givenCameraCaptureFailsToBeHandled_whenCameraCaptured_thenCaptureFileIsDeleted() = runTest {
+        val captureUri = mockk<Uri>()
+        val (arrangement, viewModel) = Arrangement()
+            .withHandleUriAssetUnknownFailure()
+            .arrange()
+
+        viewModel.onCameraCaptured(captureUri)
+
+        verify(exactly = 1) { arrangement.fileManager.deleteCameraCapture(captureUri) }
+    }
+
+    @Test
+    fun givenPickedFiles_whenFilesSelected_thenNoFileIsDeleted() = runTest {
+        val (arrangement, viewModel) = Arrangement()
+            .withHandleUriAssetSuccess("photo.jpg")
+            .withAddAttachmentSuccess()
+            .arrange()
+
+        viewModel.onFilesSelected(listOf(mockk()))
+
+        verify(exactly = 0) { arrangement.fileManager.deleteCameraCapture(any()) }
+    }
 
     @Test
     fun givenFileWithCleanName_whenFilesSelected_thenDialogIsNotShownAndFileIsAdded() = runTest {
@@ -323,6 +363,21 @@ class MessageAttachmentsViewModelTest {
         viewModel.onFilesSelected(listOf(mockk()))
 
         coVerify(exactly = 1) { arrangement.addAttachment(any(), eq("huge.mp4"), any(), any(), any(), any()) }
+    }
+
+    @Test
+    fun givenCameraCaptureAboveMessagingLimit_whenCameraCaptured_thenCopyIsKeptAttachedAndCaptureIsDeleted() = runTest {
+        val captureUri = mockk<Uri>()
+        val (arrangement, viewModel) = Arrangement()
+            .withHandleUriAssetTooLarge("image_attachment.jpg")
+            .withAddAttachmentSuccess()
+            .arrange()
+
+        viewModel.onCameraCaptured(captureUri)
+
+        coVerify(exactly = 1) { arrangement.handleUriAsset.invoke(captureUri, any(), any(), any(), eq(true)) }
+        coVerify(exactly = 1) { arrangement.addAttachment(any(), eq("image_attachment.jpg"), any(), any(), any(), any()) }
+        verify(exactly = 1) { arrangement.fileManager.deleteCameraCapture(captureUri) }
     }
 
     @Test

@@ -42,6 +42,7 @@ import com.wire.android.ui.home.messagecomposer.model.ComposableMessageBundle
 import com.wire.android.ui.home.messagecomposer.model.MessageBundle
 import com.wire.android.ui.home.messagecomposer.model.Ping
 import com.wire.android.ui.sharing.SendMessagesSnackbarMessages
+import com.wire.android.util.FileManager
 import com.wire.android.util.ImageUtil
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.getAudioLengthInMs
@@ -104,6 +105,7 @@ class SendMessageViewModel @AssistedInject constructor(
     private val dispatchers: DispatcherProvider,
     private val kaliumFileSystem: KaliumFileSystem,
     private val handleUriAsset: HandleUriAssetUseCase,
+    private val fileManager: FileManager,
     private val sendKnock: SendKnockUseCase,
     private val sendTypingEvent: SendTypingEventUseCase,
     private val pingRinger: PingRinger,
@@ -343,14 +345,16 @@ class SendMessageViewModel @AssistedInject constructor(
         conversationId: ConversationId,
         attachmentUri: UriAsset
     ) {
-        when (
-            val result = handleUriAsset.invoke(
-                uri = attachmentUri.uri,
-                saveToDeviceIfInvalid = attachmentUri.saveToDeviceIfInvalid,
-                specifiedMimeType = attachmentUri.mimeType,
-                audioWavesMask = attachmentUri.audioWavesMask,
-            )
-        ) {
+        val handleResult = handleUriAsset.invoke(
+            uri = attachmentUri.uri,
+            saveToDeviceIfInvalid = attachmentUri.saveToDeviceIfInvalid,
+            specifiedMimeType = attachmentUri.mimeType,
+            audioWavesMask = attachmentUri.audioWavesMask,
+        )
+        if (attachmentUri.isCameraCapture) {
+            fileManager.deleteCameraCapture(attachmentUri.uri)
+        }
+        when (val result = handleResult) {
             is HandleUriAssetUseCase.Result.Failure.AssetTooLarge -> {
                 assetTooLargeDialogState = AssetTooLargeDialogState.Visible(
                     assetType = result.assetBundle.assetType,

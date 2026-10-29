@@ -120,6 +120,9 @@ internal enum class CellBulkAction(
 
     /** Recycle bin only: the nodes are already there, deleting them is for good. */
     DeletePermanently(commonR.drawable.ic_delete, R.string.cells_bulk_action_delete, R.string.delete_permanently),
+
+    /** Recycle bin only. */
+    Restore(R.drawable.ic_restore, R.string.cells_bulk_action_restore),
 }
 
 internal fun CellBulkAction.toIntent(): CellViewIntent = when (this) {
@@ -128,6 +131,7 @@ internal fun CellBulkAction.toIntent(): CellViewIntent = when (this) {
     CellBulkAction.Delete,
     CellBulkAction.DeletePermanently -> CellViewIntent.OnDeleteSelectedNodesClick
     CellBulkAction.MakeAvailableOffline -> CellViewIntent.OnMakeSelectedNodesAvailableOfflineClick
+    CellBulkAction.Restore -> CellViewIntent.OnRestoreSelectedNodesClick
 }
 
 @PreviewMultipleThemes

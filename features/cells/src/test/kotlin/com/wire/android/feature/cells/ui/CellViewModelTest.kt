@@ -25,11 +25,9 @@ import androidx.paging.testing.asSnapshot
 import app.cash.turbine.test
 import com.wire.android.datastore.UserDataStore
 import com.wire.android.feature.cells.ui.dialog.BulkDeleteDialog
+import com.wire.android.feature.cells.ui.dialog.BulkRestoreDialog
 import com.wire.android.feature.cells.ui.edit.OnlineEditor
 import com.wire.android.feature.cells.ui.model.CellNodeUi
-import com.wire.android.feature.cells.ui.dialog.BulkDeleteDialog
-import com.wire.android.feature.cells.ui.dialog.BulkRestoreDialog
-import com.wire.android.feature.cells.ui.model.pdfRenditionUrl
 import com.wire.android.feature.cells.ui.model.NodeBottomSheetAction
 import com.wire.android.feature.cells.ui.model.OpenLoadState
 import com.wire.android.feature.cells.ui.model.pdfRenditionUrl
@@ -1556,7 +1554,11 @@ class CellViewModelTest {
             )
 
             return this to CellViewModel(
-                navArgs = CellFilesNavArgs(conversationId = conversationId, isRecycleBin = isRecycleBin, parentFolderUuid = parentFolderUuid),
+                navArgs = CellFilesNavArgs(
+                    conversationId = conversationId,
+                    isRecycleBin = isRecycleBin,
+                    parentFolderUuid = parentFolderUuid
+                ),
                 searchNavArgs = searchNavArgs,
                 getCellFilesPaged = getCellFilesPagedUseCase,
                 deleteCellAsset = deleteCellAssetUseCase,

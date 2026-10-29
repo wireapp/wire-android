@@ -540,6 +540,32 @@ private fun com.wire.android.feature.cells.ui.dialog.BulkDeleteFailureDialog(fai
     - onDismiss: STABLE (function type)
 
 @Composable
+private fun com.wire.android.feature.cells.ui.dialog.BulkRestoreConfirmationDialog(confirmation: com.wire.android.feature.cells.ui.dialog.BulkRestoreDialog.Confirmation, onConfirm: kotlin.Function0<kotlin.Unit>, onDismiss: kotlin.Function0<kotlin.Unit>): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - confirmation: RUNTIME (requires runtime check)
+    - onConfirm: STABLE (function type)
+    - onDismiss: STABLE (function type)
+
+@Composable
+internal fun com.wire.android.feature.cells.ui.dialog.BulkRestoreDialogs(dialog: com.wire.android.feature.cells.ui.dialog.BulkRestoreDialog, onConfirm: kotlin.Function0<kotlin.Unit>, onDismiss: kotlin.Function0<kotlin.Unit>): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - dialog: UNKNOWN (interface or non-final class; concrete implementation unknown)
+    - onConfirm: STABLE (function type)
+    - onDismiss: STABLE (function type)
+
+@Composable
+private fun com.wire.android.feature.cells.ui.dialog.BulkRestoreFailureDialog(failure: com.wire.android.feature.cells.ui.dialog.BulkRestoreDialog.Failure, onDismiss: kotlin.Function0<kotlin.Unit>): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - failure: STABLE (class with no mutable properties)
+    - onDismiss: STABLE (function type)
+
+@Composable
 internal fun com.wire.android.feature.cells.ui.dialog.CellsNewActionBottomSheet(sheetState: com.wire.android.ui.common.bottomsheet.WireModalSheetState<kotlin.Unit>, onDismiss: kotlin.Function0<kotlin.Unit>, onCreateFolder: kotlin.Function0<kotlin.Unit>, onCreateFile: kotlin.Function0<kotlin.Unit>, onUploadFiles: kotlin.Function0<kotlin.Unit>, driveDirectUploadEnabled: kotlin.Boolean): kotlin.Unit
   skippable: true
   restartable: true

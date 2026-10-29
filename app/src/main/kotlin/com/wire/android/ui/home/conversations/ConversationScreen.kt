@@ -234,7 +234,7 @@ internal fun ConversationScreenRouteContent(
             sendMessageViewModel.trySendMessage(
                 ComposableMessageBundle.UriPickedBundle(
                     conversationId = conversationMessagesViewModel.conversationId,
-                    attachmentUri = UriAsset(it),
+                    attachmentUri = UriAsset(it, isCameraCapture = true),
                 )
             )
         }
@@ -418,7 +418,11 @@ internal fun ConversationScreenRouteContent(
         },
         onAttachmentPicked = {
             if (conversationInfoViewModel.conversationInfoViewState.isWireCellEnabled) {
-                messageAttachmentsViewModel.onFilesSelected(listOf(it.uri))
+                if (it.isCameraCapture) {
+                    messageAttachmentsViewModel.onCameraCaptured(it.uri)
+                } else {
+                    messageAttachmentsViewModel.onFilesSelected(listOf(it.uri))
+                }
                 messageComposerStateHolder.messageCompositionInputStateHolder.showAttachments(false)
             } else {
                 val bundle = ComposableMessageBundle.UriPickedBundle(conversationInfoViewModel.conversationId, it)

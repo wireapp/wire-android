@@ -481,6 +481,99 @@ class SendMessageViewModelTest {
         }
 
     @Test
+    fun `given a camera capture is handled successfully, when sending, then the capture file is deleted`() =
+        runTest {
+            val mockedAttachment = AssetBundle(
+                "key",
+                "image/jpeg",
+                "some-data-path".toPath(),
+                1L,
+                "image_attachment.jpg",
+                AttachmentType.IMAGE
+            )
+            val captureUri = "image_attachment.jpg".toUri()
+            val (arrangement, viewModel) = SendMessageViewModelArrangement()
+                .withSuccessfulViewModelInit()
+                .withSendAttachmentMessageResult(ScheduleNewAssetMessageResult.Success("some-message-id"))
+                .withHandleUriAsset(HandleUriAssetUseCase.Result.Success(mockedAttachment))
+                .arrange()
+
+            viewModel.trySendMessage(
+                ComposableMessageBundle.UriPickedBundle(conversationId, UriAsset(captureUri, isCameraCapture = true))
+            )
+            advanceUntilIdle()
+
+            verify(exactly = 1) { arrangement.fileManager.deleteCameraCapture(captureUri) }
+        }
+
+    @Test
+    fun `given a camera capture is too large, when sending, then the capture file is deleted`() =
+        runTest {
+            val mockedAttachment = AssetBundle(
+                "key",
+                "video/mp4",
+                "some-data-path".toPath(),
+                26L,
+                "video_attachment.mp4",
+                AttachmentType.VIDEO
+            )
+            val captureUri = "video_attachment.mp4".toUri()
+            val (arrangement, viewModel) = SendMessageViewModelArrangement()
+                .withSuccessfulViewModelInit()
+                .withHandleUriAsset(HandleUriAssetUseCase.Result.Failure.AssetTooLarge(mockedAttachment, 25))
+                .arrange()
+
+            viewModel.trySendMessage(
+                ComposableMessageBundle.UriPickedBundle(conversationId, UriAsset(captureUri, isCameraCapture = true))
+            )
+            advanceUntilIdle()
+
+            verify(exactly = 1) { arrangement.fileManager.deleteCameraCapture(captureUri) }
+        }
+
+    @Test
+    fun `given a camera capture fails to be handled, when sending, then the capture file is deleted`() =
+        runTest {
+            val captureUri = "image_attachment.jpg".toUri()
+            val (arrangement, viewModel) = SendMessageViewModelArrangement()
+                .withSuccessfulViewModelInit()
+                .withHandleUriAsset(HandleUriAssetUseCase.Result.Failure.Unknown)
+                .arrange()
+
+            viewModel.trySendMessage(
+                ComposableMessageBundle.UriPickedBundle(conversationId, UriAsset(captureUri, isCameraCapture = true))
+            )
+            advanceUntilIdle()
+
+            verify(exactly = 1) { arrangement.fileManager.deleteCameraCapture(captureUri) }
+        }
+
+    @Test
+    fun `given a picked file that is not a camera capture, when sending, then the file is not deleted`() =
+        runTest {
+            val mockedAttachment = AssetBundle(
+                "key",
+                "image/jpeg",
+                "some-data-path".toPath(),
+                1L,
+                "picked.jpg",
+                AttachmentType.IMAGE
+            )
+            val (arrangement, viewModel) = SendMessageViewModelArrangement()
+                .withSuccessfulViewModelInit()
+                .withSendAttachmentMessageResult(ScheduleNewAssetMessageResult.Success("some-message-id"))
+                .withHandleUriAsset(HandleUriAssetUseCase.Result.Success(mockedAttachment))
+                .arrange()
+
+            viewModel.trySendMessage(
+                ComposableMessageBundle.UriPickedBundle(conversationId, UriAsset("picked.jpg".toUri()))
+            )
+            advanceUntilIdle()
+
+            verify(exactly = 0) { arrangement.fileManager.deleteCameraCapture(any()) }
+        }
+
+    @Test
     fun `given that a user sends an ping message, when invoked, then sendKnockUseCase and pingRinger are called`() =
         runTest {
             // Given

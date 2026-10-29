@@ -27,6 +27,7 @@ import com.wire.android.ui.home.conversations.ConversationNavArgs
 import com.wire.android.ui.home.conversations.MessageSharedState
 import com.wire.android.ui.home.conversations.model.AssetBundle
 import com.wire.android.ui.home.conversations.usecase.HandleUriAssetUseCase
+import com.wire.android.util.FileManager
 import com.wire.android.util.ImageUtil
 import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.logic.data.id.ConversationId
@@ -135,6 +136,9 @@ internal class SendMessageViewModelArrangement {
     private lateinit var handleUriAssetUseCase: HandleUriAssetUseCase
 
     @MockK
+    lateinit var fileManager: FileManager
+
+    @MockK
     lateinit var retryFailedMessageUseCase: RetryFailedMessageUseCase
 
     @MockK
@@ -184,6 +188,7 @@ internal class SendMessageViewModelArrangement {
             dispatchers = TestDispatcherProvider(),
             kaliumFileSystem = fakeKaliumFileSystem,
             handleUriAsset = handleUriAssetUseCase,
+            fileManager = fileManager,
             imageUtil = imageUtil,
             pingRinger = pingRinger,
             sendKnock = sendKnockUseCase,

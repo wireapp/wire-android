@@ -305,12 +305,12 @@ internal fun buildAttachmentOptionItems(
     )
     val takePictureFlow = rememberTakePictureFlow(
         tempWritableImageUri,
-        { onFilePicked(UriAsset(it, false)) },
+        { onFilePicked(UriAsset(it, false, isCameraCapture = true)) },
         { onPermissionPermanentlyDenied(ConversationActionPermissionType.TakePicture) },
     )
     val captureVideoFlow = rememberCaptureVideoFlow(
         tempWritableVideoUri,
-        { onFilePicked(UriAsset(it, true)) },
+        { onFilePicked(UriAsset(it, true, isCameraCapture = true)) },
         { onPermissionPermanentlyDenied(ConversationActionPermissionType.CaptureVideo) },
     )
 

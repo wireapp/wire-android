@@ -1,0 +1,124 @@
+name: QA Android Prod Regression RC
+run-name: ${{ inputs.runMode == 'Deflake failed tests' && format('QA Android Prod Regression RC - Manual Deflake from {0}', inputs.sourceRunId || 'latest completed run') || 'QA Android Prod Regression RC' }}
+
+# The reused pipeline owns the device-group and runner locks.
+on:
+  workflow_dispatch:
+    inputs:
+      runMode:
+        description: "Run tests (default '@RC') or deflake failures from this workflow."
+        required: true
+        default: "Normal tests"
+        type: choice
+        options:
+          - Normal tests
+          - Deflake failed tests
+
+      testinyRunName:
+        description: "Optional: leave blank to create a Testiny run named from the APK version, Berlin date and CI run number (e.g. v4.37.0-47150-prod-regression-28/10/2026-run-25). Enter a name to override. Deflake reuses the original name."
+        required: false
+        default: ""
+        type: string
+
+      sourceRunId:
+        description: "Deflake only: leave empty for the latest completed Prod Regression RC run, or enter a specific 'manual deflake id'."
+        required: false
+        default: ""
+        type: string
+
+      testServiceUrl:
+        description: "Test Service URL. Leave empty to use the default test service."
+        required: false
+        default: ""
+        type: string
+
+      appBuildNumber:
+        description: "Normal runs only: 'latest' or build number (e.g. 71389). Deflake reuses the source build."
+        required: true
+        default: "latest"
+        type: string
+
+      isUpgrade:
+        description: "Include upgrade tests that update Wire from an older build."
+        required: true
+        default: true
+        type: boolean
+
+      oldBuildNumber:
+        description: "Old build number (optional). Upgrade tests use the previous build unless specified."
+        required: false
+        default: ""
+        type: string
+
+      flavor:
+        description: "Normal runs only: app flavor. Deflake reuses the source flavor."
+        required: true
+        type: choice
+        options:
+          - alpha release candidate
+          - alpha beta
+          - experimental
+          - debug
+          - fdroid
+          - production
+        default: production
+
+      TAGS:
+        description: "Defaults to '@RC'. Enter another tag or test ID, e.g. '@criticalFlow' or '@TC-8143'."
+        required: false
+        default: "@RC"
+        type: string
+
+      androidDeviceId:
+        description: "Device ID (optional). Enter a device serial to run on one device instead of the whole group."
+        required: false
+        default: ""
+        type: string
+
+      androidDeviceGroup:
+        description: "Device group to run tests on."
+        required: true
+        default: "e2eTests"
+        type: string
+
+      rerunFailedCount:
+        description: "Retry count (0–3). Leave blank to use the default. Normal runs: 2 retries · Deflake: 0 retries."
+        required: false
+        default: ""
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  run-tests:
+    uses: ./.github/workflows/qa-android-regression-tests.yml
+    permissions:
+      contents: write
+      actions: read
+    with:
+      workflowTitle: QA Android Prod Regression RC
+      sourceWorkflowFile: .github/workflows/qa-android-prod-tests.yml
+      reportTitle: android prod regression rc
+      reportDirectory: qa-prod-tests
+      jobTimeoutMinutes: 200
+      runMode: ${{ inputs.runMode || 'Normal tests' }}
+      sourceRunId: ${{ inputs.sourceRunId || '' }}
+      testServiceUrl: ${{ inputs.testServiceUrl || '' }}
+      appBuildNumber: ${{ inputs.appBuildNumber || 'latest' }}
+      isUpgrade: ${{ inputs.isUpgrade }}
+      oldBuildNumber: ${{ inputs.oldBuildNumber || '' }}
+      flavor: ${{ inputs.flavor || 'production' }}
+      TAGS: ${{ inputs.TAGS }}
+      autoTestinyRun: true
+      testinyRunName: ${{ inputs.testinyRunName || '' }}
+      androidDeviceId: ${{ inputs.androidDeviceId || '' }}
+      androidDeviceGroup: ${{ inputs.androidDeviceGroup || 'e2eTests' }}
+      rerunFailedCount: ${{ inputs.rerunFailedCount || (inputs.runMode != 'Deflake failed tests' && '2' || '') }}
+    secrets:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
+      OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
+      WIRE_QA_AUTOMATION_CHANNEL_URL: ${{ secrets.WIRE_QA_AUTOMATION_CHANNEL_URL }}
+      WIRE_QA_AUTOMATION_CHANNEL_TOKEN: ${{ secrets.WIRE_QA_AUTOMATION_CHANNEL_TOKEN }}

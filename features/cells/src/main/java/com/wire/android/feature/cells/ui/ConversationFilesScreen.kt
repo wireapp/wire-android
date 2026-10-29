@@ -581,22 +581,18 @@ private fun fabCornerRadius(): Dp = dimensions().corner16x
 private fun pillCornerRadius(): Dp = dimensions().spacing32x
 
 private fun bulkActions(offlineFilesEnabled: Boolean): ImmutableList<CellBulkAction> =
-    CellBulkAction.entries
-        .filter { it != CellBulkAction.MakeAvailableOffline || offlineFilesEnabled }
-        .toPersistentList()
-
-private fun CellBulkAction.toIntent(): CellViewIntent = when (this) {
-    CellBulkAction.Move -> CellViewIntent.OnMoveSelectedNodesClick
-    CellBulkAction.Delete -> CellViewIntent.OnDeleteSelectedNodesClick
-    CellBulkAction.MakeAvailableOffline -> CellViewIntent.OnMakeSelectedNodesAvailableOfflineClick
-}
+    listOfNotNull(
+        CellBulkAction.Move,
+        CellBulkAction.Delete,
+        CellBulkAction.MakeAvailableOffline.takeIf { offlineFilesEnabled },
+    ).toPersistentList()
 
 /**
  * Rolls the title up when the selection count grows and down when it shrinks, so entering selection mode
  * (0 -> 1), picking more items and leaving it (1 -> 0) all share one motion.
  */
 @Composable
-private fun SelectionAwareTitle(title: String, selectedCount: Int) {
+internal fun SelectionAwareTitle(title: String, selectedCount: Int) {
     AnimatedContent(
         targetState = selectedCount,
         contentAlignment = Alignment.Center,

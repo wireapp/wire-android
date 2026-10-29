@@ -638,18 +638,78 @@ class CellViewModelTest {
             viewModel.sendIntent(CellViewIntent.OnBulkDeleteConfirmed)
             advanceUntilIdle()
 
-            assertEquals(ShowNodesDeletedMessage(deletedCount = 2), awaitItem())
+            assertEquals(ShowNodesDeletedMessage(deletedCount = 2, permanently = false), awaitItem())
         }
         coVerify(exactly = 1) {
             arrangement.deleteCellAssetsUseCase(
                 listOf(
                     NodeToDelete(uuid = "fileUuid", localPath = "localPath"),
                     NodeToDelete(uuid = "fileUuid2", localPath = null),
-                )
+                ),
+                permanentDelete = false,
             )
         }
         assertNull(viewModel.bulkDeleteDialog.value)
         assertTrue(viewModel.selectedNodes.value.isEmpty())
+    }
+
+    @Test
+    fun `given the recycle bin when selected nodes are deleted then they are deleted for good`() = runTest {
+        val (arrangement, viewModel) = Arrangement()
+            .withConversationId("conversationId")
+            .withRecycleBin()
+            .withBulkDeleteReturning(Unit.right())
+            .arrange()
+        val nodes = testFiles.map { it.toUiModel() }
+        selectNodes(viewModel, nodes)
+
+        viewModel.sendIntent(CellViewIntent.OnDeleteSelectedNodesClick)
+        assertEquals(BulkDeleteDialog.Confirmation(nodes, isPermanentDelete = true), viewModel.bulkDeleteDialog.value)
+
+        viewModel.actions.test {
+            viewModel.sendIntent(CellViewIntent.OnBulkDeleteConfirmed)
+            advanceUntilIdle()
+
+            assertEquals(ShowNodesDeletedMessage(deletedCount = 2, permanently = true), awaitItem())
+        }
+        coVerify(exactly = 1) { arrangement.deleteCellAssetsUseCase(any(), permanentDelete = true) }
+    }
+
+    @Test
+    fun `given the recycle bin when a single selected node is deleted then show the permanently deleted message`() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withConversationId("conversationId")
+            .withRecycleBin()
+            .withBulkDeleteReturning(Unit.right())
+            .arrange()
+        selectNodes(viewModel, listOf(testFiles[0].toUiModel()))
+        viewModel.sendIntent(CellViewIntent.OnDeleteSelectedNodesClick)
+
+        viewModel.actions.test {
+            viewModel.sendIntent(CellViewIntent.OnBulkDeleteConfirmed)
+            advanceUntilIdle()
+
+            assertEquals(ShowFileDeletedMessage(isFile = true, permanently = true), awaitItem())
+        }
+    }
+
+    @Test
+    fun `given the recycle bin when the bulk delete fails then show a permanent delete failure`() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withConversationId("conversationId")
+            .withRecycleBin()
+            .withBulkDeleteReturning(NetworkFailure.NoNetworkConnection(null).left())
+            .arrange()
+        selectNodes(viewModel, testFiles.map { it.toUiModel() })
+        viewModel.sendIntent(CellViewIntent.OnDeleteSelectedNodesClick)
+
+        viewModel.sendIntent(CellViewIntent.OnBulkDeleteConfirmed)
+        advanceUntilIdle()
+
+        assertEquals(
+            BulkDeleteDialog.Failure(totalCount = 2, isNoNetworkConnection = true, isPermanentDelete = true),
+            viewModel.bulkDeleteDialog.value
+        )
     }
 
     @Test
@@ -1124,6 +1184,7 @@ class CellViewModelTest {
     ) {
 
         private var searchNavArgs: SearchNavArgs? = null
+        private var isRecycleBin: Boolean = false
 
         @MockK
         lateinit var getCellFilesPagedUseCase: GetPaginatedFilesFlowUseCase
@@ -1313,6 +1374,10 @@ class CellViewModelTest {
          * Restricts the self user to viewer access, which turns bulk selection off. Note the inverted use case: it returns
          * false for viewer-only users (and true, the default here, for everyone else).
          */
+        fun withRecycleBin() = apply {
+            isRecycleBin = true
+        }
+
         fun withViewerOnlyAccess() = apply {
             coEvery { isSelfUserViewerOnConversation(any()) } returns false
         }
@@ -1351,7 +1416,7 @@ class CellViewModelTest {
             )
 
             return this to CellViewModel(
-                navArgs = CellFilesNavArgs(conversationId = conversationId),
+                navArgs = CellFilesNavArgs(conversationId = conversationId, isRecycleBin = isRecycleBin),
                 searchNavArgs = searchNavArgs,
                 getCellFilesPaged = getCellFilesPagedUseCase,
                 deleteCellAsset = deleteCellAssetUseCase,

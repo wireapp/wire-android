@@ -307,7 +307,7 @@ internal fun com.wire.android.feature.cells.ui.ReadyIconPreview(): kotlin.Unit
   params:
 
 @Composable
-private fun com.wire.android.feature.cells.ui.SelectionAwareTitle(title: kotlin.String, selectedCount: kotlin.Int): kotlin.Unit
+internal fun com.wire.android.feature.cells.ui.SelectionAwareTitle(title: kotlin.String, selectedCount: kotlin.Int): kotlin.Unit
   skippable: true
   restartable: true
   params:

@@ -18,13 +18,16 @@
 
 package com.wire.android
 
+import android.content.Context
 import com.wire.android.datastore.UserDataStoreProvider
+import com.wire.android.di.ApplicationContext
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.notification.NotificationChannelsManager
 import com.wire.android.notification.MeetingReminderScheduler
 import com.wire.android.notification.WireNotificationManager
 import com.wire.android.services.SendPendingMessagesAfterForegroundSyncUseCase
 import com.wire.android.util.CurrentScreenManager
+import com.wire.android.util.deleteFileProviderSharedCacheDirectory
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.logout.LogoutReason
@@ -61,6 +64,7 @@ import dev.zacsweers.metro.SingleIn
 @Suppress("LongParameterList")
 @SingleIn(AppScope::class)
 class GlobalObserversManager @Inject constructor(
+    @ApplicationContext private val context: Context,
     dispatcherProvider: DispatcherProvider,
     @KaliumCoreLogic private val coreLogic: CoreLogic,
     private val notificationManager: WireNotificationManager,
@@ -153,6 +157,7 @@ class GlobalObserversManager @Inject constructor(
                     notificationManager.stopObservingOnLogout(userId)
                     if (reason != LogoutReason.SELF_SOFT_LOGOUT) {
                         userDataStoreProvider.getOrCreate(userId).clear()
+                        context.deleteFileProviderSharedCacheDirectory()
                     }
                 }
             }

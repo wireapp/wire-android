@@ -38,6 +38,7 @@ import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.SingleIn
 
 @SingleIn(AppScope::class)
+@Suppress("TooManyFunctions")
 class FileManager @Inject constructor(@ApplicationContext private val context: Context) {
     suspend fun saveToExternalStorage(
         assetName: String,
@@ -113,6 +114,10 @@ class FileManager @Inject constructor(@ApplicationContext private val context: C
     ): Uri = withContext(dispatcher.io()) {
         val tempImagePath = "$tempCachePath/$TEMP_IMG_ATTACHMENT_FILENAME".toPath()
         return@withContext getTempWritableAttachmentUri(context, tempImagePath)
+    }
+
+    fun deleteCameraCapture(uri: Uri) {
+        context.deleteFileProviderSharedCacheFile(uri)
     }
 
     // TODO we should handle those errors more user friendly

@@ -17,6 +17,7 @@
  */
 package com.wire.android
 
+import android.content.Context
 import com.wire.android.common.runTestWithCancellation
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.TestDispatcherProvider
@@ -36,6 +37,7 @@ import com.wire.kalium.logic.data.logout.LogoutReason
 import com.wire.kalium.logic.data.team.Team
 import com.wire.kalium.logic.data.user.SelfUser
 import com.wire.kalium.logic.feature.UserSessionScope
+import com.wire.kalium.logic.feature.auth.LogoutCallback
 import com.wire.kalium.logic.feature.auth.LogoutCallbackManager
 import com.wire.kalium.logic.feature.call.CallsScope
 import com.wire.kalium.logic.feature.call.usecase.EndCallOnConversationChangeUseCase
@@ -51,7 +53,11 @@ import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.verify
+import io.mockk.mockk
+import io.mockk.slot
 import junit.framework.TestCase.assertEquals
+import junit.framework.TestCase.assertFalse
+import junit.framework.TestCase.assertTrue
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -59,11 +65,18 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runCurrent
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import org.junit.jupiter.api.io.TempDir
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.EnumSource
+import java.io.File
 import java.util.concurrent.atomic.AtomicInteger
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(CoroutineTestExtension::class)
 class GlobalObserversManagerTest {
+
+    @TempDir
+    lateinit var cacheDirectory: File
 
     @Test
     fun `given few valid accounts, when starting observing accounts, then create user-specific notification channels`() {
@@ -343,7 +356,38 @@ class GlobalObserversManagerTest {
             assertEquals(1, cancelledObservers.get())
         }
 
-    private class Arrangement {
+    @ParameterizedTest
+    @EnumSource(LogoutReason::class, names = ["SELF_SOFT_LOGOUT"], mode = EnumSource.Mode.EXCLUDE)
+    fun `given a logout that is not a soft logout, when it happens, then delete the shared file provider cache`(reason: LogoutReason) =
+        runTestWithCancellation {
+            val sharedFile = File(cacheDirectory, "file-provider-shares").apply(File::mkdirs).resolve("image_attachment.jpg")
+                .apply { writeText("photo") }
+            val (arrangement, manager) = Arrangement(cacheDirectory).arrange()
+            manager.observe()
+            runCurrent()
+
+            arrangement.logoutCallback.invoke(TestUser.SELF_USER.id, reason)
+
+            assertFalse(sharedFile.exists())
+        }
+
+    @Test
+    fun `given a soft logout, when it happens, then keep the shared file provider cache`() = runTestWithCancellation {
+        val sharedFile = File(cacheDirectory, "file-provider-shares").apply(File::mkdirs).resolve("image_attachment.jpg")
+            .apply { writeText("photo") }
+        val (arrangement, manager) = Arrangement(cacheDirectory).arrange()
+        manager.observe()
+        runCurrent()
+
+        arrangement.logoutCallback.invoke(TestUser.SELF_USER.id, LogoutReason.SELF_SOFT_LOGOUT)
+
+        assertTrue(sharedFile.exists())
+    }
+
+    private class Arrangement(private val cacheDirectory: File = File("unused-cache")) {
+
+        private val logoutCallbackSlot = slot<LogoutCallback>()
+        val logoutCallback: LogoutCallback get() = logoutCallbackSlot.captured
 
         @MockK
         lateinit var coreLogic: CoreLogic
@@ -388,6 +432,7 @@ class GlobalObserversManagerTest {
 
         private val manager by lazy {
             GlobalObserversManager(
+                context = mockk<Context> { every { cacheDir } returns cacheDirectory },
                 dispatcherProvider = TestDispatcherProvider(),
                 coreLogic = coreLogic,
                 notificationChannelsManager = notificationChannelsManager,
@@ -409,6 +454,8 @@ class GlobalObserversManagerTest {
             mockUri()
             every { notificationChannelsManager.createUserNotificationChannels(any()) } returns Unit
             every { coreLogic.getGlobalScope().logoutCallbackManager } returns logoutCallbackManager
+            every { logoutCallbackManager.register(capture(logoutCallbackSlot)) } returns Unit
+            coEvery { userDataStoreProvider.getOrCreate(any()).clear() } returns Unit
             every { coreLogic.getSessionScope(any()) } returns userSessionScope
             every { callsScope.endCallOnConversationChange } returns endCallOnConversationChangeUseCase
             coEvery { endCallOnConversationChangeUseCase.invoke() } returns Unit

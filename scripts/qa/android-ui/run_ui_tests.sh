@@ -504,15 +504,16 @@ run_attempt_on_devices() {
         fi
       fi
 
+      # Exclusions remain active for explicit retry/deflake lists as well.
+      if [[ -n "${EXCLUDE_CATEGORY:-}" ]]; then
+        args+=(-e excludeCategory "${EXCLUDE_CATEGORY}")
+      fi
       if attempt_uses_selector_mode "${attempt}"; then
         if [[ -n "${RESOLVED_TESTCASE_ID:-}" ]]; then
           args+=(-e testCaseId "${RESOLVED_TESTCASE_ID}")
         fi
         if [[ -n "${RESOLVED_CATEGORY:-}" ]]; then
           args+=(-e category "${RESOLVED_CATEGORY}")
-        fi
-        if [[ -n "${EXCLUDE_CATEGORY:-}" ]]; then
-          args+=(-e excludeCategory "${EXCLUDE_CATEGORY}")
         fi
         if [[ -n "${REQUIRED_CATEGORY:-}" ]]; then
           args+=(-e requiredCategory "${REQUIRED_CATEGORY}")

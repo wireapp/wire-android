@@ -1,0 +1,120 @@
+name: QA Android Emulator Critical Flow Tests
+run-name: ${{ inputs.runMode == 'Deflake failed tests' && format('QA Android Emulator Critical Flow Tests - Manual Deflake from {0}', inputs.sourceRunId || 'latest completed run') || 'QA Android Emulator Critical Flow Tests' }}
+
+# The reused pipeline owns the device-group lock.
+on:
+  # Uncomment merge_group when the team is ready to enable automatic merge queue runs.
+  # merge_group:
+  #   types: [checks_requested]
+  schedule:
+    - cron: "0 7 * * *"
+      timezone: "Europe/Berlin"
+  workflow_dispatch:
+    inputs:
+      runMode:
+        description: "Run tests (default '@criticalFlow') or deflake failures from this workflow."
+        required: true
+        default: "Normal tests"
+        type: choice
+        options:
+          - Normal tests
+          - Deflake failed tests
+
+      sourceRunId:
+        description: "Deflake only: leave empty for the latest completed Emulator Critical Flow run, or enter a specific 'manual deflake id'."
+        required: false
+        default: ""
+        type: string
+
+      testServiceUrl:
+        description: "Test Service URL. Leave empty to use the default test service."
+        required: false
+        default: ""
+        type: string
+
+      appBuildNumber:
+        description: "Normal runs only: 'latest' or build number (e.g. 71389). Deflake reuses the source build."
+        required: true
+        default: "latest"
+        type: string
+
+      flavor:
+        description: "Normal runs only: app flavor. Deflake reuses the source flavor."
+        required: true
+        type: choice
+        options:
+          - alpha release candidate
+          - alpha beta
+          - experimental
+          - debug
+          - fdroid
+          - production
+        default: alpha release candidate
+
+      TAGS:
+        description: "Defaults to '@criticalFlow'. Enter another tag or test ID, e.g. '@TC-8143'. Upgrade tests are excluded."
+        required: false
+        default: "@criticalFlow"
+        type: string
+
+      testinyRunName:
+        description: "Normal runs only: TESTINY_RUN_NAME. Deflake automatically reuses the source run's setting."
+        required: false
+        default: ""
+        type: string
+
+      androidDeviceId:
+        description: "Emulator serial (optional), e.g. emulator-5554. Leave blank to use the pool."
+        required: false
+        default: ""
+        type: string
+
+      androidDeviceGroup:
+        description: "Critical-flow tests run on the four-emulator pool."
+        required: true
+        default: "criticalFlow"
+        type: choice
+        options:
+          - criticalFlow
+
+      rerunFailedCount:
+        description: "Retry count (0–3). Leave blank to use the default. Normal runs: 1 retry · Deflake: 0 retries."
+        required: false
+        default: ""
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  run-tests:
+    uses: ./.github/workflows/qa-android-regression-tests.yml
+    permissions:
+      contents: write
+      actions: read
+    with:
+      workflowTitle: QA Android Emulator Critical Flow Tests
+      sourceWorkflowFile: .github/workflows/qa-android-emulator-critical-flow-tests.yml
+      reportTitle: android emulator critical flow tests
+      reportDirectory: qa-emulator-critical-flow-tests
+      jobTimeoutMinutes: 35
+      requiredDeviceGroup: criticalFlow
+      emulatorPool: true
+      runMode: ${{ inputs.runMode || 'Normal tests' }}
+      sourceRunId: ${{ inputs.sourceRunId || '' }}
+      testServiceUrl: ${{ inputs.testServiceUrl || '' }}
+      appBuildNumber: ${{ inputs.appBuildNumber || 'latest' }}
+      isUpgrade: false
+      flavor: ${{ inputs.flavor || 'alpha release candidate' }}
+      TAGS: ${{ inputs.TAGS || '@criticalFlow' }}
+      testinyRunName: ${{ inputs.testinyRunName || '' }}
+      androidDeviceId: ${{ inputs.androidDeviceId || '' }}
+      androidDeviceGroup: criticalFlow
+      rerunFailedCount: ${{ inputs.rerunFailedCount || '' }}
+    secrets:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
+      OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
+      WIRE_QA_AUTOMATION_CHANNEL_URL: ${{ secrets.WIRE_QA_AUTOMATION_CHANNEL_URL }}
+      WIRE_QA_AUTOMATION_CHANNEL_TOKEN: ${{ secrets.WIRE_QA_AUTOMATION_CHANNEL_TOKEN }}

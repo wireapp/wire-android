@@ -4,7 +4,7 @@ androidJunit5 = "2.0.1"
 
 # Kotlin
 grgitCore = "5.3.3"
-kotlin = "2.3.20"
+kotlin = "2.4.20"
 
 # KotlinX
 coroutines = "1.11.0"
@@ -32,7 +32,7 @@ kover = "0.9.11"
 
 # AndroidX
 androidx-appcompat = "1.8.0"
-androidx-core = "1.16.0"
+androidx-core = "1.19.1"
 androidx-dataStore = "1.2.1"
 androidx-exif = "1.4.2"
 androidx-emoji = "1.7.0"
@@ -54,7 +54,7 @@ composeBom = "2026.09.00"
 compose-activity = "1.13.0"
 compose-constraint = "1.1.2"
 compose-multiplatform-navigation3 = "1.1.1"
-compose-stability-analyzer = "0.8.0"
+compose-stability-analyzer = "0.15.0"
 screenshot = "0.0.1-alpha14"
 jetbrains-compose = "1.10.3"
 # TODO(KMP): switch Compose MPP material3 to stable when available for this stack.
@@ -90,7 +90,7 @@ openIdAppAuth = "0.11.1"
 aboutLibraries = "15.2.0"
 cyclonedx = "3.1.0"
 leakCanary = "2.14"
-ksp = "2.3.11"
+ksp = "2.3.12"
 kermitIo = "2.0.5"
 
 # Benchmark

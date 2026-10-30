@@ -1,11 +1,11 @@
-name: QA Android F-Droid Tests
-run-name: ${{ inputs.runMode == 'Deflake failed tests' && format('QA Android F-Droid Tests - Manual Deflake from {0}', inputs.sourceRunId || 'latest completed run') || 'QA Android F-Droid Tests' }}
+name: QA Android F-Droid Prod Regression
+run-name: ${{ inputs.runMode == 'Deflake failed tests' && format('QA Android F-Droid Prod Regression - Manual Deflake from {0}', inputs.sourceRunId || 'latest completed run') || 'QA Android F-Droid Prod Regression' }}
 
 # The reused pipeline owns the device-group lock.
 on:
-  # GitHub schedules use UTC. 03:00 UTC is 05:00 in Berlin in summer, 04:00 in winter.
-  schedule:
-    - cron: "0 3 * * *"
+  # schedule:
+  #   - cron: "0 8 * * *"
+  #     timezone: "Europe/Berlin"
   workflow_dispatch:
     inputs:
       runMode:
@@ -97,9 +97,9 @@ jobs:
       contents: write
       actions: read
     with:
-      workflowTitle: QA Android F-Droid Tests
+      workflowTitle: QA Android F-Droid Prod Regression
       sourceWorkflowFile: .github/workflows/qa-android-fdroid-tests.yml
-      reportTitle: android fdroid tests
+      reportTitle: android fdroid prod regression
       reportDirectory: qa-fdroid-tests
       jobTimeoutMinutes: 40
       requiredDeviceGroup: GrapheneOS
@@ -115,4 +115,10 @@ jobs:
       androidDeviceId: ${{ inputs.androidDeviceId || '' }}
       androidDeviceGroup: GrapheneOS
       rerunFailedCount: ${{ inputs.rerunFailedCount || '' }}
-    secrets: inherit
+    secrets:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
+      OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
+      WIRE_QA_AUTOMATION_CHANNEL_URL: ${{ secrets.WIRE_QA_AUTOMATION_CHANNEL_URL }}
+      WIRE_QA_AUTOMATION_CHANNEL_TOKEN: ${{ secrets.WIRE_QA_AUTOMATION_CHANNEL_TOKEN }}

@@ -22,7 +22,6 @@ import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.EnterExitState
-import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.animation.SharedTransitionScope.ResizeMode.Companion.RemeasureToBounds
 import androidx.compose.animation.core.animateDp
@@ -63,8 +62,11 @@ import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.wire.android.feature.cells.R
 import com.wire.android.feature.cells.domain.model.AttachmentFileType
+import com.wire.android.feature.cells.ui.common.BulkSelectionHint
 import com.wire.android.feature.cells.ui.common.OfflineBanner
 import com.wire.android.feature.cells.ui.create.FileTypeBottomSheetDialog
+import com.wire.android.feature.cells.ui.dialog.BulkDeleteDialog
+import com.wire.android.feature.cells.ui.dialog.BulkDeleteDialogs
 import com.wire.android.feature.cells.ui.dialog.CellsNewActionBottomSheet
 import com.wire.android.feature.cells.ui.dialog.CellsOptionsBottomSheet
 import com.wire.android.feature.cells.ui.model.CellNodeUi
@@ -97,6 +99,7 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.permission.rememberChooseMultipleFilesFlow
 import com.wire.kalium.cells.domain.CellUploadItem
 import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toPersistentList
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -168,8 +171,11 @@ internal fun ConversationFilesRouteScreen(
         isSelfUserViewerOnly = viewModel.isSelfUserViewerOnly.collectAsState().value,
         driveDirectUploadEnabled = viewModel.driveDirectUploadEnabled,
         onViewerAccessBannerCloseClick = viewModel::onViewerAccessBannerDismissed,
+        showBulkSelectionHint = viewModel.showBulkSelectionHint.collectAsState().value,
+        onBulkSelectionHintDismiss = viewModel::onBulkSelectionHintDismissed,
         selectedNodes = viewModel.selectedNodes.collectAsState().value,
         isBulkSelectionEnabled = viewModel.isBulkSelectionEnabled.collectAsState().value,
+        bulkDeleteDialog = viewModel.bulkDeleteDialog.collectAsState().value,
         offlineFilesEnabled = viewModel.offlineFilesEnabled,
     )
 
@@ -178,7 +184,6 @@ internal fun ConversationFilesRouteScreen(
     }
 }
 
-@OptIn(ExperimentalSharedTransitionApi::class)
 @Suppress("CyclomaticComplexMethod")
 @Composable
 internal fun ConversationFilesScreenContent(
@@ -208,6 +213,8 @@ internal fun ConversationFilesScreenContent(
     isSelfUserViewerOnly: Boolean = false,
     driveDirectUploadEnabled: Boolean = false,
     onViewerAccessBannerCloseClick: () -> Unit = {},
+    showBulkSelectionHint: Boolean = false,
+    onBulkSelectionHintDismiss: () -> Unit = {},
     uploads: List<CellUploadItem> = emptyList(),
     onCancelUpload: (String) -> Unit = {},
     onCancelAllUploads: () -> Unit = {},
@@ -220,6 +227,7 @@ internal fun ConversationFilesScreenContent(
     onCancelUploadConfirmation: () -> Unit = {},
     selectedNodes: Map<String, CellNodeUi> = emptyMap(),
     isBulkSelectionEnabled: Boolean = false,
+    bulkDeleteDialog: BulkDeleteDialog? = null,
     offlineFilesEnabled: Boolean = false,
 ) {
     val sharedScope = LocalSharedTransitionScope.current
@@ -335,6 +343,14 @@ internal fun ConversationFilesScreenContent(
         )
     }
 
+    bulkDeleteDialog?.let { dialog ->
+        BulkDeleteDialogs(
+            dialog = dialog,
+            onConfirm = { sendIntent(CellViewIntent.OnBulkDeleteConfirmed) },
+            onDismiss = { sendIntent(CellViewIntent.OnBulkDeleteDialogDismissed) },
+        )
+    }
+
     with(sharedScope) {
         WireScaffold(
             modifier = modifier,
@@ -403,6 +419,16 @@ internal fun ConversationFilesScreenContent(
                     if (isOnline) {
                         if (showViewerAccessBanner) {
                             ViewerAccessBanner(onCloseClick = onViewerAccessBannerCloseClick)
+                        }
+
+                        // Hidden while selecting; with fewer than two items there is nothing to select several of.
+                        // Not in the recycle bin's folders: the tip isn't shown in the recycle bin either.
+                        AnimatedVisibility(
+                            visible = showBulkSelectionHint && !isRecycleBin && !isSelectionMode && pagingListItems.itemCount >= 2,
+                            enter = expandVertically(expandFrom = Alignment.Top) + fadeIn(),
+                            exit = shrinkVertically(shrinkTowards = Alignment.Top) + fadeOut(),
+                        ) {
+                            BulkSelectionHint(onDismiss = onBulkSelectionHintDismiss)
                         }
 
                         if (!isRecycleBin) {
@@ -529,7 +555,7 @@ internal fun ConversationFilesScreenContent(
                         if (state == EnterExitState.Visible) pillCornerRadius() else fabCornerRadius()
                     }
                     CellBulkActionsBar(
-                        actions = remember(offlineFilesEnabled) { bulkActions(offlineFilesEnabled) },
+                        actions = remember(offlineFilesEnabled, isRecycleBin) { bulkActions(offlineFilesEnabled, isRecycleBin) },
                         onActionClick = { action -> sendIntent(action.toIntent()) },
                         shape = RoundedCornerShape(barCornerRadius),
                         modifier = Modifier.sharedBounds(
@@ -554,23 +580,24 @@ private fun fabCornerRadius(): Dp = dimensions().corner16x
 @Composable
 private fun pillCornerRadius(): Dp = dimensions().spacing32x
 
-private fun bulkActions(offlineFilesEnabled: Boolean): ImmutableList<CellBulkAction> =
-    CellBulkAction.entries
-        .filter { it != CellBulkAction.MakeAvailableOffline || offlineFilesEnabled }
-        .toPersistentList()
-
-private fun CellBulkAction.toIntent(): CellViewIntent = when (this) {
-    CellBulkAction.Move -> CellViewIntent.OnMoveSelectedNodesClick
-    CellBulkAction.Delete -> CellViewIntent.OnDeleteSelectedNodesClick
-    CellBulkAction.MakeAvailableOffline -> CellViewIntent.OnMakeSelectedNodesAvailableOfflineClick
-}
+// This screen also shows the folders inside the recycle bin, where only the recycle bin actions apply.
+private fun bulkActions(offlineFilesEnabled: Boolean, isRecycleBin: Boolean): ImmutableList<CellBulkAction> =
+    if (isRecycleBin) {
+        persistentListOf(CellBulkAction.Restore, CellBulkAction.DeletePermanently)
+    } else {
+        listOfNotNull(
+            CellBulkAction.Move,
+            CellBulkAction.Delete,
+            CellBulkAction.MakeAvailableOffline.takeIf { offlineFilesEnabled },
+        ).toPersistentList()
+    }
 
 /**
  * Rolls the title up when the selection count grows and down when it shrinks, so entering selection mode
  * (0 -> 1), picking more items and leaving it (1 -> 0) all share one motion.
  */
 @Composable
-private fun SelectionAwareTitle(title: String, selectedCount: Int) {
+internal fun SelectionAwareTitle(title: String, selectedCount: Int) {
     AnimatedContent(
         targetState = selectedCount,
         contentAlignment = Alignment.Center,

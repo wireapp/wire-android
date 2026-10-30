@@ -80,12 +80,14 @@
     </plurals>
     <string name="cells_upload_status_title_complete">Upload abgeschlossen</string>
     <string name="cells_upload_status_title_partial">%1$d von %2$d hochgeladen</string>
+    <string name="cells_upload_status_title_failed_partial">%1$d von %2$d nicht hochgeladen</string>
     <plurals name="cells_upload_status_subtitle_failed_count">
         <item quantity="one">%1$d nicht hochgeladen</item>
         <item quantity="other">%1$d nicht hochgeladen</item>
     </plurals>
     <string name="cells_upload_status_subtitle_queued">Warten…</string>
     <string name="cells_upload_status_subtitle_uploading">Hochladen…</string>
+    <string name="cells_upload_status_subtitle_paused">Warten auf Netzwerk…</string>
     <string name="cells_upload_status_subtitle_completed_with_size">%1$s hochgeladen</string>
     <string name="cells_upload_status_subtitle_failed">Datei nicht hochgeladen</string>
     <string name="cells_upload_status_subtitle_cancelled">Abgebrochen</string>
@@ -290,4 +292,28 @@
     <string name="cells_video_mute">Stummschalten</string>
     <string name="cells_video_unmute">Benachrichtigen</string>
     <string name="cells_video_loading">Video wird geladen</string>
+    <plurals name="cells_bulk_selection_count">
+        <item quantity="one">%1$d ausgewählt</item>
+        <item quantity="other">%1$d ausgewählt</item>
+    </plurals>
+    <string name="cells_bulk_selection_cancel_content_description">Auswahl aufheben</string>
+    <!-- Badge marking a newly released feature, not the "create new" action of cells_new_label -->
+    <string name="cells_bulk_action_move">Verschieben</string>
+    <string name="cells_bulk_action_delete">Löschen</string>
+    <plurals name="cells_bulk_delete_confirmation_title">
+        <item quantity="one">%1$d Objekt löschen</item>
+        <item quantity="other">%1$d Objekte löschen</item>
+    </plurals>
+    <plurals name="cells_bulk_delete_confirmation_message">
+        <item quantity="one">%1$d Objekt wird in den Papierkorb dieser Unterhaltung verschoben.</item>
+        <item quantity="other">Diese %1$d Objekte werden in den Papierkorb dieser Unterhaltung verschoben.</item>
+    </plurals>
+    <plurals name="cells_bulk_delete_success">
+        <item quantity="one">%1$d Objekt wurde in den Papierkorb verschoben</item>
+        <item quantity="other">%1$d Objekte wurden in den Papierkorb verschoben</item>
+    </plurals>
+    <string name="cells_bulk_delete_failure_title_one">Objekt nicht gelöscht</string>
+    <string name="cells_bulk_delete_failure_title_many">Objekte nicht gelöscht</string>
+    <string name="cells_bulk_delete_failure_message_one">Beim Löschen des Objekts ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.</string>
+    <string name="cells_bulk_action_offline">Offline</string>
 </resources>

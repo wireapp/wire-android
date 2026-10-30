@@ -3,9 +3,9 @@ run-name: ${{ inputs.runMode == 'Deflake failed tests' && format('QA Android F-D
 
 # The reused pipeline owns the device-group lock.
 on:
-  # schedule:
-  #   - cron: "0 8 * * *"
-  #     timezone: "Europe/Berlin"
+  schedule:
+    - cron: "0 8 * * *"
+      timezone: "Europe/Berlin"
   workflow_dispatch:
     inputs:
       runMode:
@@ -74,12 +74,10 @@ on:
         type: string
 
       androidDeviceGroup:
-        description: "F-Droid tests run only on the GrapheneOS device group."
+        description: "Device group to run tests on. Defaults to GrapheneOS; enter another configured group to override."
         required: true
         default: "GrapheneOS"
-        type: choice
-        options:
-          - GrapheneOS
+        type: string
 
       rerunFailedCount:
         description: "Retry count (0–3). Leave blank to use the default. Normal runs: 1 retry · Deflake: 0 retries."
@@ -102,7 +100,6 @@ jobs:
       reportTitle: android fdroid prod regression
       reportDirectory: qa-fdroid-tests
       jobTimeoutMinutes: 40
-      requiredDeviceGroup: GrapheneOS
       runMode: ${{ inputs.runMode || 'Normal tests' }}
       sourceRunId: ${{ inputs.sourceRunId || '' }}
       testServiceUrl: ${{ inputs.testServiceUrl || '' }}
@@ -113,7 +110,7 @@ jobs:
       TAGS: ${{ github.event_name == 'schedule' && '@fdroid' || inputs.TAGS }}
       testinyRunName: ${{ inputs.testinyRunName || '' }}
       androidDeviceId: ${{ inputs.androidDeviceId || '' }}
-      androidDeviceGroup: GrapheneOS
+      androidDeviceGroup: ${{ inputs.androidDeviceGroup || 'GrapheneOS' }}
       rerunFailedCount: ${{ inputs.rerunFailedCount || '' }}
     secrets:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}

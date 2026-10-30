@@ -625,6 +625,7 @@ class CellViewModel @AssistedInject constructor(
      * Permanently deletes everything in the conversation's recycle bin in a single request. There is no rollback: if it
      * fails midway, some items may still have been deleted, so the list is refreshed either way.
      */
+    @Suppress("ReturnCount")
     private fun emptyRecycleBin() {
         val confirmation = _emptyRecycleBinDialog.value as? EmptyRecycleBinDialog.Confirmation ?: return
         if (confirmation.isInProgress) return

@@ -337,6 +337,13 @@
     <string name="cells_bulk_selection_hint_dismiss_content_description">Скрыть подсказку</string>
     <string name="cells_bulk_action_move">Переместить</string>
     <string name="cells_bulk_action_delete">Удалить</string>
+    <string name="cells_bulk_action_restore">Восстановить</string>
+    <plurals name="cells_bulk_restore_confirmation_title">
+        <item quantity="one">Восстановить %1$d элемент</item>
+        <item quantity="few">Восстановить %1$d элемента</item>
+        <item quantity="many">Восстановить %1$d элементов</item>
+        <item quantity="other">Восстановить %1$d элемента</item>
+    </plurals>
     <plurals name="cells_bulk_delete_confirmation_title">
         <item quantity="one">Удалить %1$d элемент</item>
         <item quantity="few">Удалить %1$d элемента</item>

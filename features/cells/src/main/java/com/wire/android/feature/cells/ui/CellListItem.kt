@@ -67,6 +67,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
@@ -147,8 +150,17 @@ internal fun CellListItem(
                 .weight(1f),
             verticalArrangement = Arrangement.spacedBy(dimensions().spacing2x)
         ) {
+            val viewerAccessDescription = stringResource(
+                R.string.cell_item_name_viewer_access_content_description,
+                cell.name.orEmpty()
+            )
             Text(
                 text = cell.name ?: "",
+                modifier = Modifier.semantics {
+                    if (showViewerOnlyIcon && cell.isViewerOnly) {
+                        contentDescription = viewerAccessDescription
+                    }
+                },
                 style = typography().title02,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
@@ -172,11 +184,15 @@ internal fun CellListItem(
         ) {
             Icon(
                 painter = painterResource(commonR.drawable.ic_more_vert),
-                contentDescription = null,
+                contentDescription = stringResource(
+                    R.string.content_description_cell_item_more_button,
+                    cell.name.orEmpty()
+                ),
                 modifier = Modifier
                     .padding(end = dimensions().spacing16x)
                     .clickable(
                         onClick = { onMenuClick() },
+                        role = Role.Button,
                         interactionSource = interactionSource,
                         indication = ripple(
                             bounded = false,

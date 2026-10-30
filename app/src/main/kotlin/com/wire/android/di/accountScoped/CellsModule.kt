@@ -26,6 +26,7 @@ import com.wire.kalium.cells.CellsScope
 import com.wire.kalium.cells.domain.CellUploadCoordinator
 import com.wire.kalium.cells.domain.CellUploadManager
 import com.wire.kalium.cells.domain.usecase.AddAttachmentDraftUseCase
+import com.wire.kalium.cells.domain.usecase.CheckCellNodeAvailabilityUseCase
 import com.wire.kalium.cells.domain.usecase.DeleteCellAssetUseCase
 import com.wire.kalium.cells.domain.usecase.DeleteCellAssetsUseCase
 import com.wire.kalium.cells.domain.usecase.EmptyRecycleBinUseCase
@@ -179,6 +180,10 @@ class CellsModule {
     @Provides
     fun provideEmptyRecycleBinUseCase(cellsScope: CellsScope): EmptyRecycleBinUseCase =
         cellsScope.emptyRecycleBin
+
+    @Provides
+    fun provideCheckCellNodeAvailabilityUseCase(cellsScope: CellsScope): CheckCellNodeAvailabilityUseCase =
+        cellsScope.checkCellNodeAvailability
 
     @Provides
     fun provideRenameNodeUseCase(cellsScope: CellsScope): RenameNodeUseCase =

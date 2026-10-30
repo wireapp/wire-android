@@ -3,9 +3,9 @@ run-name: ${{ inputs.runMode == 'Deflake failed tests' && format('QA Android F-D
 
 # The reused pipeline owns the device-group lock.
 on:
-  # schedule:
-  #   - cron: "0 8 * * *"
-  #     timezone: "Europe/Berlin"
+  schedule:
+    - cron: "0 8 * * *"
+      timezone: "Europe/Berlin"
   workflow_dispatch:
     inputs:
       runMode:

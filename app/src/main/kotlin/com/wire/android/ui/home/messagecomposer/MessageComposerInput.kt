@@ -376,8 +376,13 @@ internal fun MessageComposerTextInput(
             .applyIf(useKeyboardActivationGate) {
                 focusRequester(focusRequester)
                     .onPreviewKeyEvent { event ->
-                        event.handleInputActivation(isInputActive) { initialText ->
-                            activateInput(initialText)
+                        if (!isInputActive && event.type == KeyEventType.KeyDown && event.key == Key.DirectionDown) {
+                            // Enter the action panel in Tab order instead of selecting the nearest button by position.
+                            focusManager.moveFocus(FocusDirection.Next)
+                        } else {
+                            event.handleInputActivation(isInputActive) { initialText ->
+                                activateInput(initialText)
+                            }
                         }
                     }
                     .onFocusChanged { focusState ->

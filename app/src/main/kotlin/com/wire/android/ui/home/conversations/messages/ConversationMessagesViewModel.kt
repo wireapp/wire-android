@@ -76,6 +76,7 @@ import dev.zacsweers.metro.AssistedInject
 import kotlinx.collections.immutable.toPersistentMap
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -139,6 +140,9 @@ class ConversationMessagesViewModel @AssistedInject constructor(
     val deleteMessageDialogState: VisibilityState<DeleteMessageDialogState> by mutableStateOf(VisibilityState())
 
     private var lastImageMessageShownOnGallery: UIMessage.Regular? = null
+    private var replyNavigationJob: Job? = null
+    private var searchedMessageHighlightJob: Job? = null
+    private var replyHighlightToken = 0L
     private val _infoMessage = MutableSharedFlow<SnackBarMessage>()
     val infoMessage = _infoMessage.asSharedFlow()
 
@@ -175,11 +179,36 @@ class ConversationMessagesViewModel @AssistedInject constructor(
         )
 
     fun navigateToReplyOriginalMessage(message: UIMessage) {
-        getOriginalMessageId(message)?.let { originalMessageId ->
-            conversationViewState = conversationViewState.copy(
-                searchedMessageId = originalMessageId
+        val originalMessageId = getOriginalMessageId(message) ?: return
+        val token = ++replyHighlightToken
+        replyNavigationJob?.cancel()
+        searchedMessageHighlightJob?.cancel()
+        conversationViewState = conversationViewState.copy(
+            searchedMessageId = null,
+            replyHighlightRequest = null
+        )
+        replyNavigationJob = viewModelScope.launch {
+            // when the original message cannot be found, stay where we are and highlight nothing
+            val position = withContext(dispatchers.io()) { getSearchedMessagePosition(originalMessageId) } ?: return@launch
+            if (token != replyHighlightToken) return@launch
+            showMessagesFrom(
+                position = position,
+                replyHighlightRequest = ReplyHighlightRequest(messageId = originalMessageId, token = token)
             )
-            loadPaginatedMessages()
+        }
+    }
+
+    fun onReplyHighlightFinished(token: Long) {
+        if (conversationViewState.replyHighlightRequest?.token == token) {
+            conversationViewState = conversationViewState.copy(replyHighlightRequest = null)
+        }
+    }
+
+    fun clearReplyHighlight() {
+        replyHighlightToken++
+        replyNavigationJob?.cancel()
+        if (conversationViewState.replyHighlightRequest != null) {
+            conversationViewState = conversationViewState.copy(replyHighlightRequest = null)
         }
     }
 
@@ -221,24 +250,27 @@ class ConversationMessagesViewModel @AssistedInject constructor(
         val searchedMessageId = conversationViewState.searchedMessageId
         val lastReadIndex = withContext(dispatchers.io()) {
             searchedMessageId?.let { messageId ->
-                when (
-                    val result = getSearchedConversationMessagePosition(
-                        conversationId = conversationId,
-                        messageId = messageId
-                    )
-                ) {
-                    is GetSearchedConversationMessagePositionUseCase.Result.Success -> result.position
-                    is GetSearchedConversationMessagePositionUseCase.Result.Failure -> 0
-                }
+                getSearchedMessagePosition(messageId) ?: 0
             } ?: when (val result = getConversationUnreadEventsCount(conversationId)) {
                 is GetConversationUnreadEventsCountUseCase.Result.Success -> result.amount.toInt()
                 is GetConversationUnreadEventsCountUseCase.Result.Failure -> 0
             }
         }
 
+        showMessagesFrom(position = lastReadIndex)
+        handleSelectedSearchedMessageHighlighting()
+    }
+
+    private suspend fun getSearchedMessagePosition(messageId: String): Int? =
+        when (val result = getSearchedConversationMessagePosition(conversationId = conversationId, messageId = messageId)) {
+            is GetSearchedConversationMessagePositionUseCase.Result.Success -> result.position
+            is GetSearchedConversationMessagePositionUseCase.Result.Failure -> null
+        }
+
+    private suspend fun showMessagesFrom(position: Int, replyHighlightRequest: ReplyHighlightRequest? = null) {
         val paginatedMessagesFlow = if (BuildConfig.PENDING_MESSAGES) {
             networkStateObserver.observeNetworkState().flatMapLatest { networkState ->
-                getMessageForConversation(conversationId, lastReadIndex).map { pagingData ->
+                getMessageForConversation(conversationId, position).map { pagingData ->
                     pagingData.withOfflineIndicator(
                         conversationId = conversationId,
                         isOffline = networkState !is NetworkState.ConnectedWithInternet,
@@ -246,21 +278,20 @@ class ConversationMessagesViewModel @AssistedInject constructor(
                 }.flowOn(dispatchers.io())
             }.cachedIn(viewModelScope)
         } else {
-            getMessageForConversation(conversationId, lastReadIndex)
+            getMessageForConversation(conversationId, position)
                 .flowOn(dispatchers.io())
                 .cachedIn(viewModelScope)
         }
 
         conversationViewState = conversationViewState.copy(
             messages = paginatedMessagesFlow,
-            firstUnreadEventIndex = max(lastReadIndex - 1, 0)
+            firstUnreadEventIndex = max(position - 1, 0),
+            replyHighlightRequest = replyHighlightRequest
         )
-
-        handleSelectedSearchedMessageHighlighting()
     }
 
-    private suspend fun handleSelectedSearchedMessageHighlighting() {
-        viewModelScope.launch {
+    private fun handleSelectedSearchedMessageHighlighting() {
+        searchedMessageHighlightJob = viewModelScope.launch {
             delay(3.seconds)
             conversationViewState = conversationViewState.copy(
                 searchedMessageId = null

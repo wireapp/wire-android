@@ -26,6 +26,7 @@ import com.wire.android.ui.common.rowitem.LoadingListContent
 import com.wire.android.ui.emoji.EmojiPickerBottomSheet
 import com.wire.android.ui.home.conversations.info.ConversationDetailsData
 import com.wire.android.ui.home.conversations.messagelist.ConversationMessageList
+import com.wire.android.ui.home.conversations.messages.ReplyHighlightRequest
 import com.wire.android.ui.home.conversations.messages.item.MessageClickActions
 import com.wire.android.ui.home.conversations.model.MessageSenderId
 import com.wire.android.ui.home.conversations.model.UIMessage
@@ -55,6 +56,8 @@ internal fun ConversationMessageComposer(
     playingAudioMessage: PlayingAudioMessage,
     assetStatuses: PersistentMap<String, MessageAssetStatus>,
     selectedMessageId: String?,
+    replyHighlightRequest: ReplyHighlightRequest?,
+    onReplyHighlightFinished: (token: Long) -> Unit,
     messageComposerStateHolder: MessageComposerStateHolder,
     attachments: List<AttachmentDraftUi>,
     messages: Flow<PagingData<UIMessage>>,
@@ -151,6 +154,8 @@ internal fun ConversationMessageComposer(
                 },
                 conversationDetailsData = conversationDetailsData,
                 selectedMessageId = selectedMessageId,
+                replyHighlightRequest = replyHighlightRequest,
+                onReplyHighlightFinished = onReplyHighlightFinished,
                 interactionAvailability = messageComposerStateHolder.messageComposerViewState.value.interactionAvailability,
                 currentTimeInMillisFlow = currentTimeInMillisFlow,
                 showHistoryLoadingIndicator = showHistoryLoadingIndicator,

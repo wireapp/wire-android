@@ -118,6 +118,10 @@ private fun PreviewEmptyRecycleBinConfirmationDialog() {
 @Composable
 private fun PreviewEmptyRecycleBinFailureDialog() {
     WireTheme {
-        EmptyRecycleBinDialogs(dialog = EmptyRecycleBinDialog.Failure(isNoNetworkConnection = false), onConfirm = { }, onDismiss = { })
+        EmptyRecycleBinDialogs(
+            dialog = EmptyRecycleBinDialog.Failure(isNoNetworkConnection = false),
+            onConfirm = { },
+            onDismiss = { }
+        )
     }
 }

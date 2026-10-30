@@ -27,6 +27,7 @@ import com.wire.android.util.FileManager
 import com.wire.kalium.logic.data.asset.AttachmentType
 import com.wire.kalium.logic.feature.asset.GetAssetSizeLimitUseCase
 import com.wire.kalium.logic.feature.asset.GetAssetSizeLimitUseCase.AssetSizeLimits.ASSET_SIZE_DEFAULT_LIMIT_BYTES
+import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -34,7 +35,9 @@ import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.runTest
+import okio.Path
 import okio.Path.Companion.toPath
+import okio.buffer
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -170,6 +173,81 @@ class HandleUriAssetUseCaseTest {
             assert(result is HandleUriAssetUseCase.Result.Failure.Unknown)
         }
 
+    @Test
+    fun `given a user picks an asset larger than limit, when invoked, then the temp copy is deleted`() =
+        runTest(dispatcher) {
+            val limit = ASSET_SIZE_DEFAULT_LIMIT_BYTES
+            val (arrangement, useCase) = Arrangement()
+                .withGetAssetSizeLimitUseCase(false, limit)
+                .withCopiedAsset(limit + 1L)
+                .arrange()
+
+            val result = useCase.invoke(CONTENT_URI, false)
+
+            assert(result is HandleUriAssetUseCase.Result.Failure.AssetTooLarge)
+            assert(!arrangement.fileSystem.exists(arrangement.copiedPath!!))
+        }
+
+    @Test
+    fun `given a user picks an asset larger than limit that needs saving, when invoked, then it is saved to device before the temp copy is deleted`() =
+        runTest(dispatcher) {
+            val limit = ASSET_SIZE_DEFAULT_LIMIT_BYTES
+            val (arrangement, useCase) = Arrangement()
+                .withGetAssetSizeLimitUseCase(false, limit)
+                .withCopiedAsset(limit + 1L)
+                .withSaveToExternalMediaStorageRequiringCopy("saved.zip")
+                .arrange()
+
+            val result = useCase.invoke(CONTENT_URI, true)
+
+            assert(result is HandleUriAssetUseCase.Result.Failure.AssetTooLarge)
+            assert(arrangement.copyExistedWhenSaving == true)
+            assert(!arrangement.fileSystem.exists(arrangement.copiedPath!!))
+        }
+
+    @Test
+    fun `given a user picks an asset larger than limit and the caller keeps oversized copies, when invoked, then result is still too large and the temp copy is kept`() =
+        runTest(dispatcher) {
+            val limit = ASSET_SIZE_DEFAULT_LIMIT_BYTES
+            val (arrangement, useCase) = Arrangement()
+                .withGetAssetSizeLimitUseCase(false, limit)
+                .withCopiedAsset(limit + 1L)
+                .arrange()
+
+            val result = useCase.invoke(CONTENT_URI, saveToDeviceIfInvalid = false, keepOversizedCopy = true)
+
+            assert(result is HandleUriAssetUseCase.Result.Failure.AssetTooLarge)
+            assert(arrangement.fileSystem.exists(arrangement.copiedPath!!))
+        }
+
+    @Test
+    fun `given a partial temp copy, when getting the asset bundle returns null, then the temp copy is deleted`() =
+        runTest(dispatcher) {
+            val (arrangement, useCase) = Arrangement()
+                .withPartialCopyAndNullBundle()
+                .arrange()
+
+            val result = useCase.invoke(CONTENT_URI, false)
+
+            assert(result is HandleUriAssetUseCase.Result.Failure.Unknown)
+            assert(!arrangement.fileSystem.exists(arrangement.copiedPath!!))
+        }
+
+    @Test
+    fun `given a user picks an asset within limit, when invoked, then the temp copy is kept`() =
+        runTest(dispatcher) {
+            val limit = ASSET_SIZE_DEFAULT_LIMIT_BYTES
+            val (arrangement, useCase) = Arrangement()
+                .withGetAssetSizeLimitUseCase(false, limit)
+                .withCopiedAsset(limit - 1L)
+                .arrange()
+
+            val result = useCase.invoke(CONTENT_URI, false)
+
+            assert(result is HandleUriAssetUseCase.Result.Success)
+            assert(arrangement.fileSystem.exists(arrangement.copiedPath!!))
+        }
+
     private class Arrangement {
 
         @MockK
@@ -179,6 +257,9 @@ class HandleUriAssetUseCaseTest {
         lateinit var fileManager: FileManager
 
         private val fakeKaliumFileSystem = FakeKaliumFileSystem()
+        val fileSystem: KaliumFileSystem get() = fakeKaliumFileSystem
+        var copiedPath: Path? = null
+        var copyExistedWhenSaving: Boolean? = null
 
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
@@ -186,6 +267,31 @@ class HandleUriAssetUseCaseTest {
 
         fun withGetAssetBundleFromUri(assetBundle: AssetBundle?) = apply {
             coEvery { fileManager.getAssetBundleFromUri(any(), any(), any(), any(), any()) } returns assetBundle
+        }
+
+        fun withCopiedAsset(size: Long) = apply {
+            coEvery { fileManager.getAssetBundleFromUri(any(), any(), any(), any(), any()) } coAnswers {
+                val destination = secondArg<Path>()
+                fakeKaliumFileSystem.sink(destination, false).buffer().use { it.writeUtf8("content") }
+                copiedPath = destination
+                AssetBundle("key", "file/x-zip", destination, size, "mocked_asset.zip", AttachmentType.GENERIC_FILE)
+            }
+        }
+
+        fun withPartialCopyAndNullBundle() = apply {
+            coEvery { fileManager.getAssetBundleFromUri(any(), any(), any(), any(), any()) } coAnswers {
+                val destination = secondArg<Path>()
+                fakeKaliumFileSystem.sink(destination, false).buffer().use { it.writeUtf8("partial") }
+                copiedPath = destination
+                null
+            }
+        }
+
+        fun withSaveToExternalMediaStorageRequiringCopy(resultFileName: String?) = apply {
+            coEvery { fileManager.saveToExternalMediaStorage(any(), any(), any(), any(), any()) } coAnswers {
+                copyExistedWhenSaving = fakeKaliumFileSystem.exists(secondArg<Path>())
+                resultFileName
+            }
         }
 
         fun withUnsupportedUriScheme() = apply {

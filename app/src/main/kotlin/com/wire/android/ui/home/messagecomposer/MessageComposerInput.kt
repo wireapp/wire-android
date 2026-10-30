@@ -225,7 +225,8 @@ private fun InputContent(
         ),
 ) {
     ConstraintLayout(modifier = modifier) {
-        val (additionalOptionButton, input, actions, typingIndicator) = createRefs()
+        val (additionalOptionButton, input, actions) = createRefs()
+        val typingIndicator = createRef()
         val buttonsTopBarrier = createTopBarrier(additionalOptionButton, actions)
         Box(
             contentAlignment = Alignment.BottomStart,

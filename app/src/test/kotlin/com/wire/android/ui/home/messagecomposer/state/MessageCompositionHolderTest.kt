@@ -24,9 +24,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.text.TextRange
 import com.wire.android.config.SnapshotExtension
 import com.wire.android.framework.TestConversation
+import com.wire.android.framework.TestUser
+import com.wire.android.ui.home.conversations.model.UIMention
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.home.messagecomposer.model.MessageComposition
 import com.wire.android.model.Contact
+import com.wire.kalium.logic.data.message.mention.MessageMention
 import com.wire.kalium.logic.data.user.ConnectionState
 import io.mockk.MockKAnnotations
 import io.mockk.impl.annotations.MockK
@@ -75,6 +78,23 @@ class MessageCompositionHolderTest {
     @AfterEach
     fun tearDown() {
         Dispatchers.resetMain()
+    }
+
+    @Test
+    fun `given everyone and user mentions, when editing, then only the user mention is selected`() = runTest {
+        val text = "@all @Hello"
+        val mentions = listOf(
+            MessageMention(0, 4, userId = null, isSelfMention = true),
+            MessageMention(5, 6, TestUser.USER_ID, isSelfMention = false)
+        )
+
+        state.setEditText("message-id", text, mentions, isMultipart = false)
+
+        assertEquals(text, state.messageTextState.text.toString())
+        assertEquals(
+            listOf(UIMention(5, 6, TestUser.USER_ID, "@Hello")),
+            state.messageComposition.value.selectedMentions
+        )
     }
 
     @Test

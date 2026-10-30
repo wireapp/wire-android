@@ -62,13 +62,14 @@ fun UIText.DynamicString.toMarkdownTextWithMentions(): Pair<List<DisplayMention>
         .sortedBy { it.start }
         .reversed()
     val mentionList = mentions.mapNotNull { mention ->
+        val userId = mention.userId ?: return@mapNotNull null
         // Guard against invalid mention ranges (e.g. inconsistent backend data).
         if (mention.start + mention.length <= value.length && value[mention.start] == '@') {
             val mentionName = value.substring(mention.start, mention.start + mention.length)
             stringBuilder.insert(mention.start + mention.length, MarkdownConstants.MENTION_MARK)
             stringBuilder.insert(mention.start, MarkdownConstants.MENTION_MARK)
             DisplayMention(
-                mention.userId,
+                userId,
                 mention.length,
                 mention.isSelfMention,
                 mentionName

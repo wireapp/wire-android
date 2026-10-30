@@ -93,4 +93,28 @@ class MessageTypesTest {
         val result = mapToDisplayMentions(uiText, mockResources)
         assertEquals(1, result.first.size)
     }
+
+    @Test
+    fun `Given an everyone mention when mapping then it remains plain text`() {
+        val mention = MessageMention(6, 4, userId = null, isSelfMention = true)
+        val uiText = UIText.DynamicString("Hello @all", listOf(mention))
+
+        val result = mapToDisplayMentions(uiText, mockResources)
+
+        assertTrue(result.first.isEmpty())
+        assertEquals("Hello @all", result.second)
+    }
+
+    @Test
+    fun `Given everyone and user mentions when mapping then only the user mention has markers`() {
+        val everyoneMention = MessageMention(0, 4, userId = null, isSelfMention = true)
+        val userMention = MessageMention(5, 6, TestUser.USER_ID, isSelfMention = false)
+        val uiText = UIText.DynamicString("@all @Hello", listOf(everyoneMention, userMention))
+
+        val result = mapToDisplayMentions(uiText, mockResources)
+
+        assertEquals(1, result.first.size)
+        assertEquals(TestUser.USER_ID, result.first.single().userId)
+        assertEquals("@all ${MarkdownConstants.MENTION_MARK}@Hello${MarkdownConstants.MENTION_MARK}", result.second)
+    }
 }

@@ -135,6 +135,25 @@
     <string name="no_subfolders_message">В этой папке нет подпапок.</string>
     <string name="item_move_success">Элемент был перемещен в папку.</string>
     <string name="item_move_failure">Не удается переместить элемент.</string>
+    <plurals name="cells_items_move_success">
+        <item quantity="one">%1$d элемент был перемещен в папку.</item>
+        <item quantity="few">%1$d элемента были перемещены в папку.</item>
+        <item quantity="many">%1$d элементов были перемещены в папку.</item>
+        <item quantity="other">%1$d элемента были перемещены в папку.</item>
+    </plurals>
+    <string name="cells_item_move_success_to_folder">Элемент был перемещен в \"%1$s\".</string>
+    <plurals name="cells_items_move_success_to_folder">
+        <item quantity="one">%1$d элемент был перемещен в \"%2$s\".</item>
+        <item quantity="few">%1$d элемента были перемещены в \"%2$s\".</item>
+        <item quantity="many">%1$d элементов были перемещены в \"%2$s\".</item>
+        <item quantity="other">%1$d элемента были перемещены в \"%2$s\".</item>
+    </plurals>
+    <string name="cells_move_failure_dialog_title_one">Элемент не перемещен</string>
+    <string name="cells_move_failure_dialog_title_many">Элементы не перемещены</string>
+    <string name="cells_move_failure_dialog_message_one">Что-то пошло не так при перемещении элемента. Повторите попытку.</string>
+    <string name="cells_move_failure_dialog_message_one_no_network">Элемент не удалось переместить, поскольку вы не подключены к интернету. Проверьте подключение к интернету и повторите попытку.</string>
+    <string name="cells_move_failure_dialog_message_many">При перемещении элементов что-то пошло не так. Возможно, некоторые из них были перемещены, поэтому перед повторной попыткой проверьте обе папки.</string>
+    <string name="cells_move_failure_dialog_message_many_no_network">При перемещении элементов было прервано соединение. Возможно, некоторые из них были перемещены, поэтому перед повторной попыткой проверьте обе папки.</string>
     <string name="content_description_conversation_files_more_button">Открыть параметры файлов</string>
     <string name="recycle_bin">Корзина</string>
     <string name="open_recycle_bin">Открыть корзину</string>
@@ -304,4 +323,69 @@
     <string name="cells_video_mute">Отключить уведомления</string>
     <string name="cells_video_unmute">Включить уведомления</string>
     <string name="cells_video_loading">Загрузка видео</string>
+    <plurals name="cells_bulk_selection_count">
+        <item quantity="one">Выбрано: %1$d</item>
+        <item quantity="few">Выбрано: %1$d</item>
+        <item quantity="many">Выбрано: %1$d</item>
+        <item quantity="other">Выбрано: %1$d</item>
+    </plurals>
+    <string name="cells_bulk_selection_cancel_content_description">Отменить выбор</string>
+    <!-- Badge marking a newly released feature, not the "create new" action of cells_new_label -->
+    <string name="cells_new_feature_badge">НОВИНКА</string>
+    <string name="cells_bulk_selection_hint_title">Выбрать несколько файлов</string>
+    <string name="cells_bulk_selection_hint_message">Нажмите и удерживайте файл, а затем перетащите его вверх или вниз, чтобы выбрать еще несколько файлов.</string>
+    <string name="cells_bulk_selection_hint_dismiss_content_description">Скрыть подсказку</string>
+    <string name="cells_bulk_action_move">Переместить</string>
+    <string name="cells_bulk_action_delete">Удалить</string>
+    <plurals name="cells_bulk_delete_confirmation_title">
+        <item quantity="one">Удалить %1$d элемент</item>
+        <item quantity="few">Удалить %1$d элемента</item>
+        <item quantity="many">Удалить %1$d элементов</item>
+        <item quantity="other">Удалить %1$d элемента</item>
+    </plurals>
+    <plurals name="cells_bulk_delete_confirmation_message">
+        <item quantity="one">%1$d элемент будет перемещен в корзину этой беседы.</item>
+        <item quantity="few">%1$d элемента будут перемещены в корзину этой беседы.</item>
+        <item quantity="many">%1$d элементов будут перемещены в корзину этой беседы.</item>
+        <item quantity="other">%1$d элемента будут перемещены в корзину этой беседы.</item>
+    </plurals>
+    <plurals name="cells_bulk_delete_confirmation_message_with_folders">
+        <item quantity="one">%1$d элемент, включая все файлы и вложенные папки выбранных папок, будет перемещен в корзину этой беседы.</item>
+        <item quantity="few">%1$d элемента, включая все файлы и вложенные папки выбранных папок, будут перемещены в корзину этой беседы.</item>
+        <item quantity="many">%1$d элементов, включая все файлы и вложенные папки выбранных папок, будут перемещены в корзину этой беседы.</item>
+        <item quantity="other">%1$d элемента, включая все файлы и вложенные папки выбранных папок, будут перемещены в корзину этой беседы.</item>
+    </plurals>
+    <plurals name="cells_bulk_delete_success">
+        <item quantity="one">%1$d элемент был перемещен в корзину</item>
+        <item quantity="few">%1$d элемента были перемещены в корзину</item>
+        <item quantity="many">%1$d элементов были перемещены в корзину</item>
+        <item quantity="other">%1$d элемента были перемещены в корзину</item>
+    </plurals>
+    <plurals name="cells_bulk_permanent_delete_confirmation_title">
+        <item quantity="one">Окончательно удалить %1$d элемент</item>
+        <item quantity="few">Окончательно удалить %1$d элемента</item>
+        <item quantity="many">Окончательно удалить %1$d элементов</item>
+        <item quantity="other">Окончательно удалить %1$d элемента</item>
+    </plurals>
+    <plurals name="cells_bulk_permanent_delete_confirmation_message">
+        <item quantity="one">%1$d элемент будет безвозвратно удален для всех участников. Это действие нельзя отменить.</item>
+        <item quantity="few">%1$d элемента будут безвозвратно удалены для всех участников. Это действие нельзя отменить.</item>
+        <item quantity="many">%1$d элементов будут безвозвратно удалены для всех участников. Это действие нельзя отменить.</item>
+        <item quantity="other">%1$d элемента будут безвозвратно удалены для всех участников. Это действие нельзя отменить.</item>
+    </plurals>
+    <plurals name="cells_bulk_permanent_delete_success">
+        <item quantity="one">%1$d элемент удален навсегда</item>
+        <item quantity="few">%1$d элемента удалены навсегда</item>
+        <item quantity="many">%1$d элементов удалены навсегда</item>
+        <item quantity="other">%1$d элемента удалены навсегда</item>
+    </plurals>
+    <string name="cells_bulk_delete_failure_title_one">Элемент не удален</string>
+    <string name="cells_bulk_delete_failure_title_many">Элементы не удалены</string>
+    <string name="cells_bulk_delete_failure_message_one">Что-то пошло не так при удалении элемента. Повторите попытку.</string>
+    <string name="cells_bulk_delete_failure_message_one_no_network">Элемент не удалось удалить, поскольку вы не подключены к интернету. Проверьте подключение к интернету и повторите попытку.</string>
+    <string name="cells_bulk_delete_failure_message_many">При удалении элементов что-то пошло не так. Возможно, некоторые из них были перемещены в корзину, поэтому перед повторной попыткой проверьте оба.</string>
+    <string name="cells_bulk_delete_failure_message_many_no_network">При удалении элементов было потеряно подключение. Возможно, некоторые из них были перемещены в корзину, поэтому перед повторной попыткой проверьте оба.</string>
+    <string name="cells_bulk_permanent_delete_failure_message_many">При удалении элементов произошла ошибка. Некоторые из них, возможно, были удалены без возможности восстановления, поэтому перед повторной попыткой проверьте корзину.</string>
+    <string name="cells_bulk_permanent_delete_failure_message_many_no_network">Во время удаления элементов произошел сбой соединения. Некоторые из них, возможно, были удалены без возможности восстановления, поэтому перед повторной попыткой проверьте корзину.</string>
+    <string name="cells_bulk_action_offline">Оффлайн</string>
 </resources>

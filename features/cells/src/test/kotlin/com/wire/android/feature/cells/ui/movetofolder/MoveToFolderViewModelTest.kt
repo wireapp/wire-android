@@ -18,6 +18,7 @@
 package com.wire.android.feature.cells.ui.movetofolder
 
 import app.cash.turbine.test
+import com.wire.android.feature.cells.ui.CellNodeChangeEvents
 import com.wire.android.feature.cells.ui.model.toUiModel
 import com.wire.kalium.cells.domain.model.Node
 import com.wire.kalium.cells.domain.model.NodeLocator
@@ -223,7 +224,7 @@ class MoveToFolderViewModelTest {
             .withMoveNodesUseCaseReturning(Either.Right(Unit))
             .arrange()
 
-        arrangement.nodeMoveEvents.changedFolderPaths.test {
+        arrangement.nodeChangeEvents.changedFolderPaths.test {
             viewModel.onMoveToFolderClick()
             assertEquals(setOf("$CURRENT_PATH/parent", CURRENT_PATH), awaitItem())
         }
@@ -277,7 +278,7 @@ class MoveToFolderViewModelTest {
             .withMoveNodesUseCaseReturning(Either.Left(CoreFailure.InvalidEventSenderID))
             .arrange()
 
-        arrangement.nodeMoveEvents.changedFolderPaths.test {
+        arrangement.nodeChangeEvents.changedFolderPaths.test {
             viewModel.onMoveToFolderClick()
             assertEquals(setOf("$CURRENT_PATH/parent", CURRENT_PATH), awaitItem())
         }
@@ -327,7 +328,7 @@ class MoveToFolderViewModelTest {
         @MockK
         lateinit var moveNodesUseCase: MoveNodesUseCase
 
-        val nodeMoveEvents = CellNodeMoveEvents()
+        val nodeChangeEvents = CellNodeChangeEvents()
 
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
@@ -338,7 +339,7 @@ class MoveToFolderViewModelTest {
                 navArgs = MoveToFolderNavArgs(CURRENT_PATH, nodesToMove, breadcrumbs),
                 getFoldersUseCase = getFoldersUseCase,
                 moveNodesUseCase = moveNodesUseCase,
-                nodeMoveEvents = nodeMoveEvents,
+                nodeChangeEvents = nodeChangeEvents,
             )
         }
 

@@ -307,7 +307,7 @@ internal fun com.wire.android.feature.cells.ui.ReadyIconPreview(): kotlin.Unit
   params:
 
 @Composable
-private fun com.wire.android.feature.cells.ui.SelectionAwareTitle(title: kotlin.String, selectedCount: kotlin.Int): kotlin.Unit
+internal fun com.wire.android.feature.cells.ui.SelectionAwareTitle(title: kotlin.String, selectedCount: kotlin.Int): kotlin.Unit
   skippable: true
   restartable: true
   params:
@@ -533,6 +533,32 @@ internal fun com.wire.android.feature.cells.ui.dialog.BulkDeleteDialogs(dialog: 
 
 @Composable
 private fun com.wire.android.feature.cells.ui.dialog.BulkDeleteFailureDialog(failure: com.wire.android.feature.cells.ui.dialog.BulkDeleteDialog.Failure, onDismiss: kotlin.Function0<kotlin.Unit>): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - failure: STABLE (class with no mutable properties)
+    - onDismiss: STABLE (function type)
+
+@Composable
+private fun com.wire.android.feature.cells.ui.dialog.BulkRestoreConfirmationDialog(confirmation: com.wire.android.feature.cells.ui.dialog.BulkRestoreDialog.Confirmation, onConfirm: kotlin.Function0<kotlin.Unit>, onDismiss: kotlin.Function0<kotlin.Unit>): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - confirmation: RUNTIME (requires runtime check)
+    - onConfirm: STABLE (function type)
+    - onDismiss: STABLE (function type)
+
+@Composable
+internal fun com.wire.android.feature.cells.ui.dialog.BulkRestoreDialogs(dialog: com.wire.android.feature.cells.ui.dialog.BulkRestoreDialog, onConfirm: kotlin.Function0<kotlin.Unit>, onDismiss: kotlin.Function0<kotlin.Unit>): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - dialog: UNKNOWN (interface or non-final class; concrete implementation unknown)
+    - onConfirm: STABLE (function type)
+    - onDismiss: STABLE (function type)
+
+@Composable
+private fun com.wire.android.feature.cells.ui.dialog.BulkRestoreFailureDialog(failure: com.wire.android.feature.cells.ui.dialog.BulkRestoreDialog.Failure, onDismiss: kotlin.Function0<kotlin.Unit>): kotlin.Unit
   skippable: true
   restartable: true
   params:

@@ -80,45 +80,31 @@ fun RecordAudioButtonClose(
 }
 
 @Composable
-fun RecordAudioButtonEnabled(
+fun RecordAudioButtonStartStop(
+    isRecording: Boolean,
     applyAudioFilterState: Boolean,
     applyAudioFilterClick: (Boolean) -> Unit,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    RecordAudioButton(
-        onClick = onClick,
-        modifier = modifier,
-        topContent = {},
-        iconResId = R.drawable.ic_microphone_on,
-        contentDescription = R.string.content_description_record_audio_button_start,
-        buttonState = WireButtonState.Default,
-        bottomText = R.string.record_audio_start_label,
-        applyAudioFilterState = applyAudioFilterState,
-        applyAudioFilterClick = applyAudioFilterClick
-    )
-}
-
-@Composable
-fun RecordAudioButtonRecording(
-    applyAudioFilterState: Boolean,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    buttonModifier: Modifier = Modifier,
+    audioFilterModifier: Modifier = Modifier,
 ) {
     val initialSeconds = if (LocalInspectionMode.current) 1 else 0
-    var seconds by remember {
+    var seconds by remember(isRecording) {
         mutableStateOf(initialSeconds)
     }
-    LaunchedEffect(key1 = Unit) {
-        while (true) {
-            delay(1000L)
-            seconds += 1
+    LaunchedEffect(isRecording) {
+        if (isRecording) {
+            while (true) {
+                delay(1000L)
+                seconds += 1
+            }
         }
     }
-    if (!LocalInspectionMode.current) {
+    if (isRecording && !LocalInspectionMode.current) {
         val activity = LocalActivity.current
 
-        DisposableEffect(Unit) {
+        DisposableEffect(activity) {
             activity?.window?.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
             onDispose {
                 activity?.window?.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
@@ -127,23 +113,34 @@ fun RecordAudioButtonRecording(
     }
 
     RecordAudioButton(
-        onClick = onClick,
+        onClick = {
+            // Keep Stop focusable while preserving the minimum recording duration.
+            if (!isRecording || seconds > 0) onClick()
+        },
         modifier = modifier,
         topContent = {
-            Text(
-                text = DateUtils.formatElapsedTime(seconds.toLong()),
-                style = MaterialTheme.wireTypography.body01,
-                fontSize = 32.sp,
-                color = colorsScheme().secondaryText
-            )
+            if (isRecording) {
+                Text(
+                    text = DateUtils.formatElapsedTime(seconds.toLong()),
+                    style = MaterialTheme.wireTypography.body01,
+                    fontSize = 32.sp,
+                    color = colorsScheme().secondaryText
+                )
+            }
         },
-        iconResId = R.drawable.ic_stop,
-        contentDescription = R.string.content_description_record_audio_button_stop,
-        bottomText = R.string.record_audio_recording_label,
-        buttonState = if (seconds > 0) WireButtonState.Error else WireButtonState.Disabled,
-        isAudioFilterEnabled = false,
+        iconResId = if (isRecording) R.drawable.ic_stop else R.drawable.ic_microphone_on,
+        contentDescription = if (isRecording) {
+            R.string.content_description_record_audio_button_stop
+        } else {
+            R.string.content_description_record_audio_button_start
+        },
+        bottomText = if (isRecording) R.string.record_audio_recording_label else R.string.record_audio_start_label,
+        buttonState = if (isRecording) WireButtonState.Error else WireButtonState.Default,
+        isAudioFilterEnabled = !isRecording,
         applyAudioFilterState = applyAudioFilterState,
-        applyAudioFilterClick = { }
+        applyAudioFilterClick = applyAudioFilterClick,
+        buttonModifier = buttonModifier,
+        audioFilterModifier = audioFilterModifier,
     )
 }
 
@@ -184,11 +181,12 @@ fun RecordAudioButtonSend(
     applyAudioFilterState: Boolean,
     audioState: AudioState,
     wavesMask: List<Int>?,
-    onClick: () -> Unit,
     outputFile: File?,
+    onClick: () -> Unit,
     onPlayAudio: () -> Unit,
     onSliderPositionChange: (Int) -> Unit,
     modifier: Modifier = Modifier,
+    buttonModifier: Modifier = Modifier,
     applyAudioFilterClick: (Boolean) -> Unit
 ) {
     RecordAudioButton(
@@ -211,7 +209,8 @@ fun RecordAudioButtonSend(
         buttonState = WireButtonState.Default,
         bottomText = R.string.record_audio_send_label,
         applyAudioFilterState = applyAudioFilterState,
-        applyAudioFilterClick = applyAudioFilterClick
+        applyAudioFilterClick = applyAudioFilterClick,
+        buttonModifier = buttonModifier,
     )
 }
 
@@ -225,10 +224,12 @@ private fun RecordAudioButton(
     applyAudioFilterState: Boolean,
     applyAudioFilterClick: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
+    buttonModifier: Modifier = Modifier,
+    audioFilterModifier: Modifier = Modifier,
     buttonState: WireButtonState = WireButtonState.Default,
     isAudioFilterEnabled: Boolean = true,
     loading: Boolean = false,
-    trailingIconAlignment: IconAlignment = IconAlignment.Border,
+    trailingIconAlignment: IconAlignment = IconAlignment.Border
 ) {
     Column(
         modifier = modifier,
@@ -238,7 +239,7 @@ private fun RecordAudioButton(
         Spacer(modifier = Modifier.height(dimensions().spacing40x))
 
         WirePrimaryButton(
-            modifier = Modifier
+            modifier = buttonModifier
                 .width(dimensions().spacing80x)
                 .height(dimensions().spacing80x),
             trailingIconAlignment = trailingIconAlignment,
@@ -268,6 +269,7 @@ private fun RecordAudioButton(
             verticalAlignment = Alignment.CenterVertically
         ) {
             WireCheckbox(
+                modifier = audioFilterModifier,
                 enabled = isAudioFilterEnabled,
                 checked = applyAudioFilterState,
                 onCheckedChange = applyAudioFilterClick
@@ -293,7 +295,8 @@ fun PreviewRecordAudioButtonClose() {
 @Composable
 fun PreviewRecordAudioButtonEnabled() {
     WireTheme {
-        RecordAudioButtonEnabled(
+        RecordAudioButtonStartStop(
+            isRecording = false,
             onClick = {},
             modifier = Modifier,
             applyAudioFilterState = false,
@@ -306,7 +309,9 @@ fun PreviewRecordAudioButtonEnabled() {
 @Composable
 fun PreviewRecordAudioButtonRecording() {
     WireTheme {
-        RecordAudioButtonRecording(
+        RecordAudioButtonStartStop(
+            isRecording = true,
+            applyAudioFilterClick = {},
             onClick = {},
             modifier = Modifier,
             applyAudioFilterState = false

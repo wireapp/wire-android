@@ -32,12 +32,17 @@ import com.wire.android.ui.common.preview.MultipleThemePreviews
 import com.wire.android.ui.common.wireDialogPropertiesBuilder
 import com.wire.android.ui.theme.WireTheme
 
-/** The dialog of a bulk move to the recycle bin, if any is shown. */
+/**
+ * The dialog of a bulk delete, if any is shown. [isPermanentDelete] tells a delete for good (from the recycle bin) from
+ * a move to the recycle bin.
+ */
 internal sealed interface BulkDeleteDialog {
+    val isPermanentDelete: Boolean
 
     /** @param nodes the nodes picked when the delete was requested. */
     data class Confirmation(
         val nodes: List<CellNodeUi>,
+        override val isPermanentDelete: Boolean = false,
         val isInProgress: Boolean = false,
     ) : BulkDeleteDialog
 
@@ -48,6 +53,7 @@ internal sealed interface BulkDeleteDialog {
     data class Failure(
         val totalCount: Int,
         val isNoNetworkConnection: Boolean,
+        override val isPermanentDelete: Boolean = false,
     ) : BulkDeleteDialog
 }
 
@@ -74,7 +80,7 @@ private fun BulkDeleteConfirmationDialog(
         DeleteConfirmationDialog(
             itemName = singleNode.name ?: "",
             isFolder = singleNode is CellNodeUi.Folder,
-            isPermanentDelete = false,
+            isPermanentDelete = confirmation.isPermanentDelete,
             isDeleteInProgress = confirmation.isInProgress,
             onConfirm = onConfirm,
             onDismiss = onDismiss,
@@ -85,12 +91,21 @@ private fun BulkDeleteConfirmationDialog(
     val count = confirmation.nodes.size
     val hasFolders = confirmation.nodes.any { it is CellNodeUi.Folder }
     WireDialog(
-        title = pluralStringResource(R.plurals.cells_bulk_delete_confirmation_title, count, count),
-        text = pluralStringResource(
-            id = if (hasFolders) {
-                R.plurals.cells_bulk_delete_confirmation_message_with_folders
+        title = pluralStringResource(
+            id = if (confirmation.isPermanentDelete) {
+                R.plurals.cells_bulk_permanent_delete_confirmation_title
             } else {
-                R.plurals.cells_bulk_delete_confirmation_message
+                R.plurals.cells_bulk_delete_confirmation_title
+            },
+            count = count,
+            count,
+        ),
+        text = pluralStringResource(
+            id = when {
+                // Folders and their contents are equally gone for good, no need to single them out.
+                confirmation.isPermanentDelete -> R.plurals.cells_bulk_permanent_delete_confirmation_message
+                hasFolders -> R.plurals.cells_bulk_delete_confirmation_message_with_folders
+                else -> R.plurals.cells_bulk_delete_confirmation_message
             },
             count = count,
             count,
@@ -129,6 +144,9 @@ private fun BulkDeleteFailureDialog(
             when {
                 isSingleItem && failure.isNoNetworkConnection -> R.string.cells_bulk_delete_failure_message_one_no_network
                 isSingleItem -> R.string.cells_bulk_delete_failure_message_one
+                failure.isPermanentDelete && failure.isNoNetworkConnection ->
+                    R.string.cells_bulk_permanent_delete_failure_message_many_no_network
+                failure.isPermanentDelete -> R.string.cells_bulk_permanent_delete_failure_message_many
                 failure.isNoNetworkConnection -> R.string.cells_bulk_delete_failure_message_many_no_network
                 else -> R.string.cells_bulk_delete_failure_message_many
             }
@@ -148,6 +166,18 @@ private fun PreviewBulkDeleteConfirmationDialog() {
     WireTheme {
         BulkDeleteDialogs(
             dialog = BulkDeleteDialog.Confirmation(nodes = List(3) { previewFolder("Folder $it") }),
+            onConfirm = {},
+            onDismiss = {},
+        )
+    }
+}
+
+@MultipleThemePreviews
+@Composable
+private fun PreviewBulkPermanentDeleteConfirmationDialog() {
+    WireTheme {
+        BulkDeleteDialogs(
+            dialog = BulkDeleteDialog.Confirmation(nodes = List(3) { previewFolder("Folder $it") }, isPermanentDelete = true),
             onConfirm = {},
             onDismiss = {},
         )

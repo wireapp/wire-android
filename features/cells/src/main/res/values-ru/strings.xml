@@ -361,11 +361,31 @@
         <item quantity="many">%1$d элементов были перемещены в корзину</item>
         <item quantity="other">%1$d элемента были перемещены в корзину</item>
     </plurals>
+    <plurals name="cells_bulk_permanent_delete_confirmation_title">
+        <item quantity="one">Окончательно удалить %1$d элемент</item>
+        <item quantity="few">Окончательно удалить %1$d элемента</item>
+        <item quantity="many">Окончательно удалить %1$d элементов</item>
+        <item quantity="other">Окончательно удалить %1$d элемента</item>
+    </plurals>
+    <plurals name="cells_bulk_permanent_delete_confirmation_message">
+        <item quantity="one">%1$d элемент будет безвозвратно удален для всех участников. Это действие нельзя отменить.</item>
+        <item quantity="few">%1$d элемента будут безвозвратно удалены для всех участников. Это действие нельзя отменить.</item>
+        <item quantity="many">%1$d элементов будут безвозвратно удалены для всех участников. Это действие нельзя отменить.</item>
+        <item quantity="other">%1$d элемента будут безвозвратно удалены для всех участников. Это действие нельзя отменить.</item>
+    </plurals>
+    <plurals name="cells_bulk_permanent_delete_success">
+        <item quantity="one">%1$d элемент удален навсегда</item>
+        <item quantity="few">%1$d элемента удалены навсегда</item>
+        <item quantity="many">%1$d элементов удалены навсегда</item>
+        <item quantity="other">%1$d элемента удалены навсегда</item>
+    </plurals>
     <string name="cells_bulk_delete_failure_title_one">Элемент не удален</string>
     <string name="cells_bulk_delete_failure_title_many">Элементы не удалены</string>
     <string name="cells_bulk_delete_failure_message_one">Что-то пошло не так при удалении элемента. Повторите попытку.</string>
     <string name="cells_bulk_delete_failure_message_one_no_network">Элемент не удалось удалить, поскольку вы не подключены к интернету. Проверьте подключение к интернету и повторите попытку.</string>
     <string name="cells_bulk_delete_failure_message_many">При удалении элементов что-то пошло не так. Возможно, некоторые из них были перемещены в корзину, поэтому перед повторной попыткой проверьте оба.</string>
     <string name="cells_bulk_delete_failure_message_many_no_network">При удалении элементов было потеряно подключение. Возможно, некоторые из них были перемещены в корзину, поэтому перед повторной попыткой проверьте оба.</string>
+    <string name="cells_bulk_permanent_delete_failure_message_many">При удалении элементов произошла ошибка. Некоторые из них, возможно, были удалены без возможности восстановления, поэтому перед повторной попыткой проверьте корзину.</string>
+    <string name="cells_bulk_permanent_delete_failure_message_many_no_network">Во время удаления элементов произошел сбой соединения. Некоторые из них, возможно, были удалены без возможности восстановления, поэтому перед повторной попыткой проверьте корзину.</string>
     <string name="cells_bulk_action_offline">Оффлайн</string>
 </resources>

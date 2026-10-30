@@ -221,6 +221,47 @@ class WireActivityNavigation3EffectsTest {
     }
 
     @Test
+    fun givenConversationWithTargetSessionAndNoCurrentSession_whenResolving_thenConversationUsesTargetSession() {
+        val targetSession = QualifiedID("user", "wire.example")
+        val result = WireActivityNavigation3EffectResolver.resolve(
+            action = OpenConversation(
+                DeepLinkResult.OpenConversation(
+                    conversationId = QualifiedID("conversation", "wire.example"),
+                    switchedAccount = false,
+                    targetSessionId = targetSession,
+                )
+            ),
+            routes = listOf(HomeRoute(session)),
+            currentSessionId = null,
+            canUseNewLogin = true,
+        )
+
+        val conversation = assertInstanceOf(ConversationRoute::class.java, result.singleCommand().destination)
+        assertEquals(WireSessionId(targetSession.value, targetSession.domain), conversation.sessionId)
+    }
+
+    @Test
+    fun givenSessionScopedDeepLinksWithoutAnySession_whenResolving_thenNavigationIsDropped() {
+        val conversationId = QualifiedID("conversation", "wire.example")
+        val actions = listOf(
+            OpenConversation(DeepLinkResult.OpenConversation(conversationId, switchedAccount = false)),
+            OpenMeetings(DeepLinkResult.OpenMeetings()),
+            OpenDriveFiles(DeepLinkResult.OpenDriveFiles(conversationId, switchedAccount = false)),
+            OnOpenUserProfile(DeepLinkResult.OpenOtherUserProfile(QualifiedID("other", "wire.example"), switchedAccount = false)),
+        )
+
+        actions.forEach { action ->
+            val result = WireActivityNavigation3EffectResolver.resolve(
+                action = action,
+                routes = listOf(HomeRoute(session)),
+                currentSessionId = null,
+                canUseNewLogin = true,
+            )
+            assertTrue(result.mutations.isEmpty(), "${action::class.simpleName} should not navigate")
+        }
+    }
+
+    @Test
     fun givenImportMediaWithAndWithoutSession_whenResolving_thenScopeOwnerIsUnambiguous() {
         val authenticated = resolve(OnShowImportMediaScreen, listOf(HomeRoute(session)))
         val loggedOut = WireActivityNavigation3EffectResolver.resolve(

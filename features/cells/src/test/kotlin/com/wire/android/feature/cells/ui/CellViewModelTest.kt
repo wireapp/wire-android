@@ -24,18 +24,14 @@ import androidx.paging.PagingData
 import androidx.paging.testing.asSnapshot
 import app.cash.turbine.test
 import com.wire.android.datastore.UserDataStore
-import com.wire.kalium.common.error.CoreFailure
-import com.wire.kalium.common.error.NetworkFailure
-import com.wire.kalium.common.functional.Either
-import com.wire.kalium.logic.featureFlags.KaliumConfigs
-import com.wire.android.feature.cells.ui.edit.OnlineEditor
-import com.wire.android.feature.cells.ui.model.CellNodeUi
 import com.wire.android.feature.cells.ui.dialog.BulkDeleteDialog
 import com.wire.android.feature.cells.ui.dialog.BulkRestoreDialog
 import com.wire.android.feature.cells.ui.dialog.EmptyRecycleBinDialog
-import com.wire.android.feature.cells.ui.model.pdfRenditionUrl
+import com.wire.android.feature.cells.ui.edit.OnlineEditor
+import com.wire.android.feature.cells.ui.model.CellNodeUi
 import com.wire.android.feature.cells.ui.model.NodeBottomSheetAction
 import com.wire.android.feature.cells.ui.model.OpenLoadState
+import com.wire.android.feature.cells.ui.model.pdfRenditionUrl
 import com.wire.android.feature.cells.ui.model.toUiModel
 import com.wire.android.feature.cells.ui.search.DriveSearchScreenType
 import com.wire.android.feature.cells.ui.search.SearchNavArgs
@@ -68,11 +64,15 @@ import com.wire.kalium.cells.domain.usecase.offline.GetOfflineFileUseCase
 import com.wire.kalium.cells.domain.usecase.offline.ObserveOfflineFilesUseCase
 import com.wire.kalium.cells.domain.usecase.offline.OfflineFileInfo
 import com.wire.kalium.cells.domain.usecase.offline.SaveOfflineFileUseCase
+import com.wire.kalium.common.error.CoreFailure
+import com.wire.kalium.common.error.NetworkFailure
+import com.wire.kalium.common.functional.Either
 import com.wire.kalium.common.functional.left
 import com.wire.kalium.common.functional.right
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.feature.conversation.IsSelfUserViewerOnConversationUseCase
+import com.wire.kalium.logic.featureFlags.KaliumConfigs
 import com.wire.kalium.network.NetworkState
 import com.wire.kalium.network.NetworkStateObserver
 import io.mockk.MockKAnnotations
@@ -786,37 +786,6 @@ class CellViewModelTest {
     }
 
     @Test
-    fun `given a selected folder when deleted then its path is passed to clean up the files inside it`() = runTest {
-        val (arrangement, viewModel) = Arrangement()
-            .withConversationId("conversationId")
-            .withBulkDeleteReturning(Unit.right())
-            .arrange()
-        val folder = Node.Folder(
-            uuid = "folderUuid",
-            name = "reports",
-            remotePath = "conversationId/reports",
-            modifiedTime = 0L,
-            size = 0,
-        ).toUiModel()
-        val file = testFiles[0].toUiModel()
-        selectNodes(viewModel, listOf(folder, file))
-        viewModel.sendIntent(CellViewIntent.OnDeleteSelectedNodesClick)
-
-        viewModel.sendIntent(CellViewIntent.OnBulkDeleteConfirmed)
-        advanceUntilIdle()
-
-        coVerify(exactly = 1) {
-            arrangement.deleteCellAssetsUseCase(
-                listOf(
-                    NodeToDelete(uuid = "folderUuid", localPath = null, folderPath = "conversationId/reports"),
-                    NodeToDelete(uuid = "fileUuid", localPath = "localPath", folderPath = null),
-                ),
-                any(),
-            )
-        }
-    }
-
-    @Test
     fun `given the recycle bin when selected nodes are deleted then they are deleted for good`() = runTest {
         val (arrangement, viewModel) = Arrangement()
             .withConversationId("conversationId")
@@ -873,102 +842,6 @@ class CellViewModelTest {
             BulkDeleteDialog.Failure(totalCount = 2, isNoNetworkConnection = true, isPermanentDelete = true),
             viewModel.bulkDeleteDialog.value
         )
-    }
-
-    @Test
-    fun `given the recycle bin root when emptying it is confirmed then empty the conversation recycle bin and confirm it`() = runTest {
-        val (arrangement, viewModel) = Arrangement()
-            .withConversationId("conversationId")
-            .withRecycleBin()
-            .withEmptyRecycleBinReturning(Unit.right())
-            .arrange()
-        advanceUntilIdle()
-        assertTrue(viewModel.canEmptyRecycleBin.value)
-
-        viewModel.sendIntent(CellViewIntent.OnEmptyRecycleBinClick)
-        assertEquals(EmptyRecycleBinDialog.Confirmation(), viewModel.emptyRecycleBinDialog.value)
-
-        viewModel.actions.test {
-            viewModel.sendIntent(CellViewIntent.OnEmptyRecycleBinConfirmed)
-            advanceUntilIdle()
-
-            assertEquals(ShowRecycleBinEmptiedMessage, awaitItem())
-        }
-        coVerify(exactly = 1) { arrangement.emptyRecycleBinUseCase("conversationId") }
-        assertNull(viewModel.emptyRecycleBinDialog.value)
-    }
-
-    @Test
-    fun `given no network when emptying the recycle bin fails then show a no network failure`() = runTest {
-        val (_, viewModel) = Arrangement()
-            .withConversationId("conversationId")
-            .withRecycleBin()
-            .withEmptyRecycleBinReturning(NetworkFailure.NoNetworkConnection(null).left())
-            .arrange()
-        advanceUntilIdle()
-        viewModel.sendIntent(CellViewIntent.OnEmptyRecycleBinClick)
-
-        viewModel.sendIntent(CellViewIntent.OnEmptyRecycleBinConfirmed)
-        advanceUntilIdle()
-
-        assertEquals(EmptyRecycleBinDialog.Failure(isNoNetworkConnection = true), viewModel.emptyRecycleBinDialog.value)
-    }
-
-    @Test
-    fun `given emptying the recycle bin in progress when dismissed then keep the confirmation`() = runTest {
-        val result = CompletableDeferred<Either<CoreFailure, Unit>>()
-        val (arrangement, viewModel) = Arrangement()
-            .withConversationId("conversationId")
-            .withRecycleBin()
-            .arrange()
-        coEvery { arrangement.emptyRecycleBinUseCase(any()) } coAnswers { result.await() }
-        advanceUntilIdle()
-        viewModel.sendIntent(CellViewIntent.OnEmptyRecycleBinClick)
-
-        viewModel.sendIntent(CellViewIntent.OnEmptyRecycleBinConfirmed)
-        viewModel.sendIntent(CellViewIntent.OnEmptyRecycleBinDialogDismissed)
-        viewModel.sendIntent(CellViewIntent.OnEmptyRecycleBinConfirmed)
-        advanceUntilIdle()
-
-        assertEquals(EmptyRecycleBinDialog.Confirmation(isInProgress = true), viewModel.emptyRecycleBinDialog.value)
-        coVerify(exactly = 1) { arrangement.emptyRecycleBinUseCase(any()) }
-        result.complete(Unit.right())
-    }
-
-    @Test
-    fun `given a folder inside the recycle bin when emptying is requested then it is not offered`() = runTest {
-        val (_, viewModel) = Arrangement()
-            .withConversationId("conversationId/recycle_bin/folder")
-            .withRecycleBin()
-            .arrange()
-        advanceUntilIdle()
-
-        viewModel.sendIntent(CellViewIntent.OnEmptyRecycleBinClick)
-
-        assertFalse(viewModel.canEmptyRecycleBin.value)
-        assertNull(viewModel.emptyRecycleBinDialog.value)
-    }
-
-    @Test
-    fun `given no network when on the recycle bin root then emptying it is not offered`() = runTest {
-        val (_, viewModel) = Arrangement()
-            .withConversationId("conversationId")
-            .withRecycleBin()
-            .withNoNetwork()
-            .arrange()
-        advanceUntilIdle()
-
-        assertFalse(viewModel.canEmptyRecycleBin.value)
-    }
-
-    @Test
-    fun `given the conversation files when on their root then emptying the recycle bin is not offered`() = runTest {
-        val (_, viewModel) = Arrangement()
-            .withConversationId("conversationId")
-            .arrange()
-        advanceUntilIdle()
-
-        assertFalse(viewModel.canEmptyRecycleBin.value)
     }
 
     @Test
@@ -1201,6 +1074,133 @@ class CellViewModelTest {
     }
 
     @Test
+    fun `given a selected folder when deleted then its path is passed to clean up the files inside it`() = runTest {
+        val (arrangement, viewModel) = Arrangement()
+            .withConversationId("conversationId")
+            .withBulkDeleteReturning(Unit.right())
+            .arrange()
+        val folder = Node.Folder(
+            uuid = "folderUuid",
+            name = "reports",
+            remotePath = "conversationId/reports",
+            modifiedTime = 0L,
+            size = 0,
+        ).toUiModel()
+        val file = testFiles[0].toUiModel()
+        selectNodes(viewModel, listOf(folder, file))
+        viewModel.sendIntent(CellViewIntent.OnDeleteSelectedNodesClick)
+
+        viewModel.sendIntent(CellViewIntent.OnBulkDeleteConfirmed)
+        advanceUntilIdle()
+
+        coVerify(exactly = 1) {
+            arrangement.deleteCellAssetsUseCase(
+                listOf(
+                    NodeToDelete(uuid = "folderUuid", localPath = null, folderPath = "conversationId/reports"),
+                    NodeToDelete(uuid = "fileUuid", localPath = "localPath", folderPath = null),
+                ),
+                any(),
+            )
+        }
+    }
+
+    @Test
+    fun `given the recycle bin root when emptying it is confirmed then empty the conversation recycle bin and confirm it`() = runTest {
+        val (arrangement, viewModel) = Arrangement()
+            .withConversationId("conversationId")
+            .withRecycleBin()
+            .withEmptyRecycleBinReturning(Unit.right())
+            .arrange()
+        advanceUntilIdle()
+        assertTrue(viewModel.canEmptyRecycleBin.value)
+
+        viewModel.sendIntent(CellViewIntent.OnEmptyRecycleBinClick)
+        assertEquals(EmptyRecycleBinDialog.Confirmation(), viewModel.emptyRecycleBinDialog.value)
+
+        viewModel.actions.test {
+            viewModel.sendIntent(CellViewIntent.OnEmptyRecycleBinConfirmed)
+            advanceUntilIdle()
+
+            assertEquals(ShowRecycleBinEmptiedMessage, awaitItem())
+        }
+        coVerify(exactly = 1) { arrangement.emptyRecycleBinUseCase("conversationId") }
+        assertNull(viewModel.emptyRecycleBinDialog.value)
+    }
+
+    @Test
+    fun `given no network when emptying the recycle bin fails then show a no network failure`() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withConversationId("conversationId")
+            .withRecycleBin()
+            .withEmptyRecycleBinReturning(NetworkFailure.NoNetworkConnection(null).left())
+            .arrange()
+        advanceUntilIdle()
+        viewModel.sendIntent(CellViewIntent.OnEmptyRecycleBinClick)
+
+        viewModel.sendIntent(CellViewIntent.OnEmptyRecycleBinConfirmed)
+        advanceUntilIdle()
+
+        assertEquals(EmptyRecycleBinDialog.Failure(isNoNetworkConnection = true), viewModel.emptyRecycleBinDialog.value)
+    }
+
+    @Test
+    fun `given emptying the recycle bin in progress when dismissed then keep the confirmation`() = runTest {
+        val result = CompletableDeferred<Either<CoreFailure, Unit>>()
+        val (arrangement, viewModel) = Arrangement()
+            .withConversationId("conversationId")
+            .withRecycleBin()
+            .arrange()
+        coEvery { arrangement.emptyRecycleBinUseCase(any()) } coAnswers { result.await() }
+        advanceUntilIdle()
+        viewModel.sendIntent(CellViewIntent.OnEmptyRecycleBinClick)
+
+        viewModel.sendIntent(CellViewIntent.OnEmptyRecycleBinConfirmed)
+        viewModel.sendIntent(CellViewIntent.OnEmptyRecycleBinDialogDismissed)
+        viewModel.sendIntent(CellViewIntent.OnEmptyRecycleBinConfirmed)
+        advanceUntilIdle()
+
+        assertEquals(EmptyRecycleBinDialog.Confirmation(isInProgress = true), viewModel.emptyRecycleBinDialog.value)
+        coVerify(exactly = 1) { arrangement.emptyRecycleBinUseCase(any()) }
+        result.complete(Unit.right())
+    }
+
+    @Test
+    fun `given a folder inside the recycle bin when emptying is requested then it is not offered`() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withConversationId("conversationId/recycle_bin/folder")
+            .withRecycleBin()
+            .arrange()
+        advanceUntilIdle()
+
+        viewModel.sendIntent(CellViewIntent.OnEmptyRecycleBinClick)
+
+        assertFalse(viewModel.canEmptyRecycleBin.value)
+        assertNull(viewModel.emptyRecycleBinDialog.value)
+    }
+
+    @Test
+    fun `given no network when on the recycle bin root then emptying it is not offered`() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withConversationId("conversationId")
+            .withRecycleBin()
+            .withNoNetwork()
+            .arrange()
+        advanceUntilIdle()
+
+        assertFalse(viewModel.canEmptyRecycleBin.value)
+    }
+
+    @Test
+    fun `given the conversation files when on their root then emptying the recycle bin is not offered`() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withConversationId("conversationId")
+            .arrange()
+        advanceUntilIdle()
+
+        assertFalse(viewModel.canEmptyRecycleBin.value)
+    }
+
+    @Test
     fun `GIVEN no cells available WHEN ViewModel initialized THEN no load request is sent`() = runTest {
         val (arrangement, viewModel) = Arrangement()
             .withNoCellsAvailable()
@@ -1320,19 +1320,20 @@ class CellViewModelTest {
     }
 
     @Test
-    fun `given no files stage successfully, when upload is confirmed, then the upload screen still opens and an error is shown`() = runTest {
-        val (_, viewModel) = Arrangement().withConversationId("conversationId").arrange()
-        val pickedUris = List(2) { mockk<Uri>() }
-        // default arrangement stubs uploadFilePreparer.prepare to return null for any uri
-        viewModel.sendIntent(CellViewIntent.OnFilesPickedForUpload(pickedUris))
+    fun `given no files stage successfully, when upload is confirmed, then the upload screen still opens and an error is shown`() =
+        runTest {
+            val (_, viewModel) = Arrangement().withConversationId("conversationId").arrange()
+            val pickedUris = List(2) { mockk<Uri>() }
+            // default arrangement stubs uploadFilePreparer.prepare to return null for any uri
+            viewModel.sendIntent(CellViewIntent.OnFilesPickedForUpload(pickedUris))
 
-        viewModel.actions.test {
-            viewModel.confirmUpload()
+            viewModel.actions.test {
+                viewModel.confirmUpload()
 
-            assertEquals(FilesPickedForUpload(pickedUris), awaitItem())
-            assertEquals(ShowError(CellError.UPLOAD_PREPARATION_FAILED), awaitItem())
+                assertEquals(FilesPickedForUpload(pickedUris), awaitItem())
+                assertEquals(ShowError(CellError.UPLOAD_PREPARATION_FAILED), awaitItem())
+            }
         }
-    }
 
     @Test
     fun `given some files fail to stage, when upload is confirmed, then upload screen opens and an error is also shown`() = runTest {
@@ -1796,7 +1797,9 @@ class CellViewModelTest {
             )
 
             return this to CellViewModel(
-                navArgs = CellFilesNavArgs(conversationId = conversationId, isRecycleBin = isRecycleBin, parentFolderUuid = parentFolderUuid),
+                navArgs = CellFilesNavArgs(
+                    conversationId = conversationId, isRecycleBin = isRecycleBin, parentFolderUuid = parentFolderUuid
+                ),
                 searchNavArgs = searchNavArgs,
                 getCellFilesPaged = getCellFilesPagedUseCase,
                 deleteCellAsset = deleteCellAssetUseCase,

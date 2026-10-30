@@ -226,6 +226,7 @@ private fun InputContent(
 ) {
     ConstraintLayout(modifier = modifier) {
         val (additionalOptionButton, input, actions) = createRefs()
+        val typingIndicator = createRef()
         val buttonsTopBarrier = createTopBarrier(additionalOptionButton, actions)
         Box(
             contentAlignment = Alignment.BottomStart,
@@ -286,13 +287,6 @@ private fun InputContent(
                     bottom.linkTo(parent.bottom)
                 }
         ) {
-            if (isTextExpanded) {
-                Box(modifier = Modifier.align(Alignment.BottomCenter)) {
-                    UsersTypingIndicatorForConversation(
-                        conversationId = conversationId,
-                    )
-                }
-            }
             // Only show send button when not in editing mode
             if (inputType !is InputType.Editing) {
                 MessageSendActions(
@@ -301,6 +295,23 @@ private fun InputContent(
                     selfDeletionTimer = viewModel.state(),
                     onChangeSelfDeletionClicked = onChangeSelfDeletionClicked,
                     modifier = Modifier.padding(end = dimensions().spacing8x)
+                )
+            }
+        }
+
+        if (isTextExpanded) {
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier.constrainAs(typingIndicator) {
+                    start.linkTo(additionalOptionButton.end)
+                    end.linkTo(actions.start)
+                    top.linkTo(actions.top)
+                    bottom.linkTo(actions.bottom)
+                    width = Dimension.fillToConstraints
+                }
+            ) {
+                UsersTypingIndicatorForConversation(
+                    conversationId = conversationId,
                 )
             }
         }

@@ -34,9 +34,12 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.input.InputTransformation
 import androidx.compose.foundation.text.input.KeyboardActionHandler
 import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.foundation.text.input.maxLength
+import androidx.compose.foundation.text.input.then
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -125,6 +128,7 @@ fun ActiveMessageComposerInput(
     optionsSelected: Boolean,
     onPlusClick: () -> Unit,
     useKeyboardActivationGate: Boolean,
+    inputTransformation: InputTransformation? = null,
     modifier: Modifier = Modifier,
     onHardwareTab: (isShiftPressed: Boolean) -> Boolean = { false },
     onHardwareEscape: () -> Boolean = { false },
@@ -157,6 +161,7 @@ fun ActiveMessageComposerInput(
         InputContent(
             conversationId = conversationId,
             messageTextState = messageTextState,
+            inputTransformation = inputTransformation,
             isTextExpanded = isTextExpanded,
             inputType = inputType,
             focusRequester = focusRequester,
@@ -218,6 +223,7 @@ private fun InputContent(
     optionsSelected: Boolean,
     onPlusClick: () -> Unit,
     useKeyboardActivationGate: Boolean,
+    inputTransformation: InputTransformation? = null,
     modifier: Modifier = Modifier,
     viewModel: SelfDeletingMessageActionViewModel =
         selfDeletingMessageActionViewModel(
@@ -248,6 +254,7 @@ private fun InputContent(
             focusRequester = focusRequester,
             colors = inputType.inputTextColor(isSelfDeleting = viewModel.state().duration != null),
             messageTextState = messageTextState,
+            inputTransformation = inputTransformation,
             placeHolderText = viewModel.state().duration?.let { stringResource(id = R.string.self_deleting_message_label) }
                 ?: inputType.labelText(),
             onFocused = onFocused,
@@ -322,6 +329,7 @@ internal fun MessageComposerTextInput(
     onHardwareTab: (isShiftPressed: Boolean) -> Boolean,
     onHardwareEscape: () -> Boolean,
     useKeyboardActivationGate: Boolean,
+    inputTransformation: InputTransformation? = null,
     modifier: Modifier = Modifier,
     onSelectedLineIndexChanged: (Int) -> Unit = { },
     onLineBottomYCoordinateChanged: (Float) -> Unit = { },
@@ -340,7 +348,10 @@ internal fun MessageComposerTextInput(
 
     fun activateInput(initialText: String? = null) {
         initialText?.let { text ->
-            messageTextState.edit { append(text) }
+            messageTextState.edit {
+                append(text)
+                inputTransformation?.let { with(it) { transformInput() } }
+            }
         }
         isInputActive = true
         onFocused()
@@ -409,6 +420,9 @@ internal fun MessageComposerTextInput(
     ) {
         WireTextField(
             textState = messageTextState,
+            inputTransformation = InputTransformation.maxLength(8000).let { maxLength ->
+                inputTransformation?.let { maxLength.then(it) } ?: maxLength
+            },
             colors = colors,
             textStyle = MaterialTheme.wireTypography.body01,
             // Add an extra space so that the cursor is placed one space before "Type a message"

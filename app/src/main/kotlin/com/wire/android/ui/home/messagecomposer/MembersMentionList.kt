@@ -26,11 +26,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.unit.Dp
 import com.wire.android.model.Clickable
+import com.wire.android.model.Contact
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.preview.MultipleThemePreviews
 import com.wire.android.ui.home.conversations.mention.MemberItemToMention
 import com.wire.android.ui.home.conversationslist.model.Membership
-import com.wire.android.model.Contact
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.kalium.logic.data.user.ConnectionState
@@ -44,14 +44,18 @@ fun MembersMentionList(
     useKeyboardNavigation: Boolean = false,
     firstItemFocusRequester: FocusRequester = FocusRequester.Default,
     onDismissRequest: () -> Unit = {},
+    showEveryoneMention: Boolean = false,
+    onEveryoneMentionPicked: () -> Unit = {},
 ) {
-    if (membersToMention.isNotEmpty()) {
+    if (membersToMention.isNotEmpty() || showEveryoneMention) {
         HorizontalDivider()
     }
     val visibleMembers = membersToMention.filter { it.membership != Membership.Service }
     if (useKeyboardNavigation) {
         KeyboardMentionList(
             membersToMention = visibleMembers,
+            showEveryoneMention = showEveryoneMention,
+            onEveryoneMentionPicked = onEveryoneMentionPicked,
             searchQuery = searchQuery,
             onMentionPicked = onMentionPicked,
             onDismissRequest = onDismissRequest,
@@ -64,6 +68,15 @@ fun MembersMentionList(
             modifier = modifier.background(colorsScheme().background),
             reverseLayout = true
         ) {
+            if (showEveryoneMention) {
+                item(key = "everyone") {
+                    EveryoneItemToMention(
+                        searchQuery = searchQuery,
+                        clickable = Clickable { onEveryoneMentionPicked() },
+                    )
+                    HorizontalDivider(thickness = Dp.Hairline, color = MaterialTheme.wireColorScheme.divider)
+                }
+            }
             visibleMembers.forEach {
                 item {
                     MemberItemToMention(

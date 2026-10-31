@@ -21,6 +21,8 @@ package com.wire.android.ui.markdown
 
 import com.wire.android.appLogger
 import com.wire.android.util.ui.UIText
+import com.wire.kalium.logic.data.message.mention.MessageMention
+import java.util.UUID
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toPersistentList
 import org.commonmark.ext.gfm.strikethrough.Strikethrough
@@ -55,23 +57,32 @@ import org.commonmark.node.ThematicBreak
 fun String.toMarkdownDocument(): MarkdownNode.Document = MarkdownParser.parse(this)
 
 // Builds a markdown-ready string by inserting mention markers and returning display mentions.
+fun String.toMarkdownTextWithMentions(messageMentions: List<MessageMention>): Pair<List<DisplayMention>, String> =
+    UIText.DynamicString(this, messageMentions).toMarkdownTextWithMentions()
+
 fun UIText.DynamicString.toMarkdownTextWithMentions(): Pair<List<DisplayMention>, String> {
+    if (mentions.isEmpty()) return Pair(emptyList(), value)
     val stringBuilder: StringBuilder = StringBuilder(value)
+    // A fresh private-use token prevents authored or entity-decoded text from impersonating a target.
+    val markerPrefix = MarkdownConstants.MENTION_MARK + UUID.randomUUID().toString()
+        .map { '\uE000' + it.code }.joinToString("")
     val mentions = mentions
         .filter { it.start >= 0 && it.length > 0 }
         .sortedBy { it.start }
         .reversed()
-    val mentionList = mentions.mapNotNull { mention ->
+    val mentionList = mentions.mapIndexedNotNull { index, mention ->
         // Guard against invalid mention ranges (e.g. inconsistent backend data).
-        if (mention.start + mention.length <= value.length && value[mention.start] == '@') {
+        if (mention.start <= value.length - mention.length && value[mention.start] == '@') {
             val mentionName = value.substring(mention.start, mention.start + mention.length)
+            val marker = markerPrefix + index.toString().map { '\uE001' + (it - '0') }.joinToString("") + '\uE00B'
             stringBuilder.insert(mention.start + mention.length, MarkdownConstants.MENTION_MARK)
-            stringBuilder.insert(mention.start, MarkdownConstants.MENTION_MARK)
+            stringBuilder.insert(mention.start, marker)
             DisplayMention(
                 mention.userId,
                 mention.length,
                 mention.isSelfMention,
-                mentionName
+                mentionName,
+                marker
             )
         } else {
             null

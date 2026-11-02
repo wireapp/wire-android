@@ -288,7 +288,7 @@ internal fun CellScreenContent(
             ).show()
             is ShowRecycleBinEmptiedMessage -> Toast.makeText(
                 context,
-                context.getString(R.string.cells_empty_recycle_bin_success),
+                context.resources.getString(R.string.cells_empty_recycle_bin_success),
                 Toast.LENGTH_LONG
             ).show()
             is OpenFolder -> openFolder(action.path, action.title, action.parentFolderUuid)

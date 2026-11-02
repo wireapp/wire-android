@@ -142,6 +142,7 @@ class CellViewModel @AssistedInject constructor(
     @Named("drivePermissionsEnabled") val drivePermissionsEnabled: Boolean,
     @Named("driveDirectUploadEnabled") val driveDirectUploadEnabled: Boolean,
     @Named("driveBulkActionsEnabled") private val driveBulkActionsEnabled: Boolean,
+    @Named("driveOfflineEnabled") private val driveOfflineEnabled: Boolean,
 ) : ActionsViewModel<CellViewAction>() {
 
     @AssistedFactory
@@ -243,6 +244,9 @@ class CellViewModel @AssistedInject constructor(
     )
     internal val selectedNodes: StateFlow<Map<String, CellNodeUi>> = bulkSelection.selectedNodes
     internal val isBulkSelectionEnabled: StateFlow<Boolean> = bulkSelection.isEnabled
+
+    /** Whether the bulk actions bar offers the offline actions (make available / remove offline access). */
+    internal val bulkOfflineActionsEnabled: Boolean = offlineFilesEnabled && driveOfflineEnabled
 
     /** The bulk selection tip, shown wherever selection is available until dismissed or the gesture is first used. */
     internal val showBulkSelectionHint: StateFlow<Boolean> = combine(
@@ -474,6 +478,7 @@ class CellViewModel @AssistedInject constructor(
             is CellViewIntent.OnBulkRestoreConfirmed -> restoreSelectedNodes()
             is CellViewIntent.OnBulkRestoreDialogDismissed -> dismissBulkRestoreDialog()
             is CellViewIntent.OnMakeSelectedNodesAvailableOfflineClick -> Unit
+            is CellViewIntent.OnRemoveSelectedNodesOfflineAccessClick -> removeSelectedNodesOfflineAccess()
 
             is CellViewIntent.OnItemMenuClick -> onItemMenuClick(intent.cellNode)
             is CellViewIntent.OnMenuItemActionSelected -> onMenuItemAction(intent.node, intent.action)
@@ -548,6 +553,14 @@ class CellViewModel @AssistedInject constructor(
         // Selection mode ends as the destination picker opens; the moved nodes leave this folder anyway.
         bulkSelection.clear()
         sendAction(ShowBulkMoveToFolderScreen(currentPath = folderPath.substringBefore("/"), nodes = nodes))
+    }
+
+    private fun removeSelectedNodesOfflineAccess() {
+        val files = bulkSelection.selectedNodes.value.values
+            .filterIsInstance<CellNodeUi.File>()
+            .filter { it.isAvailableOffline }
+        bulkSelection.clear()
+        files.forEach { removeOfflineAccess(it) }
     }
 
     private fun showBulkDeleteConfirmation() {
@@ -1025,6 +1038,7 @@ sealed interface CellViewIntent {
     data object OnBulkRestoreConfirmed : CellViewIntent
     data object OnBulkRestoreDialogDismissed : CellViewIntent
     data object OnMakeSelectedNodesAvailableOfflineClick : CellViewIntent
+    data object OnRemoveSelectedNodesOfflineAccessClick : CellViewIntent
     data class OnMenuItemActionSelected(val node: CellNodeUi, val action: NodeBottomSheetAction) : CellViewIntent
     data class OnNodeDeleteConfirmed(val node: CellNodeUi) : CellViewIntent
     data class OnNodeRestoreConfirmed(val node: CellNodeUi) : CellViewIntent

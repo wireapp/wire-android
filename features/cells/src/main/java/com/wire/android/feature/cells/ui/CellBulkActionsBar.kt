@@ -117,6 +117,11 @@ internal enum class CellBulkAction(
     Move(R.drawable.ic_folder, R.string.cells_bulk_action_move),
     Delete(commonR.drawable.ic_delete, R.string.cells_bulk_action_delete),
     MakeAvailableOffline(R.drawable.ic_arrow_down_circle, R.string.cells_bulk_action_offline, R.string.make_available_offline_label),
+    RemoveOfflineAccess(
+        R.drawable.ic_arrow_down_circle_off,
+        R.string.cells_bulk_action_remove_offline,
+        R.string.remove_offline_access_label,
+    ),
 
     /** Recycle bin only: the nodes are already there, deleting them is for good. */
     DeletePermanently(commonR.drawable.ic_delete, R.string.cells_bulk_action_delete, R.string.delete_permanently),
@@ -131,6 +136,7 @@ internal fun CellBulkAction.toIntent(): CellViewIntent = when (this) {
     CellBulkAction.Delete,
     CellBulkAction.DeletePermanently -> CellViewIntent.OnDeleteSelectedNodesClick
     CellBulkAction.MakeAvailableOffline -> CellViewIntent.OnMakeSelectedNodesAvailableOfflineClick
+    CellBulkAction.RemoveOfflineAccess -> CellViewIntent.OnRemoveSelectedNodesOfflineAccessClick
     CellBulkAction.Restore -> CellViewIntent.OnRestoreSelectedNodesClick
 }
 

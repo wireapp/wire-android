@@ -31,6 +31,7 @@ class CellFileActionsMenu @Inject constructor(
     private val featureFlags: KaliumConfigs,
     @Named("offlineFilesEnabled") private val offlineFilesEnabled: Boolean,
     @Named("drivePermissionsEnabled") val drivePermissionsEnabled: Boolean,
+    @Named("driveOfflineEnabled") private val driveOfflineEnabled: Boolean,
     ) {
     internal fun buildMenu(
         cellNode: CellNodeUi,
@@ -48,7 +49,7 @@ class CellFileActionsMenu @Inject constructor(
                 if (canOpenOffline) {
                     add(NodeMenuItem(NodeBottomSheetAction.OPEN))
                 }
-                if (cellNode is CellNodeUi.File && cellNode.isAvailableOffline) {
+                if (driveOfflineEnabled && cellNode is CellNodeUi.File && cellNode.isAvailableOffline) {
                     add(NodeMenuItem(NodeBottomSheetAction.REMOVE_OFFLINE_ACCESS))
                 }
             }
@@ -117,7 +118,7 @@ class CellFileActionsMenu @Inject constructor(
 
                     if (offlineFilesEnabled) {
                         if (cellNode.isAvailableOffline) {
-                            add(NodeMenuItem(NodeBottomSheetAction.REMOVE_OFFLINE_ACCESS))
+                            if (driveOfflineEnabled) add(NodeMenuItem(NodeBottomSheetAction.REMOVE_OFFLINE_ACCESS))
                         } else if (featureFlags.collaboraIntegration && !cellNode.isEditSupported()) {
                             addRestrictedForViewerOnly(
                                 NodeBottomSheetAction.MAKE_AVAILABLE_OFFLINE,

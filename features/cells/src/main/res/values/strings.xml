@@ -380,4 +380,5 @@
     <string name="cells_bulk_permanent_delete_failure_message_many">Something went wrong while deleting the items. Some of them may have been permanently deleted, so check the recycle bin before trying again.</string>
     <string name="cells_bulk_permanent_delete_failure_message_many_no_network">The connection was lost while deleting the items. Some of them may have been permanently deleted, so check the recycle bin before trying again.</string>
     <string name="cells_bulk_action_offline">Offline</string>
+    <string name="cells_bulk_action_remove_offline">Remove offline</string>
 </resources>

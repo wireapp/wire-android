@@ -1,0 +1,2 @@
+"Status","Start Time","Stop Time","Duration in ms","Parent Suite","Suite","Sub Suite","Test Class","Test Method","Name","Description"
+"failed","Mon Nov 02 16:24:45 CET 2026","Mon Nov 02 16:25:47 CET 2026","61707","","com.wire.android.tests.core.e2eTests.MessagingTests","","com.wire.android.tests.core.e2eTests.MessagingTests","givenOneOnOneConversationWithTeamMember_whenIExchangeMessages_thenMessagesAreSentAndReceived","givenOneOnOneConversationWithTeamMember_whenIExchangeMessages_thenMessagesAreSentAndReceived",""

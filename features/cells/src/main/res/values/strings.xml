@@ -116,6 +116,7 @@
     <string name="remove_offline_access_label">Remove offline access</string>
     <string name="viewer_access_label">Viewer access</string>
     <string name="viewer_access_disabled_content_description">%1$s, disabled in viewer access</string>
+    <string name="cell_item_name_viewer_access_content_description">%1$s, viewer access</string>
     <string name="offline_file_saved_message">File saved for offline use</string>
     <string name="offline_banner_message">You\'re offline and can see only saved files</string>
     <string name="file_open_snackbar_message">\"%1$s\" ready to open</string>
@@ -144,6 +145,7 @@
     <string name="cells_move_failure_dialog_message_many">Something went wrong while moving the items. Some of them may have been moved, so check both folders before trying again.</string>
     <string name="cells_move_failure_dialog_message_many_no_network">The connection was lost while moving the items. Some of them may have been moved, so check both folders before trying again.</string>
     <string name="content_description_conversation_files_more_button">Open files options</string>
+    <string name="content_description_cell_item_more_button">More options for %1$s</string>
     <string name="recycle_bin">Recycle Bin</string>
     <string name="open_recycle_bin">Open Recycle Bin</string>
     <string name="empty_recycle_bin">You\'ll find all deleted files and folders here.</string>

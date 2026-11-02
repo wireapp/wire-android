@@ -1,1 +1,1 @@
-[{"uid":"cbff64321d151d40","name":"givenOneOnOneConversationWithTeamMember_whenIExchangeMessages_thenMessagesAreSentAndReceived","time":{"start":1793656152715,"stop":1793656212235,"duration":59520},"status":"failed","severity":"normal"}]
+[{"uid":"af8cd227ac77c978","name":"givenOneOnOneConversationWithTeamMember_whenIExchangeMessages_thenMessagesAreSentAndReceived","time":{"start":1793657229662,"stop":1793657281104,"duration":51442},"status":"passed","severity":"normal"}]

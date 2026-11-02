@@ -1,1 +1,1 @@
-{"reportName":"Android UI Tests (4.39.0-50029)","testRuns":[],"statistic":{"failed":1,"broken":0,"skipped":0,"passed":0,"unknown":0,"total":1},"time":{"start":1793656152715,"stop":1793656212235,"duration":59520,"minDuration":59520,"maxDuration":59520,"sumDuration":59520}}
+{"reportName":"Android UI Tests (4.39.0-50029)","testRuns":[],"statistic":{"failed":0,"broken":0,"skipped":0,"passed":1,"unknown":0,"total":1},"time":{"start":1793657229662,"stop":1793657281104,"duration":51442,"minDuration":51442,"maxDuration":51442,"sumDuration":51442}}

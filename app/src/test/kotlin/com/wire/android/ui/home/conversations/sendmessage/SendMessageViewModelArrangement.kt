@@ -64,6 +64,7 @@ import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
 import okio.Path
 import okio.buffer
+import kotlin.coroutines.cancellation.CancellationException
 
 internal class SendMessageViewModelArrangement {
 
@@ -288,6 +289,10 @@ internal class SendMessageViewModelArrangement {
 
     fun withHandleUriAsset(result: HandleUriAssetUseCase.Result) = apply {
         coEvery { handleUriAssetUseCase.invoke(any(), any(), any(), any()) } returns result
+    }
+
+    fun withHandleUriAssetCancelled() = apply {
+        coEvery { handleUriAssetUseCase.invoke(any(), any(), any(), any()) } throws CancellationException("cancelled")
     }
 
     fun withInformAboutVerificationBeforeMessagingFlag(flag: Boolean) = apply {

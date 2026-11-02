@@ -146,8 +146,11 @@ class MessageAttachmentsViewModel @AssistedInject constructor(
     }
 
     fun onCameraCaptured(uri: Uri) = viewModelScope.launch {
-        val asset = handleImportedAsset(uri)
-        fileManager.deleteCameraCapture(uri)
+        val asset = try {
+            handleImportedAsset(uri)
+        } finally {
+            fileManager.deleteCameraCapture(uri)
+        }
         asset?.let { enqueueOrAddAttachment(it.assetBundle) }
     }
 

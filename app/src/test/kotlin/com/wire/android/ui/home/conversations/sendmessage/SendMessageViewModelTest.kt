@@ -532,6 +532,23 @@ class SendMessageViewModelTest {
         }
 
     @Test
+    fun `given handling a camera capture is cancelled, when sending, then the capture file is still deleted`() =
+        runTest {
+            val captureUri = "image_attachment.jpg".toUri()
+            val (arrangement, viewModel) = SendMessageViewModelArrangement()
+                .withSuccessfulViewModelInit()
+                .withHandleUriAssetCancelled()
+                .arrange()
+
+            viewModel.trySendMessage(
+                ComposableMessageBundle.UriPickedBundle(conversationId, UriAsset(captureUri, isCameraCapture = true))
+            )
+            advanceUntilIdle()
+
+            verify(exactly = 1) { arrangement.fileManager.deleteCameraCapture(captureUri) }
+        }
+
+    @Test
     fun `given a camera capture fails to be handled, when sending, then the capture file is deleted`() =
         runTest {
             val captureUri = "image_attachment.jpg".toUri()

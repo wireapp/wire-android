@@ -345,14 +345,17 @@ class SendMessageViewModel @AssistedInject constructor(
         conversationId: ConversationId,
         attachmentUri: UriAsset
     ) {
-        val handleResult = handleUriAsset.invoke(
-            uri = attachmentUri.uri,
-            saveToDeviceIfInvalid = attachmentUri.saveToDeviceIfInvalid,
-            specifiedMimeType = attachmentUri.mimeType,
-            audioWavesMask = attachmentUri.audioWavesMask,
-        )
-        if (attachmentUri.isCameraCapture) {
-            fileManager.deleteCameraCapture(attachmentUri.uri)
+        val handleResult = try {
+            handleUriAsset.invoke(
+                uri = attachmentUri.uri,
+                saveToDeviceIfInvalid = attachmentUri.saveToDeviceIfInvalid,
+                specifiedMimeType = attachmentUri.mimeType,
+                audioWavesMask = attachmentUri.audioWavesMask,
+            )
+        } finally {
+            if (attachmentUri.isCameraCapture) {
+                fileManager.deleteCameraCapture(attachmentUri.uri)
+            }
         }
         when (val result = handleResult) {
             is HandleUriAssetUseCase.Result.Failure.AssetTooLarge -> {

@@ -48,6 +48,7 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import kotlin.coroutines.cancellation.CancellationException
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(CoroutineTestExtension::class)
@@ -64,6 +65,18 @@ class MessageAttachmentsViewModelTest {
         viewModel.onCameraCaptured(captureUri)
 
         coVerify(exactly = 1) { arrangement.addAttachment(any(), any(), any(), any(), any(), any()) }
+        verify(exactly = 1) { arrangement.fileManager.deleteCameraCapture(captureUri) }
+    }
+
+    @Test
+    fun givenHandlingCameraCaptureIsCancelled_whenCameraCaptured_thenCaptureFileIsStillDeleted() = runTest {
+        val captureUri = mockk<Uri>()
+        val (arrangement, viewModel) = Arrangement()
+            .withHandleUriAssetCancelled()
+            .arrange()
+
+        viewModel.onCameraCaptured(captureUri)
+
         verify(exactly = 1) { arrangement.fileManager.deleteCameraCapture(captureUri) }
     }
 
@@ -489,6 +502,11 @@ class MessageAttachmentsViewModelTest {
             initializeMocks()
             coEvery { handleUriAsset.invoke(any(), any(), any(), any(), any()) } returns
                 HandleUriAssetUseCase.Result.Failure.AssetTooLarge(bundleNamed(fileName), maxLimitInMB = 25)
+        }
+
+        fun withHandleUriAssetCancelled() = apply {
+            initializeMocks()
+            coEvery { handleUriAsset.invoke(any(), any(), any(), any(), any()) } throws CancellationException("cancelled")
         }
 
         fun withHandleUriAssetUnknownFailure() = apply {

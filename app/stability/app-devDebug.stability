@@ -8802,7 +8802,7 @@ public fun com.wire.android.ui.home.messagecomposer.recordaudio.MicrophonePermis
     - onOpenSettings: STABLE (function type)
 
 @Composable
-private fun com.wire.android.ui.home.messagecomposer.recordaudio.RecordAudioButton(onClick: kotlin.Function0<kotlin.Unit>, topContent: @[Composable] androidx.compose.runtime.internal.ComposableFunction0<kotlin.Unit>, iconResId: kotlin.Int?, contentDescription: kotlin.Int, bottomText: kotlin.Int, applyAudioFilterState: kotlin.Boolean, applyAudioFilterClick: kotlin.Function1<kotlin.Boolean, kotlin.Unit>, modifier: androidx.compose.ui.Modifier, buttonState: com.wire.android.ui.common.button.WireButtonState, isAudioFilterEnabled: kotlin.Boolean, loading: kotlin.Boolean, trailingIconAlignment: com.wire.android.ui.common.button.IconAlignment): kotlin.Unit
+private fun com.wire.android.ui.home.messagecomposer.recordaudio.RecordAudioButton(onClick: kotlin.Function0<kotlin.Unit>, topContent: @[Composable] androidx.compose.runtime.internal.ComposableFunction0<kotlin.Unit>, iconResId: kotlin.Int?, contentDescription: kotlin.Int, bottomText: kotlin.Int, applyAudioFilterState: kotlin.Boolean, applyAudioFilterClick: kotlin.Function1<kotlin.Boolean, kotlin.Unit>, modifier: androidx.compose.ui.Modifier, buttonModifier: androidx.compose.ui.Modifier, audioFilterModifier: androidx.compose.ui.Modifier, buttonState: com.wire.android.ui.common.button.WireButtonState, isAudioFilterEnabled: kotlin.Boolean, loading: kotlin.Boolean, trailingIconAlignment: com.wire.android.ui.common.button.IconAlignment): kotlin.Unit
   skippable: true
   restartable: true
   params:
@@ -8814,6 +8814,8 @@ private fun com.wire.android.ui.home.messagecomposer.recordaudio.RecordAudioButt
     - applyAudioFilterState: STABLE (primitive type)
     - applyAudioFilterClick: STABLE (function type)
     - modifier: STABLE (marked @Stable or @Immutable)
+    - buttonModifier: STABLE (marked @Stable or @Immutable)
+    - audioFilterModifier: STABLE (marked @Stable or @Immutable)
     - buttonState: UNKNOWN (interface or non-final class; concrete implementation unknown)
     - isAudioFilterEnabled: STABLE (primitive type)
     - loading: STABLE (primitive type)
@@ -8828,16 +8830,6 @@ public fun com.wire.android.ui.home.messagecomposer.recordaudio.RecordAudioButto
     - modifier: STABLE (marked @Stable or @Immutable)
 
 @Composable
-public fun com.wire.android.ui.home.messagecomposer.recordaudio.RecordAudioButtonEnabled(applyAudioFilterState: kotlin.Boolean, applyAudioFilterClick: kotlin.Function1<kotlin.Boolean, kotlin.Unit>, onClick: kotlin.Function0<kotlin.Unit>, modifier: androidx.compose.ui.Modifier): kotlin.Unit
-  skippable: true
-  restartable: true
-  params:
-    - applyAudioFilterState: STABLE (primitive type)
-    - applyAudioFilterClick: STABLE (function type)
-    - onClick: STABLE (function type)
-    - modifier: STABLE (marked @Stable or @Immutable)
-
-@Composable
 public fun com.wire.android.ui.home.messagecomposer.recordaudio.RecordAudioButtonEncoding(applyAudioFilterState: kotlin.Boolean, modifier: androidx.compose.ui.Modifier): kotlin.Unit
   skippable: true
   restartable: true
@@ -8846,31 +8838,36 @@ public fun com.wire.android.ui.home.messagecomposer.recordaudio.RecordAudioButto
     - modifier: STABLE (marked @Stable or @Immutable)
 
 @Composable
-public fun com.wire.android.ui.home.messagecomposer.recordaudio.RecordAudioButtonRecording(applyAudioFilterState: kotlin.Boolean, onClick: kotlin.Function0<kotlin.Unit>, modifier: androidx.compose.ui.Modifier): kotlin.Unit
-  skippable: true
-  restartable: true
-  params:
-    - applyAudioFilterState: STABLE (primitive type)
-    - onClick: STABLE (function type)
-    - modifier: STABLE (marked @Stable or @Immutable)
-
-@Composable
-public fun com.wire.android.ui.home.messagecomposer.recordaudio.RecordAudioButtonSend(applyAudioFilterState: kotlin.Boolean, audioState: com.wire.android.media.audiomessage.AudioState, wavesMask: kotlin.collections.List<kotlin.Int>?, onClick: kotlin.Function0<kotlin.Unit>, outputFile: java.io.File?, onPlayAudio: kotlin.Function0<kotlin.Unit>, onSliderPositionChange: kotlin.Function1<kotlin.Int, kotlin.Unit>, modifier: androidx.compose.ui.Modifier, applyAudioFilterClick: kotlin.Function1<kotlin.Boolean, kotlin.Unit>): kotlin.Unit
+public fun com.wire.android.ui.home.messagecomposer.recordaudio.RecordAudioButtonSend(applyAudioFilterState: kotlin.Boolean, audioState: com.wire.android.media.audiomessage.AudioState, wavesMask: kotlin.collections.List<kotlin.Int>?, outputFile: java.io.File?, onClick: kotlin.Function0<kotlin.Unit>, onPlayAudio: kotlin.Function0<kotlin.Unit>, onSliderPositionChange: kotlin.Function1<kotlin.Int, kotlin.Unit>, modifier: androidx.compose.ui.Modifier, buttonModifier: androidx.compose.ui.Modifier, applyAudioFilterClick: kotlin.Function1<kotlin.Boolean, kotlin.Unit>): kotlin.Unit
   skippable: true
   restartable: true
   params:
     - applyAudioFilterState: STABLE (primitive type)
     - audioState: UNKNOWN (interface or non-final class; concrete implementation unknown)
     - wavesMask: RUNTIME (requires runtime check)
-    - onClick: STABLE (function type)
     - outputFile: UNSTABLE (Java class; stability cannot be inferred)
+    - onClick: STABLE (function type)
     - onPlayAudio: STABLE (function type)
     - onSliderPositionChange: STABLE (function type)
     - modifier: STABLE (marked @Stable or @Immutable)
+    - buttonModifier: STABLE (marked @Stable or @Immutable)
     - applyAudioFilterClick: STABLE (function type)
 
 @Composable
-public fun com.wire.android.ui.home.messagecomposer.recordaudio.RecordAudioComponent(onAudioRecorded: kotlin.Function1<com.wire.android.ui.home.conversations.model.UriAsset, kotlin.Unit>, onCloseRecordAudio: kotlin.Function0<kotlin.Unit>, modifier: androidx.compose.ui.Modifier, lifecycleOwner: androidx.lifecycle.LifecycleOwner): kotlin.Unit
+public fun com.wire.android.ui.home.messagecomposer.recordaudio.RecordAudioButtonStartStop(isRecording: kotlin.Boolean, applyAudioFilterState: kotlin.Boolean, applyAudioFilterClick: kotlin.Function1<kotlin.Boolean, kotlin.Unit>, onClick: kotlin.Function0<kotlin.Unit>, modifier: androidx.compose.ui.Modifier, buttonModifier: androidx.compose.ui.Modifier, audioFilterModifier: androidx.compose.ui.Modifier): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - isRecording: STABLE (primitive type)
+    - applyAudioFilterState: STABLE (primitive type)
+    - applyAudioFilterClick: STABLE (function type)
+    - onClick: STABLE (function type)
+    - modifier: STABLE (marked @Stable or @Immutable)
+    - buttonModifier: STABLE (marked @Stable or @Immutable)
+    - audioFilterModifier: STABLE (marked @Stable or @Immutable)
+
+@Composable
+public fun com.wire.android.ui.home.messagecomposer.recordaudio.RecordAudioComponent(onAudioRecorded: kotlin.Function1<com.wire.android.ui.home.conversations.model.UriAsset, kotlin.Unit>, onCloseRecordAudio: kotlin.Function0<kotlin.Unit>, modifier: androidx.compose.ui.Modifier, lifecycleOwner: androidx.lifecycle.LifecycleOwner, useKeyboardNavigation: kotlin.Boolean): kotlin.Unit
   skippable: true
   restartable: true
   params:
@@ -8878,6 +8875,7 @@ public fun com.wire.android.ui.home.messagecomposer.recordaudio.RecordAudioCompo
     - onCloseRecordAudio: STABLE (function type)
     - modifier: STABLE (marked @Stable or @Immutable)
     - lifecycleOwner: UNKNOWN (interface or non-final class; concrete implementation unknown)
+    - useKeyboardNavigation: STABLE (primitive type)
 
 @Composable
 private fun com.wire.android.ui.home.messagecomposer.recordaudio.RecordAudioFlow(startRecording: kotlin.Function0<kotlin.Unit>, onAudioPermissionPermanentlyDenied: kotlin.Function0<kotlin.Unit>): com.wire.android.util.permission.RequestLauncher
@@ -8894,6 +8892,15 @@ public fun com.wire.android.ui.home.messagecomposer.recordaudio.RecordedAudioMax
   params:
     - dialogState: UNKNOWN (interface or non-final class; concrete implementation unknown)
     - onDismiss: STABLE (function type)
+
+@Composable
+private fun com.wire.android.ui.home.messagecomposer.recordaudio.RequestFocusWhen(condition: kotlin.Boolean, focusRequester: androidx.compose.ui.focus.FocusRequester, onFocusRequested: kotlin.Function0<kotlin.Unit>): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - condition: STABLE (primitive type)
+    - focusRequester: STABLE (marked @Stable or @Immutable)
+    - onFocusRequested: STABLE (function type)
 
 @Composable
 private fun com.wire.android.ui.home.messagecomposer.rememberCaptureVideoFlow(tempWritableVideoUri: android.net.Uri?, onVideoCaptured: kotlin.Function1<android.net.Uri, kotlin.Unit>, onPermissionPermanentlyDenied: kotlin.Function0<kotlin.Unit>): com.wire.android.util.permission.RequestLauncher?
@@ -10974,7 +10981,7 @@ internal fun com.wire.android.ui.registration.selector.CreateAccountSelectorRout
     - onNavigateBack: STABLE (function type)
 
 @Composable
-private fun com.wire.android.ui.rememberConfirmedSessionGraphAvailability(confirmedSessionGeneration: kotlin.Long, currentUserId: com.wire.kalium.logic.data.id.QualifiedID?, currentRouteSessionId: com.wire.navigation.WireSessionId?, invalidated: kotlin.Boolean, sessionGraphStore: com.wire.android.navigation.runtime.SessionGraphStoreViewModel): kotlin.Long
+private fun com.wire.android.ui.rememberConfirmedSessionGraphAvailability(confirmedSessionGeneration: kotlin.Long, currentUserId: com.wire.kalium.logic.data.id.QualifiedID?, currentRouteSessionId: com.wire.navigation.WireSessionId?, invalidated: kotlin.Boolean, sessionGraphStore: com.wire.android.navigation.runtime.SessionGraphStoreViewModel, provider: androidx.lifecycle.viewmodel.ViewModelStoreProvider): kotlin.Long
   skippable: false
   restartable: false
   params:
@@ -10983,6 +10990,7 @@ private fun com.wire.android.ui.rememberConfirmedSessionGraphAvailability(confir
     - currentRouteSessionId: STABLE (class with no mutable properties)
     - invalidated: STABLE (primitive type)
     - sessionGraphStore: UNSTABLE (has mutable properties or unstable members)
+    - provider: UNSTABLE (cross-module type without @Stable/@Immutable)
 
 @Composable
 private fun com.wire.android.ui.rememberWireActivitySessionLifecycle(routeSessionId: com.wire.navigation.WireSessionId?, graphContext: com.wire.android.navigation.runtime.WireActivityGraphContext?, invalidated: kotlin.Boolean, sessionGraphStore: com.wire.android.navigation.runtime.SessionGraphStoreViewModel, provider: androidx.lifecycle.viewmodel.ViewModelStoreProvider): com.wire.android.ui.WireActivitySessionLifecycle

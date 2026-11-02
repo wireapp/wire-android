@@ -25,13 +25,14 @@ import androidx.paging.testing.asSnapshot
 import app.cash.turbine.test
 import com.wire.android.datastore.UserDataStore
 import com.wire.android.feature.cells.ui.dialog.BulkDeleteDialog
+import com.wire.android.feature.cells.ui.dialog.BulkRestoreDialog
+import com.wire.android.feature.cells.ui.dialog.EmptyRecycleBinDialog
 import com.wire.android.feature.cells.ui.edit.OnlineEditor
 import com.wire.android.feature.cells.ui.model.CellNodeUi
 import com.wire.android.feature.cells.ui.model.NodeBottomSheetAction
 import com.wire.android.feature.cells.ui.model.OpenLoadState
 import com.wire.android.feature.cells.ui.model.pdfRenditionUrl
 import com.wire.android.feature.cells.ui.model.toUiModel
-import com.wire.android.feature.cells.ui.movetofolder.CellNodeMoveEvents
 import com.wire.android.feature.cells.ui.search.DriveSearchScreenType
 import com.wire.android.feature.cells.ui.search.SearchNavArgs
 import com.wire.android.feature.cells.ui.search.sort.SortCriteriaNavArg
@@ -46,6 +47,7 @@ import com.wire.kalium.cells.domain.model.Node
 import com.wire.kalium.cells.domain.model.NodeToDelete
 import com.wire.kalium.cells.domain.usecase.DeleteCellAssetUseCase
 import com.wire.kalium.cells.domain.usecase.DeleteCellAssetsUseCase
+import com.wire.kalium.cells.domain.usecase.EmptyRecycleBinUseCase
 import com.wire.kalium.cells.domain.usecase.GetConversationNameUseCase
 import com.wire.kalium.cells.domain.usecase.GetEditorUrlUseCase
 import com.wire.kalium.cells.domain.usecase.GetPaginatedFilesFlowUseCase
@@ -53,6 +55,7 @@ import com.wire.kalium.cells.domain.usecase.GetUserNameUseCase
 import com.wire.kalium.cells.domain.usecase.GetWireCellConfigurationUseCase
 import com.wire.kalium.cells.domain.usecase.IsAtLeastOneCellAvailableUseCase
 import com.wire.kalium.cells.domain.usecase.RestoreNodeFromRecycleBinUseCase
+import com.wire.kalium.cells.domain.usecase.RestoreNodesFromRecycleBinUseCase
 import com.wire.kalium.cells.domain.usecase.download.DownloadCellFileUseCase
 import com.wire.kalium.cells.domain.usecase.offline.DeleteOfflineFileUseCase
 import com.wire.kalium.cells.domain.usecase.offline.GetOfflineFileUseCase
@@ -82,6 +85,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -638,18 +642,201 @@ class CellViewModelTest {
             viewModel.sendIntent(CellViewIntent.OnBulkDeleteConfirmed)
             advanceUntilIdle()
 
-            assertEquals(ShowNodesDeletedMessage(deletedCount = 2), awaitItem())
+            assertEquals(ShowNodesDeletedMessage(deletedCount = 2, permanently = false), awaitItem())
         }
         coVerify(exactly = 1) {
             arrangement.deleteCellAssetsUseCase(
                 listOf(
                     NodeToDelete(uuid = "fileUuid", localPath = "localPath"),
                     NodeToDelete(uuid = "fileUuid2", localPath = null),
-                )
+                ),
+                permanentDelete = false,
             )
         }
         assertNull(viewModel.bulkDeleteDialog.value)
         assertTrue(viewModel.selectedNodes.value.isEmpty())
+    }
+
+    @Test
+    fun `given the recycle bin when selected nodes are deleted then they are deleted for good`() = runTest {
+        val (arrangement, viewModel) = Arrangement()
+            .withConversationId("conversationId")
+            .withRecycleBin()
+            .withBulkDeleteReturning(Unit.right())
+            .arrange()
+        val nodes = testFiles.map { it.toUiModel() }
+        selectNodes(viewModel, nodes)
+
+        viewModel.sendIntent(CellViewIntent.OnDeleteSelectedNodesClick)
+        assertEquals(BulkDeleteDialog.Confirmation(nodes, isPermanentDelete = true), viewModel.bulkDeleteDialog.value)
+
+        viewModel.actions.test {
+            viewModel.sendIntent(CellViewIntent.OnBulkDeleteConfirmed)
+            advanceUntilIdle()
+
+            assertEquals(ShowNodesDeletedMessage(deletedCount = 2, permanently = true), awaitItem())
+        }
+        coVerify(exactly = 1) { arrangement.deleteCellAssetsUseCase(any(), permanentDelete = true) }
+    }
+
+    @Test
+    fun `given the recycle bin when a single selected node is deleted then show the permanently deleted message`() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withConversationId("conversationId")
+            .withRecycleBin()
+            .withBulkDeleteReturning(Unit.right())
+            .arrange()
+        selectNodes(viewModel, listOf(testFiles[0].toUiModel()))
+        viewModel.sendIntent(CellViewIntent.OnDeleteSelectedNodesClick)
+
+        viewModel.actions.test {
+            viewModel.sendIntent(CellViewIntent.OnBulkDeleteConfirmed)
+            advanceUntilIdle()
+
+            assertEquals(ShowFileDeletedMessage(isFile = true, permanently = true), awaitItem())
+        }
+    }
+
+    @Test
+    fun `given the recycle bin when the bulk delete fails then show a permanent delete failure`() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withConversationId("conversationId")
+            .withRecycleBin()
+            .withBulkDeleteReturning(NetworkFailure.NoNetworkConnection(null).left())
+            .arrange()
+        selectNodes(viewModel, testFiles.map { it.toUiModel() })
+        viewModel.sendIntent(CellViewIntent.OnDeleteSelectedNodesClick)
+
+        viewModel.sendIntent(CellViewIntent.OnBulkDeleteConfirmed)
+        advanceUntilIdle()
+
+        assertEquals(
+            BulkDeleteDialog.Failure(totalCount = 2, isNoNetworkConnection = true, isPermanentDelete = true),
+            viewModel.bulkDeleteDialog.value
+        )
+    }
+
+    @Test
+    fun `given the recycle bin when selected nodes are restored then restore them all in one request`() = runTest {
+        val (arrangement, viewModel) = Arrangement()
+            .withConversationId("conversationId")
+            .withRecycleBin()
+            .withBulkRestoreReturning(Unit.right())
+            .arrange()
+        val nodes = testFiles.map { it.toUiModel() }
+        selectNodes(viewModel, nodes)
+
+        viewModel.sendIntent(CellViewIntent.OnRestoreSelectedNodesClick)
+        assertEquals(BulkRestoreDialog.Confirmation(nodes), viewModel.bulkRestoreDialog.value)
+
+        viewModel.actions.test {
+            viewModel.sendIntent(CellViewIntent.OnBulkRestoreConfirmed)
+            advanceUntilIdle()
+
+            assertEquals(ShowNodesRestoredMessage(restoredCount = 2), awaitItem())
+        }
+        coVerify(exactly = 1) { arrangement.restoreNodesFromRecycleBinUseCase(listOf("fileUuid", "fileUuid2")) }
+        assertNull(viewModel.bulkRestoreDialog.value)
+        assertTrue(viewModel.selectedNodes.value.isEmpty())
+    }
+
+    @Test
+    fun `given the recycle bin when selected nodes are restored then tell the conversation's file lists`() = runTest {
+        val (arrangement, viewModel) = Arrangement()
+            .withConversationId("conversationId")
+            .withRecycleBin()
+            .withBulkRestoreReturning(Unit.right())
+            .arrange()
+        selectNodes(viewModel, testFiles.map { it.toUiModel() })
+        viewModel.sendIntent(CellViewIntent.OnRestoreSelectedNodesClick)
+
+        arrangement.nodeChangeEvents.restoredInConversations.test {
+            viewModel.sendIntent(CellViewIntent.OnBulkRestoreConfirmed)
+            advanceUntilIdle()
+
+            assertEquals("conversationId", awaitItem())
+        }
+    }
+
+    @Test
+    fun `given the recycle bin when a single node is restored then tell the conversation's file lists`() = runTest {
+        val (arrangement, viewModel) = Arrangement()
+            .withConversationId("conversationId")
+            .withRecycleBin()
+            .arrange()
+        coEvery { arrangement.restoreNodeFromRecycleBinUseCase(any()) } returns Unit.right()
+
+        arrangement.nodeChangeEvents.restoredInConversations.test {
+            viewModel.sendIntent(CellViewIntent.OnNodeRestoreConfirmed(testFiles[0].toUiModel()))
+            advanceUntilIdle()
+
+            assertEquals("conversationId", awaitItem())
+        }
+    }
+
+    @Test
+    fun `given a conversation's file list when nodes are restored in that conversation then the list is refreshed`() = runTest {
+        val (arrangement, viewModel) = Arrangement()
+            .withConversationId("conversationId/folder")
+            .arrange()
+        backgroundScope.launch { viewModel.nodesFlow.collect {} }
+        advanceUntilIdle()
+
+        arrangement.nodeChangeEvents.onNodesRestored("conversationId")
+        advanceUntilIdle()
+
+        // Once for the initial load, once for the refresh.
+        coVerify(exactly = 2) { arrangement.getCellFilesPagedUseCase(any(), any(), any(), any()) }
+    }
+
+    @Test
+    fun `given a conversation's file list when nodes are restored in another conversation then the list is not refreshed`() = runTest {
+        val (arrangement, viewModel) = Arrangement()
+            .withConversationId("conversationId")
+            .arrange()
+        backgroundScope.launch { viewModel.nodesFlow.collect {} }
+        advanceUntilIdle()
+
+        arrangement.nodeChangeEvents.onNodesRestored("otherConversationId")
+        advanceUntilIdle()
+
+        coVerify(exactly = 1) { arrangement.getCellFilesPagedUseCase(any(), any(), any(), any()) }
+    }
+
+    @Test
+    fun `given no network when the bulk restore fails then show a no network failure and clear the selection`() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withConversationId("conversationId")
+            .withRecycleBin()
+            .withBulkRestoreReturning(NetworkFailure.NoNetworkConnection(null).left())
+            .arrange()
+        selectNodes(viewModel, testFiles.map { it.toUiModel() })
+        viewModel.sendIntent(CellViewIntent.OnRestoreSelectedNodesClick)
+
+        viewModel.sendIntent(CellViewIntent.OnBulkRestoreConfirmed)
+        advanceUntilIdle()
+
+        assertEquals(BulkRestoreDialog.Failure(totalCount = 2, isNoNetworkConnection = true), viewModel.bulkRestoreDialog.value)
+        assertTrue(viewModel.selectedNodes.value.isEmpty())
+    }
+
+    @Test
+    fun `given a deleted folder when its selected content is restored then offer to restore the folder instead`() = runTest {
+        val (arrangement, viewModel) = Arrangement()
+            .withConversationId("conversationId/deletedFolder")
+            .withRecycleBin()
+            .withParentFolder("deletedFolderUuid")
+            .arrange()
+        val nodes = testFiles.map { it.toUiModel() }
+        selectNodes(viewModel, nodes)
+
+        viewModel.actions.test {
+            viewModel.sendIntent(CellViewIntent.OnRestoreSelectedNodesClick)
+
+            assertEquals(ShowRestoreParentFolderDialog(nodes.first()), awaitItem())
+        }
+        assertNull(viewModel.bulkRestoreDialog.value)
+        coVerify(exactly = 0) { arrangement.restoreNodesFromRecycleBinUseCase(any()) }
     }
 
     @Test
@@ -787,6 +974,102 @@ class CellViewModelTest {
                 any(),
             )
         }
+    }
+
+    @Test
+    fun `given the recycle bin root when emptying it is confirmed then empty the conversation recycle bin and confirm it`() = runTest {
+        val (arrangement, viewModel) = Arrangement()
+            .withConversationId("conversationId")
+            .withRecycleBin()
+            .withEmptyRecycleBinReturning(Unit.right())
+            .arrange()
+        advanceUntilIdle()
+        assertTrue(viewModel.canEmptyRecycleBin.value)
+
+        viewModel.sendIntent(CellViewIntent.OnEmptyRecycleBinClick)
+        assertEquals(EmptyRecycleBinDialog.Confirmation(), viewModel.emptyRecycleBinDialog.value)
+
+        viewModel.actions.test {
+            viewModel.sendIntent(CellViewIntent.OnEmptyRecycleBinConfirmed)
+            advanceUntilIdle()
+
+            assertEquals(ShowRecycleBinEmptiedMessage, awaitItem())
+        }
+        coVerify(exactly = 1) { arrangement.emptyRecycleBinUseCase("conversationId") }
+        assertNull(viewModel.emptyRecycleBinDialog.value)
+    }
+
+    @Test
+    fun `given no network when emptying the recycle bin fails then show a no network failure`() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withConversationId("conversationId")
+            .withRecycleBin()
+            .withEmptyRecycleBinReturning(NetworkFailure.NoNetworkConnection(null).left())
+            .arrange()
+        advanceUntilIdle()
+        viewModel.sendIntent(CellViewIntent.OnEmptyRecycleBinClick)
+
+        viewModel.sendIntent(CellViewIntent.OnEmptyRecycleBinConfirmed)
+        advanceUntilIdle()
+
+        assertEquals(EmptyRecycleBinDialog.Failure(isNoNetworkConnection = true), viewModel.emptyRecycleBinDialog.value)
+    }
+
+    @Test
+    fun `given emptying the recycle bin in progress when dismissed then keep the confirmation`() = runTest {
+        val result = CompletableDeferred<Either<CoreFailure, Unit>>()
+        val (arrangement, viewModel) = Arrangement()
+            .withConversationId("conversationId")
+            .withRecycleBin()
+            .arrange()
+        coEvery { arrangement.emptyRecycleBinUseCase(any()) } coAnswers { result.await() }
+        advanceUntilIdle()
+        viewModel.sendIntent(CellViewIntent.OnEmptyRecycleBinClick)
+
+        viewModel.sendIntent(CellViewIntent.OnEmptyRecycleBinConfirmed)
+        viewModel.sendIntent(CellViewIntent.OnEmptyRecycleBinDialogDismissed)
+        viewModel.sendIntent(CellViewIntent.OnEmptyRecycleBinConfirmed)
+        advanceUntilIdle()
+
+        assertEquals(EmptyRecycleBinDialog.Confirmation(isInProgress = true), viewModel.emptyRecycleBinDialog.value)
+        coVerify(exactly = 1) { arrangement.emptyRecycleBinUseCase(any()) }
+        result.complete(Unit.right())
+    }
+
+    @Test
+    fun `given a folder inside the recycle bin when emptying is requested then it is not offered`() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withConversationId("conversationId/recycle_bin/folder")
+            .withRecycleBin()
+            .arrange()
+        advanceUntilIdle()
+
+        viewModel.sendIntent(CellViewIntent.OnEmptyRecycleBinClick)
+
+        assertFalse(viewModel.canEmptyRecycleBin.value)
+        assertNull(viewModel.emptyRecycleBinDialog.value)
+    }
+
+    @Test
+    fun `given no network when on the recycle bin root then emptying it is not offered`() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withConversationId("conversationId")
+            .withRecycleBin()
+            .withNoNetwork()
+            .arrange()
+        advanceUntilIdle()
+
+        assertFalse(viewModel.canEmptyRecycleBin.value)
+    }
+
+    @Test
+    fun `given the conversation files when on their root then emptying the recycle bin is not offered`() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withConversationId("conversationId")
+            .arrange()
+        advanceUntilIdle()
+
+        assertFalse(viewModel.canEmptyRecycleBin.value)
     }
 
     @Test
@@ -1124,6 +1407,8 @@ class CellViewModelTest {
     ) {
 
         private var searchNavArgs: SearchNavArgs? = null
+        private var isRecycleBin: Boolean = false
+        private var parentFolderUuid: String? = null
 
         @MockK
         lateinit var getCellFilesPagedUseCase: GetPaginatedFilesFlowUseCase
@@ -1141,13 +1426,19 @@ class CellViewModelTest {
         lateinit var restoreNodeFromRecycleBinUseCase: RestoreNodeFromRecycleBinUseCase
 
         @MockK
+        lateinit var restoreNodesFromRecycleBinUseCase: RestoreNodesFromRecycleBinUseCase
+
+        @MockK
+        lateinit var emptyRecycleBinUseCase: EmptyRecycleBinUseCase
+
+        @MockK
         lateinit var isCellAvailableUseCase: IsAtLeastOneCellAvailableUseCase
 
         @MockK
         lateinit var fileHelper: FileHelper
 
         val sharedPathCache = CellFileLocalPathCache()
-        val nodeMoveEvents = CellNodeMoveEvents()
+        val nodeChangeEvents = CellNodeChangeEvents()
 
         @MockK
         lateinit var getEditorUrlUseCase: GetEditorUrlUseCase
@@ -1313,6 +1604,23 @@ class CellViewModelTest {
          * Restricts the self user to viewer access, which turns bulk selection off. Note the inverted use case: it returns
          * false for viewer-only users (and true, the default here, for everyone else).
          */
+        fun withRecycleBin() = apply {
+            isRecycleBin = true
+        }
+
+        /** Browsing a folder inside the recycle bin, i.e. the content of a deleted folder. */
+        fun withParentFolder(uuid: String) = apply {
+            parentFolderUuid = uuid
+        }
+
+        fun withBulkRestoreReturning(result: Either<CoreFailure, Unit>) = apply {
+            coEvery { restoreNodesFromRecycleBinUseCase(any()) } returns result
+        }
+
+        fun withEmptyRecycleBinReturning(result: Either<CoreFailure, Unit>) = apply {
+            coEvery { emptyRecycleBinUseCase(any()) } returns result
+        }
+
         fun withViewerOnlyAccess() = apply {
             coEvery { isSelfUserViewerOnConversation(any()) } returns false
         }
@@ -1351,12 +1659,16 @@ class CellViewModelTest {
             )
 
             return this to CellViewModel(
-                navArgs = CellFilesNavArgs(conversationId = conversationId),
+                navArgs = CellFilesNavArgs(
+                    conversationId = conversationId, isRecycleBin = isRecycleBin, parentFolderUuid = parentFolderUuid
+                ),
                 searchNavArgs = searchNavArgs,
                 getCellFilesPaged = getCellFilesPagedUseCase,
                 deleteCellAsset = deleteCellAssetUseCase,
                 deleteCellAssets = deleteCellAssetsUseCase,
                 restoreNodeFromRecycleBinUseCase = restoreNodeFromRecycleBinUseCase,
+                restoreNodesFromRecycleBin = restoreNodesFromRecycleBinUseCase,
+                emptyRecycleBinUseCase = emptyRecycleBinUseCase,
                 isCellAvailable = isCellAvailableUseCase,
                 fileHelper = fileHelper,
                 getEditorUrl = getEditorUrlUseCase,
@@ -1378,7 +1690,7 @@ class CellViewModelTest {
                 qualifiedIdMapper = qualifiedIdMapper,
                 uploadFilePreparer = uploadFilePreparer,
                 uploadCoordinator = uploadCoordinator,
-                nodeMoveEvents = nodeMoveEvents,
+                nodeChangeEvents = nodeChangeEvents,
                 offlineFilesEnabled = true,
                 inAppImageViewerEnabled = inAppImageViewerEnabled,
                 drivePermissionsEnabled = true,

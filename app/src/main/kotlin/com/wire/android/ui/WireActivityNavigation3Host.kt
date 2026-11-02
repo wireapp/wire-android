@@ -38,6 +38,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.lifecycle.ViewModelStoreOwner
+import com.wire.android.appLogger
 import com.wire.android.config.CustomUiConfigurationProvider
 import com.wire.android.config.LocalCustomUiConfigurationProvider
 import com.wire.android.datastore.UserDataStore
@@ -201,6 +202,7 @@ private fun WireActivityNavigation3ThemedHost(
         currentRouteSessionId = currentRouteSessionId,
         invalidated = shouldInvalidateRetainedSessionGraph,
         sessionGraphStore = sessionGraphStore,
+        provider = sharedViewModelStoreProvider,
     )
     val graphResolver = remember(
         dependencies.appGraph,
@@ -369,6 +371,7 @@ private fun rememberConfirmedSessionGraphAvailability(
     currentRouteSessionId: WireSessionId?,
     invalidated: Boolean,
     sessionGraphStore: SessionGraphStoreViewModel,
+    provider: ViewModelStoreProvider,
 ): Long {
     var appliedGeneration by remember(sessionGraphStore) { mutableLongStateOf(-1L) }
     LaunchedEffect(
@@ -383,7 +386,23 @@ private fun rememberConfirmedSessionGraphAvailability(
             it.toWireSessionId() == currentRouteSessionId
         }
         if (generationCanBeApplied && confirmedUserId != null) {
-            sessionGraphStore.markAvailable(confirmedUserId)
+            reopenConfirmedWireActivitySession(
+                userId = confirmedUserId,
+                lifecycle = sessionGraphStore::lifecycle,
+                teardown = { sessionId ->
+                    teardownWireActivitySession(
+                        sessionId = sessionId,
+                        markInvalidating = sessionGraphStore::markInvalidating,
+                        clearOwner = { ownerKey ->
+                            clearWireViewModelStoreOwner(provider, ownerKey) {
+                                WireViewModelDiagnostics.ownerCleared(ownerKey)
+                            }
+                        },
+                        markRemoved = sessionGraphStore::markRemoved,
+                    )
+                },
+                markAvailable = sessionGraphStore::markAvailable,
+            )
             appliedGeneration = confirmedSessionGeneration
         }
     }
@@ -466,6 +485,26 @@ internal fun teardownWireActivitySession(
     markInvalidating(userId)
     clearOwner(WireViewModelOwner.Session(sessionId).stableKey())
     markRemoved(userId)
+}
+
+/**
+ * Kalium's logout callback marks every logged-out session INVALIDATING, but only host-driven
+ * transitions (blocked UI / session transition reason) complete removal. Logouts outside those
+ * transitions (self profile logout, reverted login, cleared session) leave a stale INVALIDATING
+ * entry behind. A newly confirmed generation proves the session is valid again, so finish the
+ * ordered teardown of the stale generation before reopening it.
+ */
+internal fun reopenConfirmedWireActivitySession(
+    userId: UserId,
+    lifecycle: (UserId) -> SessionGraphStoreViewModel.Lifecycle?,
+    teardown: (WireSessionId) -> Unit,
+    markAvailable: (UserId) -> Unit,
+) {
+    if (lifecycle(userId) == SessionGraphStoreViewModel.Lifecycle.INVALIDATING) {
+        appLogger.w("WireActivity completing stale session graph teardown before reopening")
+        teardown(userId.toWireSessionId())
+    }
+    markAvailable(userId)
 }
 
 internal fun shouldInvalidateWireActivitySessionGraph(

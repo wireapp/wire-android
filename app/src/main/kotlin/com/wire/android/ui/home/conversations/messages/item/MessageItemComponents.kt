@@ -376,6 +376,17 @@ internal fun Modifier.customizeMessageBackground(
     return this.drawBehind { drawRect(backgroundColorAnimation.value) }
 }
 
+/**
+ * Draws a [color] tint behind the content, its alpha scaled by [intensity] (0..1).
+ * [intensity] is read in the draw phase, so animating it only redraws.
+ */
+internal fun Modifier.replyHighlight(color: Color, intensity: () -> Float): Modifier = drawBehind {
+    val currentIntensity = intensity()
+    if (currentIntensity > 0f) {
+        drawRect(color.copy(alpha = color.alpha * currentIntensity))
+    }
+}
+
 @Composable
 internal fun OfflineBackendsLearnMoreLink(messageStyle: MessageStyle, context: Context = LocalContext.current) {
     val learnMoreUrl = supportUrlResource(SupportPage.OFFLINE_BACKENDS)

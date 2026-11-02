@@ -45,6 +45,7 @@ fun MessageContainerItem(
     shouldDisplayMessageStatus: Boolean = true,
     shouldDisplayFooter: Boolean = true,
     isSelectedMessage: Boolean = false,
+    replyHighlightIntensity: () -> Float = { 0f },
     failureInteractionAvailable: Boolean = true,
     defaultBackgroundColor: Color = colorsScheme().surfaceContainerLow,
     isBubbleUiEnabled: Boolean = false,
@@ -72,6 +73,7 @@ fun MessageContainerItem(
                     selfDeletionTimerState = selfDeletionTimerState,
                     defaultBackgroundColor = defaultBackgroundColor,
                 )
+                    .replyHighlight(color = colorsScheme().replyHighlight, intensity = replyHighlightIntensity)
             }
     ) {
         when (message) {
@@ -96,7 +98,8 @@ fun MessageContainerItem(
                 shouldDisplayFooter = shouldDisplayFooter,
                 selfDeletionTimerState = selfDeletionTimerState,
                 useSmallBottomPadding = useSmallBottomPadding,
-                isBubbleUiEnabled = isBubbleUiEnabled
+                isBubbleUiEnabled = isBubbleUiEnabled,
+                replyHighlightIntensity = replyHighlightIntensity,
             )
         }
     }

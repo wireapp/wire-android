@@ -36,6 +36,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.graphicsLayer
@@ -65,6 +66,7 @@ fun MessageBubbleItem(
     onLongClick: (() -> Unit)? = null,
     showAuthor: Boolean = true,
     useSmallBottomPadding: Boolean = false,
+    replyHighlightIntensity: () -> Float = { 0f },
     leading: (@Composable () -> Unit)? = null,
     footer: (@Composable (inner: PaddingValues) -> Unit)? = null,
     header: (@Composable (inner: PaddingValues) -> Unit)? = null,
@@ -132,6 +134,12 @@ fun MessageBubbleItem(
                     else -> {
                         bubbleColorOther
                     }
+                }
+
+                val replyHighlightColor = if (isSelfMessage) {
+                    colorsScheme().selfBubble.replyHighlight
+                } else {
+                    colorsScheme().otherBubble.replyHighlight
                 }
 
                 val borderColor = when {
@@ -205,6 +213,13 @@ fun MessageBubbleItem(
                             clip = true
                             this.shape = shape
                             compositingStrategy = CompositingStrategy.Offscreen
+                        }
+                        .drawWithContent {
+                            drawContent()
+                            val intensity = replyHighlightIntensity()
+                            if (intensity > 0f) {
+                                drawRect(replyHighlightColor.copy(alpha = replyHighlightColor.alpha * intensity))
+                            }
                         }
                         .interceptCombinedClickable(
                             interactionSource = remember { MutableInteractionSource() },

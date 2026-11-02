@@ -67,7 +67,7 @@ data class ConversationListPage(private val device: UiDevice) {
         UiSelectorParams(textContains = "You will then no longer be able to send or read messages")
     private val startNewConversation = UiSelectorParams(description = "New. Start a new conversation")
     private val createNewChannelButton = UiSelectorParams(text = "New Channel")
-    private val wireServiceNotification = UiSelectorParams(textContains = "Wire Alpha service is running")
+    private val wireServiceNotification = UiSelectorParams(textMatches = "Wire.* service is running")
     private val decryptingMessagesBanner = UiSelectorParams(text = "DECRYPTING MESSAGES")
     private val waitingForNetworkBanner = UiSelectorParams(text = "WAITING FOR NETWORK")
     private val blockedLabel = UiSelectorParams(text = "Blocked")
@@ -388,14 +388,7 @@ data class ConversationListPage(private val device: UiDevice) {
         conversationName: String,
         timeout: Duration = UiWaitUtils.MEDIUM_TIMEOUT
     ): ConversationListPage {
-        val clicked = UiWaitUtils.clickWhenClickable(
-            params = conversationNameSelector(conversationName),
-            timeout = timeout,
-            pollingInterval = UiWaitUtils.POLLING_DEFAULT
-        )
-        if (!clicked) {
-            throw AssertionError("Group conversation '$conversationName' was not found.")
-        }
+        UiWaitUtils.waitElement(conversationNameSelector(conversationName), timeout = timeout).click()
         return this
     }
 

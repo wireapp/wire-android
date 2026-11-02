@@ -35,6 +35,7 @@ dependencies {
     androidTestImplementation(libs.koin.test)
     androidTestImplementation(libs.koin.test.junit4)
     implementation(libs.datafaker)
+    androidTestImplementation(libs.mlkit.text.recognition)
     androidTestImplementation(libs.zxing.core)
     androidTestImplementation(libs.zxing.android.embedded)
     androidTestImplementation(libs.ktx.serialization)

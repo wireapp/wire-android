@@ -28,16 +28,20 @@ import com.wire.android.ui.common.R as commonR
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.extension.intervalFlow
 import com.wire.android.util.ui.UIText
+import com.wire.kalium.common.error.StorageFailure
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.asset.MessageAssetResult
 import com.wire.kalium.logic.feature.message.GetNextAudioMessageInConversationUseCase
 import com.wire.kalium.logic.feature.message.GetSenderNameByMessageIdUseCase
+import com.wire.kalium.logic.feature.message.ObserveMessageByIdUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.android.di.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -47,6 +51,7 @@ import kotlinx.coroutines.flow.conflate
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
@@ -96,6 +101,7 @@ class ConversationAudioMessagePlayer
 
     private var audioMessageStateHistory: Map<MessageIdWrapper, AudioState> = emptyMap()
     private var currentAudioMessageId: MessageIdWrapper? = null
+    private var deletionObserverJob: Job? = null
 
     private val audioMessageStateUpdate = MutableSharedFlow<AudioMediaPlayerStateUpdate>(
         onBufferOverflow = BufferOverflow.SUSPEND
@@ -276,6 +282,8 @@ class ConversationAudioMessagePlayer
         if (currentAccountResult is CurrentSessionResult.Failure) return
         val userId = (currentAccountResult as CurrentSessionResult.Success).accountInfo.userId
 
+        observeAudioMessageDeletion(userId, conversationId, messageId)
+
         audioMessageStateUpdate.emit(
             AudioMediaPlayerStateUpdate.AudioMediaPlayingStateUpdate(conversationId, messageId, AudioMediaPlayingState.Fetching)
         )
@@ -329,6 +337,26 @@ class ConversationAudioMessagePlayer
                 )
             }
         }
+    }
+
+    // stops the playback when the currently played message gets deleted, no matter if locally, remotely or by self-deletion
+    private fun observeAudioMessageDeletion(userId: UserId, conversationId: ConversationId, messageId: String) {
+        deletionObserverJob?.cancel()
+        deletionObserverJob = scope.launch {
+            coreLogic.getSessionScope(userId).messages.observeMessageById(conversationId, messageId)
+                .firstOrNull { it.isDeleted() } ?: return@launch
+            if (currentAudioMessageId == MessageIdWrapper(conversationId, messageId)) {
+                forceToStopCurrentAudioMessage()
+                // when still fetching, stop is skipped, so clearing the id prevents the fetched audio from starting
+                currentAudioMessageId = null
+            }
+        }
+    }
+
+    private fun ObserveMessageByIdUseCase.Result.isDeleted(): Boolean = when (this) {
+        is ObserveMessageByIdUseCase.Result.Success ->
+            (message as? Message.Standalone)?.visibility.let { it != null && it != Message.Visibility.VISIBLE }
+        is ObserveMessageByIdUseCase.Result.Failure -> cause == StorageFailure.DataNotFound
     }
 
     suspend fun setPosition(conversationId: ConversationId, messageId: String, position: Int) {
@@ -504,6 +532,7 @@ class ConversationAudioMessagePlayer
     }
 
     internal fun clear() {
+        deletionObserverJob?.cancel()
         audioMediaPlayer.reset()
         currentAudioMessageId = null
         audioMessageStateHistory = emptyMap()

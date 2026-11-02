@@ -380,4 +380,12 @@
     <string name="cells_bulk_permanent_delete_failure_message_many">Something went wrong while deleting the items. Some of them may have been permanently deleted, so check the recycle bin before trying again.</string>
     <string name="cells_bulk_permanent_delete_failure_message_many_no_network">The connection was lost while deleting the items. Some of them may have been permanently deleted, so check the recycle bin before trying again.</string>
     <string name="cells_bulk_action_offline">Offline</string>
+    <string name="cells_empty_recycle_bin_content_description">Empty recycle bin</string>
+    <string name="cells_empty_recycle_bin_confirmation_title">Empty recycle bin?</string>
+    <string name="cells_empty_recycle_bin_confirmation_message">All items in this conversation\'s recycle bin will be permanently deleted for all participants. This can\'t be undone.</string>
+    <string name="cells_empty_recycle_bin_confirm">Empty</string>
+    <string name="cells_empty_recycle_bin_success">Recycle bin was emptied</string>
+    <string name="cells_empty_recycle_bin_failure_title">Recycle bin not emptied</string>
+    <string name="cells_empty_recycle_bin_failure_message">Something went wrong while emptying the recycle bin. Some items may have been permanently deleted, so check the recycle bin before trying again.</string>
+    <string name="cells_empty_recycle_bin_failure_message_no_network">The connection was lost while emptying the recycle bin. Some items may have been permanently deleted, so check the recycle bin before trying again.</string>
 </resources>

@@ -28,6 +28,7 @@ import com.wire.kalium.cells.domain.CellUploadManager
 import com.wire.kalium.cells.domain.usecase.AddAttachmentDraftUseCase
 import com.wire.kalium.cells.domain.usecase.DeleteCellAssetUseCase
 import com.wire.kalium.cells.domain.usecase.DeleteCellAssetsUseCase
+import com.wire.kalium.cells.domain.usecase.EmptyRecycleBinUseCase
 import com.wire.kalium.cells.domain.usecase.GetAllTagsUseCase
 import com.wire.kalium.cells.domain.usecase.GetCellFileUseCase
 import com.wire.kalium.cells.domain.usecase.GetConversationNameUseCase
@@ -174,6 +175,10 @@ class CellsModule {
     @Provides
     fun provideRestoreNodesFromRecycleBinUseCase(cellsScope: CellsScope): RestoreNodesFromRecycleBinUseCase =
         cellsScope.restoreNodesFromRecycleBin
+
+    @Provides
+    fun provideEmptyRecycleBinUseCase(cellsScope: CellsScope): EmptyRecycleBinUseCase =
+        cellsScope.emptyRecycleBin
 
     @Provides
     fun provideRenameNodeUseCase(cellsScope: CellsScope): RenameNodeUseCase =

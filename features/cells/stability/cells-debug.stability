@@ -615,6 +615,32 @@ public fun com.wire.android.feature.cells.ui.dialog.DeleteConfirmationDialog(ite
     - onDismiss: STABLE (function type)
 
 @Composable
+private fun com.wire.android.feature.cells.ui.dialog.EmptyRecycleBinConfirmationDialog(confirmation: com.wire.android.feature.cells.ui.dialog.EmptyRecycleBinDialog.Confirmation, onConfirm: kotlin.Function0<kotlin.Unit>, onDismiss: kotlin.Function0<kotlin.Unit>): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - confirmation: STABLE (class with no mutable properties)
+    - onConfirm: STABLE (function type)
+    - onDismiss: STABLE (function type)
+
+@Composable
+internal fun com.wire.android.feature.cells.ui.dialog.EmptyRecycleBinDialogs(dialog: com.wire.android.feature.cells.ui.dialog.EmptyRecycleBinDialog, onConfirm: kotlin.Function0<kotlin.Unit>, onDismiss: kotlin.Function0<kotlin.Unit>): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - dialog: UNKNOWN (interface or non-final class; concrete implementation unknown)
+    - onConfirm: STABLE (function type)
+    - onDismiss: STABLE (function type)
+
+@Composable
+private fun com.wire.android.feature.cells.ui.dialog.EmptyRecycleBinFailureDialog(failure: com.wire.android.feature.cells.ui.dialog.EmptyRecycleBinDialog.Failure, onDismiss: kotlin.Function0<kotlin.Unit>): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - failure: STABLE (class with no mutable properties)
+    - onDismiss: STABLE (function type)
+
+@Composable
 public fun com.wire.android.feature.cells.ui.dialog.IncompatibleFileNameDialog(onReplaceAutomatically: kotlin.Function0<kotlin.Unit>, onDismiss: kotlin.Function0<kotlin.Unit>): kotlin.Unit
   skippable: true
   restartable: true

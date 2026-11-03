@@ -17,8 +17,8 @@
  */
 package com.wire.android.feature.cells.ui
 
-import com.wire.android.feature.cells.ui.OpenFileDownloadController.Companion.SPINNER_THRESHOLD_MS
 import com.wire.android.di.CurrentAccount
+import com.wire.android.feature.cells.ui.OpenFileDownloadController.Companion.SPINNER_THRESHOLD_MS
 import com.wire.android.feature.cells.ui.model.CellNodeUi
 import com.wire.android.feature.cells.ui.model.OpenLoadState
 import com.wire.android.feature.cells.util.FileHelper

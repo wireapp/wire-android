@@ -18,12 +18,12 @@
 package com.wire.android.pdfviewer
 
 import android.content.Context
+import com.wire.kalium.logic.data.user.UserId
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.slot
-import com.wire.kalium.logic.data.user.UserId
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -435,6 +435,28 @@ internal class PdfSourceResolverTest {
 
         assertEquals(File(userDir(), "conv-42/doc.pdf"), first)
         assertEquals(File(File(File(tempDir, "files"), "other.domain/other-user"), "conv-42/doc.pdf"), second)
+    }
+
+    @Test
+    fun givenAStoredPathFromTheOldLayout_whenResolving_thenItIsReusedWithoutDownloading() = runTest {
+        val oldLayoutFile = File(File(tempDir, "files"), "conv-42/doc.pdf").apply {
+            parentFile?.mkdirs()
+            writeText("%PDF-1.4")
+        }
+        val loader = mockk<PdfRemoteLoader>(relaxed = true)
+        val source = PdfDocumentSource(
+            localPath = oldLayoutFile.absolutePath,
+            assetId = "asset-1",
+            remotePath = "",
+            conversationId = "conv-42",
+            fileName = "doc.pdf",
+            assetSize = 0L,
+        )
+
+        val result = resolver(loader).resolve(source, dispatcher = Dispatchers.Default)
+
+        assertEquals(oldLayoutFile, result.getOrNull())
+        coVerify(exactly = 0) { loader.load(any(), any(), any(), any(), any()) }
     }
 
     private fun userDir() = File(File(tempDir, "files"), "${USER_ID.domain}/${USER_ID.value}")

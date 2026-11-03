@@ -35,8 +35,8 @@ import java.io.File
  * to be fetched to local storage first. Already downloaded files are reused, which keeps
  * re-opening the same attachment instant.
  *
- * Downloads land in the same place as every other cells download — the per-conversation folder
- * under app-specific external storage — rather than in a cache directory of our own, because
+ * Downloads land in the same place as every other cells download — the per-user, per-conversation
+ * folder under app-specific external storage — rather than in a cache directory of our own, because
  * `DownloadCellFileUseCase` records the path it is given in the attachments DB. A cache path
  * would let the OS delete the file while the DB still reported it as downloaded, and a private
  * directory would leave a second copy of a file the rest of the app already knows how to find.
@@ -137,7 +137,8 @@ class PdfSourceResolver @Inject constructor(
     }
 
     /**
-     * `<externalFilesDir>/<conversationId>/<sub>/<folders>/<name>`, creating the folders as needed.
+     * `<externalFilesDir>/<domain>/<userId>/<conversationId>/<sub>/<folders>/<name>`, creating the folders as
+     * needed.
      *
      * [remotePath] is the cells object key and is already rooted at the conversation, so mirroring
      * it reproduces the remote structure locally and keeps two same-named files in different

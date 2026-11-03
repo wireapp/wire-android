@@ -384,6 +384,36 @@ class GlobalObserversManagerTest {
         assertTrue(sharedFile.exists())
     }
 
+    @ParameterizedTest
+    @EnumSource(LogoutReason::class, names = ["SELF_SOFT_LOGOUT"], mode = EnumSource.Mode.EXCLUDE)
+    fun `given a logout that is not a soft logout, when it happens, then delete the cached pdf renditions`(reason: LogoutReason) =
+        runTestWithCancellation {
+            val rendition = File(cacheDirectory, "pdf-renditions").apply(File::mkdirs).resolve("asset-id.pdf")
+                .apply { writeText("pdf") }
+            val unrelated = File(cacheDirectory, "unrelated.tmp").apply { writeText("data") }
+            val (arrangement, manager) = Arrangement(cacheDirectory).arrange()
+            manager.observe()
+            runCurrent()
+
+            arrangement.logoutCallback.invoke(TestUser.SELF_USER.id, reason)
+
+            assertFalse(rendition.exists())
+            assertTrue(unrelated.exists())
+        }
+
+    @Test
+    fun `given a soft logout, when it happens, then keep the cached pdf renditions`() = runTestWithCancellation {
+        val rendition = File(cacheDirectory, "pdf-renditions").apply(File::mkdirs).resolve("asset-id.pdf")
+            .apply { writeText("pdf") }
+        val (arrangement, manager) = Arrangement(cacheDirectory).arrange()
+        manager.observe()
+        runCurrent()
+
+        arrangement.logoutCallback.invoke(TestUser.SELF_USER.id, LogoutReason.SELF_SOFT_LOGOUT)
+
+        assertTrue(rendition.exists())
+    }
+
     private class Arrangement(private val cacheDirectory: File = File("unused-cache")) {
 
         private val logoutCallbackSlot = slot<LogoutCallback>()

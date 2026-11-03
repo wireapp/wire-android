@@ -25,6 +25,7 @@ import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.notification.NotificationChannelsManager
 import com.wire.android.notification.MeetingReminderScheduler
 import com.wire.android.notification.WireNotificationManager
+import com.wire.android.pdfviewer.PdfSourceResolver
 import com.wire.android.services.SendPendingMessagesAfterForegroundSyncUseCase
 import com.wire.android.util.CurrentScreenManager
 import com.wire.android.util.deleteFileProviderSharedCacheDirectory
@@ -158,6 +159,7 @@ class GlobalObserversManager @Inject constructor(
                     if (reason != LogoutReason.SELF_SOFT_LOGOUT) {
                         userDataStoreProvider.getOrCreate(userId).clear()
                         context.deleteFileProviderSharedCacheDirectory()
+                        PdfSourceResolver.deleteRenditions(context)
                     }
                 }
             }

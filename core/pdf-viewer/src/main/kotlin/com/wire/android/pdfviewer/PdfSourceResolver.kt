@@ -173,8 +173,13 @@ class PdfSourceResolver @Inject constructor(
 
     private fun File.isReadableFile(): Boolean = isFile && canRead() && length() > 0
 
-    private companion object {
-        const val PDF_RENDITION_DIR = "pdf-renditions"
+    companion object {
+        private const val PDF_RENDITION_DIR = "pdf-renditions"
+
+        /** Deletes the cached renditions of pre-signed PDFs. The database does not track them. */
+        fun deleteRenditions(context: Context) {
+            File(context.cacheDir, PDF_RENDITION_DIR).deleteRecursively()
+        }
     }
 }
 

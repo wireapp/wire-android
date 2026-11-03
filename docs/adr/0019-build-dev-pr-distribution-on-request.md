@@ -9,8 +9,8 @@ Accepted. Supersedes the PR APK source in [ADR 0018](0018-trusted-dev-distributi
 ## Context
 
 PR CI built a Dev-Debug APK and uploaded it to S3 on every PR. The build repeated what
-`connectedDevDebugAndroidTest` already compiles. It delayed green checks, and most of the uploaded
-APKs were never installed.
+`connectedDevDebugAndroidTest` already compiles. It delayed green checks, and each PR needed an APK only
+occasionally.
 
 ## Decision
 
@@ -27,7 +27,7 @@ Push, `main`, beta, release candidate, and production builds do not change.
 
 ## Consequences
 
-The first distribute after a push takes a full build, usually 10 to 20 minutes. PR CI finishes
+The first distribute after a push takes a full build, about 10 to 20 minutes. PR CI finishes
 sooner and stores no APK.
 
 The APK comes from the PR head, not from the CI test merge. Signing and secret-dependent

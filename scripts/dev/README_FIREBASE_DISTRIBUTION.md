@@ -4,9 +4,10 @@ For a branch, run **Distribute Dev Build** from `develop`, choose `source-branch
 and provide release notes. The manual form is for branches only.
 
 For a PR, post a new comment containing exactly `/distribute-dev`. Repository write access or higher
-is required. The shortcut uses the PR title as release notes and builds the PR head after Develop CI
-passes for it. The first request after a push builds from scratch. A thumbs-up reaction means the request was accepted; thumbs down means it
-was rejected. Check Actions for the final upload result. Editing an existing comment does not trigger it.
+is required. The shortcut uses the PR title as release notes. It builds the PR head, not the CI test
+merge, and fails if Develop CI has not passed for that commit. The first request after a push builds
+from scratch. A thumbs-up reaction means the request was accepted; thumbs down means it was rejected.
+Check Actions for the final upload result. Editing an existing comment does not trigger it.
 Both paths add source and CI details to the release notes.
 
 ## One-time setup

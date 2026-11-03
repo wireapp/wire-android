@@ -34,7 +34,7 @@ import com.wire.kalium.logic.data.message.MessageEncryptionAlgorithm
 import com.wire.kalium.logic.data.message.MessagePreview
 import com.wire.kalium.logic.data.message.MessagePreviewContent
 import com.wire.kalium.logic.data.user.UserId
-import kotlinx.datetime.Instant
+import kotlin.time.Instant
 
 object TestMessage {
 

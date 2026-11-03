@@ -263,9 +263,6 @@ class CreateAccountCodeViewModel @AssistedInject constructor(
 
         AddAuthenticatedUserUseCase.Result.Failure.SsoIdentityChanged ->
             CreateAccountCodeResult.Error.DialogError.UserAlreadyExistsError
-
-        AddAuthenticatedUserUseCase.Result.Failure.NomadSingleUserViolation ->
-            CreateAccountCodeResult.Error.DialogError.UserAlreadyExistsError
     }
 
     private fun RequestActivationCodeResult.toCodeError() = when (this) {

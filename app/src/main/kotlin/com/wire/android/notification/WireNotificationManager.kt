@@ -68,7 +68,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import kotlinx.datetime.Instant
+import kotlin.time.Instant
 import java.net.UnknownHostException
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicReference
@@ -467,7 +467,7 @@ class WireNotificationManager @Inject constructor(
             .collect { newNotifications ->
                 appLogger.d("$TAG got ${newNotifications.size} notifications")
                 val meetingNotifications = newNotifications.filterIsInstance<LocalNotification.Meeting>()
-                val conversationNotifications = newNotifications.filterIsInstance<LocalNotification.Conversation>()
+                val conversationNotifications = newNotifications.filterNot { it is LocalNotification.Meeting }
                     // we don't want to display notifications for the Conversation that user currently in.
                     .filterAccordingToScreenAndUpdateNotifyDate(currentScreenState.value, userId)
 
@@ -479,7 +479,7 @@ class WireNotificationManager @Inject constructor(
                 }
 
                 conversationNotifications
-                    .filterIsInstance<LocalNotification.Conversation.NewMessages>()
+                    .filterIsInstance<LocalNotification.Conversation>()
                     .filter { it.messages.isNotEmpty() }
                     .forEach { conversation ->
                         val lastNotified = conversation.messages.maxOf { it.time }
@@ -521,7 +521,7 @@ class WireNotificationManager @Inject constructor(
             }
     }
 
-    private suspend fun List<LocalNotification.Conversation>.filterAccordingToScreenAndUpdateNotifyDate(
+    private suspend fun List<LocalNotification>.filterAccordingToScreenAndUpdateNotifyDate(
         currentScreen: CurrentScreen,
         userId: UserId,
     ) =
@@ -566,7 +566,7 @@ class WireNotificationManager @Inject constructor(
             val containsPingMessage = notifications
                 .any {
                     it.conversationId == conversationId &&
-                            it is LocalNotification.Conversation.NewMessages &&
+                            it is LocalNotification.Conversation &&
                             it.messages.any { message ->
                                 message is LocalNotificationMessage.Knock ||
                                         message is LocalNotificationMessage.SelfDeleteKnock

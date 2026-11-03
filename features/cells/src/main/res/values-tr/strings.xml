@@ -71,4 +71,5 @@
     <string name="add_tag_label">Etiket ekle</string>
     <string name="enter_name_label">Etiket adı girin</string>
     <string name="tags_edited">Etiketler düzenlendi</string>
+    <!-- Badge marking a newly released feature, not the "create new" action of cells_new_label -->
 </resources>

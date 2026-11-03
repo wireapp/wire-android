@@ -111,6 +111,15 @@ class UserDataStore(private val context: Context, userId: UserId) {
         context.dataStore.edit { it[viewerAccessBannerDismissedKey(conversationId)] = true }
     }
 
+    /** Whether the Drive bulk selection tip was dismissed, or the user already found the gesture. Shown once overall. */
+    fun isBulkSelectionHintDismissed(): Flow<Boolean> = context.dataStore.data.map {
+        it[BULK_SELECTION_HINT_DISMISSED] ?: false
+    }
+
+    suspend fun setBulkSelectionHintDismissed() {
+        context.dataStore.edit { it[BULK_SELECTION_HINT_DISMISSED] = true }
+    }
+
     private fun viewerAccessBannerDismissedKey(conversationId: String) =
         booleanPreferencesKey("$VIEWER_ACCESS_BANNER_DISMISSED_PREFIX$conversationId")
 
@@ -128,6 +137,7 @@ class UserDataStore(private val context: Context, userId: UserId) {
         private val ANONYMOUS_ANALYTICS = booleanPreferencesKey("anonymous_analytics")
         private val ANALYTICS_DIALOG_SEEN = booleanPreferencesKey("analytics_dialog_seen")
         private val IS_CREATE_TEAM_NOTICE_READ = booleanPreferencesKey("is_create_team_notice_read")
+        private val BULK_SELECTION_HINT_DISMISSED = booleanPreferencesKey("bulk_selection_hint_dismissed")
 
         // Key prefix for per-conversation entries, completed with the conversation id.
         private const val VIEWER_ACCESS_BANNER_DISMISSED_PREFIX = "viewer_access_banner_dismissed_"

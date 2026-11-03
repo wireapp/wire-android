@@ -22,7 +22,6 @@ import com.wire.android.ui.authentication.login.DomainClaimedByOrg
 import com.wire.android.ui.authentication.login.LoginNavArgs
 import com.wire.android.ui.authentication.login.LoginPasswordPath
 import com.wire.android.ui.authentication.login.PreFilledUserIdentifierType
-import com.wire.android.ui.authentication.login.SSOCodeAutoLogin
 import com.wire.android.ui.authentication.welcome.WelcomeNavArgs
 import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.android.util.deeplink.SSOFailureCodes
@@ -228,12 +227,6 @@ class AuthenticationRoutesTest {
             customServerConfig = SERVER_LINKS,
             isCloudAccountCreationPossible = false,
             isDomainClaimedByOrg = DomainClaimedByOrg.Claimed("example.com"),
-        ),
-        ssoCodeAutoLogin = SSOCodeAutoLogin(
-            ssoCode = "sso-code",
-            autoInitiateLogin = false,
-            nomadServiceUrl = "https://nomad.example.com",
-            cookieLabel = "wire-cookie",
         ),
         showBackendConfigSuccess = true,
     )

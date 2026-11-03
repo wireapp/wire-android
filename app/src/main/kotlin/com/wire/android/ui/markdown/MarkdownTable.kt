@@ -40,7 +40,8 @@ fun MarkdownTable(
     tableBlock: MarkdownNode.Block.Table,
     nodeData: NodeData,
     onMentionsUpdate: (List<DisplayMention>) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    clickable: Boolean = true
 ) {
     val tableData = mutableListOf<List<RowData>>()
     tableBlock.children.forEach { child ->
@@ -87,7 +88,9 @@ fun MarkdownTable(
                             .weight(1f)
                             .padding(dimensions().spacing8x),
                         onLongClick = nodeData.actions?.onLongClick,
-                        onOpenProfile = nodeData.actions?.onOpenProfile
+                        onOpenProfile = nodeData.actions?.onOpenProfile,
+                        onClickLink = nodeData.actions?.onLinkClick,
+                        clickable = clickable
                     )
                 }
             }

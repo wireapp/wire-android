@@ -15,12 +15,23 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
+package com.wire.android.tests.core.pages
 
-package com.wire.android.config
+import androidx.test.uiautomator.UiDevice
+import uiautomatorutils.UiSelectorParams
+import uiautomatorutils.UiWaitUtils
 
-import com.wire.android.BuildConfig
-import dev.zacsweers.metro.Inject
+data class PdfViewerPage(private val device: UiDevice) {
+    private val firstPage = UiSelectorParams(description = "Page 1")
 
-class NomadProfilesFeatureConfig @Inject constructor() {
-    fun isEnabled(): Boolean = BuildConfig.NOMAD_PROFILES_ENABLED
+    fun assertPdfPreviewVisible(fileName: String): PdfViewerPage {
+        UiWaitUtils.waitElement(UiSelectorParams(text = fileName))
+        UiWaitUtils.waitElement(firstPage, timeout = UiWaitUtils.VERY_LONG_TIMEOUT)
+        return this
+    }
+
+    fun navigateBack(): PdfViewerPage {
+        device.pressBack()
+        return this
+    }
 }

@@ -99,33 +99,17 @@ class WireActivityIntentCoordinatorTest {
         val firstEffect = coordinator.handle(
             request = WireActivityIntentRequest(intent, null),
             isEmptyWelcomeStartDestination = { false },
-            handleNonDeepLinkIntent = { false },
             handleDeepLink = { deepLinkCalls++ },
         )
         val secondEffect = coordinator.handle(
             request = WireActivityIntentRequest(intent, null),
             isEmptyWelcomeStartDestination = { false },
-            handleNonDeepLinkIntent = { false },
             handleDeepLink = { deepLinkCalls++ },
         )
 
         assertEquals(WireActivityIntentEffect.NONE, firstEffect)
         assertEquals(WireActivityIntentEffect.NONE, secondEffect)
         assertEquals(1, deepLinkCalls)
-    }
-
-    @Test
-    fun givenEligibleIntentHandledAsNonDeepLink_whenHandling_thenDeepLinkIsNotInvoked() = runTest {
-        var deepLinkHandled = false
-
-        coordinator.handle(
-            request = WireActivityIntentRequest(Intent(Intent.ACTION_VIEW), null),
-            isEmptyWelcomeStartDestination = { false },
-            handleNonDeepLinkIntent = { true },
-            handleDeepLink = { deepLinkHandled = true },
-        )
-
-        assertFalse(deepLinkHandled)
     }
 
     @Test
@@ -137,7 +121,6 @@ class WireActivityIntentCoordinatorTest {
         val effect = coordinator.handle(
             request = WireActivityIntentRequest(original, savedState),
             isEmptyWelcomeStartDestination = { true },
-            handleNonDeepLinkIntent = { false },
             handleDeepLink = { deepLinkHandled = true },
         )
 
@@ -155,7 +138,6 @@ class WireActivityIntentCoordinatorTest {
                 welcomeWasInspected = true
                 true
             },
-            handleNonDeepLinkIntent = { false },
             handleDeepLink = {},
         )
 
@@ -163,39 +145,18 @@ class WireActivityIntentCoordinatorTest {
     }
 
     @Test
-    fun givenLauncherIntentHandledAsNonDeepLink_whenHandling_thenWelcomeFallbackIsNotRequested() = runTest {
-        var deepLinkHandled = false
-
-        val effect = coordinator.handle(
-            request = WireActivityIntentRequest(Intent(Intent.ACTION_MAIN), null),
-            isEmptyWelcomeStartDestination = { true },
-            handleNonDeepLinkIntent = { true },
-            handleDeepLink = { deepLinkHandled = true },
-        )
-
-        assertEquals(WireActivityIntentEffect.NONE, effect)
-        assertFalse(deepLinkHandled)
-    }
-
-    @Test
-    fun givenIntentFromHistory_whenHandling_thenOnlyNonDeepLinkPathRuns() = runTest {
+    fun givenIntentFromHistory_whenHandling_thenDeepLinkIsNotInvoked() = runTest {
         val intent = Intent(Intent.ACTION_VIEW).apply {
             flags = Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY
         }
-        var nonDeepLinkHandled = false
         var deepLinkHandled = false
 
         coordinator.handle(
             request = WireActivityIntentRequest(intent, null),
             isEmptyWelcomeStartDestination = { false },
-            handleNonDeepLinkIntent = {
-                nonDeepLinkHandled = true
-                false
-            },
             handleDeepLink = { deepLinkHandled = true },
         )
 
-        assertTrue(nonDeepLinkHandled)
         assertFalse(deepLinkHandled)
     }
 }

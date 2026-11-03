@@ -30,7 +30,7 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.toUIText
 import com.wire.kalium.logic.data.conversation.Conversation
-import kotlinx.datetime.Instant
+import kotlin.time.Instant
 
 @PreviewMultipleThemes
 @Composable

@@ -26,8 +26,22 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusProperties
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEvent
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.type
+import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
@@ -50,11 +64,26 @@ fun RecordAudioComponent(
     onAudioRecorded: (UriAsset) -> Unit,
     onCloseRecordAudio: () -> Unit,
     modifier: Modifier = Modifier,
-    lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current
+    lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current,
+    useKeyboardNavigation: Boolean = false,
 ) {
     val viewModel: RecordAudioViewModel = recordAudioViewModel()
     val context = LocalContext.current
     val snackbarHostState = LocalSnackbarHostState.current
+    val startFocusRequester = remember { FocusRequester() }
+    val sendFocusRequester = remember { FocusRequester() }
+    var isRecordButtonFocused by remember { mutableStateOf(false) }
+    var focusSendAfterRecording by remember { mutableStateOf(false) }
+    val filterFocusRequester = remember { FocusRequester() }
+    val closeFocusRequester = remember { FocusRequester() }
+    val useInitialKeyboardFocus = useKeyboardNavigation && viewModel.state.buttonState == RecordAudioButtonState.ENABLED
+
+    RequestFocusWhen(useInitialKeyboardFocus, startFocusRequester)
+    RequestFocusWhen(
+        condition = viewModel.state.buttonState == RecordAudioButtonState.READY_TO_SEND && focusSendAfterRecording,
+        focusRequester = sendFocusRequester,
+        onFocusRequested = { focusSendAfterRecording = false },
+    )
 
     val recordAudioFlow = RecordAudioFlow(
         startRecording = { viewModel.startRecording() },
@@ -102,6 +131,13 @@ fun RecordAudioComponent(
 
     Box(
         modifier = modifier
+            .onPreviewKeyEvent { event ->
+                if (event.isFocusNavigationKeyDown()) {
+                    // Respect navigation away while the recording is being processed.
+                    focusSendAfterRecording = false
+                }
+                false
+            }
             .fillMaxWidth()
             .fillMaxHeight()
             .background(colorsScheme().background)
@@ -109,10 +145,19 @@ fun RecordAudioComponent(
     ) {
         WireDivider(color = MaterialTheme.wireColorScheme.outline)
         RecordAudioButtonClose(
-            onClick = viewModel::showDiscardRecordingDialog,
+            onClick = {
+                focusSendAfterRecording = false
+                viewModel.showDiscardRecordingDialog()
+            },
             modifier = Modifier
                 .align(Alignment.TopEnd)
                 .padding(top = dimensions().spacing0x, end = dimensions().spacing0x)
+                .keyboardFocusNode(
+                    enabled = useInitialKeyboardFocus,
+                    focusRequester = closeFocusRequester,
+                    next = startFocusRequester,
+                    previous = filterFocusRequester,
+                )
         )
 
         val buttonModifier = Modifier
@@ -120,17 +165,35 @@ fun RecordAudioComponent(
             .padding(bottom = dimensions().spacing20x, top = dimensions().spacing28x)
 
         when (viewModel.state.buttonState) {
-            RecordAudioButtonState.ENABLED -> RecordAudioButtonEnabled(
+            RecordAudioButtonState.ENABLED,
+            RecordAudioButtonState.RECORDING -> RecordAudioButtonStartStop(
+                isRecording = viewModel.state.buttonState == RecordAudioButtonState.RECORDING,
                 applyAudioFilterState = viewModel.state.shouldApplyEffects,
                 applyAudioFilterClick = viewModel::setShouldApplyEffects,
-                onClick = { recordAudioFlow.launch() },
-                modifier = buttonModifier
-            )
-
-            RecordAudioButtonState.RECORDING -> RecordAudioButtonRecording(
-                applyAudioFilterState = viewModel.state.shouldApplyEffects,
-                onClick = viewModel::stopRecording,
-                modifier = buttonModifier
+                onClick = {
+                    if (viewModel.state.buttonState == RecordAudioButtonState.RECORDING) {
+                        focusSendAfterRecording = useKeyboardNavigation && isRecordButtonFocused
+                        viewModel.stopRecording()
+                    } else {
+                        recordAudioFlow.launch()
+                    }
+                },
+                modifier = buttonModifier,
+                buttonModifier = Modifier
+                    .onFocusChanged { isRecordButtonFocused = it.isFocused }
+                    .keyboardFocusNode(
+                        enabled = useKeyboardNavigation,
+                        focusRequester = startFocusRequester,
+                        next = filterFocusRequester,
+                        previous = closeFocusRequester,
+                        linkNeighbours = useInitialKeyboardFocus,
+                    ),
+                audioFilterModifier = Modifier.keyboardFocusNode(
+                    enabled = useInitialKeyboardFocus,
+                    focusRequester = filterFocusRequester,
+                    next = closeFocusRequester,
+                    previous = startFocusRequester,
+                ),
             )
 
             RecordAudioButtonState.READY_TO_SEND -> RecordAudioButtonSend(
@@ -140,6 +203,7 @@ fun RecordAudioComponent(
                 wavesMask = viewModel.state.wavesMask,
                 onClick = viewModel::sendRecording,
                 modifier = buttonModifier,
+                buttonModifier = Modifier.focusRequester(sendFocusRequester),
                 outputFile = viewModel.getPlayableAudioFile(),
                 onPlayAudio = viewModel::onPlayAudio,
                 onSliderPositionChange = viewModel::onSliderPositionChange
@@ -170,6 +234,41 @@ fun RecordAudioComponent(
         dialogState = viewModel.state.maxFileSizeReachedDialogState,
         onDismiss = viewModel::onDismissMaxFileSizeReachedDialog
     )
+}
+
+@Composable
+private fun RequestFocusWhen(
+    condition: Boolean,
+    focusRequester: FocusRequester,
+    onFocusRequested: () -> Unit = {},
+) {
+    LaunchedEffect(condition) {
+        if (condition) {
+            onFocusRequested()
+            focusRequester.requestFocus()
+        }
+    }
+}
+
+private val focusNavigationKeys = setOf(Key.Tab, Key.DirectionUp, Key.DirectionDown, Key.DirectionLeft, Key.DirectionRight)
+
+private fun KeyEvent.isFocusNavigationKeyDown(): Boolean = type == KeyEventType.KeyDown && key in focusNavigationKeys
+
+private fun Modifier.keyboardFocusNode(
+    enabled: Boolean,
+    focusRequester: FocusRequester,
+    next: FocusRequester,
+    previous: FocusRequester,
+    linkNeighbours: Boolean = true,
+): Modifier = if (enabled) {
+    this
+        .focusRequester(focusRequester)
+        .focusProperties {
+            this.next = if (linkNeighbours) next else FocusRequester.Default
+            this.previous = if (linkNeighbours) previous else FocusRequester.Default
+        }
+} else {
+    this
 }
 
 @Composable

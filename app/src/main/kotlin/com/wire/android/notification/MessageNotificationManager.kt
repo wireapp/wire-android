@@ -54,7 +54,7 @@ class MessageNotificationManager
     private val notificationManager: NotificationManager,
     private val lockCodeTimeManager: LockCodeTimeManager
 ) {
-    suspend fun handleNotification(newNotifications: List<LocalNotification.Conversation>, userId: QualifiedID, userName: String) {
+    suspend fun handleNotification(newNotifications: List<LocalNotification>, userId: QualifiedID, userName: String) {
         if (newNotifications.isEmpty()) return
 
         addNotifications(newNotifications, userId, userName)
@@ -67,9 +67,9 @@ class MessageNotificationManager
         appLogger.i("$TAG: handled notifications: newNotifications size ${newNotifications.size}; ")
     }
 
-    private fun addNotifications(newNotifications: List<LocalNotification.Conversation>, userId: QualifiedID, userName: String) {
-        val notificationsToAdd: List<LocalNotification.Conversation.NewMessages> = newNotifications
-            .filterIsInstance(LocalNotification.Conversation.NewMessages::class.java)
+    private fun addNotifications(newNotifications: List<LocalNotification>, userId: QualifiedID, userName: String) {
+        val notificationsToAdd: List<LocalNotification.Conversation> = newNotifications
+            .filterIsInstance(LocalNotification.Conversation::class.java)
 
         val activeNotifications: Array<StatusBarNotification> = notificationManager.activeNotifications ?: arrayOf()
 
@@ -82,9 +82,9 @@ class MessageNotificationManager
         appLogger.i("$TAG: added notifications: newNotifications size ${notificationsToAdd.size}; ")
     }
 
-    private fun updateNotifications(newNotifications: List<LocalNotification.Conversation>, userId: QualifiedID) {
-        val notificationsToUpdate: List<LocalNotification.Conversation.UpdateMessage> = newNotifications
-            .filterIsInstance(LocalNotification.Conversation.UpdateMessage::class.java)
+    private fun updateNotifications(newNotifications: List<LocalNotification>, userId: QualifiedID) {
+        val notificationsToUpdate: List<LocalNotification.UpdateMessage> = newNotifications
+            .filterIsInstance(LocalNotification.UpdateMessage::class.java)
 
         val activeNotifications: Array<StatusBarNotification> = notificationManager.activeNotifications ?: return
 
@@ -97,9 +97,9 @@ class MessageNotificationManager
         appLogger.i("$TAG: updated notifications: newNotifications size ${notificationsToUpdate.size}; ")
     }
 
-    private fun removeSeenNotifications(newNotifications: List<LocalNotification.Conversation>, userId: QualifiedID) {
-        val notificationsToUpdate: List<LocalNotification.Conversation.Seen> = newNotifications
-            .filterIsInstance(LocalNotification.Conversation.Seen::class.java)
+    private fun removeSeenNotifications(newNotifications: List<LocalNotification>, userId: QualifiedID) {
+        val notificationsToUpdate: List<LocalNotification.ConversationSeen> = newNotifications
+            .filterIsInstance(LocalNotification.ConversationSeen::class.java)
 
         notificationsToUpdate.groupBy { it.conversationId }.forEach { (conversationId, _) ->
             hideNotification(conversationId, userId)
@@ -145,7 +145,7 @@ class MessageNotificationManager
     @SuppressLint("MissingPermission")
     // TODO(permissions): Check for permission before calling notificationManagerCompat.notify
     private fun showConversationNotification(
-        localConversation: LocalNotification.Conversation.NewMessages,
+        localConversation: LocalNotification.Conversation,
         userId: QualifiedID,
         activeNotifications: Array<StatusBarNotification>
     ) {
@@ -161,7 +161,7 @@ class MessageNotificationManager
     @SuppressLint("MissingPermission")
     private fun updateConversationNotification(
         conversationId: ConversationId,
-        updateMessages: List<LocalNotification.Conversation.UpdateMessage>,
+        updateMessages: List<LocalNotification.UpdateMessage>,
         userId: QualifiedID,
         activeNotifications: Array<StatusBarNotification>
     ) {
@@ -284,7 +284,7 @@ class MessageNotificationManager
     private fun getUpdatedConversationNotification(
         notificationId: Int,
         userId: QualifiedID,
-        updateMessages: List<LocalNotification.Conversation.UpdateMessage>,
+        updateMessages: List<LocalNotification.UpdateMessage>,
         activeNotifications: Array<StatusBarNotification>
     ): Notification? {
         val currentNotification = activeNotifications
@@ -351,7 +351,7 @@ class MessageNotificationManager
      * OR null if there is no new messages in conversation and no need to update the existed notification
      */
     private fun Notification.updateMessages(
-        updateMessages: List<LocalNotification.Conversation.UpdateMessage>
+        updateMessages: List<LocalNotification.UpdateMessage>
     ): NotificationCompat.MessagingStyle? {
         val activeStyledNotification = this
             .let { NotificationCompat.MessagingStyle.extractMessagingStyleFromNotification(it) }

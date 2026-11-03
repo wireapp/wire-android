@@ -92,7 +92,7 @@ import com.wire.kalium.logic.data.user.ConnectionState
 import io.github.esentsov.PackagePrivate
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import kotlinx.datetime.Instant
+import kotlin.time.Instant
 
 @Suppress("ComposeViewModelForwarding")
 @Composable

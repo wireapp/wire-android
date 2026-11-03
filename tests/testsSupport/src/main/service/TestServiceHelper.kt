@@ -27,6 +27,7 @@ package service
 
 import android.content.Context
 import android.graphics.Bitmap
+import android.net.Uri
 import androidx.annotation.RawRes
 import backendUtils.BackendClient
 import backendUtils.conversation.getConversationByName
@@ -166,6 +167,38 @@ class TestServiceHelper(
         }
 
         return conversation.messageTimerInMilliseconds
+    }
+
+    @Suppress("LongParameterList")
+    fun contactSendsLocalPdfConversation(
+        context: Context,
+        fileName: String,
+        fileUri: Uri,
+        senderAlias: String,
+        deviceName: String,
+        dstConvoName: String
+    ) {
+        val sender = toClientUser(senderAlias)
+        val conversation = toConvoObj(sender, dstConvoName)
+        val pdf = File(context.cacheDir, fileName)
+        try {
+            val input = context.contentResolver.openInputStream(fileUri)
+                ?: throw IOException("Could not open PDF '$fileName'")
+            input.use { source ->
+                pdf.outputStream().use { output -> source.copyTo(output) }
+            }
+            testServiceClient.sendFile(
+                sender,
+                deviceName,
+                conversation.qualifiedID.id,
+                conversation.qualifiedID.domain,
+                getSelfDeletingMessageTimeout(senderAlias, dstConvoName),
+                pdf.absolutePath,
+                "application/pdf"
+            )
+        } finally {
+            pdf.delete()
+        }
     }
 
     fun contactSendsLocalAudioPersonalMLSConversation(
@@ -501,7 +534,8 @@ class TestServiceHelper(
         ownerAlias: String,
         participantAliases: String,
         conversationName: String,
-        deviceName: String
+        deviceName: String,
+        cellsEnabled: Boolean = false
     ) {
         val owner = toClientUser(ownerAlias)
         val participants = usersManager
@@ -512,7 +546,8 @@ class TestServiceHelper(
             owner = owner,
             participants = participants,
             chatName = conversationName,
-            deviceName = deviceName
+            deviceName = deviceName,
+            cellsEnabled = cellsEnabled
         )
     }
 

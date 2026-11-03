@@ -18,6 +18,9 @@
 package com.wire.android.feature.meetings.ui.list
 
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -27,6 +30,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.stringResource
@@ -48,8 +53,9 @@ import com.wire.android.ui.common.rowitem.LoadingListContent
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.ui.collectAsLazyPagingItemsWithLifecycle
 import com.wire.kalium.logic.data.id.ConversationId
+import kotlinx.datetime.TimeZone
 
-@Suppress("CyclomaticComplexMethod")
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MeetingList(
     type: MeetingsTabItem,
@@ -66,72 +72,113 @@ fun MeetingList(
         else -> meetingListViewModel(type)
     }
     val displayTimeZone by meetingListViewModel.displayTimeZoneFlow.collectAsStateWithLifecycle()
+    val loadingState by meetingListViewModel.loadingState.collectAsStateWithLifecycle()
     val lazyPagingItems = meetingListViewModel.meetings.collectAsLazyPagingItemsWithLifecycle()
-    when {
-        lazyPagingItems.isLoading() -> LoadingListContent(
-            modifier = modifier
-        )
+    val showLoadingContent = lazyPagingItems.isLoading() || when (loadingState) {
+        MeetingListLoadingState.INITIAL_SYNCING -> true
+        MeetingListLoadingState.INITIAL_LOADING -> lazyPagingItems.itemCount == 0 && !lazyPagingItems.loadState.hasError
+        MeetingListLoadingState.READY, MeetingListLoadingState.REFRESHING -> false
+    }
 
-        lazyPagingItems.itemCount == 0 -> EmptyMeetingListContent(
-            type = type,
-            modifier = modifier
-        )
+    PullToRefreshBox(
+        isRefreshing = loadingState == MeetingListLoadingState.REFRESHING,
+        onRefresh = meetingListViewModel::onRefreshList,
+        modifier = modifier,
+    ) {
+        when {
+            showLoadingContent -> LoadingListContent(
+                modifier = Modifier.fillMaxSize()
+            )
 
-        else -> LazyColumn(
-            state = lazyListState,
-            contentPadding = contentPadding,
-            modifier = modifier,
-        ) {
-            items(
-                count = lazyPagingItems.itemCount,
-                key = lazyPagingItems.itemKey {
-                    when (it) {
-                        is MeetingHeader.Ongoing -> "separator_ongoing"
-                        is MeetingHeader.Day -> "separator_day_${it.time.toEpochMilliseconds()}"
-                        is MeetingHeader.DayAndHour -> "separator_day_and_hour_${it.time.toEpochMilliseconds()}"
-                        is MeetingHeader.Hour -> "separator_hour_${it.time.toEpochMilliseconds()}"
-                        is MeetingItem -> it.occurrenceId
-                    }
-                },
-                contentType = lazyPagingItems.itemContentType {
-                    when (it) {
-                        is MeetingHeader -> "header"
-                        is MeetingItem -> "item"
-                    }
-                },
-            ) { index ->
-                lazyPagingItems[index]?.let { item ->
-                    when (item) {
-                        is MeetingHeader -> MeetingHeader(
-                            header = item,
-                            displayTimeZone = displayTimeZone,
-                            modifier = Modifier.animateItem()
-                        )
+            lazyPagingItems.itemCount == 0 -> EmptyMeetingListContent(
+                type = type,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
+            )
 
-                        is MeetingItem -> MeetingItem(
-                            meeting = item,
-                            displayTimeZone = displayTimeZone,
-                            modifier = Modifier.animateItem(),
-                            openMeetingOptions = openMeetingOptions,
-                            startCall = startCall,
-                            joinCall = joinCall,
-                            returnToCall = returnToCall,
-                        )
-                    }
-                }
-            }
-            val endOfPaginationReached = (lazyPagingItems.loadState.append as? LoadState.NotLoading)?.endOfPaginationReached ?: false
-            if (!endOfPaginationReached) {
-                item(key = "footer_load_more", contentType = "footer_load_more") {
-                    MeetingLoadMoreFooter()
-                }
-            }
+            else -> MeetingItemsList(
+                lazyPagingItems = lazyPagingItems,
+                displayTimeZone = displayTimeZone,
+                lazyListState = lazyListState,
+                contentPadding = contentPadding,
+                openMeetingOptions = openMeetingOptions,
+                startCall = startCall,
+                joinCall = joinCall,
+                returnToCall = returnToCall,
+                modifier = Modifier.fillMaxSize()
+            )
         }
     }
 
-    LaunchedEffect(lazyPagingItems.loadState, lazyPagingItems.itemCount) {
-        if (lazyPagingItems.loadState.isIdle && !lazyPagingItems.loadState.hasError && lazyPagingItems.itemCount == 0) {
-            meetingListViewModel.onEmptyListLoaded()
+    LaunchedEffect(type, lazyPagingItems.loadState, lazyPagingItems.itemCount) {
+        if (lazyPagingItems.loadState.isIdle && !lazyPagingItems.loadState.hasError) {
+            meetingListViewModel.onInitialListLoaded(shouldMakeInitialSync = lazyPagingItems.itemCount == 0)
+        }
+    }
+}
+
+@Composable
+private fun MeetingItemsList(
+    lazyPagingItems: LazyPagingItems<MeetingListItem>,
+    displayTimeZone: TimeZone,
+    lazyListState: LazyListState,
+    contentPadding: PaddingValues,
+    openMeetingOptions: (occurrenceId: String) -> Unit,
+    startCall: (conversationId: ConversationId) -> Unit,
+    joinCall: (conversationId: ConversationId) -> Unit,
+    returnToCall: (conversationId: ConversationId) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    LazyColumn(
+        state = lazyListState,
+        contentPadding = contentPadding,
+        modifier = modifier,
+    ) {
+        items(
+            count = lazyPagingItems.itemCount,
+            key = lazyPagingItems.itemKey {
+                when (it) {
+                    is MeetingHeader.Ongoing -> "separator_ongoing"
+                    is MeetingHeader.Day -> "separator_day_${it.time.toEpochMilliseconds()}"
+                    is MeetingHeader.DayAndHour -> "separator_day_and_hour_${it.time.toEpochMilliseconds()}"
+                    is MeetingHeader.Hour -> "separator_hour_${it.time.toEpochMilliseconds()}"
+                    is MeetingItem -> it.occurrenceId
+                }
+            },
+            contentType = lazyPagingItems.itemContentType {
+                when (it) {
+                    is MeetingHeader -> "header"
+                    is MeetingItem -> "item"
+                }
+            },
+        ) { index ->
+            lazyPagingItems[index]?.let { item ->
+                when (item) {
+                    is MeetingHeader -> MeetingHeader(
+                        header = item,
+                        displayTimeZone = displayTimeZone,
+                        modifier = Modifier.animateItem()
+                    )
+
+                    is MeetingItem -> MeetingItem(
+                        meeting = item,
+                        displayTimeZone = displayTimeZone,
+                        modifier = Modifier.animateItem(),
+                        openMeetingOptions = openMeetingOptions,
+                        startCall = startCall,
+                        joinCall = joinCall,
+                        returnToCall = returnToCall,
+                    )
+                }
+            }
+        }
+        val endOfPaginationReached = (lazyPagingItems.loadState.append as? LoadState.NotLoading)?.endOfPaginationReached ?: false
+        val isRefreshing = lazyPagingItems.loadState.refresh is LoadState.Loading
+        if (!endOfPaginationReached && !isRefreshing) {
+            item(key = "footer_load_more", contentType = "footer_load_more") {
+                MeetingLoadMoreFooter()
+            }
         }
     }
 }

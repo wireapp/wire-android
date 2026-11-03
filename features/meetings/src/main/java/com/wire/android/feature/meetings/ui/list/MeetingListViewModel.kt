@@ -71,7 +71,9 @@ interface MeetingListViewModel {
     val currentTimeZoneProvider: CurrentTimeZoneProvider
     val displayTimeZoneFlow: StateFlow<TimeZone>
     val meetings: Flow<PagingData<MeetingListItem>> get() = flowOf()
-    fun onEmptyListLoaded() {}
+    val loadingState: StateFlow<MeetingListLoadingState> get() = MutableStateFlow(MeetingListLoadingState.READY)
+    fun onInitialListLoaded(shouldMakeInitialSync: Boolean) {}
+    fun onRefreshList() {}
 }
 
 class MeetingListViewModelPreview(type: MeetingsTabItem) : MeetingListViewModel {
@@ -97,13 +99,33 @@ class MeetingListViewModelImpl @AssistedInject constructor(
     private val syncMeetings: SyncMeetingsUseCase,
     private val dispatcher: DispatcherProvider,
 ) : ViewModel(), MeetingListViewModel {
-    private var initialMeetingsLoaded = false
+    private val _loadingState = MutableStateFlow(MeetingListLoadingState.INITIAL_LOADING)
+    override val loadingState: StateFlow<MeetingListLoadingState> = _loadingState
 
-    override fun onEmptyListLoaded() {
-        if (!initialMeetingsLoaded) {
-            initialMeetingsLoaded = true
-            viewModelScope.launch(dispatcher.io()) {
+    override fun onInitialListLoaded(shouldMakeInitialSync: Boolean) {
+        when {
+            _loadingState.value != MeetingListLoadingState.INITIAL_LOADING -> return
+            shouldMakeInitialSync -> {
+                _loadingState.value = MeetingListLoadingState.INITIAL_SYNCING
+                performSync()
+            }
+            else -> _loadingState.value = MeetingListLoadingState.READY
+        }
+    }
+
+    override fun onRefreshList() {
+        if (_loadingState.value != MeetingListLoadingState.REFRESHING && _loadingState.value != MeetingListLoadingState.INITIAL_SYNCING) {
+            _loadingState.value = MeetingListLoadingState.REFRESHING
+            performSync()
+        }
+    }
+
+    private fun performSync() {
+        viewModelScope.launch(dispatcher.io()) {
+            try {
                 syncMeetings()
+            } finally {
+                _loadingState.value = MeetingListLoadingState.READY
             }
         }
     }
@@ -218,3 +240,5 @@ private fun PagingData<MeetingItem>.insertHeaders(type: MeetingsTabItem, timeZon
             MeetingsTabItem.PAST -> null // No headers for past meetings
         }
     }
+
+enum class MeetingListLoadingState { INITIAL_LOADING, INITIAL_SYNCING, READY, REFRESHING }

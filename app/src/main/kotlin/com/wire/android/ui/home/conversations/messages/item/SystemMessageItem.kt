@@ -98,7 +98,7 @@ fun SystemMessageItem(
 
 @Composable
 fun AdminlessGroupDeleteReminderItem(
-    deletionScheduledFor: kotlinx.datetime.Instant,
+    deletionScheduledFor: kotlin.time.Instant,
     modifier: Modifier = Modifier,
     is24HourFormat: Boolean? = null,
 ) {
@@ -681,7 +681,7 @@ private fun SystemMessage.buildContent(isWireCellsEnabled: Boolean) = when (this
 
 @Composable
 private fun adminlessGroupDeleteReminderContent(
-    deletionScheduledFor: kotlinx.datetime.Instant,
+    deletionScheduledFor: kotlin.time.Instant,
     is24HourFormat: Boolean?,
 ) = buildContent(
         iconResId = commonR.drawable.ic_info,

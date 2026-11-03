@@ -24,6 +24,7 @@ import androidx.compose.ui.Modifier
 import com.wire.android.R
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WireSecondaryIconButton
+import com.wire.android.ui.common.R as CommonR
 
 @Composable
 fun CopyButton(
@@ -34,7 +35,7 @@ fun CopyButton(
 ) {
     WireSecondaryIconButton(
         onButtonClicked = onCopyClicked,
-        iconResource = R.drawable.ic_copy,
+        iconResource = CommonR.drawable.ic_copy,
         contentDescription = contentDescription,
         state = state,
         modifier = modifier

@@ -22,8 +22,14 @@ import com.wire.android.R
 import com.wire.android.ui.common.R as commonR
 import com.wire.android.ui.home.conversations.model.MessageBody
 import com.wire.android.ui.home.conversations.model.UILastMessageContent
+import com.wire.android.ui.home.conversations.model.UILastMessageContent.None
+import com.wire.android.ui.home.conversations.model.UILastMessageContent.SenderWithMessage
+import com.wire.android.ui.home.conversations.model.UILastMessageContent.TextMessage
 import com.wire.android.ui.markdown.MarkdownConstants
 import com.wire.android.util.ui.UIText
+import com.wire.android.util.ui.UIText.DynamicString
+import com.wire.android.util.ui.UIText.PluralResource
+import com.wire.android.util.ui.UIText.StringResource
 import com.wire.android.util.ui.UiTextResolver
 import com.wire.android.util.ui.toUIText
 import com.wire.kalium.logic.data.conversation.UnreadEventCount
@@ -125,117 +131,117 @@ fun MessagePreview.uiLastMessageContent(uiTextResolver: UiTextResolver): UILastM
             when ((userContent)) {
                 is WithUser.Asset -> when ((content as WithUser.Asset).type) {
                     AssetType.AUDIO ->
-                        UIText.StringResource(R.string.last_message_self_user_shared_audio).let { message ->
-                            UILastMessageContent.SenderWithMessage(
+                        StringResource(R.string.last_message_self_user_shared_audio).let { message ->
+                            SenderWithMessage(
                                 userUIText,
                                 message,
                             )
                         }
 
                     AssetType.IMAGE ->
-                        UIText.StringResource(
+                        StringResource(
                             if (isSelfMessage) {
                                 R.string.last_message_self_user_shared_image
                             } else {
                                 R.string.last_message_other_user_shared_image
                             }
                         ).let { message ->
-                            UILastMessageContent.SenderWithMessage(
+                            SenderWithMessage(
                                 userUIText,
                                 message,
                             )
                         }
 
                     AssetType.VIDEO ->
-                        UIText.StringResource(
+                        StringResource(
                             if (isSelfMessage) {
                                 R.string.last_message_self_user_shared_video
                             } else {
                                 R.string.last_message_other_user_shared_video
                             }
                         ).let { message ->
-                            UILastMessageContent.SenderWithMessage(
+                            SenderWithMessage(
                                 userUIText,
                                 message,
                             )
                         }
 
                     AssetType.GENERIC_ASSET ->
-                        UIText.StringResource(
+                        StringResource(
                             if (isSelfMessage) {
                                 R.string.last_message_self_user_shared_asset
                             } else {
                                 R.string.last_message_other_user_shared_asset
                             }
                         ).let { message ->
-                            UILastMessageContent.SenderWithMessage(
+                            SenderWithMessage(
                                 userUIText,
                                 message,
                             )
                         }
                 }
 
-                is WithUser.ConversationNameChange -> UIText.StringResource(
+                is WithUser.ConversationNameChange -> StringResource(
                     if (isSelfMessage) {
                         R.string.last_message_self_changed_conversation_name
                     } else {
                         R.string.last_message_other_changed_conversation_name
                     }
                 ).let { message ->
-                    UILastMessageContent.SenderWithMessage(
+                    SenderWithMessage(
                         userUIText,
                         message,
                     )
                 }
 
-                is WithUser.Knock -> UIText.StringResource(
+                is WithUser.Knock -> StringResource(
                     if (isSelfMessage) {
                         R.string.last_message_self_user_knock
                     } else {
                         R.string.last_message_other_user_knock
                     }
                 ).let { message ->
-                    UILastMessageContent.SenderWithMessage(
+                    SenderWithMessage(
                         userUIText,
                         message,
                     )
                 }
 
-                is WithUser.MemberJoined -> UIText.StringResource(
+                is WithUser.MemberJoined -> StringResource(
                     if (isSelfMessage) {
                         R.string.last_message_self_user_joined_conversation
                     } else {
                         R.string.last_message_other_user_joined_conversation
                     }
                 ).let { message ->
-                    UILastMessageContent.SenderWithMessage(
+                    SenderWithMessage(
                         userUIText,
                         message,
                     )
                 }
 
-                is WithUser.MemberLeft -> UIText.StringResource(
+                is WithUser.MemberLeft -> StringResource(
                     if (isSelfMessage) {
                         R.string.last_message_self_user_left_conversation
                     } else {
                         R.string.last_message_other_user_left_conversation
                     }
                 ).let { message ->
-                    UILastMessageContent.SenderWithMessage(
+                    SenderWithMessage(
                         userUIText,
                         message,
                     )
                 }
 
-                is WithUser.MentionedSelf -> UIText.StringResource(R.string.last_message_mentioned).let { message ->
-                    UILastMessageContent.SenderWithMessage(
+                is WithUser.MentionedSelf -> StringResource(R.string.last_message_mentioned).let { message ->
+                    SenderWithMessage(
                         userUIText,
                         message,
                     )
                 }
 
-                is WithUser.QuotedSelf -> UIText.StringResource(R.string.last_message_replied).let { message ->
-                    UILastMessageContent.SenderWithMessage(
+                is WithUser.QuotedSelf -> StringResource(R.string.last_message_replied).let { message ->
+                    SenderWithMessage(
                         userUIText,
                         message,
                     )
@@ -248,23 +254,23 @@ fun MessagePreview.uiLastMessageContent(uiTextResolver: UiTextResolver): UILastM
 
                     val previewMessageContent = when {
                         isSelfMessage && otherUsersSize > 0 -> {
-                            UIText.PluralResource(R.plurals.last_message_self_added_users, otherUsersSize, otherUsersSize)
+                            PluralResource(R.plurals.last_message_self_added_users, otherUsersSize, otherUsersSize)
                         }
 
                         !isSelfMessage && isSelfAdded -> {
                             if (otherUsersSize == 0) {
-                                UIText.StringResource(R.string.last_message_other_added_only_self_user)
+                                StringResource(R.string.last_message_other_added_only_self_user)
                             } else {
-                                UIText.PluralResource(R.plurals.last_message_other_added_self_user, otherUsersSize, otherUsersSize)
+                                PluralResource(R.plurals.last_message_other_added_self_user, otherUsersSize, otherUsersSize)
                             }
                         }
 
                         else -> {
-                            UIText.PluralResource(R.plurals.last_message_other_added_other_users, otherUsersSize, otherUsersSize)
+                            PluralResource(R.plurals.last_message_other_added_other_users, otherUsersSize, otherUsersSize)
                         }
                     }
 
-                    UILastMessageContent.TextMessage(
+                    TextMessage(
                         MessageBody(
                             message = previewMessageContent
                         )
@@ -278,14 +284,14 @@ fun MessagePreview.uiLastMessageContent(uiTextResolver: UiTextResolver): UILastM
 
                     val previewMessageContent = when {
                         isSelfMessage && otherUsersSize > 0 -> {
-                            UIText.PluralResource(R.plurals.last_message_self_removed_users, otherUsersSize, otherUsersSize)
+                            PluralResource(R.plurals.last_message_self_removed_users, otherUsersSize, otherUsersSize)
                         }
 
                         !isSelfMessage && isSelfRemoved -> {
                             if (otherUsersSize == 0) {
-                                UIText.StringResource(R.string.last_message_other_removed_only_self_user)
+                                StringResource(R.string.last_message_other_removed_only_self_user)
                             } else {
-                                UIText.PluralResource(
+                                PluralResource(
                                     R.plurals.last_message_other_removed_self_user_and_others,
                                     otherUsersSize,
                                     otherUsersSize
@@ -294,11 +300,11 @@ fun MessagePreview.uiLastMessageContent(uiTextResolver: UiTextResolver): UILastM
                         }
 
                         else -> {
-                            UIText.PluralResource(R.plurals.last_message_other_removed_other_users, otherUsersSize, otherUsersSize)
+                            PluralResource(R.plurals.last_message_other_removed_other_users, otherUsersSize, otherUsersSize)
                         }
                     }
 
-                    UILastMessageContent.TextMessage(
+                    TextMessage(
                         MessageBody(
                             message = previewMessageContent
                         )
@@ -308,9 +314,9 @@ fun MessagePreview.uiLastMessageContent(uiTextResolver: UiTextResolver): UILastM
                 is WithUser.TeamMembersRemoved -> {
                     val teamMembersRemovedContent = (content as WithUser.TeamMembersRemoved)
                     val previewMessageContent =
-                        UIText.PluralResource(R.plurals.last_message_team_member_removed, teamMembersRemovedContent.otherUserIdList.size)
+                        PluralResource(R.plurals.last_message_team_member_removed, teamMembersRemovedContent.otherUserIdList.size)
 
-                    UILastMessageContent.TextMessage(
+                    TextMessage(
                         MessageBody(
                             message = previewMessageContent
                         )
@@ -318,16 +324,16 @@ fun MessagePreview.uiLastMessageContent(uiTextResolver: UiTextResolver): UILastM
                 }
 
                 is WithUser.TeamMemberRemoved -> UILastMessageContent.None
-                is WithUser.Text -> UILastMessageContent.SenderWithMessage(
+                is WithUser.Text -> SenderWithMessage(
                     sender = userUIText,
-                    message = (content as WithUser.Text).messageBody.let { UIText.DynamicString(it) },
+                    message = (content as WithUser.Text).messageBody.let { DynamicString(it) },
                     separator = ":${MarkdownConstants.NON_BREAKING_SPACE}"
                 )
 
                 is WithUser.Composite -> {
-                    val text = (content as WithUser.Composite).messageBody?.let { UIText.DynamicString(it) }
-                        ?: UIText.StringResource(R.string.last_message_composite_with_missing_text)
-                    UILastMessageContent.SenderWithMessage(
+                    val text = (content as WithUser.Composite).messageBody?.let { DynamicString(it) }
+                        ?: StringResource(R.string.last_message_composite_with_missing_text)
+                    SenderWithMessage(
                         sender = userUIText,
                         message = text,
                         separator = ":${MarkdownConstants.NON_BREAKING_SPACE}",
@@ -335,38 +341,40 @@ fun MessagePreview.uiLastMessageContent(uiTextResolver: UiTextResolver): UILastM
                 }
 
                 is WithUser.MissedCall -> if (isSelfMessage) {
-                    UILastMessageContent.SenderWithMessage(
+                    SenderWithMessage(
                         userUIText,
-                        UIText.StringResource(R.string.last_message_call)
+                        StringResource(R.string.last_message_call)
                     )
                 } else {
-                    UILastMessageContent.TextMessage(
-                        MessageBody(UIText.PluralResource(R.plurals.unread_event_call, 1, 1))
+                    TextMessage(
+                        MessageBody(PluralResource(R.plurals.unread_event_call, 1, 1))
                     )
                 }
 
                 is WithUser.MembersCreationAdded -> UILastMessageContent.None
                 is WithUser.MembersFailedToAdd -> UILastMessageContent.None
-                is WithUser.Location -> UIText.StringResource(
+                is WithUser.Location -> StringResource(
                     if (isSelfMessage) {
                         R.string.last_message_self_user_shared_location
                     } else {
                         R.string.last_message_other_user_shared_location
                     }
                 ).let { message ->
-                    UILastMessageContent.SenderWithMessage(
+                    SenderWithMessage(
                         userUIText,
                         message,
                     )
                 }
 
-                is WithUser.Deleted -> UIText.StringResource(R.string.deleted_message_text).let { message ->
-                    UILastMessageContent.SenderWithMessage(
+                is WithUser.Deleted -> StringResource(R.string.deleted_message_text).let { message ->
+                    SenderWithMessage(
                         userUIText,
                         message,
                         separator = ":${MarkdownConstants.NON_BREAKING_SPACE}",
                     )
                 }
+
+                is WithUser.Poll -> None
             }
         }
 

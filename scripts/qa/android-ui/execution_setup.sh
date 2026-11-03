@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Set up runner, device, and app prerequisites for qa-android-ui-tests workflow.
+# Set up runner, device, and app prerequisites for the shared Alpha Regression jobs.
 
 usage() {
   echo "Usage: $0 {ensure-required-tools|resolve-flavor|download-apks|detect-target-devices|clear-allure-results-on-devices|install-apks-on-devices|fetch-runtime-secrets|build-test-apk|resolve-test-apk-path|resolve-test-services-apks}" >&2

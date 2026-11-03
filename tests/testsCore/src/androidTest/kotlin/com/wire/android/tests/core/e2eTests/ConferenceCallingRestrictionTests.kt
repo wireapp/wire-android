@@ -826,7 +826,7 @@ class ConferenceCallingRestrictionTests : BaseCallUiTest() {
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
     @TestCaseId("TC-4287")
-    @Category("regression", "conferenceRestrictions")
+    @Category("regression", "RC", "conferenceRestrictions")
     @Test
     fun givenIAmPersonalUserOutsidePayingTeam_whenIJoinConferenceThroughGuestLink_thenICanJoinButCannotInitiate() {
         step("Given There is a team owner TeamOwner with team SuperTeam") {

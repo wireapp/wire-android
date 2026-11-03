@@ -461,7 +461,6 @@
     <string name="current_device_label">Nuvarande enhet</string>
     <string name="other_devices_label">Andra enheter</string>
     <!--max account reached dialog-->
-    <!--nomad account blocks login dialog-->
     <string name="label_text_copied">Text kopierades till urklipp</string>
     <string name="label_logs_option_title">Loggar</string>
     <string name="label_share_logs">Dela loggar</string>

@@ -36,7 +36,7 @@ import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.data.user.SelfUser
 import com.wire.kalium.logic.data.user.User
 import com.wire.kalium.logic.data.user.UserId
-import kotlinx.datetime.Instant
+import kotlin.time.Instant
 import java.util.Locale
 import dev.zacsweers.metro.Inject
 import kotlin.time.Duration.Companion.milliseconds

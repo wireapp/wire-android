@@ -92,7 +92,6 @@ internal fun LoginRouteScreen(
         loginNavArgs = loginNavArgs,
         loginEmailViewModel = loginEmailViewModel,
         ssoLoginResult = loginNavArgs.ssoLoginResult,
-        ssoCodeAutoLogin = loginNavArgs.ssoCodeAutoLogin
     )
 }
 
@@ -104,7 +103,6 @@ private fun LoginContent(
     loginNavArgs: LoginNavArgs,
     loginEmailViewModel: LoginEmailViewModel,
     ssoLoginResult: DeepLinkResult.SSOLogin?,
-    ssoCodeAutoLogin: SSOCodeAutoLogin?,
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
         AnimatedContent(
@@ -123,7 +121,6 @@ private fun LoginContent(
                     loginNavArgs = loginNavArgs,
                     loginEmailViewModel = loginEmailViewModel,
                     ssoLoginResult = ssoLoginResult,
-                    ssoCodeAutoLogin = ssoCodeAutoLogin
                 )
             }
         }
@@ -140,7 +137,6 @@ private fun MainLoginContent(
     loginNavArgs: LoginNavArgs,
     loginEmailViewModel: LoginEmailViewModel,
     ssoLoginResult: DeepLinkResult.SSOLogin?,
-    ssoCodeAutoLogin: SSOCodeAutoLogin?,
 ) {
 
     val scope = rememberCoroutineScope()
@@ -148,8 +144,8 @@ private fun MainLoginContent(
     val isBackendConfigured = loginEmailViewModel.isBackendConfigured
     val backendConfigState = loginEmailViewModel.loginState.backendConfigState
     val shouldShowBackendSetup = !isBackendConfigured || backendConfigState == LoginEmailState.BackendConfigState.Success
-    // Show SSO tab if we have either ssoLoginResult or ssoCodeAutoLogin
-    val initialPageIndex = if (ssoLoginResult != null || ssoCodeAutoLogin != null) {
+    // Show SSO tab if we have an ssoLoginResult
+    val initialPageIndex = if (ssoLoginResult != null) {
         LoginTabItem.SSO.ordinal
     } else {
         LoginTabItem.EMAIL.ordinal
@@ -231,7 +227,6 @@ private fun MainLoginContent(
                             onRemoveDeviceNeeded,
                             loginNavArgs,
                             ssoLoginResult,
-                            ssoCodeAutoLogin,
                         )
                     }
                 }
@@ -289,7 +284,6 @@ private fun PreviewLoginScreen() = WireTheme {
             loginNavArgs = LoginNavArgs(),
             loginEmailViewModel = loginEmailViewModel(LoginNavArgs()),
             ssoLoginResult = null,
-            ssoCodeAutoLogin = null
         )
     }
 }

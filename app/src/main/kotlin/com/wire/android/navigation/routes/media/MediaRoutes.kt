@@ -121,6 +121,7 @@ data class LoggedOutImportMediaRoute(
 data class AuthenticatedImportMediaRoute(
     override val sessionId: WireSessionId,
     val internalAssetUriStrings: List<String> = emptyList(),
+    val finishOnClose: Boolean = false,
     override val entryId: WireNavEntryId = WireNavEntryId.random(),
 ) : SessionRoute {
     override val routeId = LoggedOutImportMediaRoute.ROUTE_ID

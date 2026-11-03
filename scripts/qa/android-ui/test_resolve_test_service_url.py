@@ -52,8 +52,8 @@ class TestServiceUrlTest(unittest.TestCase):
             failed.write_text("tests.Status#busy\n")
             env = {**os.environ,
                 "DEFLAKE_BUNDLE_DIR": str(root / "bundle"),
-                "SOURCE_WORKFLOW_NAME": "QA Android Critical Flow Tests",
-                "SOURCE_WORKFLOW_FILE": ".github/workflows/qa-android-critical-flow-tests.yml",
+                "SOURCE_WORKFLOW_NAME": "QA Android Regression Tests",
+                "SOURCE_WORKFLOW_FILE": ".github/workflows/qa-android-regression-tests.yml",
                 "SOURCE_REPOSITORY": "wireapp/wire-android",
                 "SOURCE_RUN_ID": "123", "SOURCE_REF_NAME": "develop", "SOURCE_SHA": "a" * 40,
                 "FLAVOR_INPUT": "experimental", "TEST_SERVICE_URL": "https://version.example",

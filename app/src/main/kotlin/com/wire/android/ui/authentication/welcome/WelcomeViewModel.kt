@@ -26,7 +26,6 @@ import androidx.lifecycle.viewModelScope
 import com.wire.android.BuildConfig
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.data.auth.AccountInfo
-import com.wire.kalium.logic.feature.session.DoesValidNomadAccountExistUseCase
 import com.wire.kalium.logic.feature.session.GetAllSessionsResult
 import com.wire.kalium.logic.feature.session.GetSessionsUseCase
 import kotlinx.coroutines.launch
@@ -37,7 +36,6 @@ import dev.zacsweers.metro.AssistedInject
 class WelcomeViewModel @AssistedInject constructor(
     @Assisted navArgs: WelcomeNavArgs,
     private val getSessions: GetSessionsUseCase,
-    private val doesValidNomadAccountExist: DoesValidNomadAccountExistUseCase,
     defaultServerConfig: ServerConfig.Links
 ) : ViewModel() {
     @AssistedFactory
@@ -53,10 +51,6 @@ class WelcomeViewModel @AssistedInject constructor(
 
     private fun checkNumberOfSessions() {
         viewModelScope.launch {
-            if (doesValidNomadAccountExist()) {
-                state = state.copy(nomadAccountBlocksLogin = true)
-                return@launch
-            }
             getSessions().let {
                 when (it) {
                     is GetAllSessionsResult.Success -> {

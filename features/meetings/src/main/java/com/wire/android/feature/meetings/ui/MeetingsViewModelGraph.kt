@@ -34,6 +34,8 @@ import com.wire.android.feature.meetings.ui.list.MeetingListViewModel
 import com.wire.android.feature.meetings.ui.list.MeetingListViewModelImpl
 import com.wire.android.feature.meetings.ui.options.MeetingOptionsMenuViewModel
 import com.wire.android.feature.meetings.ui.options.MeetingOptionsMenuViewModelImpl
+import com.wire.android.feature.meetings.ui.options.ShareMeetingWithGuestsViewModel
+import com.wire.android.feature.meetings.ui.options.ShareMeetingWithGuestsViewModelImpl
 
 @WireAssistedViewModelFactoryGroup
 object MeetingsManualViewModelFactoryGroup
@@ -64,4 +66,12 @@ internal fun newMeetingViewModel(
         previewProvider = PreviewProvider.of(NewMeetingViewModelPreview(navArgs.type)),
     ) {
         newMeetingViewModel(navArgs)
+    }
+
+@Composable
+internal fun shareMeetingWithGuestsViewModel(occurrenceId: String): ShareMeetingWithGuestsViewModel =
+    wireAssistedMetroViewModelAs<ShareMeetingWithGuestsViewModelImpl, ShareMeetingWithGuestsViewModel, MeetingsManualViewModelFactory>(
+        instanceKey = "share_meeting_with_guests_$occurrenceId",
+    ) {
+        shareMeetingWithGuestsViewModel(occurrenceId)
     }

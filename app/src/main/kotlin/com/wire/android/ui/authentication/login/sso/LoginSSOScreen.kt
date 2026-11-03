@@ -45,7 +45,6 @@ import com.wire.android.R
 import com.wire.android.ui.authentication.loginSSOViewModel
 import com.wire.android.ui.authentication.login.LoginErrorDialog
 import com.wire.android.ui.authentication.login.LoginNavArgs
-import com.wire.android.ui.authentication.login.SSOCodeAutoLogin
 import com.wire.android.ui.authentication.login.LoginState
 import com.wire.android.ui.authentication.login.toLoginDialogErrorData
 import com.wire.android.ui.common.button.WireButtonState
@@ -68,7 +67,6 @@ fun LoginSSOScreen(
     onRemoveDeviceNeeded: (UserId) -> Unit,
     loginNavArgs: LoginNavArgs,
     ssoLoginResult: DeepLinkResult.SSOLogin?,
-    ssoCodeAutoLogin: SSOCodeAutoLogin?,
     loginSSOViewModel: LoginSSOViewModel = loginSSOViewModel(loginNavArgs),
     scrollState: ScrollState = rememberScrollState()
 ) {
@@ -81,17 +79,6 @@ fun LoginSSOScreen(
         )
     }
 
-    // Handle SSO code auto-login from intent parameter
-    LaunchedEffect(ssoCodeAutoLogin) {
-        ssoCodeAutoLogin?.let {
-            loginSSOViewModel.handleSSOCodeAutoLogin(
-                ssoCode = it.ssoCode,
-                autoInitiateLogin = it.autoInitiateLogin,
-                nomadServiceUrl = it.nomadServiceUrl,
-                cookieLabel = it.cookieLabel,
-            )
-        }
-    }
     LoginSSOContent(
         scrollState = scrollState,
         ssoCodeTextState = loginSSOViewModel.ssoTextState,

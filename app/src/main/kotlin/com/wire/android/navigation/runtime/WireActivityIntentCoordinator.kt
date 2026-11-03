@@ -59,7 +59,6 @@ internal class WireActivityIntentCoordinator {
     suspend fun handle(
         request: WireActivityIntentRequest,
         isEmptyWelcomeStartDestination: () -> Boolean,
-        handleNonDeepLinkIntent: suspend (Intent?) -> Boolean,
         handleDeepLink: suspend (Intent) -> Unit,
     ): WireActivityIntentEffect {
         val intent = request.intent
@@ -74,21 +73,12 @@ internal class WireActivityIntentCoordinator {
                 wasDeepLinkHandled = intent?.getBooleanExtra(HANDLED_DEEP_LINK_KEY, false) == true,
             )
         )
-        val wasHandledAsNonDeepLink = handleNonDeepLinkIntent(intent)
-
-        if (handling == WireActivityIntentHandling.NON_DEEP_LINK_THEN_DEEP_LINK &&
-            !wasHandledAsNonDeepLink &&
-            intent != null
-        ) {
+        if (handling == WireActivityIntentHandling.NON_DEEP_LINK_THEN_DEEP_LINK && intent != null) {
             handleDeepLink(intent)
             intent.putExtra(HANDLED_DEEP_LINK_KEY, true)
         }
 
-        return if (
-            handling == WireActivityIntentHandling.NON_DEEP_LINK_ONLY &&
-            !wasHandledAsNonDeepLink &&
-            isEmptyWelcomeStartDestination()
-        ) {
+        return if (handling == WireActivityIntentHandling.NON_DEEP_LINK_ONLY && isEmptyWelcomeStartDestination()) {
             WireActivityIntentEffect.OPEN_LOGIN
         } else {
             WireActivityIntentEffect.NONE

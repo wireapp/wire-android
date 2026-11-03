@@ -20,7 +20,7 @@ package com.wire.android.framework
 
 import com.wire.kalium.logic.data.user.Connection
 import com.wire.kalium.logic.data.user.ConnectionState
-import kotlinx.datetime.Instant
+import kotlin.time.Instant
 
 object TestConnection {
     val CONNECTION = Connection(

@@ -29,7 +29,12 @@ import com.wire.android.ui.home.conversations.messages.item.onBackground
 
 @Composable
 @Suppress("MagicNumber")
-fun MarkdownHeading(heading: MarkdownNode.Block.Heading, nodeData: NodeData, modifier: Modifier = Modifier) {
+fun MarkdownHeading(
+    heading: MarkdownNode.Block.Heading,
+    nodeData: NodeData,
+    modifier: Modifier = Modifier,
+    clickable: Boolean = true
+) {
     val style: TextStyle = when (heading.level) {
         1 -> nodeData.typography.title01
         2 -> nodeData.typography.title01
@@ -51,7 +56,9 @@ fun MarkdownHeading(heading: MarkdownNode.Block.Heading, nodeData: NodeData, mod
             textAlign = TextAlign.Start,
             style = style.copy(color = nodeData.messageStyle.onBackground()),
             onLongClick = nodeData.actions?.onLongClick,
-            onOpenProfile = nodeData.actions?.onOpenProfile
+            onOpenProfile = nodeData.actions?.onOpenProfile,
+            onClickLink = nodeData.actions?.onLinkClick,
+            clickable = clickable
         )
     }
 }

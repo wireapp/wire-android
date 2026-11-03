@@ -313,6 +313,41 @@ class MessageAttachmentsViewModelTest {
         coVerify(exactly = 1) { arrangement.addAttachment(any(), eq("clean.pdf"), any(), any(), any(), any()) }
     }
 
+    @Test
+    fun givenFileAboveMessagingLimit_whenFilesSelected_thenFileIsStillAttached() = runTest {
+        val (arrangement, viewModel) = Arrangement()
+            .withHandleUriAssetTooLarge("huge.mp4")
+            .withAddAttachmentSuccess()
+            .arrange()
+
+        viewModel.onFilesSelected(listOf(mockk()))
+
+        coVerify(exactly = 1) { arrangement.addAttachment(any(), eq("huge.mp4"), any(), any(), any(), any()) }
+    }
+
+    @Test
+    fun givenFilesSelected_whenHandlingThem_thenOversizedCopiesAreKept() = runTest {
+        val (arrangement, viewModel) = Arrangement()
+            .withHandleUriAssetSuccess("photo.jpg")
+            .withAddAttachmentSuccess()
+            .arrange()
+
+        viewModel.onFilesSelected(listOf(mockk()))
+
+        coVerify(exactly = 1) { arrangement.handleUriAsset.invoke(any(), any(), any(), any(), eq(true)) }
+    }
+
+    @Test
+    fun givenAudioRecorded_whenHandlingIt_thenOversizedCopiesAreKept() = runTest {
+        val (arrangement, viewModel) = Arrangement()
+            .withHandleUriAssetUnknownFailure()
+            .arrange()
+
+        viewModel.onAudioRecorded(mockk(), null)
+
+        coVerify(exactly = 1) { arrangement.handleUriAsset.invoke(any(), any(), any(), any(), eq(true)) }
+    }
+
     private fun testBundle(fileName: String) = AssetBundle(
         key = "key",
         mimeType = "text/plain",
@@ -371,7 +406,7 @@ class MessageAttachmentsViewModelTest {
         fun withHandleUriAssetSuccess(vararg fileNames: String) = apply {
             initializeMocks()
             uriAssetQueue.addAll(fileNames)
-            coEvery { handleUriAsset.invoke(any(), any()) } answers {
+            coEvery { handleUriAsset.invoke(any(), any(), any(), any(), any()) } answers {
                 val name = uriAssetQueue.removeFirstOrNull() ?: "file.txt"
                 HandleUriAssetUseCase.Result.Success(
                     assetBundle = AssetBundle(
@@ -384,6 +419,27 @@ class MessageAttachmentsViewModelTest {
                     )
                 )
             }
+        }
+
+        private fun bundleNamed(name: String) = AssetBundle(
+            key = "key",
+            mimeType = "text/plain",
+            dataPath = "/tmp/$name".toPath(),
+            dataSize = 100L,
+            fileName = name,
+            assetType = AttachmentType.GENERIC_FILE,
+        )
+
+        fun withHandleUriAssetTooLarge(fileName: String) = apply {
+            initializeMocks()
+            coEvery { handleUriAsset.invoke(any(), any(), any(), any(), any()) } returns
+                HandleUriAssetUseCase.Result.Failure.AssetTooLarge(bundleNamed(fileName), maxLimitInMB = 25)
+        }
+
+        fun withHandleUriAssetUnknownFailure() = apply {
+            initializeMocks()
+            coEvery { handleUriAsset.invoke(any(), any(), any(), any(), any()) } returns
+                HandleUriAssetUseCase.Result.Failure.Unknown
         }
 
         fun withAddAttachmentSuccess() = apply {

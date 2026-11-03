@@ -87,7 +87,6 @@ for key in apks:
 parsed.sort(key=lambda x: x[0])
 
 latest_key = parsed[-1][1] if parsed else apks[-1]
-second_latest_key = parsed[-2][1] if len(parsed) >= 2 else None
 
 
 def normalize_direct(value: str):
@@ -112,29 +111,38 @@ if app_build.lower().endswith(".apk"):
     else:
         new_key = pick_by_filename(direct) or pick_by_substring(direct)
 
-    if is_upgrade:
-        if old_input.lower().endswith(".apk"):
-            normalized_old = normalize_direct(old_input)
-            old_key = normalized_old if "/" in normalized_old else (
-                pick_by_filename(normalized_old) or pick_by_substring(normalized_old)
-            )
-        else:
-            old_key = pick_by_substring(old_input) if old_input else second_latest_key
 elif app_build == "latest":
     new_key = latest_key
-    if is_upgrade:
-        old_key = pick_by_substring(old_input) if old_input else second_latest_key
 else:
     new_key = pick_by_substring(app_build)
-    if is_upgrade:
-        old_key = pick_by_substring(old_input) if old_input else second_latest_key
 
 if not new_key:
     print(f"ERROR: Could not resolve NEW apk for appBuildNumber='{app_build}'", file=sys.stderr)
     sys.exit(1)
+
+if is_upgrade:
+    if old_input.lower().endswith(".apk"):
+        normalized_old = normalize_direct(old_input)
+        old_key = normalized_old if "/" in normalized_old else (
+            pick_by_filename(normalized_old) or pick_by_substring(normalized_old)
+        )
+    elif old_input:
+        old_key = pick_by_substring(old_input)
+    else:
+        new_version = parse_version(new_key.split("/")[-1])
+        older_apks = [key for version, key in parsed if new_version and version < new_version]
+        old_key = older_apks[-1] if older_apks else None
+
 if is_upgrade and not old_key:
-    print("ERROR: Upgrade requested but OLD apk could not be resolved.", file=sys.stderr)
+    print("ERROR: Upgrade requested but no previous APK could be resolved. Specify oldBuildNumber.", file=sys.stderr)
     sys.exit(1)
+
+if is_upgrade:
+    new_version = parse_version(new_key.split("/")[-1])
+    old_version = parse_version(old_key.split("/")[-1])
+    if old_key == new_key or (new_version and old_version and old_version >= new_version):
+        print("ERROR: The old APK must be older than the selected new APK.", file=sys.stderr)
+        sys.exit(1)
 
 new_name = new_key.split("/")[-1]
 old_name = old_key.split("/")[-1] if old_key else ""

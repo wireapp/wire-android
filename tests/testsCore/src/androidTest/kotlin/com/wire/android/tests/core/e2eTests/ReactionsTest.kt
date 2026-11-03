@@ -897,6 +897,7 @@ class ReactionsTest : BaseUiTest() {
         }
 
         step("Then I see the ❤️ reaction from 1 user") {
+            closeKeyboardIfOpened()
             pages.conversationViewPage.assertReactionAndUserCountVisible("❤️", 1)
         }
     }

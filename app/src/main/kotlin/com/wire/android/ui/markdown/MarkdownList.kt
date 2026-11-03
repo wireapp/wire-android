@@ -30,7 +30,12 @@ import com.wire.android.ui.markdown.MarkdownConstants.BULLET_MARK
 import com.wire.android.ui.theme.wireTypography
 
 @Composable
-fun MarkdownBulletList(bulletList: MarkdownNode.Block.ListBlock.Bullet, nodeData: NodeData, modifier: Modifier = Modifier) {
+fun MarkdownBulletList(
+    bulletList: MarkdownNode.Block.ListBlock.Bullet,
+    nodeData: NodeData,
+    modifier: Modifier = Modifier,
+    clickable: Boolean = true
+) {
     val bottom = if (bulletList.isParentDocument) dimensions().spacing8x else dimensions().spacing0x
 
     val text = buildAnnotatedString {
@@ -46,9 +51,11 @@ fun MarkdownBulletList(bulletList: MarkdownNode.Block.ListBlock.Bullet, nodeData
                     annotatedString = text,
                     style = MaterialTheme.wireTypography.body01.copy(color = nodeData.messageStyle.onBackground()),
                     onLongClick = nodeData.actions?.onLongClick,
-                    onOpenProfile = nodeData.actions?.onOpenProfile
+                    onOpenProfile = nodeData.actions?.onOpenProfile,
+                    onClickLink = nodeData.actions?.onLinkClick,
+                    clickable = clickable
                 )
-                MarkdownNodeBlockChildren(children = listItem.children, nodeData = nodeData)
+                MarkdownNodeBlockChildren(children = listItem.children, nodeData = nodeData, clickable = clickable)
             }
         }
     }
@@ -58,7 +65,8 @@ fun MarkdownBulletList(bulletList: MarkdownNode.Block.ListBlock.Bullet, nodeData
 fun MarkdownOrderedList(
     orderedList: MarkdownNode.Block.ListBlock.Ordered,
     nodeData: NodeData,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    clickable: Boolean = true
 ) {
     val bottom = if (orderedList.isParentDocument) dimensions().spacing8x else dimensions().spacing0x
 
@@ -75,9 +83,11 @@ fun MarkdownOrderedList(
                     annotatedString = text,
                     style = MaterialTheme.wireTypography.body01.copy(color = nodeData.messageStyle.onBackground()),
                     onLongClick = nodeData.actions?.onLongClick,
-                    onOpenProfile = nodeData.actions?.onOpenProfile
+                    onOpenProfile = nodeData.actions?.onOpenProfile,
+                    onClickLink = nodeData.actions?.onLinkClick,
+                    clickable = clickable
                 )
-                MarkdownNodeBlockChildren(children = listItem.children, nodeData = nodeData)
+                MarkdownNodeBlockChildren(children = listItem.children, nodeData = nodeData, clickable = clickable)
             }
         }
     }

@@ -23,7 +23,7 @@ import com.wire.kalium.logic.data.user.UserId
 data class UIMention(
     val start: Int,
     val length: Int,
-    val userId: UserId,
+    val userId: UserId?,
     val handler: String // name that should be displayed in a message
 ) {
     fun intoMessageMention() = MessageMention(start, length, userId, false) // We can never send a self mention message

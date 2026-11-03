@@ -210,7 +210,6 @@ private fun NewLoginNavigation3Entry(
     }
 
     NewLoginRouteScreen(
-        navArgs = legacyArgs,
         viewModel = viewModel,
         canNavigateBack = router.canNavigateBack,
         navigateBack = { router.backOrElse(actions::exitAuthentication) },

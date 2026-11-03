@@ -19,11 +19,13 @@
 package com.wire.android.ui.common.button
 
 import androidx.compose.material3.ExtendedFloatingActionButton
+import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.res.painterResource
 import com.wire.android.ui.common.R
 import com.wire.android.ui.theme.wireTypography
@@ -33,9 +35,11 @@ fun FloatingActionButton(
     text: String,
     modifier: Modifier = Modifier,
     icon: @Composable (() -> Unit) = { Icon(painterResource(R.drawable.ic_add), "") },
+    shape: Shape = FloatingActionButtonDefaults.extendedFabShape,
     onClick: () -> Unit
 ) {
     ExtendedFloatingActionButton(
+        shape = shape,
         containerColor = MaterialTheme.colorScheme.primary,
         contentColor = MaterialTheme.colorScheme.onPrimary,
         icon = icon,

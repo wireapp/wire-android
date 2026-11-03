@@ -51,7 +51,7 @@ data class NodeActions(
 )
 
 data class DisplayMention(
-    val userId: UserId,
+    val userId: UserId?,
     val length: Int,
     val isSelfMention: Boolean,
     val mentionUserName: String

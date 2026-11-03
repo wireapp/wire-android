@@ -22,7 +22,7 @@ import com.wire.kalium.logic.data.client.Client
 import com.wire.kalium.logic.data.client.ClientType
 import com.wire.kalium.logic.data.client.DeviceType
 import com.wire.kalium.logic.data.conversation.ClientId
-import kotlinx.datetime.Instant
+import kotlin.time.Instant
 
 object TestClient {
     val CLIENT_ID = ClientId("test")

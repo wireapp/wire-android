@@ -34,14 +34,6 @@ internal class WireNavigation3ProductionActionsSourceTest {
         assertFalse(source.contains("override fun restartAfterLogout() = activity.hardLogout()"))
     }
 
-    @Test
-    fun `initial sync waits for typed Home before moving task to background`() {
-        val source = sourceFile().readText()
-
-        assertTrue(source.contains("runtime.navigator.currentRoute as? HomeRoute"))
-        assertTrue(source.contains("activity.moveTaskToBackground()"))
-    }
-
     private fun sourceFile() = File(
         "src/main/kotlin/com/wire/android/navigation/runtime/WireNavigation3ProductionActions.kt"
     )

@@ -37,7 +37,7 @@ class ValidateSourceRunTest(unittest.TestCase):
         self.metadata = {
             "id": 12345,
             "repository": {"full_name": "wireapp/wire-android"},
-            "path": ".github/workflows/qa-android-critical-flow-tests.yml",
+            "path": ".github/workflows/qa-android-regression-tests.yml",
             "head_sha": "a" * 40,
             "head_branch": "develop",
             "status": "completed",
@@ -51,7 +51,10 @@ class ValidateSourceRunTest(unittest.TestCase):
         self.assertEqual("a" * 40, outputs["sourceHeadSha"])
 
     def test_blank_id_selects_latest_completed_run_of_requesting_workflow(self) -> None:
-        for filename in ("qa-android-critical-flow-tests.yml", "qa-android-fdroid-tests.yml"):
+        for filename in (
+            "qa-android-regression-tests.yml", "qa-android-fdroid-tests.yml",
+            "qa-android-emulator-critical-flow-tests.yml",
+        ):
             with self.subTest(filename=filename):
                 workflow = f".github/workflows/{filename}"
                 self.metadata["path"] = workflow
@@ -65,7 +68,10 @@ class ValidateSourceRunTest(unittest.TestCase):
                 self.assertNotIn("12344", outputs)
 
     def test_explicit_id_uses_that_run_without_latest_lookup(self) -> None:
-        for filename in ("qa-android-critical-flow-tests.yml", "qa-android-fdroid-tests.yml"):
+        for filename in (
+            "qa-android-regression-tests.yml", "qa-android-fdroid-tests.yml",
+            "qa-android-emulator-critical-flow-tests.yml",
+        ):
             with self.subTest(filename=filename):
                 workflow = f".github/workflows/{filename}"
                 self.metadata["path"] = workflow
@@ -96,8 +102,9 @@ class ValidateSourceRunTest(unittest.TestCase):
 
     def test_each_workflow_accepts_only_its_own_source_runs(self) -> None:
         workflows = (
-            ".github/workflows/qa-android-critical-flow-tests.yml",
+            ".github/workflows/qa-android-regression-tests.yml",
             ".github/workflows/qa-android-fdroid-tests.yml",
+            ".github/workflows/qa-android-emulator-critical-flow-tests.yml",
         )
         for expected in workflows:
             for source in workflows:
@@ -110,7 +117,7 @@ class ValidateSourceRunTest(unittest.TestCase):
                         with self.assertRaisesRegex(SourceRunValidationError, "not an allowed"):
                             validate_run_metadata(self.metadata, "wireapp/wire-android", "develop", expected)
 
-    def test_critical_flow_default_rejects_fdroid_source(self) -> None:
+    def test_regression_default_rejects_fdroid_source(self) -> None:
         self.metadata["path"] = ".github/workflows/qa-android-fdroid-tests.yml"
         with self.assertRaisesRegex(SourceRunValidationError, "not an allowed"):
             validate_run_metadata(self.metadata, "wireapp/wire-android", "develop")

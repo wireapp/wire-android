@@ -17,7 +17,7 @@
  */
 package com.wire.android.util.logging
 
-import kotlinx.datetime.Instant
+import kotlin.time.Instant
 import kotlinx.datetime.TimeZone
 import org.junit.Rule
 import org.junit.Test

@@ -19,6 +19,9 @@
 
 package com.wire.android.feature.cells.ui
 
+import com.wire.android.feature.cells.domain.model.AttachmentFileType
+import com.wire.android.feature.cells.ui.model.CellNodeUi
+import com.wire.android.feature.cells.ui.model.OpenLoadState
 import com.wire.kalium.cells.domain.usecase.offline.OfflineFileInfo
 
 /**
@@ -106,3 +109,47 @@ private fun maxOfNullable(first: Long?, second: Long?): Long? =
         second == null -> first
         else -> maxOf(first, second)
     }
+
+internal fun OfflineListingEntry.FolderEntry.toCellNodeUi(): CellNodeUi.Folder = CellNodeUi.Folder(
+    uuid = remotePath,
+    name = name,
+    remotePath = remotePath,
+    modifiedTime = modifiedTime,
+    size = null,
+    userName = null,
+    userHandle = null,
+    ownerUserId = null,
+    conversationName = null,
+)
+
+internal fun OfflineFileInfo.toCellNodeUi(
+    conversationName: String? = null,
+    userName: String? = null,
+    openLoadState: OpenLoadState? = null,
+    downloadProgress: Float? = null,
+): CellNodeUi.File {
+    val resolvedMimeType = mimeType.orEmpty()
+    val extension = name.substringAfterLast('.', "")
+    return CellNodeUi.File(
+        uuid = id,
+        conversationId = conversationId,
+        name = name,
+        mimeType = resolvedMimeType,
+        assetType = if (resolvedMimeType.isNotBlank()) {
+            AttachmentFileType.fromMimeType(resolvedMimeType)
+        } else {
+            AttachmentFileType.fromExtension(extension)
+        },
+        size = size,
+        localPath = localPath,
+        remotePath = remotePath,
+        ownerUserId = owner.ifEmpty { null },
+        userName = userName,
+        userHandle = null,
+        conversationName = conversationName,
+        modifiedTime = modifiedAt,
+        isAvailableOffline = true,
+        openLoadState = openLoadState,
+        downloadProgress = downloadProgress,
+    )
+}

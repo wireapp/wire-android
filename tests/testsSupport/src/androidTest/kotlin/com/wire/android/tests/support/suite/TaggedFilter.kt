@@ -61,6 +61,10 @@ class TaggedFilter : Filter() {
         get() = rerunModeEnabled && rerunAttempt > 0
 
     override fun shouldRun(description: Description): Boolean {
+        // Suite exclusions also apply to explicit retry and manual deflake lists.
+        if (description.children.isEmpty() && matchesExcludedCategory(description)) {
+            return false
+        }
         // Rerun mode -> only run explicit retry tests.
         if (rerunModeActive) {
             return shouldRunInRerunMode(description)
@@ -90,7 +94,7 @@ class TaggedFilter : Filter() {
     private fun shouldRunInRerunMode(description: Description): Boolean {
         val children = description.children
         if (children.isNotEmpty()) {
-            return children.any { shouldRunInRerunMode(it) }
+            return children.any { shouldRun(it) }
         }
 
         if (rerunTestIds.isEmpty()) {
@@ -165,13 +169,6 @@ class TaggedFilter : Filter() {
         val annotations = description.annotations
         val categories = annotations.filterIsInstance<Category>()
 
-        excludeCategory?.let { excludedCat ->
-            val matchesExcludedCat = categories.any { catAnno ->
-                catAnno.value.contains(excludedCat)
-            }
-            if (matchesExcludedCat) return false
-        }
-
         // 1) TestCaseId
         filterTestCaseId?.let { wantedId ->
             val testCaseAnno = annotations.filterIsInstance<TestCaseId>().firstOrNull()
@@ -214,6 +211,11 @@ class TaggedFilter : Filter() {
 
         return true
     }
+
+    private fun matchesExcludedCategory(description: Description): Boolean =
+        excludeCategory?.let { excluded ->
+            description.annotations.filterIsInstance<Category>().any { excluded in it.value }
+        } ?: false
 
     override fun describe(): String {
         return "TaggedFilter(testCaseId=$filterTestCaseId, " +

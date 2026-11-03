@@ -39,6 +39,8 @@ fun Context.deleteUserDownloads(userId: UserId) {
 }
 
 private fun String.asFolderName(): String =
-    map { if (it in 'a'..'z' || it in 'A'..'Z' || it in '0'..'9' || it == '.' || it == '-' || it == '_') it else '_' }
+    map { if (it.isSafeFolderCharacter()) it else '_' }
         .joinToString("")
         .takeUnless { it.isEmpty() || it == "." || it == ".." } ?: "_"
+
+private fun Char.isSafeFolderCharacter(): Boolean = this in 'a'..'z' || this in 'A'..'Z' || this in '0'..'9' || this in ".-_"

@@ -26,6 +26,7 @@ import app.cash.turbine.test
 import com.wire.android.datastore.UserDataStore
 import com.wire.android.feature.cells.ui.dialog.BulkDeleteDialog
 import com.wire.android.feature.cells.ui.dialog.BulkRestoreDialog
+import com.wire.android.feature.cells.ui.dialog.EmptyRecycleBinDialog
 import com.wire.android.feature.cells.ui.edit.OnlineEditor
 import com.wire.android.feature.cells.ui.model.CellNodeUi
 import com.wire.android.feature.cells.ui.model.NodeBottomSheetAction
@@ -46,6 +47,9 @@ import com.wire.kalium.cells.domain.model.Node
 import com.wire.kalium.cells.domain.model.NodeToDelete
 import com.wire.kalium.cells.domain.usecase.DeleteCellAssetUseCase
 import com.wire.kalium.cells.domain.usecase.DeleteCellAssetsUseCase
+import com.wire.kalium.cells.domain.usecase.EmptyRecycleBinUseCase
+import com.wire.kalium.cells.domain.usecase.CellNodeAvailability
+import com.wire.kalium.cells.domain.usecase.CheckCellNodeAvailabilityUseCase
 import com.wire.kalium.cells.domain.usecase.GetConversationNameUseCase
 import com.wire.kalium.cells.domain.usecase.GetEditorUrlUseCase
 import com.wire.kalium.cells.domain.usecase.GetPaginatedFilesFlowUseCase
@@ -74,6 +78,7 @@ import com.wire.kalium.network.NetworkStateObserver
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
+import io.mockk.verify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
@@ -492,6 +497,131 @@ class CellViewModelTest {
             assert(action is OpenPdfViewer)
         }
         coVerify(exactly = 0) { arrangement.fileHelper.openAssetUrlWithExternalApp(any(), any(), any()) }
+    }
+
+    @Test
+    fun `given a file deleted elsewhere when clicked then tell it is no longer available instead of opening it`() = runTest {
+        val (arrangement, viewModel) = Arrangement()
+            .withLoadSuccess()
+            .withNodeAvailability(CellNodeAvailability.Gone)
+            .arrange()
+        val testFile = testFiles[0].copy(mimeType = "application/pdf", localPath = null, contentUrl = "https://example.com/file")
+
+        viewModel.actions.test {
+            viewModel.sendIntent(CellViewIntent.OnItemClick(testFile.toUiModel()))
+
+            assertEquals(ShowError(CellError.ITEM_NO_LONGER_AVAILABLE), awaitItem())
+            expectNoEvents()
+        }
+        coVerify(exactly = 1) { arrangement.checkCellNodeAvailability(testFile.uuid) }
+    }
+
+    @Test
+    fun `given a file deleted elsewhere when clicked then do not download it`() = runTest {
+        val (arrangement, viewModel) = Arrangement()
+            .withLoadSuccess()
+            .withNodeAvailability(CellNodeAvailability.Gone)
+            .arrange()
+        val testFile = testFiles[0].copy(localPath = null, contentUrl = null, mimeType = "application/zip")
+
+        viewModel.actions.test {
+            viewModel.sendIntent(CellViewIntent.OnItemClick(testFile.toUiModel()))
+
+            assertEquals(ShowError(CellError.ITEM_NO_LONGER_AVAILABLE), awaitItem())
+        }
+        coVerify(exactly = 0) { arrangement.downloadCellFileUseCase(any(), any(), any(), any(), any(), any(), any(), any()) }
+    }
+
+    @Test
+    fun `given a file still available when clicked then open it with its current content url`() = runTest {
+        val testFile = testFiles[0].copy(mimeType = "application/pdf", localPath = null, contentUrl = "https://example.com/file")
+        val (_, viewModel) = Arrangement()
+            .withLoadSuccess()
+            .withNodeAvailability(CellNodeAvailability.Available(testFile.copy(contentUrl = "https://example.com/fresh")))
+            .arrange()
+
+        viewModel.actions.test {
+            viewModel.sendIntent(CellViewIntent.OnItemClick(testFile.toUiModel()))
+
+            val action = awaitItem()
+            assertTrue(action is OpenPdfViewer)
+            assertEquals("https://example.com/fresh", (action as OpenPdfViewer).file.contentUrl)
+        }
+    }
+
+    @Test
+    fun `given a node deleted elsewhere when a menu action is picked then tell it is no longer available instead`() = runTest {
+        val (arrangement, viewModel) = Arrangement()
+            .withLoadSuccess()
+            .withNodeAvailability(CellNodeAvailability.Gone)
+            .arrange()
+        val testFile = testFiles[0].toUiModel()
+
+        viewModel.actions.test {
+            viewModel.sendIntent(CellViewIntent.OnMenuItemActionSelected(testFile, NodeBottomSheetAction.RENAME))
+
+            assertEquals(ShowError(CellError.ITEM_NO_LONGER_AVAILABLE), awaitItem())
+        }
+        verify(exactly = 0) { arrangement.cellFileActionsMenu.onMenuItemAction(any(), any(), any(), any(), any()) }
+    }
+
+    @Test
+    fun `given a node still available when a menu action is picked then perform it`() = runTest {
+        val testFile = testFiles[0]
+        val (arrangement, viewModel) = Arrangement()
+            .withLoadSuccess()
+            .withNodeAvailability(CellNodeAvailability.Available(testFile))
+            .arrange()
+
+        viewModel.sendIntent(CellViewIntent.OnMenuItemActionSelected(testFile.toUiModel(), NodeBottomSheetAction.MOVE))
+        advanceUntilIdle()
+
+        verify(exactly = 1) {
+            arrangement.cellFileActionsMenu.onMenuItemAction(any(), any(), any(), NodeBottomSheetAction.MOVE, any())
+        }
+    }
+
+    @Test
+    fun `given a local only menu action when picked then perform it without checking the node`() = runTest {
+        val (arrangement, viewModel) = Arrangement()
+            .withLoadSuccess()
+            .arrange()
+
+        viewModel.sendIntent(CellViewIntent.OnMenuItemActionSelected(testFiles[0].toUiModel(), NodeBottomSheetAction.REMOVE_OFFLINE_ACCESS))
+        advanceUntilIdle()
+
+        coVerify(exactly = 0) { arrangement.checkCellNodeAvailability(any(), any()) }
+        verify(exactly = 1) {
+            arrangement.cellFileActionsMenu.onMenuItemAction(any(), any(), any(), NodeBottomSheetAction.REMOVE_OFFLINE_ACCESS, any())
+        }
+    }
+
+    @Test
+    fun `given the recycle bin when a menu action is picked then check the node as listed in the recycle bin`() = runTest {
+        val (arrangement, viewModel) = Arrangement()
+            .withConversationId("conversationId")
+            .withRecycleBin()
+            .withLoadSuccess()
+            .arrange()
+
+        viewModel.sendIntent(CellViewIntent.OnMenuItemActionSelected(testFiles[0].toUiModel(), NodeBottomSheetAction.RESTORE))
+        advanceUntilIdle()
+
+        coVerify(exactly = 1) { arrangement.checkCellNodeAvailability("fileUuid", inRecycleBin = true) }
+    }
+
+    @Test
+    fun `given no network when a file is clicked then open it without checking it`() = runTest {
+        val (arrangement, viewModel) = Arrangement()
+            .withLoadSuccess()
+            .withNoNetwork()
+            .arrange()
+        val testFile = testFiles[0].copy(mimeType = "application/pdf", localPath = null, contentUrl = "https://example.com/file")
+
+        viewModel.sendIntent(CellViewIntent.OnItemClick(testFile.toUiModel()))
+        advanceUntilIdle()
+
+        coVerify(exactly = 0) { arrangement.checkCellNodeAvailability(any(), any()) }
     }
 
     @Test
@@ -975,6 +1105,102 @@ class CellViewModelTest {
     }
 
     @Test
+    fun `given the recycle bin root when emptying it is confirmed then empty the conversation recycle bin and confirm it`() = runTest {
+        val (arrangement, viewModel) = Arrangement()
+            .withConversationId("conversationId")
+            .withRecycleBin()
+            .withEmptyRecycleBinReturning(Unit.right())
+            .arrange()
+        advanceUntilIdle()
+        assertTrue(viewModel.canEmptyRecycleBin.value)
+
+        viewModel.sendIntent(CellViewIntent.OnEmptyRecycleBinClick)
+        assertEquals(EmptyRecycleBinDialog.Confirmation(), viewModel.emptyRecycleBinDialog.value)
+
+        viewModel.actions.test {
+            viewModel.sendIntent(CellViewIntent.OnEmptyRecycleBinConfirmed)
+            advanceUntilIdle()
+
+            assertEquals(ShowRecycleBinEmptiedMessage, awaitItem())
+        }
+        coVerify(exactly = 1) { arrangement.emptyRecycleBinUseCase("conversationId") }
+        assertNull(viewModel.emptyRecycleBinDialog.value)
+    }
+
+    @Test
+    fun `given no network when emptying the recycle bin fails then show a no network failure`() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withConversationId("conversationId")
+            .withRecycleBin()
+            .withEmptyRecycleBinReturning(NetworkFailure.NoNetworkConnection(null).left())
+            .arrange()
+        advanceUntilIdle()
+        viewModel.sendIntent(CellViewIntent.OnEmptyRecycleBinClick)
+
+        viewModel.sendIntent(CellViewIntent.OnEmptyRecycleBinConfirmed)
+        advanceUntilIdle()
+
+        assertEquals(EmptyRecycleBinDialog.Failure(isNoNetworkConnection = true), viewModel.emptyRecycleBinDialog.value)
+    }
+
+    @Test
+    fun `given emptying the recycle bin in progress when dismissed then keep the confirmation`() = runTest {
+        val result = CompletableDeferred<Either<CoreFailure, Unit>>()
+        val (arrangement, viewModel) = Arrangement()
+            .withConversationId("conversationId")
+            .withRecycleBin()
+            .arrange()
+        coEvery { arrangement.emptyRecycleBinUseCase(any()) } coAnswers { result.await() }
+        advanceUntilIdle()
+        viewModel.sendIntent(CellViewIntent.OnEmptyRecycleBinClick)
+
+        viewModel.sendIntent(CellViewIntent.OnEmptyRecycleBinConfirmed)
+        viewModel.sendIntent(CellViewIntent.OnEmptyRecycleBinDialogDismissed)
+        viewModel.sendIntent(CellViewIntent.OnEmptyRecycleBinConfirmed)
+        advanceUntilIdle()
+
+        assertEquals(EmptyRecycleBinDialog.Confirmation(isInProgress = true), viewModel.emptyRecycleBinDialog.value)
+        coVerify(exactly = 1) { arrangement.emptyRecycleBinUseCase(any()) }
+        result.complete(Unit.right())
+    }
+
+    @Test
+    fun `given a folder inside the recycle bin when emptying is requested then it is not offered`() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withConversationId("conversationId/recycle_bin/folder")
+            .withRecycleBin()
+            .arrange()
+        advanceUntilIdle()
+
+        viewModel.sendIntent(CellViewIntent.OnEmptyRecycleBinClick)
+
+        assertFalse(viewModel.canEmptyRecycleBin.value)
+        assertNull(viewModel.emptyRecycleBinDialog.value)
+    }
+
+    @Test
+    fun `given no network when on the recycle bin root then emptying it is not offered`() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withConversationId("conversationId")
+            .withRecycleBin()
+            .withNoNetwork()
+            .arrange()
+        advanceUntilIdle()
+
+        assertFalse(viewModel.canEmptyRecycleBin.value)
+    }
+
+    @Test
+    fun `given the conversation files when on their root then emptying the recycle bin is not offered`() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withConversationId("conversationId")
+            .arrange()
+        advanceUntilIdle()
+
+        assertFalse(viewModel.canEmptyRecycleBin.value)
+    }
+
+    @Test
     fun `GIVEN no cells available WHEN ViewModel initialized THEN no load request is sent`() = runTest {
         val (arrangement, viewModel) = Arrangement()
             .withNoCellsAvailable()
@@ -1331,6 +1557,12 @@ class CellViewModelTest {
         lateinit var restoreNodesFromRecycleBinUseCase: RestoreNodesFromRecycleBinUseCase
 
         @MockK
+        lateinit var emptyRecycleBinUseCase: EmptyRecycleBinUseCase
+
+        @MockK
+        lateinit var checkCellNodeAvailability: CheckCellNodeAvailabilityUseCase
+
+        @MockK
         lateinit var isCellAvailableUseCase: IsAtLeastOneCellAvailableUseCase
 
         @MockK
@@ -1405,6 +1637,9 @@ class CellViewModelTest {
             coEvery { getConversationNames(any()) } returns null
             coEvery { getUserNames(any()) } returns null
             coEvery { isSelfUserViewerOnConversation(any()) } returns true
+            // Unknown opens files as if there were no check.
+            coEvery { checkCellNodeAvailability(any(), any()) } returns
+                CellNodeAvailability.Unknown(NetworkFailure.NoNetworkConnection(null))
             every { userDataStore.isViewerAccessBannerDismissed(any()) } returns flowOf(false)
             every { userDataStore.isBulkSelectionHintDismissed() } returns bulkSelectionHintDismissed
             every { qualifiedIdMapper.fromStringToQualifiedID(any()) } returns ConversationId("conversationId", "domain")
@@ -1516,6 +1751,14 @@ class CellViewModelTest {
             coEvery { restoreNodesFromRecycleBinUseCase(any()) } returns result
         }
 
+        fun withNodeAvailability(availability: CellNodeAvailability) = apply {
+            coEvery { checkCellNodeAvailability(any(), any()) } returns availability
+        }
+
+        fun withEmptyRecycleBinReturning(result: Either<CoreFailure, Unit>) = apply {
+            coEvery { emptyRecycleBinUseCase(any()) } returns result
+        }
+
         fun withViewerOnlyAccess() = apply {
             coEvery { isSelfUserViewerOnConversation(any()) } returns false
         }
@@ -1555,9 +1798,7 @@ class CellViewModelTest {
 
             return this to CellViewModel(
                 navArgs = CellFilesNavArgs(
-                    conversationId = conversationId,
-                    isRecycleBin = isRecycleBin,
-                    parentFolderUuid = parentFolderUuid
+                    conversationId = conversationId, isRecycleBin = isRecycleBin, parentFolderUuid = parentFolderUuid
                 ),
                 searchNavArgs = searchNavArgs,
                 getCellFilesPaged = getCellFilesPagedUseCase,
@@ -1565,6 +1806,8 @@ class CellViewModelTest {
                 deleteCellAssets = deleteCellAssetsUseCase,
                 restoreNodeFromRecycleBinUseCase = restoreNodeFromRecycleBinUseCase,
                 restoreNodesFromRecycleBin = restoreNodesFromRecycleBinUseCase,
+                emptyRecycleBinUseCase = emptyRecycleBinUseCase,
+                checkCellNodeAvailability = checkCellNodeAvailability,
                 isCellAvailable = isCellAvailableUseCase,
                 fileHelper = fileHelper,
                 getEditorUrl = getEditorUrlUseCase,

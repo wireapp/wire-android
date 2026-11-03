@@ -135,6 +135,10 @@ on:
       TAGS:
         type: string
         default: "@regression"
+      autoTestinyRun:
+        description: "Prepare one Testiny run before execution; generate its name when no override is supplied."
+        type: boolean
+        default: false
       testinyRunName:
         type: string
         default: ""
@@ -466,6 +470,14 @@ jobs:
           OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
         run: make qa-ui-setup cmd=fetch-runtime-secrets
 
+      - name: Prepare Prod Testiny run
+        if: inputs.autoTestinyRun
+        id: prepare_testiny
+        env:
+          TESTINY_RUN_NAME_INPUT: ${{ needs.validate-and-resolve-inputs.outputs.resolvedTestinyRunName }}
+          REAL_BUILD_NUMBER: ${{ steps.download_apks.outputs.REAL_BUILD_NUMBER }}
+        run: python3 scripts/qa/android-ui/prepare_testiny_run.py
+
       # Build androidTest APK once and reuse it across selected devices.
       - name: Build test APK (assemble once)
         env:
@@ -520,7 +532,7 @@ jobs:
           ALLURE_RESULTS_ROOT: ${{ runner.temp }}/allure-results
           # Testiny sync is keyed by testcase ids but grouped under one run name.
           TESTINY_PROJECT_NAME: Wire Android
-          TESTINY_RUN_NAME: ${{ needs.validate-and-resolve-inputs.outputs.resolvedTestinyRunName }}
+          TESTINY_RUN_NAME: ${{ steps.prepare_testiny.outputs.testinyRunName || needs.validate-and-resolve-inputs.outputs.resolvedTestinyRunName }}
           TESTINY_SOURCE_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
           if [[ "${IS_UPGRADE}" == "true" && ( "${RESOLVED_CATEGORY}" == "upgrade" || -n "${RESOLVED_TESTCASE_ID}" ) ]]; then
@@ -601,7 +613,7 @@ jobs:
           APP_BUILD_NUMBER_INPUT: ${{ needs.validate-and-resolve-inputs.outputs.resolvedAppBuildNumber }}
           IS_UPGRADE: ${{ needs.validate-and-resolve-inputs.outputs.resolvedIsUpgrade }}
           OLD_BUILD_NUMBER: ${{ steps.download_apks.outputs.OLD_BUILD_NUMBER }}
-          TESTINY_RUN_NAME: ${{ needs.validate-and-resolve-inputs.outputs.resolvedTestinyRunName }}
+          TESTINY_RUN_NAME: ${{ steps.prepare_testiny.outputs.testinyRunName || needs.validate-and-resolve-inputs.outputs.resolvedTestinyRunName }}
           ANDROID_DEVICE_ID: ${{ needs.validate-and-resolve-inputs.outputs.resolvedAndroidDeviceId }}
           ANDROID_DEVICE_GROUP: ${{ needs.validate-and-resolve-inputs.outputs.resolvedAndroidDeviceGroup }}
           RERUN_FAILED_ENABLED: ${{ needs.validate-and-resolve-inputs.outputs.resolvedRerunFailedEnabled }}

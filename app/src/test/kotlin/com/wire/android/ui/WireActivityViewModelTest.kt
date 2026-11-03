@@ -1034,7 +1034,7 @@ class WireActivityViewModelTest {
                     providerAuthority = WIRE_PROVIDER_AUTHORITY,
                     hasTrustedWireShareCaller = true
                 )
-                assertEquals(OnShowImportMediaScreen, expectMostRecentItem())
+                assertEquals(OnShowImportMediaScreen(isSharedFromWire = true), expectMostRecentItem())
             }
         }
 
@@ -1055,7 +1055,7 @@ class WireActivityViewModelTest {
                     providerAuthority = WIRE_PROVIDER_AUTHORITY,
                     hasTrustedWireShareCaller = false
                 )
-                assertEquals(OnShowImportMediaScreen, expectMostRecentItem())
+                assertEquals(OnShowImportMediaScreen(isSharedFromWire = false), expectMostRecentItem())
             }
         }
 

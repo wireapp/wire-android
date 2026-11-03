@@ -146,11 +146,12 @@ private fun com.wire.android.navigation.routes.auth.createAccountEntryOwner(entr
     - entryId: STABLE (class with no mutable properties)
 
 @Composable
-private fun com.wire.android.navigation.routes.media.AuthenticatedImportMediaNavigation3Entry(route: com.wire.android.navigation.routes.media.AuthenticatedImportMediaRoute, actions: com.wire.android.navigation.routes.media.MediaNavigation3Actions): kotlin.Unit
+private fun com.wire.android.navigation.routes.media.AuthenticatedImportMediaNavigation3Entry(route: com.wire.android.navigation.routes.media.AuthenticatedImportMediaRoute, runtime: com.wire.android.navigation.navigation3.WireNavigation3Runtime, actions: com.wire.android.navigation.routes.media.MediaNavigation3Actions): kotlin.Unit
   skippable: true
   restartable: true
   params:
     - route: RUNTIME (requires runtime check)
+    - runtime: STABLE (marked @Stable or @Immutable)
     - actions: UNKNOWN (interface or non-final class; concrete implementation unknown)
 
 @Composable

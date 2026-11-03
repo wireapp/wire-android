@@ -29,6 +29,7 @@ import com.wire.android.pdfviewer.PdfSourceResolver
 import com.wire.android.services.SendPendingMessagesAfterForegroundSyncUseCase
 import com.wire.android.util.CurrentScreenManager
 import com.wire.android.util.deleteFileProviderSharedCacheDirectory
+import com.wire.android.util.deleteUserDownloads
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.logout.LogoutReason
@@ -160,6 +161,7 @@ class GlobalObserversManager @Inject constructor(
                         userDataStoreProvider.getOrCreate(userId).clear()
                         context.deleteFileProviderSharedCacheDirectory()
                         PdfSourceResolver.deleteRenditions(context)
+                        context.deleteUserDownloads(userId)
                     }
                 }
             }

@@ -29,6 +29,7 @@ import com.wire.android.notification.MeetingReminderScheduler
 import com.wire.android.notification.WireNotificationManager
 import com.wire.android.services.SendPendingMessagesAfterForegroundSyncUseCase
 import com.wire.android.util.CurrentScreenManager
+import com.wire.android.util.userDownloadsDir
 import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.auth.AccountInfo
@@ -77,6 +78,9 @@ class GlobalObserversManagerTest {
 
     @TempDir
     lateinit var cacheDirectory: File
+
+    @TempDir
+    lateinit var externalDirectory: File
 
     @Test
     fun `given few valid accounts, when starting observing accounts, then create user-specific notification channels`() {
@@ -414,7 +418,46 @@ class GlobalObserversManagerTest {
         assertTrue(rendition.exists())
     }
 
-    private class Arrangement(private val cacheDirectory: File = File("unused-cache")) {
+    @ParameterizedTest
+    @EnumSource(LogoutReason::class, names = ["SELF_SOFT_LOGOUT"], mode = EnumSource.Mode.EXCLUDE)
+    fun `given a logout that is not a soft logout, when it happens, then delete only that user's cells downloads`(reason: LogoutReason) =
+        runTestWithCancellation {
+            val userId = TestUser.SELF_USER.id
+            val otherUserId = userId.copy(value = "other-user")
+            val userFile = externalDirectory.userDownloadsDir(userId).resolve("conversation/uuid/report.pdf").withContent()
+            val otherUserFile = externalDirectory.userDownloadsDir(otherUserId).resolve("conversation/uuid/report.pdf").withContent()
+            val (arrangement, manager) = Arrangement(cacheDirectory, externalDirectory).arrange()
+            manager.observe()
+            runCurrent()
+
+            arrangement.logoutCallback.invoke(userId, reason)
+
+            assertFalse(userFile.exists())
+            assertTrue(otherUserFile.exists())
+        }
+
+    @Test
+    fun `given a soft logout, when it happens, then keep the user's cells downloads`() = runTestWithCancellation {
+        val userId = TestUser.SELF_USER.id
+        val userFile = externalDirectory.userDownloadsDir(userId).resolve("conversation/uuid/report.pdf").withContent()
+        val (arrangement, manager) = Arrangement(cacheDirectory, externalDirectory).arrange()
+        manager.observe()
+        runCurrent()
+
+        arrangement.logoutCallback.invoke(userId, LogoutReason.SELF_SOFT_LOGOUT)
+
+        assertTrue(userFile.exists())
+    }
+
+    private fun File.withContent() = apply {
+        parentFile?.mkdirs()
+        writeText("content")
+    }
+
+    private class Arrangement(
+        private val cacheDirectory: File = File("unused-cache"),
+        private val externalDirectory: File = File("unused-external"),
+    ) {
 
         private val logoutCallbackSlot = slot<LogoutCallback>()
         val logoutCallback: LogoutCallback get() = logoutCallbackSlot.captured
@@ -462,7 +505,10 @@ class GlobalObserversManagerTest {
 
         private val manager by lazy {
             GlobalObserversManager(
-                context = mockk<Context> { every { cacheDir } returns cacheDirectory },
+                context = mockk<Context> {
+                    every { cacheDir } returns cacheDirectory
+                    every { getExternalFilesDir(null) } returns externalDirectory
+                },
                 dispatcherProvider = TestDispatcherProvider(),
                 coreLogic = coreLogic,
                 notificationChannelsManager = notificationChannelsManager,

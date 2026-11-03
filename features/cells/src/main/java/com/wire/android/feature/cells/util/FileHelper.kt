@@ -28,6 +28,8 @@ import android.provider.MediaStore
 import com.wire.android.di.ApplicationContext
 import com.wire.android.util.shareableFileProviderUri
 import com.wire.android.util.startShareIntentWithTrustedWireTarget
+import com.wire.android.util.userDownloadsDir
+import com.wire.kalium.logic.data.user.UserId
 import dev.zacsweers.metro.Inject
 import okio.Path
 import java.io.File
@@ -153,13 +155,13 @@ class FileHelper @Inject constructor(
 
 /**
  * Local destination for a downloaded cell file, shared by open and offline downloads:
- * `<conversationId>/<uuid>/<name>`, or `<uuid>/<name>` when the node has no conversation.
+ * `<domain>/<userId>/<conversationId>/<uuid>/<name>`, or `<domain>/<userId>/<uuid>/<name>` when the node has no conversation.
  *
  * Keyed by node uuid so files with the same name in different folders of a conversation never
  * collide, and the path stays valid when the node is renamed or moved. The folder a file belongs
  * to is taken from its remote path, not from where it is stored on disk.
  */
-fun FileHelper.cellFileDestination(conversationId: String?, uuid: String, name: String): File =
-    File(File(getExternalFilesDir(), conversationId.orEmpty()), uuid)
+fun FileHelper.cellFileDestination(userId: UserId, conversationId: String?, uuid: String, name: String): File =
+    File(File(getExternalFilesDir().userDownloadsDir(userId), conversationId.orEmpty()), uuid)
         .also { it.mkdirs() }
         .let { File(it, name) }

@@ -185,7 +185,7 @@ class MessageAttachmentsViewModel @AssistedInject constructor(
     }
 
     private suspend fun handleImportedAsset(uri: Uri): ImportedMediaAsset? =
-        when (val result = handleUriAsset.invoke(uri, saveToDeviceIfInvalid = false)) {
+        when (val result = handleUriAsset.invoke(uri, saveToDeviceIfInvalid = false, keepOversizedCopy = true)) {
             is HandleUriAssetUseCase.Result.Failure.AssetTooLarge -> ImportedMediaAsset(result.assetBundle, result.maxLimitInMB)
             is HandleUriAssetUseCase.Result.Success -> ImportedMediaAsset(result.assetBundle, null)
             is HandleUriAssetUseCase.Result.Failure.Unknown -> null

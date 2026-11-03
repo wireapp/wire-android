@@ -68,6 +68,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.api.io.TempDir
 import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.CsvSource
 import org.junit.jupiter.params.provider.EnumSource
 import java.io.File
 import java.util.concurrent.atomic.AtomicInteger
@@ -419,35 +420,58 @@ class GlobalObserversManagerTest {
     }
 
     @ParameterizedTest
-    @EnumSource(LogoutReason::class, names = ["SELF_SOFT_LOGOUT"], mode = EnumSource.Mode.EXCLUDE)
-    fun `given a logout that is not a soft logout, when it happens, then delete only that user's cells downloads`(reason: LogoutReason) =
-        runTestWithCancellation {
-            val userId = TestUser.SELF_USER.id
-            val otherUserId = userId.copy(value = "other-user")
-            val userFile = externalDirectory.userDownloadsDir(userId).resolve("conversation/uuid/report.pdf").withContent()
-            val otherUserFile = externalDirectory.userDownloadsDir(otherUserId).resolve("conversation/uuid/report.pdf").withContent()
-            val (arrangement, manager) = Arrangement(cacheDirectory, externalDirectory).arrange()
-            manager.observe()
-            runCurrent()
-
-            arrangement.logoutCallback.invoke(userId, reason)
-
-            assertFalse(userFile.exists())
-            assertTrue(otherUserFile.exists())
-        }
-
-    @Test
-    fun `given a soft logout, when it happens, then keep the user's cells downloads`() = runTestWithCancellation {
+    @CsvSource(
+        "SELF_HARD_LOGOUT, false, false, true",
+        "REMOVED_CLIENT, true, false, true",
+        "REMOVED_CLIENT, false, true, false",
+        "DELETED_ACCOUNT, true, false, true",
+        "DELETED_ACCOUNT, false, false, false",
+        "SESSION_EXPIRED, false, true, true",
+        "SESSION_EXPIRED, true, false, false",
+        "SELF_SOFT_LOGOUT, true, true, false",
+        "MIGRATION_TO_CC_FAILED, true, true, false",
+    )
+    fun `given a logout, when it happens, then delete only that user's cells downloads if the data is wiped`(
+        reason: LogoutReason,
+        wipeOnDeviceRemoval: Boolean,
+        wipeOnCookieInvalid: Boolean,
+        expectDeleted: Boolean
+    ) = runTestWithCancellation {
         val userId = TestUser.SELF_USER.id
+        val otherUserId = userId.copy(value = "other-user")
         val userFile = externalDirectory.userDownloadsDir(userId).resolve("conversation/uuid/report.pdf").withContent()
-        val (arrangement, manager) = Arrangement(cacheDirectory, externalDirectory).arrange()
+        val otherUserFile = externalDirectory.userDownloadsDir(otherUserId).resolve("conversation/uuid/report.pdf").withContent()
+        val (arrangement, manager) = Arrangement(cacheDirectory, externalDirectory)
+            .withWipeConfig(wipeOnDeviceRemoval, wipeOnCookieInvalid)
+            .arrange()
         manager.observe()
         runCurrent()
 
-        arrangement.logoutCallback.invoke(userId, LogoutReason.SELF_SOFT_LOGOUT)
+        arrangement.logoutCallback.invoke(userId, reason)
 
-        assertTrue(userFile.exists())
+        assertEquals(!expectDeleted, userFile.exists())
+        assertTrue(otherUserFile.exists())
     }
+
+    @Test
+    fun `given clearing the user data store fails, when a logout wipes data, then the files are still deleted`() =
+        runTestWithCancellation {
+            val userId = TestUser.SELF_USER.id
+            val userFile = externalDirectory.userDownloadsDir(userId).resolve("conversation/uuid/report.pdf").withContent()
+            val sharedFile = File(cacheDirectory, "file-provider-shares").apply(File::mkdirs).resolve("image_attachment.jpg").withContent()
+            val rendition = File(cacheDirectory, "pdf-renditions").apply(File::mkdirs).resolve("asset-id.pdf").withContent()
+            val (arrangement, manager) = Arrangement(cacheDirectory, externalDirectory)
+                .withFailingUserDataStoreClear()
+                .arrange()
+            manager.observe()
+            runCurrent()
+
+            arrangement.logoutCallback.invoke(userId, LogoutReason.SELF_HARD_LOGOUT)
+
+            assertFalse(userFile.exists())
+            assertFalse(sharedFile.exists())
+            assertFalse(rendition.exists())
+        }
 
     private fun File.withContent() = apply {
         parentFile?.mkdirs()
@@ -502,12 +526,15 @@ class GlobalObserversManagerTest {
         lateinit var meetingReminderScheduler: MeetingReminderScheduler
 
         private var pendingMessagesEnabled = true
+        private var wipeOnDeviceRemoval = false
+        private var wipeOnCookieInvalid = false
 
         private val manager by lazy {
             GlobalObserversManager(
                 context = mockk<Context> {
                     every { cacheDir } returns cacheDirectory
                     every { getExternalFilesDir(null) } returns externalDirectory
+                    every { filesDir } returns File("unused-files")
                 },
                 dispatcherProvider = TestDispatcherProvider(),
                 coreLogic = coreLogic,
@@ -518,7 +545,11 @@ class GlobalObserversManagerTest {
                 currentScreenManager = currentScreenManager,
                 sendPendingMessagesAfterForegroundSync = sendPendingMessagesAfterForegroundSync,
                 networkStateObserver = networkStateObserver,
-                kaliumConfigs = KaliumConfigs(pendingMessages = pendingMessagesEnabled),
+                kaliumConfigs = KaliumConfigs(
+                    pendingMessages = pendingMessagesEnabled,
+                    wipeOnDeviceRemoval = wipeOnDeviceRemoval,
+                    wipeOnCookieInvalid = wipeOnCookieInvalid,
+                ),
             )
         }
 
@@ -578,6 +609,15 @@ class GlobalObserversManagerTest {
 
         fun withAppVisibleFlow(flow: MutableStateFlow<Boolean>) = apply {
             coEvery { currentScreenManager.isAppVisibleFlow() } returns flow
+        }
+
+        fun withWipeConfig(onDeviceRemoval: Boolean, onCookieInvalid: Boolean) = apply {
+            wipeOnDeviceRemoval = onDeviceRemoval
+            wipeOnCookieInvalid = onCookieInvalid
+        }
+
+        fun withFailingUserDataStoreClear() = apply {
+            coEvery { userDataStoreProvider.getOrCreate(any()).clear() } throws IllegalStateException("clear failed")
         }
 
         fun withPendingMessagesDisabled() = apply {

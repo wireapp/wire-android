@@ -499,7 +499,7 @@ class WireActivityViewModel @Inject constructor(
                         sendAction(ShowToast(R.string.public_share_ignored_wire_internal_files))
                         return@launch
                     }
-                    sendAction(OnShowImportMediaScreen)
+                    sendAction(OnShowImportMediaScreen(isSharedFromWire = hasTrustedWireShareCaller))
                 }
                 DeepLinkResult.Unknown -> {
                     sendAction(OnUnknownDeepLink)
@@ -978,7 +978,7 @@ sealed interface WireActivityViewAction
 internal data class OpenConversation(val result: DeepLinkResult.OpenConversation) : WireActivityViewAction
 internal data class OpenMeetings(val result: DeepLinkResult.OpenMeetings) : WireActivityViewAction
 internal data class OpenDriveFiles(val result: DeepLinkResult.OpenDriveFiles) : WireActivityViewAction
-internal data object OnShowImportMediaScreen : WireActivityViewAction
+internal data class OnShowImportMediaScreen(val isSharedFromWire: Boolean = false) : WireActivityViewAction
 internal data object OnAuthorizationNeeded : WireActivityViewAction
 internal data object OnUnknownDeepLink : WireActivityViewAction
 internal data class OnMigrationLogin(val result: DeepLinkResult.MigrationLogin) : WireActivityViewAction

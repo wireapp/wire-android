@@ -75,8 +75,57 @@ class UserDownloadsTest {
         assertTrue(root.exists())
     }
 
+    @Test
+    fun givenFilesInBothStorageRoots_whenDeletingUserDownloads_thenBothAreRemoved() {
+        val filesDirectory = File(root, "files").apply(File::mkdirs)
+        val externalDirectory = File(root, "external").apply(File::mkdirs)
+        val externalFile = file(externalDirectory.userDownloadsDir(ALICE), "conversation/uuid/report.pdf")
+        val internalFile = file(filesDirectory.userDownloadsDir(ALICE), "conversation/uuid/report.pdf")
+        val context = mockk<Context> {
+            every { getExternalFilesDir(null) } returns externalDirectory
+            every { filesDir } returns filesDirectory
+        }
+
+        context.deleteUserDownloads(ALICE)
+
+        assertFalse(externalFile.exists())
+        assertFalse(internalFile.exists())
+    }
+
+    @Test
+    fun givenUserIdWithoutDomain_whenResolvingDownloadsDirectory_thenAPlaceholderFolderIsUsed() {
+        assertEquals(File(root, "_/alice"), root.userDownloadsDir(UserId("alice", "")))
+    }
+
+    @Test
+    fun givenCharactersThatAreNotSafeInFolderNames_whenResolvingDownloadsDirectory_thenTheyAreReplaced() {
+        assertEquals(File(root, "host_8080/a_b"), root.userDownloadsDir(UserId("a/b", "host:8080")))
+    }
+
+    @Test
+    fun givenDotSegments_whenResolvingDownloadsDirectory_thenTheDirectoryStaysTwoLevelsInsideTheRoot() {
+        assertEquals(File(root, "_/_"), root.userDownloadsDir(UserId("..", "..")))
+        assertEquals(File(root, "_/_"), root.userDownloadsDir(UserId(".", ".")))
+        assertEquals(File(root, "_/_"), root.userDownloadsDir(UserId("", "")))
+    }
+
+    @Test
+    fun givenUserIdThatPointsAtTheParent_whenDeletingUserDownloads_thenNothingOutsideThatUserIsRemoved() {
+        val bobFile = file(root.userDownloadsDir(BOB), "conversation/uuid/report.pdf")
+        val legacyFile = file(root, "conversation/uuid/old.pdf")
+        val context = contextWithExternalDirectory(root)
+
+        context.deleteUserDownloads(UserId("..", ".."))
+        context.deleteUserDownloads(UserId("", ""))
+
+        assertTrue(bobFile.exists())
+        assertTrue(legacyFile.exists())
+        assertTrue(root.exists())
+    }
+
     private fun contextWithExternalDirectory(directory: File) = mockk<Context> {
         every { getExternalFilesDir(null) } returns directory
+        every { filesDir } returns File(directory, "internal-files-not-used")
     }
 
     private fun file(directory: File, relativePath: String) = File(directory, relativePath).apply {

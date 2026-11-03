@@ -22,10 +22,23 @@ import android.content.Context
 import com.wire.kalium.logic.data.user.UserId
 import java.io.File
 
-/** The folder of one user's Cells downloads under the downloads root, `<root>/<domain>/<value>`. */
-fun File.userDownloadsDir(userId: UserId): File = File(File(this, userId.domain), userId.value)
+/**
+ * The folder of one user's Cells downloads under the downloads root, `<root>/<domain>/<value>`.
+ * Characters other than ASCII letters, digits, dot, dash and underscore become an underscore, and an empty
+ * part or a dot segment becomes `_`, so the result is always two levels inside [this].
+ */
+fun File.userDownloadsDir(userId: UserId): File =
+    File(File(this, userId.domain.asFolderName()), userId.value.asFolderName())
 
-/** Deletes the Cells downloads of one user from app-specific external storage. Other users' files stay. */
+/**
+ * Deletes the Cells downloads of one user from app-specific external storage and from the internal files
+ * directory, which downloads use when external storage is not available. Other users' files stay.
+ */
 fun Context.deleteUserDownloads(userId: UserId) {
-    (getExternalFilesDir(null) ?: filesDir).userDownloadsDir(userId).deleteRecursively()
+    listOfNotNull(getExternalFilesDir(null), filesDir).forEach { it.userDownloadsDir(userId).deleteRecursively() }
 }
+
+private fun String.asFolderName(): String =
+    map { if (it in 'a'..'z' || it in 'A'..'Z' || it in '0'..'9' || it == '.' || it == '-' || it == '_') it else '_' }
+        .joinToString("")
+        .takeUnless { it.isEmpty() || it == "." || it == ".." } ?: "_"

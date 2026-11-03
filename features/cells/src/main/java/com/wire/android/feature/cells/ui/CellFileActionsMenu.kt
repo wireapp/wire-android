@@ -113,7 +113,7 @@ class CellFileActionsMenu @Inject constructor(
                     // "Share via link" is shown alongside "Share" in All files / search.
                     // In conversation files it is provided by conversationActions instead.
                     if (!isConversationFiles) {
-                        addRestrictedForViewerOnly(NodeBottomSheetAction.PUBLIC_LINK, cellNode.isViewerOnly,    false)
+                        addRestrictedForViewerOnly(NodeBottomSheetAction.PUBLIC_LINK, cellNode.isViewerOnly, false)
                     }
 
                     if (offlineFilesEnabled) {

@@ -1077,7 +1077,8 @@ as ephemeral Dev installations.</li>
                     <div class="panel-body"><h1>18. Manual Dev distribution from branches and PRs</h1>
 <p>Date: 2026-10-12</p>
 <h2>Status</h2>
-<p>Accepted. Supersedes <a href="0017-firebase-app-distribution-for-dev-builds.md">ADR 0017</a>.</p>
+<p>Accepted. Supersedes <a href="0017-firebase-app-distribution-for-dev-builds.md">ADR 0017</a>.
+The PR APK source is superseded by <a href="0019-build-dev-pr-distribution-on-request.md">ADR 0019</a>.</p>
 <h2>Context</h2>
 <p>Testers need branch builds and existing PR APKs. Keep this a small manual workflow rather than
 adding a separate verification pipeline around Firebase uploads.</p>
@@ -1104,6 +1105,45 @@ It distributes the PR revision selected at the start even if the PR subsequently
 package/signing are build-configuration requirements; we do not inspect them before upload.
 GitHub environment/secret configuration remains required; updates to older version codes may
 require reinstalling. See the <a href="../../scripts/dev/README_FIREBASE_DISTRIBUTION.md">setup guide</a>.</p>
+</div>
+                </div>
+            </div>
+            
+            <div class="panel panel-default">
+                <div class="panel-heading adr-accepted">
+                    <h4 class="panel-title">
+                        <a data-toggle="collapse" href="#collapse19">19. Build Dev PR APKs on request</a>
+
+                        
+                        <i class="adr-icon fas fa-fw fa-check"></i>
+                        
+
+                    </h4>
+                </div>
+                <div id="collapse19" class="panel-collapse collapse">
+                    <div class="panel-body"><h1>19. Build Dev PR APKs on request</h1>
+<p>Date: 2026-11-03</p>
+<h2>Status</h2>
+<p>Accepted. Supersedes the PR APK source in <a href="0018-trusted-dev-distribution-from-branches-and-prs.md">ADR 0018</a>.</p>
+<h2>Context</h2>
+<p>PR CI built a Dev-Debug APK and uploaded it to S3 on every PR. The build repeated what
+<code>connectedDevDebugAndroidTest</code> already compiles. It delayed green checks, and each PR needed an APK only
+occasionally.</p>
+<h2>Decision</h2>
+<p>Develop PR CI and the merge queue run only Lint, Detekt, Compose Stability, Unit Tests, and UI Tests.
+They do not build Dev-Debug and do not upload to S3.</p>
+<p>For a same-repository PR to <code>develop</code>, <code>/distribute-dev</code> from a user with write access verifies a
+successful Develop CI run for the PR head SHA. It then builds that exact SHA with <code>make build-dev</code>
+and the shared debug signing configuration. A separate job in the <code>firebase-dev</code> environment
+uploads the APK to Firebase. If Develop CI has not passed for the head SHA, the request fails.</p>
+<p>This replaces the ADR 0018 rule that downloads the Develop CI APK and has no rebuild fallback.
+Push, <code>main</code>, beta, release candidate, and production builds do not change.</p>
+<h2>Consequences</h2>
+<p>The first distribute after a push takes a full build, about 10 to 20 minutes. PR CI finishes
+sooner and stores no APK.</p>
+<p>The APK comes from the PR head, not from the CI test merge. Signing and secret-dependent
+configuration problems appear when you distribute, not when you open the PR. Branch protection does
+not require the build job. See the <a href="../../scripts/dev/README_FIREBASE_DISTRIBUTION.md">setup guide</a>.</p>
 </div>
                 </div>
             </div>

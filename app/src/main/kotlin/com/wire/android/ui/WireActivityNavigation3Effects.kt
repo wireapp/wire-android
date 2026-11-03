@@ -106,7 +106,7 @@ internal object WireActivityNavigation3EffectResolver {
         is OnCustomBackendLogin -> customBackendLogin(action, routes)
         is OnOpenUserProfile -> openUserProfile(action, currentSessionId)
         is OnSSOLogin -> ssoLogin(action, routes)
-        OnShowImportMediaScreen -> importMedia(currentSessionId)
+        is OnShowImportMediaScreen -> importMedia(action, currentSessionId)
         is OpenMeetings -> openMeetings(action, currentSessionId)
         is OpenConversation -> openConversation(action, currentSessionId)
         is OpenDriveFiles -> openDriveFiles(action, currentSessionId)
@@ -301,10 +301,12 @@ internal object WireActivityNavigation3EffectResolver {
         return WireActivityNavigation3EffectResolution(mutations)
     }
 
-    private fun importMedia(currentSessionId: WireSessionId?) =
+    private fun importMedia(action: OnShowImportMediaScreen, currentSessionId: WireSessionId?) =
         singleNavigation(
-            destination = currentSessionId?.let(::AuthenticatedImportMediaRoute)
-                ?: LoggedOutImportMediaRoute(),
+            destination = currentSessionId?.let {
+                // External apps expect to get back to their own screen when sharing is closed
+                AuthenticatedImportMediaRoute(it, finishOnClose = !action.isSharedFromWire)
+            } ?: LoggedOutImportMediaRoute(),
             mode = WireBackStackMode.UPDATE_EXISTING,
         )
 

@@ -55,6 +55,8 @@ import com.wire.kalium.cells.domain.CellUploadCoordinator
 import com.wire.kalium.cells.domain.CellUploadState
 import com.wire.kalium.cells.domain.model.Node
 import com.wire.kalium.cells.domain.model.NodeToDelete
+import com.wire.kalium.cells.domain.usecase.CellNodeAvailability
+import com.wire.kalium.cells.domain.usecase.CheckCellNodeAvailabilityUseCase
 import com.wire.kalium.cells.domain.usecase.DeleteCellAssetUseCase
 import com.wire.kalium.cells.domain.usecase.DeleteCellAssetsUseCase
 import com.wire.kalium.cells.domain.usecase.EmptyRecycleBinUseCase
@@ -83,6 +85,7 @@ import dev.zacsweers.metro.Assisted
 import dev.zacsweers.metro.AssistedFactory
 import dev.zacsweers.metro.AssistedInject
 import dev.zacsweers.metro.Named
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -117,6 +120,7 @@ class CellViewModel @AssistedInject constructor(
     private val restoreNodeFromRecycleBinUseCase: RestoreNodeFromRecycleBinUseCase,
     private val restoreNodesFromRecycleBin: RestoreNodesFromRecycleBinUseCase,
     private val emptyRecycleBinUseCase: EmptyRecycleBinUseCase,
+    private val checkCellNodeAvailability: CheckCellNodeAvailabilityUseCase,
     private val isCellAvailable: IsAtLeastOneCellAvailableUseCase,
     private val fileHelper: FileHelper,
     private val getEditorUrl: GetEditorUrlUseCase,
@@ -175,6 +179,9 @@ class CellViewModel @AssistedInject constructor(
     internal val fileReadyFlow: Flow<CellNodeUi.File> = sharedPathCache.fileReadyEvents
 
     private val removedItemsFlow: MutableStateFlow<List<String>> = MutableStateFlow(emptyList())
+
+    // Availability checks running before files are opened, by uuid.
+    private val availabilityChecks = mutableMapOf<String, Job>()
 
     // Used to navigate to the root of the recycle bin after restoring a parent folder.
     private val _navigateToRecycleBinRoot = MutableStateFlow(false)
@@ -724,10 +731,62 @@ class CellViewModel @AssistedInject constructor(
             cellNode.isEditableDocument() -> openEditableDocument(cellNode)
             cellNode.openLoadState is OpenLoadState.Ready -> openLocalFile(cellNode)
             cellNode.localFileAvailable() -> openLocalFile(cellNode)
-            cellNode.openLoadState is OpenLoadState.Error -> startOpenDownload(cellNode)
-            cellNode.canOpenWithUrl() -> openFileContentUrl(cellNode)
-            else -> startOpenDownload(cellNode)
+            cellNode.openLoadState is OpenLoadState.Error -> ifAvailable(cellNode, ::startOpenDownload)
+            cellNode.canOpenWithUrl() -> ifAvailable(cellNode, ::openFileContentUrl)
+            else -> ifAvailable(cellNode, ::startOpenDownload)
         }
+    }
+
+    /**
+     * The lists aren't updated when nodes change elsewhere: before opening a node from the server or acting on it, check
+     * it's still there, so a deleted one isn't opened into a viewer that can only fail, or acted on for nothing. A file
+     * then goes on with fresh URLs, as the listed ones may have expired. If it can't be checked, e.g. offline, it goes on
+     * as before.
+     */
+    private fun <T : CellNodeUi> ifAvailable(node: T, action: (T) -> Unit) {
+        if (!isOnline.value) {
+            action(node)
+            return
+        }
+        if (node.uuid in availabilityChecks) return
+        val check = viewModelScope.launch {
+            // Like a download, only show the spinner if the check is slow.
+            val showSpinnerJob = launch {
+                delay(OpenFileDownloadController.SPINNER_THRESHOLD_MS)
+                sharedPathCache.setOpenLoadState(node.uuid, OpenLoadState.Loading())
+            }
+            val availability = checkCellNodeAvailability(node.uuid, inRecycleBin = isRecycleBin())
+            showSpinnerJob.cancel()
+            sharedPathCache.clearOpenLoadState(node.uuid)
+            when (availability) {
+                is CellNodeAvailability.Available -> action(node.updatedWith(availability.node))
+                is CellNodeAvailability.Gone -> onNodeNoLongerAvailable(node)
+                is CellNodeAvailability.Unknown -> action(node)
+            }
+        }
+        availabilityChecks[node.uuid] = check
+        // Only if not replaced meanwhile, by a new tap after this check was cancelled.
+        check.invokeOnCompletion { if (availabilityChecks[node.uuid] === check) availabilityChecks.remove(node.uuid) }
+    }
+
+    // A file copy is still a T: T is either CellNodeUi.File or CellNodeUi itself.
+    @Suppress("UNCHECKED_CAST")
+    private fun <T : CellNodeUi> T.updatedWith(current: Node): T = when {
+        this is CellNodeUi.File && current is Node.File -> copy(
+            contentUrl = current.contentUrl ?: contentUrl,
+            previewUrl = current.previewUrl ?: previewUrl,
+            pdfPreviewUrl = current.pdfPreviewUrl ?: pdfPreviewUrl,
+        ) as T
+
+        else -> this
+    }
+
+    /** Its local data was already cleaned up: take it off the list, which is likely outdated in other ways too. */
+    private fun onNodeNoLongerAvailable(node: CellNodeUi) {
+        sharedPathCache.clearCompletedPath(node.uuid)
+        removeFromListUi(node)
+        sendAction(ShowError(CellError.ITEM_NO_LONGER_AVAILABLE))
+        refreshNodes()
     }
 
     /**
@@ -771,6 +830,10 @@ class CellViewModel @AssistedInject constructor(
     }
 
     internal fun cancelOpenDownload(uuid: String) {
+        availabilityChecks.remove(uuid)?.let { check ->
+            check.cancel()
+            sharedPathCache.clearOpenLoadState(uuid)
+        }
         openFileDownloadController.cancel(uuid, viewModelScope)
     }
 
@@ -903,6 +966,25 @@ class CellViewModel @AssistedInject constructor(
     }
 
     private fun onMenuItemAction(node: CellNodeUi, action: NodeBottomSheetAction) {
+        if (action.needsAvailableNode()) {
+            ifAvailable(node) { performMenuItemAction(it, action) }
+        } else {
+            performMenuItemAction(node, action)
+        }
+    }
+
+    /**
+     * Whether the node must still be on the server for [this] to make sense. Opening is checked when it's routed to
+     * [onFileClick]; the others only deal with local data or local work.
+     */
+    private fun NodeBottomSheetAction.needsAvailableNode() = this !in setOf(
+        NodeBottomSheetAction.OPEN,
+        NodeBottomSheetAction.CANCEL_LOADING,
+        NodeBottomSheetAction.CANCEL_DOWNLOAD,
+        NodeBottomSheetAction.REMOVE_OFFLINE_ACCESS,
+    )
+
+    private fun performMenuItemAction(node: CellNodeUi, action: NodeBottomSheetAction) {
         cellFileActionsMenu.onMenuItemAction(
             conversationId = navArgs.conversationId,
             parentFolderUuid = navArgs.parentFolderUuid,

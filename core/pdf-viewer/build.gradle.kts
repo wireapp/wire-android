@@ -32,6 +32,7 @@ dependencies {
 
     implementation(project(":core:di"))
     implementation(project(":core:ui-common"))
+    implementation("com.wire.kalium:kalium-logic")
 
     implementation(libs.androidx.core)
     implementation(libs.androidx.appcompat)

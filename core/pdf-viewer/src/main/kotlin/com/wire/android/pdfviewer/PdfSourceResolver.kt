@@ -19,6 +19,9 @@ package com.wire.android.pdfviewer
 
 import android.content.Context
 import com.wire.android.di.ApplicationContext
+import com.wire.android.di.CurrentAccount
+import com.wire.android.util.userDownloadsDir
+import com.wire.kalium.logic.data.user.UserId
 import dev.zacsweers.metro.Inject
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -45,6 +48,7 @@ import java.io.File
  */
 class PdfSourceResolver @Inject constructor(
     @ApplicationContext private val context: Context,
+    @CurrentAccount private val userId: UserId,
     private val remoteLoader: PdfRemoteLoader,
     private val preSignedLoader: PdfPreSignedLoader,
 ) {
@@ -148,7 +152,7 @@ class PdfSourceResolver @Inject constructor(
         remotePath: String?,
         fileName: String?,
     ): File? {
-        val root = externalFilesDir()
+        val root = externalFilesDir().userDownloadsDir(userId)
         val fallbackFolder = conversationId ?: assetId
 
         val relative = remotePath.orEmpty().trim('/').let { trimmed ->

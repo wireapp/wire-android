@@ -128,8 +128,8 @@ fun ActiveMessageComposerInput(
     optionsSelected: Boolean,
     onPlusClick: () -> Unit,
     useKeyboardActivationGate: Boolean,
-    inputTransformation: InputTransformation? = null,
     modifier: Modifier = Modifier,
+    inputTransformation: InputTransformation? = null,
     onHardwareTab: (isShiftPressed: Boolean) -> Boolean = { false },
     onHardwareEscape: () -> Boolean = { false },
 ) {
@@ -223,8 +223,8 @@ private fun InputContent(
     optionsSelected: Boolean,
     onPlusClick: () -> Unit,
     useKeyboardActivationGate: Boolean,
-    inputTransformation: InputTransformation? = null,
     modifier: Modifier = Modifier,
+    inputTransformation: InputTransformation? = null,
     viewModel: SelfDeletingMessageActionViewModel =
         selfDeletingMessageActionViewModel(
             SelfDeletingMessageActionArgs(conversationId = conversationId)
@@ -340,8 +340,8 @@ internal fun MessageComposerTextInput(
     onHardwareTab: (isShiftPressed: Boolean) -> Boolean,
     onHardwareEscape: () -> Boolean,
     useKeyboardActivationGate: Boolean,
-    inputTransformation: InputTransformation? = null,
     modifier: Modifier = Modifier,
+    inputTransformation: InputTransformation? = null,
     onSelectedLineIndexChanged: (Int) -> Unit = { },
     onLineBottomYCoordinateChanged: (Float) -> Unit = { },
 ) {

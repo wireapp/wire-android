@@ -5,8 +5,8 @@ on:
     types: [created]
 
 permissions:
-  actions: read # the called workflow downloads existing PR build artifacts
-  contents: read # the called workflow checks out trusted upload configuration
+  actions: read # the called workflow finds the successful Develop CI run
+  contents: read # the called workflow checks out upload configuration and the PR head
   pull-requests: read # the called workflow resolves the PR's current revision
 
 concurrency:
@@ -55,3 +55,10 @@ jobs:
       release-notes: ${{ github.event.issue.title }}
     secrets:
       FIREBASE_APP_DISTRIBUTION_SERVICE_ACCOUNT_JSON: ${{ secrets.FIREBASE_APP_DISTRIBUTION_SERVICE_ACCOUNT_JSON }}
+      ENCODED_KEYSTORE_DEBUG: ${{ secrets.ENCODED_KEYSTORE_DEBUG }}
+      SIGNING_KEY_ALIAS_DEBUG: ${{ secrets.SIGNING_KEY_ALIAS_DEBUG }}
+      SIGNING_KEY_PASSWORD_DEBUG: ${{ secrets.SIGNING_KEY_PASSWORD_DEBUG }}
+      SIGNING_STORE_PASSWORD_DEBUG: ${{ secrets.SIGNING_STORE_PASSWORD_DEBUG }}
+      DATADOG_APP_ID: ${{ secrets.DATADOG_APP_ID }}
+      DATADOG_CLIENT_TOKEN: ${{ secrets.DATADOG_CLIENT_TOKEN }}
+      DOMAIN_REMOVAL_KEYS_FOR_REPAIR: ${{ secrets.DOMAIN_REMOVAL_KEYS_FOR_REPAIR }}

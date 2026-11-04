@@ -1536,6 +1536,348 @@ class WireDrivePermissionsTests : BaseUiTest() {
         }
     }
 
+    @Suppress("CyclomaticComplexMethod", "LongMethod")
+    @TestCaseId("TC-12343")
+    @Category("regression", "RC", "wireDrive", "wireDrivePermissions")
+    @Test
+    fun givenPersonalGuestAndAnotherTeamsMemberHaveViewerAccess_whenSelectingSharedDriveFilesAndFolders_thenOnlyOwningTeamMemberCanBulkSelect() {
+        step("Given There is a team owner TeamOwner with team DrivePermissions") {
+            backendSetupHelper.createTeamOwnerByAlias(
+                "user1Name",
+                "DrivePermissions",
+                "en_US",
+                true,
+                backendClient,
+                context
+            )
+            teamOwner = clientUserManager.findUserByNameOrNameAlias("user1Name")
+        }
+
+        step("And TeamOwner configures MLS for DrivePermissions") {
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "DrivePermissions", backendClient)
+        }
+
+        step("And TeamOwner adds Member1 to DrivePermissions with role Member") {
+            backendSetupHelper.userXAddsUsersToTeam(
+                "user1Name",
+                "user2Name",
+                "DrivePermissions",
+                TeamRoles.Member,
+                backendClient,
+                context,
+                true
+            )
+            member1 = clientUserManager.findUserByNameOrNameAlias("user2Name")
+        }
+
+        step("And There is a team owner GuestTeamOwner with team GuestDrivePermissions") {
+            backendSetupHelper.createTeamOwnerByAlias(
+                "user3Name",
+                "GuestDrivePermissions",
+                "en_US",
+                true,
+                backendClient,
+                context
+            )
+        }
+
+        step("And GuestTeamOwner configures MLS for GuestDrivePermissions") {
+            backendSetupHelper.userConfiguresMLSForTeam("user3Name", "GuestDrivePermissions", backendClient)
+        }
+
+        step("And GuestTeamOwner adds GuestMember to GuestDrivePermissions with role Member") {
+            backendSetupHelper.userXAddsUsersToTeam(
+                "user3Name",
+                "user5Name",
+                "GuestDrivePermissions",
+                TeamRoles.Member,
+                backendClient,
+                context,
+                true
+            )
+        }
+        val guestMember = clientUserManager.findUserByNameOrNameAlias("user5Name")
+
+        step("And Drive is enabled and unlocked for both teams") {
+            val guestTeamOwner = clientUserManager.findUserByNameOrNameAlias("user3Name")
+            runBlocking {
+                backendClient.enableCellsFeatureViaBackdoorTeam(backendClient.getTeam(teamOwner))
+                backendClient.enableCellsFeatureViaBackdoorTeam(backendClient.getTeam(guestTeamOwner))
+            }
+        }
+
+        step("And There is a personal Guest with a unique username") {
+            clientUserManager.createPersonalUsersByAliases(listOf("user4Name"), backendClient)
+            runBlocking {
+                backendSetupHelper.usersSetUniqueUsername("user4Name")
+            }
+        }
+        val guest = clientUserManager.findUserByNameOrNameAlias("user4Name")
+
+        step("And TeamOwner is connected to Guest and GuestMember") {
+            backendSetupHelper.userIsConnectedTo("user1Name", "user4Name")
+            backendSetupHelper.userIsConnectedTo("user1Name", "user5Name")
+        }
+
+        step("And MLS devices are registered for all participants") {
+            val participantAliases = listOf("user1Name", "user2Name", "user3Name", "user4Name", "user5Name")
+            testServiceHelper.apply {
+                participantAliases.forEach { alias -> addDevice(alias, null, "Device1") }
+            }
+        }
+
+        step("And I sign in as Guest and complete the login prompts") {
+            clientUserManager.setSelfUser(guest)
+            pages.registrationPage.assertEmailWelcomePage()
+            loginToStagingAs(guest)
+        }
+
+        step("And I add GuestMember's account and complete the login prompts") {
+            pages.conversationListPage.clickUserProfileButton()
+            pages.selfUserProfilePage.tapNewAccountButton()
+            clientUserManager.setSelfUser(guestMember)
+            loginToStagingAs(guestMember)
+        }
+
+        step("And I add Member1's account and complete the login prompts") {
+            pages.conversationListPage.clickUserProfileButton()
+            pages.selfUserProfilePage.tapNewAccountButton()
+            clientUserManager.setSelfUser(member1)
+            loginToStagingAs(member1)
+        }
+
+        step("And TeamOwner creates BulkPermissions Conversation with Member1, Guest and GuestMember and Shared Drive enabled") {
+            testServiceHelper.userCreatesMLSGroupConversation(
+                ownerAlias = "user1Name",
+                participantAliases = "user2Name,user4Name,user5Name",
+                conversationName = "BulkPermissions",
+                deviceName = "Device1",
+                cellsEnabled = true
+            )
+        }
+
+        val suffix = UUID.randomUUID().toString().take(8)
+        val sharedPdf = "BulkPermissions-$suffix.pdf"
+        val childPdf = "BulkPermissionsChild-$suffix.pdf"
+        step("And TeamOwner sends an identifiable PDF to BulkPermissions Conversation") {
+            val pdfUri = createPdfInDeviceDownloadsFolder(sharedPdf, "Bulk selection permissions PDF")
+            deviceDownloads += pdfUri
+            testServiceHelper.contactSendsLocalPdfConversation(
+                context,
+                sharedPdf,
+                pdfUri,
+                "user1Name",
+                "Device1",
+                "BulkPermissions"
+            )
+        }
+
+        step("And Member1 opens Shared Drive from BulkPermissions Conversation details and sees the PDF with Editor access") {
+            pages.conversationListPage.clickGroupConversation("BulkPermissions")
+            pages.conversationViewPage.clickOnGroupConversationDetails("BulkPermissions")
+            pages.groupConversationDetailsPage.tapSharedDriveButton()
+            pages.wireDrivePage.apply {
+                assertSharedDriveVisibleWithoutViewerBanner()
+                assertFileVisibleOnce(sharedPdf)
+            }
+        }
+
+        step("And Member1 creates BulkFolder in Shared Drive, opens it from the current list and verifies it is empty") {
+            pages.wireDrivePage.apply {
+                createFolder("BulkFolder")
+                assertFolderVisibleOnce("BulkFolder")
+                openFolder("BulkFolder")
+                assertEmptyFolderVisible()
+            }
+        }
+
+        step("And Member1 prepares a PDF and uploads it inside BulkFolder") {
+            deviceDownloads += createPdfInDeviceDownloadsFolder(childPdf, "Bulk permissions folder PDF")
+            pages.wireDrivePage.apply {
+                tapNewButton()
+                tapUploadFilesOption()
+            }
+            pages.documentsUIPage.selectFileInDocumentsUI(childPdf)
+            pages.wireDrivePage.tapUploadButtonOnUploadConfirmationDialog()
+        }
+
+        step("And Member1 sees Upload complete, collapses the upload status panel and sees the child PDF inside BulkFolder") {
+            pages.wireDrivePage.apply {
+                assertUploadCompleteVisible()
+                tapCollapseButtonOnUploadStatusPanel()
+                assertFileVisibleOnce(childPdf)
+            }
+        }
+
+        step("When Member1 returns to the Shared Drive main folder and opens the root PDF") {
+            pages.wireDrivePage.apply {
+                navigateBack()
+                assertFileVisibleOnce(sharedPdf)
+                assertFolderVisibleOnce("BulkFolder")
+                openFile(sharedPdf)
+            }
+        }
+
+        lateinit var expectedPdfScreenshot: Bitmap
+        step("Then Member1 sees the correct PDF preview and captures its rendered page as the reference") {
+            pages.pdfViewerPage.assertPdfPreviewVisible(sharedPdf)
+            expectedPdfScreenshot = pages.pdfViewerPage.capturePdfPageScreenshot()
+            documentScreenshots += expectedPdfScreenshot
+        }
+
+        step(
+            "When Member1 returns to Shared Drive, long-presses the PDF, checks one selected file and selects BulkFolder"
+        ) {
+            pages.pdfViewerPage.navigateBack()
+            pages.wireDrivePage.apply {
+                longPressFileInSharedDrive(sharedPdf)
+                assertBulkSelectionCount(1)
+                tapFolderForBulkSelection("BulkFolder")
+            }
+        }
+
+        step("Then Member1 sees two selected rows and enabled bulk Move and Delete actions in Shared Drive") {
+            pages.wireDrivePage.apply {
+                assertBulkSelectionCount(2)
+                assertBulkMoveAndDeleteActionsEnabled()
+            }
+        }
+
+        step("When Member1 cancels bulk selection and taps the Shared Drive options button") {
+            pages.wireDrivePage.apply {
+                tapCancelBulkSelectionButton()
+                assertBulkSelectionControlsAbsent()
+                tapSharedDriveOptionsButton()
+            }
+        }
+
+        step("Then Member1 sees the Open Recycle Bin option") {
+            pages.wireDrivePage.assertOpenRecycleBinOptionVisible()
+        }
+
+        step("When Member1 closes Shared Drive options and returns to the conversation list") {
+            pages.wireDrivePage.apply {
+                navigateBack()
+                navigateBack()
+            }
+            pages.groupConversationDetailsPage.tapBackButton()
+            pages.conversationViewPage.tapBackButtonToCloseConversationViewPage()
+        }
+
+        step("And I switch from Member1 to personal Guest's account") {
+            pages.conversationListPage.clickUserProfileButton()
+            pages.selfUserProfilePage.tapOtherAccountByName(guest.name.orEmpty())
+            clientUserManager.setSelfUser(guest)
+        }
+
+        step("And Guest opens Shared Drive from BulkPermissions Conversation details") {
+            pages.conversationListPage.clickGroupConversation("BulkPermissions")
+            pages.conversationViewPage.clickOnGroupConversationDetails("BulkPermissions")
+            pages.groupConversationDetailsPage.tapSharedDriveButton()
+        }
+
+        step("Then personal Guest sees the Viewer access banner, PDF and BulkFolder in Shared Drive") {
+            pages.wireDrivePage.apply {
+                assertViewerAccessBannerVisible("Viewer access: you can’t upload or edit files.")
+                assertFileVisibleOnce(sharedPdf)
+                assertFolderVisibleOnce("BulkFolder")
+            }
+        }
+
+        step("When Guest long-presses the PDF and drags to BulkFolder in Shared Drive, bulk selection controls stay absent") {
+            pages.wireDrivePage.apply {
+                longPressAndDragBetweenSharedDriveRows(sharedPdf, "BulkFolder")
+                assertBulkSelectionControlsAbsent()
+            }
+        }
+
+        step(
+            "When Guest long-presses BulkFolder and drags to the PDF in Shared Drive, " +
+                "bulk selection controls and the Shared Drive options button stay absent"
+        ) {
+            pages.wireDrivePage.apply {
+                longPressAndDragBetweenSharedDriveRows("BulkFolder", sharedPdf)
+                assertBulkSelectionControlsAbsent()
+                assertSharedDriveOptionsButtonAbsent()
+            }
+        }
+
+        step("When Guest selects Open from the PDF's three-dot menu in Shared Drive") {
+            pages.wireDrivePage.apply {
+                tapFileMenu(sharedPdf)
+                tapOpenOptionOnActionsMenu()
+            }
+        }
+
+        step("Then Guest sees the correct PDF preview matching Member1's reference page") {
+            pages.pdfViewerPage.apply {
+                assertPdfPreviewVisible(sharedPdf)
+                assertPdfMatchesScreenshot(expectedPdfScreenshot)
+            }
+        }
+
+        step("When Guest closes the PDF preview and returns to the conversation list") {
+            pages.pdfViewerPage.navigateBack()
+            pages.wireDrivePage.navigateBack()
+            pages.groupConversationDetailsPage.tapBackButton()
+            pages.conversationViewPage.tapBackButtonToCloseConversationViewPage()
+        }
+
+        step("And I switch from Guest to GuestMember's account") {
+            pages.conversationListPage.clickUserProfileButton()
+            pages.selfUserProfilePage.tapOtherAccountByName(guestMember.name.orEmpty())
+            clientUserManager.setSelfUser(guestMember)
+        }
+
+        step("And GuestMember opens Shared Drive from BulkPermissions Conversation details") {
+            pages.conversationListPage.clickGroupConversation("BulkPermissions")
+            pages.conversationViewPage.clickOnGroupConversationDetails("BulkPermissions")
+            pages.groupConversationDetailsPage.tapSharedDriveButton()
+        }
+
+        step("Then GuestMember from another team sees the Viewer access banner, PDF and BulkFolder in Shared Drive") {
+            pages.wireDrivePage.apply {
+                assertViewerAccessBannerVisible("Viewer access: you can’t upload or edit files.")
+                assertFileVisibleOnce(sharedPdf)
+                assertFolderVisibleOnce("BulkFolder")
+            }
+        }
+
+        step(
+            "When GuestMember long-presses the PDF and drags to BulkFolder in Shared Drive, bulk selection controls stay absent"
+        ) {
+            pages.wireDrivePage.apply {
+                longPressAndDragBetweenSharedDriveRows(sharedPdf, "BulkFolder")
+                assertBulkSelectionControlsAbsent()
+            }
+        }
+
+        step(
+            "When GuestMember long-presses BulkFolder and drags to the PDF in Shared Drive, " +
+                "bulk selection controls and the Shared Drive options button stay absent"
+        ) {
+            pages.wireDrivePage.apply {
+                longPressAndDragBetweenSharedDriveRows("BulkFolder", sharedPdf)
+                assertBulkSelectionControlsAbsent()
+                assertSharedDriveOptionsButtonAbsent()
+            }
+        }
+
+        step("When GuestMember selects Open from the PDF's three-dot menu in Shared Drive") {
+            pages.wireDrivePage.apply {
+                tapFileMenu(sharedPdf)
+                tapOpenOptionOnActionsMenu()
+            }
+        }
+
+        step("Then GuestMember sees the correct PDF preview matching Member1's reference page") {
+            pages.pdfViewerPage.apply {
+                assertPdfPreviewVisible(sharedPdf)
+                assertPdfMatchesScreenshot(expectedPdfScreenshot)
+            }
+        }
+    }
+
     // Shared app login flow: opens staging, signs in as the selected user, and clears post-login prompts.
     private fun loginToStagingAs(user: ClientUser) {
         pages.loginPage.apply {

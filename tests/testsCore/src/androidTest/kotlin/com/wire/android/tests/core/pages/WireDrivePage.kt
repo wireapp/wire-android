@@ -17,6 +17,7 @@
  */
 package com.wire.android.tests.core.pages
 
+import android.graphics.Point
 import android.text.format.DateFormat
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.By
@@ -104,6 +105,62 @@ data class WireDrivePage(private val device: UiDevice) {
             timeout = UiWaitUtils.VERY_SHORT_TIMEOUT,
             errorMessage = "Shared Drive options button is visible for a Viewer"
         )
+        return this
+    }
+
+    fun tapSharedDriveOptionsButton(): WireDrivePage {
+        UiWaitUtils.waitElement(UiSelectorParams(description = "Open files options"), timeout = UiWaitUtils.SHORT_WAIT).click()
+        return this
+    }
+
+    fun assertOpenRecycleBinOptionVisible(): WireDrivePage {
+        UiWaitUtils.waitElement(UiSelectorParams(text = "Open Recycle Bin"), timeout = UiWaitUtils.SHORT_WAIT)
+        return this
+    }
+
+    fun longPressFileInSharedDrive(fileName: String): WireDrivePage {
+        UiWaitUtils.waitElement(UiSelectorParams(text = fileName), timeout = UiWaitUtils.STABLE_TIMEOUT).longClick()
+        return this
+    }
+
+    fun tapFolderForBulkSelection(folderName: String): WireDrivePage {
+        UiWaitUtils.waitElement(UiSelectorParams(text = folderName), timeout = UiWaitUtils.STABLE_TIMEOUT).click()
+        return this
+    }
+
+    fun longPressAndDragBetweenSharedDriveRows(startName: String, endName: String): WireDrivePage {
+        val start = UiWaitUtils.waitElement(UiSelectorParams(text = startName), timeout = UiWaitUtils.STABLE_TIMEOUT)
+        val end = UiWaitUtils.waitElement(UiSelectorParams(text = endName), timeout = UiWaitUtils.STABLE_TIMEOUT).visibleBounds
+        // UIAutomator's drag starts with a long press; both endpoints come from the named rows.
+        start.drag(Point(end.centerX(), end.centerY()))
+        return this
+    }
+
+    fun assertBulkSelectionCount(expectedCount: Int): WireDrivePage {
+        UiWaitUtils.waitElement(UiSelectorParams(text = "$expectedCount selected"), timeout = UiWaitUtils.SHORT_WAIT)
+        return this
+    }
+
+    fun assertBulkMoveAndDeleteActionsEnabled(): WireDrivePage {
+        listOf("Move", "Delete").forEach { action ->
+            UiWaitUtils.waitElement(UiSelectorParams(description = action), timeout = UiWaitUtils.SHORT_WAIT)
+            val button = device.findObject(By.clickable(true).hasDescendant(By.desc(action)))
+            assertTrue("Bulk action '$action' is not enabled", button?.isEnabled == true)
+        }
+        return this
+    }
+
+    fun tapCancelBulkSelectionButton(): WireDrivePage {
+        UiWaitUtils.waitElement(UiSelectorParams(description = "Cancel selection"), timeout = UiWaitUtils.SHORT_WAIT).click()
+        return this
+    }
+
+    fun assertBulkSelectionControlsAbsent(): WireDrivePage {
+        UiWaitUtils.waitElement(sharedDriveHeading, timeout = UiWaitUtils.SHORT_WAIT)
+        assertFalse("Bulk selection count is visible", device.hasObject(By.text(Pattern.compile("\\d+ selected"))))
+        listOf("Cancel selection", "Move", "Delete").forEach { control ->
+            assertFalse("Bulk selection control '$control' is visible in Shared Drive", device.hasObject(By.desc(control)))
+        }
         return this
     }
 

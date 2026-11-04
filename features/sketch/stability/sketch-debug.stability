@@ -110,6 +110,13 @@ internal fun com.wire.android.feature.sketch.DrawingTopBar(conversationTitle: ko
     - state: STABLE (marked @Stable or @Immutable)
 
 @Composable
+private fun com.wire.android.feature.sketch.EmptyCanvasHint(modifier: androidx.compose.ui.Modifier): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - modifier: STABLE (marked @Stable or @Immutable)
+
+@Composable
 private fun com.wire.android.feature.sketch.NonSelectedColor(color: androidx.compose.ui.graphics.Color, onColorSelected: kotlin.Function0<kotlin.Unit>): kotlin.Unit
   skippable: true
   restartable: true

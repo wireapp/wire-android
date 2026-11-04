@@ -1838,6 +1838,7 @@ class CellViewModelTest {
                 drivePermissionsEnabled = true,
                 driveDirectUploadEnabled = true,
                 driveBulkActionsEnabled = true,
+                driveOfflineEnabled = true,
             )
         }
     }

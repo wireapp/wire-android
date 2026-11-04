@@ -41,7 +41,7 @@
             "pending_messages": true,
             "link_preview_enabled": true,
             "drive_direct_upload_enabled": true,
-            "drive_bulk_actions_enabled": true,
+            "drive_offline_enabled": true,
             "meetings_guests_links_enabled": true
         },
         "beta": {
@@ -72,7 +72,7 @@
             "db_invalidation_control_enabled": false,
             "pending_messages": true,
             "link_preview_enabled": true,
-            "drive_bulk_actions_enabled": true
+            "drive_offline_enabled": true
         },
         "fdroid": {
             "application_id": "com.wire",
@@ -160,6 +160,7 @@
     "link_preview_enabled": false,
     "drive_permissions_enabled": true,
     "drive_direct_upload_enabled": true,
-    "drive_bulk_actions_enabled": false,
+    "drive_bulk_actions_enabled": true,
+    "drive_offline_enabled": false,
     "meetings_guests_links_enabled": false
 }

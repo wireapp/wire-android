@@ -17,7 +17,6 @@
  */
 package com.wire.android.tests.core.pages
 
-import android.graphics.Bitmap
 import android.text.format.DateFormat
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.By
@@ -225,16 +224,11 @@ data class WireDrivePage(private val device: UiDevice) {
 
     fun tapFolderMenu(folderName: String): WireDrivePage = tapNodeMenu(folderName)
 
-    // TODO: Replace the row-position lookup with an accessibility locator when the three-dot menu is labelled.
     private fun tapNodeMenu(nodeName: String): WireDrivePage {
-        val name = UiWaitUtils.waitElement(UiSelectorParams(text = nodeName), timeout = UiWaitUtils.STABLE_TIMEOUT)
-        val row = device.findObject(By.clickable(true).hasDescendant(By.text(nodeName)))
-            ?: throw AssertionError("Drive row is not visible for '$nodeName'")
-        // The Compose menu icon has no label; scope its clickable node to the right of this file's name.
-        val menu = row.findObjects(By.clickable(true)).singleOrNull {
-            it.visibleBounds.left >= name.visibleBounds.right
-        } ?: throw AssertionError("Drive actions menu is not visible for '$nodeName'")
-        menu.click()
+        UiWaitUtils.waitElement(
+            UiSelectorParams(description = "More options for $nodeName"),
+            timeout = UiWaitUtils.STABLE_TIMEOUT
+        ).click()
         UiWaitUtils.waitElement(UiSelectorParams(description = "Open"), timeout = UiWaitUtils.SHORT_WAIT)
         return this
     }
@@ -434,48 +428,18 @@ data class WireDrivePage(private val device: UiDevice) {
         return this
     }
 
-    // TODO: Replace the screenshot comparison with an accessibility locator when the Viewer badge is labelled.
-    // Compare the same plain PDF icon in both rows; the Viewer eye is drawn only over its lower-right corner.
-    @Suppress("MagicNumber")
-    fun assertViewerBadgeOnPdfComparedWithEditorPdf(viewerFileName: String, editorFileName: String): WireDrivePage {
+    fun assertViewerAccessLabelOnlyOnViewerPdf(viewerFileName: String, editorFileName: String): WireDrivePage {
         assertFileVisibleOnce(viewerFileName)
         assertFileVisibleOnce(editorFileName)
-        val screenshot = requireNotNull(InstrumentationRegistry.getInstrumentation().uiAutomation.takeScreenshot()) {
-            "Could not capture Drive file icons"
-        }
-        try {
-            val viewerBadgeArea = pdfBadgeAreaFromScreenshot(screenshot, viewerFileName)
-            val editorBadgeArea = pdfBadgeAreaFromScreenshot(screenshot, editorFileName)
-            try {
-                assertFalse(
-                    "Viewer PDF has no distinct badge compared with Editor PDF",
-                    viewerBadgeArea.sameAs(editorBadgeArea)
-                )
-            } finally {
-                viewerBadgeArea.recycle()
-                editorBadgeArea.recycle()
-            }
-        } finally {
-            screenshot.recycle()
-        }
-        return this
-    }
-
-    @Suppress("MagicNumber")
-    private fun pdfBadgeAreaFromScreenshot(screenshot: Bitmap, fileName: String): Bitmap {
-        val row = device.findObject(By.clickable(true).hasDescendant(By.text(fileName))).visibleBounds
-        // CellListItem is 64dp high; its leading icon box is 56dp, centred vertically.
-        val iconSize = row.height() * 56 / 64
-        // The Viewer badge is drawn in the lower-right corner of the PDF icon.
-        val badgeAreaSize = iconSize * 30 / 56
-        val badgeAreaOffset = iconSize - badgeAreaSize
-        return Bitmap.createBitmap(
-            screenshot,
-            row.left + badgeAreaOffset,
-            row.top + (row.height() - iconSize) / 2 + badgeAreaOffset,
-            badgeAreaSize,
-            badgeAreaSize
+        UiWaitUtils.waitElement(
+            UiSelectorParams(description = "$viewerFileName, viewer access"),
+            timeout = UiWaitUtils.SHORT_WAIT
         )
+        assertFalse(
+            "Viewer access label is shown for Editor PDF '$editorFileName'",
+            device.hasObject(By.desc("$editorFileName, viewer access"))
+        )
+        return this
     }
 
     fun assertFileTimestampMatchesDeviceTimeFormat(

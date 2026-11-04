@@ -414,12 +414,12 @@ class WireDrivePermissionsTests : BaseUiTest() {
             }
         }
 
-        step("Then the other team's PDF has the Viewer badge while GuestMember's own team's PDF has no Viewer badge") {
+        step("Then global Drive labels the other team's PDF with Viewer access but not GuestMember's own team's PDF") {
             pages.wireDrivePage.apply {
                 assertDrivePageVisible()
                 assertFileVisibleOnce(sharedPdf)
                 assertFileVisibleOnce(editorPdf)
-                assertViewerBadgeOnPdfComparedWithEditorPdf(sharedPdf, editorPdf)
+                assertViewerAccessLabelOnlyOnViewerPdf(sharedPdf, editorPdf)
             }
         }
 

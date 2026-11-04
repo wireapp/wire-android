@@ -434,7 +434,7 @@ internal class PdfSourceResolverTest {
             .resolve(source, dispatcher = Dispatchers.Default).getOrNull()
 
         assertEquals(File(userDir(), "conv-42/doc.pdf"), first)
-        assertEquals(File(File(File(tempDir, "files"), "other.domain/other-user"), "conv-42/doc.pdf"), second)
+        assertEquals(File(File(File(tempDir, "files"), "other.domain/other-user/cells"), "conv-42/doc.pdf"), second)
     }
 
     @Test
@@ -459,7 +459,7 @@ internal class PdfSourceResolverTest {
         coVerify(exactly = 0) { loader.load(any(), any(), any(), any(), any()) }
     }
 
-    private fun userDir() = File(File(tempDir, "files"), "${USER_ID.domain}/${USER_ID.value}")
+    private fun userDir() = File(File(tempDir, "files"), "${USER_ID.domain}/${USER_ID.value}/cells")
 
     private fun writingLoader(bytes: Int): PdfRemoteLoader = mockk {
         coEvery { load(any(), any(), any(), any(), any()) } coAnswers {

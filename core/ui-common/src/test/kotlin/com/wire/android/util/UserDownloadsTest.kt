@@ -24,6 +24,7 @@ import io.mockk.every
 import io.mockk.mockk
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertNotEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
@@ -35,8 +36,79 @@ class UserDownloadsTest {
     lateinit var root: File
 
     @Test
-    fun givenUserId_whenResolvingDownloadsDirectory_thenItIsDomainAndValueUnderTheRoot() {
-        assertEquals(File(root, "wire.com/alice"), root.userDownloadsDir(ALICE))
+    fun givenUserId_whenResolvingDownloadsDirectory_thenItIsTheCellsFolderOfDomainAndValueUnderTheRoot() {
+        assertEquals(File(root, "wire.com/alice/cells"), root.userDownloadsDir(ALICE))
+    }
+
+    @Test
+    fun givenUuidValue_whenResolvingDownloadsDirectory_thenItIsUnchanged() {
+        val uuid = "1b4e28ba-2fa1-11d2-883f-0016d3cca427"
+
+        assertEquals(File(root, "wire.com/$uuid/cells"), root.userDownloadsDir(UserId(uuid, "wire.com")))
+    }
+
+    @Test
+    fun givenIdsThatSanitizeToTheSameName_whenResolvingDownloadsDirectory_thenTheFoldersDiffer() {
+        assertNotEquals(
+            root.userDownloadsDir(UserId("alice", "host:8080")),
+            root.userDownloadsDir(UserId("alice", "host_8080"))
+        )
+        assertNotEquals(
+            root.userDownloadsDir(UserId("a/b", "wire.com")),
+            root.userDownloadsDir(UserId("a_b", "wire.com"))
+        )
+    }
+
+    @Test
+    fun givenUnsafeIds_whenResolvingDownloadsDirectory_thenItIsThreeSingleSegmentLevelsInsideTheRoot() {
+        listOf("..", ".", "", "a/b", "host:8080").forEach { unsafe ->
+            val relative = root.userDownloadsDir(UserId(unsafe, unsafe)).relativeTo(root)
+            val segments = relative.path.split(File.separatorChar)
+
+            assertEquals(3, segments.size, unsafe)
+            assertEquals("cells", segments[2], unsafe)
+            segments.forEach { assertFalse(it.isEmpty() || it == "." || it == "..", unsafe) }
+            assertEquals(File(root, relative.path).canonicalFile, root.userDownloadsDir(UserId(unsafe, unsafe)).canonicalFile)
+        }
+    }
+
+    @Test
+    fun givenKaliumFileInTheUserFolder_whenDeletingUserDownloads_thenOnlyTheCellsFolderIsRemoved() {
+        val filesDirectory = File(root, "files").apply(File::mkdirs)
+        val assetFile = file(filesDirectory, "wire.com/alice/asset.bin")
+        val cellsFile = file(filesDirectory.userDownloadsDir(ALICE), "conversation/uuid/report.pdf")
+        val context = mockk<Context> {
+            every { getExternalFilesDir(null) } returns null
+            every { filesDir } returns filesDirectory
+        }
+
+        context.deleteUserDownloads(ALICE)
+
+        assertFalse(cellsFile.exists())
+        assertFalse(filesDirectory.userDownloadsDir(ALICE).exists())
+        assertTrue(assetFile.exists())
+    }
+
+    @Test
+    fun givenNothingElseInTheUserFolders_whenDeletingUserDownloads_thenEmptyUserAndDomainFoldersAreRemoved() {
+        file(root.userDownloadsDir(ALICE), "conversation/uuid/report.pdf")
+        val context = contextWithExternalDirectory(root)
+
+        context.deleteUserDownloads(ALICE)
+
+        assertFalse(File(root, "wire.com").exists())
+        assertTrue(root.exists())
+    }
+
+    @Test
+    fun givenAnotherUserInTheDomain_whenDeletingUserDownloads_thenTheDomainFolderStays() {
+        val bobFile = file(root.userDownloadsDir(BOB), "conversation/uuid/report.pdf")
+        file(root.userDownloadsDir(ALICE), "conversation/uuid/report.pdf")
+
+        contextWithExternalDirectory(root).deleteUserDownloads(ALICE)
+
+        assertFalse(File(root, "wire.com/alice").exists())
+        assertTrue(bobFile.exists())
     }
 
     @Test
@@ -94,19 +166,23 @@ class UserDownloadsTest {
 
     @Test
     fun givenUserIdWithoutDomain_whenResolvingDownloadsDirectory_thenAPlaceholderFolderIsUsed() {
-        assertEquals(File(root, "_/alice"), root.userDownloadsDir(UserId("alice", "")))
+        val relative = root.userDownloadsDir(UserId("alice", "")).relativeTo(root).path
+
+        assertTrue(Regex("_-[0-9a-f]{12}/alice/cells").matches(relative), relative)
     }
 
     @Test
-    fun givenCharactersThatAreNotSafeInFolderNames_whenResolvingDownloadsDirectory_thenTheyAreReplaced() {
-        assertEquals(File(root, "host_8080/a_b"), root.userDownloadsDir(UserId("a/b", "host:8080")))
+    fun givenCharactersThatAreNotSafeInFolderNames_whenResolvingDownloadsDirectory_thenTheyAreReplacedAndHashed() {
+        val relative = root.userDownloadsDir(UserId("a/b", "host:8080")).relativeTo(root).path
+
+        assertTrue(Regex("host_8080-[0-9a-f]{12}/a_b-[0-9a-f]{12}/cells").matches(relative), relative)
     }
 
     @Test
-    fun givenDotSegments_whenResolvingDownloadsDirectory_thenTheDirectoryStaysTwoLevelsInsideTheRoot() {
-        assertEquals(File(root, "_/_"), root.userDownloadsDir(UserId("..", "..")))
-        assertEquals(File(root, "_/_"), root.userDownloadsDir(UserId(".", ".")))
-        assertEquals(File(root, "_/_"), root.userDownloadsDir(UserId("", "")))
+    fun givenDotSegments_whenResolvingDownloadsDirectory_thenEachGetsADistinctPlaceholder() {
+        val folders = listOf("..", ".", "").map { root.userDownloadsDir(UserId(it, it)) }
+
+        assertEquals(3, folders.toSet().size)
     }
 
     @Test

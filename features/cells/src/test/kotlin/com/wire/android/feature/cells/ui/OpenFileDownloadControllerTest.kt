@@ -78,7 +78,7 @@ class OpenFileDownloadControllerTest {
         controller.start(scope = this, cellNode = testFile, onOpenFile = {}, onError = {})
         advanceUntilIdle()
 
-        val expected = File(arrangement.externalFilesDir, "wire.com/user-id/conversation-id/test-uuid/report.pdf")
+        val expected = File(arrangement.externalFilesDir, "wire.com/user-id/cells/conversation-id/test-uuid/report.pdf")
         assertEquals(expected.absolutePath, outPath.captured.toString())
     }
 

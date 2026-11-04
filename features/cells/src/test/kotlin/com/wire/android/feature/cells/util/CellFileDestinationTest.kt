@@ -43,14 +43,14 @@ class CellFileDestinationTest {
     fun givenConversation_whenResolvingDestination_thenItIsUnderTheUserFolder() {
         val result = destination(ALICE, "conversation@wire.com", "uuid-1", "report.pdf")
 
-        assertEquals(File(root, "wire.com/alice/conversation@wire.com/uuid-1/report.pdf"), result)
+        assertEquals(File(root, "wire.com/alice/cells/conversation@wire.com/uuid-1/report.pdf"), result)
         assertTrue(result.parentFile!!.isDirectory)
     }
 
     @Test
     fun givenNoConversation_whenResolvingDestination_thenTheUuidFolderIsDirectlyUnderTheUserFolder() {
-        assertEquals(File(root, "wire.com/alice/uuid-1/report.pdf"), destination(ALICE, null, "uuid-1", "report.pdf"))
-        assertEquals(File(root, "wire.com/alice/uuid-1/report.pdf"), destination(ALICE, "", "uuid-1", "report.pdf"))
+        assertEquals(File(root, "wire.com/alice/cells/uuid-1/report.pdf"), destination(ALICE, null, "uuid-1", "report.pdf"))
+        assertEquals(File(root, "wire.com/alice/cells/uuid-1/report.pdf"), destination(ALICE, "", "uuid-1", "report.pdf"))
     }
 
     @Test
@@ -70,7 +70,7 @@ class CellFileDestinationTest {
 
     @Test
     fun givenServerValuesWithPathParts_whenResolvingDestination_thenTheFileStaysInsideTheUserFolder() {
-        val userFolder = File(root, "wire.com/alice").canonicalFile.toPath()
+        val userFolder = File(root, "wire.com/alice/cells").canonicalFile.toPath()
 
         val results = listOf(
             destination(ALICE, "../../wire.com/bob", "uuid-1", "report.pdf"),

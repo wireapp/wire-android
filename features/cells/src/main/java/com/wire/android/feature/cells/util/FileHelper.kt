@@ -155,8 +155,8 @@ class FileHelper @Inject constructor(
 
 /**
  * Local destination for a downloaded cell file, shared by open and offline downloads:
- * `<domain>/<userId>/<conversationId>/<uuid>/<name>`, or `<domain>/<userId>/<uuid>/<name>` when the node has no
- * conversation.
+ * `<domain>/<userId>/cells/<conversationId>/<uuid>/<name>`, or `<domain>/<userId>/cells/<uuid>/<name>` when the
+ * node has no conversation.
  *
  * Keyed by node uuid so files with the same name in different folders of a conversation never
  * collide, and the path stays valid when the node is renamed or moved. The folder a file belongs

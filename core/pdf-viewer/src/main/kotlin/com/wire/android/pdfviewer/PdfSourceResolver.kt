@@ -137,7 +137,7 @@ class PdfSourceResolver @Inject constructor(
     }
 
     /**
-     * `<externalFilesDir>/<domain>/<userId>/<conversationId>/<sub>/<folders>/<name>`, creating the folders as
+     * `<externalFilesDir>/<domain>/<userId>/cells/<conversationId>/<sub>/<folders>/<name>`, creating the folders as
      * needed.
      *
      * [remotePath] is the cells object key and is already rooted at the conversation, so mirroring

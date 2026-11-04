@@ -56,6 +56,7 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlin.coroutines.cancellation.CancellationException
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.SingleIn
@@ -184,7 +185,10 @@ class GlobalObserversManager @Inject constructor(
     }
 
     private inline fun cleanUp(what: String, action: () -> Unit) {
-        runCatching(action).onFailure { appLogger.e("$TAG: failed to clean up $what on logout", it) }
+        runCatching(action).onFailure {
+            if (it is CancellationException) throw it
+            appLogger.e("$TAG: failed to clean up $what on logout", it)
+        }
     }
 
     private fun CoroutineScope.handleDeleteEphemeralMessageEndDate() {

@@ -65,6 +65,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runCurrent
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.api.io.TempDir
 import org.junit.jupiter.params.ParameterizedTest
@@ -72,6 +73,7 @@ import org.junit.jupiter.params.provider.CsvSource
 import org.junit.jupiter.params.provider.EnumSource
 import java.io.File
 import java.util.concurrent.atomic.AtomicInteger
+import kotlin.coroutines.cancellation.CancellationException
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(CoroutineTestExtension::class)
@@ -473,6 +475,22 @@ class GlobalObserversManagerTest {
             assertFalse(rendition.exists())
         }
 
+    @Test
+    fun `given the coroutine is cancelled during a cleanup step, when a logout wipes data, then the cancellation is rethrown and later steps do not run`() =
+        runTestWithCancellation {
+            val userId = TestUser.SELF_USER.id
+            val userFile = externalDirectory.userDownloadsDir(userId).resolve("conversation/uuid/report.pdf").withContent()
+            val (arrangement, manager) = Arrangement(cacheDirectory, externalDirectory)
+                .withUserDataStoreClearThrowing(CancellationException("cancelled"))
+                .arrange()
+            manager.observe()
+            runCurrent()
+
+            assertThrows<CancellationException> { arrangement.logoutCallback.invoke(userId, LogoutReason.SELF_HARD_LOGOUT) }
+
+            assertTrue(userFile.exists())
+        }
+
     private fun File.withContent() = apply {
         parentFile?.mkdirs()
         writeText("content")
@@ -617,7 +635,11 @@ class GlobalObserversManagerTest {
         }
 
         fun withFailingUserDataStoreClear() = apply {
-            coEvery { userDataStoreProvider.getOrCreate(any()).clear() } throws IllegalStateException("clear failed")
+            withUserDataStoreClearThrowing(IllegalStateException("clear failed"))
+        }
+
+        fun withUserDataStoreClearThrowing(exception: Throwable) = apply {
+            coEvery { userDataStoreProvider.getOrCreate(any()).clear() } throws exception
         }
 
         fun withPendingMessagesDisabled() = apply {

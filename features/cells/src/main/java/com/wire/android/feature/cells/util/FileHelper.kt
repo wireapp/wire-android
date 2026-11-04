@@ -28,6 +28,8 @@ import android.provider.MediaStore
 import com.wire.android.di.ApplicationContext
 import com.wire.android.util.shareableFileProviderUri
 import com.wire.android.util.startShareIntentWithTrustedWireTarget
+import com.wire.android.util.userDownloadsDir
+import com.wire.kalium.logic.data.user.UserId
 import dev.zacsweers.metro.Inject
 import okio.Path
 import java.io.File
@@ -153,13 +155,24 @@ class FileHelper @Inject constructor(
 
 /**
  * Local destination for a downloaded cell file, shared by open and offline downloads:
- * `<conversationId>/<uuid>/<name>`, or `<uuid>/<name>` when the node has no conversation.
+ * `<domain>/<userId>/cells/<conversationId>/<uuid>/<name>`, or `<domain>/<userId>/cells/<uuid>/<name>` when the
+ * node has no conversation.
  *
  * Keyed by node uuid so files with the same name in different folders of a conversation never
  * collide, and the path stays valid when the node is renamed or moved. The folder a file belongs
  * to is taken from its remote path, not from where it is stored on disk.
  */
-fun FileHelper.cellFileDestination(conversationId: String?, uuid: String, name: String): File =
-    File(File(getExternalFilesDir(), conversationId.orEmpty()), uuid)
+fun FileHelper.cellFileDestination(userId: UserId, conversationId: String?, uuid: String, name: String): File {
+    val userFolder = getExternalFilesDir().userDownloadsDir(userId)
+    val conversationFolder = conversationId
+        ?.takeIf { it.isNotEmpty() }
+        ?.let { File(userFolder, it.asPathSegment()) }
+        ?: userFolder
+    return File(conversationFolder, uuid.asPathSegment())
         .also { it.mkdirs() }
-        .let { File(it, name) }
+        .let { File(it, name.asPathSegment()) }
+}
+
+/** Server values name folders and files here, so a value can never add path levels or point at a parent. */
+private fun String.asPathSegment(): String =
+    replace('/', '_').replace('\\', '_').takeUnless { it == "." || it == ".." || it.isEmpty() } ?: "_"

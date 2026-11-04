@@ -17,6 +17,7 @@
  */
 package com.wire.android.feature.cells.ui
 
+import com.wire.android.di.CurrentAccount
 import com.wire.android.feature.cells.ui.model.CellNodeUi
 import com.wire.android.feature.cells.util.FileHelper
 import com.wire.android.feature.cells.util.cellFileDestination
@@ -25,6 +26,7 @@ import com.wire.kalium.cells.domain.usecase.offline.OfflineFileInfo
 import com.wire.kalium.cells.domain.usecase.offline.SaveOfflineFileUseCase
 import com.wire.kalium.common.functional.Either
 import com.wire.kalium.common.functional.onSuccess
+import com.wire.kalium.logic.data.user.UserId
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -45,6 +47,7 @@ class OfflineFileDownloadController @Inject constructor(
     private val fileHelper: FileHelper,
     private val saveOfflineFile: SaveOfflineFileUseCase,
     private val sharedPathCache: CellFileLocalPathCache,
+    @CurrentAccount private val userId: UserId,
 ) {
 
     internal val downloadProgresses: StateFlow<Map<String, Float?>> = sharedPathCache.downloadProgresses
@@ -73,7 +76,7 @@ class OfflineFileDownloadController @Inject constructor(
             onError(CellError.OTHER_ERROR)
             return
         }
-        val filePath = fileHelper.cellFileDestination(cellNode.conversationId, cellNode.uuid, nodeName).toOkioPath()
+        val filePath = fileHelper.cellFileDestination(userId, cellNode.conversationId, cellNode.uuid, nodeName).toOkioPath()
 
         val job = scope.launch {
             performDownload(cellNode, nodeName, filePath, onSuccess, onError)

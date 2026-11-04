@@ -108,6 +108,7 @@
     <string name="loading_files">Loading files…</string>
     <string name="tap_to_cancel_loading">Tap to cancel loading</string>
     <string name="tap_to_cancel_download">Tap to cancel download</string>
+    <string name="tap_to_cancel_queued_download">Waiting to download. Tap to cancel</string>
     <string name="unable_to_load_retry">Unable to load, retry</string>
     <string name="ready_to_open">Ready to open</string>
     <string name="cancel_loading_label">Cancel loading…</string>
@@ -390,5 +391,33 @@
     <string name="cells_empty_recycle_bin_failure_title">Recycle bin not emptied</string>
     <string name="cells_empty_recycle_bin_failure_message">Something went wrong while emptying the recycle bin. Some items may have been permanently deleted, so check the recycle bin before trying again.</string>
     <string name="cells_empty_recycle_bin_failure_message_no_network">The connection was lost while emptying the recycle bin. Some items may have been permanently deleted, so check the recycle bin before trying again.</string>
+    <plurals name="cells_bulk_offline_confirmation_title">
+        <item quantity="one">Make %1$d file available offline?</item>
+        <item quantity="other">Make %1$d files available offline?</item>
+    </plurals>
+    <plurals name="cells_bulk_offline_confirmation_message_with_size">
+        <item quantity="one">The file (%1$s) will be downloaded to this device so you can open it without a connection.</item>
+        <item quantity="other">These files (%1$s in total) will be downloaded to this device so you can open them without a connection.</item>
+    </plurals>
+    <plurals name="cells_bulk_offline_confirmation_message">
+        <item quantity="one">The file will be downloaded to this device so you can open it without a connection.</item>
+        <item quantity="other">These files will be downloaded to this device so you can open them without a connection.</item>
+    </plurals>
+    <plurals name="cells_bulk_offline_confirmation_skipped">
+        <item quantity="one">%1$d selected item can\'t be made available offline and will be skipped.</item>
+        <item quantity="other">%1$d selected items can\'t be made available offline and will be skipped.</item>
+    </plurals>
+    <string name="cells_bulk_offline_confirmation_button">Download</string>
+    <string name="cells_bulk_offline_not_enough_storage_title">Not enough storage</string>
+    <string name="cells_bulk_offline_not_enough_storage_message">These files need %1$s but only %2$s is available on this device. Free up some space or select fewer files, then try again.</string>
+    <plurals name="cells_bulk_offline_ran_out_of_storage_message">
+        <item quantity="one">Your device ran out of storage. %1$d of %2$d file was saved for offline use. Free up some space, then try again with the remaining files.</item>
+        <item quantity="other">Your device ran out of storage. %1$d of %2$d files were saved for offline use. Free up some space, then try again with the remaining files.</item>
+    </plurals>
+    <string name="cells_bulk_offline_ran_out_of_storage_message_none">Your device ran out of storage, so no files were saved for offline use. Free up some space, then try again.</string>
+    <plurals name="cells_bulk_offline_success">
+        <item quantity="one">%1$d file saved for offline use</item>
+        <item quantity="other">%1$d files saved for offline use</item>
+    </plurals>
     <string name="cells_bulk_action_remove_offline">Remove offline</string>
 </resources>

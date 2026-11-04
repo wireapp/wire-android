@@ -94,6 +94,7 @@ sealed class CellNodeUi {
         internal override val openLoadState: OpenLoadState? = null,
         override val downloadProgress: Float? = null,
         override val isAvailableOffline: Boolean = false,
+        val isDownloadQueued: Boolean = false,
         val conversationId: String?,
         override val isViewerOnly: Boolean = false,
     ) : CellNodeUi()
@@ -103,6 +104,7 @@ internal fun Node.File.toUiModel(
     openLoadState: OpenLoadState? = null,
     downloadProgress: Float? = null,
     isAvailableOffline: Boolean = false,
+    isDownloadQueued: Boolean = false,
 ) = CellNodeUi.File(
     uuid = uuid,
     name = name,
@@ -127,6 +129,7 @@ internal fun Node.File.toUiModel(
     openLoadState = openLoadState,
     downloadProgress = downloadProgress,
     isAvailableOffline = isAvailableOffline,
+    isDownloadQueued = isDownloadQueued,
     isViewerOnly = isViewerOnly,
 )
 
@@ -159,6 +162,10 @@ internal fun CellNodeUi.File.withSessionState(
 
 internal fun CellNodeUi.File.localFileAvailable() = localPath != null
 internal fun CellNodeUi.File.canOpenWithUrl() = contentUrl != null && assetType in listOf(IMAGE, VIDEO, AUDIO, PDF)
+/** Downloading for offline use, or waiting for its turn to. Either way, a tap or "Cancel download" stops it. */
+internal fun CellNodeUi.isOfflineDownloadPending() =
+    downloadProgress != null || (this as? CellNodeUi.File)?.isDownloadQueued == true
+
 internal fun CellNodeUi.isEditSupported() = (this as? CellNodeUi.File)?.isEditSupported == true
 
 /**

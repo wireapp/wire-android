@@ -49,7 +49,7 @@ class OfflineFileDownloadController @Inject constructor(
 
     internal val downloadProgresses: StateFlow<Map<String, Float?>> = sharedPathCache.downloadProgresses
 
-    private data class ActiveDownload(val job: Job, val filePath: Path)
+    private data class ActiveDownload(val job: Job, val filePath: Path, val onCancel: () -> Unit)
     private val activeJobs = mutableMapOf<String, ActiveDownload>()
 
     internal fun start(
@@ -57,6 +57,7 @@ class OfflineFileDownloadController @Inject constructor(
         cellNode: CellNodeUi.File,
         onSuccess: (localPath: String) -> Unit,
         onError: (CellError) -> Unit,
+        onCancel: () -> Unit = {},
     ) {
         // If the file already exists locally (loaded this session or stored in DB),
         // skip the download and just persist the offline metadata.
@@ -67,7 +68,10 @@ class OfflineFileDownloadController @Inject constructor(
         }
 
         // Cancel any previous download for this node.
-        activeJobs.remove(cellNode.uuid)?.job?.cancel()
+        activeJobs.remove(cellNode.uuid)?.let { previous ->
+            previous.job.cancel()
+            previous.onCancel()
+        }
 
         val nodeName = cellNode.name ?: run {
             onError(CellError.OTHER_ERROR)
@@ -75,11 +79,15 @@ class OfflineFileDownloadController @Inject constructor(
         }
         val filePath = fileHelper.cellFileDestination(cellNode.conversationId, cellNode.uuid, nodeName).toOkioPath()
 
+        // Flag the file as downloading right away rather than once the coroutine runs, so a file leaving the
+        // bulk queue goes straight from queued to downloading, see BulkOfflineDownloadQueue.
+        setProgress(cellNode.uuid, null)
+
         val job = scope.launch {
             performDownload(cellNode, nodeName, filePath, onSuccess, onError)
         }
 
-        activeJobs[cellNode.uuid] = ActiveDownload(job, filePath)
+        activeJobs[cellNode.uuid] = ActiveDownload(job, filePath, onCancel)
         job.invokeOnCompletion { activeJobs.remove(cellNode.uuid) }
     }
 
@@ -169,9 +177,13 @@ class OfflineFileDownloadController @Inject constructor(
         }
     }
 
+    /** Free space left where offline files are stored, see [cellFileDestination]. */
+    internal fun availableStorageBytes(): Long = fileHelper.getExternalFilesDir().usableSpace
+
     internal fun cancel(uuid: String, scope: CoroutineScope) {
         val active = activeJobs.remove(uuid) ?: return
         active.job.cancel()
+        active.onCancel()
         clearProgress(uuid)
         // Delete the partial file left by the cancelled download.
         scope.launch(Dispatchers.IO) { File(active.filePath.toString()).delete() }

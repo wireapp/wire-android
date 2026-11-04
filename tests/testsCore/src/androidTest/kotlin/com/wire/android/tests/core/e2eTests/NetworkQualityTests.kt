@@ -155,6 +155,132 @@ class NetworkQualityTests : BaseCallUiTest() {
         }
     }
 
+    @TestCaseId("TC-9707")
+    @Category("regression", "networkQuality", "RC")
+    @Test
+    @Suppress("CyclomaticComplexMethod", "LongMethod")
+    fun givenThreeParticipantsInGroupCall_whenNetworkQualityDetailsStayOpen_thenNumericMetricsChange() {
+        step("Given There is a team owner TeamOwner with team GroupNetworkQuality") {
+            backendSetupHelper.createTeamOwnerByAlias(
+                "user1Name",
+                "GroupNetworkQuality",
+                "en_US",
+                true,
+                backendClient,
+                context
+            )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "GroupNetworkQuality", backendClient)
+        }
+
+        step("And TeamOwner adds Member1 and Member2 to team GroupNetworkQuality with role Member") {
+            backendSetupHelper.userXAddsUsersToTeam(
+                "user1Name",
+                "user2Name,user3Name",
+                "GroupNetworkQuality",
+                TeamRoles.Member,
+                backendClient,
+                context,
+                true
+            )
+        }
+
+        step("And TeamOwner enables conference calling for team GroupNetworkQuality") {
+            runBlocking {
+                callHelper.enableConferenceCallingFeatureViaBackdoorTeam("user1Name", "GroupNetworkQuality")
+            }
+        }
+
+        step("And TeamOwner, Member1 and Member2 each register MLS device Device1") {
+            testServiceHelper.apply {
+                listOf("user1Name", "user2Name", "user3Name").forEach { user ->
+                    addDevice(user, null, "Device1")
+                }
+            }
+        }
+
+        step("And TeamOwner creates GroupNetworkQuality Conversation with Member1 and Member2") {
+            testServiceHelper.userCreatesMLSGroupConversation(
+                "user1Name",
+                "user2Name,user3Name",
+                "GroupNetworkQuality",
+                "Device1"
+            )
+        }
+
+        step("And Member1 and Member2 start Chrome calling instances") {
+            runBlocking {
+                callHelper.userXStartsInstance("user2Name,user3Name", "Chrome")
+            }
+        }
+
+        step("And TeamOwner is me") {
+            teamOwner = clientUserManager.findUserByNameOrNameAlias("user1Name")
+            clientUserManager.setSelfUser(teamOwner)
+        }
+
+        givenILoginAsTeamOwnerThroughStagingDeepLink()
+
+        step("And I wait for the Wire service notification to disappear and open GroupNetworkQuality Conversation") {
+            pages.conversationListPage.apply {
+                waitUntilWireServiceNotificationDisappears()
+                clickGroupConversation("GroupNetworkQuality")
+            }
+        }
+
+        step("And Member1 and Member2 accept the next incoming call automatically") {
+            runBlocking {
+                callHelper.userXAcceptsNextIncomingCallAutomatically("user2Name,user3Name")
+            }
+        }
+
+        step("When I start a group call in GroupNetworkQuality Conversation") {
+            pages.conversationViewPage.iTapStartCallButton()
+        }
+
+        step("Then Member1 and Member2 are active in the group call and I see both participants") {
+            runBlocking {
+                callHelper.userVerifiesCallStatusToUserY("user2Name,user3Name", "active", 90)
+            }
+            pages.callingPage.iSeeOngoingGroupCall()
+            callHelper.iSeeParticipantsInGroupCall("user2Name,user3Name")
+        }
+
+        step("And Member1 and Member2 unmute their microphones and send and receive audio") {
+            runBlocking {
+                val participants = clientUserManager.splitAliases("user2Name,user3Name")
+                callingManager.unmuteMicrophone(participants)
+                callingManager.verifySendAndReceiveAudio(participants)
+            }
+        }
+
+        step("When I open call details and Network quality details") {
+            pages.callingPage.apply {
+                iOpenCallDetails()
+                iOpenNetworkQualityDetails()
+                iSeeNetworkQualityDetails()
+            }
+        }
+
+        step("Then at least one of Packet loss, Ping or Jitter changes while Network quality details remain open") {
+            pages.callingPage.apply {
+                assertNetworkQualityMetricsChange()
+                iSeeNetworkQualityDetails()
+            }
+        }
+
+        step("When I close Network quality details and call details and hang up the group call") {
+            pages.callingPage.apply {
+                iTapBackButtonOnNetworkQualityDetails()
+                iCloseCallDetailsByTappingCallArea()
+                iTapOnHangUpButton()
+            }
+        }
+
+        step("Then I do not see an ongoing group call") {
+            pages.callingPage.iDoNotSeeOngoingGroupCall()
+        }
+    }
+
     @TestCaseId("TC-9718")
     @Category("regression", "networkQuality", "RC")
     @Test

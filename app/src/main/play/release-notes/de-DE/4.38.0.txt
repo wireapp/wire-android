@@ -1,0 +1,12 @@
+Neu
+- Meetings: Passwortgeschützte Meetings
+
+Behoben
+- Upload auf Geteiltes Drive wird bei Netzwerkausfall unterbrochen
+- Eingabe des SSO-Codes ist schreibgeschützt (EMM verwaltete Konfiguration)
+- Barrierefreiheit: Navigation per externer Tastatur
+
+Behoben
+- Entschlüsselungsfehler in föderierten Chats
+- Synchronisierung in 1:1 Unterhaltungen
+- Drive: Problem beim Scrollen in Spreadsheets

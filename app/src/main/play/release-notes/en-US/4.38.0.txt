@@ -1,0 +1,14 @@
+New
+- Meetings
+  - Password-protected meetings
+  - Renew links
+
+Fixes
+- Shared Drive file uploads pause and resume upon network loss
+- SSO code entry is set to read-only when supplied via EMM-managed configuration
+- Accessibility: Navigation via external keyboard
+
+Fixes
+- Decryption errors in federated conversations
+- Sync in 1:1 conversations
+- Drive: Screen issue when scrolling in spreadsheets

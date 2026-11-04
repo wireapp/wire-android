@@ -17,16 +17,23 @@
  */
 package com.wire.android.tests.core.pages
 
+import android.graphics.Bitmap
 import android.view.KeyEvent
 import androidx.test.uiautomator.UiDevice
 import uiautomatorutils.UiSelectorParams
 import uiautomatorutils.UiWaitUtils
 
 data class DocumentEditorPage(private val device: UiDevice) {
-    fun assertDocumentTextVisible(expectedText: String): DocumentEditorPage {
+    fun captureDocumentScreenshot(): Bitmap {
         UiWaitUtils.waitElement(UiSelectorParams(text = "Online Editor"), timeout = UiWaitUtils.VERY_LONG_TIMEOUT)
-        val document = UiWaitUtils.waitElement(UiSelectorParams(className = "android.webkit.WebView"))
-        assertRenderedDocumentContainsText(document, expectedText)
+        val document = UiWaitUtils.waitElement(UiSelectorParams(resourceId = "document-canvas"), timeout = UiWaitUtils.SHORT_TIMEOUT)
+        return captureRenderedDocumentScreenshot(document)
+    }
+
+    fun assertDocumentMatchesScreenshot(expected: Bitmap): DocumentEditorPage {
+        UiWaitUtils.waitElement(UiSelectorParams(text = "Online Editor"), timeout = UiWaitUtils.VERY_LONG_TIMEOUT)
+        val document = UiWaitUtils.waitElement(UiSelectorParams(resourceId = "document-canvas"), timeout = UiWaitUtils.SHORT_TIMEOUT)
+        assertRenderedDocumentMatchesScreenshot(document, expected)
         return this
     }
 

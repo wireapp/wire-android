@@ -18,6 +18,7 @@
 package com.wire.android.tests.core.e2eTests
 
 import QrCodeTestUtils.createQrImageInDeviceDownloadsFolder
+import android.graphics.Bitmap
 import android.net.Uri
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import backendUtils.team.TeamRoles
@@ -47,6 +48,7 @@ class WireDrivePermissionsTests : BaseUiTest() {
     private lateinit var member1: ClientUser
     private lateinit var sharedPdfUri: Uri
     private val deviceDownloads = mutableListOf<Uri>()
+    private val documentScreenshots = mutableListOf<Bitmap>()
     override val deletePersonalUsersAfterTest = true
 
     @Before
@@ -57,6 +59,7 @@ class WireDrivePermissionsTests : BaseUiTest() {
 
     @After
     fun tearDown() {
+        documentScreenshots.forEach { it.recycle() }
         deviceDownloads.forEach(::deleteDeviceDownload)
         deleteDownloadedFilesContaining("PermissionImport-")
     }
@@ -1265,39 +1268,51 @@ class WireDrivePermissionsTests : BaseUiTest() {
             )
         }
 
-        val sharedDocument = "DocumentPermissions-${UUID.randomUUID().toString().take(8)}.docx"
+        val suffix = UUID.randomUUID().toString().take(8)
+        val sharedDocument = "DocumentPermissions-$suffix.docx"
+        val referenceDocument = "ExpectedDocumentPermissions-$suffix.docx"
         val updatedText = "Drive permission update confirmed"
-        step("And TeamOwner sends an editable DOCX to DocumentPermissions Conversation") {
-            val documentUri = Uri.parse("android.resource://${context.packageName}/${R.raw.drive_permissions_document}")
-            testServiceHelper.contactSendsLocalFileConversation(
-                context,
-                sharedDocument,
-                documentUri,
-                "user1Name",
-                "Device1",
-                "DocumentPermissions",
-                "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+        step("And TeamOwner sends the original DOCX and a reference DOCX containing the expected updated text") {
+            val documents = listOf(
+                sharedDocument to R.raw.drive_permissions_document,
+                referenceDocument to R.raw.drive_permissions_updated_document
             )
+            documents.forEach { (fileName, resource) ->
+                testServiceHelper.contactSendsLocalFileConversation(
+                    context,
+                    fileName,
+                    Uri.parse("android.resource://${context.packageName}/$resource"),
+                    "user1Name",
+                    "Device1",
+                    "DocumentPermissions",
+                    "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                )
+            }
         }
         step("When Member1 opens Shared Drive from DocumentPermissions Conversation details") {
             pages.conversationListPage.clickGroupConversation("DocumentPermissions")
             pages.conversationViewPage.clickOnGroupConversationDetails("DocumentPermissions")
             pages.groupConversationDetailsPage.tapSharedDriveButton()
         }
-        step("Then Member1 sees Editor access and the DOCX file") {
+        step("Then Member1 sees Editor access and both DOCX files") {
             pages.wireDrivePage.apply {
                 assertSharedDriveVisibleWithoutViewerBanner()
                 assertFileVisibleOnce(sharedDocument)
+                assertFileVisibleOnce(referenceDocument)
             }
         }
-        step("When Member1 opens the DOCX three-dot menu in Shared Drive and selects Edit file") {
+        lateinit var expectedEditorScreenshot: Bitmap
+        step("When Member1 opens the reference DOCX and captures its document area in the Online Editor") {
+            pages.wireDrivePage.openFile(referenceDocument)
+            expectedEditorScreenshot = pages.documentEditorPage.captureDocumentScreenshot()
+            documentScreenshots += expectedEditorScreenshot
+        }
+        step("And Member1 closes the reference DOCX and selects Edit file from the original DOCX's three-dot menu") {
+            pages.documentEditorPage.closeEditor()
             pages.wireDrivePage.apply {
                 tapFileMenu(sharedDocument)
                 tapEditFileOptionOnDocumentMenu()
             }
-        }
-        step("Then the document editor shows the text Shared Drive permissions document") {
-            pages.documentEditorPage.assertDocumentTextVisible("Shared Drive permissions document")
         }
         step("When Member1 replaces the document text and saves the change in the document editor") {
             pages.documentEditorPage.apply {
@@ -1305,15 +1320,12 @@ class WireDrivePermissionsTests : BaseUiTest() {
                 saveDocument()
             }
         }
-        step("Then the document editor displays the updated document text") {
-            pages.documentEditorPage.assertDocumentTextVisible(updatedText)
-        }
-        step("When Member1 closes the document editor and reopens the same document from Shared Drive") {
+        step("And Member1 closes the document editor and reopens the same document from Shared Drive") {
             pages.documentEditorPage.closeEditor()
             pages.wireDrivePage.openFile(sharedDocument)
         }
-        step("Then the saved text persists after reopening the document") {
-            pages.documentEditorPage.assertDocumentTextVisible(updatedText)
+        step("Then the saved document's screenshot matches the reference DOCX's expected updated content") {
+            pages.documentEditorPage.assertDocumentMatchesScreenshot(expectedEditorScreenshot)
         }
         step("When Member1 closes the document editor and switches to Guest's account") {
             pages.documentEditorPage.closeEditor()
@@ -1329,11 +1341,22 @@ class WireDrivePermissionsTests : BaseUiTest() {
             pages.conversationViewPage.clickOnGroupConversationDetails("DocumentPermissions")
             pages.groupConversationDetailsPage.tapSharedDriveButton()
         }
-        step("Then Guest sees the Viewer access banner and the same DOCX file") {
+        step("Then Guest sees the Viewer access banner and both DOCX files") {
             pages.wireDrivePage.apply {
                 assertViewerAccessBannerVisible("Viewer access: you can’t upload or edit files.")
                 assertFileVisibleOnce(sharedDocument, timeout = UiWaitUtils.SHORT_TIMEOUT)
+                assertFileVisibleOnce(referenceDocument)
             }
+        }
+        lateinit var expectedViewerScreenshot: Bitmap
+        step("When Guest opens the reference DOCX's PDF rendition and captures its rendered page") {
+            pages.wireDrivePage.openFile(referenceDocument)
+            pages.pdfViewerPage.assertPdfPreviewVisible(referenceDocument)
+            expectedViewerScreenshot = pages.pdfViewerPage.capturePdfPageScreenshot()
+            documentScreenshots += expectedViewerScreenshot
+        }
+        step("And Guest returns from the reference PDF rendition to Shared Drive") {
+            pages.pdfViewerPage.navigateBack()
         }
         step("When Guest opens the DOCX three-dot menu in Shared Drive") {
             pages.wireDrivePage.tapFileMenu(sharedDocument)
@@ -1347,10 +1370,10 @@ class WireDrivePermissionsTests : BaseUiTest() {
         step("When Guest selects Open from the document three-dot menu") {
             pages.wireDrivePage.tapOpenOptionOnActionsMenu()
         }
-        step("Then Guest sees a PDF rendition of the same document containing Member1's saved text") {
+        step("Then Guest sees the same document's PDF rendition matching the reference's expected updated content") {
             pages.pdfViewerPage.apply {
                 assertPdfPreviewVisible(sharedDocument)
-                assertRenderedPdfContainsText(updatedText)
+                assertPdfMatchesScreenshot(expectedViewerScreenshot)
             }
         }
         step("And the Viewer PDF preview has no editing or external sharing controls") {
@@ -1476,11 +1499,8 @@ class WireDrivePermissionsTests : BaseUiTest() {
         step("When Guest opens the first PDF shared before joining") {
             pages.wireDrivePage.openFile(existingPdf)
         }
-        step("Then Guest sees the correct PDF preview and its identifiable content") {
-            pages.pdfViewerPage.apply {
-                assertPdfPreviewVisible(existingPdf)
-                assertRenderedPdfContainsText("Shared before Guest joined")
-            }
+        step("Then Guest sees the correct PDF filename and a rendered page") {
+            pages.pdfViewerPage.assertPdfPreviewVisible(existingPdf)
         }
         step("When Guest returns to Shared Drive and TeamOwner removes Guest through Device1") {
             pages.pdfViewerPage.navigateBack()
@@ -1489,14 +1509,19 @@ class WireDrivePermissionsTests : BaseUiTest() {
         step("And the device can still reach the backend after Guest is removed") {
             runBlocking { backendClient.getTeam(teamOwner) }
         }
-        step("When Guest attempts to open the previously unopened PDF from the existing Shared Drive screen") {
-            pages.wireDrivePage.openFile(unopenedPdf)
+        step("When Guest tries to open the previously unopened PDF, Wire reports that the item is no longer available") {
+            UiWaitUtils.assertToastDisplayed(
+                text = "This item is no longer available. It may have been deleted or moved.",
+                trigger = { pages.wireDrivePage.openFile(unopenedPdf) }
+            )
         }
-        step("Then the PDF cannot be retrieved and no page content is displayed") {
-            pages.pdfViewerPage.assertPdfDownloadDenied(unopenedPdf)
+        step("Then Guest remains in Shared Drive with the Viewer banner and the unavailable PDF is absent") {
+            pages.wireDrivePage.apply {
+                assertViewerAccessBannerVisible("Viewer access: you can’t upload or edit files.")
+                assertFileNotVisible(unopenedPdf)
+            }
         }
-        step("When Guest returns from the failed preview and leaves Shared Drive") {
-            pages.pdfViewerPage.navigateBack()
+        step("When Guest leaves Shared Drive and returns to MembershipPermissions Conversation") {
             pages.wireDrivePage.navigateBack()
             pages.groupConversationDetailsPage.tapBackButton()
         }

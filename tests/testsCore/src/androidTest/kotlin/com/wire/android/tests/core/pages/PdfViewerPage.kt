@@ -17,6 +17,7 @@
  */
 package com.wire.android.tests.core.pages
 
+import android.graphics.Bitmap
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
 import org.junit.Assert.assertFalse
@@ -32,9 +33,14 @@ data class PdfViewerPage(private val device: UiDevice) {
         return this
     }
 
-    fun assertRenderedPdfContainsText(expectedText: String): PdfViewerPage {
+    fun capturePdfPageScreenshot(): Bitmap {
         val page = UiWaitUtils.waitElement(firstPage, timeout = UiWaitUtils.VERY_LONG_TIMEOUT)
-        assertRenderedDocumentContainsText(page, expectedText)
+        return captureRenderedDocumentScreenshot(page)
+    }
+
+    fun assertPdfMatchesScreenshot(expected: Bitmap): PdfViewerPage {
+        val page = UiWaitUtils.waitElement(firstPage, timeout = UiWaitUtils.VERY_LONG_TIMEOUT)
+        assertRenderedDocumentMatchesScreenshot(page, expected)
         return this
     }
 
@@ -42,16 +48,6 @@ data class PdfViewerPage(private val device: UiDevice) {
         listOf("Edit file", "Share").forEach { action ->
             assertFalse("Viewer PDF preview exposes '$action'", device.hasObject(By.descContains(action)))
         }
-        return this
-    }
-
-    fun assertPdfDownloadDenied(fileName: String): PdfViewerPage {
-        UiWaitUtils.waitElement(UiSelectorParams(text = fileName))
-        UiWaitUtils.waitElement(
-            UiSelectorParams(text = "This document could not be downloaded."),
-            timeout = UiWaitUtils.VERY_LONG_TIMEOUT
-        )
-        assertFalse("Removed Guest can see PDF content", device.hasObject(By.desc("Page 1")))
         return this
     }
 

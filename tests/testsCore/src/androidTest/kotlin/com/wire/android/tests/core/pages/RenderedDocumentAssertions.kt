@@ -18,38 +18,40 @@
 package com.wire.android.tests.core.pages
 
 import android.graphics.Bitmap
+import android.graphics.Color
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiObject2
-import com.google.android.gms.tasks.Tasks
-import com.google.mlkit.vision.common.InputImage
-import com.google.mlkit.vision.text.TextRecognition
-import com.google.mlkit.vision.text.latin.TextRecognizerOptions
 import org.junit.Assert.assertTrue
 import uiautomatorutils.UiWaitUtils
-import java.util.concurrent.TimeUnit
 
-// Canvas-rendered document text is not exposed in the accessibility hierarchy.
-fun assertRenderedDocumentContainsText(document: UiObject2, expectedText: String) {
-    val recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
+// Crop to the document area and wait for visible content before using it as a reference.
+fun captureRenderedDocumentScreenshot(document: UiObject2): Bitmap {
+    var image: Bitmap? = null
+    val loaded = UiWaitUtils.retryUntilTimeout(UiWaitUtils.SHORT_TIMEOUT) {
+        image?.recycle()
+        val source = requireNotNull(InstrumentationRegistry.getInstrumentation().uiAutomation.takeScreenshot())
+        val screenshot = requireNotNull(source.copy(Bitmap.Config.ARGB_8888, false))
+        source.recycle()
+        val bounds = document.visibleBounds
+        val cropped = Bitmap.createBitmap(screenshot, bounds.left, bounds.top, bounds.width(), bounds.height())
+        if (cropped !== screenshot) screenshot.recycle()
+        image = cropped
+        val pixels = IntArray(cropped.width * cropped.height)
+        cropped.getPixels(pixels, 0, cropped.width, 0, 0, cropped.width, cropped.height)
+        pixels.any { Color.red(it) < 128 && Color.green(it) < 128 && Color.blue(it) < 128 }
+    }
+    if (!loaded) {
+        image?.recycle()
+        throw AssertionError("Document content is blank")
+    }
+    return requireNotNull(image)
+}
+
+fun assertRenderedDocumentMatchesScreenshot(document: UiObject2, expected: Bitmap) {
+    val actual = captureRenderedDocumentScreenshot(document)
     try {
-        val found = UiWaitUtils.retryUntilTimeout(UiWaitUtils.VERY_LONG_TIMEOUT) {
-            val screenshot = requireNotNull(InstrumentationRegistry.getInstrumentation().uiAutomation.takeScreenshot())
-            val bounds = document.visibleBounds
-            val page = Bitmap.createBitmap(screenshot, bounds.left, bounds.top, bounds.width(), bounds.height())
-            try {
-                val result = Tasks.await(
-                    recognizer.process(InputImage.fromBitmap(page, 0)),
-                    UiWaitUtils.SHORT_WAIT.inWholeSeconds,
-                    TimeUnit.SECONDS
-                )
-                result.text.replace("\n", " ").contains(expectedText)
-            } finally {
-                page.recycle()
-                screenshot.recycle()
-            }
-        }
-        assertTrue("Rendered document does not contain '$expectedText'", found)
+        assertTrue("Document screenshot does not match the expected content in the same viewer", expected.sameAs(actual))
     } finally {
-        recognizer.close()
+        actual.recycle()
     }
 }

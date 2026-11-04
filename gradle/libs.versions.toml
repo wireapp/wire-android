@@ -115,7 +115,6 @@ turbine = "1.2.1"
 robolectric = "4.16.1"
 hamcrest = "3.0"
 rules = "1.7.0"
-mlkitTextRecognition = "16.0.1"
 zxing = "3.5.2"
 zxingAndroid = "4.3.0"
 allureKotlin = "2.4.0"
@@ -312,7 +311,6 @@ androidx-test-runner = { module = "androidx.test:runner", version.ref = "android
 androidx-test-uiAutomator = { module = "androidx.test.uiautomator:uiautomator", version.ref = "androidx-test-uiAutomator" }
 androidx-test-work = { module = "androidx.work:work-testing", version.ref = "androidx-workManager" }
 androidx-benchmark-macro-junit4 = { group = "androidx.benchmark", name = "benchmark-macro-junit4", version.ref = "benchmark-macro-junit4" }
-mlkit-text-recognition = { module = "com.google.mlkit:text-recognition", version.ref = "mlkitTextRecognition" }
 zxing-core = { module = "com.google.zxing:core", version.ref = "zxing" }
 zxing-android-embedded = { module = "com.journeyapps:zxing-android-embedded", version.ref = "zxingAndroid" }
 

@@ -31,9 +31,10 @@ data class DocumentEditorPage(private val device: UiDevice) {
     }
 
     fun replaceDocumentText(text: String): DocumentEditorPage {
-        UiWaitUtils.waitElement(UiSelectorParams(text = "Edit document")).click()
-        UiWaitUtils.waitElement(UiSelectorParams(text = "Bold"))
-        UiWaitUtils.waitElement(UiSelectorParams(text = "clipboard area")).click()
+        UiWaitUtils.waitElement(UiSelectorParams(description = "Edit document")).click()
+        UiWaitUtils.waitElement(UiSelectorParams(resourceId = "bold-button"))
+        // Collabora focuses its hidden text input after a tap on the document canvas.
+        UiWaitUtils.waitElement(UiSelectorParams(resourceId = "document-canvas"), timeout = UiWaitUtils.SHORT_TIMEOUT).click()
         device.pressKeyCode(KeyEvent.KEYCODE_A, KeyEvent.META_CTRL_ON)
         device.executeShellCommand("input text ${text.replace(" ", "%s")}")
         return this

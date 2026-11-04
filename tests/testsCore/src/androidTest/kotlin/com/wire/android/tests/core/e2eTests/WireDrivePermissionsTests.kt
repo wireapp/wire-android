@@ -52,7 +52,7 @@ class WireDrivePermissionsTests : BaseUiTest() {
     @Before
     fun setUp() {
         initCommonTestHelpers()
-        device = UiAutomatorSetup.start(UiAutomatorSetup.APP_BETA)
+        device = UiAutomatorSetup.start(UiAutomatorSetup.APP_ALPHA)
     }
 
     @After

@@ -29,6 +29,7 @@ import com.wire.android.notification.MeetingReminderScheduler
 import com.wire.android.notification.WireNotificationManager
 import com.wire.android.services.SendPendingMessagesAfterForegroundSyncUseCase
 import com.wire.android.util.CurrentScreenManager
+import com.wire.android.util.userDownloadsDir
 import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.auth.AccountInfo
@@ -64,12 +65,15 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runCurrent
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.api.io.TempDir
 import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.CsvSource
 import org.junit.jupiter.params.provider.EnumSource
 import java.io.File
 import java.util.concurrent.atomic.AtomicInteger
+import kotlin.coroutines.cancellation.CancellationException
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(CoroutineTestExtension::class)
@@ -77,6 +81,9 @@ class GlobalObserversManagerTest {
 
     @TempDir
     lateinit var cacheDirectory: File
+
+    @TempDir
+    lateinit var externalDirectory: File
 
     @Test
     fun `given few valid accounts, when starting observing accounts, then create user-specific notification channels`() {
@@ -414,7 +421,85 @@ class GlobalObserversManagerTest {
         assertTrue(rendition.exists())
     }
 
-    private class Arrangement(private val cacheDirectory: File = File("unused-cache")) {
+    @ParameterizedTest
+    @CsvSource(
+        "SELF_HARD_LOGOUT, false, false, true",
+        "REMOVED_CLIENT, true, false, true",
+        "REMOVED_CLIENT, false, true, false",
+        "DELETED_ACCOUNT, true, false, true",
+        "DELETED_ACCOUNT, false, false, false",
+        "SESSION_EXPIRED, false, true, true",
+        "SESSION_EXPIRED, true, false, false",
+        "SELF_SOFT_LOGOUT, true, true, false",
+        "MIGRATION_TO_CC_FAILED, true, true, false",
+    )
+    fun `given a logout, when it happens, then delete only that user's cells downloads if the data is wiped`(
+        reason: LogoutReason,
+        wipeOnDeviceRemoval: Boolean,
+        wipeOnCookieInvalid: Boolean,
+        expectDeleted: Boolean
+    ) = runTestWithCancellation {
+        val userId = TestUser.SELF_USER.id
+        val otherUserId = userId.copy(value = "other-user")
+        val userFile = externalDirectory.userDownloadsDir(userId).resolve("conversation/uuid/report.pdf").withContent()
+        val otherUserFile = externalDirectory.userDownloadsDir(otherUserId).resolve("conversation/uuid/report.pdf").withContent()
+        val (arrangement, manager) = Arrangement(cacheDirectory, externalDirectory)
+            .withWipeConfig(wipeOnDeviceRemoval, wipeOnCookieInvalid)
+            .arrange()
+        manager.observe()
+        runCurrent()
+
+        arrangement.logoutCallback.invoke(userId, reason)
+
+        assertEquals(!expectDeleted, userFile.exists())
+        assertTrue(otherUserFile.exists())
+    }
+
+    @Test
+    fun `given clearing the user data store fails, when a logout wipes data, then the files are still deleted`() =
+        runTestWithCancellation {
+            val userId = TestUser.SELF_USER.id
+            val userFile = externalDirectory.userDownloadsDir(userId).resolve("conversation/uuid/report.pdf").withContent()
+            val sharedFile = File(cacheDirectory, "file-provider-shares").apply(File::mkdirs).resolve("image_attachment.jpg").withContent()
+            val rendition = File(cacheDirectory, "pdf-renditions").apply(File::mkdirs).resolve("asset-id.pdf").withContent()
+            val (arrangement, manager) = Arrangement(cacheDirectory, externalDirectory)
+                .withFailingUserDataStoreClear()
+                .arrange()
+            manager.observe()
+            runCurrent()
+
+            arrangement.logoutCallback.invoke(userId, LogoutReason.SELF_HARD_LOGOUT)
+
+            assertFalse(userFile.exists())
+            assertFalse(sharedFile.exists())
+            assertFalse(rendition.exists())
+        }
+
+    @Test
+    fun `given the coroutine is cancelled during a cleanup step, when a logout wipes data, then the cancellation is rethrown and later steps do not run`() =
+        runTestWithCancellation {
+            val userId = TestUser.SELF_USER.id
+            val userFile = externalDirectory.userDownloadsDir(userId).resolve("conversation/uuid/report.pdf").withContent()
+            val (arrangement, manager) = Arrangement(cacheDirectory, externalDirectory)
+                .withUserDataStoreClearThrowing(CancellationException("cancelled"))
+                .arrange()
+            manager.observe()
+            runCurrent()
+
+            assertThrows<CancellationException> { arrangement.logoutCallback.invoke(userId, LogoutReason.SELF_HARD_LOGOUT) }
+
+            assertTrue(userFile.exists())
+        }
+
+    private fun File.withContent() = apply {
+        parentFile?.mkdirs()
+        writeText("content")
+    }
+
+    private class Arrangement(
+        private val cacheDirectory: File = File("unused-cache"),
+        private val externalDirectory: File = File("unused-external"),
+    ) {
 
         private val logoutCallbackSlot = slot<LogoutCallback>()
         val logoutCallback: LogoutCallback get() = logoutCallbackSlot.captured
@@ -459,10 +544,16 @@ class GlobalObserversManagerTest {
         lateinit var meetingReminderScheduler: MeetingReminderScheduler
 
         private var pendingMessagesEnabled = true
+        private var wipeOnDeviceRemoval = false
+        private var wipeOnCookieInvalid = false
 
         private val manager by lazy {
             GlobalObserversManager(
-                context = mockk<Context> { every { cacheDir } returns cacheDirectory },
+                context = mockk<Context> {
+                    every { cacheDir } returns cacheDirectory
+                    every { getExternalFilesDir(null) } returns externalDirectory
+                    every { filesDir } returns File("unused-files")
+                },
                 dispatcherProvider = TestDispatcherProvider(),
                 coreLogic = coreLogic,
                 notificationChannelsManager = notificationChannelsManager,
@@ -472,7 +563,11 @@ class GlobalObserversManagerTest {
                 currentScreenManager = currentScreenManager,
                 sendPendingMessagesAfterForegroundSync = sendPendingMessagesAfterForegroundSync,
                 networkStateObserver = networkStateObserver,
-                kaliumConfigs = KaliumConfigs(pendingMessages = pendingMessagesEnabled),
+                kaliumConfigs = KaliumConfigs(
+                    pendingMessages = pendingMessagesEnabled,
+                    wipeOnDeviceRemoval = wipeOnDeviceRemoval,
+                    wipeOnCookieInvalid = wipeOnCookieInvalid,
+                ),
             )
         }
 
@@ -532,6 +627,19 @@ class GlobalObserversManagerTest {
 
         fun withAppVisibleFlow(flow: MutableStateFlow<Boolean>) = apply {
             coEvery { currentScreenManager.isAppVisibleFlow() } returns flow
+        }
+
+        fun withWipeConfig(onDeviceRemoval: Boolean, onCookieInvalid: Boolean) = apply {
+            wipeOnDeviceRemoval = onDeviceRemoval
+            wipeOnCookieInvalid = onCookieInvalid
+        }
+
+        fun withFailingUserDataStoreClear() = apply {
+            withUserDataStoreClearThrowing(IllegalStateException("clear failed"))
+        }
+
+        fun withUserDataStoreClearThrowing(exception: Throwable) = apply {
+            coEvery { userDataStoreProvider.getOrCreate(any()).clear() } throws exception
         }
 
         fun withPendingMessagesDisabled() = apply {

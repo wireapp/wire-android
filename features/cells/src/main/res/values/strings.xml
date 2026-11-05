@@ -391,4 +391,5 @@
     <string name="cells_empty_recycle_bin_failure_title">Recycle bin not emptied</string>
     <string name="cells_empty_recycle_bin_failure_message">Something went wrong while emptying the recycle bin. Some items may have been permanently deleted, so check the recycle bin before trying again.</string>
     <string name="cells_empty_recycle_bin_failure_message_no_network">The connection was lost while emptying the recycle bin. Some items may have been permanently deleted, so check the recycle bin before trying again.</string>
+    <string name="cells_bulk_action_remove_offline">Remove offline</string>
 </resources>

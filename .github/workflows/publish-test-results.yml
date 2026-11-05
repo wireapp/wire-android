@@ -49,20 +49,6 @@ jobs:
 
             - uses: fregante/setup-git-user@024bc0b8e177d7e77203b48dab6fb45666854b35 # v2
 
-            - name: Post link to apks
-              if: github.event.workflow_run.conclusion == 'success'
-              env:
-                  EVENT_FILE_PATH: artifacts/Event File/event.json
-                  GITHUB_USER: ${{ github.actor }}
-                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-                  # Get the PR number based on the event file uploaded by the test workflow.
-                  # The event file is a JSON containing the data of the event that triggered the tests.
-                  # In this case, it will contain information about the PR.
-              run: |
-                  CHECKS_LINK="https://github.com/wireapp/wire-android/actions/runs/${{ github.event.workflow_run.id }}"
-                  PR_NUMBER=$(jq --raw-output .pull_request.number "$EVENT_FILE_PATH")
-                  gh pr comment "$PR_NUMBER" --body "APKs built during tests are available [here]($CHECKS_LINK). Scroll down to **Artifacts**!"
-
             - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
               with:
                   node-version: 24

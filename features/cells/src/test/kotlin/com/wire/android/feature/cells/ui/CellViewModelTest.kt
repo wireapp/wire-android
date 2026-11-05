@@ -71,6 +71,7 @@ import com.wire.kalium.common.functional.left
 import com.wire.kalium.common.functional.right
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
+import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.conversation.IsSelfUserViewerOnConversationUseCase
 import com.wire.kalium.logic.featureFlags.KaliumConfigs
 import com.wire.kalium.network.NetworkState
@@ -1787,6 +1788,7 @@ class CellViewModelTest {
                 download = downloadCellFileUseCase,
                 fileHelper = fileHelper,
                 sharedPathCache = sharedPathCache,
+                userId = UserId("user-id", "wire.com"),
             )
 
             val offlineFileDownloadController = OfflineFileDownloadController(
@@ -1794,6 +1796,7 @@ class CellViewModelTest {
                 fileHelper = fileHelper,
                 saveOfflineFile = saveOfflineFile,
                 sharedPathCache = sharedPathCache,
+                userId = UserId("user-id", "wire.com"),
             )
 
             return this to CellViewModel(
@@ -1835,6 +1838,7 @@ class CellViewModelTest {
                 drivePermissionsEnabled = true,
                 driveDirectUploadEnabled = true,
                 driveBulkActionsEnabled = true,
+                driveOfflineEnabled = true,
             )
         }
     }

@@ -17,7 +17,10 @@
  */
 package com.wire.android.tests.core.pages
 
+import android.graphics.Bitmap
+import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
+import org.junit.Assert.assertFalse
 import uiautomatorutils.UiSelectorParams
 import uiautomatorutils.UiWaitUtils
 
@@ -27,6 +30,24 @@ data class PdfViewerPage(private val device: UiDevice) {
     fun assertPdfPreviewVisible(fileName: String): PdfViewerPage {
         UiWaitUtils.waitElement(UiSelectorParams(text = fileName))
         UiWaitUtils.waitElement(firstPage, timeout = UiWaitUtils.VERY_LONG_TIMEOUT)
+        return this
+    }
+
+    fun capturePdfPageScreenshot(): Bitmap {
+        val page = UiWaitUtils.waitElement(firstPage, timeout = UiWaitUtils.VERY_LONG_TIMEOUT)
+        return captureRenderedDocumentScreenshot(page)
+    }
+
+    fun assertPdfMatchesScreenshot(expected: Bitmap): PdfViewerPage {
+        val page = UiWaitUtils.waitElement(firstPage, timeout = UiWaitUtils.VERY_LONG_TIMEOUT)
+        assertRenderedDocumentMatchesScreenshot(page, expected)
+        return this
+    }
+
+    fun assertViewerPdfHasNoEditOrShareControls(): PdfViewerPage {
+        listOf("Edit file", "Share").forEach { action ->
+            assertFalse("Viewer PDF preview exposes '$action'", device.hasObject(By.descContains(action)))
+        }
         return this
     }
 

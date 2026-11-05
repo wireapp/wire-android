@@ -71,6 +71,7 @@ fun CommonTopAppBar(
     onReturnToCallClick: (ConnectivityUIState.Call.Established) -> Unit,
     onReturnToIncomingCallClick: (ConnectivityUIState.Call.Incoming) -> Unit,
     onReturnToOutgoingCallClick: (ConnectivityUIState.Call.Outgoing) -> Unit,
+    onRetrySyncClick: () -> Unit,
     modifier: Modifier = Modifier,
     animateContentSize: Boolean = true,
 ) {
@@ -98,6 +99,7 @@ fun CommonTopAppBar(
             onReturnToCallClick = onReturnToCallClick,
             onReturnToIncomingCallClick = onReturnToIncomingCallClick,
             onReturnToOutgoingCallClick = onReturnToOutgoingCallClick,
+            onRetrySyncClick = onRetrySyncClick,
             animateContentSize = animateContentSize,
         )
     }
@@ -137,6 +139,7 @@ private fun ConnectivityStatusBar(
     onReturnToCallClick: (ConnectivityUIState.Call.Established) -> Unit,
     onReturnToIncomingCallClick: (ConnectivityUIState.Call.Incoming) -> Unit,
     onReturnToOutgoingCallClick: (ConnectivityUIState.Call.Outgoing) -> Unit,
+    onRetrySyncClick: () -> Unit,
     modifier: Modifier = Modifier,
     animateContentSize: Boolean = true,
 ) {
@@ -145,7 +148,14 @@ private fun ConnectivityStatusBar(
             .let {
                 if (animateContentSize) it.animateContentSize() else it
             }
-            .fillMaxWidth(),
+            .fillMaxWidth()
+            .let {
+                if (connectivityInfo is ConnectivityUIState.WaitingConnection) {
+                    it.clickable(onClickLabel = stringResource(R.string.label_retry), onClick = onRetrySyncClick)
+                } else {
+                    it
+                }
+            },
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
@@ -408,7 +418,7 @@ private fun PreviewCommonTopAppBar(
     EdgeToEdgePreview(
         useDarkIcons = MaterialTheme.wireColorScheme.getStatusBarUseDarkIcons(getColorType(connectivityUIState, backgroundType))
     ) {
-        CommonTopAppBar(CommonTopAppBarState(connectivityUIState), backgroundType, {}, {}, {})
+        CommonTopAppBar(CommonTopAppBarState(connectivityUIState), backgroundType, {}, {}, {}, {})
         content()
     }
 }

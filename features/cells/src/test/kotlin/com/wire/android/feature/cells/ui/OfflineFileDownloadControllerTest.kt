@@ -26,10 +26,12 @@ import com.wire.kalium.common.error.NetworkFailure
 import com.wire.kalium.common.error.StorageFailure
 import com.wire.kalium.common.functional.left
 import com.wire.kalium.common.functional.right
+import com.wire.kalium.logic.data.user.UserId
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.impl.annotations.MockK
+import io.mockk.slot
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -118,6 +120,23 @@ class OfflineFileDownloadControllerTest {
         coVerify(exactly = 1) {
             arrangement.downloadUseCase(eq(testFile.uuid), any(), any(), any(), any(), any(), any(), any())
         }
+    }
+
+    @Test
+    fun givenDownloadStarted_whenStartCalled_thenFileIsWrittenUnderUserFolder() = runTest {
+        val (arrangement, controller) = Arrangement()
+            .withDownloadSuccess()
+            .arrange()
+        val outPath = slot<okio.Path>()
+        coEvery {
+            arrangement.downloadUseCase(any(), any(), capture(outPath), any(), any(), any(), any(), any())
+        } returns Unit.right()
+
+        controller.start(scope = this, cellNode = testFile, onSuccess = {}, onError = {})
+        advanceUntilIdle()
+
+        val expected = File(arrangement.externalFilesDir, "wire.com/user-id/cells/conversation-id/test-uuid/report.pdf")
+        assertEquals(expected.absolutePath, outPath.captured.toString())
     }
 
     @Test
@@ -397,6 +416,7 @@ class OfflineFileDownloadControllerTest {
             fileHelper = fileHelper,
             saveOfflineFile = saveOfflineFile,
             sharedPathCache = sharedPathCache,
+            userId = UserId("user-id", "wire.com"),
         )
     }
 }

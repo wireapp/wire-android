@@ -162,6 +162,8 @@ class BackupAndRestoreViewModel @Inject constructor(
         updateLastBackupDate()
         latestCreatedBackup?.let { backupData ->
             fileManager.copyToUri(backupData.path, uri, dispatcher)
+            deleteCreateWorkdir(backupData.path)
+            latestCreatedBackup = null
         }
         state = state.copy(
             backupRestoreProgress = BackupRestoreProgress.InProgress(),
@@ -301,6 +303,16 @@ class BackupAndRestoreViewModel @Inject constructor(
         }
     }
 
+    private suspend fun deleteCreateWorkdir(archivePath: Path) = withContext(dispatcher.io()) {
+        val workdir = archivePath.parent ?: return@withContext
+        if (!workdir.name.endsWith(CREATE_WORKDIR_SUFFIX)) return@withContext
+        try {
+            if (kaliumFileSystem.exists(workdir)) kaliumFileSystem.deleteContents(workdir)
+        } catch (exception: IOException) {
+            appLogger.e("Failed to delete created backup folder", exception)
+        }
+    }
+
     private suspend fun deleteImportedBackupFileSafely() {
         try {
             deleteImportedBackupFile()
@@ -356,5 +368,6 @@ class BackupAndRestoreViewModel @Inject constructor(
     internal companion object {
         const val TEMP_IMPORTED_BACKUP_FILE_NAME = "tempImportedBackup.zip"
         const val SMALL_DELAY = 300L
+        const val CREATE_WORKDIR_SUFFIX = "-create-workdir"
     }
 }

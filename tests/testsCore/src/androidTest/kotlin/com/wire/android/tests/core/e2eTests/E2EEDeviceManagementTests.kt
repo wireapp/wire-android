@@ -25,6 +25,7 @@ import com.wire.android.tests.core.BaseUiTest
 import com.wire.android.tests.support.UiAutomatorSetup
 import com.wire.android.tests.support.tags.Category
 import com.wire.android.tests.support.tags.TestCaseId
+import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -196,6 +197,110 @@ class E2EEDeviceManagementTests : BaseUiTest() {
                 assertCurrentDeviceVisible()
                 assertCurrentDeviceIdAndAddedDateVisible()
             }
+        }
+    }
+
+    @Suppress("CyclomaticComplexMethod", "LongMethod")
+    @TestCaseId("TC-4326")
+    @Category("E2EEDeviceManagement")
+    @Test
+    fun givenSevenRegisteredDevices_whenRemovingDeviceWithWrongPassword_thenDeviceRemainsAndLoginIsBlocked() {
+        step("Given There is a team owner TeamOwner with team DeviceManagement") {
+            backendSetupHelper.createTeamOwnerByAlias(
+                "user1Name",
+                "DeviceManagement",
+                "en_US",
+                true,
+                backendClient,
+                context
+            )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "DeviceManagement", backendClient)
+        }
+
+        step("And User TeamOwner adds Member1 to team DeviceManagement with role Member") {
+            backendSetupHelper.userXAddsUsersToTeam(
+                "user1Name",
+                "user2Name",
+                "DeviceManagement",
+                TeamRoles.Member,
+                backendClient,
+                context,
+                true
+            )
+        }
+
+        step("And User TeamOwner has 1:1 conversation with Member1 in team DeviceManagement") {
+            backendSetupHelper.userHas1on1ConversationInTeam(
+                "user1Name",
+                "user2Name",
+                "DeviceManagement"
+            )
+        }
+
+        step("And User Member1 adds 6 more devices named Device2 to Device7") {
+            // The 1:1 conversation setup already registers Device1.
+            for (index in 2..7) {
+                testServiceHelper.addDevice("user2Name", null, "Device$index")
+            }
+        }
+
+        step("And User Member1 is me and has 7 registered devices") {
+            member1 = clientUserManager.findUserByNameOrNameAlias("user2Name")
+            clientUserManager.setSelfUser(member1)
+            assertEquals(7, backendClient.getBackendClientIds(member1).size)
+        }
+
+        step("And I see email verification Welcome Page") {
+            pages.registrationPage.assertEmailWelcomePage()
+        }
+
+        step("And I open staging backend and sign in as Member1 until Remove a Device is displayed") {
+            pages.loginPage.apply {
+                clickStagingDeepLink()
+                clickProceedButtonOnDeeplinkOverlay()
+                clickContinueButtonOnBackendConfigSuccess()
+                enterUserIdentifier(member1.email ?: "")
+                clickLoginButton()
+                assertUserLoginScreenVisible()
+                enterUserPassword(member1.password ?: "")
+                clickLoginButton()
+                assertRemoveDeviceScreenVisible()
+                assertRemoveDeviceListVisible()
+            }
+        }
+
+        step("When I tap the Remove device button for Device7") {
+            pages.loginPage.clickRemoveDeviceButton("Device7")
+        }
+
+        step("Then I see the remove-device dialog with Device7's name, ID and added date") {
+            pages.loginPage.apply {
+                assertRemoveDeviceDialogVisible()
+                assertRemoveDeviceDetailsVisible(
+                    "Device7",
+                    backendClient.getBackendClientIds(member1, "Device7").single()
+                )
+            }
+        }
+
+        step("When I enter an invalid password and tap Remove") {
+            pages.loginPage.apply {
+                enterRemoveDevicePassword("${member1.password}InvalidPassword")
+                confirmRemoveDevice()
+            }
+        }
+
+        step("Then I see Invalid password, the remove-device dialog remains open and the conversation list is not visible") {
+            pages.loginPage.apply {
+                assertRemoveDeviceInvalidPasswordVisible()
+                assertRemoveDeviceDialogVisible()
+            }
+            pages.conversationListPage.assertConversationListNotVisible()
+        }
+
+        step("And Device7 and all 7 devices remain registered for Member1") {
+            assertEquals(1, backendClient.getBackendClientIds(member1, "Device7").size)
+            assertEquals(7, backendClient.getBackendClientIds(member1).size)
         }
     }
 

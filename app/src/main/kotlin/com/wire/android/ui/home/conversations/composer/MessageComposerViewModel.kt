@@ -61,6 +61,7 @@ import com.wire.kalium.logic.feature.user.IsFileSharingEnabledUseCase
 import dev.zacsweers.metro.Assisted
 import dev.zacsweers.metro.AssistedFactory
 import dev.zacsweers.metro.AssistedInject
+import dev.zacsweers.metro.Named
 import kotlin.time.Instant
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.NonCancellable
@@ -94,6 +95,8 @@ class MessageComposerViewModel @AssistedInject constructor(
     private val observeEstablishedCalls: ObserveEstablishedCallsUseCase,
     private val globalDataStore: GlobalDataStore,
     private val isSelfUserViewerOnConversation: IsSelfUserViewerOnConversationUseCase,
+    /** When disabled, @all is never offered in mention suggestions (not every client supports it yet). */
+    @Named("everyoneMentionEnabled") private val everyoneMentionEnabled: Boolean,
     @Assisted navigationArgs: ConversationNavArgs,
 ) : ViewModel() {
 
@@ -182,21 +185,18 @@ class MessageComposerViewModel @AssistedInject constructor(
     fun searchMembersToMention(searchQuery: String) {
         mentionSearchJob?.cancel()
         mentionSearchJob = viewModelScope.launch {
-            val (members, isGroup) = withContext(dispatchers.io()) {
+            val (members, showEveryoneMention) = withContext(dispatchers.io()) {
                 val members = membersToMention(conversationId, searchQuery).map {
                     contactMapper.fromOtherUser(it.user as OtherUser)
                 }
-                val conversation = observeConversationDetails(conversationId).first()
-                val isGroup = (conversation as? ObserveConversationDetailsUseCase.Result.Success)
-                    ?.conversationDetails is ConversationDetails.Group
-                members to isGroup
+                members to shouldSuggestEveryoneMention(searchQuery)
             }
 
             messageComposerViewState.value =
                 messageComposerViewState.value.copy(
                     mentionSearchResult = members,
                     mentionSearchQuery = searchQuery,
-                    showEveryoneMentionSuggestion = isGroup && "all".startsWith(searchQuery, ignoreCase = true),
+                    showEveryoneMentionSuggestion = showEveryoneMention,
                 )
         }
     }
@@ -209,6 +209,12 @@ class MessageComposerViewModel @AssistedInject constructor(
                 mentionSearchQuery = String.EMPTY,
                 showEveryoneMentionSuggestion = false,
             )
+    }
+
+    private suspend fun shouldSuggestEveryoneMention(searchQuery: String): Boolean {
+        if (!everyoneMentionEnabled || !"all".startsWith(searchQuery, ignoreCase = true)) return false
+        val conversation = observeConversationDetails(conversationId).first()
+        return (conversation as? ObserveConversationDetailsUseCase.Result.Success)?.conversationDetails is ConversationDetails.Group
     }
 
     private fun setFileSharingStatus() {

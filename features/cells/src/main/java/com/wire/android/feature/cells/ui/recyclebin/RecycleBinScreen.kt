@@ -197,12 +197,4 @@ internal fun RecycleBinRouteScreen(
             onDismiss = { cellViewModel.sendIntent(CellViewIntent.OnEmptyRecycleBinDialogDismissed) },
         )
     }
-
-    bulkRestoreDialog?.let { dialog ->
-        BulkRestoreDialogs(
-            dialog = dialog,
-            onConfirm = { cellViewModel.sendIntent(CellViewIntent.OnBulkRestoreConfirmed) },
-            onDismiss = { cellViewModel.sendIntent(CellViewIntent.OnBulkRestoreDialogDismissed) },
-        )
-    }
 }

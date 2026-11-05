@@ -155,6 +155,10 @@ object AppModule {
     fun provideInAppImageViewerEnabled(): Boolean = BuildConfig.IN_APP_IMAGE_VIEWER_ENABLED
 
     @Provides
+    @Named("everyoneMentionEnabled")
+    fun provideEveryoneMentionEnabled(): Boolean = BuildConfig.EVERYONE_MENTION_ENABLED
+
+    @Provides
     fun provideGetMediaMetadataUseCase(): GetMediaMetadataUseCase = GetMediaMetadataUseCaseImpl()
 
     @Provides

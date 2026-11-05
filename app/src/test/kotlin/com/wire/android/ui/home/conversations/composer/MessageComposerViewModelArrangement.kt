@@ -186,7 +186,8 @@ internal class MessageComposerViewModelArrangement {
             currentSessionFlowUseCase = currentSessionFlowUseCase,
             observeEstablishedCalls = observeEstablishedCalls,
             globalDataStore = globalDataStore,
-            isSelfUserViewerOnConversation = isSelfUserViewerOnConversationUseCase
+            isSelfUserViewerOnConversation = isSelfUserViewerOnConversationUseCase,
+            everyoneMentionEnabled = true,
         )
     }
 

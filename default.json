@@ -42,7 +42,8 @@
             "link_preview_enabled": true,
             "drive_direct_upload_enabled": true,
             "drive_offline_enabled": true,
-            "meetings_guests_links_enabled": true
+            "meetings_guests_links_enabled": true,
+            "everyone_mention_enabled": true
         },
         "beta": {
             "application_id": "com.wire.android.internal",
@@ -162,5 +163,6 @@
     "drive_direct_upload_enabled": true,
     "drive_bulk_actions_enabled": true,
     "drive_offline_enabled": false,
-    "meetings_guests_links_enabled": false
+    "meetings_guests_links_enabled": false,
+    "everyone_mention_enabled": false
 }

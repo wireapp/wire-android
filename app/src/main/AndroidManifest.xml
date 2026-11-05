@@ -355,6 +355,11 @@
             android:foregroundServiceType="dataSync" />
 
         <service
+            android:name=".services.OfflineDownloadService"
+            android:exported="false"
+            android:foregroundServiceType="dataSync" />
+
+        <service
             android:name=".services.CallService"
             android:exported="false"
             android:foregroundServiceType="phoneCall|microphone" />

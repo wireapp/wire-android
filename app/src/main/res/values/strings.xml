@@ -1108,6 +1108,24 @@
     </plurals>
     <string name="notification_drive_upload_action_cancel_all">Cancel all</string>
     <string name="notification_drive_upload_action_retry">Retry</string>
+    <string name="notification_offline_download_preparing_title">Saving files for offline use…</string>
+    <plurals name="notification_offline_download_title">
+        <item quantity="one">Saving %1$d file for offline use</item>
+        <item quantity="other">Saving %1$d files for offline use</item>
+    </plurals>
+    <string name="notification_offline_download_progress_text">%1$d of %2$d saved</string>
+    <string name="notification_offline_download_action_cancel">Cancel</string>
+    <string name="notification_offline_download_complete_title">Saved for offline use</string>
+    <plurals name="notification_offline_download_complete_text">
+        <item quantity="one">%1$d file saved for offline use</item>
+        <item quantity="other">%1$d files saved for offline use</item>
+    </plurals>
+    <string name="notification_offline_download_partial_title">%1$d of %2$d files saved for offline use</string>
+    <plurals name="notification_offline_download_failed_text">
+        <item quantity="one">%1$d file couldn\'t be saved</item>
+        <item quantity="other">%1$d files couldn\'t be saved</item>
+    </plurals>
+    <string name="notification_offline_download_no_storage_title">Not enough storage</string>
     <!-- Calling-->
     <string name="calling_constant_bit_rate_indication">Constant Bit Rate</string>
     <string name="calling_button_label_microphone">Microphone</string>

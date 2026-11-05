@@ -33,6 +33,8 @@ import com.wire.android.feature.cells.ui.model.NodeBottomSheetAction
 import com.wire.android.feature.cells.ui.model.OpenLoadState
 import com.wire.android.feature.cells.ui.model.pdfRenditionUrl
 import com.wire.android.feature.cells.ui.model.toUiModel
+import com.wire.android.feature.cells.ui.offline.AccountOfflineDownloads
+import com.wire.android.feature.cells.ui.offline.SessionOfflineDownloads
 import com.wire.android.feature.cells.ui.search.DriveSearchScreenType
 import com.wire.android.feature.cells.ui.search.SearchNavArgs
 import com.wire.android.feature.cells.ui.search.sort.SortCriteriaNavArg
@@ -80,6 +82,7 @@ import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -1657,6 +1660,14 @@ class CellViewModelTest {
                 saveOfflineFile = saveOfflineFile,
                 sharedPathCache = sharedPathCache,
             )
+            // Runs on Main, the test dispatcher, like the app-wide OfflineDownloadManager does.
+            val offlineDownloads = SessionOfflineDownloads(
+                AccountOfflineDownloads(
+                    scope = CoroutineScope(Dispatchers.Main),
+                    controller = offlineFileDownloadController,
+                    pathCache = sharedPathCache,
+                )
+            )
 
             return this to CellViewModel(
                 navArgs = CellFilesNavArgs(
@@ -1678,7 +1689,7 @@ class CellViewModelTest {
                 getWireCellsConfig = getWireCellsConfig,
                 sharedPathCache = sharedPathCache,
                 openFileDownloadController = openFileDownloadController,
-                offlineFileDownloadController = offlineFileDownloadController,
+                offlineDownloads = offlineDownloads,
                 observeOfflineFiles = observeOfflineFiles,
                 deleteOfflineFile = deleteOfflineFile,
                 getOfflineFile = getOfflineFile,

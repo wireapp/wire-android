@@ -3094,7 +3094,7 @@ private fun com.wire.android.ui.common.topappbar.CameraIcon(tint: androidx.compo
     - tint: STABLE (marked @Stable or @Immutable)
 
 @Composable
-public fun com.wire.android.ui.common.topappbar.CommonTopAppBar(commonTopAppBarState: com.wire.android.ui.common.topappbar.CommonTopAppBarState, backgroundType: com.wire.android.navigation.style.BackgroundType, onReturnToCallClick: kotlin.Function1<com.wire.android.ui.common.topappbar.ConnectivityUIState.Call.Established, kotlin.Unit>, onReturnToIncomingCallClick: kotlin.Function1<com.wire.android.ui.common.topappbar.ConnectivityUIState.Call.Incoming, kotlin.Unit>, onReturnToOutgoingCallClick: kotlin.Function1<com.wire.android.ui.common.topappbar.ConnectivityUIState.Call.Outgoing, kotlin.Unit>, modifier: androidx.compose.ui.Modifier, animateContentSize: kotlin.Boolean): kotlin.Unit
+public fun com.wire.android.ui.common.topappbar.CommonTopAppBar(commonTopAppBarState: com.wire.android.ui.common.topappbar.CommonTopAppBarState, backgroundType: com.wire.android.navigation.style.BackgroundType, onReturnToCallClick: kotlin.Function1<com.wire.android.ui.common.topappbar.ConnectivityUIState.Call.Established, kotlin.Unit>, onReturnToIncomingCallClick: kotlin.Function1<com.wire.android.ui.common.topappbar.ConnectivityUIState.Call.Incoming, kotlin.Unit>, onReturnToOutgoingCallClick: kotlin.Function1<com.wire.android.ui.common.topappbar.ConnectivityUIState.Call.Outgoing, kotlin.Unit>, onRetrySyncClick: kotlin.Function0<kotlin.Unit>, modifier: androidx.compose.ui.Modifier, animateContentSize: kotlin.Boolean): kotlin.Unit
   skippable: true
   restartable: true
   params:
@@ -3103,11 +3103,12 @@ public fun com.wire.android.ui.common.topappbar.CommonTopAppBar(commonTopAppBarS
     - onReturnToCallClick: STABLE (function type)
     - onReturnToIncomingCallClick: STABLE (function type)
     - onReturnToOutgoingCallClick: STABLE (function type)
+    - onRetrySyncClick: STABLE (function type)
     - modifier: STABLE (marked @Stable or @Immutable)
     - animateContentSize: STABLE (primitive type)
 
 @Composable
-private fun com.wire.android.ui.common.topappbar.ConnectivityStatusBar(connectivityInfo: com.wire.android.ui.common.topappbar.ConnectivityUIState, networkState: com.wire.kalium.network.NetworkState, onReturnToCallClick: kotlin.Function1<com.wire.android.ui.common.topappbar.ConnectivityUIState.Call.Established, kotlin.Unit>, onReturnToIncomingCallClick: kotlin.Function1<com.wire.android.ui.common.topappbar.ConnectivityUIState.Call.Incoming, kotlin.Unit>, onReturnToOutgoingCallClick: kotlin.Function1<com.wire.android.ui.common.topappbar.ConnectivityUIState.Call.Outgoing, kotlin.Unit>, modifier: androidx.compose.ui.Modifier, animateContentSize: kotlin.Boolean): kotlin.Unit
+private fun com.wire.android.ui.common.topappbar.ConnectivityStatusBar(connectivityInfo: com.wire.android.ui.common.topappbar.ConnectivityUIState, networkState: com.wire.kalium.network.NetworkState, onReturnToCallClick: kotlin.Function1<com.wire.android.ui.common.topappbar.ConnectivityUIState.Call.Established, kotlin.Unit>, onReturnToIncomingCallClick: kotlin.Function1<com.wire.android.ui.common.topappbar.ConnectivityUIState.Call.Incoming, kotlin.Unit>, onReturnToOutgoingCallClick: kotlin.Function1<com.wire.android.ui.common.topappbar.ConnectivityUIState.Call.Outgoing, kotlin.Unit>, onRetrySyncClick: kotlin.Function0<kotlin.Unit>, modifier: androidx.compose.ui.Modifier, animateContentSize: kotlin.Boolean): kotlin.Unit
   skippable: true
   restartable: true
   params:
@@ -3116,6 +3117,7 @@ private fun com.wire.android.ui.common.topappbar.ConnectivityStatusBar(connectiv
     - onReturnToCallClick: STABLE (function type)
     - onReturnToIncomingCallClick: STABLE (function type)
     - onReturnToOutgoingCallClick: STABLE (function type)
+    - onRetrySyncClick: STABLE (function type)
     - modifier: STABLE (marked @Stable or @Immutable)
     - animateContentSize: STABLE (primitive type)
 
@@ -3195,11 +3197,12 @@ private fun com.wire.android.ui.common.topappbar.WaitingStatusLabelInternal(conn
     - waitingStatus: STABLE (composable function type)
 
 @Composable
-public fun com.wire.android.ui.common.topappbar.WireTopAppBar(commonTopAppBarState: com.wire.android.ui.common.topappbar.CommonTopAppBarState, modifier: androidx.compose.ui.Modifier, backgroundType: com.wire.android.navigation.style.BackgroundType, animateContentSize: kotlin.Boolean): kotlin.Unit
+public fun com.wire.android.ui.common.topappbar.WireTopAppBar(commonTopAppBarState: com.wire.android.ui.common.topappbar.CommonTopAppBarState, onRetrySyncClick: kotlin.Function0<kotlin.Unit>, modifier: androidx.compose.ui.Modifier, backgroundType: com.wire.android.navigation.style.BackgroundType, animateContentSize: kotlin.Boolean): kotlin.Unit
   skippable: true
   restartable: true
   params:
     - commonTopAppBarState: UNSTABLE (has mutable properties or unstable members)
+    - onRetrySyncClick: STABLE (function type)
     - modifier: STABLE (marked @Stable or @Immutable)
     - backgroundType: STABLE (class with no mutable properties)
     - animateContentSize: STABLE (primitive type)

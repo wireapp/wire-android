@@ -1,6 +1,8 @@
 package com.wire.android.ui.markdown
 
-import org.junit.jupiter.api.Assertions.assertEquals
+import com.wire.android.util.ui.UIText
+import com.wire.kalium.logic.data.message.mention.MessageMention
+import com.wire.kalium.logic.data.user.UserId
 import org.commonmark.ext.gfm.strikethrough.Strikethrough
 import org.commonmark.ext.gfm.tables.TableBlock
 import org.commonmark.ext.gfm.tables.TableBody
@@ -24,14 +26,12 @@ import org.commonmark.node.Paragraph
 import org.commonmark.node.StrongEmphasis
 import org.commonmark.node.Text
 import org.commonmark.node.ThematicBreak
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
-import com.wire.android.util.ui.UIText
-import com.wire.kalium.logic.data.message.mention.MessageMention
-import com.wire.kalium.logic.data.user.UserId
 
 class MarkdownHelperTest {
 
@@ -253,11 +253,46 @@ class MarkdownHelperTest {
 
         assertEquals(1, mentions.size)
         assertEquals("@john", mentions.first().mentionUserName)
-        assertTrue(
-            markedText.contains(
-                "${MarkdownConstants.MENTION_MARK}@john${MarkdownConstants.MENTION_MARK}"
+        assertTrue(markedText.contains(mentions.single().markedText))
+    }
+
+    @Test
+    fun `given everyone mention, when preparing markdown, then everyone target is retained`() {
+        val (mentions, markedText) = "Hi @all".toMarkdownTextWithMentions(
+            listOf(MessageMention(start = 3, length = 4, userId = null, isSelfMention = true))
+        )
+
+        assertEquals("@all", mentions.single().mentionUserName)
+        assertTrue(mentions.single().isEveryone)
+        assertTrue(mentions.single().isSelfMention)
+        assertNull(mentions.single().userId)
+        assertEquals("Hi ${mentions.single().markedText}", markedText)
+    }
+
+    @Test
+    fun `identical labels retain distinct markers without adding searchable numbers`() {
+        val (mentions, markedText) = "@all @all".toMarkdownTextWithMentions(
+            listOf(
+                MessageMention(0, 4, UserId("member", "domain"), false),
+                MessageMention(5, 4, null, false),
             )
         )
+
+        assertEquals(2, mentions.map { it.marker }.distinct().size)
+        assertEquals("${mentions[0].markedText} ${mentions[1].markedText}", markedText)
+        assertNull(markedText.toMarkdownDocument().filterNodesContainingQuery("0"))
+        assertNull(markedText.toMarkdownDocument().filterNodesContainingQuery("1"))
+    }
+
+    @Test
+    fun `literal marker prefixes cannot impersonate a mention`() {
+        val source = "&&\uE000@all &&@all&& @all"
+        val (mentions, markedText) = source.toMarkdownTextWithMentions(
+            listOf(MessageMention(source.lastIndexOf('@'), 4, null, false))
+        )
+
+        assertTrue(!source.contains(mentions.single().marker))
+        assertEquals(source, markedText.replace(mentions.single().markedText, "@all"))
     }
 
     @Test

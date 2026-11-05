@@ -83,7 +83,8 @@ class MessageComposerStateHolderTest {
             messageTextState = messageTextState,
             keyboardController = null,
             focusManager = focusManager,
-            focusRequester = focusRequester
+            focusRequester = focusRequester,
+            currentMentions = { messageComposition.value.selectedMentions.map { it.intoMessageMention() } },
         )
         messageCompositionHolder = mutableStateOf(
             MessageCompositionHolder(

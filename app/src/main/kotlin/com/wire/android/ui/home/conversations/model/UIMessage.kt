@@ -602,9 +602,6 @@ sealed interface UIMessageContent {
         ) : SystemMessage
 
         @Serializable
-        data object ConversationMessageCreatedUnverifiedWarning : SystemMessage
-
-        @Serializable
         sealed interface LegalHold : SystemMessage {
             val memberNames: List<UIText>? get() = null
 

@@ -95,6 +95,7 @@ internal fun ConversationMessageComposer(
     onAttachmentMenuClick: (AttachmentDraftUi) -> Unit,
     currentTimeInMillisFlow: Flow<Long> = flow {},
     showHistoryLoadingIndicator: Boolean = false,
+    showsEncryptionNotice: Boolean = false,
     isBubbleUiEnabled: Boolean = false,
     isWireCellsEnabled: Boolean = false,
     initialLoading: Boolean = false,
@@ -154,6 +155,7 @@ internal fun ConversationMessageComposer(
                 interactionAvailability = messageComposerStateHolder.messageComposerViewState.value.interactionAvailability,
                 currentTimeInMillisFlow = currentTimeInMillisFlow,
                 showHistoryLoadingIndicator = showHistoryLoadingIndicator,
+                showsEncryptionNotice = showsEncryptionNotice,
                 isBubbleUiEnabled = isBubbleUiEnabled,
                 isWireCellsEnabled = isWireCellsEnabled,
             )

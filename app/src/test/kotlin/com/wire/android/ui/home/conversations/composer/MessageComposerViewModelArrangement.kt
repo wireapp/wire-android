@@ -38,6 +38,7 @@ import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.util.FileManager
 import com.wire.android.util.ui.UIText
+import com.wire.kalium.common.error.StorageFailure
 import com.wire.kalium.logic.configuration.FileSharingStatus
 import com.wire.kalium.logic.data.auth.AccountInfo
 import com.wire.kalium.logic.data.conversation.Conversation
@@ -57,10 +58,11 @@ import com.wire.kalium.logic.data.user.type.UserTypeInfo
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveOngoingCallsUseCase
 import com.wire.kalium.logic.feature.conversation.IsInteractionAvailableResult
+import com.wire.kalium.logic.feature.conversation.IsSelfUserViewerOnConversationUseCase
 import com.wire.kalium.logic.feature.conversation.MarkConversationAsReadLocallyUseCase
 import com.wire.kalium.logic.feature.conversation.MarkConversationAsReadResult
 import com.wire.kalium.logic.feature.conversation.MembersToMentionUseCase
-import com.wire.kalium.logic.feature.conversation.IsSelfUserViewerOnConversationUseCase
+import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationInteractionAvailabilityUseCase
 import com.wire.kalium.logic.feature.conversation.SendTypingEventUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationReadDateUseCase
@@ -75,10 +77,10 @@ import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
+import kotlin.time.Instant
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
-import kotlin.time.Instant
 
 internal class MessageComposerViewModelArrangement {
 
@@ -102,6 +104,10 @@ internal class MessageComposerViewModelArrangement {
         coEvery { isSelfUserViewerOnConversationUseCase(any()) } returns true
         coEvery { globalDataStore.enterToSendFlow() } returns flowOf(false)
         coEvery { observeEstablishedCalls() } returns emptyFlow()
+        coEvery { membersToMention(any(), any()) } returns emptyList()
+        coEvery { observeConversationDetails(any()) } returns flowOf(
+            ObserveConversationDetailsUseCase.Result.Failure(StorageFailure.DataNotFound)
+        )
         coEvery { markConversationAsReadLocallyUseCase(any(), any()) } returns MarkConversationAsReadResult.Success(false)
     }
 
@@ -136,6 +142,9 @@ internal class MessageComposerViewModelArrangement {
     private lateinit var membersToMention: MembersToMentionUseCase
 
     @MockK
+    private lateinit var observeConversationDetails: ObserveConversationDetailsUseCase
+
+    @MockK
     private lateinit var enqueueMessageSelfDeletionUseCase: EnqueueMessageSelfDeletionUseCase
 
     @MockK
@@ -168,6 +177,7 @@ internal class MessageComposerViewModelArrangement {
             observeConversationInteractionAvailability = observeConversationInteractionAvailabilityUseCase,
             contactMapper = contactMapper,
             membersToMention = membersToMention,
+            observeConversationDetails = observeConversationDetails,
             enqueueMessageSelfDeletion = enqueueMessageSelfDeletionUseCase,
             persistNewSelfDeletingStatus = persistSelfDeletionStatus,
             sendTypingEvent = sendTypingEvent,
@@ -200,6 +210,16 @@ internal class MessageComposerViewModelArrangement {
 
     fun withAttachmentOptionsAvailability(available: Boolean) = apply {
         coEvery { isSelfUserViewerOnConversationUseCase(any()) } returns available
+    }
+
+    fun withGroupConversation() = apply {
+        coEvery { observeConversationDetails(any()) } returns flowOf(
+            ObserveConversationDetailsUseCase.Result.Success(mockk<ConversationDetails.Group.Regular>())
+        )
+    }
+
+    fun withConversationDetails(details: Flow<ObserveConversationDetailsUseCase.Result>) = apply {
+        coEvery { observeConversationDetails(any()) } returns details
     }
 
     fun arrange() = this to viewModel

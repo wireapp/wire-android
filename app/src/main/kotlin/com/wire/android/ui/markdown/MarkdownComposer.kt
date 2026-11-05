@@ -235,22 +235,13 @@ fun appendLinksAndMentions(
     // get mentions from text, remove mention marks and update position of mentions
     val mentionList: List<MessageMention> = if (stringBuilder.contains(MarkdownConstants.MENTION_MARK) && updatedMentions.isNotEmpty()) {
         nodeData.mentions.mapNotNull { displayMention ->
-            val markedMentionLength = (
-                    MarkdownConstants.MENTION_MARK
-                            + displayMention.mentionUserName
-                            + MarkdownConstants.MENTION_MARK
-                    ).length
-            val startIndex = stringBuilder.indexOf(
-                MarkdownConstants.MENTION_MARK
-                        + displayMention.mentionUserName
-                        + MarkdownConstants.MENTION_MARK
-            )
-            val endIndex = startIndex + markedMentionLength
+            val startIndex = stringBuilder.indexOf(displayMention.markedText)
+            val endIndex = startIndex + displayMention.markedText.length
 
             if (startIndex != -1) {
                 stringBuilder.replace(startIndex, endIndex, displayMention.mentionUserName)
                 // remove mention from list to not use the same mention twice
-                updatedMentions.removeAt(0)
+                updatedMentions.remove(displayMention)
                 MessageMention(
                     startIndex,
                     displayMention.length,
@@ -319,12 +310,14 @@ fun appendLinksAndMentions(
                         start = mention.start,
                         end = mention.start + mention.length
                     )
-                    addStringAnnotation(
-                        tag = MarkdownConstants.TAG_MENTION,
-                        annotation = mention.userId.toString(),
-                        start = mention.start,
-                        end = mention.start + mention.length
-                    )
+                    if (!mention.isEveryone) {
+                        addStringAnnotation(
+                            tag = MarkdownConstants.TAG_MENTION,
+                            annotation = mention.userId.toString(),
+                            start = mention.start,
+                            end = mention.start + mention.length
+                        )
+                    }
                 }
             }
 

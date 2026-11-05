@@ -346,5 +346,11 @@
     <string name="cells_bulk_delete_failure_message_many_no_network">Sie waren beim Löschen der Objekte offline. Bitte überprüfen Sie, ob alle Objekte in den Papierkorb verschoben wurden.</string>
     <string name="cells_bulk_permanent_delete_failure_message_many">Beim Löschen der Objekte ist ein Fehler aufgetreten. Bitte überprüfen Sie, ob alle Objekte in den Papierkorb verschoben wurden.</string>
     <string name="cells_bulk_action_offline">Offline</string>
+    <string name="cells_item_no_longer_available">Dieses Objekt ist nicht mehr verfügbar. Er wurde möglicherweise gelöscht oder verschoben.</string>
+    <string name="cells_empty_recycle_bin_content_description">Papierkorb leeren</string>
+    <string name="cells_empty_recycle_bin_confirmation_title">Papierkorb leeren?</string>
     <string name="cells_empty_recycle_bin_confirmation_message">Alle Objekte im Papierkorb dieser Unterhaltung werden für alle Teilnehmer endgültig gelöscht. Dieser Vorgang kann nicht rückgängig gemacht werden.</string>
+    <string name="cells_empty_recycle_bin_confirm">Leeren</string>
+    <string name="cells_empty_recycle_bin_success">Papierkorb wurde geleert</string>
+    <string name="cells_empty_recycle_bin_failure_title">Papierkorb nicht geleert</string>
 </resources>

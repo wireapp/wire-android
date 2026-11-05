@@ -54,6 +54,8 @@
     <string name="cancel">Отмена</string>
     <string name="confirm_delete_file_title">Удалить файл</string>
     <string name="confirm_delete_folder_title">Удалить папку</string>
+    <string name="confirm_delete_file_text">Файл %1$s будет перемещен в корзину.</string>
+    <string name="confirm_delete_folder_text">Папка%1$s со всеми файлами и подпапками переместится в корзину.</string>
     <string name="confirm_permanent_delete_file_text">Это навсегда удалит файл %1$s для всех участников.</string>
     <string name="confirm_permanent_delete_folder_text">Это навсегда удалит папку %1$s для всех участников.</string>
     <string name="reload">Перезагрузить</string>
@@ -121,6 +123,7 @@
     <string name="remove_offline_access_label">Удалить оффлайн доступ</string>
     <string name="viewer_access_label">Доступ для просмотра</string>
     <string name="viewer_access_disabled_content_description">%1$s, отключено в доступе для просмотра</string>
+    <string name="cell_item_name_viewer_access_content_description">%1$s, доступ для просмотра</string>
     <string name="offline_file_saved_message">Файл сохранен для использования оффлайн</string>
     <string name="offline_banner_message">Вы не в сети и можете видеть только сохраненные файлы</string>
     <string name="file_open_snackbar_message">\"%1$s\" готов к открытию</string>
@@ -153,6 +156,7 @@
     <string name="cells_move_failure_dialog_message_many">При перемещении элементов что-то пошло не так. Возможно, некоторые из них были перемещены, поэтому перед повторной попыткой проверьте обе папки.</string>
     <string name="cells_move_failure_dialog_message_many_no_network">При перемещении элементов было прервано соединение. Возможно, некоторые из них были перемещены, поэтому перед повторной попыткой проверьте обе папки.</string>
     <string name="content_description_conversation_files_more_button">Открыть параметры файлов</string>
+    <string name="content_description_cell_item_more_button">Дополнительные параметры для %1$s</string>
     <string name="recycle_bin">Корзина</string>
     <string name="open_recycle_bin">Открыть корзину</string>
     <string name="empty_recycle_bin">Здесь вы найдете все удаленные файлы и папки.</string>
@@ -366,6 +370,18 @@
         <item quantity="many">Удалить %1$d элементов</item>
         <item quantity="other">Удалить %1$d элемента</item>
     </plurals>
+    <plurals name="cells_bulk_delete_confirmation_message">
+        <item quantity="one">%1$d элемент будет перемещен в корзину.</item>
+        <item quantity="few">%1$d элемента будут перемещены в корзину.</item>
+        <item quantity="many">%1$d элементов будут перемещены в корзину.</item>
+        <item quantity="other">%1$d элемента будут перемещены в корзину.</item>
+    </plurals>
+    <plurals name="cells_bulk_delete_confirmation_message_with_folders">
+        <item quantity="one">Папка %1$d, включая все файлы и вложенные папки будет перемещена в корзину.</item>
+        <item quantity="few">Эти %1$d элемента, включая все файлы и вложенные папки будут перемещены в корзину.</item>
+        <item quantity="many">Эти %1$d элементов, включая все файлы и вложенные папки будут перемещены в корзину.</item>
+        <item quantity="other">Эти %1$d элемента, включая все файлы и вложенные папки будут перемещены в корзину.</item>
+    </plurals>
     <plurals name="cells_bulk_delete_success">
         <item quantity="one">%1$d элемент был перемещен в корзину</item>
         <item quantity="few">%1$d элемента были перемещены в корзину</item>
@@ -393,7 +409,20 @@
     <string name="cells_bulk_delete_failure_title_one">Элемент не удален</string>
     <string name="cells_bulk_delete_failure_title_many">Элементы не удалены</string>
     <string name="cells_bulk_delete_failure_message_one">Что-то пошло не так при удалении элемента. Повторите попытку.</string>
+    <string name="cells_bulk_delete_failure_message_one_no_network">Не удалось удалить элемент, поскольку вы не подключены к интернету. Проверьте подключение к интернету и повторите попытку.</string>
     <string name="cells_bulk_delete_failure_message_many">При удалении элементов что-то пошло не так. Возможно, некоторые из них были перемещены в корзину, поэтому перед повторной попыткой проверьте оба.</string>
+    <string name="cells_bulk_delete_failure_message_many_no_network">Во время удаления элементов вы были не в сети. Пожалуйста, проверьте, все ли элементы были перемещены в корзину.</string>
+    <string name="cells_bulk_permanent_delete_failure_message_many">Во время удаления элементов что-то пошло не так. Пожалуйста, проверьте, все ли элементы были перемещены в корзину.</string>
     <string name="cells_bulk_permanent_delete_failure_message_many_no_network">Во время удаления элементов произошел сбой соединения. Некоторые из них, возможно, были удалены без возможности восстановления, поэтому перед повторной попыткой проверьте корзину.</string>
     <string name="cells_bulk_action_offline">Оффлайн</string>
+    <string name="cells_item_no_longer_available">Этот элемент больше не доступен. Возможно, он был удален или перемещен.</string>
+    <string name="cells_empty_recycle_bin_content_description">Очистить корзину</string>
+    <string name="cells_empty_recycle_bin_confirmation_title">Очистить корзину?</string>
+    <string name="cells_empty_recycle_bin_confirmation_message">Все сообщения из корзины этой беседы будут окончательно удалены для всех участников. Это действие нельзя отменить.</string>
+    <string name="cells_empty_recycle_bin_confirm">Пусто</string>
+    <string name="cells_empty_recycle_bin_success">Корзина очищена</string>
+    <string name="cells_empty_recycle_bin_failure_title">Корзина не очищена</string>
+    <string name="cells_empty_recycle_bin_failure_message">При очистке корзины произошла ошибка. Некоторые из элементов, возможно, были удалены без возможности восстановления, поэтому перед повторной попыткой проверьте корзину.</string>
+    <string name="cells_empty_recycle_bin_failure_message_no_network">При очистке корзины было потеряно подключение. Некоторые из элементов, возможно, были удалены без возможности восстановления, поэтому перед повторной попыткой проверьте корзину.</string>
+    <string name="cells_bulk_action_remove_offline">Удалить оффлайн</string>
 </resources>

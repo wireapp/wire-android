@@ -31,6 +31,7 @@ import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.TeamId
 import com.wire.kalium.logic.data.team.Team
 import com.wire.kalium.logic.data.user.ConnectionState
+import com.wire.kalium.logic.data.user.ContactStatus
 import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.data.user.SupportedProtocol
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
@@ -41,17 +42,143 @@ import com.wire.kalium.logic.feature.conversation.CheckOneToOneConversationIsRea
 import com.wire.kalium.logic.feature.conversation.GetOneToOneConversationDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMemberRoleResult
 import com.wire.kalium.logic.feature.user.GetUserInfoResult
+import io.mockk.coEvery
 import io.mockk.coVerify
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
-import kotlin.time.Instant
+import kotlinx.coroutines.withContext
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import kotlin.time.Instant
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(CoroutineTestExtension::class)
 class OtherUserProfileScreenViewModelTest {
+
+    @Test
+    fun `cached profile renders while status lookup is pending`() = runTest {
+        val arrangement = OtherUserProfileViewModelArrangement()
+        val response = CompletableDeferred<Map<UserId, ContactStatus?>>()
+        coEvery { arrangement.refreshContactStatuses(setOf(USER_ID)) } coAnswers { response.await() }
+        val (_, viewModel) = arrangement.arrange()
+        viewModel.onForeground()
+        advanceUntilIdle()
+        assertEquals(OTHER_USER.name, viewModel.state.fullName)
+        assertEquals(false, viewModel.state.isDataLoading)
+        assertEquals(false, viewModel.state.isOnboardingPending)
+        response.complete(mapOf(USER_ID to ContactStatus.NON_CONTACTABLE))
+        advanceUntilIdle()
+        assertEquals(true, viewModel.state.isOnboardingPending)
+        coVerify(exactly = 1) { arrangement.refreshContactStatuses(setOf(USER_ID)) }
+    }
+
+    @Test
+    fun `profile loading failure is independent of status lookup`() = runTest {
+        val arrangement = OtherUserProfileViewModelArrangement().withUserInfo(GetUserInfoResult.Failure)
+        val response = CompletableDeferred<Map<UserId, ContactStatus?>>()
+        coEvery { arrangement.refreshContactStatuses(any()) } coAnswers { response.await() }
+        val (_, viewModel) = arrangement.arrange()
+        advanceUntilIdle()
+        assertEquals(ErrorLoadingUser.USER_NOT_FOUND, viewModel.state.errorLoadingUser)
+        assertEquals(false, viewModel.state.isDataLoading)
+        response.complete(emptyMap())
+        advanceUntilIdle()
+        assertEquals(ErrorLoadingUser.USER_NOT_FOUND, viewModel.state.errorLoadingUser)
+        coVerify(exactly = 1) { arrangement.observeUserInfo(USER_ID) }
+    }
+
+    @Test
+    fun `obsolete status response cannot overwrite a foreground refresh`() = runTest {
+        val arrangement = OtherUserProfileViewModelArrangement()
+        val oldResponse = CompletableDeferred<Map<UserId, ContactStatus?>>()
+        coEvery { arrangement.refreshContactStatuses(any()) } coAnswers {
+            withContext(NonCancellable) { oldResponse.await() }
+        }
+        val (_, viewModel) = arrangement.arrange()
+        viewModel.onForeground()
+        advanceUntilIdle()
+        viewModel.onBackground()
+        coEvery { arrangement.refreshContactStatuses(any()) } returns mapOf(USER_ID to ContactStatus.CONTACTABLE)
+        viewModel.onForeground()
+        advanceUntilIdle()
+        oldResponse.complete(mapOf(USER_ID to ContactStatus.NON_CONTACTABLE))
+        advanceUntilIdle()
+        assertEquals(ContactStatus.CONTACTABLE, viewModel.state.contactStatus)
+        coVerify(exactly = 2) { arrangement.refreshContactStatuses(setOf(USER_ID)) }
+    }
+
+    @Test
+    fun `disabled feature ignores pending data and keeps ordinary missing user loading`() = runTest {
+        val arrangement = OtherUserProfileViewModelArrangement().apply { pendingConnectionsEnabled = false }
+            .withUserInfo(GetUserInfoResult.Success(OTHER_USER.copy(contactStatus = ContactStatus.NON_CONTACTABLE), null))
+        val (_, viewModel) = arrangement.arrange()
+        viewModel.onForeground()
+        advanceUntilIdle()
+        viewModel.onBackground()
+        viewModel.onForeground()
+        advanceUntilIdle()
+        assertEquals(false, viewModel.state.isOnboardingPending)
+        assertEquals(OTHER_USER.name, viewModel.state.fullName)
+        coVerify(exactly = 0) { arrangement.refreshContactStatuses(any()) }
+        coVerify(exactly = 1) { arrangement.observeUserInfo(USER_ID) }
+    }
+
+    @Test
+    fun `failed refresh clears pending while retaining cached profile`() = runTest {
+        val arrangement = OtherUserProfileViewModelArrangement()
+        coEvery { arrangement.refreshContactStatuses(any()) } returns mapOf(USER_ID to ContactStatus.NON_CONTACTABLE)
+        val (_, viewModel) = arrangement.arrange()
+        viewModel.onForeground()
+        advanceUntilIdle()
+        val name = viewModel.state.fullName
+        assertEquals(true, viewModel.state.isOnboardingPending)
+        coEvery { arrangement.refreshContactStatuses(any()) } returns emptyMap()
+        viewModel.onBackground()
+        viewModel.onForeground()
+        advanceUntilIdle()
+        assertEquals(false, viewModel.state.isOnboardingPending)
+        assertEquals(name, viewModel.state.fullName)
+        assertEquals(null, viewModel.state.errorLoadingUser)
+    }
+
+    @Test
+    fun `profile does not restore a pending status from observed user data`() = runTest {
+        val arrangement = OtherUserProfileViewModelArrangement().withUserInfo(
+            GetUserInfoResult.Success(OTHER_USER.copy(contactStatus = ContactStatus.NON_CONTACTABLE), null)
+        )
+        coEvery { arrangement.refreshContactStatuses(any()) } returns mapOf(USER_ID to null)
+        val (_, viewModel) = arrangement.arrange()
+        advanceUntilIdle()
+        assertEquals(false, viewModel.state.isOnboardingPending)
+    }
+
+    @Test
+    fun `pending status comes from refresh and foreground clears stale status`() = runTest {
+        val arrangement = OtherUserProfileViewModelArrangement()
+        val updates = MutableStateFlow<GetUserInfoResult>(GetUserInfoResult.Success(OTHER_USER, null))
+        coEvery { arrangement.observeUserInfo(any()) } returns updates
+        coEvery { arrangement.refreshContactStatuses(any()) } returns mapOf(USER_ID to ContactStatus.NON_CONTACTABLE)
+        val (_, viewModel) = arrangement.arrange()
+        viewModel.onForeground()
+        advanceUntilIdle()
+        assertEquals(true, viewModel.state.isOnboardingPending)
+        updates.value = GetUserInfoResult.Success(OTHER_USER.copy(name = "Updated name"), null)
+        advanceUntilIdle()
+        assertEquals(true, viewModel.state.isOnboardingPending)
+        coVerify(exactly = 1) { arrangement.refreshContactStatuses(setOf(USER_ID)) }
+        coEvery { arrangement.refreshContactStatuses(any()) } returns mapOf(USER_ID to ContactStatus.CONTACTABLE)
+        viewModel.onBackground()
+        viewModel.onForeground()
+        advanceUntilIdle()
+        assertEquals(false, viewModel.state.isOnboardingPending)
+        coVerify(exactly = 2) { arrangement.refreshContactStatuses(setOf(USER_ID)) }
+        coVerify(exactly = 1) { arrangement.observeUserInfo(USER_ID) }
+    }
 
     @Test
     fun `given a group conversationId, when loading the data, then return group state`() =

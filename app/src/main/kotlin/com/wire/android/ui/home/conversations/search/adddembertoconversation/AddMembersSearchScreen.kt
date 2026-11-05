@@ -48,6 +48,7 @@ internal fun AddMembersSearchRouteScreen(
         searchTitle = stringResource(id = R.string.label_add_participants),
         onOpenUserProfile = onOpenUserProfile,
         onContactChecked = viewModel::updateSelectedContacts,
+        onContactStatusesChanged = viewModel::updateContactStatuses,
         onClose = onNavigateBack,
         onAppClicked = onOpenService,
         navigationIconType = NavigationIconType.Close(R.string.content_description_add_participants_close),

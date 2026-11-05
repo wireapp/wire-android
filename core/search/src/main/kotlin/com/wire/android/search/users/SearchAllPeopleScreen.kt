@@ -52,6 +52,7 @@ import com.wire.android.model.Clickable
 import com.wire.android.model.Contact
 import com.wire.android.model.ItemActionType
 import com.wire.android.search.R
+import com.wire.android.search.util.ui.PreviewMultipleThemes
 import com.wire.android.search.widget.SearchFailureBox
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.dimensions
@@ -63,7 +64,6 @@ import com.wire.android.ui.home.conversations.search.rememberSearchPeopleScreenS
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.ui.FolderType
-import com.wire.android.search.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.keepOnTopWhenNotScrolled
 import com.wire.android.util.ui.sectionWithElements
@@ -292,8 +292,10 @@ private fun LazyListScope.internalSearchResults(
                     }
                 )
                 val clickDescription = stringResource(id = commonR.string.content_description_open_user_profile_label)
-                val onCheckClickable = remember(isSelected) {
-                    Clickable(onClickDescription = onCheckDescription) { onChecked(!isSelected, this) }
+                val onCheckClickable = remember(contact, isSelected) {
+                    Clickable(enabled = !isOnboardingPending || isSelected, onClickDescription = onCheckDescription) {
+                        if (!isOnboardingPending || isSelected) onChecked(!isSelected, contact)
+                    }
                 }
                 InternalContactSearchResultItem(
                     avatarData = avatarData,
@@ -302,6 +304,7 @@ private fun LazyListScope.internalSearchResults(
                     membership = membership,
                     searchQuery = searchQuery,
                     connectionState = connectionState,
+                    isOnboardingPending = isOnboardingPending,
                     isSelected = isSelected,
                     onCheckClickable = onCheckClickable,
                     actionType = actionType,
@@ -362,6 +365,7 @@ private fun LazyListScope.externalSearchResults(
                 label = label,
                 membership = membership,
                 connectionState = connectionState,
+                isOnboardingPending = isOnboardingPending,
                 searchQuery = searchQuery,
                 clickable = remember(contact) { Clickable(onClickDescription = clickDescription) { onOpenUserProfile(contact) } },
                 modifier = contact.firstContactFocusModifier(firstContactId, firstContactFocusRequester)

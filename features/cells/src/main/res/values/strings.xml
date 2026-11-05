@@ -416,6 +416,23 @@
         <item quantity="other">Your device ran out of storage. %1$d of %2$d files were saved for offline use. Free up some space, then try again with the remaining files.</item>
     </plurals>
     <string name="cells_bulk_offline_ran_out_of_storage_message_none">Your device ran out of storage, so no files were saved for offline use. Free up some space, then try again.</string>
+    <plurals name="cells_bulk_remove_offline_confirmation_title">
+        <item quantity="one">Remove offline access for %1$d file?</item>
+        <item quantity="other">Remove offline access for %1$d files?</item>
+    </plurals>
+    <plurals name="cells_bulk_remove_offline_confirmation_message">
+        <item quantity="one">The file will be removed from this device. You can still open it while you\'re online.</item>
+        <item quantity="other">These files will be removed from this device. You can still open them while you\'re online.</item>
+    </plurals>
+    <plurals name="cells_bulk_remove_offline_confirmation_skipped">
+        <item quantity="one">%1$d selected item isn\'t saved for offline use and will be skipped.</item>
+        <item quantity="other">%1$d selected items aren\'t saved for offline use and will be skipped.</item>
+    </plurals>
+    <string name="cells_bulk_remove_offline_confirmation_button">Remove</string>
+    <plurals name="cells_bulk_remove_offline_success">
+        <item quantity="one">Offline access removed for %1$d file</item>
+        <item quantity="other">Offline access removed for %1$d files</item>
+    </plurals>
     <plurals name="cells_bulk_offline_success">
         <item quantity="one">%1$d file saved for offline use</item>
         <item quantity="other">%1$d files saved for offline use</item>

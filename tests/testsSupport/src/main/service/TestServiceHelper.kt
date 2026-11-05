@@ -178,14 +178,28 @@ class TestServiceHelper(
         deviceName: String,
         dstConvoName: String
     ) {
+        contactSendsLocalFileConversation(context, fileName, fileUri, senderAlias, deviceName, dstConvoName, "application/pdf")
+    }
+
+    // Sends local fixtures with their actual MIME type through the existing test-service file endpoint.
+    @Suppress("LongParameterList")
+    fun contactSendsLocalFileConversation(
+        context: Context,
+        fileName: String,
+        fileUri: Uri,
+        senderAlias: String,
+        deviceName: String,
+        dstConvoName: String,
+        mimeType: String
+    ) {
         val sender = toClientUser(senderAlias)
         val conversation = toConvoObj(sender, dstConvoName)
-        val pdf = File(context.cacheDir, fileName)
+        val file = File(context.cacheDir, fileName)
         try {
             val input = context.contentResolver.openInputStream(fileUri)
-                ?: throw IOException("Could not open PDF '$fileName'")
+                ?: throw IOException("Could not open file '$fileName'")
             input.use { source ->
-                pdf.outputStream().use { output -> source.copyTo(output) }
+                file.outputStream().use { output -> source.copyTo(output) }
             }
             testServiceClient.sendFile(
                 sender,
@@ -193,11 +207,11 @@ class TestServiceHelper(
                 conversation.qualifiedID.id,
                 conversation.qualifiedID.domain,
                 getSelfDeletingMessageTimeout(senderAlias, dstConvoName),
-                pdf.absolutePath,
-                "application/pdf"
+                file.absolutePath,
+                mimeType
             )
         } finally {
-            pdf.delete()
+            file.delete()
         }
     }
 
@@ -958,6 +972,35 @@ class TestServiceHelper(
         val user = toClientUser(userAlias)
         val conversation = toConvoObj(user, conversationName)
         return getRecentMessageId(user, deviceName, conversation.qualifiedID.id, conversation.qualifiedID.domain)
+    }
+
+    fun assertImageReceivedInGroupConversation(
+        receiverAlias: String,
+        deviceName: String,
+        conversationName: String
+    ) {
+        val receiver = toClientUser(receiverAlias)
+        val conversation = toConvoObj(receiver, conversationName)
+        val received = UiWaitUtils.retryUntilTimeout(UiWaitUtils.VERY_LONG_TIMEOUT, pollingInterval = 1.seconds) {
+            val messages = testServiceClient.getMessages(
+                receiver,
+                deviceName,
+                conversation.qualifiedID.id,
+                conversation.qualifiedID.domain
+            )
+            (0 until messages.length()).any { index ->
+                val content = messages.getJSONObject(index).optJSONObject("content")
+                val asset = content?.optJSONObject("value")
+                val attachments = content?.optJSONArray("attachments") ?: JSONArray()
+                asset?.optString("mimeType")?.startsWith("image/") == true ||
+                    (0 until attachments.length()).any { attachment ->
+                        attachments.getJSONObject(attachment).optString("mimeType").startsWith("image/")
+                    }
+            }
+        }
+        if (!received) {
+            throw AssertionError("'$receiverAlias' on '$deviceName' did not receive an image in '$conversationName'.")
+        }
     }
 
     fun assertMessageReceivedInGroupConversation(

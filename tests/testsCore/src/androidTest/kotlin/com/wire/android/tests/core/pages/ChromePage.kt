@@ -19,6 +19,8 @@ package com.wire.android.tests.core.pages
 
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import uiautomatorutils.UiSelectorParams
 import uiautomatorutils.UiWaitUtils
 
@@ -56,6 +58,35 @@ data class ChromePage(private val device: UiDevice) {
         runCatching {
             UiWaitUtils.waitElement(declineCookiesLocator, timeout = UiWaitUtils.SHORT_WAIT).click()
         }
+        return this
+    }
+
+    fun assertHtmlFileHandlerAvailable(): ChromePage {
+        val handlers = runShellCommand(
+            "cmd package query-activities --brief -a android.intent.action.VIEW " +
+                "-t text/html -d content://test-fixture/external-opening.html"
+        )
+        assertTrue("Chrome is not available to open HTML files", handlers.contains("com.android.chrome/"))
+        return this
+    }
+
+    fun selectChromeFromOpenWithDialog(): ChromePage {
+        val chrome = UiWaitUtils.waitAnyVisible(
+            selectors = listOf(UiSelectorParams(text = "Chrome"), UiSelectorParams(text = "Open with Chrome")),
+            timeout = UiWaitUtils.VERY_LONG_TIMEOUT
+        ) ?: throw AssertionError("Chrome is not shown in the Open with dialog")
+        if (chrome.text == "Chrome") chrome.click()
+        UiWaitUtils.waitElement(UiSelectorParams(text = "Just once"), timeout = UiWaitUtils.SHORT_TIMEOUT).click()
+        return this
+    }
+
+    fun assertHtmlFileOpenInChrome(fileName: String, expectedText: String): ChromePage {
+        UiWaitUtils.waitElement(
+            UiSelectorParams(resourceId = "com.android.chrome:id/url_bar", textContains = fileName),
+            timeout = UiWaitUtils.VERY_LONG_TIMEOUT
+        )
+        UiWaitUtils.waitElement(UiSelectorParams(text = expectedText), timeout = UiWaitUtils.VERY_LONG_TIMEOUT)
+        assertEquals("The HTML file is not open in Chrome", "com.android.chrome", device.currentPackageName)
         return this
     }
 

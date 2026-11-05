@@ -17,6 +17,8 @@
  */
 package com.wire.android.tests.core.pages
 
+import android.graphics.Bitmap
+import android.graphics.Rect
 import android.view.KeyEvent
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.By
@@ -32,6 +34,7 @@ import uiautomatorutils.UiSelectorParams
 import uiautomatorutils.UiWaitUtils
 import uiautomatorutils.UiWaitUtils.findElementOrNull
 import uiautomatorutils.UiWaitUtils.waitElement
+import util.decodeQRCode
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
@@ -698,6 +701,53 @@ data class ConversationViewPage(private val device: UiDevice) {
         return this
     }
 
+    fun assertQrImageAttachedToComposer(expectedValue: String): ConversationViewPage {
+        val found = UiWaitUtils.retryUntilTimeout(UiWaitUtils.LONG_TIMEOUT) {
+            val input = UiWaitUtils.waitElement(typeMessageField).visibleBounds
+            qrCodeInScreenArea(Rect(0, input.bottom, device.displayWidth, device.displayHeight)) == expectedValue
+        }
+        Assert.assertTrue("The imported QR image is not attached to the message composer", found)
+        return this
+    }
+
+    fun assertQrImageVisibleInMessageHistory(expectedValue: String): ConversationViewPage {
+        val found = UiWaitUtils.retryUntilTimeout(UiWaitUtils.VERY_LONG_TIMEOUT) {
+            val input = UiWaitUtils.waitElement(typeMessageField).visibleBounds
+            qrCodeInScreenArea(Rect(0, 0, device.displayWidth, input.top)) == expectedValue
+        }
+        Assert.assertTrue("The expected QR image is not visible in the conversation's message history", found)
+        return this
+    }
+
+    fun assertQrImageAbsentFromConversation(expectedValue: String): ConversationViewPage {
+        UiWaitUtils.waitElement(typeMessageField)
+        Assert.assertNotEquals(
+            "The Viewer conversation received the imported image",
+            expectedValue,
+            qrCodeInScreenArea(Rect(0, 0, device.displayWidth, device.displayHeight))
+        )
+        return this
+    }
+
+    private fun qrCodeInScreenArea(bounds: Rect): String? {
+        val screenshot = requireNotNull(InstrumentationRegistry.getInstrumentation().uiAutomation.takeScreenshot())
+        val area = Bitmap.createBitmap(screenshot, bounds.left, bounds.top, bounds.width(), bounds.height())
+        return try {
+            decodeQRCode(area)
+        } finally {
+            area.recycle()
+            screenshot.recycle()
+        }
+    }
+
+    fun assertSendButtonEnabledOnMessageComposer(): ConversationViewPage {
+        val enabled = UiWaitUtils.retryUntilTimeout(UiWaitUtils.VERY_LONG_TIMEOUT) {
+            device.findObject(By.clickable(true).hasDescendant(By.desc("Send")))?.isEnabled == true
+        }
+        Assert.assertTrue("The message composer's Send button did not become enabled", enabled)
+        return this
+    }
+
     fun clickSendButton(): ConversationViewPage {
         UiWaitUtils.waitElement(sendButton).click()
         return this
@@ -1031,6 +1081,21 @@ data class ConversationViewPage(private val device: UiDevice) {
         } catch (e: AssertionError) {
             throw AssertionError("Group conversation '$conversationName' is not in foreground.", e)
         }
+        return this
+    }
+
+    fun tapGroupConversationHeader(conversationName: String): ConversationViewPage {
+        UiWaitUtils.waitElement(conversationDetailsGroup(conversationName)).click()
+        return this
+    }
+
+    fun assertGroupConversationDetailsDisabled(conversationName: String): ConversationViewPage {
+        UiWaitUtils.waitElement(conversationDetailsGroup(conversationName))
+        Assert.assertFalse(
+            "Removed participant can open Conversation details",
+            device.hasObject(By.clickable(true).enabled(true).hasDescendant(By.text(conversationName)))
+        )
+        Assert.assertFalse("Conversation details opened after removal", device.hasObject(By.text("Conversation Details")))
         return this
     }
 

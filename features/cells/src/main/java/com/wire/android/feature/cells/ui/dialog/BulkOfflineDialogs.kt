@@ -61,6 +61,15 @@ internal sealed interface BulkOfflineDialog {
         val savedCount: Int,
         val totalCount: Int,
     ) : BulkOfflineDialog
+
+    /**
+     * Asks before removing the offline copy of [files] from the device.
+     * @param skippedCount the selected items left out because they aren't saved for offline use.
+     */
+    data class RemoveConfirmation(
+        val files: List<CellNodeUi.File>,
+        val skippedCount: Int,
+    ) : BulkOfflineDialog
 }
 
 @Composable
@@ -73,7 +82,37 @@ internal fun BulkOfflineDialogs(
         is BulkOfflineDialog.Confirmation -> BulkOfflineConfirmationDialog(dialog, onConfirm, onDismiss)
         is BulkOfflineDialog.NotEnoughStorage -> NotEnoughStorageDialog(dialog, onDismiss)
         is BulkOfflineDialog.RanOutOfStorage -> RanOutOfStorageDialog(dialog, onDismiss)
+        is BulkOfflineDialog.RemoveConfirmation -> RemoveOfflineConfirmationDialog(dialog, onConfirm, onDismiss)
     }
+}
+
+@Composable
+private fun RemoveOfflineConfirmationDialog(
+    confirmation: BulkOfflineDialog.RemoveConfirmation,
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit,
+) {
+    val count = confirmation.files.size
+    val skippedMessage = confirmation.skippedCount.takeIf { it > 0 }?.let {
+        pluralStringResource(R.plurals.cells_bulk_remove_offline_confirmation_skipped, it, it)
+    }
+    WireDialog(
+        title = pluralStringResource(R.plurals.cells_bulk_remove_offline_confirmation_title, count, count),
+        text = listOfNotNull(
+            pluralStringResource(R.plurals.cells_bulk_remove_offline_confirmation_message, count),
+            skippedMessage,
+        ).joinToString(separator = "\n\n"),
+        onDismiss = onDismiss,
+        optionButton1Properties = WireDialogButtonProperties(
+            onClick = onConfirm,
+            text = stringResource(R.string.cells_bulk_remove_offline_confirmation_button),
+            type = WireDialogButtonType.Primary,
+        ),
+        dismissButtonProperties = WireDialogButtonProperties(
+            text = stringResource(R.string.cancel),
+            onClick = onDismiss,
+        ),
+    )
 }
 
 @Composable
@@ -187,6 +226,18 @@ private fun PreviewBulkOfflineRanOutOfStorageDialog() {
     WireTheme {
         BulkOfflineDialogs(
             dialog = BulkOfflineDialog.RanOutOfStorage(savedCount = 4, totalCount = 10),
+            onConfirm = {},
+            onDismiss = {},
+        )
+    }
+}
+
+@MultipleThemePreviews
+@Composable
+private fun PreviewBulkRemoveOfflineConfirmationDialog() {
+    WireTheme {
+        BulkOfflineDialogs(
+            dialog = BulkOfflineDialog.RemoveConfirmation(files = List(3) { previewFile("File $it.pdf") }, skippedCount = 1),
             onConfirm = {},
             onDismiss = {},
         )

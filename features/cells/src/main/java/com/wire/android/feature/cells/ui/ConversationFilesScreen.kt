@@ -176,7 +176,7 @@ internal fun ConversationFilesRouteScreen(
         selectedNodes = viewModel.selectedNodes.collectAsState().value,
         isBulkSelectionEnabled = viewModel.isBulkSelectionEnabled.collectAsState().value,
         bulkDeleteDialog = viewModel.bulkDeleteDialog.collectAsState().value,
-        offlineFilesEnabled = viewModel.offlineFilesEnabled,
+        bulkOfflineActionsEnabled = viewModel.bulkOfflineActionsEnabled,
     )
 
     LaunchedEffect(Unit) {
@@ -228,7 +228,7 @@ internal fun ConversationFilesScreenContent(
     selectedNodes: Map<String, CellNodeUi> = emptyMap(),
     isBulkSelectionEnabled: Boolean = false,
     bulkDeleteDialog: BulkDeleteDialog? = null,
-    offlineFilesEnabled: Boolean = false,
+    bulkOfflineActionsEnabled: Boolean = false,
 ) {
     val sharedScope = LocalSharedTransitionScope.current
     val isSelectionMode = selectedNodes.isNotEmpty()
@@ -555,7 +555,9 @@ internal fun ConversationFilesScreenContent(
                         if (state == EnterExitState.Visible) pillCornerRadius() else fabCornerRadius()
                     }
                     CellBulkActionsBar(
-                        actions = remember(offlineFilesEnabled, isRecycleBin) { bulkActions(offlineFilesEnabled, isRecycleBin) },
+                        actions = remember(bulkOfflineActionsEnabled, isRecycleBin, selectedNodes) {
+                            bulkActions(bulkOfflineActionsEnabled, isRecycleBin, selectedNodes.values)
+                        },
                         onActionClick = { action -> sendIntent(action.toIntent()) },
                         shape = RoundedCornerShape(barCornerRadius),
                         modifier = Modifier.sharedBounds(
@@ -581,14 +583,22 @@ private fun fabCornerRadius(): Dp = dimensions().corner16x
 private fun pillCornerRadius(): Dp = dimensions().spacing32x
 
 // This screen also shows the folders inside the recycle bin, where only the recycle bin actions apply.
-private fun bulkActions(offlineFilesEnabled: Boolean, isRecycleBin: Boolean): ImmutableList<CellBulkAction> =
+// Remove offline access only shows up once the selection holds at least one file saved for offline use.
+private fun bulkActions(
+    offlineActionsEnabled: Boolean,
+    isRecycleBin: Boolean,
+    selectedNodes: Collection<CellNodeUi>,
+): ImmutableList<CellBulkAction> =
     if (isRecycleBin) {
         persistentListOf(CellBulkAction.Restore, CellBulkAction.DeletePermanently)
     } else {
         listOfNotNull(
             CellBulkAction.Move,
             CellBulkAction.Delete,
-            CellBulkAction.MakeAvailableOffline.takeIf { offlineFilesEnabled },
+            CellBulkAction.MakeAvailableOffline.takeIf { offlineActionsEnabled },
+            CellBulkAction.RemoveOfflineAccess.takeIf {
+                offlineActionsEnabled && selectedNodes.any { it is CellNodeUi.File && it.isAvailableOffline }
+            },
         ).toPersistentList()
     }
 

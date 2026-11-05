@@ -64,18 +64,16 @@ on:
         type: string
 
       androidDeviceId:
-        description: "Emulator serial (optional), e.g. emulator-5554. Leave blank to use the pool."
+        description: "Device serial (optional), e.g. emulator-5554. Leave blank to use the selected group."
         required: false
         default: ""
         type: string
 
       androidDeviceGroup:
-        description: "Critical-flow tests run on the four-emulator pool."
+        description: "Defaults to criticalFlow (managed emulator pool). Enter another configured group to use its existing devices."
         required: true
         default: "criticalFlow"
-        type: choice
-        options:
-          - criticalFlow
+        type: string
 
       rerunFailedCount:
         description: "Retry count (0–3). Leave blank to use the default. Normal runs: 1 retry · Deflake: 0 retries."
@@ -98,8 +96,7 @@ jobs:
       reportTitle: android emulator critical flow tests
       reportDirectory: qa-emulator-critical-flow-tests
       jobTimeoutMinutes: 35
-      requiredDeviceGroup: criticalFlow
-      emulatorPool: true
+      emulatorPool: ${{ (inputs.androidDeviceGroup || 'criticalFlow') == 'criticalFlow' }}
       runMode: ${{ inputs.runMode || 'Normal tests' }}
       sourceRunId: ${{ inputs.sourceRunId || '' }}
       testServiceUrl: ${{ inputs.testServiceUrl || '' }}
@@ -109,7 +106,7 @@ jobs:
       TAGS: ${{ inputs.TAGS || '@criticalFlow' }}
       testinyRunName: ${{ inputs.testinyRunName || '' }}
       androidDeviceId: ${{ inputs.androidDeviceId || '' }}
-      androidDeviceGroup: criticalFlow
+      androidDeviceGroup: ${{ inputs.androidDeviceGroup || 'criticalFlow' }}
       rerunFailedCount: ${{ inputs.rerunFailedCount || '' }}
     secrets:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}

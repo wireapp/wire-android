@@ -575,6 +575,7 @@ private fun WireActivityNavigation3MainContent(
             WireTopAppBar(
                 commonTopAppBarState =
                     activityViewModels?.commonTopAppBarViewModel?.state ?: CommonTopAppBarState(),
+                onRetrySyncClick = { activityViewModels?.commonTopAppBarViewModel?.retrySync() },
                 backgroundType = backgroundType,
             )
             WireNavigation3ProductionHost(

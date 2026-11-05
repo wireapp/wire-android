@@ -687,7 +687,8 @@ class WireDriveNavigationTests : BaseUiTest() {
 
         step("Then I see the Viewer access banner and exactly one entry for TeamOwner's PDF in Shared Drive") {
             pages.wireDrivePage.apply {
-                assertSharedDriveVisibleWithViewerAccess()
+                assertViewerAccessBannerVisible("Viewer access: you can’t upload or edit files.")
+                assertNewButtonAbsent()
                 assertFileVisibleOnce(guestFile)
             }
         }
@@ -700,7 +701,8 @@ class WireDriveNavigationTests : BaseUiTest() {
         step("When I use Back to return to Shared Drive, I see the Viewer access banner and exactly one entry for TeamOwner's PDF") {
             pages.pdfViewerPage.navigateBack()
             pages.wireDrivePage.apply {
-                assertSharedDriveVisibleWithViewerAccess()
+                assertViewerAccessBannerVisible("Viewer access: you can’t upload or edit files.")
+                assertNewButtonAbsent()
                 assertFileVisibleOnce(guestFile)
             }
         }

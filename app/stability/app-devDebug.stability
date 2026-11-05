@@ -3094,7 +3094,7 @@ private fun com.wire.android.ui.common.topappbar.CameraIcon(tint: androidx.compo
     - tint: STABLE (marked @Stable or @Immutable)
 
 @Composable
-public fun com.wire.android.ui.common.topappbar.CommonTopAppBar(commonTopAppBarState: com.wire.android.ui.common.topappbar.CommonTopAppBarState, backgroundType: com.wire.android.navigation.style.BackgroundType, onReturnToCallClick: kotlin.Function1<com.wire.android.ui.common.topappbar.ConnectivityUIState.Call.Established, kotlin.Unit>, onReturnToIncomingCallClick: kotlin.Function1<com.wire.android.ui.common.topappbar.ConnectivityUIState.Call.Incoming, kotlin.Unit>, onReturnToOutgoingCallClick: kotlin.Function1<com.wire.android.ui.common.topappbar.ConnectivityUIState.Call.Outgoing, kotlin.Unit>, modifier: androidx.compose.ui.Modifier, animateContentSize: kotlin.Boolean): kotlin.Unit
+public fun com.wire.android.ui.common.topappbar.CommonTopAppBar(commonTopAppBarState: com.wire.android.ui.common.topappbar.CommonTopAppBarState, backgroundType: com.wire.android.navigation.style.BackgroundType, onReturnToCallClick: kotlin.Function1<com.wire.android.ui.common.topappbar.ConnectivityUIState.Call.Established, kotlin.Unit>, onReturnToIncomingCallClick: kotlin.Function1<com.wire.android.ui.common.topappbar.ConnectivityUIState.Call.Incoming, kotlin.Unit>, onReturnToOutgoingCallClick: kotlin.Function1<com.wire.android.ui.common.topappbar.ConnectivityUIState.Call.Outgoing, kotlin.Unit>, onRetrySyncClick: kotlin.Function0<kotlin.Unit>, modifier: androidx.compose.ui.Modifier, animateContentSize: kotlin.Boolean): kotlin.Unit
   skippable: true
   restartable: true
   params:
@@ -3103,11 +3103,12 @@ public fun com.wire.android.ui.common.topappbar.CommonTopAppBar(commonTopAppBarS
     - onReturnToCallClick: STABLE (function type)
     - onReturnToIncomingCallClick: STABLE (function type)
     - onReturnToOutgoingCallClick: STABLE (function type)
+    - onRetrySyncClick: STABLE (function type)
     - modifier: STABLE (marked @Stable or @Immutable)
     - animateContentSize: STABLE (primitive type)
 
 @Composable
-private fun com.wire.android.ui.common.topappbar.ConnectivityStatusBar(connectivityInfo: com.wire.android.ui.common.topappbar.ConnectivityUIState, networkState: com.wire.kalium.network.NetworkState, onReturnToCallClick: kotlin.Function1<com.wire.android.ui.common.topappbar.ConnectivityUIState.Call.Established, kotlin.Unit>, onReturnToIncomingCallClick: kotlin.Function1<com.wire.android.ui.common.topappbar.ConnectivityUIState.Call.Incoming, kotlin.Unit>, onReturnToOutgoingCallClick: kotlin.Function1<com.wire.android.ui.common.topappbar.ConnectivityUIState.Call.Outgoing, kotlin.Unit>, modifier: androidx.compose.ui.Modifier, animateContentSize: kotlin.Boolean): kotlin.Unit
+private fun com.wire.android.ui.common.topappbar.ConnectivityStatusBar(connectivityInfo: com.wire.android.ui.common.topappbar.ConnectivityUIState, networkState: com.wire.kalium.network.NetworkState, onReturnToCallClick: kotlin.Function1<com.wire.android.ui.common.topappbar.ConnectivityUIState.Call.Established, kotlin.Unit>, onReturnToIncomingCallClick: kotlin.Function1<com.wire.android.ui.common.topappbar.ConnectivityUIState.Call.Incoming, kotlin.Unit>, onReturnToOutgoingCallClick: kotlin.Function1<com.wire.android.ui.common.topappbar.ConnectivityUIState.Call.Outgoing, kotlin.Unit>, onRetrySyncClick: kotlin.Function0<kotlin.Unit>, modifier: androidx.compose.ui.Modifier, animateContentSize: kotlin.Boolean): kotlin.Unit
   skippable: true
   restartable: true
   params:
@@ -3116,6 +3117,7 @@ private fun com.wire.android.ui.common.topappbar.ConnectivityStatusBar(connectiv
     - onReturnToCallClick: STABLE (function type)
     - onReturnToIncomingCallClick: STABLE (function type)
     - onReturnToOutgoingCallClick: STABLE (function type)
+    - onRetrySyncClick: STABLE (function type)
     - modifier: STABLE (marked @Stable or @Immutable)
     - animateContentSize: STABLE (primitive type)
 
@@ -3195,11 +3197,12 @@ private fun com.wire.android.ui.common.topappbar.WaitingStatusLabelInternal(conn
     - waitingStatus: STABLE (composable function type)
 
 @Composable
-public fun com.wire.android.ui.common.topappbar.WireTopAppBar(commonTopAppBarState: com.wire.android.ui.common.topappbar.CommonTopAppBarState, modifier: androidx.compose.ui.Modifier, backgroundType: com.wire.android.navigation.style.BackgroundType, animateContentSize: kotlin.Boolean): kotlin.Unit
+public fun com.wire.android.ui.common.topappbar.WireTopAppBar(commonTopAppBarState: com.wire.android.ui.common.topappbar.CommonTopAppBarState, onRetrySyncClick: kotlin.Function0<kotlin.Unit>, modifier: androidx.compose.ui.Modifier, backgroundType: com.wire.android.navigation.style.BackgroundType, animateContentSize: kotlin.Boolean): kotlin.Unit
   skippable: true
   restartable: true
   params:
     - commonTopAppBarState: UNSTABLE (has mutable properties or unstable members)
+    - onRetrySyncClick: STABLE (function type)
     - modifier: STABLE (marked @Stable or @Immutable)
     - backgroundType: STABLE (class with no mutable properties)
     - animateContentSize: STABLE (primitive type)
@@ -8164,7 +8167,7 @@ internal fun com.wire.android.ui.home.meetings.MeetingsScreen(homeShellState: co
     - viewModel: UNSTABLE (has mutable properties or unstable members)
 
 @Composable
-public fun com.wire.android.ui.home.messagecomposer.ActiveMessageComposerInput(conversationId: com.wire.kalium.logic.data.id.QualifiedID, messageComposition: com.wire.android.ui.home.messagecomposer.model.MessageComposition, messageTextState: androidx.compose.foundation.text.input.TextFieldState, isTextExpanded: kotlin.Boolean, inputType: com.wire.android.ui.home.messagecomposer.state.InputType, focusRequester: androidx.compose.ui.focus.FocusRequester, keyboardOptions: androidx.compose.foundation.text.KeyboardOptions, onKeyboardAction: androidx.compose.foundation.text.input.KeyboardActionHandler?, onHardwareEnter: kotlin.Function1<@[ParameterName(name = \, canSendMessage: kotlin.Boolean, onSendButtonClicked: kotlin.Function0<kotlin.Unit>, onEditButtonClicked: kotlin.Function0<kotlin.Unit>, onChangeSelfDeletionClicked: kotlin.Function1<@[ParameterName(name = \, onToggleInputSize: kotlin.Function0<kotlin.Unit>, onCancelReply: kotlin.Function0<kotlin.Unit>, onCancelEdit: kotlin.Function0<kotlin.Unit>, onFocused: kotlin.Function0<kotlin.Unit>, onSelectedLineIndexChanged: kotlin.Function1<kotlin.Int, kotlin.Unit>, onLineBottomYCoordinateChanged: kotlin.Function1<kotlin.Float, kotlin.Unit>, showOptions: kotlin.Boolean, showInlinePlusButton: kotlin.Boolean, optionsSelected: kotlin.Boolean, onPlusClick: kotlin.Function0<kotlin.Unit>, useKeyboardActivationGate: kotlin.Boolean, modifier: androidx.compose.ui.Modifier, onHardwareTab: kotlin.Function1<@[ParameterName(name = \, onHardwareEscape: kotlin.Function0<kotlin.Boolean>): kotlin.Unit
+public fun com.wire.android.ui.home.messagecomposer.ActiveMessageComposerInput(conversationId: com.wire.kalium.logic.data.id.QualifiedID, messageComposition: com.wire.android.ui.home.messagecomposer.model.MessageComposition, messageTextState: androidx.compose.foundation.text.input.TextFieldState, isTextExpanded: kotlin.Boolean, inputType: com.wire.android.ui.home.messagecomposer.state.InputType, focusRequester: androidx.compose.ui.focus.FocusRequester, keyboardOptions: androidx.compose.foundation.text.KeyboardOptions, onKeyboardAction: androidx.compose.foundation.text.input.KeyboardActionHandler?, onHardwareEnter: kotlin.Function1<@[ParameterName(name = \, canSendMessage: kotlin.Boolean, onSendButtonClicked: kotlin.Function0<kotlin.Unit>, onEditButtonClicked: kotlin.Function0<kotlin.Unit>, onChangeSelfDeletionClicked: kotlin.Function1<@[ParameterName(name = \, onToggleInputSize: kotlin.Function0<kotlin.Unit>, onCancelReply: kotlin.Function0<kotlin.Unit>, onCancelEdit: kotlin.Function0<kotlin.Unit>, onFocused: kotlin.Function0<kotlin.Unit>, onSelectedLineIndexChanged: kotlin.Function1<kotlin.Int, kotlin.Unit>, onLineBottomYCoordinateChanged: kotlin.Function1<kotlin.Float, kotlin.Unit>, showOptions: kotlin.Boolean, showInlinePlusButton: kotlin.Boolean, optionsSelected: kotlin.Boolean, onPlusClick: kotlin.Function0<kotlin.Unit>, useKeyboardActivationGate: kotlin.Boolean, modifier: androidx.compose.ui.Modifier, inputTransformation: androidx.compose.foundation.text.input.InputTransformation?, onHardwareTab: kotlin.Function1<@[ParameterName(name = \, onHardwareEscape: kotlin.Function0<kotlin.Boolean>): kotlin.Unit
   skippable: true
   restartable: true
   params:
@@ -8193,6 +8196,7 @@ public fun com.wire.android.ui.home.messagecomposer.ActiveMessageComposerInput(c
     - onPlusClick: STABLE (function type)
     - useKeyboardActivationGate: STABLE (primitive type)
     - modifier: STABLE (marked @Stable or @Immutable)
+    - inputTransformation: STABLE (marked @Stable or @Immutable)
     - onHardwareTab: STABLE (function type)
     - onHardwareEscape: STABLE (function type)
 
@@ -8361,7 +8365,7 @@ private fun com.wire.android.ui.home.messagecomposer.DrawingModeAction(onButtonC
     - isEnabled: STABLE (primitive type)
 
 @Composable
-public fun com.wire.android.ui.home.messagecomposer.DropDownMentionsSuggestions(searchQuery: kotlin.String, currentSelectedLineIndex: kotlin.Int, cursorCoordinateY: kotlin.Float, membersToMention: kotlin.collections.List<com.wire.android.model.Contact>, onMentionPicked: kotlin.Function1<com.wire.android.model.Contact, kotlin.Unit>, modifier: androidx.compose.ui.Modifier, useKeyboardNavigation: kotlin.Boolean, firstItemFocusRequester: androidx.compose.ui.focus.FocusRequester, onDismissRequest: kotlin.Function0<kotlin.Unit>): kotlin.Unit
+public fun com.wire.android.ui.home.messagecomposer.DropDownMentionsSuggestions(searchQuery: kotlin.String, currentSelectedLineIndex: kotlin.Int, cursorCoordinateY: kotlin.Float, membersToMention: kotlin.collections.List<com.wire.android.model.Contact>, onMentionPicked: kotlin.Function1<com.wire.android.model.Contact, kotlin.Unit>, modifier: androidx.compose.ui.Modifier, useKeyboardNavigation: kotlin.Boolean, firstItemFocusRequester: androidx.compose.ui.focus.FocusRequester, onDismissRequest: kotlin.Function0<kotlin.Unit>, showEveryoneMention: kotlin.Boolean, onEveryoneMentionPicked: kotlin.Function0<kotlin.Unit>): kotlin.Unit
   skippable: true
   restartable: true
   params:
@@ -8374,6 +8378,8 @@ public fun com.wire.android.ui.home.messagecomposer.DropDownMentionsSuggestions(
     - useKeyboardNavigation: STABLE (primitive type)
     - firstItemFocusRequester: STABLE (marked @Stable or @Immutable)
     - onDismissRequest: STABLE (function type)
+    - showEveryoneMention: STABLE (primitive type)
+    - onEveryoneMentionPicked: STABLE (function type)
 
 @Composable
 public fun com.wire.android.ui.home.messagecomposer.EditingActions(selectedOption: com.wire.android.ui.home.messagecomposer.state.AdditionalOptionSelectItem, isMentionActive: kotlin.Boolean, onRichEditingButtonClicked: kotlin.Function0<kotlin.Unit>, onMentionButtonClicked: kotlin.Function0<kotlin.Unit>, modifier: androidx.compose.ui.Modifier): kotlin.Unit
@@ -8413,6 +8419,16 @@ public fun com.wire.android.ui.home.messagecomposer.EnabledMessageComposer(conve
     - modifier: STABLE (marked @Stable or @Immutable)
 
 @Composable
+internal fun com.wire.android.ui.home.messagecomposer.EveryoneItemToMention(searchQuery: kotlin.String, clickable: com.wire.android.model.Clickable, modifier: androidx.compose.ui.Modifier, backgroundColor: androidx.compose.ui.graphics.Color): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - searchQuery: STABLE (String is immutable)
+    - clickable: STABLE (class with no mutable properties)
+    - modifier: STABLE (marked @Stable or @Immutable)
+    - backgroundColor: STABLE (marked @Stable or @Immutable)
+
+@Composable
 private fun com.wire.android.ui.home.messagecomposer.HeaderButton(onRichTextHeaderButtonClicked: kotlin.Function0<kotlin.Unit>, modifier: androidx.compose.ui.Modifier, isFocused: kotlin.Boolean): kotlin.Unit
   skippable: true
   restartable: true
@@ -8422,7 +8438,7 @@ private fun com.wire.android.ui.home.messagecomposer.HeaderButton(onRichTextHead
     - isFocused: STABLE (primitive type)
 
 @Composable
-private fun com.wire.android.ui.home.messagecomposer.InputContent(conversationId: com.wire.kalium.logic.data.id.QualifiedID, messageTextState: androidx.compose.foundation.text.input.TextFieldState, isTextExpanded: kotlin.Boolean, inputType: com.wire.android.ui.home.messagecomposer.state.InputType, focusRequester: androidx.compose.ui.focus.FocusRequester, keyboardOptions: androidx.compose.foundation.text.KeyboardOptions, onKeyboardAction: androidx.compose.foundation.text.input.KeyboardActionHandler?, onHardwareEnter: kotlin.Function1<@[ParameterName(name = \, onHardwareTab: kotlin.Function1<@[ParameterName(name = \, onHardwareEscape: kotlin.Function0<kotlin.Boolean>, canSendMessage: kotlin.Boolean, onSendButtonClicked: kotlin.Function0<kotlin.Unit>, onChangeSelfDeletionClicked: kotlin.Function1<@[ParameterName(name = \, onFocused: kotlin.Function0<kotlin.Unit>, onSelectedLineIndexChanged: kotlin.Function1<kotlin.Int, kotlin.Unit>, onLineBottomYCoordinateChanged: kotlin.Function1<kotlin.Float, kotlin.Unit>, showInlinePlusButton: kotlin.Boolean, optionsSelected: kotlin.Boolean, onPlusClick: kotlin.Function0<kotlin.Unit>, useKeyboardActivationGate: kotlin.Boolean, modifier: androidx.compose.ui.Modifier, viewModel: com.wire.android.ui.home.messagecomposer.actions.SelfDeletingMessageActionViewModel): kotlin.Unit
+private fun com.wire.android.ui.home.messagecomposer.InputContent(conversationId: com.wire.kalium.logic.data.id.QualifiedID, messageTextState: androidx.compose.foundation.text.input.TextFieldState, isTextExpanded: kotlin.Boolean, inputType: com.wire.android.ui.home.messagecomposer.state.InputType, focusRequester: androidx.compose.ui.focus.FocusRequester, keyboardOptions: androidx.compose.foundation.text.KeyboardOptions, onKeyboardAction: androidx.compose.foundation.text.input.KeyboardActionHandler?, onHardwareEnter: kotlin.Function1<@[ParameterName(name = \, onHardwareTab: kotlin.Function1<@[ParameterName(name = \, onHardwareEscape: kotlin.Function0<kotlin.Boolean>, canSendMessage: kotlin.Boolean, onSendButtonClicked: kotlin.Function0<kotlin.Unit>, onChangeSelfDeletionClicked: kotlin.Function1<@[ParameterName(name = \, onFocused: kotlin.Function0<kotlin.Unit>, onSelectedLineIndexChanged: kotlin.Function1<kotlin.Int, kotlin.Unit>, onLineBottomYCoordinateChanged: kotlin.Function1<kotlin.Float, kotlin.Unit>, showInlinePlusButton: kotlin.Boolean, optionsSelected: kotlin.Boolean, onPlusClick: kotlin.Function0<kotlin.Unit>, useKeyboardActivationGate: kotlin.Boolean, modifier: androidx.compose.ui.Modifier, inputTransformation: androidx.compose.foundation.text.input.InputTransformation?, viewModel: com.wire.android.ui.home.messagecomposer.actions.SelfDeletingMessageActionViewModel): kotlin.Unit
   skippable: true
   restartable: true
   params:
@@ -8447,6 +8463,7 @@ private fun com.wire.android.ui.home.messagecomposer.InputContent(conversationId
     - onPlusClick: STABLE (function type)
     - useKeyboardActivationGate: STABLE (primitive type)
     - modifier: STABLE (marked @Stable or @Immutable)
+    - inputTransformation: STABLE (marked @Stable or @Immutable)
     - viewModel: UNKNOWN (interface or non-final class; concrete implementation unknown)
 
 @Composable
@@ -8483,7 +8500,7 @@ internal fun com.wire.android.ui.home.messagecomposer.KeyboardAttachmentOptions(
     - labelStyle: STABLE (marked @Stable or @Immutable)
 
 @Composable
-private fun com.wire.android.ui.home.messagecomposer.KeyboardMentionItem(member: com.wire.android.model.Contact, searchQuery: kotlin.String, index: kotlin.Int, focusRequesters: kotlin.collections.List<androidx.compose.ui.focus.FocusRequester>, onMentionPicked: kotlin.Function1<com.wire.android.model.Contact, kotlin.Unit>, onDismissRequest: kotlin.Function0<kotlin.Unit>, reverseLayout: kotlin.Boolean): kotlin.Unit
+private fun com.wire.android.ui.home.messagecomposer.KeyboardMentionItem(member: com.wire.android.model.Contact?, searchQuery: kotlin.String, index: kotlin.Int, focusRequesters: kotlin.collections.List<androidx.compose.ui.focus.FocusRequester>, onMentionPicked: kotlin.Function1<com.wire.android.model.Contact, kotlin.Unit>, onEveryoneMentionPicked: kotlin.Function0<kotlin.Unit>, onDismissRequest: kotlin.Function0<kotlin.Unit>, reverseLayout: kotlin.Boolean): kotlin.Unit
   skippable: true
   restartable: true
   params:
@@ -8492,11 +8509,12 @@ private fun com.wire.android.ui.home.messagecomposer.KeyboardMentionItem(member:
     - index: STABLE (primitive type)
     - focusRequesters: RUNTIME (requires runtime check)
     - onMentionPicked: STABLE (function type)
+    - onEveryoneMentionPicked: STABLE (function type)
     - onDismissRequest: STABLE (function type)
     - reverseLayout: STABLE (primitive type)
 
 @Composable
-internal fun com.wire.android.ui.home.messagecomposer.KeyboardMentionList(membersToMention: kotlin.collections.List<com.wire.android.model.Contact>, searchQuery: kotlin.String, onMentionPicked: kotlin.Function1<com.wire.android.model.Contact, kotlin.Unit>, onDismissRequest: kotlin.Function0<kotlin.Unit>, firstItemFocusRequester: androidx.compose.ui.focus.FocusRequester, modifier: androidx.compose.ui.Modifier, reverseLayout: kotlin.Boolean): kotlin.Unit
+internal fun com.wire.android.ui.home.messagecomposer.KeyboardMentionList(membersToMention: kotlin.collections.List<com.wire.android.model.Contact>, searchQuery: kotlin.String, onMentionPicked: kotlin.Function1<com.wire.android.model.Contact, kotlin.Unit>, onDismissRequest: kotlin.Function0<kotlin.Unit>, firstItemFocusRequester: androidx.compose.ui.focus.FocusRequester, modifier: androidx.compose.ui.Modifier, reverseLayout: kotlin.Boolean, showEveryoneMention: kotlin.Boolean, onEveryoneMentionPicked: kotlin.Function0<kotlin.Unit>): kotlin.Unit
   skippable: true
   restartable: true
   params:
@@ -8507,6 +8525,8 @@ internal fun com.wire.android.ui.home.messagecomposer.KeyboardMentionList(member
     - firstItemFocusRequester: STABLE (marked @Stable or @Immutable)
     - modifier: STABLE (marked @Stable or @Immutable)
     - reverseLayout: STABLE (primitive type)
+    - showEveryoneMention: STABLE (primitive type)
+    - onEveryoneMentionPicked: STABLE (function type)
 
 @Composable
 private fun com.wire.android.ui.home.messagecomposer.KeyboardRichTextOption(index: kotlin.Int, focusRequesters: kotlin.collections.List<androidx.compose.ui.focus.FocusRequester>, contentDescription: kotlin.Int, onClick: kotlin.Function0<kotlin.Unit>, modifier: androidx.compose.ui.Modifier, content: @[Composable] androidx.compose.runtime.internal.ComposableFunction1<kotlin.Boolean, kotlin.Unit>): kotlin.Unit
@@ -8532,7 +8552,7 @@ public fun com.wire.android.ui.home.messagecomposer.LinkPreviewCard(preview: com
     - onClick: STABLE (function type)
 
 @Composable
-public fun com.wire.android.ui.home.messagecomposer.MembersMentionList(membersToMention: kotlin.collections.List<com.wire.android.model.Contact>, searchQuery: kotlin.String, onMentionPicked: kotlin.Function1<com.wire.android.model.Contact, kotlin.Unit>, modifier: androidx.compose.ui.Modifier, useKeyboardNavigation: kotlin.Boolean, firstItemFocusRequester: androidx.compose.ui.focus.FocusRequester, onDismissRequest: kotlin.Function0<kotlin.Unit>): kotlin.Unit
+public fun com.wire.android.ui.home.messagecomposer.MembersMentionList(membersToMention: kotlin.collections.List<com.wire.android.model.Contact>, searchQuery: kotlin.String, onMentionPicked: kotlin.Function1<com.wire.android.model.Contact, kotlin.Unit>, modifier: androidx.compose.ui.Modifier, useKeyboardNavigation: kotlin.Boolean, firstItemFocusRequester: androidx.compose.ui.focus.FocusRequester, onDismissRequest: kotlin.Function0<kotlin.Unit>, showEveryoneMention: kotlin.Boolean, onEveryoneMentionPicked: kotlin.Function0<kotlin.Unit>): kotlin.Unit
   skippable: true
   restartable: true
   params:
@@ -8543,6 +8563,8 @@ public fun com.wire.android.ui.home.messagecomposer.MembersMentionList(membersTo
     - useKeyboardNavigation: STABLE (primitive type)
     - firstItemFocusRequester: STABLE (marked @Stable or @Immutable)
     - onDismissRequest: STABLE (function type)
+    - showEveryoneMention: STABLE (primitive type)
+    - onEveryoneMentionPicked: STABLE (function type)
 
 @Composable
 public fun com.wire.android.ui.home.messagecomposer.MessageAttachments(attachments: kotlin.collections.List<com.wire.android.ui.common.attachmentdraft.model.AttachmentDraftUi>, onClick: kotlin.Function1<com.wire.android.ui.common.attachmentdraft.model.AttachmentDraftUi, kotlin.Unit>, onMenuClick: kotlin.Function1<com.wire.android.ui.common.attachmentdraft.model.AttachmentDraftUi, kotlin.Unit>, modifier: androidx.compose.ui.Modifier): kotlin.Unit
@@ -8600,7 +8622,7 @@ public fun com.wire.android.ui.home.messagecomposer.MessageComposer(conversation
     - onAttachmentMenuClick: STABLE (function type)
 
 @Composable
-internal fun com.wire.android.ui.home.messagecomposer.MessageComposerTextInput(messageTextState: androidx.compose.foundation.text.input.TextFieldState, focusRequester: androidx.compose.ui.focus.FocusRequester, colors: com.wire.android.ui.common.textfield.WireTextFieldColors, placeHolderText: kotlin.String, onFocused: kotlin.Function0<kotlin.Unit>, keyboardOptions: androidx.compose.foundation.text.KeyboardOptions, onKeyBoardAction: androidx.compose.foundation.text.input.KeyboardActionHandler?, onHardwareEnter: kotlin.Function1<@[ParameterName(name = \, onHardwareTab: kotlin.Function1<@[ParameterName(name = \, onHardwareEscape: kotlin.Function0<kotlin.Boolean>, useKeyboardActivationGate: kotlin.Boolean, modifier: androidx.compose.ui.Modifier, onSelectedLineIndexChanged: kotlin.Function1<kotlin.Int, kotlin.Unit>, onLineBottomYCoordinateChanged: kotlin.Function1<kotlin.Float, kotlin.Unit>): kotlin.Unit
+internal fun com.wire.android.ui.home.messagecomposer.MessageComposerTextInput(messageTextState: androidx.compose.foundation.text.input.TextFieldState, focusRequester: androidx.compose.ui.focus.FocusRequester, colors: com.wire.android.ui.common.textfield.WireTextFieldColors, placeHolderText: kotlin.String, onFocused: kotlin.Function0<kotlin.Unit>, keyboardOptions: androidx.compose.foundation.text.KeyboardOptions, onKeyBoardAction: androidx.compose.foundation.text.input.KeyboardActionHandler?, onHardwareEnter: kotlin.Function1<@[ParameterName(name = \, onHardwareTab: kotlin.Function1<@[ParameterName(name = \, onHardwareEscape: kotlin.Function0<kotlin.Boolean>, useKeyboardActivationGate: kotlin.Boolean, modifier: androidx.compose.ui.Modifier, inputTransformation: androidx.compose.foundation.text.input.InputTransformation?, onSelectedLineIndexChanged: kotlin.Function1<kotlin.Int, kotlin.Unit>, onLineBottomYCoordinateChanged: kotlin.Function1<kotlin.Float, kotlin.Unit>): kotlin.Unit
   skippable: true
   restartable: true
   params:
@@ -8616,6 +8638,7 @@ internal fun com.wire.android.ui.home.messagecomposer.MessageComposerTextInput(m
     - onHardwareEscape: STABLE (function type)
     - useKeyboardActivationGate: STABLE (primitive type)
     - modifier: STABLE (marked @Stable or @Immutable)
+    - inputTransformation: STABLE (marked @Stable or @Immutable)
     - onSelectedLineIndexChanged: STABLE (function type)
     - onLineBottomYCoordinateChanged: STABLE (function type)
 

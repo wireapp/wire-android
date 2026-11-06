@@ -52,7 +52,6 @@ fun PreviewImageMessagesPhotoLandscape() {
                 conversationDetailsData = ConversationDetailsData.Group(null, QualifiedID("value", "domain")),
                 assetStatus = AssetTransferStatus.SAVED_INTERNALLY,
                 clickActions = MessageClickActions.Content(),
-                isBubbleUiEnabled = true,
             )
             RegularMessageItem(
                 message = mockedImageUIMessage(
@@ -66,7 +65,6 @@ fun PreviewImageMessagesPhotoLandscape() {
                 conversationDetailsData = ConversationDetailsData.Group(null, QualifiedID("value", "domain")),
                 assetStatus = AssetTransferStatus.SAVED_INTERNALLY,
                 clickActions = MessageClickActions.Content(),
-                isBubbleUiEnabled = true
             )
         }
     }
@@ -89,7 +87,6 @@ fun PreviewImageMessagesPhotoPortrait() {
                 conversationDetailsData = ConversationDetailsData.Group(null, QualifiedID("value", "domain")),
                 assetStatus = AssetTransferStatus.SAVED_INTERNALLY,
                 clickActions = MessageClickActions.Content(),
-                isBubbleUiEnabled = true,
             )
             RegularMessageItem(
                 message = mockedImageUIMessage(
@@ -103,7 +100,6 @@ fun PreviewImageMessagesPhotoPortrait() {
                 conversationDetailsData = ConversationDetailsData.Group(null, QualifiedID("value", "domain")),
                 assetStatus = AssetTransferStatus.SAVED_INTERNALLY,
                 clickActions = MessageClickActions.Content(),
-                isBubbleUiEnabled = true
             )
         }
     }
@@ -126,7 +122,6 @@ fun PreviewImageMessagesSquarePhoto() {
                 conversationDetailsData = ConversationDetailsData.Group(null, QualifiedID("value", "domain")),
                 assetStatus = AssetTransferStatus.SAVED_INTERNALLY,
                 clickActions = MessageClickActions.Content(),
-                isBubbleUiEnabled = true,
             )
             RegularMessageItem(
                 message = mockedImageUIMessage(
@@ -140,7 +135,6 @@ fun PreviewImageMessagesSquarePhoto() {
                 conversationDetailsData = ConversationDetailsData.Group(null, QualifiedID("value", "domain")),
                 assetStatus = AssetTransferStatus.SAVED_INTERNALLY,
                 clickActions = MessageClickActions.Content(),
-                isBubbleUiEnabled = true
             )
         }
     }
@@ -163,7 +157,6 @@ fun PreviewImageMessagesMediumLandscape() {
                 conversationDetailsData = ConversationDetailsData.Group(null, QualifiedID("value", "domain")),
                 assetStatus = AssetTransferStatus.SAVED_INTERNALLY,
                 clickActions = MessageClickActions.Content(),
-                isBubbleUiEnabled = true,
             )
             RegularMessageItem(
                 message = mockedImageUIMessage(
@@ -177,7 +170,6 @@ fun PreviewImageMessagesMediumLandscape() {
                 conversationDetailsData = ConversationDetailsData.Group(null, QualifiedID("value", "domain")),
                 assetStatus = AssetTransferStatus.SAVED_INTERNALLY,
                 clickActions = MessageClickActions.Content(),
-                isBubbleUiEnabled = true
             )
         }
     }
@@ -200,7 +192,6 @@ fun PreviewImageMessagesUltraWideBanner() {
                 conversationDetailsData = ConversationDetailsData.Group(null, QualifiedID("value", "domain")),
                 assetStatus = AssetTransferStatus.SAVED_INTERNALLY,
                 clickActions = MessageClickActions.Content(),
-                isBubbleUiEnabled = true,
             )
             RegularMessageItem(
                 message = mockedImageUIMessage(
@@ -214,7 +205,6 @@ fun PreviewImageMessagesUltraWideBanner() {
                 conversationDetailsData = ConversationDetailsData.Group(null, QualifiedID("value", "domain")),
                 assetStatus = AssetTransferStatus.SAVED_INTERNALLY,
                 clickActions = MessageClickActions.Content(),
-                isBubbleUiEnabled = true
             )
         }
     }
@@ -237,7 +227,6 @@ fun PreviewImageMessagesUltraTallScreenshot() {
                 conversationDetailsData = ConversationDetailsData.Group(null, QualifiedID("value", "domain")),
                 assetStatus = AssetTransferStatus.SAVED_INTERNALLY,
                 clickActions = MessageClickActions.Content(),
-                isBubbleUiEnabled = true,
             )
             RegularMessageItem(
                 message = mockedImageUIMessage(
@@ -251,7 +240,6 @@ fun PreviewImageMessagesUltraTallScreenshot() {
                 conversationDetailsData = ConversationDetailsData.Group(null, QualifiedID("value", "domain")),
                 assetStatus = AssetTransferStatus.SAVED_INTERNALLY,
                 clickActions = MessageClickActions.Content(),
-                isBubbleUiEnabled = true
             )
         }
     }
@@ -274,7 +262,6 @@ fun PreviewImageMessagesUltraSmall() {
                 conversationDetailsData = ConversationDetailsData.Group(null, QualifiedID("value", "domain")),
                 assetStatus = AssetTransferStatus.SAVED_INTERNALLY,
                 clickActions = MessageClickActions.Content(),
-                isBubbleUiEnabled = true,
             )
             RegularMessageItem(
                 message = mockedImageUIMessage(
@@ -289,7 +276,6 @@ fun PreviewImageMessagesUltraSmall() {
                 conversationDetailsData = ConversationDetailsData.Group(null, QualifiedID("value", "domain")),
                 assetStatus = AssetTransferStatus.SAVED_INTERNALLY,
                 clickActions = MessageClickActions.Content(),
-                isBubbleUiEnabled = true
             )
         }
     }

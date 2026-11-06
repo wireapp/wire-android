@@ -35,7 +35,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import com.wire.android.BuildConfig.IS_BUBBLE_UI_ENABLED
 import com.wire.android.R
 import com.wire.android.ui.common.HandleActions
 import com.wire.android.ui.common.R as commonR
@@ -179,60 +178,56 @@ fun ChangeUserColorContent(
                     }
 
                     VerticalSpace.x24()
-                    if (IS_BUBBLE_UI_ENABLED) {
-                        SectionHeader(stringResource(R.string.settings_myaccount_user_color_example))
-                        VerticalSpace.x4()
+                    SectionHeader(stringResource(R.string.settings_myaccount_user_color_example))
+                    VerticalSpace.x4()
 
-                        Column(
-                            modifier = Modifier
-                                .weight(weight = 1f, fill = true)
-                                .fillMaxWidth()
-                                .verticalScroll(scrollState)
-                        ) {
+                    Column(
+                        modifier = Modifier
+                            .weight(weight = 1f, fill = true)
+                            .fillMaxWidth()
+                            .verticalScroll(scrollState)
+                    ) {
 
-                            Column(modifier = Modifier.background(colorsScheme().surface)) {
+                        Column(modifier = Modifier.background(colorsScheme().surface)) {
 
-                                VerticalSpace.x12()
+                            VerticalSpace.x12()
 
-                                RegularMessageItem(
-                                    message = mockMessageWithTextContent(SELF_USER_MESSAGE_TEXT).copy(
-                                        header = mockMessageWithText.header.copy(
-                                            username = UIText.DynamicString(
-                                                "Paul Nagel"
-                                            ),
-                                            accent = state.accent ?: Accent.Blue
+                            RegularMessageItem(
+                                message = mockMessageWithTextContent(SELF_USER_MESSAGE_TEXT).copy(
+                                    header = mockMessageWithText.header.copy(
+                                        username = UIText.DynamicString(
+                                            "Paul Nagel"
                                         ),
-                                        messageFooter = mockEmptyFooter,
+                                        accent = state.accent ?: Accent.Blue
                                     ),
-                                    conversationDetailsData = ConversationDetailsData.Group(null, QualifiedID("value", "domain")),
-                                    clickActions = MessageClickActions.Content(),
-                                    isBubbleUiEnabled = true,
-                                )
+                                    messageFooter = mockEmptyFooter,
+                                ),
+                                conversationDetailsData = ConversationDetailsData.Group(null, QualifiedID("value", "domain")),
+                                clickActions = MessageClickActions.Content(),
+                            )
 
-                                RegularMessageItem(
-                                    message = mockMessageWithTextContent("Have a look here: www.wire.com").copy(
-                                        source = MessageSource.OtherUser,
-                                        header = mockHeader.copy(
-                                            username = UIText.DynamicString(
-                                                "Paul Nagel"
-                                            ),
-                                            membership = Membership.Standard
+                            RegularMessageItem(
+                                message = mockMessageWithTextContent("Have a look here: www.wire.com").copy(
+                                    source = MessageSource.OtherUser,
+                                    header = mockHeader.copy(
+                                        username = UIText.DynamicString(
+                                            "Paul Nagel"
                                         ),
-                                        messageFooter = MessageFooter(
-                                            messageId = "messageId",
-                                            reactionMap = mapOf(
-                                                "👍" to Reaction(16, isSelf = true),
-                                                "👎" to Reaction(16, isSelf = false),
-                                            ),
+                                        membership = Membership.Standard
+                                    ),
+                                    messageFooter = MessageFooter(
+                                        messageId = "messageId",
+                                        reactionMap = mapOf(
+                                            "👍" to Reaction(16, isSelf = true),
+                                            "👎" to Reaction(16, isSelf = false),
                                         ),
                                     ),
-                                    conversationDetailsData = ConversationDetailsData.Group(null, QualifiedID("value", "domain")),
-                                    clickActions = MessageClickActions.Content(),
-                                    isBubbleUiEnabled = true,
-                                )
+                                ),
+                                conversationDetailsData = ConversationDetailsData.Group(null, QualifiedID("value", "domain")),
+                                clickActions = MessageClickActions.Content(),
+                            )
 
-                                VerticalSpace.x24()
-                            }
+                            VerticalSpace.x24()
                         }
                     }
                 }

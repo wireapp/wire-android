@@ -39,7 +39,7 @@ private fun PreviewMultipartMessage(text: String?, message: UIQuotedMultipartMes
         originalDateTimeText = UIText.DynamicString(""),
         text = text,
         style = QuotedMessageStyle(
-            messageStyle = MessageStyle.NORMAL,
+            messageStyle = MessageStyle.BUBBLE_OTHER,
             quotedStyle = QuotedStyle.PREVIEW,
             selfAccent = Accent.Blue,
             senderAccent = Accent.Amber

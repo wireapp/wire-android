@@ -32,12 +32,9 @@ import androidx.compose.ui.res.stringResource
 import com.wire.android.R
 import com.wire.android.media.audiomessage.AudioMessageArgs
 import com.wire.android.model.Clickable
-import com.wire.android.ui.common.applyIf
 import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.common.spacers.HorizontalSpace
 import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.home.conversations.conversationAssetPathsViewModel
-import com.wire.android.ui.home.conversations.info.ConversationDetailsData
 import com.wire.android.ui.home.conversations.messages.QuotedMessage
 import com.wire.android.ui.home.conversations.messages.QuotedMessageStyle
 import com.wire.android.ui.home.conversations.messages.QuotedStyle
@@ -49,7 +46,6 @@ import com.wire.android.ui.home.conversations.model.MessageSenderId
 import com.wire.android.ui.home.conversations.model.MessageSource
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UIMessageContent
-import com.wire.android.ui.home.conversations.model.UIMessageContent.PartialDeliverable
 import com.wire.android.ui.home.conversations.model.UIQuotedMessage
 import com.wire.android.ui.home.conversations.model.messagetypes.asset.MessageAsset
 import com.wire.android.ui.home.conversations.model.messagetypes.asset.RestrictedAssetMessage
@@ -79,8 +75,6 @@ internal fun UIMessage.Regular.MessageContentAndStatus(
     onProfileClicked: (senderId: MessageSenderId) -> Unit,
     onLinkClicked: (String) -> Unit,
     onReplyClicked: (UIMessage.Regular) -> Unit,
-    shouldDisplayMessageStatus: Boolean,
-    conversationDetailsData: ConversationDetailsData,
     accent: Accent = Accent.Unknown,
 ) {
     val conversationAssetPathsViewModel = when {
@@ -114,7 +108,7 @@ internal fun UIMessage.Regular.MessageContentAndStatus(
         }
     }
     Row {
-        Column(Modifier.applyIf(!messageStyle.isBubble()) { weight(1F) }) {
+        Column {
             MessageContent(
                 message = message,
                 messageContent = messageContent,
@@ -133,32 +127,11 @@ internal fun UIMessage.Regular.MessageContentAndStatus(
                 accent = accent,
                 conversationAssetPathsViewModel = conversationAssetPathsViewModel
             )
-            if (!messageStyle.isBubble()) {
-                if (messageContent is PartialDeliverable && messageContent.deliveryStatus.hasAnyFailures) {
-                    PartialDeliveryInformation(messageContent.deliveryStatus, messageStyle)
-                }
-            }
         }
-        if (!messageStyle.isBubble()) {
-            if (isMyMessage && shouldDisplayMessageStatus) {
-                MessageStatusIndicator(
-                    status = message.header.messageStatus.flowStatus,
-                    isGroupConversation = conversationDetailsData is ConversationDetailsData.Group,
-                    messageStyle = messageStyle,
-                    modifier = Modifier.padding(
-                        top = if (message.isTextContentWithoutQuote) dimensions().spacing2x else dimensions().spacing4x,
-                        start = dimensions().spacing8x
-                    )
-                )
-            } else {
-                HorizontalSpace.x24()
-            }
+        if (message.isTextContentWithoutQuote) {
+            VerticalSpace.x2()
         } else {
-            if (message.isTextContentWithoutQuote) {
-                VerticalSpace.x2()
-            } else {
-                VerticalSpace.x4()
-            }
+            VerticalSpace.x4()
         }
     }
 }

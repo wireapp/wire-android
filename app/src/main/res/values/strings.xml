@@ -116,6 +116,7 @@
     <string name="content_description_conversation_send_emoticon">Send Emoticon</string>
     <string name="content_description_conversation_send_gif">Send GIF</string>
     <string name="content_description_conversation_mention_someone">Mention someone</string>
+    <string name="mention_everyone_description">Notify everyone in this conversation</string>
     <string name="content_description_conversation_back_btn">Go back to conversation list</string>
     <string name="content_description_conversation_open_details_label">open conversation details</string>
     <string name="content_description_new_conversation">New. Start a new conversation</string>

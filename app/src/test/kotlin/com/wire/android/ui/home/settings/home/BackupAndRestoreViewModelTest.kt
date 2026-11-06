@@ -81,10 +81,14 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertInstanceOf
+import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+
+private const val BACKUP_ARCHIVE_NAME = "some-backup.zip"
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(SnapshotExtension::class)
@@ -259,7 +263,7 @@ class BackupAndRestoreViewModelTest {
         advanceUntilIdle()
 
         // Then
-        assert(backupAndRestoreViewModel.latestCreatedBackup == storedBackup)
+        assertNull(backupAndRestoreViewModel.latestCreatedBackup)
         assertEquals(
             BackupAndRestoreState.INITIAL_STATE.copy(lastBackupData = backupAndRestoreViewModel.state.lastBackupData),
             backupAndRestoreViewModel.state
@@ -274,6 +278,55 @@ class BackupAndRestoreViewModelTest {
         coVerify(exactly = 1) {
             arrangement.userDataStore.setLastBackupDateSeconds(any())
         }
+    }
+
+    @Test
+    fun givenACreatedBackupArchive_whenSavingIt_thenTheCreateWorkdirIsDeleted() = runTest(dispatcher.default()) {
+        // Given
+        val (arrangement, backupAndRestoreViewModel) = Arrangement()
+            .withUpdateLastBackupData()
+            .withArchiveInCreateWorkdir()
+            .arrange()
+
+        // When
+        backupAndRestoreViewModel.saveBackup("some-backup".toUri())
+        advanceUntilIdle()
+
+        // Then
+        assertFalse(arrangement.fakeKaliumFileSystem.exists(arrangement.workdirPath))
+    }
+
+    @Test
+    fun givenACreatedBackupArchive_whenSharingIt_thenTheArchiveIsKept() = runTest {
+        // Given
+        val (arrangement, backupAndRestoreViewModel) = Arrangement()
+            .withUpdateLastBackupData()
+            .withArchiveInCreateWorkdir()
+            .arrange()
+
+        // When
+        backupAndRestoreViewModel.shareBackup()
+        advanceUntilIdle()
+
+        // Then
+        assertTrue(arrangement.fakeKaliumFileSystem.exists(arrangement.workdirPath / BACKUP_ARCHIVE_NAME))
+        assertNotNull(backupAndRestoreViewModel.latestCreatedBackup)
+    }
+
+    @Test
+    fun givenALegacyArchiveInTheCacheRoot_whenSavingIt_thenOtherCacheFilesAreKept() = runTest(dispatcher.default()) {
+        // Given
+        val (arrangement, backupAndRestoreViewModel) = Arrangement()
+            .withUpdateLastBackupData()
+            .withLegacyArchiveInCacheRoot()
+            .arrange()
+
+        // When
+        backupAndRestoreViewModel.saveBackup("some-backup".toUri())
+        advanceUntilIdle()
+
+        // Then
+        assertTrue(arrangement.fakeKaliumFileSystem.exists(arrangement.otherCacheFilePath))
     }
 
     @Test
@@ -621,6 +674,23 @@ class BackupAndRestoreViewModelTest {
         fun withPreviouslyCreatedBackup(backup: BackupAndRestoreState.CreatedBackup) = apply {
             viewModel.latestCreatedBackup = backup
             viewModel.state = viewModel.state.copy(backupCreationProgress = BackupCreationProgress.Finished(backup.assetName))
+        }
+
+        val workdirPath = fakeKaliumFileSystem.tempFilePath("some-backup-create-workdir")
+        val otherCacheFilePath = fakeKaliumFileSystem.tempFilePath("other-file.tmp")
+
+        fun withArchiveInCreateWorkdir() = apply {
+            fakeKaliumFileSystem.createDirectories(workdirPath)
+            val archivePath = workdirPath / BACKUP_ARCHIVE_NAME
+            fakeKaliumFileSystem.sink(archivePath).buffer().use { it.write("backupData".toByteArray()) }
+            withPreviouslyCreatedBackup(BackupAndRestoreState.CreatedBackup(archivePath, BACKUP_ARCHIVE_NAME, false))
+        }
+
+        fun withLegacyArchiveInCacheRoot() = apply {
+            val archivePath = fakeKaliumFileSystem.tempFilePath(BACKUP_ARCHIVE_NAME)
+            fakeKaliumFileSystem.sink(archivePath).buffer().use { it.write("backupData".toByteArray()) }
+            fakeKaliumFileSystem.sink(otherCacheFilePath).buffer().use { it.write("other".toByteArray()) }
+            withPreviouslyCreatedBackup(BackupAndRestoreState.CreatedBackup(archivePath, BACKUP_ARCHIVE_NAME, false))
         }
 
         fun withSuccessfulBackupRestore() = apply {

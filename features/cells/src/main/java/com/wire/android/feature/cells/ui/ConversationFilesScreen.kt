@@ -584,7 +584,8 @@ internal fun ConversationFilesScreenContent(
                                 canRemoveOfflineAccess = canRemoveSelectionOfflineAccess,
                                 isRecycleBin = isRecycleBin,
                             )
-                        },                        onActionClick = { action -> sendIntent(action.toIntent()) },
+                        },
+                        onActionClick = { action -> sendIntent(action.toIntent()) },
                         shape = RoundedCornerShape(barCornerRadius),
                         modifier = Modifier.sharedBounds(
                             sharedContentState = rememberSharedContentState(key = fabToBulkActionsKey),

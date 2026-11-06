@@ -19,6 +19,7 @@ includeBuild("kalium") {
     // This dependency substitution should not be done on release mode once the Kalium library has been published to Maven repo
     dependencySubstitution {
         substitute(module("com.wire.kalium:kalium-logic")).using(project(":logic"))
+        substitute(module("com.wire.kalium:kalium-persistence")).using(project(":data:persistence"))
         substitute(module("com.wire.kalium:kalium-util")).using(project(":core:util"))
         substitute(module("com.wire.kalium:kalium-data")).using(project(":core:data"))
         substitute(module("com.wire.kalium:kalium-common")).using(project(":core:common"))

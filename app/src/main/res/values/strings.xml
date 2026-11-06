@@ -2016,4 +2016,6 @@ In group conversations, the group admin can overwrite this setting.</string>
     </plurals>
     <string name="startup_account_limit_logout">Log out of this account</string>
     <string name="startup_account_limit_later">Later</string>
+    <string name="secure_storage_unavailable_title">Unable to open Wire</string>
+    <string name="secure_storage_unavailable_message">Wire couldn\'t access secure storage on this device. Close the app and try again. If the problem continues, restart your device.</string>
 </resources>

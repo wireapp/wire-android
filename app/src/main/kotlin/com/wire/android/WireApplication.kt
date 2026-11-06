@@ -37,6 +37,8 @@ import com.wire.android.di.ApplicationScope
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.di.metro.WireApplicationGraph
 import com.wire.android.di.metro.WireViewModelDiagnostics
+import com.wire.android.startup.ApplicationStartup
+import com.wire.android.startup.StartupState
 import com.wire.android.di.metro.createWireApplicationGraph
 import com.wire.android.feature.analytics.AnonymousAnalyticsManager
 import com.wire.android.feature.analytics.AnonymousAnalyticsManagerImpl
@@ -79,6 +81,9 @@ import kotlin.collections.filter
 
 @Suppress("TooManyFunctions")
 class WireApplication : BaseApp() {
+
+    private val startup = ApplicationStartup()
+    internal val startupState: StartupState get() = startup.state
 
     private val hasInitializedDeferredLogging = AtomicBoolean(false)
 
@@ -133,9 +138,12 @@ class WireApplication : BaseApp() {
     override fun onCreate() {
         val startupAt = SystemClock.elapsedRealtime()
         traceStartup("application.onCreate.begin")
-        appGraph.inject(this)
         super.onCreate()
         initializeMinimalLogging()
+        if (!startup.initialize { appGraph.inject(this) }) {
+            Log.e(TAG, "Secure storage initialization failed; normal startup is blocked")
+            return
+        }
         if (WireNavigationDiagnostics.enabled) {
             WireViewModelDiagnostics.install(WireNavigationDiagnostics)
         }
@@ -466,6 +474,7 @@ class WireApplication : BaseApp() {
 
     override fun onLowMemory() {
         super.onLowMemory()
+        if (startupState != StartupState.Ready) return
         appLogger.w("onLowMemory called - Stopping logging, buckling the seatbelt and hoping for the best!")
         globalAppScope.launch {
             logFileWriter.value.stop()

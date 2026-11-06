@@ -18,23 +18,28 @@
 
 package com.wire.android.ui
 
+import android.app.ActivityManager
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import android.os.Process
 import android.os.SystemClock
 import android.util.Log
 import android.view.WindowManager
+import androidx.activity.addCallback
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.annotation.VisibleForTesting
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.ui.res.stringResource
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.wire.android.BuildConfig
+import com.wire.android.R
 import com.wire.android.WireApplication
 import com.wire.android.appLogger
 import com.wire.android.di.metro.WireViewModelDiagnostics
@@ -54,10 +59,16 @@ import com.wire.android.navigation.runtime.startup.WireInitialRouteResolver
 import com.wire.android.navigation.runtime.startup.WireStartupLoginType
 import com.wire.android.navigation.runtime.startup.toWireSessionId
 import com.wire.android.notification.broadcastreceivers.DynamicReceiversManager
+import com.wire.android.startup.StartupState
+import com.wire.android.ui.common.WireDialog
+import com.wire.android.ui.common.WireDialogButtonProperties
+import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.setupOrientationForDevice
+import com.wire.android.ui.common.wireDialogPropertiesBuilder
 import com.wire.android.ui.home.appLock.LockCodeTimeManager
 import com.wire.android.ui.sharing.hasTrustedWireShareCaller
 import com.wire.android.ui.sharing.sharingUris
+import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.CurrentScreenManager
 import com.wire.android.util.ShakeDetector
 import com.wire.android.util.SwitchAccountObserver
@@ -109,6 +120,8 @@ class WireActivity : BaseActivity() {
     private val intentCoordinator = WireActivityIntentCoordinator()
     private lateinit var shakeDetector: ShakeDetector
 
+    private var startupBlocked = false
+
     // This flag is used to keep the splash screen open until the first screen is drawn.
     private var shouldKeepSplashOpen = true
     private var isAppLockActivityLaunching = false
@@ -121,10 +134,8 @@ class WireActivity : BaseActivity() {
         // Otherwise a white screen is displayed.
         // It's an API limitation, at some point we may need to remove it
         val splashScreen = installSplashScreen()
-        wireApplicationGraph.inject(this)
-        super.onCreate(savedInstanceState)
-        WireViewModelDiagnostics.ownerAvailable(this, ACTIVITY_COORDINATOR_OWNER_KEY)
         splashScreen.setKeepOnScreenCondition { shouldKeepSplashOpen }
+        if (!initializeActivity(savedInstanceState)) return
         traceStartup("activity.onCreate.afterSuper", startupAt)
         val initialIntentRequest = captureIntentRequest(intent, savedInstanceState)
 
@@ -188,8 +199,49 @@ class WireActivity : BaseActivity() {
         }
     }
 
+    private fun initializeActivity(savedInstanceState: Bundle?): Boolean {
+        startupBlocked = (application as WireApplication).startupState == StartupState.SecureStorageUnavailable
+        if (startupBlocked) {
+            super.onCreate(savedInstanceState)
+            shouldKeepSplashOpen = false
+            showSecureStorageError()
+            return false
+        }
+        wireApplicationGraph.inject(this)
+        super.onCreate(savedInstanceState)
+        WireViewModelDiagnostics.ownerAvailable(this, ACTIVITY_COORDINATOR_OWNER_KEY)
+        return true
+    }
+
+    private fun showSecureStorageError() {
+        onBackPressedDispatcher.addCallback(this) { /* Close is the only dismissal action. */ }
+        setContent {
+            WireTheme {
+                WireDialog(
+                    title = stringResource(R.string.secure_storage_unavailable_title),
+                    text = stringResource(R.string.secure_storage_unavailable_message),
+                    onDismiss = {},
+                    optionButton1Properties = WireDialogButtonProperties(
+                        text = stringResource(R.string.label_close),
+                        onClick = {
+                            getSystemService(ActivityManager::class.java).appTasks.forEach { it.finishAndRemoveTask() }
+                            // The next launch must retry initialization with a fresh dependency graph.
+                            Process.killProcess(Process.myPid())
+                        },
+                        type = WireDialogButtonType.Primary
+                    ),
+                    properties = wireDialogPropertiesBuilder(
+                        dismissOnBackPress = false,
+                        dismissOnClickOutside = false
+                    )
+                )
+            }
+        }
+    }
+
     override fun onStart() {
         super.onStart()
+        if (startupBlocked) return
         dynamicReceiversManager.registerAll()
         if (BuildConfig.EMM_SUPPORT_ENABLED) {
             lifecycleScope.launch(Dispatchers.IO) {
@@ -202,11 +254,12 @@ class WireActivity : BaseActivity() {
 
     override fun onStop() {
         super.onStop()
-        dynamicReceiversManager.unregisterAll()
+        if (!startupBlocked) dynamicReceiversManager.unregisterAll()
     }
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
+        if (startupBlocked) return
 
         if (intent.action?.equals(Intent.ACTION_SYNC) == true) {
             handleSynchronizeExternalData(intent)
@@ -261,11 +314,11 @@ class WireActivity : BaseActivity() {
 
     override fun onResume() {
         super.onResume()
-        shakeDetector.start()
+        if (!startupBlocked) shakeDetector.start()
     }
 
     override fun onPause() {
-        shakeDetector.stop()
+        if (!startupBlocked) shakeDetector.stop()
         super.onPause()
     }
 

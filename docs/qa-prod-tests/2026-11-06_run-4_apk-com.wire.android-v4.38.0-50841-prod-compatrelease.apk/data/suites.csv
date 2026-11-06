@@ -1,0 +1,2 @@
+"Status","Start Time","Stop Time","Duration in ms","Parent Suite","Suite","Sub Suite","Test Class","Test Method","Name","Description"
+"failed","Fri Nov 06 10:17:03 CET 2026","Fri Nov 06 10:18:13 CET 2026","70270","","com.wire.android.tests.core.e2eTests.CopyMessageTests","","com.wire.android.tests.core.e2eTests.CopyMessageTests","givenConversationWithManyMessages_whenICopyMessageAfterScrolling_thenCorrectMessageIsCopied","givenConversationWithManyMessages_whenICopyMessageAfterScrolling_thenCorrectMessageIsCopied",""

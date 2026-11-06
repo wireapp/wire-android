@@ -1,0 +1,1 @@
+{"cedeefec87cdf7e7074e75330c46fbed":{"statistic":{"failed":1,"broken":0,"skipped":0,"passed":0,"unknown":0,"total":1},"items":[{"uid":"4c738ff40f4beb18","status":"failed","statusDetails":"Failure details omitted from the publishable report.","time":{"start":1793960129883,"stop":1793960235031,"duration":105148}}]}}

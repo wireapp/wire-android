@@ -18,8 +18,6 @@
 
 package com.wire.android.ui.home.conversations.messages.item
 
-import androidx.compose.foundation.LocalIndication
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
@@ -53,178 +51,25 @@ fun RegularMessageItem(
     failureInteractionAvailable: Boolean = true,
     useSmallBottomPadding: Boolean = false,
     selfDeletionTimerState: SelfDeletionTimerHelper.SelfDeletionTimerState = SelfDeletionTimerHelper.SelfDeletionTimerState.NotExpirable,
-    isBubbleUiEnabled: Boolean = false
 ): Unit = with(message) {
-    val messageStyle = when {
-        !isBubbleUiEnabled -> MessageStyle.NORMAL
-        message.isMyMessage -> MessageStyle.BUBBLE_SELF
-        else -> MessageStyle.BUBBLE_OTHER
-    }
+    val messageStyle = if (message.isMyMessage) MessageStyle.BUBBLE_SELF else MessageStyle.BUBBLE_OTHER
 
     @Composable
     fun messageContent() {
-        if (isBubbleUiEnabled) {
-            val footerSlot: (@Composable (inner: PaddingValues) -> Unit)? =
-                if (shouldDisplayFooter && !message.header.messageStatus.isDeleted) {
-                    { innerPadding ->
-                        MessageReactionsItem(
-                            messageFooter = message.messageFooter,
-                            messageStyle = messageStyle,
-                            onReactionClicked = clickActions.onReactionClicked,
-                            modifier = Modifier.padding(innerPadding),
-                            itemsAlignment = if (message.isMyMessage) {
-                                Alignment.End
-                            } else {
-                                Alignment.Start
-                            },
-                            onLongClick = when {
-                                message.header.messageStatus.isDeleted -> null // do not allow long press on deleted messages
-                                else -> clickActions.onFullMessageLongClicked?.let {
-                                    {
-                                        it(message)
-                                    }
-                                }
-                            },
-                        )
-                    }
-                } else {
-                    null
-                }
-
-            val leadingSlot: (@Composable () -> Unit)? =
-                if (source == MessageSource.OtherUser && conversationDetailsData is ConversationDetailsData.Group) {
-                    {
-                        RegularMessageItemLeading(
-                            header = header,
-                            showAuthor = !useSmallBottomPadding,
-                            userAvatarData = message.userAvatarData,
-                            onOpenProfile = clickActions.onProfileClicked
-                        )
-                    }
-                } else {
-                    null
-                }
-
-            val headerSlot: (@Composable (inner: PaddingValues) -> Unit)? =
-                if (showAuthor && (source == MessageSource.OtherUser)) {
-                    { innerPadding ->
-                        MessageAuthorRow(
-                            messageHeader = message.header,
-                            messageStyle = messageStyle,
-                            modifier = Modifier
-                                .padding(innerPadding)
-                                .padding(
-                                    bottom = dimensions().spacing4x,
-                                )
-                        )
-                    }
-                } else {
-                    null
-                }
-
-            val errorSlot: (@Composable () -> Unit)? = when {
-                isDeleted -> null
-                sendingFailed -> {
-                    {
-                        MessageSendFailureWarning(
-                            messageStatus = header.messageStatus.flowStatus as MessageFlowStatus.Failure.Send,
-                            isInteractionAvailable = failureInteractionAvailable,
-                            messageStyle = messageStyle,
-                            onRetryClick = remember(message) {
-                                {
-                                    clickActions.onFailedMessageRetryClicked(
-                                        header.messageId,
-                                        message.conversationId
-                                    )
-                                }
-                            },
-                            onCancelClick = remember(message) {
-                                {
-                                    clickActions.onFailedMessageCancelClicked(header.messageId)
-                                }
-                            }
-                        )
-                    }
-                }
-
-                messageContent is PartialDeliverable && messageContent.deliveryStatus.hasAnyFailures -> {
-                    {
-                        PartialDeliveryInformation(messageContent.deliveryStatus, messageStyle)
-                    }
-                }
-
-                else -> null
-            }
-
-            MessageBubbleItem(
-                message = message,
-                source = source,
-                messageStatus = header.messageStatus,
-                showAuthor = showAuthor,
-                accent = header.accent,
-                useSmallBottomPadding = useSmallBottomPadding,
-                leading = leadingSlot,
-                error = errorSlot,
-                onClick = clickActions.onFullMessageClicked?.let { onFullMessageClicked ->
-                    {
-                        onFullMessageClicked(message.header.messageId)
-                    }
-                },
-                onLongClick = when {
-                    message.header.messageStatus.isDeleted -> null // do not allow long press on deleted messages
-                    else -> clickActions.onFullMessageLongClicked?.let {
-                        {
-                            it(message)
-                        }
-                    }
-                },
-                footer = footerSlot,
-                header = headerSlot,
-                content = { innerPadding ->
-                    MessageContentItem(
-                        clickActions = clickActions,
-                        message = message,
-                        conversationDetailsData = conversationDetailsData,
-                        modifier = modifier,
-                        accent = header.accent,
-                        searchQuery = searchQuery,
-                        assetStatus = assetStatus,
-                        shouldDisplayMessageStatus = shouldDisplayMessageStatus,
-                        shouldDisplayFooter = shouldDisplayFooter,
-                        failureInteractionAvailable = failureInteractionAvailable,
-                        useSmallBottomPadding = useSmallBottomPadding,
-                        selfDeletionTimerState = selfDeletionTimerState,
-                        innerPadding = innerPadding,
-                        messageStyle = messageStyle
-                    )
-                }
-            )
-        } else {
-            val headerSlot: (@Composable () -> Unit)? =
-                if (showAuthor) {
-                    {
-                        MessageAuthorRow(
-                            messageHeader = message.header,
-                            messageStyle = messageStyle,
-                            modifier = Modifier
-                                .padding(top = dimensions().avatarClickablePadding, bottom = dimensions().spacing4x)
-                        )
-                    }
-                } else {
-                    null
-                }
-
-            MessageItemTemplate(
-                modifier = modifier
-                    .interceptCombinedClickable(
-                        interactionSource = remember { MutableInteractionSource() },
-                        indication = LocalIndication.current,
-                        onClick = clickActions.onFullMessageClicked?.let { onFullMessageClicked ->
-                            {
-                                onFullMessageClicked(message.header.messageId)
-                            }
+        val footerSlot: (@Composable (inner: PaddingValues) -> Unit)? =
+            if (shouldDisplayFooter && !message.header.messageStatus.isDeleted) {
+                { innerPadding ->
+                    MessageReactionsItem(
+                        messageFooter = message.messageFooter,
+                        messageStyle = messageStyle,
+                        onReactionClicked = clickActions.onReactionClicked,
+                        modifier = Modifier.padding(innerPadding),
+                        itemsAlignment = if (message.isMyMessage) {
+                            Alignment.End
+                        } else {
+                            Alignment.Start
                         },
-                        onLongPress = when {
+                        onLongClick = when {
                             message.header.messageStatus.isDeleted -> null // do not allow long press on deleted messages
                             else -> clickActions.onFullMessageLongClicked?.let {
                                 {
@@ -232,42 +77,120 @@ fun RegularMessageItem(
                                 }
                             }
                         },
-                    ),
-                useSmallBottomPadding = useSmallBottomPadding,
-                fullAvatarOuterPadding = dimensions().avatarClickablePadding,
-                header = headerSlot,
-                leading = {
+                    )
+                }
+            } else {
+                null
+            }
+
+        val leadingSlot: (@Composable () -> Unit)? =
+            if (source == MessageSource.OtherUser && conversationDetailsData is ConversationDetailsData.Group) {
+                {
                     RegularMessageItemLeading(
                         header = header,
-                        showAuthor = showAuthor,
+                        showAuthor = !useSmallBottomPadding,
                         userAvatarData = message.userAvatarData,
                         onOpenProfile = clickActions.onProfileClicked
                     )
-                },
-                content = {
-                    MessageContentItem(
-                        clickActions = clickActions,
-                        message = message,
-                        conversationDetailsData = conversationDetailsData,
-                        modifier = modifier,
-                        searchQuery = searchQuery,
-                        assetStatus = assetStatus,
-                        shouldDisplayMessageStatus = shouldDisplayMessageStatus,
-                        shouldDisplayFooter = shouldDisplayFooter,
-                        failureInteractionAvailable = failureInteractionAvailable,
-                        useSmallBottomPadding = useSmallBottomPadding,
-                        selfDeletionTimerState = selfDeletionTimerState,
-                        messageStyle = messageStyle
+                }
+            } else {
+                null
+            }
+
+        val headerSlot: (@Composable (inner: PaddingValues) -> Unit)? =
+            if (showAuthor && (source == MessageSource.OtherUser)) {
+                { innerPadding ->
+                    MessageAuthorRow(
+                        messageHeader = message.header,
+                        modifier = Modifier
+                            .padding(innerPadding)
+                            .padding(
+                                bottom = dimensions().spacing4x,
+                            )
                     )
                 }
-            )
+            } else {
+                null
+            }
+
+        val errorSlot: (@Composable () -> Unit)? = when {
+            isDeleted -> null
+            sendingFailed -> {
+                {
+                    MessageSendFailureWarning(
+                        messageStatus = header.messageStatus.flowStatus as MessageFlowStatus.Failure.Send,
+                        isInteractionAvailable = failureInteractionAvailable,
+                        messageStyle = messageStyle,
+                        onRetryClick = remember(message) {
+                            {
+                                clickActions.onFailedMessageRetryClicked(
+                                    header.messageId,
+                                    message.conversationId
+                                )
+                            }
+                        },
+                        onCancelClick = remember(message) {
+                            {
+                                clickActions.onFailedMessageCancelClicked(header.messageId)
+                            }
+                        }
+                    )
+                }
+            }
+
+            messageContent is PartialDeliverable && messageContent.deliveryStatus.hasAnyFailures -> {
+                {
+                    PartialDeliveryInformation(messageContent.deliveryStatus, messageStyle)
+                }
+            }
+
+            else -> null
         }
+
+        MessageBubbleItem(
+            message = message,
+            source = source,
+            messageStatus = header.messageStatus,
+            showAuthor = showAuthor,
+            accent = header.accent,
+            useSmallBottomPadding = useSmallBottomPadding,
+            leading = leadingSlot,
+            error = errorSlot,
+            onClick = clickActions.onFullMessageClicked?.let { onFullMessageClicked ->
+                {
+                    onFullMessageClicked(message.header.messageId)
+                }
+            },
+            onLongClick = when {
+                message.header.messageStatus.isDeleted -> null // do not allow long press on deleted messages
+                else -> clickActions.onFullMessageLongClicked?.let {
+                    {
+                        it(message)
+                    }
+                }
+            },
+            footer = footerSlot,
+            header = headerSlot,
+            content = { innerPadding ->
+                MessageContentItem(
+                    clickActions = clickActions,
+                    message = message,
+                    conversationDetailsData = conversationDetailsData,
+                    modifier = modifier,
+                    accent = header.accent,
+                    searchQuery = searchQuery,
+                    assetStatus = assetStatus,
+                    shouldDisplayMessageStatus = shouldDisplayMessageStatus,
+                    useSmallBottomPadding = useSmallBottomPadding,
+                    selfDeletionTimerState = selfDeletionTimerState,
+                    innerPadding = innerPadding,
+                    messageStyle = messageStyle
+                )
+            }
+        )
     }
 
-    SwipeableMessageBox(
-        configuration = swipeableMessageConfiguration,
-        messageStyle = messageStyle,
-    ) {
+    SwipeableMessageBox(configuration = swipeableMessageConfiguration) {
         messageContent()
     }
 }

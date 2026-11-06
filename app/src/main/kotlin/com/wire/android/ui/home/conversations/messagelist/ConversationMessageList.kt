@@ -149,7 +149,6 @@ internal fun ConversationMessageList(
     onMessageOptionsDismissalHandled: (MessageOptionsDismissal) -> Boolean = { true },
     currentTimeInMillisFlow: Flow<Long> = flow { },
     showHistoryLoadingIndicator: Boolean = false,
-    isBubbleUiEnabled: Boolean = false,
     isWireCellsEnabled: Boolean = false,
 ) {
     val prevItemCount = remember { mutableStateOf(lazyPagingMessages.itemCount) }
@@ -285,11 +284,7 @@ internal fun ConversationMessageList(
             modifier = modifier
                 .fillMaxSize()
                 .background(
-                    color = if (isBubbleUiEnabled) {
-                        colorsScheme().bubblesBackground
-                    } else {
-                        colorsScheme().surfaceContainerLow
-                    }
+                    color = colorsScheme().bubblesBackground
                 )
                 .applyIf(isMessageListFocused) {
                     background(MaterialTheme.wireColorScheme.primaryVariant)
@@ -364,7 +359,7 @@ internal fun ConversationMessageList(
                                 .height(dimensions().spacing56x)
                         )
 
-                    val showAuthor = if (!isBubbleUiEnabled || conversationDetailsData is ConversationDetailsData.Group) {
+                    val showAuthor = if (conversationDetailsData is ConversationDetailsData.Group) {
                         rememberShouldShowHeader(index, message, lazyPagingMessages)
                     } else {
                         false
@@ -404,7 +399,6 @@ internal fun ConversationMessageList(
                                 messageDateTime = previousMessage.header.messageTime.instant,
                                 messageDateTimeGroup = previousGroup,
                                 now = currentTime,
-                                isBubbleUiEnabled = isBubbleUiEnabled,
                             )
                         }
                     }
@@ -461,9 +455,7 @@ internal fun ConversationMessageList(
                             clickActions = clickActions,
                             swipeableMessageConfiguration = swipeableConfiguration,
                             onSelfDeletingMessageRead = onSelfDeletingMessageRead,
-                            isSelectedMessage = message.header.messageId == selectedMessageId,
                             failureInteractionAvailable = interactionAvailability == InteractionAvailability.ENABLED,
-                            isBubbleUiEnabled = isBubbleUiEnabled,
                             isWireCellsEnabled = isWireCellsEnabled,
                         )
                     }
@@ -476,7 +468,6 @@ internal fun ConversationMessageList(
                             messageDateTime = message.header.messageTime.instant,
                             messageDateTimeGroup = currentGroup,
                             now = currentTime,
-                            isBubbleUiEnabled = isBubbleUiEnabled,
                         )
                     }
                 }
@@ -645,7 +636,6 @@ private fun MessageGroupDateTime(
     now: Long,
     messageDateTime: Instant,
     messageDateTimeGroup: MessageDateTimeGroup,
-    isBubbleUiEnabled: Boolean,
 ) {
     val context = LocalContext.current
     val messageDateTimeInMillis = messageDateTime.toEpochMilliseconds()
@@ -681,42 +671,22 @@ private fun MessageGroupDateTime(
         }
     }
 
-    if (isBubbleUiEnabled) {
-        Row(
-            Modifier
-                .fillMaxWidth()
-                .padding(dimensions().spacing16x),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            HorizontalDivider(modifier = Modifier.weight(1F), color = colorsScheme().outline)
-            HorizontalSpace.x4()
-            Text(
-                text = timeString.uppercase(LocalLocale.current.platformLocale),
-                maxLines = 1,
-                color = colorsScheme().onBackground,
-                style = MaterialTheme.wireTypography.label02,
-            )
-            HorizontalSpace.x4()
-            HorizontalDivider(modifier = Modifier.weight(1F), color = colorsScheme().outline)
-        }
-    } else {
-        Row(
-            Modifier
-                .fillMaxWidth()
-                .padding(top = dimensions().spacing4x, bottom = dimensions().spacing8x)
-                .background(color = colorsScheme().divider)
-                .padding(
-                    top = dimensions().spacing6x,
-                    bottom = dimensions().spacing6x,
-                    start = dimensions().spacing56x,
-                )
-        ) {
-            Text(
-                text = timeString.uppercase(LocalLocale.current.platformLocale),
-                color = colorsScheme().secondaryText,
-                style = MaterialTheme.wireTypography.title03,
-            )
-        }
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .padding(dimensions().spacing16x),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        HorizontalDivider(modifier = Modifier.weight(1F), color = colorsScheme().outline)
+        HorizontalSpace.x4()
+        Text(
+            text = timeString.uppercase(LocalLocale.current.platformLocale),
+            maxLines = 1,
+            color = colorsScheme().onBackground,
+            style = MaterialTheme.wireTypography.label02,
+        )
+        HorizontalSpace.x4()
+        HorizontalDivider(modifier = Modifier.weight(1F), color = colorsScheme().outline)
     }
 }
 

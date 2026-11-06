@@ -49,7 +49,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
-import com.wire.android.BuildConfig.IS_BUBBLE_UI_ENABLED
 import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.model.SnackBarMessage
@@ -695,11 +694,7 @@ private fun ConversationScreenContent(
     Box {
         // only here we will use normal Scaffold because of specific behaviour of message composer
         Scaffold(
-            contentColor = if (IS_BUBBLE_UI_ENABLED) {
-                colorsScheme().primary
-            } else {
-                colorsScheme().background
-            },
+            contentColor = colorsScheme().primary,
             topBar = {
                 Column {
                     ConversationScreenTopAppBar(
@@ -800,7 +795,6 @@ private fun ConversationScreenContent(
                         onAttachmentClick = onAttachmentClick,
                         onAttachmentMenuClick = onAttachmentMenuClick,
                         showHistoryLoadingIndicator = conversationInfoViewState.showHistoryLoadingIndicator,
-                        isBubbleUiEnabled = IS_BUBBLE_UI_ENABLED,
                         isWireCellsEnabled = isWireCellsEnabled,
                         initialLoading = conversationInfoViewState.initialLoadingState != InitialLoadingState.LOADED,
                     )

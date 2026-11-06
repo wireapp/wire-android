@@ -1,0 +1,193 @@
+name: QA Reporting Repository Access Check
+
+on:
+  workflow_dispatch:
+  # Allow checking this branch before the workflow exists on develop.
+  push:
+    branches:
+      - ci/WPB-29689-private-android-test-reports
+    paths:
+      - .github/workflows/qa-reporting-access-check.yml
+
+permissions: {}
+
+jobs:
+  check-access:
+    name: Verify Android Bob upload and workflow access
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    env:
+      GH_TOKEN: ${{ secrets.ANDROID_BOB_GH_TOKEN }}
+      REPORTING_REPOSITORY: wireapp/android-e2etest-reports
+      RECEIVING_WORKFLOW: verify-android-handoff.yml
+
+    steps:
+      - name: Identify the account authenticated by the token
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [[ -z "${GH_TOKEN}" ]]; then
+            echo "::error::ANDROID_BOB_GH_TOKEN is unavailable to this run."
+            exit 1
+          fi
+
+          token_account=$(gh api --hostname github.com user --jq '.login')
+          echo "Token account: ${token_account}"
+          echo "Token account: ${token_account}" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Check reporting repository and receiving workflow
+        id: destination
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          repository=$(gh api --hostname github.com "repos/${REPORTING_REPOSITORY}")
+          visibility=$(jq -r '.visibility' <<< "$repository")
+          push_access=$(jq -r '.permissions.push' <<< "$repository")
+          default_branch=$(jq -r '.default_branch' <<< "$repository")
+
+          echo "Repository: ${REPORTING_REPOSITORY}" >> "$GITHUB_STEP_SUMMARY"
+          echo "Reported push access: ${push_access}" >> "$GITHUB_STEP_SUMMARY"
+
+          if [[ "$visibility" != "internal" && "$visibility" != "private" ]]; then
+            echo "::error::The reporting repository must be internal or private."
+            exit 1
+          fi
+
+          if [[ "${push_access}" != "true" ]]; then
+            echo "::error::GitHub did not confirm push access to ${REPORTING_REPOSITORY}."
+            exit 1
+          fi
+
+          # Install the receiver on the destination's default branch before running this check.
+          workflow_state=$(gh api --hostname github.com \
+            "repos/${REPORTING_REPOSITORY}/actions/workflows/${RECEIVING_WORKFLOW}" --jq '.state')
+          if [[ "$workflow_state" != "active" ]]; then
+            echo "::error::The receiving workflow must be installed and active."
+            exit 1
+          fi
+
+          echo "default_branch=${default_branch}" >> "$GITHUB_OUTPUT"
+
+      - name: Upload and read back dummy results on a temporary branch
+        id: upload
+        shell: bash
+        env:
+          DEFAULT_BRANCH: ${{ steps.destination.outputs.default_branch }}
+        run: |
+          set -euo pipefail
+
+          check_id="${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          branch="ci/report-access-${check_id}"
+          base_sha=$(gh api --hostname github.com \
+            "repos/${REPORTING_REPOSITORY}/commits/${DEFAULT_BRANCH}" --jq '.sha')
+
+          gh api --hostname github.com --method POST \
+            "repos/${REPORTING_REPOSITORY}/git/refs" \
+            -f "ref=refs/heads/${branch}" -f "sha=${base_sha}" > /dev/null
+          # Record ownership only after creation succeeds, so cleanup cannot delete an existing branch.
+          echo "branch=${branch}" >> "$GITHUB_OUTPUT"
+          echo "check_id=${check_id}" >> "$GITHUB_OUTPUT"
+
+          payload=$(jq -nc --arg check_id "$check_id" \
+            '{source_repository: "wireapp/wire-android", check_id: $check_id, dummy: true}')
+          content=$(printf '%s' "$payload" | base64 -w 0)
+
+          uploaded_sha=$(gh api --hostname github.com --method PUT \
+            "repos/${REPORTING_REPOSITORY}/contents/handoff-check.json" \
+            -f "branch=${branch}" -f "message=ci: verify report handoff ${check_id}" \
+            -f "content=${content}" --jq '.content.sha')
+          retrieved_sha=$(gh api --hostname github.com \
+            "repos/${REPORTING_REPOSITORY}/contents/handoff-check.json?ref=${branch}" --jq '.sha')
+          if [[ "$retrieved_sha" != "$uploaded_sha" ]]; then
+            echo "::error::The uploaded dummy file could not be verified."
+            exit 1
+          fi
+
+          echo "Dummy upload and read-back succeeded." >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Trigger the receiving workflow
+        id: dispatch
+        shell: bash
+        env:
+          DEFAULT_BRANCH: ${{ steps.destination.outputs.default_branch }}
+          CHECK_ID: ${{ steps.upload.outputs.check_id }}
+        run: |
+          set -euo pipefail
+
+          jq -n --arg ref "$DEFAULT_BRANCH" --arg check_id "$CHECK_ID" \
+            '{ref: $ref, inputs: {check_id: $check_id}, return_run_details: true}' \
+            > "$RUNNER_TEMP/report-handoff-dispatch.json"
+          echo "attempted=true" >> "$GITHUB_OUTPUT"
+          response=$(gh api --hostname github.com --method POST \
+            -H 'X-GitHub-Api-Version: 2022-11-28' \
+            "repos/${REPORTING_REPOSITORY}/actions/workflows/${RECEIVING_WORKFLOW}/dispatches" \
+            --input "$RUNNER_TEMP/report-handoff-dispatch.json")
+          run_id=$(jq -er '.workflow_run_id | numbers' <<< "$response")
+          echo "run_id=${run_id}" >> "$GITHUB_OUTPUT"
+          run_url=$(jq -er '.html_url' <<< "$response")
+          echo "Receiving workflow: ${run_url}" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Wait for the receiving workflow to validate the dummy results
+        shell: bash
+        env:
+          RECEIVING_RUN_ID: ${{ steps.dispatch.outputs.run_id }}
+        run: |
+          set -euo pipefail
+
+          for attempt in {1..60}; do
+            run=$(gh api --hostname github.com \
+              "repos/${REPORTING_REPOSITORY}/actions/runs/${RECEIVING_RUN_ID}")
+            status=$(jq -r '.status' <<< "$run")
+            if [[ "$status" == "completed" ]]; then
+              conclusion=$(jq -r '.conclusion' <<< "$run")
+              echo "Receiving workflow result: ${conclusion}" >> "$GITHUB_STEP_SUMMARY"
+              if [[ "$conclusion" != "success" ]]; then
+                echo "::error::The receiving workflow finished with ${conclusion}."
+                exit 1
+              fi
+              echo "Dummy upload, workflow dispatch, and receiving validation succeeded." \
+                >> "$GITHUB_STEP_SUMMARY"
+              exit 0
+            fi
+            sleep 5
+          done
+
+          echo "::error::The receiving workflow did not finish within five minutes."
+          exit 1
+
+      - name: Clean up the verification branch after receiver completion
+        if: ${{ always() && steps.upload.outputs.branch != '' }}
+        shell: bash
+        env:
+          VERIFICATION_BRANCH: ${{ steps.upload.outputs.branch }}
+          DISPATCH_ATTEMPTED: ${{ steps.dispatch.outputs.attempted }}
+          RECEIVING_RUN_ID: ${{ steps.dispatch.outputs.run_id }}
+        run: |
+          set -euo pipefail
+
+          if [[ "$DISPATCH_ATTEMPTED" == "true" ]]; then
+            if [[ -z "$RECEIVING_RUN_ID" ]]; then
+              echo "::warning::Dispatch outcome is unknown; retaining ${VERIFICATION_BRANCH}."
+              echo "Retained ${VERIFICATION_BRANCH}: dispatch outcome is unknown. Inspect and clean up manually." \
+                >> "$GITHUB_STEP_SUMMARY"
+              exit 0
+            fi
+
+            # A timeout or cancelled source run can leave the receiver queued or running.
+            # Keep its input available until it finishes, even if polling previously failed.
+            status=$(gh api --hostname github.com \
+              "repos/${REPORTING_REPOSITORY}/actions/runs/${RECEIVING_RUN_ID}" --jq '.status')
+            if [[ "$status" != "completed" ]]; then
+              echo "::warning::Receiver is ${status}; retaining ${VERIFICATION_BRANCH}."
+              echo "Retained ${VERIFICATION_BRANCH}: receiver is ${status}. Clean up after it finishes." \
+                >> "$GITHUB_STEP_SUMMARY"
+              exit 0
+            fi
+          fi
+
+          gh api --hostname github.com --method DELETE \
+            "repos/${REPORTING_REPOSITORY}/git/refs/heads/${VERIFICATION_BRANCH}"
+          echo "Temporary verification branch removed." >> "$GITHUB_STEP_SUMMARY"

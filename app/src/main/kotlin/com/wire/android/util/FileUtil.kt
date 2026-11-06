@@ -42,6 +42,7 @@ import android.provider.MediaStore.MediaColumns.SIZE
 import android.provider.OpenableColumns
 import android.provider.Settings
 import android.webkit.MimeTypeMap
+import androidx.annotation.VisibleForTesting
 import androidx.core.content.FileProvider
 import com.wire.android.R
 import com.wire.android.appLogger
@@ -50,6 +51,9 @@ import com.wire.android.util.ImageUtil.ImageSizeClass.Medium
 import com.wire.android.util.dispatchers.DefaultDispatcherProvider
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.asset.isAudioMimeType
+import com.wire.kalium.logic.util.buildFileName
+import com.wire.kalium.logic.util.fileExtension
+import com.wire.kalium.logic.util.splitFileExtension
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
@@ -96,14 +100,25 @@ private fun Context.saveFileDataToDownloadsFolder(assetName: String, downloadedD
     val mimeType = Uri.parse(downloadedDataPath.toString()).getMimeType(this@saveFileDataToDownloadsFolder)
     val downloadsDir = Environment.getExternalStoragePublicDirectory(DIRECTORY_DOWNLOADS)
     // we need to find the next available name with copy counter by ourselves before copying
-    val availableAssetName = findFirstUniqueName(downloadsDir, assetName.ifEmpty { ATTACHMENT_FILENAME })
+    // MediaStore appends the extension derived from the MIME type, so check uniqueness against the same name
+    val desiredAssetName = assetName.ifEmpty { ATTACHMENT_FILENAME }.withExtensionFromMimeType(mimeType)
+    val availableAssetName = findFirstUniqueName(downloadsDir, desiredAssetName)
     return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
         val contentValues = ContentValues().apply {
             put(DISPLAY_NAME, availableAssetName)
             put(MIME_TYPE, mimeType)
             put(SIZE, fileSize)
         }
-        resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, contentValues)?.also { downloadedUri ->
+        val insertedUri = try {
+            resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, contentValues)
+        } catch (e: IllegalStateException) {
+            // MediaStore throws e.g. "Failed to build unique file" when it can't find a free name for the file,
+            // so retry once with a name that can't be taken
+            appLogger.w("Inserting the file into Downloads failed, retrying with a unique name", e)
+            contentValues.put(DISPLAY_NAME, availableAssetName.withTimestampSuffix(System.currentTimeMillis()))
+            resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, contentValues)
+        }
+        insertedUri?.also { downloadedUri ->
             resolver.copyFile(downloadedUri, downloadedDataPath)
         }
     } else {
@@ -130,6 +145,26 @@ private fun Context.saveFileDataToDownloadsFolder(assetName: String, downloadedD
             )
         }
     }
+}
+
+/**
+ * Appends the extension matching [mimeType] when the name has none, e.g. "image" + "image/jpeg" -> "image.jpg".
+ * MediaStore does the same on insert, so without it the uniqueness check runs against a different name.
+ */
+@VisibleForTesting
+internal fun String.withExtensionFromMimeType(mimeType: String?): String {
+    if (fileExtension() != null) return this
+    val extension = mimeType?.let { MimeTypeMap.getSingleton().getExtensionFromMimeType(it) }
+    return if (extension.isNullOrEmpty()) this else "$this.$extension"
+}
+
+/**
+ * Adds a timestamp before the extension, e.g. "image.jpg" -> "image_1700000000000.jpg".
+ */
+@VisibleForTesting
+internal fun String.withTimestampSuffix(timestamp: Long): String {
+    val (name, extension) = splitFileExtension()
+    return buildFileName("${name}_$timestamp", extension)
 }
 
 fun ContentResolver.copyFile(destinationUri: Uri, sourcePath: Path) {

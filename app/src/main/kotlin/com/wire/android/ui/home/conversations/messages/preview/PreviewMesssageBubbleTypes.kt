@@ -69,7 +69,6 @@ fun PreviewBubbleSelfTextMessage() {
             ),
             conversationDetailsData = ConversationDetailsData.None(null),
             clickActions = MessageClickActions.Content(),
-            isBubbleUiEnabled = true
         )
     }
 }
@@ -93,7 +92,6 @@ fun PreviewBubbleSelfOtherMessage() {
                 ),
                 conversationDetailsData = ConversationDetailsData.None(null),
                 clickActions = MessageClickActions.Content(),
-                isBubbleUiEnabled = true
             )
         }
     }
@@ -116,7 +114,6 @@ fun PreviewBubbleSelfMultipleTextMessage() {
                 useSmallBottomPadding = true,
                 conversationDetailsData = ConversationDetailsData.None(null),
                 clickActions = MessageClickActions.Content(),
-                isBubbleUiEnabled = true
             )
             RegularMessageItem(
                 message = mockMessageWithTextContent("Middle message").copy(
@@ -130,7 +127,6 @@ fun PreviewBubbleSelfMultipleTextMessage() {
                 useSmallBottomPadding = true,
                 conversationDetailsData = ConversationDetailsData.None(null),
                 clickActions = MessageClickActions.Content(),
-                isBubbleUiEnabled = true
             )
             RegularMessageItem(
                 message = mockMessageWithTextContent("Last message").copy(
@@ -144,7 +140,6 @@ fun PreviewBubbleSelfMultipleTextMessage() {
                 useSmallBottomPadding = false,
                 conversationDetailsData = ConversationDetailsData.None(null),
                 clickActions = MessageClickActions.Content(),
-                isBubbleUiEnabled = true
             )
         }
     }
@@ -168,7 +163,6 @@ fun PreviewBubbleOtherMultipleTextMessage() {
                 useSmallBottomPadding = true,
                 conversationDetailsData = ConversationDetailsData.None(null),
                 clickActions = MessageClickActions.Content(),
-                isBubbleUiEnabled = true
             )
             RegularMessageItem(
                 message = mockMessageWithTextContent("Middle message").copy(
@@ -183,7 +177,6 @@ fun PreviewBubbleOtherMultipleTextMessage() {
                 useSmallBottomPadding = true,
                 conversationDetailsData = ConversationDetailsData.None(null),
                 clickActions = MessageClickActions.Content(),
-                isBubbleUiEnabled = true
             )
             RegularMessageItem(
                 message = mockMessageWithTextContent("Last message").copy(
@@ -198,7 +191,6 @@ fun PreviewBubbleOtherMultipleTextMessage() {
                 useSmallBottomPadding = false,
                 conversationDetailsData = ConversationDetailsData.None(null),
                 clickActions = MessageClickActions.Content(),
-                isBubbleUiEnabled = true
             )
         }
     }
@@ -220,7 +212,6 @@ fun PreviewBubbleMultipleTextMessagesWithReactions() {
                 ),
                 conversationDetailsData = ConversationDetailsData.None(null),
                 clickActions = MessageClickActions.Content(),
-                isBubbleUiEnabled = true,
             )
             RegularMessageItem(
                 message = mockMessageWithTextContent("Hello").copy(
@@ -234,7 +225,6 @@ fun PreviewBubbleMultipleTextMessagesWithReactions() {
                 ),
                 conversationDetailsData = ConversationDetailsData.None(null),
                 clickActions = MessageClickActions.Content(),
-                isBubbleUiEnabled = true,
             )
         }
     }
@@ -261,7 +251,6 @@ fun PreviewBubbleMultipleDeletedMessages() {
                 ),
                 conversationDetailsData = ConversationDetailsData.None(null),
                 clickActions = MessageClickActions.Content(),
-                isBubbleUiEnabled = true,
             )
             RegularMessageItem(
                 message = mockMessageWithTextContent("Hello").copy(
@@ -280,7 +269,6 @@ fun PreviewBubbleMultipleDeletedMessages() {
                 ),
                 conversationDetailsData = ConversationDetailsData.None(null),
                 clickActions = MessageClickActions.Content(),
-                isBubbleUiEnabled = true,
             )
         }
     }
@@ -301,7 +289,6 @@ fun PreviewBubbleMultipleEditedMessages() {
                 ),
                 conversationDetailsData = ConversationDetailsData.None(null),
                 clickActions = MessageClickActions.Content(),
-                isBubbleUiEnabled = true,
             )
             RegularMessageItem(
                 message = mockMessageWithTextContent("Hello").copy(
@@ -317,7 +304,6 @@ fun PreviewBubbleMultipleEditedMessages() {
                 ),
                 conversationDetailsData = ConversationDetailsData.None(null),
                 clickActions = MessageClickActions.Content(),
-                isBubbleUiEnabled = true,
             )
         }
     }
@@ -332,7 +318,6 @@ fun PreviewMessageBubbleSelfWithMarkdownTextAndLinks() {
                 message = mockMessageWithMarkdownTextAndLinks,
                 conversationDetailsData = ConversationDetailsData.None(null),
                 clickActions = MessageClickActions.Content(),
-                isBubbleUiEnabled = true
             )
         }
     }
@@ -347,7 +332,6 @@ fun PreviewMessageBubbleOtherWithMarkdownTextAndLinks() {
                 message = mockMessageWithMarkdownTextAndLinks.copy(source = MessageSource.OtherUser),
                 conversationDetailsData = ConversationDetailsData.None(null),
                 clickActions = MessageClickActions.Content(),
-                isBubbleUiEnabled = true
             )
         }
     }
@@ -362,7 +346,6 @@ fun PreviewMessageBubbleSelfWithMarkdownListAndImages() {
                 message = mockMessageWithMarkdownListAndImages,
                 conversationDetailsData = ConversationDetailsData.None(null),
                 clickActions = MessageClickActions.Content(),
-                isBubbleUiEnabled = true
             )
         }
     }
@@ -377,7 +360,6 @@ fun PreviewMessageBubbleOtherWithMarkdownListAndImages() {
                 message = mockMessageWithMarkdownListAndImages.copy(source = MessageSource.OtherUser),
                 conversationDetailsData = ConversationDetailsData.None(null),
                 clickActions = MessageClickActions.Content(),
-                isBubbleUiEnabled = true
             )
         }
     }
@@ -394,7 +376,6 @@ fun PreviewMessageBubbleSelfWithMarkdownTablesAndBlocks() {
                 ),
                 conversationDetailsData = ConversationDetailsData.None(null),
                 clickActions = MessageClickActions.Content(),
-                isBubbleUiEnabled = true
             )
         }
     }
@@ -409,7 +390,6 @@ fun PreviewMessageBubbleOtherWithMarkdownTablesAndBlocks() {
                 message = mockMessageWithMarkdownTablesAndBlocks.copy(source = MessageSource.OtherUser),
                 conversationDetailsData = ConversationDetailsData.None(null),
                 clickActions = MessageClickActions.Content(),
-                isBubbleUiEnabled = true
             )
         }
     }
@@ -424,7 +404,6 @@ fun PreviewMessageBubbleSelfWithMultipartAsset() {
                 message = mockedMultipartMessage(source = MessageSource.Self),
                 conversationDetailsData = ConversationDetailsData.None(null),
                 clickActions = MessageClickActions.Content(),
-                isBubbleUiEnabled = true
             )
         }
     }
@@ -439,7 +418,6 @@ fun PreviewMessageBubbleOtherWithMultipartAsset() {
                 message = mockedMultipartMessage(source = MessageSource.OtherUser),
                 conversationDetailsData = ConversationDetailsData.None(null),
                 clickActions = MessageClickActions.Content(),
-                isBubbleUiEnabled = true
             )
         }
     }
@@ -455,7 +433,6 @@ fun PreviewBubbleSelfImageFailedDownload() {
                 assetStatus = AssetTransferStatus.FAILED_DOWNLOAD,
                 conversationDetailsData = ConversationDetailsData.None(null),
                 clickActions = MessageClickActions.Content(),
-                isBubbleUiEnabled = true
             )
         }
     }
@@ -479,7 +456,6 @@ fun PreviewMessageWithLinkPreviews() = WireTheme {
             ),
             conversationDetailsData = ConversationDetailsData.None(null),
             clickActions = MessageClickActions.Content(),
-            isBubbleUiEnabled = true
         )
     }
 }

@@ -216,7 +216,7 @@ fun PreviewImportedMediaAssetMessageContent() {
             onAssetClick = Clickable(enabled = false),
             assetTransferStatus = AssetTransferStatus.NOT_DOWNLOADED,
             assetDataPath = null,
-            messageStyle = MessageStyle.NORMAL
+            messageStyle = MessageStyle.BUBBLE_OTHER
             )
     }
 }
@@ -228,7 +228,7 @@ fun PreviewLoadingAssetMessage() {
         MessageAsset(
             assetName = "Some test cool long but very  cool long but very asjkl cool long but very long message",
             assetExtension = "rar.tgz",
-            messageStyle = MessageStyle.NORMAL,
+            messageStyle = MessageStyle.BUBBLE_OTHER,
             assetSizeInBytes = 99201224L,
             onAssetClick = Clickable(enabled = false),
             assetTransferStatus = AssetTransferStatus.DOWNLOAD_IN_PROGRESS,
@@ -248,7 +248,7 @@ fun PreviewFailedDownloadAssetMessage() {
             onAssetClick = Clickable(enabled = false),
             assetTransferStatus = AssetTransferStatus.FAILED_DOWNLOAD,
             assetDataPath = null,
-            messageStyle = MessageStyle.NORMAL
+            messageStyle = MessageStyle.BUBBLE_OTHER
             )
     }
 }

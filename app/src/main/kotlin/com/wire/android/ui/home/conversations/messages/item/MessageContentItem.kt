@@ -25,7 +25,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -56,8 +55,6 @@ fun MessageContentItem(
     searchQuery: String = "",
     assetStatus: AssetTransferStatus? = null,
     shouldDisplayMessageStatus: Boolean = true,
-    shouldDisplayFooter: Boolean = true,
-    failureInteractionAvailable: Boolean = true,
     useSmallBottomPadding: Boolean = false,
     selfDeletionTimerState: SelfDeletionTimerHelper.SelfDeletionTimerState = SelfDeletionTimerHelper.SelfDeletionTimerState.NotExpirable,
     innerPadding: PaddingValues = PaddingValues(),
@@ -68,22 +65,12 @@ fun MessageContentItem(
             modifier = modifier,
             horizontalAlignment = if (messageStyle == MessageStyle.BUBBLE_SELF) Alignment.End else Alignment.Start
         ) {
-            if (!messageStyle.isBubble()) {
-                MessageStatusAndExpireTimer(
+            if (isDeleted) {
+                MessageBubbleEphemeralItem(
                     message = message,
                     conversationDetailsData = conversationDetailsData,
-                    selfDeletionTimerState = selfDeletionTimerState,
+                    selfDeletionTimerState = selfDeletionTimerState
                 )
-            }
-
-            if (isDeleted) {
-                if (messageStyle.isBubble()) {
-                    MessageBubbleEphemeralItem(
-                        message = message,
-                        conversationDetailsData = conversationDetailsData,
-                        selfDeletionTimerState = selfDeletionTimerState
-                    )
-                }
 
                 return@Column
             }
@@ -102,18 +89,8 @@ fun MessageContentItem(
                     accent = accent,
                     onProfileClicked = clickActions.onProfileClicked,
                     onLinkClicked = clickActions.onLinkClicked,
-                    shouldDisplayMessageStatus = shouldDisplayMessageStatus,
-                    conversationDetailsData = conversationDetailsData,
                     onReplyClicked = clickActions.onReplyClicked,
                 )
-                if (shouldDisplayFooter && !messageStyle.isBubble()) {
-                    VerticalSpace.x4()
-                    MessageReactionsItem(
-                        messageFooter = messageFooter,
-                        messageStyle = messageStyle,
-                        onReactionClicked = clickActions.onReactionClicked
-                    )
-                }
             } else {
                 MessageDecryptionFailure(
                     messageHeader = header,
@@ -123,28 +100,7 @@ fun MessageContentItem(
                     messageStyle = messageStyle
                 )
             }
-            if (!messageStyle.isBubble() && message.sendingFailed) {
-                MessageSendFailureWarning(
-                    messageStatus = header.messageStatus.flowStatus as MessageFlowStatus.Failure.Send,
-                    isInteractionAvailable = failureInteractionAvailable,
-                    messageStyle = messageStyle,
-                    onRetryClick = remember(message) {
-                        {
-                            clickActions.onFailedMessageRetryClicked(
-                                header.messageId,
-                                message.conversationId
-                            )
-                        }
-                    },
-                    onCancelClick = remember(message) {
-                        {
-                            clickActions.onFailedMessageCancelClicked(header.messageId)
-                        }
-                    }
-                )
-            }
             if (shouldShowBottomLabels(
-                    messageStyle = messageStyle,
                     messageStatus = header.messageStatus,
                     useSmallBottomPadding = useSmallBottomPadding,
                     selfDeletionTimerState = selfDeletionTimerState,
@@ -206,13 +162,12 @@ fun MessageContentItem(
 
 @Composable
 private fun shouldShowBottomLabels(
-    messageStyle: MessageStyle,
     messageStatus: MessageStatus,
     useSmallBottomPadding: Boolean,
     selfDeletionTimerState: SelfDeletionTimerHelper.SelfDeletionTimerState,
     decryptionFailed: Boolean,
     isPending: Boolean,
-): Boolean = messageStyle.isBubble() && !decryptionFailed && (
+): Boolean = !decryptionFailed && (
         !useSmallBottomPadding
                 || messageStatus.editStatus is MessageEditStatus.Edited
                 || selfDeletionTimerState is SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable

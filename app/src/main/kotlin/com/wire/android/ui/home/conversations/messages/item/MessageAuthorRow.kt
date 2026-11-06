@@ -28,7 +28,6 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.text.style.TextOverflow
 import com.wire.android.ui.common.LegalHoldIndicator
 import com.wire.android.ui.common.UserBadge
-import com.wire.android.ui.common.applyIf
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.typography
 import com.wire.android.ui.home.conversations.model.MessageHeader
@@ -39,7 +38,6 @@ import com.wire.android.ui.theme.wireTypography
 @Composable
 fun MessageAuthorRow(
     messageHeader: MessageHeader,
-    messageStyle: MessageStyle,
     modifier: Modifier = Modifier
 ) {
     with(messageHeader) {
@@ -48,15 +46,11 @@ fun MessageAuthorRow(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Row(
-                modifier = Modifier.applyIf(!messageStyle.isBubble()) {
-                    weight(weight = 1f)
-                },
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Username(
                     username.asString(),
                     accent,
-                    messageStyle,
                     modifier = Modifier.weight(weight = 1f, fill = false)
                 )
                 UserBadge(
@@ -69,27 +63,16 @@ fun MessageAuthorRow(
                     LegalHoldIndicator(modifier = Modifier.padding(start = dimensions().spacing6x))
                 }
             }
-            if (!messageStyle.isBubble()) {
-                MessageSmallLabel(
-                    text = messageHeader.messageTime.formattedDate,
-                    messageStyle = messageStyle,
-                    modifier = Modifier.padding(start = dimensions().spacing6x)
-                )
-            }
         }
     }
 }
 
 @Composable
-private fun Username(username: String, accent: Accent, messageStyle: MessageStyle, modifier: Modifier = Modifier) {
-    val fallbackColor = if (messageStyle.isBubble()) {
-        if (accent == Accent.Unknown) {
-            MaterialTheme.wireColorScheme.wireAccentColors.get(Accent.Unknown)
-        } else {
-            MaterialTheme.wireColorScheme.primary
-        }
+private fun Username(username: String, accent: Accent, modifier: Modifier = Modifier) {
+    val fallbackColor = if (accent == Accent.Unknown) {
+        MaterialTheme.wireColorScheme.wireAccentColors.get(Accent.Unknown)
     } else {
-        MaterialTheme.wireColorScheme.onBackground
+        MaterialTheme.wireColorScheme.primary
     }
 
     Text(

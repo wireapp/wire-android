@@ -106,11 +106,11 @@ import android.view.KeyEvent as AndroidKeyEvent
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(Parameterized::class)
-class MessageOptionsKeyboardTest(private val bubbles: Boolean, private val own: Boolean) {
+class MessageOptionsKeyboardTest(private val own: Boolean) {
     companion object {
         @JvmStatic
-        @Parameterized.Parameters(name = "bubbles={0}, own={1}")
-        fun parameters() = listOf(arrayOf(false, false), arrayOf(false, true), arrayOf(true, false), arrayOf(true, true))
+        @Parameterized.Parameters(name = "own={0}")
+        fun parameters() = listOf(arrayOf(false), arrayOf(true))
     }
 
     @get:Rule
@@ -599,7 +599,6 @@ class MessageOptionsKeyboardTest(private val bubbles: Boolean, private val own: 
                                 messageOptionsDismissal = optionsState.dismissal.takeIf { withOwner },
                                 onMessageOptionsDismissalHandled = optionsState::acknowledgeDismissal,
                                 modifier = Modifier.weight(1f).testTag("list"),
-                                isBubbleUiEnabled = bubbles,
                             )
                             var value by remember { mutableStateOf("") }
                             BasicTextField(value, { value = it }, Modifier.testTag("composer").focusRequester(composerFocus))

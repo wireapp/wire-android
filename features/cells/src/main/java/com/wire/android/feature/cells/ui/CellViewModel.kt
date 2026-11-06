@@ -271,8 +271,11 @@ class CellViewModel @AssistedInject constructor(
 
     /** At least one selected file can be saved for offline use, see [canBeMadeAvailableOffline]. */
     internal val canMakeSelectionAvailableOffline: StateFlow<Boolean> = selectedNodes
-        .map { nodes -> bulkOfflineActionsEnabled && nodes.values.any { it is CellNodeUi.File && it.canBeMadeAvailableOffline() } }
-        .stateIn(viewModelScope, SharingStarted.Eagerly, false)
+        .map { nodes ->
+            bulkOfflineActionsEnabled && nodes.values.any {
+                it is CellNodeUi.File && it.canBeMadeAvailableOffline()
+            }
+        }.stateIn(viewModelScope, SharingStarted.Eagerly, false)
 
     /** At least one selected file is already saved for offline use. */
     internal val canRemoveSelectionOfflineAccess: StateFlow<Boolean> = selectedNodes
@@ -664,8 +667,10 @@ class CellViewModel @AssistedInject constructor(
         when (result) {
             is BulkOfflineProgress.Result.Saved -> sendAction(ShowOfflineFilesSaved(result.savedCount))
             is BulkOfflineProgress.Result.Failed -> sendAction(ShowError(result.error))
-            is BulkOfflineProgress.Result.RanOutOfStorage -> _bulkOfflineDialog.value =
-                BulkOfflineDialog.RanOutOfStorage(savedCount = result.savedCount, totalCount = result.totalCount)
+            is BulkOfflineProgress.Result.RanOutOfStorage -> {
+                _bulkOfflineDialog.value =
+                    BulkOfflineDialog.RanOutOfStorage(savedCount = result.savedCount, totalCount = result.totalCount)
+            }
         }
     }
 

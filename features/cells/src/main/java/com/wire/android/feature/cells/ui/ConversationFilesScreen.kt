@@ -178,6 +178,7 @@ internal fun ConversationFilesRouteScreen(
         selectedNodes = viewModel.selectedNodes.collectAsState().value,
         isBulkSelectionEnabled = viewModel.isBulkSelectionEnabled.collectAsState().value,
         bulkDeleteDialog = viewModel.bulkDeleteDialog.collectAsState().value,
+        bulkOfflineActionsEnabled = viewModel.bulkOfflineActionsEnabled,
         bulkOfflineDialog = viewModel.bulkOfflineDialog.collectAsState().value,
         canMakeSelectionAvailableOffline = viewModel.canMakeSelectionAvailableOffline.collectAsState().value,
         canRemoveSelectionOfflineAccess = viewModel.canRemoveSelectionOfflineAccess.collectAsState().value,
@@ -232,6 +233,7 @@ internal fun ConversationFilesScreenContent(
     selectedNodes: Map<String, CellNodeUi> = emptyMap(),
     isBulkSelectionEnabled: Boolean = false,
     bulkDeleteDialog: BulkDeleteDialog? = null,
+    bulkOfflineActionsEnabled: Boolean = false,
     bulkOfflineDialog: BulkOfflineDialog? = null,
     canMakeSelectionAvailableOffline: Boolean = false,
     canRemoveSelectionOfflineAccess: Boolean = false,
@@ -569,10 +571,20 @@ internal fun ConversationFilesScreenContent(
                         if (state == EnterExitState.Visible) pillCornerRadius() else fabCornerRadius()
                     }
                     CellBulkActionsBar(
-                        actions = remember(canMakeSelectionAvailableOffline, canRemoveSelectionOfflineAccess, isRecycleBin) {
-                            bulkActions(canMakeSelectionAvailableOffline, canRemoveSelectionOfflineAccess, isRecycleBin)
-                        },
-                        onActionClick = { action -> sendIntent(action.toIntent()) },
+                        actions = remember(
+                            bulkOfflineActionsEnabled,
+                            canMakeSelectionAvailableOffline,
+                            canRemoveSelectionOfflineAccess,
+                            isRecycleBin,
+                            selectedNodes,
+                        ) {
+                            bulkActions(
+                                offlineActionsEnabled = bulkOfflineActionsEnabled,
+                                canMakeAvailableOffline = canMakeSelectionAvailableOffline,
+                                canRemoveOfflineAccess = canRemoveSelectionOfflineAccess,
+                                isRecycleBin = isRecycleBin,
+                            )
+                        },                        onActionClick = { action -> sendIntent(action.toIntent()) },
                         shape = RoundedCornerShape(barCornerRadius),
                         modifier = Modifier.sharedBounds(
                             sharedContentState = rememberSharedContentState(key = fabToBulkActionsKey),
@@ -597,20 +609,27 @@ private fun fabCornerRadius(): Dp = dimensions().corner16x
 private fun pillCornerRadius(): Dp = dimensions().spacing32x
 
 // This screen also shows the folders inside the recycle bin, where only the recycle bin actions apply.
-// The offline actions only show up when they apply to at least one selected file, see CellViewModel.
 private fun bulkActions(
+    offlineActionsEnabled: Boolean,
     canMakeAvailableOffline: Boolean,
     canRemoveOfflineAccess: Boolean,
     isRecycleBin: Boolean,
 ): ImmutableList<CellBulkAction> =
     if (isRecycleBin) {
-        persistentListOf(CellBulkAction.Restore, CellBulkAction.DeletePermanently)
+        persistentListOf(
+            CellBulkAction.Restore,
+            CellBulkAction.DeletePermanently,
+        )
     } else {
         listOfNotNull(
             CellBulkAction.Move,
             CellBulkAction.Delete,
-            CellBulkAction.MakeAvailableOffline.takeIf { canMakeAvailableOffline },
-            CellBulkAction.RemoveOfflineAccess.takeIf { canRemoveOfflineAccess },
+            CellBulkAction.MakeAvailableOffline.takeIf {
+                offlineActionsEnabled && canMakeAvailableOffline
+            },
+            CellBulkAction.RemoveOfflineAccess.takeIf {
+                offlineActionsEnabled && canRemoveOfflineAccess
+            },
         ).toPersistentList()
     }
 

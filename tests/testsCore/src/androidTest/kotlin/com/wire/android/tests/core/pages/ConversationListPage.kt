@@ -388,14 +388,7 @@ data class ConversationListPage(private val device: UiDevice) {
         conversationName: String,
         timeout: Duration = UiWaitUtils.MEDIUM_TIMEOUT
     ): ConversationListPage {
-        val clicked = UiWaitUtils.clickWhenClickable(
-            params = conversationNameSelector(conversationName),
-            timeout = timeout,
-            pollingInterval = UiWaitUtils.POLLING_DEFAULT
-        )
-        if (!clicked) {
-            throw AssertionError("Group conversation '$conversationName' was not found.")
-        }
+        UiWaitUtils.waitElement(conversationNameSelector(conversationName), timeout = timeout).click()
         return this
     }
 

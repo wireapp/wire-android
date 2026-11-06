@@ -25,7 +25,9 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.datastore.GlobalDataStore
+import com.wire.android.di.metro.WireAssistedViewModelBinding
 import com.wire.android.mapper.ContactMapper
+import com.wire.android.ui.home.conversations.ConversationCoreManualViewModelFactoryGroup
 import com.wire.android.ui.home.conversations.ConversationNavArgs
 import com.wire.android.ui.home.conversations.InvalidLinkDialogState
 import com.wire.android.ui.home.conversations.MessageComposerViewState
@@ -37,6 +39,7 @@ import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.configuration.FileSharingStatus
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import com.wire.kalium.logic.data.conversation.Conversation.TypingIndicatorMode
+import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.conversation.InteractionAvailability
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.message.SelfDeletionTimer
@@ -46,6 +49,7 @@ import com.wire.kalium.logic.feature.conversation.IsInteractionAvailableResult
 import com.wire.kalium.logic.feature.conversation.IsSelfUserViewerOnConversationUseCase
 import com.wire.kalium.logic.feature.conversation.MarkConversationAsReadLocallyUseCase
 import com.wire.kalium.logic.feature.conversation.MembersToMentionUseCase
+import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationInteractionAvailabilityUseCase
 import com.wire.kalium.logic.feature.conversation.SendTypingEventUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationReadDateUseCase
@@ -57,6 +61,8 @@ import com.wire.kalium.logic.feature.user.IsFileSharingEnabledUseCase
 import dev.zacsweers.metro.Assisted
 import dev.zacsweers.metro.AssistedFactory
 import dev.zacsweers.metro.AssistedInject
+import kotlin.time.Instant
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -66,9 +72,7 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.launch
-import kotlin.time.Instant
-import com.wire.android.di.metro.WireAssistedViewModelBinding
-import com.wire.android.ui.home.conversations.ConversationCoreManualViewModelFactoryGroup
+import kotlinx.coroutines.withContext
 
 @Suppress("LongParameterList", "TooManyFunctions")
 @WireAssistedViewModelBinding(ConversationCoreManualViewModelFactoryGroup::class)
@@ -80,6 +84,7 @@ class MessageComposerViewModel @AssistedInject constructor(
     private val markConversationAsReadLocally: MarkConversationAsReadLocallyUseCase,
     private val contactMapper: ContactMapper,
     private val membersToMention: MembersToMentionUseCase,
+    private val observeConversationDetails: ObserveConversationDetailsUseCase,
     private val enqueueMessageSelfDeletion: EnqueueMessageSelfDeletionUseCase,
     private val persistNewSelfDeletingStatus: PersistNewSelfDeletionTimerUseCase,
     private val sendTypingEvent: SendTypingEventUseCase,
@@ -118,6 +123,7 @@ class MessageComposerViewModel @AssistedInject constructor(
     )
 
     private var lastReadInstant: Instant? = null
+    private var mentionSearchJob: Job? = null
 
     init {
         initTempWritableVideoUri()
@@ -174,24 +180,34 @@ class MessageComposerViewModel @AssistedInject constructor(
     }
 
     fun searchMembersToMention(searchQuery: String) {
-        viewModelScope.launch(dispatchers.io()) {
-            val members = membersToMention(conversationId, searchQuery).map {
-                contactMapper.fromOtherUser(it.user as OtherUser)
+        mentionSearchJob?.cancel()
+        mentionSearchJob = viewModelScope.launch {
+            val (members, isGroup) = withContext(dispatchers.io()) {
+                val members = membersToMention(conversationId, searchQuery).map {
+                    contactMapper.fromOtherUser(it.user as OtherUser)
+                }
+                val conversation = observeConversationDetails(conversationId).first()
+                val isGroup = (conversation as? ObserveConversationDetailsUseCase.Result.Success)
+                    ?.conversationDetails is ConversationDetails.Group
+                members to isGroup
             }
 
             messageComposerViewState.value =
                 messageComposerViewState.value.copy(
                     mentionSearchResult = members,
                     mentionSearchQuery = searchQuery,
+                    showEveryoneMentionSuggestion = isGroup && "all".startsWith(searchQuery, ignoreCase = true),
                 )
         }
     }
 
     fun clearMentionSearchResult() {
+        mentionSearchJob?.cancel()
         messageComposerViewState.value =
             messageComposerViewState.value.copy(
                 mentionSearchResult = emptyList(),
                 mentionSearchQuery = String.EMPTY,
+                showEveryoneMentionSuggestion = false,
             )
     }
 

@@ -27,6 +27,7 @@ import com.wire.android.util.dispatchers.DefaultDispatcherProvider
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.asset.AttachmentType
 import com.wire.android.di.ApplicationContext
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.withContext
 import okio.Path
 import okio.Path.Companion.toPath
@@ -40,16 +41,29 @@ import dev.zacsweers.metro.SingleIn
 @SingleIn(AppScope::class)
 @Suppress("TooManyFunctions")
 class FileManager @Inject constructor(@ApplicationContext private val context: Context) {
+    /**
+     * Saves the asset to the public Downloads folder.
+     * MediaStore can reject the insert (e.g. IllegalStateException from MediaProvider), so failures are reported via [onError].
+     */
+    @Suppress("TooGenericExceptionCaught")
     suspend fun saveToExternalStorage(
         assetName: String,
         assetDataPath: Path,
         assetDataSize: Long,
         dispatcher: DispatcherProvider = DefaultDispatcherProvider(),
+        onError: suspend () -> Unit,
         onFileSaved: suspend (String?) -> Unit
     ): Unit = withContext(dispatcher.io()) {
-        saveFileToDownloadsFolder(assetName, assetDataPath, assetDataSize, context)
-            ?.let { context.getFileName(it) }
-            .also { onFileSaved(it) }
+        val savedFileUri = try {
+            saveFileToDownloadsFolder(assetName, assetDataPath, assetDataSize, context)
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            appLogger.e("There was an error while saving the file to the Downloads folder", e)
+            onError()
+            return@withContext
+        }
+        onFileSaved(savedFileUri?.let { context.getFileName(it) })
     }
 
     suspend fun saveToExternalMediaStorage(

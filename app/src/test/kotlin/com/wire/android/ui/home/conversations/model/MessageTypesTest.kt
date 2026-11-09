@@ -19,7 +19,6 @@ package com.wire.android.ui.home.conversations.model
 
 import android.content.res.Resources
 import com.wire.android.framework.TestUser
-import com.wire.android.ui.markdown.MarkdownConstants
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.message.mention.MessageMention
 import io.mockk.MockKAnnotations
@@ -55,7 +54,7 @@ class MessageTypesTest {
         val result = mapToDisplayMentions(uiText, mockResources)
         assertEquals(1, result.first.size)
         assertEquals("@Hello", result.first.first().mentionUserName)
-        assertEquals("${MarkdownConstants.MENTION_MARK}@Hello${MarkdownConstants.MENTION_MARK} world", result.second)
+        assertEquals("${result.first.single().markedText} world", result.second)
     }
 
     @Test

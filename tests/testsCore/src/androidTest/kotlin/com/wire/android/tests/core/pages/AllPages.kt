@@ -57,6 +57,13 @@ class AllPages(val device: UiDevice) {
     val selfUserProfilePage = SelfUserProfilePage(device)
     val callingPage = CallingPage(device)
 
+    val wireDrivePage = WireDrivePage(device)
+    val pdfViewerPage = PdfViewerPage(device)
+
+    val documentEditorPage = DocumentEditorPage(device)
+
+    val importMediaPage = ImportMediaPage(device)
+
     val documentsUIPage = DocumentsUIPage(device)
 
     val meetingsPage = MeetingsPage(device)

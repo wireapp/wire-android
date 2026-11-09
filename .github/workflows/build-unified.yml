@@ -4,9 +4,10 @@ on:
   workflow_call:
     inputs:
       build-config:
-        description: "JSON build configuration matrix"
-        required: true
+        description: "JSON build configuration matrix; '[]' runs quality checks only"
+        required: false
         type: string
+        default: '[]'
       enable-deployment:
         description: "Enable deployment after successful build"
         required: false
@@ -226,6 +227,7 @@ jobs:
   # Build matrix job - only runs if all quality checks pass
   build:
     name: "Build ${{ matrix.flavor }}-${{ matrix.variant }}"
+    if: inputs.build-config != '[]'
     env:
       WIRE_RELEASE_VERSION: ${{ inputs.release-version }}
     needs: [ workflow-security, lint, style, compose-stability, ui-tests, unit-tests ]
@@ -394,6 +396,7 @@ jobs:
           OLD_STORE_PASSWORD: ${{ secrets.SIGNING_STORE_PASSWORD_PUBLIC_RELEASE_OLD }}
           APK_SIGNING_LINEAGE_B64: ${{ secrets.APK_SIGNING_LINEAGE_PUBLIC_RELEASE_B64 }}
         run: |
+          export APK_DIR="$(printf '%s' "$APK_DIR" | tr '[:upper:]' '[:lower:]')"
           make signing-lineage
 
       - name: Build AAB
@@ -464,7 +467,7 @@ jobs:
   # Deploy job (conditional)
   deploy:
     needs: build
-    if: inputs.enable-deployment == true
+    if: inputs.enable-deployment == true && inputs.build-config != '[]'
     permissions:
       contents: write # required by called deploy.yml workflow
       actions: read # required by called deploy.yml workflow

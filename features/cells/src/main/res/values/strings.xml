@@ -53,8 +53,8 @@
     <string name="cancel">Cancel</string>
     <string name="confirm_delete_file_title">Delete file</string>
     <string name="confirm_delete_folder_title">Delete folder</string>
-    <string name="confirm_delete_file_text">The file %1$s will move to this conversation\'s recycle bin.</string>
-    <string name="confirm_delete_folder_text">The folder %1$s with all files and subfolders will move to this conversation\'s recycle bin.</string>
+    <string name="confirm_delete_file_text">The file %1$s will move to the recycle bin.</string>
+    <string name="confirm_delete_folder_text">The folder %1$s with all files and subfolders will move to the recycle bin.</string>
     <string name="confirm_permanent_delete_file_text">This will permanently delete the file %1$s for all participants.</string>
     <string name="confirm_permanent_delete_folder_text">This will permanently delete the folder %1$s for all participants.</string>
     <string name="reload">Reload</string>
@@ -116,6 +116,7 @@
     <string name="remove_offline_access_label">Remove offline access</string>
     <string name="viewer_access_label">Viewer access</string>
     <string name="viewer_access_disabled_content_description">%1$s, disabled in viewer access</string>
+    <string name="cell_item_name_viewer_access_content_description">%1$s, viewer access</string>
     <string name="offline_file_saved_message">File saved for offline use</string>
     <string name="offline_banner_message">You\'re offline and can see only saved files</string>
     <string name="file_open_snackbar_message">\"%1$s\" ready to open</string>
@@ -128,7 +129,23 @@
     <string name="no_subfolders_message">There are no subfolders in this folder.</string>
     <string name="item_move_success">Item was moved to folder.</string>
     <string name="item_move_failure">Unable to move the item.</string>
+    <plurals name="cells_items_move_success">
+        <item quantity="one">%1$d item was moved to folder.</item>
+        <item quantity="other">%1$d items were moved to folder.</item>
+    </plurals>
+    <string name="cells_item_move_success_to_folder">Item was moved to \"%1$s\".</string>
+    <plurals name="cells_items_move_success_to_folder">
+        <item quantity="one">%1$d item was moved to \"%2$s\".</item>
+        <item quantity="other">%1$d items were moved to \"%2$s\".</item>
+    </plurals>
+    <string name="cells_move_failure_dialog_title_one">Item not moved</string>
+    <string name="cells_move_failure_dialog_title_many">Items not moved</string>
+    <string name="cells_move_failure_dialog_message_one">Something went wrong while moving the item. Please try again.</string>
+    <string name="cells_move_failure_dialog_message_one_no_network">The item couldn’t be moved because you’re offline. Check your internet connection and try again.</string>
+    <string name="cells_move_failure_dialog_message_many">Something went wrong while moving the items. Some of them may have been moved, so check both folders before trying again.</string>
+    <string name="cells_move_failure_dialog_message_many_no_network">The connection was lost while moving the items. Some of them may have been moved, so check both folders before trying again.</string>
     <string name="content_description_conversation_files_more_button">Open files options</string>
+    <string name="content_description_cell_item_more_button">More options for %1$s</string>
     <string name="recycle_bin">Recycle Bin</string>
     <string name="open_recycle_bin">Open Recycle Bin</string>
     <string name="empty_recycle_bin">You\'ll find all deleted files and folders here.</string>
@@ -302,7 +319,77 @@
         <item quantity="other">%1$d selected</item>
     </plurals>
     <string name="cells_bulk_selection_cancel_content_description">Cancel selection</string>
+    <!-- Badge marking a newly released feature, not the "create new" action of cells_new_label -->
+    <string name="cells_new_feature_badge">NEW</string>
+    <string name="cells_bulk_selection_hint_title">Select multiple files</string>
+    <string name="cells_bulk_selection_hint_message">Long-press a file, then drag up or down to select more.</string>
+    <string name="cells_bulk_selection_hint_dismiss_content_description">Dismiss tip</string>
     <string name="cells_bulk_action_move">Move</string>
     <string name="cells_bulk_action_delete">Delete</string>
+    <string name="cells_bulk_action_restore">Restore</string>
+    <plurals name="cells_bulk_restore_confirmation_title">
+        <item quantity="one">Restore %1$d item</item>
+        <item quantity="other">Restore %1$d items</item>
+    </plurals>
+    <plurals name="cells_bulk_restore_confirmation_message">
+        <item quantity="one">%1$d item will be restored and available again to everyone in this conversation.</item>
+        <item quantity="other">These %1$d items will be restored and available again to everyone in this conversation.</item>
+    </plurals>
+    <plurals name="cells_bulk_restore_success">
+        <item quantity="one">%1$d item was restored</item>
+        <item quantity="other">%1$d items were restored</item>
+    </plurals>
+    <string name="cells_bulk_restore_failure_title_one">Item not restored</string>
+    <string name="cells_bulk_restore_failure_title_many">Items not restored</string>
+    <string name="cells_bulk_restore_failure_message_one">Something went wrong while restoring the item. Please try again.</string>
+    <string name="cells_bulk_restore_failure_message_one_no_network">The item couldn’t be restored because you’re offline. Check your internet connection and try again.</string>
+    <string name="cells_bulk_restore_failure_message_many">Something went wrong while restoring the items. Some of them may have been restored, so check the conversation files before trying again.</string>
+    <string name="cells_bulk_restore_failure_message_many_no_network">The connection was lost while restoring the items. Some of them may have been restored, so check the conversation files before trying again.</string>
+    <plurals name="cells_bulk_delete_confirmation_title">
+        <item quantity="one">Delete %1$d item</item>
+        <item quantity="other">Delete %1$d items</item>
+    </plurals>
+    <plurals name="cells_bulk_delete_confirmation_message">
+        <item quantity="one">%1$d item will move to the recycle bin.</item>
+        <item quantity="other">These %1$d items will move to the recycle bin.</item>
+    </plurals>
+    <plurals name="cells_bulk_delete_confirmation_message_with_folders">
+        <item quantity="one">%1$d folder, including all files and subfolders, will move to the recycle bin.</item>
+        <item quantity="other">These %1$d items, including all files and subfolders, will move to the recycle bin.</item>
+    </plurals>
+    <plurals name="cells_bulk_delete_success">
+        <item quantity="one">%1$d item was moved to the recycle bin</item>
+        <item quantity="other">%1$d items were moved to the recycle bin</item>
+    </plurals>
+    <plurals name="cells_bulk_permanent_delete_confirmation_title">
+        <item quantity="one">Permanently delete %1$d item</item>
+        <item quantity="other">Permanently delete %1$d items</item>
+    </plurals>
+    <plurals name="cells_bulk_permanent_delete_confirmation_message">
+        <item quantity="one">%1$d item will be permanently deleted for all participants. This can\'t be undone.</item>
+        <item quantity="other">These %1$d items will be permanently deleted for all participants. This can\'t be undone.</item>
+    </plurals>
+    <plurals name="cells_bulk_permanent_delete_success">
+        <item quantity="one">%1$d item was permanently deleted</item>
+        <item quantity="other">%1$d items were permanently deleted</item>
+    </plurals>
+    <string name="cells_bulk_delete_failure_title_one">Item not deleted</string>
+    <string name="cells_bulk_delete_failure_title_many">Items not deleted</string>
+    <string name="cells_bulk_delete_failure_message_one">Something went wrong while deleting the item. Please try again.</string>
+    <string name="cells_bulk_delete_failure_message_one_no_network">Unable to delete the item because you’re offline. Check your internet connection and try again.</string>
+    <string name="cells_bulk_delete_failure_message_many">Something went wrong while deleting the items. Some of them may have been moved to the recycle bin, so check both before trying again.</string>
+    <string name="cells_bulk_delete_failure_message_many_no_network">You were offline while deleting the items. Please check if all items have been moved to the recycle bin.</string>
+    <string name="cells_bulk_permanent_delete_failure_message_many">Something went wrong while deleting the items. Please check if all items have been moved to the recycle bin.</string>
+    <string name="cells_bulk_permanent_delete_failure_message_many_no_network">The connection was lost while deleting the items. Some of them may have been permanently deleted, so check the recycle bin before trying again.</string>
     <string name="cells_bulk_action_offline">Offline</string>
+    <string name="cells_item_no_longer_available">This item is no longer available. It may have been deleted or moved.</string>
+    <string name="cells_empty_recycle_bin_content_description">Empty recycle bin</string>
+    <string name="cells_empty_recycle_bin_confirmation_title">Empty recycle bin?</string>
+    <string name="cells_empty_recycle_bin_confirmation_message">All items in this conversation\'s recycle bin will be permanently deleted for all participants. This can\'t be undone.</string>
+    <string name="cells_empty_recycle_bin_confirm">Empty</string>
+    <string name="cells_empty_recycle_bin_success">Recycle bin was emptied</string>
+    <string name="cells_empty_recycle_bin_failure_title">Recycle bin not emptied</string>
+    <string name="cells_empty_recycle_bin_failure_message">Something went wrong while emptying the recycle bin. Some items may have been permanently deleted, so check the recycle bin before trying again.</string>
+    <string name="cells_empty_recycle_bin_failure_message_no_network">The connection was lost while emptying the recycle bin. Some items may have been permanently deleted, so check the recycle bin before trying again.</string>
+    <string name="cells_bulk_action_remove_offline">Remove offline</string>
 </resources>

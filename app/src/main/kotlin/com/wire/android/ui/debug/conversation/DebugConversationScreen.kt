@@ -55,6 +55,7 @@ import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.android.ui.common.R as CommonR
 
 @Composable
 internal fun DebugConversationRouteScreen(
@@ -203,7 +204,7 @@ private fun ConversationDetailsView(state: DebugConversationViewState) {
         SettingsItem(
             title = "Conversation Name",
             text = it,
-            trailingIcon = R.drawable.ic_copy,
+            trailingIcon = CommonR.drawable.ic_copy,
             onRowPressed = Clickable(
                 enabled = true,
                 onClick = {
@@ -217,7 +218,7 @@ private fun ConversationDetailsView(state: DebugConversationViewState) {
             title = "Conversation Id",
             wrapTitleContentWidth = false,
             text = it,
-            trailingIcon = R.drawable.ic_copy,
+            trailingIcon = CommonR.drawable.ic_copy,
             onRowPressed = Clickable(
                 enabled = true,
                 onClick = {
@@ -229,7 +230,7 @@ private fun ConversationDetailsView(state: DebugConversationViewState) {
             title = "Team Id",
             text = state.teamId ?: "-",
             wrapTitleContentWidth = false,
-            trailingIcon = state.teamId?.let { R.drawable.ic_copy },
+            trailingIcon = state.teamId?.let { CommonR.drawable.ic_copy },
             onRowPressed = Clickable(
                 enabled = true,
                 onClick = {
@@ -256,7 +257,7 @@ private fun MlsDetailsView(
         text = mlsProtocolInfo.groupId.value,
         maxTitleLines = 2,
         wrapTitleContentWidth = false,
-        trailingIcon = R.drawable.ic_copy,
+        trailingIcon = CommonR.drawable.ic_copy,
         onRowPressed = Clickable(
             enabled = true,
             onClick = {

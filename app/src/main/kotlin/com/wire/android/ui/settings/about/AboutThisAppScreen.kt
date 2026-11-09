@@ -134,7 +134,7 @@ private fun AboutThisAppContent(
             SettingsItem(
                 title = stringResource(R.string.label_code_commit_id),
                 text = state.commitish,
-                trailingIcon = R.drawable.ic_copy,
+                trailingIcon = commonR.drawable.ic_copy,
                 onIconPressed = Clickable(
                     enabled = true,
                     onClick = {
@@ -145,7 +145,7 @@ private fun AboutThisAppContent(
             SettingsItem(
                 title = stringResource(R.string.app_version),
                 text = state.appName,
-                trailingIcon = R.drawable.ic_copy,
+                trailingIcon = commonR.drawable.ic_copy,
                 onIconPressed = Clickable(
                     enabled = true,
                     onClick = {

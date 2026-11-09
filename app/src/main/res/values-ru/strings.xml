@@ -2020,4 +2020,5 @@
         <item quantity="other">На этом устройстве можно использовать только %1$d аккаунтов одновременно. Выйдите из этого аккаунта или нажмите Позже, чтобы выйти из других аккаунтов.\nСоздайте резервную копию, чтобы сохранить историю переписки.</item>
     </plurals>
     <string name="startup_account_limit_logout">Выйти из этого аккаунта</string>
+    <string name="startup_account_limit_later">Позже</string>
 </resources>

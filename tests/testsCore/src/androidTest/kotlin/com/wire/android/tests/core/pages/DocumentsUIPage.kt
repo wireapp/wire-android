@@ -17,6 +17,8 @@
  */
 package com.wire.android.tests.core.pages
 
+import androidx.test.platform.app.InstrumentationRegistry
+import com.wire.android.tests.support.UiAutomatorSetup
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.StaleObjectException
@@ -34,6 +36,36 @@ data class DocumentsUIPage(private val device: UiDevice) {
     private val androidMediaGrid = UiSelectorParams(className = "android.widget.GridView")
     private val downloadsOption = UiSelectorParams(textContains = "Download")
     private val showRootsButton = UiSelectorParams(description = "Show roots")
+
+    fun openDownloadsInFilesApp(): DocumentsUIPage {
+        device.executeShellCommand(
+            "am start -f 0x10008000 -a android.intent.action.VIEW " +
+                "-d content://com.android.providers.downloads.documents/root/downloads -t vnd.android.document/root"
+        )
+        UiWaitUtils.waitElement(UiSelectorParams(description = "Search"))
+        UiWaitUtils.findElementOrNull(UiSelectorParams(description = "List view"))?.click()
+        return this
+    }
+
+    fun shareFileFromFilesApp(fileName: String): DocumentsUIPage {
+        UiWaitUtils.waitElement(UiSelectorParams(description = "Search")).click()
+        UiWaitUtils.waitElement(
+            UiSelectorParams(resourceId = "com.google.android.documentsui:id/search_src_text")
+        ).text = fileName.substringBeforeLast('.')
+        device.pressEnter()
+        val file = UiWaitUtils.waitElement(UiSelectorParams(text = fileName))
+        file.longClick()
+        UiWaitUtils.waitElement(UiSelectorParams(description = "Share")).click()
+        return this
+    }
+
+    fun selectWireFromAndroidShareSheet(): DocumentsUIPage {
+        val packageManager = InstrumentationRegistry.getInstrumentation().context.packageManager
+        val application = packageManager.getApplicationInfo(UiAutomatorSetup.appPackage, 0)
+        val appName = packageManager.getApplicationLabel(application).toString()
+        UiWaitUtils.waitElement(UiSelectorParams(text = appName), timeout = UiWaitUtils.LONG_TIMEOUT).click()
+        return this
+    }
 
     fun iSeeQrCodeImage(fileName: String = "my-test-qr.png"): DocumentsUIPage {
         val qrCodeImage = UiSelectorParams(text = fileName)

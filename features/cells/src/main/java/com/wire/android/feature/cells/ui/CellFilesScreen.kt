@@ -74,6 +74,8 @@ internal fun CellFilesScreen(
     sortBy: SortBy = SortBy.Default,
     selectedNodeIds: Set<String> = emptySet(),
     onItemLongClick: ((CellNodeUi) -> Unit)? = null,
+    onDragSelection: (List<CellNodeUi>) -> Unit = {},
+    onDragSelectionEnd: () -> Unit = {},
     onItemMenuClick: (CellNodeUi) -> Unit
 ) {
     if (isPullToRefreshEnabled) {
@@ -92,6 +94,8 @@ internal fun CellFilesScreen(
                 sortBy = sortBy,
                 selectedNodeIds = selectedNodeIds,
                 onItemLongClick = onItemLongClick,
+                onDragSelection = onDragSelection,
+                onDragSelectionEnd = onDragSelectionEnd,
             )
         }
     } else {
@@ -106,6 +110,8 @@ internal fun CellFilesScreen(
             sortBy = sortBy,
             selectedNodeIds = selectedNodeIds,
             onItemLongClick = onItemLongClick,
+            onDragSelection = onDragSelection,
+            onDragSelectionEnd = onDragSelectionEnd,
         )
     }
 }
@@ -122,10 +128,16 @@ private fun ContentList(
     sortBy: SortBy = SortBy.Default,
     selectedNodeIds: Set<String> = emptySet(),
     onItemLongClick: ((CellNodeUi) -> Unit)? = null,
+    onDragSelection: (List<CellNodeUi>) -> Unit = {},
+    onDragSelectionEnd: () -> Unit = {},
 ) {
     val isSelectionMode = selectedNodeIds.isNotEmpty()
+    val dragSelectionState = rememberCellDragSelectionState(lazyListState, cellNodes, onDragSelection, onDragSelectionEnd)
     LazyColumn(
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier
+            .fillMaxWidth()
+            // Selection is available exactly when items can be long clicked, which is what starts a drag.
+            .cellDragSelection(dragSelectionState.takeIf { onItemLongClick != null }),
         state = lazyListState,
         contentPadding = PaddingValues(bottom = dimensions().spacing80x)
     ) {

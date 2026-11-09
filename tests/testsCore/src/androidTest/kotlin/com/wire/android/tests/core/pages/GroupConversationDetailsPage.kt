@@ -21,6 +21,7 @@ import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.UiScrollable
 import androidx.test.uiautomator.UiSelector
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import uiautomatorutils.UiSelectorParams
 import uiautomatorutils.UiWaitUtils
@@ -62,6 +63,16 @@ data class GroupConversationDetailsPage(private val device: UiDevice) {
 
     private val closeButtonOnGroupConversationDetailsPage = UiSelectorParams(description = "Close conversation details")
 
+    private val sharedDriveButton = By.clickable(true).hasChild(By.text("Shared Drive"))
+
+    private val conversationMediaButton = By.clickable(true).hasChild(By.text("Media"))
+
+    private val sharedDrivePermanentDescription = UiSelectorParams(text = "Permanently on for this conversation.")
+
+    private val selfDeletingMessagesSharedDriveDescription = UiSelectorParams(
+        text = "The feature is not available for conversations with a Shared Drive."
+    )
+
     private val conversationDetailsHeading = UiSelectorParams(text = "Conversation Details")
 
     private val removeFromConversationButton = UiSelectorParams(text = "Remove From Conversation")
@@ -99,6 +110,65 @@ data class GroupConversationDetailsPage(private val device: UiDevice) {
         } catch (e: AssertionError) {
             throw AssertionError("Group details page is not visible.", e)
         }
+        return this
+    }
+
+    fun tapSharedDriveButton(): GroupConversationDetailsPage {
+        val visible = UiWaitUtils.retryUntilTimeout(UiWaitUtils.SHORT_WAIT) {
+            device.hasObject(sharedDriveButton)
+        }
+        assertTrue("Shared Drive button is not visible in conversation details", visible)
+        device.findObject(sharedDriveButton).click()
+        return this
+    }
+
+    fun assertSharedDriveButtonVisible(): GroupConversationDetailsPage {
+        val visible = UiWaitUtils.retryUntilTimeout(UiWaitUtils.SHORT_WAIT) {
+            device.hasObject(sharedDriveButton)
+        }
+        assertTrue("Shared Drive button is not visible in conversation details", visible)
+        return this
+    }
+
+    fun assertSharedDriveButtonAppearsWithoutMedia(): GroupConversationDetailsPage {
+        assertFalse("Media is visible instead of Shared Drive", device.hasObject(conversationMediaButton))
+        return assertSharedDriveButtonVisible()
+    }
+
+    fun assertSharedDriveIsPermanentlyOn(): GroupConversationDetailsPage {
+        UiScrollable(UiSelector().scrollable(true))
+            .scrollIntoView(UiSelector().text("Permanently on for this conversation."))
+        UiWaitUtils.waitElement(
+            sharedDrivePermanentDescription,
+            timeout = UiWaitUtils.SHORT_WAIT
+        )
+        return this
+    }
+
+    fun assertSelfDeletingMessagesUnavailableForSharedDrive(): GroupConversationDetailsPage {
+        UiScrollable(UiSelector().scrollable(true))
+            .scrollIntoView(UiSelector().text("The feature is not available for conversations with a Shared Drive."))
+        UiWaitUtils.waitElement(
+            selfDeletingMessagesSharedDriveDescription,
+            timeout = UiWaitUtils.SHORT_WAIT
+        )
+        return this
+    }
+
+    fun assertSharedDriveButtonNotVisible(): GroupConversationDetailsPage {
+        UiWaitUtils.waitUntilGoneOrThrow(
+            selector = sharedDriveButton,
+            timeout = UiWaitUtils.VERY_SHORT_TIMEOUT,
+            errorMessage = "Shared Drive button is visible in conversation details"
+        )
+        return this
+    }
+
+    fun assertConversationMediaButtonVisible(): GroupConversationDetailsPage {
+        val visible = UiWaitUtils.retryUntilTimeout(UiWaitUtils.SHORT_WAIT) {
+            device.hasObject(conversationMediaButton)
+        }
+        assertTrue("Media button is not visible in conversation details", visible)
         return this
     }
 

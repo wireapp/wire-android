@@ -17,29 +17,46 @@
  */
 package com.wire.android.feature.cells.ui.recyclebin
 
+import androidx.activity.compose.BackHandler
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.wire.android.feature.cells.R
+import com.wire.android.feature.cells.ui.CellBulkAction
+import com.wire.android.feature.cells.ui.CellBulkActionsBar
 import com.wire.android.feature.cells.ui.CellFilesNavArgs
 import com.wire.android.feature.cells.ui.CellScreenContent
+import com.wire.android.feature.cells.ui.CellViewIntent
 import com.wire.android.feature.cells.ui.CellViewModel
 import com.wire.android.feature.cells.ui.CellsFilesNavigation
+import com.wire.android.feature.cells.ui.SelectionAwareTitle
 import com.wire.android.feature.cells.ui.common.Breadcrumbs
+import com.wire.android.feature.cells.ui.dialog.BulkDeleteDialogs
+import com.wire.android.feature.cells.ui.dialog.BulkRestoreDialogs
+import com.wire.android.feature.cells.ui.dialog.EmptyRecycleBinDialogs
+import com.wire.android.feature.cells.ui.toIntent
+import com.wire.android.ui.common.button.WireSecondaryIconButton
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
-import com.wire.android.ui.common.topappbar.WireTopAppBarTitle
-import com.wire.android.ui.theme.wireTypography
+import kotlinx.collections.immutable.persistentListOf
+import com.wire.android.ui.common.R as commonR
 
 @Composable
 internal fun RecycleBinRouteScreen(
@@ -47,6 +64,17 @@ internal fun RecycleBinRouteScreen(
     cellViewModel: CellViewModel,
     modifier: Modifier = Modifier,
 ) {
+    val selectedNodes by cellViewModel.selectedNodes.collectAsState()
+    val isSelectionMode = selectedNodes.isNotEmpty()
+    val bulkDeleteDialog by cellViewModel.bulkDeleteDialog.collectAsState()
+    val bulkRestoreDialog by cellViewModel.bulkRestoreDialog.collectAsState()
+    val emptyRecycleBinDialog by cellViewModel.emptyRecycleBinDialog.collectAsState()
+    val canEmptyRecycleBin by cellViewModel.canEmptyRecycleBin.collectAsState()
+
+    BackHandler(enabled = isSelectionMode) {
+        cellViewModel.sendIntent(CellViewIntent.OnClearSelection)
+    }
+
     Box(modifier = modifier) {
         WireScaffold(
             topBar = {
@@ -54,15 +82,32 @@ internal fun RecycleBinRouteScreen(
                     WireCenterAlignedTopAppBar(
                         elevation = dimensions().spacing0x,
                         titleContent = {
-                            WireTopAppBarTitle(
+                            SelectionAwareTitle(
                                 title = stringResource(R.string.recycle_bin),
-                                style = MaterialTheme.wireTypography.title01,
-                                maxLines = 2
+                                selectedCount = selectedNodes.size,
                             )
                         },
-                        navigationIconType = NavigationIconType.Back(com.wire.android.ui.common.R.string.content_description_back_button),
+                        navigationIconType = if (isSelectionMode) {
+                            NavigationIconType.Close(R.string.cells_bulk_selection_cancel_content_description)
+                        } else {
+                            NavigationIconType.Back(com.wire.android.ui.common.R.string.content_description_back_button)
+                        },
+                        animateNavigationIcon = true,
                         onNavigationPressed = {
-                            navigation.back()
+                            if (isSelectionMode) {
+                                cellViewModel.sendIntent(CellViewIntent.OnClearSelection)
+                            } else {
+                                navigation.back()
+                            }
+                        },
+                        actions = {
+                            if (canEmptyRecycleBin && !isSelectionMode) {
+                                WireSecondaryIconButton(
+                                    onButtonClicked = { cellViewModel.sendIntent(CellViewIntent.OnEmptyRecycleBinClick) },
+                                    iconResource = commonR.drawable.ic_delete,
+                                    contentDescription = R.string.cells_empty_recycle_bin_content_description,
+                                )
+                            }
                         }
                     )
 
@@ -101,13 +146,63 @@ internal fun RecycleBinRouteScreen(
                     },
                     showPublicLinkScreen = navigation::publicLink,
                     showMoveToFolderScreen = navigation::move,
+                    showBulkMoveToFolderScreen = navigation::moveNodes,
                     showRenameScreen = { },
                     showAddRemoveTagsScreen = {},
                     showImageViewer = navigation::image,
                     isRefreshing = cellViewModel.isPullToRefresh.collectAsState(),
-                    onRefresh = { cellViewModel.onPullToRefresh() }
+                    onRefresh = { cellViewModel.onPullToRefresh() },
+                    selectedNodeIds = selectedNodes.keys,
+                    isSelectionEnabled = cellViewModel.isBulkSelectionEnabled.collectAsState().value,
                 )
             }
         }
+
+        AnimatedVisibility(
+            visible = isSelectionMode,
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .navigationBarsPadding()
+                .padding(bottom = dimensions().spacing16x),
+            enter = slideInVertically { it } + fadeIn(),
+            exit = slideOutVertically { it } + fadeOut(),
+        ) {
+            CellBulkActionsBar(
+                actions = persistentListOf(CellBulkAction.Restore, CellBulkAction.DeletePermanently),
+                onActionClick = { action -> cellViewModel.sendIntent(action.toIntent()) },
+            )
+        }
+    }
+
+    bulkDeleteDialog?.let { dialog ->
+        BulkDeleteDialogs(
+            dialog = dialog,
+            onConfirm = { cellViewModel.sendIntent(CellViewIntent.OnBulkDeleteConfirmed) },
+            onDismiss = { cellViewModel.sendIntent(CellViewIntent.OnBulkDeleteDialogDismissed) },
+        )
+    }
+
+    bulkRestoreDialog?.let { dialog ->
+        BulkRestoreDialogs(
+            dialog = dialog,
+            onConfirm = { cellViewModel.sendIntent(CellViewIntent.OnBulkRestoreConfirmed) },
+            onDismiss = { cellViewModel.sendIntent(CellViewIntent.OnBulkRestoreDialogDismissed) },
+        )
+    }
+
+    emptyRecycleBinDialog?.let { dialog ->
+        EmptyRecycleBinDialogs(
+            dialog = dialog,
+            onConfirm = { cellViewModel.sendIntent(CellViewIntent.OnEmptyRecycleBinConfirmed) },
+            onDismiss = { cellViewModel.sendIntent(CellViewIntent.OnEmptyRecycleBinDialogDismissed) },
+        )
+    }
+
+    bulkRestoreDialog?.let { dialog ->
+        BulkRestoreDialogs(
+            dialog = dialog,
+            onConfirm = { cellViewModel.sendIntent(CellViewIntent.OnBulkRestoreConfirmed) },
+            onDismiss = { cellViewModel.sendIntent(CellViewIntent.OnBulkRestoreDialogDismissed) },
+        )
     }
 }

@@ -4,7 +4,7 @@ set -euo pipefail
 # Validation and selector utilities used by qa-android-ui-tests workflow.
 
 usage() {
-  echo "Usage: $0 {validate-run-mode|validate-upgrade-inputs|validate-rerun-inputs|resolve-selector-from-tags|print-resolved-values}" >&2
+  echo "Usage: $0 {validate-run-mode|validate-upgrade-inputs|validate-emulator-inputs|validate-rerun-inputs|resolve-selector-from-tags|print-resolved-values}" >&2
   exit 2
 }
 
@@ -17,6 +17,17 @@ validate_upgrade_inputs() {
   # oldBuildNumber is optional for upgrade runs. When empty, APK selection uses
   # the previous APK as the old version and the selected appBuildNumber as new.
   :
+}
+
+validate_emulator_inputs() {
+  if [[ "${IS_UPGRADE:-false}" == "true" || "${RESOLVED_CATEGORY:-}" == "upgrade" ]]; then
+    echo "ERROR: Emulator critical-flow runs exclude upgrade tests."
+    exit 1
+  fi
+  if [[ "${TARGET_DEVICE_GROUP:-}" != "criticalFlow" ]]; then
+    echo "ERROR: Emulator runs require the criticalFlow device group."
+    exit 1
+  fi
 }
 
 validate_run_mode() {
@@ -134,6 +145,9 @@ print_resolved_values() {
 }
 
 case "${1:-}" in
+  validate-emulator-inputs)
+    validate_emulator_inputs
+    ;;
   validate-run-mode)
     validate_run_mode
     ;;

@@ -60,6 +60,16 @@ class DeepLinkProcessorTest {
     }
 
     @Test
+    fun givenMeetingsLinkForCurrentAccount_whenProcessing_thenOpenMeetingsForValidatedSession() = runTest {
+        val (arrangement, processor) = Arrangement()
+            .withConversationDeepLink(CURRENT_USER_ID)
+            .withCurrentSessionSuccess(CURRENT_USER_ID)
+            .arrange()
+        coEvery { arrangement.uri.host } returns DeepLinkProcessor.MEETINGS_DEEPLINK_HOST
+        assertEquals(DeepLinkResult.OpenMeetings(CURRENT_USER_ID), processor(arrangement.uri))
+    }
+
+    @Test
     fun `given a valid remote config deeplink, returns CustomServerConfig object`() = runTest {
         val (arrangement, deepLinkProcessor) = Arrangement()
             .withRemoteConfigDeeplink(FAKE_REMOTE_SERVER_URL)
@@ -203,7 +213,7 @@ class DeepLinkProcessorTest {
         val conversationResult = deepLinkProcessor(arrangement.uri)
         assertInstanceOf(DeepLinkResult.OpenConversation::class.java, conversationResult)
         assertEquals(
-            DeepLinkResult.OpenConversation(CONVERSATION_ID, false),
+            DeepLinkResult.OpenConversation(CONVERSATION_ID, false, CURRENT_USER_ID),
             conversationResult
         )
     }
@@ -232,7 +242,7 @@ class DeepLinkProcessorTest {
         val conversationResult = deepLinkProcessor(arrangement.uri)
         assertInstanceOf(DeepLinkResult.OpenOtherUserProfile::class.java, conversationResult)
         assertEquals(
-            DeepLinkResult.OpenOtherUserProfile(OTHER_USER_ID, false),
+            DeepLinkResult.OpenOtherUserProfile(OTHER_USER_ID, false, CURRENT_USER_ID),
             conversationResult
         )
     }
@@ -315,7 +325,7 @@ class DeepLinkProcessorTest {
         val conversationResult = deepLinkProcessor(arrangement.uri)
         assertInstanceOf(DeepLinkResult.OpenOtherUserProfile::class.java, conversationResult)
         assertEquals(
-            DeepLinkResult.OpenOtherUserProfile(UserId("other_user", "other_domain"), false),
+            DeepLinkResult.OpenOtherUserProfile(UserId("other_user", "other_domain"), false, CURRENT_USER_ID),
             conversationResult
         )
     }

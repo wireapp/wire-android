@@ -23,16 +23,20 @@ import android.media.PlaybackParams
 import app.cash.turbine.TurbineTestContext
 import app.cash.turbine.test
 import com.wire.android.config.TestDispatcherProvider
+import com.wire.android.framework.TestMessage
 import com.wire.android.media.audiomessage.ConversationAudioMessagePlayer.MessageIdWrapper
 import com.wire.android.services.ServicesManager
 import com.wire.kalium.common.error.NetworkFailure
+import com.wire.kalium.common.error.StorageFailure
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.auth.AccountInfo
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.MessageAssetResult
 import com.wire.kalium.logic.feature.message.GetMessageByIdUseCase
+import com.wire.kalium.logic.feature.message.ObserveMessageByIdUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
@@ -42,6 +46,7 @@ import io.mockk.impl.annotations.MockK
 import io.mockk.verify
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import okio.Path.Companion.toOkioPath
@@ -613,6 +618,88 @@ class ConversationAudioMessagePlayerTest {
         }
     }
 
+    @Test
+    fun givenPlayingAudioMessage_whenMessageIsDeletedForEveryone_thenStopPlayback() = runTest(dispatcher) {
+        val audioMessageId = "some-dummy-message-id"
+        val conversationId = ConversationId("some-dummy-value", "some.dummy.domain")
+        val (arrangement, conversationAudioMessagePlayer) = Arrangement(tempDir)
+            .withAudioMediaPlayerReturningTotalTime(1000)
+            .withSuccessfulAssetFetch()
+            .withCurrentSession()
+            .arrange()
+
+        conversationAudioMessagePlayer.playAudio(conversationId, audioMessageId)
+        arrangement.withMessageDeletedForEveryone(audioMessageId)
+
+        with(arrangement) {
+            verify(exactly = 1) { mediaPlayer.reset() }
+            verify(exactly = 1) { servicesManager.stopPlayingAudioMessageService() }
+            verify(exactly = 1) { audioFocusHelper.abandon() }
+        }
+    }
+
+    @Test
+    fun givenPlayingAudioMessage_whenMessageIsRemoved_thenStopPlayback() = runTest(dispatcher) {
+        val audioMessageId = "some-dummy-message-id"
+        val conversationId = ConversationId("some-dummy-value", "some.dummy.domain")
+        val (arrangement, conversationAudioMessagePlayer) = Arrangement(tempDir)
+            .withAudioMediaPlayerReturningTotalTime(1000)
+            .withSuccessfulAssetFetch()
+            .withCurrentSession()
+            .arrange()
+
+        conversationAudioMessagePlayer.playAudio(conversationId, audioMessageId)
+        arrangement.withMessageObserveResult(audioMessageId, ObserveMessageByIdUseCase.Result.Failure(StorageFailure.DataNotFound))
+
+        with(arrangement) {
+            verify(exactly = 1) { mediaPlayer.reset() }
+            verify(exactly = 1) { servicesManager.stopPlayingAudioMessageService() }
+        }
+    }
+
+    @Test
+    fun givenPlayingAudioMessage_whenObservingMessageFailsWithGenericError_thenKeepPlaying() = runTest(dispatcher) {
+        val audioMessageId = "some-dummy-message-id"
+        val conversationId = ConversationId("some-dummy-value", "some.dummy.domain")
+        val (arrangement, conversationAudioMessagePlayer) = Arrangement(tempDir)
+            .withAudioMediaPlayerReturningTotalTime(1000)
+            .withSuccessfulAssetFetch()
+            .withCurrentSession()
+            .arrange()
+
+        conversationAudioMessagePlayer.playAudio(conversationId, audioMessageId)
+        arrangement.withMessageObserveResult(
+            audioMessageId,
+            ObserveMessageByIdUseCase.Result.Failure(StorageFailure.Generic(RuntimeException()))
+        )
+
+        with(arrangement) {
+            verify(exactly = 0) { mediaPlayer.reset() }
+            verify(exactly = 0) { servicesManager.stopPlayingAudioMessageService() }
+        }
+    }
+
+    @Test
+    fun givenSwitchedToAnotherAudioMessage_whenPreviousMessageIsDeleted_thenKeepPlayingCurrentOne() = runTest(dispatcher) {
+        val firstAudioMessageId = "some-dummy-message-id-1"
+        val secondAudioMessageId = "some-dummy-message-id-2"
+        val conversationId = ConversationId("some-dummy-value", "some.dummy.domain")
+        val (arrangement, conversationAudioMessagePlayer) = Arrangement(tempDir)
+            .withAudioMediaPlayerReturningTotalTime(1000)
+            .withSuccessfulAssetFetch()
+            .withCurrentSession()
+            .arrange()
+
+        conversationAudioMessagePlayer.playAudio(conversationId, firstAudioMessageId)
+        conversationAudioMessagePlayer.playAudio(conversationId, secondAudioMessageId)
+        arrangement.withMessageDeletedForEveryone(firstAudioMessageId)
+
+        with(arrangement) {
+            verify(exactly = 1) { mediaPlayer.reset() } // only when switching from the first to the second message
+            verify(exactly = 0) { servicesManager.stopPlayingAudioMessageService() }
+        }
+    }
+
     private suspend fun <T> TurbineTestContext<T>.awaitAndAssertStateUpdate(assertion: (T) -> Unit) {
         val state = awaitItem()
         assert(state != null)
@@ -644,6 +731,8 @@ class Arrangement(private val tempDir: File) {
     @MockK
     lateinit var getMessageById: GetMessageByIdUseCase
 
+    private val observedMessages = mutableMapOf<String, MutableStateFlow<ObserveMessageByIdUseCase.Result>>()
+
     private val testScope: CoroutineScope = CoroutineScope(dispatcher)
 
     private val conversationAudioMessagePlayer by lazy {
@@ -663,6 +752,9 @@ class Arrangement(private val tempDir: File) {
 
         every { coreLogic.getSessionScope(any()).messages.getAssetMessage } returns getAssetMessage
         every { coreLogic.getSessionScope(any()).messages.getMessageById } returns getMessageById
+        coEvery { coreLogic.getSessionScope(any()).messages.observeMessageById(any(), any()) } answers {
+            observedMessageFlow(secondArg())
+        }
         every { mediaPlayer.currentPosition } returns 100
 
         every { servicesManager.stopPlayingAudioMessageService() } returns Unit
@@ -696,6 +788,21 @@ class Arrangement(private val tempDir: File) {
             )
         )
     }
+
+    private fun observedMessageFlow(messageId: String) = observedMessages.getOrPut(messageId) {
+        MutableStateFlow(ObserveMessageByIdUseCase.Result.Success(TestMessage.ASSET_MESSAGE.copy(id = messageId)))
+    }
+
+    fun withMessageObserveResult(messageId: String, result: ObserveMessageByIdUseCase.Result) = apply {
+        observedMessageFlow(messageId).value = result
+    }
+
+    fun withMessageDeletedForEveryone(messageId: String) = withMessageObserveResult(
+        messageId,
+        ObserveMessageByIdUseCase.Result.Success(
+            TestMessage.ASSET_MESSAGE.copy(id = messageId, visibility = Message.Visibility.DELETED)
+        )
+    )
 
     fun withFailedAssetFetch() = apply {
         coEvery {

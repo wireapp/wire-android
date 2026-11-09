@@ -19,9 +19,10 @@ package com.wire.android.tests.core.pages
 
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import uiautomatorutils.UiSelectorParams
 import uiautomatorutils.UiWaitUtils
-import kotlin.time.Duration.Companion.seconds
 
 data class ChromePage(private val device: UiDevice) {
 
@@ -29,6 +30,10 @@ data class ChromePage(private val device: UiDevice) {
     private val noThanksLocator = UiSelectorParams(text = "No thanks")
     private val declineCookiesLocator = UiSelectorParams(text = "Decline")
     private val networkQualityArticleTitle = UiSelectorParams(textContains = "Check network quality")
+    private val sharedDriveArticleTitle = UiSelectorParams(textContains = "Use Drive in conversations")
+    private val globalDriveArticleTitle = UiSelectorParams(
+        textContains = "Access all files shared across conversations (Drive)"
+    )
 
     fun clickUseWithoutAccount(): ChromePage {
         UiWaitUtils.waitElement(useWithoutAccountLocator).click()
@@ -37,22 +42,51 @@ data class ChromePage(private val device: UiDevice) {
 
     fun dismissFirstRunIfVisible(): ChromePage {
         runCatching {
-            UiWaitUtils.waitElement(useWithoutAccountLocator, timeout = 2.seconds).click()
+            UiWaitUtils.waitElement(useWithoutAccountLocator, timeout = UiWaitUtils.SHORT_WAIT).click()
         }
         return this
     }
 
     fun dismissNotificationsPromptIfVisible(): ChromePage {
         runCatching {
-            UiWaitUtils.waitElement(noThanksLocator, timeout = 2.seconds).click()
+            UiWaitUtils.waitElement(noThanksLocator, timeout = UiWaitUtils.SHORT_WAIT).click()
         }
         return this
     }
 
     fun dismissCookieConsentIfVisible(): ChromePage {
         runCatching {
-            UiWaitUtils.waitElement(declineCookiesLocator, timeout = 2.seconds).click()
+            UiWaitUtils.waitElement(declineCookiesLocator, timeout = UiWaitUtils.SHORT_WAIT).click()
         }
+        return this
+    }
+
+    fun assertHtmlFileHandlerAvailable(): ChromePage {
+        val handlers = runShellCommand(
+            "cmd package query-activities --brief -a android.intent.action.VIEW " +
+                "-t text/html -d content://test-fixture/external-opening.html"
+        )
+        assertTrue("Chrome is not available to open HTML files", handlers.contains("com.android.chrome/"))
+        return this
+    }
+
+    fun selectChromeFromOpenWithDialog(): ChromePage {
+        val chrome = UiWaitUtils.waitAnyVisible(
+            selectors = listOf(UiSelectorParams(text = "Chrome"), UiSelectorParams(text = "Open with Chrome")),
+            timeout = UiWaitUtils.VERY_LONG_TIMEOUT
+        ) ?: throw AssertionError("Chrome is not shown in the Open with dialog")
+        if (chrome.text == "Chrome") chrome.click()
+        UiWaitUtils.waitElement(UiSelectorParams(text = "Just once"), timeout = UiWaitUtils.SHORT_TIMEOUT).click()
+        return this
+    }
+
+    fun assertHtmlFileOpenInChrome(fileName: String, expectedText: String): ChromePage {
+        UiWaitUtils.waitElement(
+            UiSelectorParams(resourceId = "com.android.chrome:id/url_bar", textContains = fileName),
+            timeout = UiWaitUtils.VERY_LONG_TIMEOUT
+        )
+        UiWaitUtils.waitElement(UiSelectorParams(text = expectedText), timeout = UiWaitUtils.VERY_LONG_TIMEOUT)
+        assertEquals("The HTML file is not open in Chrome", "com.android.chrome", device.currentPackageName)
         return this
     }
 
@@ -63,6 +97,30 @@ data class ChromePage(private val device: UiDevice) {
             params = networkQualityArticleTitle,
             timeout = UiWaitUtils.MEDIUM_TIMEOUT,
             errorMessage = "Network quality support article is not visible in browser."
+        )
+        return this
+    }
+
+    fun assertSharedDriveSupportArticleVisible(): ChromePage {
+        dismissFirstRunIfVisible()
+        dismissNotificationsPromptIfVisible()
+        dismissCookieConsentIfVisible()
+        UiWaitUtils.waitUntilVisibleOrThrow(
+            params = sharedDriveArticleTitle,
+            timeout = UiWaitUtils.MEDIUM_TIMEOUT,
+            errorMessage = "Shared Drive support article is not visible in browser."
+        )
+        return this
+    }
+
+    fun assertGlobalDriveSupportArticleVisible(): ChromePage {
+        dismissFirstRunIfVisible()
+        dismissNotificationsPromptIfVisible()
+        dismissCookieConsentIfVisible()
+        UiWaitUtils.waitUntilVisibleOrThrow(
+            params = globalDriveArticleTitle,
+            timeout = UiWaitUtils.MEDIUM_TIMEOUT,
+            errorMessage = "Global Drive support article is not visible in browser."
         )
         return this
     }

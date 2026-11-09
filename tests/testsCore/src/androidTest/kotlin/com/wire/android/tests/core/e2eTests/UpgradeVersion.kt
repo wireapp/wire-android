@@ -61,7 +61,7 @@ class UpgradeVersion : BaseUiTest() {
      */
     @Suppress("CyclomaticComplexMethod", "LongMethod")
     @TestCaseId("TC-8607")
-    @Category("regression", "upgrade")
+    @Category("regression", "RC", "upgrade")
     @Test
     fun givenTeamUserWithConversationHistory_whenUpdatingFromPreviousWireVersion_thenHistoryIsPreserved() {
         step("There is a team owner with a team named UpgradeTeam") {
@@ -845,6 +845,7 @@ class UpgradeVersion : BaseUiTest() {
             pages.conversationListPage.clickGroupConversation("HappyUpgrade")
             pages.conversationViewPage.apply {
                 assertImageIsVisible()
+                scrollToLatestFile("qa_random.txt")
                 assertFileWithNameIsVisible("testing.mp4")
                 assertFileWithNameIsVisible("qa_random.txt")
             }

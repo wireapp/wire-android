@@ -27,6 +27,8 @@ def resolve_status_icon() -> str:
     job_status = env("JOB_STATUS")
     if job_status == "cancelled":
         return "⚪"
+    if env("EMULATOR_CHECK_FAILED") == "true":
+        return "❌"
 
     tests_failed = env_int("TESTS_FAILED")
     tests_total = env_int("TESTS_TOTAL")
@@ -98,6 +100,8 @@ def build_body() -> str:
         header = f"{header} (PR #{pr_number})"
 
     lines = [header]
+    if env("EMULATOR_CHECK_FAILED") == "true":
+        lines.append("Emulator diagnostics failed. See the GitHub job logs.")
 
     tags = env("RESOLVED_TAGS")
     if tags:

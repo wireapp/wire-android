@@ -45,7 +45,7 @@ class ArchiveTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4234", "TC-4235")
+    @TestCaseId("TC-12369", "TC-12370")
     @Category("regression", "RC", "archive")
     @Test
     fun givenOneOnOneConversation_whenArchivingFromUserProfilePageAndConversationListPage_thenICanArchiveAndUnarchive() {
@@ -303,7 +303,7 @@ class ArchiveTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4236", "TC-4237")
+    @TestCaseId("TC-12371", "TC-12372")
     @Category("regression", "RC", "archive")
     @Test
     fun givenGroupConversation_whenArchivingFromGroupDetailsPageAndConversationListPage_thenICanArchiveAndUnarchive() {
@@ -577,7 +577,7 @@ class ArchiveTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4238")
+    @TestCaseId("TC-12373")
     @Category("regression", "RC", "archive")
     @Test
     fun givenArchivedGroupConversation_whenSendingAndReceivingMessages_thenCanICanSendAndReceiveMessage() {
@@ -720,7 +720,7 @@ class ArchiveTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4239")
+    @TestCaseId("TC-12374")
     @Category("regression", "RC", "archive")
     @Test
     fun givenILeftGroupConversation_whenArchivingFromConversationListPage_thenICanArchive() {
@@ -856,7 +856,7 @@ class ArchiveTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4240")
+    @TestCaseId("TC-12375")
     @Category("regression", "RC", "archive")
     @Test
     fun givenArchivedConversations_whenReceivingMessages_thenNoNotifications() {
@@ -1023,7 +1023,7 @@ class ArchiveTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4241")
+    @TestCaseId("TC-12376")
     @Category("regression", "RC", "archive")
     @Test
     fun givenArchivedConversations_whenReceivingSelfDeletingMessages_thenNoNotifications() {
@@ -1188,7 +1188,7 @@ class ArchiveTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4242")
+    @TestCaseId("TC-12377")
     @Category("regression", "RC", "archive")
     @Test
     fun givenConversationsArchivedBeforeLogin_whenAppIsInForegroundAndReceivingMessages_thenNoNotifications() {

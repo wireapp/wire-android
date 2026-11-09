@@ -47,6 +47,23 @@ data class ChromePage(private val device: UiDevice) {
         return this
     }
 
+    fun completeFirstRunForOnlineEditorIfShown(): ChromePage {
+        val signedOutButton = "com.android.chrome:id/signin_fre_dismiss_button"
+        val screen = UiWaitUtils.waitAnyVisible(
+            selectors = listOf(
+                UiSelectorParams(resourceId = signedOutButton),
+                useWithoutAccountLocator,
+                UiSelectorParams(text = "Online Editor")
+            ),
+            timeout = UiWaitUtils.MEDIUM_TIMEOUT
+        ) ?: throw AssertionError("Neither the Online Editor nor Chrome's first-run button is visible")
+        if (screen.resourceName == signedOutButton || screen.text == "Use without an account") {
+            screen.click()
+            dismissNotificationsPromptIfVisible()
+        }
+        return this
+    }
+
     fun dismissNotificationsPromptIfVisible(): ChromePage {
         runCatching {
             UiWaitUtils.waitElement(noThanksLocator, timeout = UiWaitUtils.SHORT_WAIT).click()
@@ -71,12 +88,18 @@ data class ChromePage(private val device: UiDevice) {
     }
 
     fun selectChromeFromOpenWithDialog(): ChromePage {
+        val chromeAddressBar = UiSelectorParams(resourceId = "com.android.chrome:id/url_bar")
         val chrome = UiWaitUtils.waitAnyVisible(
-            selectors = listOf(UiSelectorParams(text = "Chrome"), UiSelectorParams(text = "Open with Chrome")),
+            selectors = listOf(chromeAddressBar, UiSelectorParams(text = "Chrome"), UiSelectorParams(text = "Open with Chrome")),
             timeout = UiWaitUtils.VERY_LONG_TIMEOUT
-        ) ?: throw AssertionError("Chrome is not shown in the Open with dialog")
+        ) ?: throw AssertionError("Chrome is not open or shown in the Open with dialog")
+        if (chrome.resourceName == "com.android.chrome:id/url_bar") return this
         if (chrome.text == "Chrome") chrome.click()
-        UiWaitUtils.waitElement(UiSelectorParams(text = "Just once"), timeout = UiWaitUtils.SHORT_TIMEOUT).click()
+        val choice = UiWaitUtils.waitAnyVisible(
+            selectors = listOf(chromeAddressBar, UiSelectorParams(text = "Just once")),
+            timeout = UiWaitUtils.STABLE_TIMEOUT
+        ) ?: throw AssertionError("Neither Chrome nor Just once is visible after selecting Chrome")
+        if (choice.text == "Just once") choice.click()
         return this
     }
 

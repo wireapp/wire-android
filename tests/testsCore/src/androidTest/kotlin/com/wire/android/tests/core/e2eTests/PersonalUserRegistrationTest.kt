@@ -45,7 +45,7 @@ class PersonalUserRegistrationTest : BaseUiTest() {
     }
 
     @Suppress("LongMethod")
-    @TestCaseId("TC-8694")
+    @TestCaseId("TC-12718")
     @Category("regression", "RC", "registration")
     @Test
     fun givenUserWantsToRegister_whenTheyProvideValidDetails_thenAccountIsCreatedSuccessfully() {
@@ -137,7 +137,7 @@ class PersonalUserRegistrationTest : BaseUiTest() {
     }
 
     @Suppress("LongMethod")
-    @TestCaseId("TC-4493")
+    @TestCaseId("TC-12576")
     @Category("regression", "RC", "registration")
     @Test
     fun givenUserOnOldLoginFlow_whenCreatingPersonalAccountWithValidDetails_thenAccountIsCreatedSuccessfully() {

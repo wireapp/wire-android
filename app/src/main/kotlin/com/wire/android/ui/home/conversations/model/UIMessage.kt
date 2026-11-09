@@ -108,14 +108,17 @@ sealed interface UIMessage {
 
         val hasAssetParams: Boolean = (assetParams != null || linkPreviewParams != null) && !decryptionFailed
 
+        // Unreadable content has nothing to quote.
         private val isReplyableContent: Boolean
-            get() = messageContent is UIMessageContent.TextMessage ||
+            get() = messageContent !is UIMessageContent.Unknown && (
+                messageContent is UIMessageContent.TextMessage ||
                     messageContent is UIMessageContent.AssetMessage ||
                     messageContent is UIMessageContent.AudioAssetMessage ||
                     messageContent is UIMessageContent.VideoMessage ||
                     messageContent is UIMessageContent.Location ||
                     messageContent is UIMessageContent.Multipart ||
                     messageContent is UIMessageContent.Regular
+                )
 
         /**
          * The message was sent from the sender (either self or others), and is available for other users
@@ -387,6 +390,10 @@ sealed interface UIMessageContent {
     @Serializable
     data object Deleted : Regular
 
+    /** Content this app version can't read. Shown as an app notice, never as text the sender typed. */
+    @Serializable
+    data object Unknown : Regular
+
     @Serializable
     data class RestrictedAsset(
         val mimeType: String,
@@ -600,9 +607,6 @@ sealed interface UIMessageContent {
         data class ConversationVerified(
             val protocol: Conversation.Protocol
         ) : SystemMessage
-
-        @Serializable
-        data object ConversationMessageCreatedUnverifiedWarning : SystemMessage
 
         @Serializable
         sealed interface LegalHold : SystemMessage {

@@ -207,6 +207,8 @@ def validate_record(record):
 
 
 KINDS = ("beta", "production", "regression")
+FIELD_NAMES = ("releaseVersion", "kind", "result", "runUrl", "commit", "apkName", "apkSha256", "buildRunUrl",
+               "deploy", "tests", "gaps")
 CONCLUSIONS = ("success", "failure", "cancelled", "timed_out", "skipped", "neutral", "action_required",
                "startup_failure", "stale")
 UNMATCHED = "unmatched"
@@ -319,7 +321,7 @@ def _clean(value):
     text = re.sub("[\x00-\x1f\x7f-\x9f\u2028\u2029]+", " ", str(value))
     text = re.sub(r":(?=:)", ": ", text)
     text = re.sub(r"\{(?=\{)", "{ ", text)
-    text = text.replace("<", "\u2039").replace(">", "\u203a")
+    text = text.replace("<", "\u2039").replace(">", "\u203a").replace("`", "'")
     text = re.sub(" {2,}", " ", text).strip()
     if len(text) > FIELD_LIMIT:
         text = text[:FIELD_LIMIT - 1] + "\u2026"

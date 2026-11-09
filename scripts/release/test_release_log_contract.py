@@ -482,6 +482,12 @@ class ReviewFindingsTest(unittest.TestCase):
         for char in ["\u2028", "\u2029", "\x85", "\x9f"]:
             self.assertNotIn(char, gaps)
 
+    def test_backticks_cannot_close_a_markdown_fence(self):
+        payload = load("payload_failed_build")
+        payload["evidence"]["gaps"] = ["```\n# injected heading\n```"]
+        for value in contract.build_fields(payload).values():
+            self.assertNotIn("`", value)
+
     def test_a_regression_without_its_qa_record_is_never_a_pass(self):
         for name in ["payload_regression", "payload_deflake"]:
             with self.subTest(name=name):

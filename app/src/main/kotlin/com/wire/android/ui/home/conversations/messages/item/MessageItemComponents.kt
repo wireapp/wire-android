@@ -17,11 +17,8 @@
  */
 package com.wire.android.ui.home.conversations.messages.item
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.content.res.Resources
-import androidx.compose.animation.Animatable
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -34,15 +31,12 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
@@ -57,7 +51,6 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.spacers.HorizontalSpace
 import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.common.typography
-import com.wire.android.ui.home.conversations.SelfDeletionTimerHelper
 import com.wire.android.ui.home.conversations.mock.mockHeader
 import com.wire.android.ui.home.conversations.model.DeliveryStatusContent
 import com.wire.android.ui.home.conversations.model.MessageFlowStatus
@@ -351,54 +344,6 @@ internal fun MessageUnsupportedContent(modifier: Modifier = Modifier) {
     }
 }
 
-@SuppressLint("ComposeComposableModifier", "ComposeModifierWithoutDefault")
-@Composable
-internal fun Modifier.customizeMessageBackground(
-    sendingFailed: Boolean,
-    receivingFailed: Boolean,
-    isDeleted: Boolean,
-    isSelectedMessage: Boolean,
-    selfDeletionTimerState: SelfDeletionTimerHelper.SelfDeletionTimerState,
-    errorBackgroundColor: Color = colorsScheme().errorVariant,
-    highlightBackgroundColor: Color = colorsScheme().primaryVariant,
-    defaultBackgroundColor: Color = colorsScheme().surfaceContainerLow,
-): Modifier {
-    val backgroundColorAnimation = remember { Animatable(defaultBackgroundColor) }
-
-    LaunchedEffect(sendingFailed, receivingFailed, isDeleted, isSelectedMessage, selfDeletionTimerState) {
-        when {
-            isSelectedMessage -> {
-                val targetBackgroundColor = when {
-                    sendingFailed || receivingFailed -> errorBackgroundColor
-                    else -> defaultBackgroundColor
-                }
-                backgroundColorAnimation.animateTo(
-                    targetValue = highlightBackgroundColor,
-                    animationSpec = tween(
-                        durationMillis = SELECTED_MESSAGE_ANIMATION_DURATION / 3
-                    )
-                )
-                backgroundColorAnimation.animateTo(
-                    targetValue = targetBackgroundColor,
-                    animationSpec = tween(
-                        delayMillis = SELECTED_MESSAGE_ANIMATION_DURATION / 3,
-                        durationMillis = SELECTED_MESSAGE_ANIMATION_DURATION / 3,
-                    )
-                )
-            }
-
-            selfDeletionTimerState is SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable && !isDeleted -> {
-                backgroundColorAnimation.animateTo(highlightBackgroundColor.copy(alpha = selfDeletionTimerState.alphaBackgroundColor()))
-            }
-
-            sendingFailed || receivingFailed -> backgroundColorAnimation.snapTo(errorBackgroundColor)
-            else -> backgroundColorAnimation.snapTo(defaultBackgroundColor)
-        }
-    }
-
-    return this.drawBehind { drawRect(backgroundColorAnimation.value) }
-}
-
 @Composable
 internal fun OfflineBackendsLearnMoreLink(messageStyle: MessageStyle, context: Context = LocalContext.current) {
     val learnMoreUrl = supportUrlResource(SupportPage.OFFLINE_BACKENDS)
@@ -473,5 +418,3 @@ fun PreviewMultiUserDeliveryFailure() {
         )
     }
 }
-
-private const val SELECTED_MESSAGE_ANIMATION_DURATION = 2000

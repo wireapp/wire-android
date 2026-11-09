@@ -30,12 +30,10 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.inset
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import com.wire.android.R
-import com.wire.android.ui.common.StatusBox
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.spacers.HorizontalSpace
@@ -43,9 +41,7 @@ import com.wire.android.ui.common.typography
 import com.wire.android.ui.home.conversations.SelfDeletionTimerHelper
 import com.wire.android.ui.home.conversations.info.ConversationDetailsData
 import com.wire.android.ui.home.conversations.model.MessageSource
-import com.wire.android.ui.home.conversations.model.MessageStatus
 import com.wire.android.ui.home.conversations.model.UIMessage
-import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.util.ui.UIText
 
@@ -173,38 +169,6 @@ private fun SelfDeletionTimerIcon(
     }
 }
 
-@Suppress("ModifierParameter")
-@Composable
-fun MessageStatusAndExpireTimer(
-    message: UIMessage.Regular,
-    conversationDetailsData: ConversationDetailsData,
-    selfDeletionTimerState: SelfDeletionTimerHelper.SelfDeletionTimerState,
-) {
-    with(message) {
-        if (selfDeletionTimerState is SelfDeletionTimerHelper.SelfDeletionTimerState.Expirable) {
-            MessageExpireLabel(messageContent, selfDeletionTimerState.timeLeftFormatted)
-            // if the message is marked as deleted and is [SelfDeletionTimer.SelfDeletionTimerState.Expirable]
-            // the deletion responsibility belongs to the receiver, therefore we need to wait for the receiver
-            // timer to expire to permanently delete the message, in the meantime we show the EphemeralMessageExpiredLabel
-            if (isDeleted) {
-                EphemeralMessageExpiredLabel(
-                    isSelfMessage = isMyMessage,
-                    conversationDetailsData = conversationDetailsData
-                )
-            }
-        } else {
-            MessageStatusLabel(messageStatus = message.header.messageStatus)
-        }
-    }
-}
-
-@Composable
-private fun MessageStatusLabel(messageStatus: MessageStatus) {
-    messageStatus.badgeText?.let {
-        StatusBox(it.asString())
-    }
-}
-
 @Composable
 private fun EphemeralMessageExpiredLabel(
     isSelfMessage: Boolean,
@@ -232,39 +196,4 @@ private fun EphemeralMessageExpiredLabel(
         text = stringResource,
         style = typography().body05
     )
-}
-
-@Composable
-fun MessageExpireLabel(messageContent: UIMessageContent?, timeLeft: String) {
-    when (messageContent) {
-        is UIMessageContent.Location,
-        is UIMessageContent.AssetMessage,
-        is UIMessageContent.AudioAssetMessage,
-        is UIMessageContent.ImageMessage,
-        is UIMessageContent.TextMessage -> {
-            StatusBox(
-                statusText = stringResource(
-                    R.string.self_deleting_message_time_left,
-                    timeLeft
-                )
-            )
-        }
-
-        is UIMessageContent.Deleted -> {
-            val context = LocalContext.current
-
-            StatusBox(
-                statusText = stringResource(
-                    R.string.self_deleting_message_time_left,
-                    context.resources.getQuantityString(
-                        R.plurals.seconds_left,
-                        0,
-                        0
-                    )
-                )
-            )
-        }
-
-        else -> {}
-    }
 }

@@ -69,14 +69,12 @@ data class SwipeAction(
 @Composable
 internal fun SwipeableMessageBox(
     configuration: SwipeableMessageConfiguration,
-    messageStyle: MessageStyle,
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit,
 ) {
     val swipeConfiguration = configuration as? SwipeableMessageConfiguration.Swipeable
 
     SwipeableBox(
-        messageStyle = messageStyle,
         modifier = modifier,
         onSwipeRight = swipeConfiguration?.onSwipedRight?.let {
             SwipeAction(
@@ -98,7 +96,6 @@ internal fun SwipeableMessageBox(
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun SwipeableBox(
-    messageStyle: MessageStyle,
     modifier: Modifier = Modifier,
     onSwipeRight: SwipeAction? = null,
     onSwipeLeft: SwipeAction? = null,
@@ -122,17 +119,8 @@ private fun SwipeableBox(
             get() = currentViewConfiguration.touchSlop * 3f
     }
 
-    val backgroundColor: Color = when (messageStyle) {
-        MessageStyle.BUBBLE_SELF -> colorsScheme().bubblesBackground
-        MessageStyle.BUBBLE_OTHER -> colorsScheme().bubblesBackground
-        MessageStyle.NORMAL -> colorsScheme().primary
-    }
-
-    val tintColor = when (messageStyle) {
-        MessageStyle.BUBBLE_SELF -> colorsScheme().primary
-        MessageStyle.BUBBLE_OTHER -> colorsScheme().primary
-        MessageStyle.NORMAL -> colorsScheme().onPrimary
-    }
+    val backgroundColor = colorsScheme().bubblesBackground
+    val tintColor = colorsScheme().primary
 
     CompositionLocalProvider(LocalViewConfiguration provides scopedViewConfiguration) {
         val dragState: AnchoredDraggableState<SwipeAnchor>? = remember(onSwipeLeft, onSwipeRight) {

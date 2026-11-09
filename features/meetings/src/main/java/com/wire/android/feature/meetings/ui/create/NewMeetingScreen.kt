@@ -30,10 +30,8 @@ import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -289,6 +287,7 @@ private fun PasswordInput(
             labelText = stringResource(R.string.new_meeting_password_input_label),
             placeholderText = stringResource(R.string.new_meeting_password_input_placeholder),
             descriptionText = stringResource(R.string.new_meeting_password_error),
+            trailingIcon = { ClearInputIconButton(state = passwordState) },
             state = if (invalidPassword) {
                 WireTextFieldState.Error()
             } else {
@@ -302,6 +301,7 @@ private fun PasswordInput(
             textState = confirmPasswordState,
             labelText = stringResource(R.string.new_meeting_confirm_password_input_label),
             placeholderText = stringResource(R.string.new_meeting_confirm_password_input_placeholder),
+            trailingIcon = { ClearInputIconButton(state = confirmPasswordState) },
             state = if (passwordsDoNotMatch) {
                 WireTextFieldState.Error(stringResource(R.string.new_meeting_password_mismatch_error))
             } else {
@@ -356,30 +356,8 @@ private fun TitleInput(
             testTag = "titleInput",
             inputTransformation = InputTransformation.maxLengthWithCallback(MEETING_NAME_MAX_COUNT, animate),
             readOnly = readOnly,
-            trailingIcon = {
-                Box(
-                    modifier = Modifier
-                        .width(dimensions().spacing64x)
-                        .height(dimensions().spacing40x),
-                    contentAlignment = Alignment.CenterEnd
-                ) {
-                    AnimatedVisibility(
-                        visible = titleState.text.isNotBlank(),
-                        enter = fadeIn(),
-                        exit = fadeOut()
-                    ) {
-                        IconButton(
-                            modifier = Modifier.padding(start = dimensions().spacing12x),
-                            onClick = titleState::clearText,
-                        ) {
-                            Icon(
-                                painter = painterResource(id = commonR.drawable.ic_clear_search),
-                                contentDescription = stringResource(commonR.string.content_description_clear_content)
-                            )
-                        }
-                    }
-                }
-            },
+            labelMandatoryIcon = true,
+            trailingIcon = { ClearInputIconButton(state = titleState) },
         )
     }
 }
@@ -478,6 +456,7 @@ private fun TimeInput(
                 },
                 enabled = !dateInputDisabled,
                 readOnly = true,
+                labelMandatoryIcon = true,
                 shape = RoundedCornerShape(
                     topStart = dimensions().textFieldCornerSize,
                     bottomStart = dimensions().textFieldCornerSize,
@@ -641,6 +620,27 @@ internal fun FailedToLoadEditMeetingDataError(navigateBack: () -> Unit) {
     )
 }
 
+@Composable
+private fun ClearInputIconButton(state: TextFieldState) {
+    AnimatedVisibility(
+        visible = state.text.isNotBlank(),
+        enter = fadeIn(),
+        exit = fadeOut()
+    ) {
+        IconButton(
+            modifier = Modifier
+                .padding(start = dimensions().spacing12x)
+                .size(size = dimensions().spacing48x),
+            onClick = state::clearText,
+        ) {
+            Icon(
+                painter = painterResource(id = commonR.drawable.ic_clear_search),
+                contentDescription = stringResource(commonR.string.content_description_clear_content)
+            )
+        }
+    }
+}
+
 @PreviewMultipleThemes
 @Composable
 fun PreviewNewMeetingScreen_MeetNow() = WireTheme {
@@ -662,7 +662,7 @@ fun PreviewNewMeetingScreen_MeetNow() = WireTheme {
 fun PreviewNewMeetingScreen_Schedule() = WireTheme {
     NewMeetingContent(
         titleState = rememberTextFieldState(),
-        passwordState = rememberTextFieldState(),
+        passwordState = rememberTextFieldState(initialText = "password"),
         confirmPasswordState = rememberTextFieldState(),
         type = NewMeetingType.Schedule,
         state = NewMeetingState.initialState(CurrentTimeProvider.Preview, CurrentTimeZoneProvider.Preview).copy(

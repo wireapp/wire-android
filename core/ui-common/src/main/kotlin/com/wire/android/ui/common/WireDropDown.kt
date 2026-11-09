@@ -260,7 +260,7 @@ private fun SelectionField(
         Icon(
             painter = painterResource(R.drawable.ic_arrow_drop_down),
             contentDescription = null,
-            tint = MaterialTheme.wireColorScheme.secondaryText,
+            tint = MaterialTheme.wireColorScheme.onSecondaryButtonEnabled,
             modifier = Modifier
                 .padding(top = 4.dp)
                 .rotate(arrowRotation)

@@ -19,6 +19,7 @@
 package com.wire.android.ui.common.textfield
 
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -73,6 +74,8 @@ fun WirePasswordTextField(
     labelMandatoryIcon: Boolean = false,
     descriptionText: String? = null,
     semanticDescription: String? = null,
+    leadingIcon: @Composable (() -> Unit)? = null,
+    trailingIcon: @Composable (() -> Unit)? = null,
     state: WireTextFieldState = WireTextFieldState.Default,
     autoFill: Boolean = false,
     inputTransformation: InputTransformation = InputTransformation.maxLength(8000),
@@ -104,7 +107,13 @@ fun WirePasswordTextField(
         inputMinHeight = inputMinHeight,
         shape = shape,
         colors = colors,
-        trailingIcon = { VisibilityIconButton(passwordVisibility) { passwordVisibility = it } },
+        leadingIcon = leadingIcon,
+        trailingIcon = {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                trailingIcon?.invoke()
+                VisibilityIconButton(passwordVisibility) { passwordVisibility = it }
+            }
+        },
         modifier = modifier.then(autoFillModifier(autoFillType, textState::setTextAndPlaceCursorAtEnd)),
         testTag = testTag,
         onTap = onTap,
@@ -128,7 +137,10 @@ fun WirePasswordTextField(
 
 @Composable
 private fun VisibilityIconButton(isVisible: Boolean, onVisibleChange: (Boolean) -> Unit) {
-    IconButton(onClick = { onVisibleChange(!isVisible) }) {
+    IconButton(
+        modifier = Modifier.size(dimensions().spacing48x),
+        onClick = { onVisibleChange(!isVisible) }
+    ) {
         Icon(
             painter = painterResource(
                 if (isVisible) R.drawable.ic_visibility else R.drawable.ic_visibility_off,

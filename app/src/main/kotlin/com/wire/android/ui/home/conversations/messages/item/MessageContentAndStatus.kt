@@ -478,6 +478,8 @@ private fun MessageContent(
 
         UIMessageContent.Deleted -> {}
 
+        UIMessageContent.Unknown -> MessageUnsupportedContent()
+
         null -> {
             throw NullPointerException("messageContent is null")
         }

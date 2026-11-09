@@ -1964,7 +1964,7 @@ public fun com.wire.android.ui.common.textfield.WireLabel(labelText: kotlin.Stri
     - colors: STABLE (marked @Stable or @Immutable)
 
 @Composable
-public fun com.wire.android.ui.common.textfield.WirePasswordTextField(textState: androidx.compose.foundation.text.input.TextFieldState, modifier: androidx.compose.ui.Modifier, placeholderText: kotlin.String?, labelText: kotlin.String?, labelMandatoryIcon: kotlin.Boolean, descriptionText: kotlin.String?, semanticDescription: kotlin.String?, state: com.wire.android.ui.common.textfield.WireTextFieldState, autoFill: kotlin.Boolean, inputTransformation: androidx.compose.foundation.text.input.InputTransformation, keyboardOptions: androidx.compose.foundation.text.KeyboardOptions, onKeyboardAction: androidx.compose.foundation.text.input.KeyboardActionHandler?, interactionSource: androidx.compose.foundation.interaction.MutableInteractionSource, textStyle: androidx.compose.ui.text.TextStyle, placeholderTextStyle: androidx.compose.ui.text.TextStyle, placeholderAlignment: androidx.compose.ui.Alignment.Horizontal, inputMinHeight: androidx.compose.ui.unit.Dp, shape: androidx.compose.ui.graphics.Shape, colors: com.wire.android.ui.common.textfield.WireTextFieldColors, onTap: kotlin.Function0<kotlin.Unit>?, testTag: kotlin.String): kotlin.Unit
+public fun com.wire.android.ui.common.textfield.WirePasswordTextField(textState: androidx.compose.foundation.text.input.TextFieldState, modifier: androidx.compose.ui.Modifier, placeholderText: kotlin.String?, labelText: kotlin.String?, labelMandatoryIcon: kotlin.Boolean, descriptionText: kotlin.String?, semanticDescription: kotlin.String?, leadingIcon: @[Composable] androidx.compose.runtime.internal.ComposableFunction0<kotlin.Unit>?, trailingIcon: @[Composable] androidx.compose.runtime.internal.ComposableFunction0<kotlin.Unit>?, state: com.wire.android.ui.common.textfield.WireTextFieldState, autoFill: kotlin.Boolean, inputTransformation: androidx.compose.foundation.text.input.InputTransformation, keyboardOptions: androidx.compose.foundation.text.KeyboardOptions, onKeyboardAction: androidx.compose.foundation.text.input.KeyboardActionHandler?, interactionSource: androidx.compose.foundation.interaction.MutableInteractionSource, textStyle: androidx.compose.ui.text.TextStyle, placeholderTextStyle: androidx.compose.ui.text.TextStyle, placeholderAlignment: androidx.compose.ui.Alignment.Horizontal, inputMinHeight: androidx.compose.ui.unit.Dp, shape: androidx.compose.ui.graphics.Shape, colors: com.wire.android.ui.common.textfield.WireTextFieldColors, onTap: kotlin.Function0<kotlin.Unit>?, testTag: kotlin.String): kotlin.Unit
   skippable: true
   restartable: true
   params:
@@ -1975,6 +1975,8 @@ public fun com.wire.android.ui.common.textfield.WirePasswordTextField(textState:
     - labelMandatoryIcon: STABLE (primitive type)
     - descriptionText: STABLE (class with no mutable properties)
     - semanticDescription: STABLE (class with no mutable properties)
+    - leadingIcon: STABLE (composable function type)
+    - trailingIcon: STABLE (composable function type)
     - state: UNKNOWN (interface or non-final class; concrete implementation unknown)
     - autoFill: STABLE (primitive type)
     - inputTransformation: STABLE (marked @Stable or @Immutable)

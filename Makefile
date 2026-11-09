@@ -30,5 +30,7 @@ help:
 	@printf "  release-notes/format        Format latest Play release notes\n"
 	@printf "  beta-release/validate-source Validate beta source against live release-cycle tips\n"
 	@printf "  release-log/check           Run release log unit tests\n"
+	@printf "  release-log/context         Write the release log context record (event=event.json output=context.json)\n"
+	@printf "  release-log/build           Write the signed APK record (event= flavor= variant= output=)\n"
 	@printf "  qa-deflake                  Run Android UI deflake entrypoint\n"
 	@printf "  new-feature name=foo        Create a feature module\n"

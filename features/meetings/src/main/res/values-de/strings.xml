@@ -122,4 +122,10 @@
         <item quantity="one">Jährlich</item>
         <item quantity="other">Alle %d Jahre</item>
     </plurals>
+    <string name="meeting_link_title">Meeting-Link</string>
+    <string name="meeting_share_link_description">Personen mit dem Link haben Zugang zu dem Meeting.</string>
+    <string name="meeting_share_link_password_protected">Der Link ist passwortgeschützt. Um ein neues Passwort zu verwenden, erstellen Sie einen neuen Link.</string>
+    <string name="meeting_share_link_not_password_protected">Dieser Link ist nicht passwortgeschützt. Stellen Sie sicher, dass Sie ihn nur mit den richtigen Personen teilen. Um ein Passwort hinzuzufügen, erstellen Sie einen neuen Link.</string>
+    <string name="meeting_share_link_unavailable">Der Meeting-Link ist nicht verfügbar.</string>
+    <string name="meeting_share_copy_link">Link kopieren</string>
 </resources>

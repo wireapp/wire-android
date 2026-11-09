@@ -17,6 +17,7 @@
  */
 package com.wire.android.ui.home.conversations.attachment
 
+import android.net.Uri
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.ui.home.conversations.ConversationNavArgs
 import com.wire.android.ui.home.conversations.MessageSharedState
@@ -37,6 +38,7 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
+import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.test.runCurrent
@@ -46,10 +48,61 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import kotlin.coroutines.cancellation.CancellationException
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(CoroutineTestExtension::class)
 class MessageAttachmentsViewModelTest {
+
+    @Test
+    fun givenCameraCaptureHandled_whenCameraCaptured_thenCaptureFileIsDeleted() = runTest {
+        val captureUri = mockk<Uri>()
+        val (arrangement, viewModel) = Arrangement()
+            .withHandleUriAssetSuccess("image_attachment.jpg")
+            .withAddAttachmentSuccess()
+            .arrange()
+
+        viewModel.onCameraCaptured(captureUri)
+
+        coVerify(exactly = 1) { arrangement.addAttachment(any(), any(), any(), any(), any(), any()) }
+        verify(exactly = 1) { arrangement.fileManager.deleteCameraCapture(captureUri) }
+    }
+
+    @Test
+    fun givenHandlingCameraCaptureIsCancelled_whenCameraCaptured_thenCaptureFileIsStillDeleted() = runTest {
+        val captureUri = mockk<Uri>()
+        val (arrangement, viewModel) = Arrangement()
+            .withHandleUriAssetCancelled()
+            .arrange()
+
+        viewModel.onCameraCaptured(captureUri)
+
+        verify(exactly = 1) { arrangement.fileManager.deleteCameraCapture(captureUri) }
+    }
+
+    @Test
+    fun givenCameraCaptureFailsToBeHandled_whenCameraCaptured_thenCaptureFileIsDeleted() = runTest {
+        val captureUri = mockk<Uri>()
+        val (arrangement, viewModel) = Arrangement()
+            .withHandleUriAssetUnknownFailure()
+            .arrange()
+
+        viewModel.onCameraCaptured(captureUri)
+
+        verify(exactly = 1) { arrangement.fileManager.deleteCameraCapture(captureUri) }
+    }
+
+    @Test
+    fun givenPickedFiles_whenFilesSelected_thenNoFileIsDeleted() = runTest {
+        val (arrangement, viewModel) = Arrangement()
+            .withHandleUriAssetSuccess("photo.jpg")
+            .withAddAttachmentSuccess()
+            .arrange()
+
+        viewModel.onFilesSelected(listOf(mockk()))
+
+        verify(exactly = 0) { arrangement.fileManager.deleteCameraCapture(any()) }
+    }
 
     @Test
     fun givenFileWithCleanName_whenFilesSelected_thenDialogIsNotShownAndFileIsAdded() = runTest {
@@ -313,6 +366,56 @@ class MessageAttachmentsViewModelTest {
         coVerify(exactly = 1) { arrangement.addAttachment(any(), eq("clean.pdf"), any(), any(), any(), any()) }
     }
 
+    @Test
+    fun givenFileAboveMessagingLimit_whenFilesSelected_thenFileIsStillAttached() = runTest {
+        val (arrangement, viewModel) = Arrangement()
+            .withHandleUriAssetTooLarge("huge.mp4")
+            .withAddAttachmentSuccess()
+            .arrange()
+
+        viewModel.onFilesSelected(listOf(mockk()))
+
+        coVerify(exactly = 1) { arrangement.addAttachment(any(), eq("huge.mp4"), any(), any(), any(), any()) }
+    }
+
+    @Test
+    fun givenCameraCaptureAboveMessagingLimit_whenCameraCaptured_thenCopyIsKeptAttachedAndCaptureIsDeleted() = runTest {
+        val captureUri = mockk<Uri>()
+        val (arrangement, viewModel) = Arrangement()
+            .withHandleUriAssetTooLarge("image_attachment.jpg")
+            .withAddAttachmentSuccess()
+            .arrange()
+
+        viewModel.onCameraCaptured(captureUri)
+
+        coVerify(exactly = 1) { arrangement.handleUriAsset.invoke(captureUri, any(), any(), any(), eq(true)) }
+        coVerify(exactly = 1) { arrangement.addAttachment(any(), eq("image_attachment.jpg"), any(), any(), any(), any()) }
+        verify(exactly = 1) { arrangement.fileManager.deleteCameraCapture(captureUri) }
+    }
+
+    @Test
+    fun givenFilesSelected_whenHandlingThem_thenOversizedCopiesAreKept() = runTest {
+        val (arrangement, viewModel) = Arrangement()
+            .withHandleUriAssetSuccess("photo.jpg")
+            .withAddAttachmentSuccess()
+            .arrange()
+
+        viewModel.onFilesSelected(listOf(mockk()))
+
+        coVerify(exactly = 1) { arrangement.handleUriAsset.invoke(any(), any(), any(), any(), eq(true)) }
+    }
+
+    @Test
+    fun givenAudioRecorded_whenHandlingIt_thenOversizedCopiesAreKept() = runTest {
+        val (arrangement, viewModel) = Arrangement()
+            .withHandleUriAssetUnknownFailure()
+            .arrange()
+
+        viewModel.onAudioRecorded(mockk(), null)
+
+        coVerify(exactly = 1) { arrangement.handleUriAsset.invoke(any(), any(), any(), any(), eq(true)) }
+    }
+
     private fun testBundle(fileName: String) = AssetBundle(
         key = "key",
         mimeType = "text/plain",
@@ -371,7 +474,7 @@ class MessageAttachmentsViewModelTest {
         fun withHandleUriAssetSuccess(vararg fileNames: String) = apply {
             initializeMocks()
             uriAssetQueue.addAll(fileNames)
-            coEvery { handleUriAsset.invoke(any(), any()) } answers {
+            coEvery { handleUriAsset.invoke(any(), any(), any(), any(), any()) } answers {
                 val name = uriAssetQueue.removeFirstOrNull() ?: "file.txt"
                 HandleUriAssetUseCase.Result.Success(
                     assetBundle = AssetBundle(
@@ -384,6 +487,32 @@ class MessageAttachmentsViewModelTest {
                     )
                 )
             }
+        }
+
+        private fun bundleNamed(name: String) = AssetBundle(
+            key = "key",
+            mimeType = "text/plain",
+            dataPath = "/tmp/$name".toPath(),
+            dataSize = 100L,
+            fileName = name,
+            assetType = AttachmentType.GENERIC_FILE,
+        )
+
+        fun withHandleUriAssetTooLarge(fileName: String) = apply {
+            initializeMocks()
+            coEvery { handleUriAsset.invoke(any(), any(), any(), any(), any()) } returns
+                HandleUriAssetUseCase.Result.Failure.AssetTooLarge(bundleNamed(fileName), maxLimitInMB = 25)
+        }
+
+        fun withHandleUriAssetCancelled() = apply {
+            initializeMocks()
+            coEvery { handleUriAsset.invoke(any(), any(), any(), any(), any()) } throws CancellationException("cancelled")
+        }
+
+        fun withHandleUriAssetUnknownFailure() = apply {
+            initializeMocks()
+            coEvery { handleUriAsset.invoke(any(), any(), any(), any(), any()) } returns
+                HandleUriAssetUseCase.Result.Failure.Unknown
         }
 
         fun withAddAttachmentSuccess() = apply {

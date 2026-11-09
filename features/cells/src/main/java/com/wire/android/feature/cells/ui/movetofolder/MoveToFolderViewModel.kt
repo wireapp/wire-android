@@ -18,6 +18,7 @@
 package com.wire.android.feature.cells.ui.movetofolder
 
 import androidx.lifecycle.viewModelScope
+import com.wire.android.feature.cells.ui.CellNodeChangeEvents
 import com.wire.android.feature.cells.ui.model.CellNodeUi
 import com.wire.android.feature.cells.ui.model.toUiModel
 import com.wire.android.ui.common.ActionsViewModel
@@ -39,7 +40,7 @@ class MoveToFolderViewModel @AssistedInject constructor(
     @Assisted private val navArgs: MoveToFolderNavArgs,
     private val getFoldersUseCase: GetFoldersUseCase,
     private val moveNodesUseCase: MoveNodesUseCase,
-    private val nodeMoveEvents: CellNodeMoveEvents,
+    private val nodeChangeEvents: CellNodeChangeEvents,
 ) : ActionsViewModel<MoveToFolderViewAction>() {
 
     @AssistedFactory
@@ -105,7 +106,7 @@ class MoveToFolderViewModel @AssistedInject constructor(
     private suspend fun moveNodes() {
         val result = moveNodesUseCase(nodesToMove.map { NodeLocator(uuid = it.uuid, path = it.path) }, currentPath)
         // Refresh even on failure: without rollback, part of the nodes may have been moved.
-        nodeMoveEvents.onNodesMoved(nodesToMove.map { it.path.substringBeforeLast("/") }.toSet() + currentPath)
+        nodeChangeEvents.onNodesMoved(nodesToMove.map { it.path.substringBeforeLast("/") }.toSet() + currentPath)
         result
             .onSuccess {
                 updateState { copy(screenState = MoveToFolderScreenState.SUCCESS) }

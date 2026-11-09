@@ -168,4 +168,12 @@ enum class FeatureConfigs(val value: String, val configType: ConfigType) {
     DRIVE_DIRECT_UPLOAD_ENABLED("drive_direct_upload_enabled", ConfigType.BOOLEAN),
 
     DRIVE_BULK_ACTIONS_ENABLED("drive_bulk_actions_enabled", ConfigType.BOOLEAN),
+
+    DRIVE_OFFLINE_ENABLED("drive_offline_enabled", ConfigType.BOOLEAN),
+
+    /**
+     * Controls whether the @all (everyone) mention is offered in the composer mention suggestions.
+     * Disabled by default until all clients support receiving it.
+     */
+    EVERYONE_MENTION_ENABLED("everyone_mention_enabled", ConfigType.BOOLEAN),
 }

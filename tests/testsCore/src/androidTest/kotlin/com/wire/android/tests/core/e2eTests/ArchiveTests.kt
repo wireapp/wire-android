@@ -857,7 +857,7 @@ class ArchiveTests : BaseUiTest() {
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
     @TestCaseId("TC-4240")
-    @Category("regression", "archive")
+    @Category("regression", "RC", "archive")
     @Test
     fun givenArchivedConversations_whenReceivingMessages_thenNoNotifications() {
         step("Given There is a team owner TeamOwner with team Archive") {
@@ -1024,7 +1024,7 @@ class ArchiveTests : BaseUiTest() {
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
     @TestCaseId("TC-4241")
-    @Category("regression", "archive")
+    @Category("regression", "RC", "archive")
     @Test
     fun givenArchivedConversations_whenReceivingSelfDeletingMessages_thenNoNotifications() {
         step("Given There is a team owner TeamOwner with team Archive") {

@@ -137,7 +137,7 @@ class NotificationTests : BaseCallUiTest() {
 
     @Suppress("LongMethod")
     @TestCaseId("TC-4463", "TC-4468")
-    @Category("regression", "notifications")
+    @Category("regression", "RC", "notifications")
     @Test
     fun givenOneOnOneConversation_whenAppIsInBackgroundAndIReceiveMessage_thenNotificationIsDisplayedAndTappingItOpensConversation() {
         step("And There is a team owner user1Name with team Notifications") {
@@ -228,7 +228,7 @@ class NotificationTests : BaseCallUiTest() {
 
     @Suppress("LongMethod")
     @TestCaseId("TC-4465")
-    @Category("regression", "notifications")
+    @Category("regression", "RC", "notifications")
     @Test
     fun givenOneOnOneConversation_whenAppIsTerminatedAndIReceiveMessage_thenNotificationIsDisplayed() {
         step("And There is a team owner user1Name with team Notifications") {
@@ -320,7 +320,7 @@ class NotificationTests : BaseCallUiTest() {
     // This test is needed for Akamaya, who is using devices without playservices
     @Suppress("LongMethod")
     @TestCaseId("TC-4466")
-    @Category("regression", "RC", "websocket")
+    @Category("fdroid")
     @Test
     fun givenWebSocketOnlyDevice_whenAppIsTerminatedAndIReceiveMessage_thenNotificationIsDisplayed() {
         step("Given Test runs only on node Google-bluejay-Pixel6a-25181JEGR05249") {
@@ -546,7 +546,7 @@ class NotificationTests : BaseCallUiTest() {
 
     @Suppress("LongMethod")
     @TestCaseId("TC-4464", "TC-4469")
-    @Category("regression", "notifications")
+    @Category("regression", "RC", "notifications")
     @Test
     fun givenGroupConversation_whenAppIsInBackgroundAndIReceiveMessage_thenNotificationIsDisplayedAndTappingItOpensConversation() {
         step("And There is a team owner user1Name with team Notifications") {
@@ -771,7 +771,7 @@ class NotificationTests : BaseCallUiTest() {
 
     @Suppress("LongMethod")
     @TestCaseId("TC-4078")
-    @Category("regression", "notification", "calling")
+    @Category("regression", "RC", "notification", "calling")
     @Test
     fun givenOneOnOneConversation_whenMemberCallsMeInBackground_thenIncomingCallNotificationIsDisplayed() {
         step("And There is a team owner user1Name with team Notifications") {
@@ -949,7 +949,7 @@ class NotificationTests : BaseCallUiTest() {
 
     @Suppress("LongMethod")
     @TestCaseId("TC-4080")
-    @Category("regression", "notifications", "calling")
+    @Category("regression", "RC", "notifications", "calling")
     @Test
     fun givenGroupConversation_whenIAcceptCallAndMinimiseWire_thenOngoingCallNotificationIsDisplayed() {
         step("Given There is a team owner user1Name with team Notifications") {

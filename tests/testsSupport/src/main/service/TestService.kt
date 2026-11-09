@@ -1124,12 +1124,14 @@ class TestService(private val baseUri: String, private val testName: String) {
         owner: ClientUser,
         participants: List<ClientUser>,
         chatName: String,
-        deviceName: String
+        deviceName: String,
+        cellsEnabled: Boolean = false
     ) {
         val instanceId = getInstanceId(owner, deviceName)
         val connection = buildRequest("api/v1/instance/$instanceId/conversation", "POST")
         val requestBody = JSONObject().apply {
             put("name", chatName)
+            if (cellsEnabled) put("cellsEnabled", true)
             val userIds = participants.map { user ->
                 "${user.id}@${BackendClient.loadBackend(user.backendName.orEmpty()).domain}"
             }

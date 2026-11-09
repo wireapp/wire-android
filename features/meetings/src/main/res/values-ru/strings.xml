@@ -133,4 +133,18 @@
         <item quantity="many">Каждые %d лет</item>
         <item quantity="other">Каждые %d года</item>
     </plurals>
+    <string name="meeting_link_title">Ссылка на встречу</string>
+    <string name="meeting_share_link_description">Любой пользователь со ссылкой может получить доступ к встрече.</string>
+    <string name="meeting_share_link_password_protected">Ссылка защищена паролем. Чтобы установить новый пароль, сгенерируйте новую ссылку.</string>
+    <string name="meeting_share_link_not_password_protected">Эта ссылка не защищена паролем. Убедитесь, что делитесь ею только с нужными людьми. Чтобы установить пароль, сгенерируйте новую ссылку.</string>
+    <string name="meeting_share_link_unavailable">Ссылка на встречу недоступна.</string>
+    <string name="meeting_share_copy_link">Скопировать ссылку</string>
+    <string name="meeting_share_link_copied">Ссылка скопирована в буфер обмена</string>
+    <string name="new_meeting_password_input_label">Пароль (необязательно)</string>
+    <string name="new_meeting_password_input_placeholder">Введите пароль</string>
+    <string name="new_meeting_password_description">Обязательно сообщите пароль своим гостям.</string>
+    <string name="new_meeting_password_error">Используйте как минимум 8 символов, включая одну строчную букву, одну заглавную букву, цифру и специальный символ.</string>
+    <string name="new_meeting_confirm_password_input_label">Подтвердите пароль</string>
+    <string name="new_meeting_confirm_password_input_placeholder">Введите пароль повторно</string>
+    <string name="new_meeting_password_mismatch_error">Пароли не совпадают</string>
 </resources>

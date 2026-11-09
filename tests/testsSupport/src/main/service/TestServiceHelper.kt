@@ -27,6 +27,7 @@ package service
 
 import android.content.Context
 import android.graphics.Bitmap
+import android.net.Uri
 import androidx.annotation.RawRes
 import backendUtils.BackendClient
 import backendUtils.conversation.getConversationByName
@@ -166,6 +167,52 @@ class TestServiceHelper(
         }
 
         return conversation.messageTimerInMilliseconds
+    }
+
+    @Suppress("LongParameterList")
+    fun contactSendsLocalPdfConversation(
+        context: Context,
+        fileName: String,
+        fileUri: Uri,
+        senderAlias: String,
+        deviceName: String,
+        dstConvoName: String
+    ) {
+        contactSendsLocalFileConversation(context, fileName, fileUri, senderAlias, deviceName, dstConvoName, "application/pdf")
+    }
+
+    // Sends local fixtures with their actual MIME type through the existing test-service file endpoint.
+    @Suppress("LongParameterList")
+    fun contactSendsLocalFileConversation(
+        context: Context,
+        fileName: String,
+        fileUri: Uri,
+        senderAlias: String,
+        deviceName: String,
+        dstConvoName: String,
+        mimeType: String
+    ) {
+        val sender = toClientUser(senderAlias)
+        val conversation = toConvoObj(sender, dstConvoName)
+        val file = File(context.cacheDir, fileName)
+        try {
+            val input = context.contentResolver.openInputStream(fileUri)
+                ?: throw IOException("Could not open file '$fileName'")
+            input.use { source ->
+                file.outputStream().use { output -> source.copyTo(output) }
+            }
+            testServiceClient.sendFile(
+                sender,
+                deviceName,
+                conversation.qualifiedID.id,
+                conversation.qualifiedID.domain,
+                getSelfDeletingMessageTimeout(senderAlias, dstConvoName),
+                file.absolutePath,
+                mimeType
+            )
+        } finally {
+            file.delete()
+        }
     }
 
     fun contactSendsLocalAudioPersonalMLSConversation(
@@ -501,7 +548,8 @@ class TestServiceHelper(
         ownerAlias: String,
         participantAliases: String,
         conversationName: String,
-        deviceName: String
+        deviceName: String,
+        cellsEnabled: Boolean = false
     ) {
         val owner = toClientUser(ownerAlias)
         val participants = usersManager
@@ -512,7 +560,8 @@ class TestServiceHelper(
             owner = owner,
             participants = participants,
             chatName = conversationName,
-            deviceName = deviceName
+            deviceName = deviceName,
+            cellsEnabled = cellsEnabled
         )
     }
 
@@ -923,6 +972,35 @@ class TestServiceHelper(
         val user = toClientUser(userAlias)
         val conversation = toConvoObj(user, conversationName)
         return getRecentMessageId(user, deviceName, conversation.qualifiedID.id, conversation.qualifiedID.domain)
+    }
+
+    fun assertImageReceivedInGroupConversation(
+        receiverAlias: String,
+        deviceName: String,
+        conversationName: String
+    ) {
+        val receiver = toClientUser(receiverAlias)
+        val conversation = toConvoObj(receiver, conversationName)
+        val received = UiWaitUtils.retryUntilTimeout(UiWaitUtils.VERY_LONG_TIMEOUT, pollingInterval = 1.seconds) {
+            val messages = testServiceClient.getMessages(
+                receiver,
+                deviceName,
+                conversation.qualifiedID.id,
+                conversation.qualifiedID.domain
+            )
+            (0 until messages.length()).any { index ->
+                val content = messages.getJSONObject(index).optJSONObject("content")
+                val asset = content?.optJSONObject("value")
+                val attachments = content?.optJSONArray("attachments") ?: JSONArray()
+                asset?.optString("mimeType")?.startsWith("image/") == true ||
+                    (0 until attachments.length()).any { attachment ->
+                        attachments.getJSONObject(attachment).optString("mimeType").startsWith("image/")
+                    }
+            }
+        }
+        if (!received) {
+            throw AssertionError("'$receiverAlias' on '$deviceName' did not receive an image in '$conversationName'.")
+        }
     }
 
     fun assertMessageReceivedInGroupConversation(

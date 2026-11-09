@@ -26,7 +26,10 @@ import com.wire.kalium.cells.CellsScope
 import com.wire.kalium.cells.domain.CellUploadCoordinator
 import com.wire.kalium.cells.domain.CellUploadManager
 import com.wire.kalium.cells.domain.usecase.AddAttachmentDraftUseCase
+import com.wire.kalium.cells.domain.usecase.CheckCellNodeAvailabilityUseCase
 import com.wire.kalium.cells.domain.usecase.DeleteCellAssetUseCase
+import com.wire.kalium.cells.domain.usecase.DeleteCellAssetsUseCase
+import com.wire.kalium.cells.domain.usecase.EmptyRecycleBinUseCase
 import com.wire.kalium.cells.domain.usecase.GetAllTagsUseCase
 import com.wire.kalium.cells.domain.usecase.GetCellFileUseCase
 import com.wire.kalium.cells.domain.usecase.GetConversationNameUseCase
@@ -51,6 +54,7 @@ import com.wire.kalium.cells.domain.usecase.RemoveAttachmentDraftsUseCase
 import com.wire.kalium.cells.domain.usecase.RemoveNodeTagsUseCase
 import com.wire.kalium.cells.domain.usecase.RenameNodeUseCase
 import com.wire.kalium.cells.domain.usecase.RestoreNodeFromRecycleBinUseCase
+import com.wire.kalium.cells.domain.usecase.RestoreNodesFromRecycleBinUseCase
 import com.wire.kalium.cells.domain.usecase.RetryAttachmentUploadUseCase
 import com.wire.kalium.cells.domain.usecase.UpdateNodeTagsUseCase
 import com.wire.kalium.cells.domain.usecase.create.CreateDocumentFileUseCase
@@ -132,6 +136,9 @@ class CellsModule {
     fun provideDeleteCellAssetUseCase(cellsScope: CellsScope): DeleteCellAssetUseCase = cellsScope.deleteCellAssetUseCase
 
     @Provides
+    fun provideDeleteCellAssetsUseCase(cellsScope: CellsScope): DeleteCellAssetsUseCase = cellsScope.deleteCellAssetsUseCase
+
+    @Provides
     fun provideCreatePublicUrlUseCase(cellsScope: CellsScope): CreatePublicLinkUseCase = cellsScope.createPublicLinkUseCase
 
     @Provides
@@ -165,6 +172,18 @@ class CellsModule {
     @Provides
     fun provideRestoreNodeFromRecycleBinUseCase(cellsScope: CellsScope): RestoreNodeFromRecycleBinUseCase =
         cellsScope.restoreNodeFromRecycleBin
+
+    @Provides
+    fun provideRestoreNodesFromRecycleBinUseCase(cellsScope: CellsScope): RestoreNodesFromRecycleBinUseCase =
+        cellsScope.restoreNodesFromRecycleBin
+
+    @Provides
+    fun provideEmptyRecycleBinUseCase(cellsScope: CellsScope): EmptyRecycleBinUseCase =
+        cellsScope.emptyRecycleBin
+
+    @Provides
+    fun provideCheckCellNodeAvailabilityUseCase(cellsScope: CellsScope): CheckCellNodeAvailabilityUseCase =
+        cellsScope.checkCellNodeAvailability
 
     @Provides
     fun provideRenameNodeUseCase(cellsScope: CellsScope): RenameNodeUseCase =

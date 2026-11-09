@@ -43,7 +43,7 @@ class WireActivityViewModelOwnershipSourceTest {
         assertFalse(owner.contains("sessionKeyedMetroViewModel"))
         assertTrue(owner.contains("commonTopAppBarViewModel("))
         assertTrue(host.contains("teardownWireActivitySession("))
-        assertTrue(host.contains("sessionGraphStore.markAvailable(confirmedUserId)"))
+        assertTrue(host.contains("markAvailable = sessionGraphStore::markAvailable"))
         assertFalse(host.contains("sessionGraphStore::invalidate"))
         assertFalse(host.contains("invalidateActive()"))
         assertFalse(host.contains("retainedGraphContext"))

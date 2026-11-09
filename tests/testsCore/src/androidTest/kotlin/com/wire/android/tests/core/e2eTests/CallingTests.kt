@@ -355,7 +355,7 @@ class CallingTests : BaseCallUiTest() {
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
     @TestCaseId("TC-4261")
-    @Category("regression", "calling", "fdroid")
+    @Category("regression", "RC", "calling", "fdroid")
     @Test
     fun givenMemberCallsMeWithAppInBackground_whenIAccept_thenOneOnOneCallIsEstablished() {
         givenTeamOwnerMemberAndOneOnOneConversationArePrepared()
@@ -809,7 +809,7 @@ class CallingTests : BaseCallUiTest() {
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
     @TestCaseId("TC-4266")
-    @Category("regression", "calling", "groupCalling", "fdroid")
+    @Category("regression", "RC", "calling", "groupCalling", "fdroid")
     @Test
     fun givenAppIsInBackground_whenIAcceptIncomingGroupCall_thenGroupCallIsEstablished() {
         givenTeamOwnerMembersAndGroupConversationArePrepared()

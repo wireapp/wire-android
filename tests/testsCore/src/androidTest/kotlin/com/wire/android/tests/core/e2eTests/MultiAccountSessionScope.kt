@@ -293,7 +293,7 @@ class MultiAccountSessionScope : BaseUiTest() {
         }
     }
 
-    @TestCaseId("TC-11265")
+    @TestCaseId("TC-11265", "TC-4322")
     @Category("regression", "RC", "multiAccountSessionScope")
     @Test
     fun givenNoLoggedInAccount_whenRemovingDeviceFromTooManyDevices_thenLoginCompletes() {

@@ -2098,7 +2098,7 @@ class GroupsTests : BaseUiTest() {
 
     @Suppress("LongMethod")
     @TestCaseId("TC-4377")
-    @Category("groups", "membershipIdentifiers", "services")
+    @Category("groups", "RC", "membershipIdentifiers", "services")
     @Test
     fun givenServiceIsPresentInGroupConversation_whenIOpenConversation_thenISeeServicesBanner() {
         step("Given There is a team owner TeamOwner with team Bots and member Member1") {
@@ -2195,7 +2195,7 @@ class GroupsTests : BaseUiTest() {
 
     @Suppress("LongMethod")
     @TestCaseId("TC-4380")
-    @Category("groups", "membershipIdentifiers", "services")
+    @Category("groups", "RC", "membershipIdentifiers", "services")
     @Test
     fun givenExternalsGuestsAndServicesArePresentInGroupConversation_whenIOpenConversation_thenISeeCombinedBanner() {
         step("Given There is a team owner TeamOwner with team AllAtOnce and member Member1") {
@@ -2318,7 +2318,7 @@ class GroupsTests : BaseUiTest() {
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
     @TestCaseId("TC-4359")
-    @Category("groups", "addGroup", "removeGroup", "services")
+    @Category("groups", "RC", "addGroup", "removeGroup", "services")
     @Test
     fun givenIHaveAnExistingGroupConversation_whenIAddAndRemoveService_thenServiceIsAddedAndRemoved() {
         step("Given There is a team owner TeamOwner with team AddGroup and members Member1,Member2,Member3") {

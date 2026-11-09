@@ -50,6 +50,7 @@ class ContactMapper
                     nameBasedAvatar = NameBasedAvatar(fullName = name, accentColor = otherUser.accentId)
                 ),
                 membership = userTypeMapper.toMembership(userType),
+                contactStatus = otherUser.contactStatus,
                 connectionState = otherUser.connectionStatus
             )
         }
@@ -86,6 +87,7 @@ class ContactMapper
                     nameBasedAvatar = NameBasedAvatar(fullName = name, accentColor = -1)
                 ),
                 membership = userTypeMapper.toMembership(type),
+                contactStatus = contactStatus,
                 connectionState = connectionStatus
             )
         }

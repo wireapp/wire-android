@@ -45,6 +45,7 @@ import com.wire.kalium.logic.feature.featureConfig.ObserveIsAppsAllowedForUsageU
 import com.wire.kalium.logic.feature.user.GetDefaultProtocolUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.IsMLSEnabledUseCase
+import com.wire.kalium.logic.featureFlags.KaliumConfigs
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.impl.annotations.MockK
@@ -246,6 +247,8 @@ internal class NewConversationViewModelArrangement {
         coEvery { observeIsAppsAllowedForUsage() } returns flowOf(result)
     }
 
+    var pendingConnectionsEnabled = true
+
     fun arrange() = this to NewConversationViewModel(
         createRegularGroup = createRegularGroup,
         createChannel = createChannel,
@@ -254,6 +257,7 @@ internal class NewConversationViewModelArrangement {
         getDefaultProtocol = getDefaultProtocol,
         isWireCellsFeatureEnabled = isWireCellsEnabled,
         observeIsAppsAllowedForUsage = observeIsAppsAllowedForUsage,
+        kaliumConfigs = KaliumConfigs(pendingConnections = pendingConnectionsEnabled),
     ).also {
         it.createGroupState = createGroupState
     }

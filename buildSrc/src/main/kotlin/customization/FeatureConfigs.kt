@@ -159,6 +159,8 @@ enum class FeatureConfigs(val value: String, val configType: ConfigType) {
 
     PENDING_MESSAGES("pending_messages", ConfigType.BOOLEAN),
 
+    PENDING_CONNECTIONS("pending_connections", ConfigType.BOOLEAN),
+
     LINK_PREVIEW_ENABLED("link_preview_enabled", ConfigType.BOOLEAN),
 
     DRIVE_PERMISSIONS_ENABLED("drive_permissions_enabled", ConfigType.BOOLEAN),

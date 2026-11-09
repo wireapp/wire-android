@@ -22,19 +22,25 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wire.android.di.metro.WireAssistedViewModelBinding
 import com.wire.android.mapper.ContactMapper
 import com.wire.android.model.Contact
+import com.wire.android.search.SearchManualViewModelFactoryGroup
 import com.wire.android.search.removeQueryPrefix
 import com.wire.android.ui.common.DEFAULT_SEARCH_QUERY_DEBOUNCE
 import com.wire.android.util.EMPTY
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.user.ContactStatus
+import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.auth.ValidateUserHandleResult
 import com.wire.kalium.logic.feature.auth.ValidateUserHandleUseCase
 import com.wire.kalium.logic.feature.search.FederatedSearchParser
 import com.wire.kalium.logic.feature.search.IsFederationSearchAllowedUseCase
+import com.wire.kalium.logic.feature.search.RefreshContactStatusesUseCase
 import com.wire.kalium.logic.feature.search.SearchUserResult
 import com.wire.kalium.logic.feature.search.SearchUsersByHandleUseCase
 import com.wire.kalium.logic.feature.search.SearchUsersByNameUseCase
+import com.wire.kalium.logic.featureFlags.KaliumConfigs
 import dev.zacsweers.metro.Assisted
 import dev.zacsweers.metro.AssistedFactory
 import dev.zacsweers.metro.AssistedInject
@@ -43,16 +49,18 @@ import kotlinx.collections.immutable.ImmutableSet
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.persistentSetOf
 import kotlinx.collections.immutable.toImmutableList
+import kotlinx.collections.immutable.toImmutableSet
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
-import com.wire.android.di.metro.WireAssistedViewModelBinding
-import com.wire.android.search.SearchManualViewModelFactoryGroup
 
+@Suppress("LongParameterList")
 @WireAssistedViewModelBinding(SearchManualViewModelFactoryGroup::class)
 class SearchUserViewModel @AssistedInject constructor(
     @Assisted private val conversationId: ConversationId?,
@@ -62,7 +70,9 @@ class SearchUserViewModel @AssistedInject constructor(
     private val contactMapper: ContactMapper,
     private val federatedSearchParser: FederatedSearchParser,
     private val validateUserHandle: ValidateUserHandleUseCase,
+    private val refreshContactStatuses: RefreshContactStatusesUseCase,
     private val isFederationSearchAllowed: IsFederationSearchAllowedUseCase,
+    private val kaliumConfigs: KaliumConfigs,
 ) : ViewModel() {
     @AssistedFactory
     interface Factory {
@@ -70,6 +80,9 @@ class SearchUserViewModel @AssistedInject constructor(
     }
 
     private val searchQueryTextFlow = MutableStateFlow(String.EMPTY)
+    private val refreshEpoch = MutableStateFlow(0)
+    private var generation = 0
+    private var enteredForeground = false
     private val selectedContactsFlow = MutableStateFlow<ImmutableSet<Contact>>(persistentSetOf())
     var state: SearchUserState by mutableStateOf(SearchUserState(isLoading = true))
         private set
@@ -81,44 +94,70 @@ class SearchUserViewModel @AssistedInject constructor(
         }
 
         viewModelScope.launch {
-            searchQueryTextFlow
-                .debounce(DEFAULT_SEARCH_QUERY_DEBOUNCE)
-                .onStart { emit(String.EMPTY) }
+            combine(
+                searchQueryTextFlow.debounce(DEFAULT_SEARCH_QUERY_DEBOUNCE).onStart { emit(String.EMPTY) }.distinctUntilChanged(),
+                refreshEpoch,
+            ) { query, _ -> query }
                 .flatMapLatest { searchQuery ->
+                    // Each started search owns a generation; skipped duplicate queries keep the running one valid.
+                    val requestGeneration = ++generation
                     val (searchTerm, domain) = federatedSearchParser(searchQuery, state.isOtherDomainAllowed)
                     val isHandleSearch = validateUserHandle(searchTerm.removeQueryPrefix()) is ValidateUserHandleResult.Valid
-                    val searchResult = if (isHandleSearch) {
-                        searchByHandle(searchTerm, domain)
-                    } else {
-                        searchByName(searchTerm, domain)
-                    }
-                    selectedContactsFlow
-                        .mapLatest { selectedContacts ->
-                            filterResults(searchResult, selectedContacts, isHandleSearch, searchTerm)
+                    val searchResult = if (isHandleSearch) searchByHandle(searchTerm, domain) else searchByName(searchTerm, domain)
+                    channelFlow {
+                        val results = searchResult.connected + searchResult.notConnected
+                        val freshStatuses = results
+                            .filter { kaliumConfigs.pendingConnections && it.contactStatus != null }
+                            .associate { it.id to it.contactStatus }
+                        // Keep visible statuses while refreshing, but only fresh results count as fetched this time.
+                        val statuses = if (kaliumConfigs.pendingConnections) state.contactStatuses.toMutableMap() else mutableMapOf()
+                        statuses.putAll(freshStatuses)
+                        val fetched = freshStatuses.keys.toMutableSet()
+                        selectedContactsFlow.collectLatest { selectedContacts ->
+                            val ids = results.map { it.id }.toSet() + selectedContacts.map { UserId(it.id, it.domain) }
+                            fun resultState() = filterResults(searchResult, selectedContacts, isHandleSearch, searchTerm)
+                                .withContactStatuses(ids.associateWith { statuses[it] })
+                            send(requestGeneration to resultState())
+                            val missing = ids - fetched
+                            if (kaliumConfigs.pendingConnections && missing.isNotEmpty()) {
+                                val refreshed = refreshContactStatuses(missing)
+                                statuses.putAll(refreshed)
+                                fetched.addAll(missing)
+                                send(requestGeneration to resultState())
+                            }
                         }
+                    }
                 }
-                .collectLatest { newState ->
-                    state = state.copy(
-                        contactsResult = newState.contactsResult,
-                        publicResult = newState.publicResult,
-                        selectedResult = newState.selectedResult,
-                        searchQuery = newState.searchQuery,
-                        isLoading = false,
-                    )
+                .collectLatest { (requestGeneration, newState) ->
+                    if (requestGeneration == generation) {
+                        state = newState.copy(isOtherDomainAllowed = state.isOtherDomainAllowed, isLoading = false)
+                    }
                 }
         }
+    }
+
+    fun onForeground() {
+        if (!kaliumConfigs.pendingConnections) return
+        if (enteredForeground) {
+            generation++
+            refreshEpoch.value++
+        }
+        enteredForeground = true
+    }
+
+    fun onBackground() {
+        if (!kaliumConfigs.pendingConnections) return
+        // In-flight work must not publish after this screen leaves the foreground.
+        generation++
     }
 
     fun searchQueryChanged(searchQuery: String) {
-        viewModelScope.launch {
-            searchQueryTextFlow.emit(searchQuery)
-        }
+        searchQueryTextFlow.value = searchQuery
     }
 
     fun selectedContactsChanged(selectedContacts: ImmutableSet<Contact>) {
-        viewModelScope.launch {
-            selectedContactsFlow.emit(selectedContacts)
-        }
+        // Status belongs to this screen's responses, not to incoming selection snapshots.
+        selectedContactsFlow.value = selectedContacts.map { it.copy(contactStatus = null) }.toImmutableSet()
     }
 
     private fun filterResults(
@@ -127,13 +166,13 @@ class SearchUserViewModel @AssistedInject constructor(
         isHandleSearch: Boolean,
         searchTerm: String
     ): SearchUserState {
-        val selectedContactsIds = selectedContacts.map { it.id }
+        val selectedContactsIds = selectedContacts.map { UserId(it.id, it.domain) }
         val notSelectedContactsResult = searchResult.connected
             .map(contactMapper::fromSearchUserResult)
-            .filterNot { selectedContactsIds.contains(it.id) }
+            .filterNot { selectedContactsIds.contains(UserId(it.id, it.domain)) }
         val notSelectedPublicResult = searchResult.notConnected
             .map(contactMapper::fromSearchUserResult)
-            .filterNot { selectedContactsIds.contains(it.id) }
+            .filterNot { selectedContactsIds.contains(UserId(it.id, it.domain)) }
         val selectedContactsResult = selectedContacts
             .filter { selectedContact ->
                 when {
@@ -173,4 +212,15 @@ data class SearchUserState(
     val searchQuery: String = String.EMPTY,
     val isOtherDomainAllowed: Boolean = false,
     val isLoading: Boolean = false,
-)
+    val contactStatuses: Map<UserId, ContactStatus?> = emptyMap(),
+) {
+    fun withContactStatuses(statuses: Map<UserId, ContactStatus?>): SearchUserState {
+        fun Contact.refreshed() = copy(contactStatus = statuses[UserId(id, domain)])
+        return copy(
+            contactsResult = contactsResult.map { it.refreshed() }.toImmutableList(),
+            publicResult = publicResult.map { it.refreshed() }.toImmutableList(),
+            selectedResult = selectedResult.map { it.refreshed() }.toImmutableList(),
+            contactStatuses = statuses,
+        )
+    }
+}

@@ -56,6 +56,7 @@ import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
+import androidx.lifecycle.compose.LifecycleResumeEffect
 import com.wire.android.model.Contact
 import com.wire.android.model.ItemActionType
 import com.wire.android.search.apps.EmptySearchDisabledByConversationContent
@@ -76,6 +77,8 @@ import com.wire.android.ui.common.topappbar.search.SearchTopBar
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.user.ContactStatus
+import com.wire.kalium.logic.data.user.UserId
 import kotlinx.collections.immutable.ImmutableSet
 import kotlinx.collections.immutable.persistentSetOf
 import kotlinx.coroutines.launch
@@ -105,6 +108,7 @@ fun SearchUsersAndAppsScreen(
     isGroupsTabVisible: Boolean = false,
     selectedGroups: Set<SearchGroup> = emptySet(),
     onGroupChecked: (Boolean, SearchGroup) -> Unit = { _, _ -> },
+    onContactStatusesChanged: (Map<UserId, ContactStatus?>) -> Unit = {},
 ) {
     val searchBarState = rememberSearchbarState()
     val scope = rememberCoroutineScope()
@@ -231,6 +235,7 @@ fun SearchUsersAndAppsScreen(
                                 onlySelfTeamAndDomain = onlySelfTeamAndDomain,
                                 searchQuery = searchBarState.searchQueryTextState.text.toString(),
                                 contactsSelected = selectedContacts,
+                                onContactStatusesChanged = onContactStatusesChanged,
                                 onOpenUserProfile = onOpenUserProfile,
                                 onContactChecked = onContactChecked,
                                 isSearchActive = searchBarState.isSearchActive,
@@ -297,6 +302,7 @@ private fun SearchAllPeopleOrContactsScreen(
     actionType: ItemActionType,
     onOpenUserProfile: (Contact) -> Unit,
     onContactChecked: (Boolean, Contact) -> Unit,
+    onContactStatusesChanged: (Map<UserId, ContactStatus?>) -> Unit,
     conversationId: ConversationId? = null,
     onlySelfTeamAndDomain: Boolean = false,
     searchUserViewModel: SearchUserViewModel = searchUserViewModel(conversationId, onlySelfTeamAndDomain),
@@ -305,6 +311,14 @@ private fun SearchAllPeopleOrContactsScreen(
     nextFocusRequester: FocusRequester? = null,
 ) {
 
+    LifecycleResumeEffect(searchUserViewModel) {
+        searchUserViewModel.onForeground()
+        onPauseOrDispose { searchUserViewModel.onBackground() }
+    }
+
+    LaunchedEffect(searchUserViewModel.state.contactStatuses) {
+        onContactStatusesChanged(searchUserViewModel.state.contactStatuses)
+    }
     LaunchedEffect(key1 = searchQuery) {
         searchUserViewModel.searchQueryChanged(searchQuery)
     }

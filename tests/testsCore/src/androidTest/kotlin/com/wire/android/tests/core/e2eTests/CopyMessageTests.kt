@@ -134,16 +134,16 @@ class CopyMessageTests : BaseUiTest() {
                 scrollToBottomOfConversationScreen()
                 longPressOnMessage("That is a lot of messages")
                 tapCopyMessageOption()
-                dismissClipboardOverlay()
             }
         }
 
-        step("Then I see Message copied toast message") {
+        step("Then I see the Message copied snackbar") {
             waitUntilToastIsDisplayed("Message copied")
         }
 
-        step("When I paste the copied text into the input field and send it") {
+        step("When I dismiss the clipboard overlay, paste the copied text into the input field and send it") {
             pages.conversationViewPage.apply {
+                dismissClipboardOverlay()
                 pasteCopiedTextIntoMessageInputField("That is a lot of messages")
                 clickSendButton()
             }

@@ -202,7 +202,7 @@ class E2EEDeviceManagementTests : BaseUiTest() {
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
     @TestCaseId("TC-12458")
-    @Category("E2EEDeviceManagement")
+    @Category("regression", "RC", "E2EEDeviceManagement")
     @Test
     fun givenSevenRegisteredDevices_whenRemovingDeviceWithWrongPassword_thenDeviceRemainsAndLoginIsBlocked() {
         step("Given There is a team owner TeamOwner with team DeviceManagement") {

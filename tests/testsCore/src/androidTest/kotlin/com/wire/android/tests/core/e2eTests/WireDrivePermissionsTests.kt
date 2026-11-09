@@ -1302,8 +1302,11 @@ class WireDrivePermissionsTests : BaseUiTest() {
             }
         }
         lateinit var expectedEditorScreenshot: Bitmap
-        step("When Member1 opens the reference DOCX and captures its document area in the Online Editor") {
+        step("When Member1 opens the reference DOCX and continues in Chrome without signing in if prompted") {
             pages.wireDrivePage.openFile(referenceDocument)
+            pages.chromePage.completeFirstRunForOnlineEditorIfShown()
+        }
+        step("And Member1 captures the reference DOCX's document area in the Online Editor") {
             expectedEditorScreenshot = pages.documentEditorPage.captureDocumentScreenshot()
             documentScreenshots += expectedEditorScreenshot
         }

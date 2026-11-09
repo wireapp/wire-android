@@ -44,7 +44,7 @@ class NetworkQualityTests : BaseCallUiTest() {
         initCallTestHelpers()
     }
 
-    @TestCaseId("TC-9705", "TC-9706", "TC-9708")
+    @TestCaseId("TC-12726", "TC-12727", "TC-12728")
     @Category("regression", "networkQuality", "RC")
     @Test
     @Suppress("CyclomaticComplexMethod", "LongMethod")
@@ -155,7 +155,7 @@ class NetworkQualityTests : BaseCallUiTest() {
         }
     }
 
-    @TestCaseId("TC-9707")
+    @TestCaseId("TC-12796")
     @Category("regression", "networkQuality", "RC")
     @Test
     @Suppress("CyclomaticComplexMethod", "LongMethod")
@@ -281,7 +281,7 @@ class NetworkQualityTests : BaseCallUiTest() {
         }
     }
 
-    @TestCaseId("TC-9718")
+    @TestCaseId("TC-12729")
     @Category("regression", "networkQuality", "RC")
     @Test
     fun givenNetworkQualityDetailsAreOpen_whenIOpenLearnMore_thenSupportArticleIsShown() {
@@ -343,7 +343,7 @@ class NetworkQualityTests : BaseCallUiTest() {
         }
     }
 
-    @TestCaseId("TC-9720")
+    @TestCaseId("TC-12730")
     @Category("regression", "networkQuality", "RC")
     @Test
     @Suppress("CyclomaticComplexMethod", "LongMethod")

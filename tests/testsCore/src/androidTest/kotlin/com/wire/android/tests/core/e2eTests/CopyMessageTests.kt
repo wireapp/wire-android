@@ -40,7 +40,7 @@ class CopyMessageTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4315")
+    @TestCaseId("TC-12448")
     @Category("regression", "RC", "copyMessage")
     @Test
     fun givenGroupMessage_whenICopyAndPasteIt_thenCopiedMessageIsSentSuccessfully() {
@@ -88,7 +88,7 @@ class CopyMessageTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4314")
+    @TestCaseId("TC-12447")
     @Category("regression", "RC", "copyMessage", "WPB-3525")
     @Test
     fun givenConversationWithManyMessages_whenICopyMessageAfterScrolling_thenCorrectMessageIsCopied() {

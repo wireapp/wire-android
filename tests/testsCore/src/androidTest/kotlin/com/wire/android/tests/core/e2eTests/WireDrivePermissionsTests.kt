@@ -65,7 +65,7 @@ class WireDrivePermissionsTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-12226")
+    @TestCaseId("TC-12785")
     @Category("regression", "RC", "wireDrive", "wireDrivePermissions")
     @Test
     fun givenOwningTeamMemberAndOutsideParticipants_whenOpeningSharedDrive_thenMemberSeesEditorActionsAndOutsideParticipantsSeeViewerAccess() {
@@ -446,7 +446,7 @@ class WireDrivePermissionsTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-12227")
+    @TestCaseId("TC-12786")
     @Category("regression", "RC", "wireDrive", "wireDrivePermissions")
     @Test
     fun givenGuestHasViewerAccessToSharedDrive_whenTheyDismissBannerAndOpenSharedDriveAgain_thenTheyCannotCreateOrUploadFilesOrOpenRecycleBin() {
@@ -555,7 +555,7 @@ class WireDrivePermissionsTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-12228")
+    @TestCaseId("TC-12787")
     @Category("regression", "RC", "wireDrive", "wireDrivePermissions")
     @Test
     fun givenGuestMemberFromAnotherTeamHasViewerAccessToSharedDrive_whenInspectingFileAndFolderMenus_thenRestrictedActionsCannotBePerformed() {
@@ -841,7 +841,7 @@ class WireDrivePermissionsTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-12229")
+    @TestCaseId("TC-12788")
     @Category("regression", "RC", "wireDrive", "wireDrivePermissions")
     @Test
     fun givenGuestHasViewerAccessAndMember1HasEditorAccess_whenTheyOpenAnHtmlFile_thenOnlyMember1CanOpenItInChrome() {
@@ -1013,7 +1013,7 @@ class WireDrivePermissionsTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-12230")
+    @TestCaseId("TC-12789")
     @Category("regression", "RC", "wireDrive", "wireDrivePermissions")
     @Test
     fun givenMemberCanUploadToOneSharedDriveButOnlyViewAnother_whenSharingAnImageFromAndroidFiles_thenOnlyConversationAllowingUploadsCanBeSelectedAndReceiveImage() {
@@ -1187,7 +1187,7 @@ class WireDrivePermissionsTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-12231")
+    @TestCaseId("TC-12790")
     @Category("regression", "RC", "wireDrive", "wireDrivePermissions")
     @Test
     fun givenMemberCanEditAndGuestCanViewDocument_whenMemberSavesChanges_thenGuestReadsUpdatedPdfWithoutEditOrShareControls() {
@@ -1390,7 +1390,7 @@ class WireDrivePermissionsTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-12232")
+    @TestCaseId("TC-12791")
     @Category("regression", "RC", "wireDrive", "wireDrivePermissions")
     @Test
     fun givenSharedDriveContainsFilesBeforeGuestJoins_whenGuestIsAddedThenRemoved_thenGuestGainsViewerAccessAndLosesOnlineFileAccess() {
@@ -1537,7 +1537,7 @@ class WireDrivePermissionsTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-12343")
+    @TestCaseId("TC-12792")
     @Category("regression", "RC", "wireDrive", "wireDrivePermissions")
     @Test
     fun givenPersonalGuestAndAnotherTeamsMemberHaveViewerAccess_whenSelectingSharedDriveFilesAndFolders_thenOnlyOwningTeamMemberCanBulkSelect() {

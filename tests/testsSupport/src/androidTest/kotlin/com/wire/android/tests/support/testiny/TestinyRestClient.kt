@@ -39,7 +39,7 @@ class TestinyRestClient(
         }
 
         val run = getOrCreateRun(config)
-        val resolvedTestCaseIds = resolveTestCaseIds(run.projectId, result.reportableTestCaseIds, config.apiKey)
+        val resolvedTestCaseIds = resolveTestCaseIds(result.reportableTestCaseIds)
         if (resolvedTestCaseIds.isEmpty()) {
             statusReporter.warning(
                 "No Testiny ids could be resolved for ${result.testName} from ${result.reportableTestCaseIds}"
@@ -103,52 +103,27 @@ class TestinyRestClient(
         return synced
     }
 
-    private fun resolveTestCaseIds(projectId: Long, testCaseIds: List<String>, apiKey: String): List<String> {
+    private fun resolveTestCaseIds(testCaseIds: List<String>): List<String> {
         return testCaseIds.mapNotNull { rawId ->
-            resolveTestCaseId(projectId, rawId, apiKey)
+            resolveTestCaseId(rawId)
         }.distinct()
     }
 
-    private fun resolveTestCaseId(projectId: Long, rawId: String, apiKey: String): String? {
+    private fun resolveTestCaseId(rawId: String): String? {
         val normalizedId = rawId.trim().removePrefix("@")
         if (normalizedId.isBlank()) {
             return null
         }
 
-        // Prefer Testiny's old-id mapping, then fall back to direct ids for migrated annotations.
-        val lookupCandidates = buildLookupCandidates(normalizedId)
-        val mappedIds = api.findIdsByOldIds(projectId, lookupCandidates, apiKey)
-        val resolvedId = if (mappedIds.isNotEmpty()) {
-            if (mappedIds.size > 1) {
-                statusReporter.warning("Multiple Testiny ids $mappedIds matched lookup candidates $lookupCandidates")
-            }
-            mappedIds.first().also { mappedId ->
-                statusReporter.info("Resolved Testiny id $normalizedId to project id $mappedId")
-            }
-        } else {
-            extractDirectTestCaseId(normalizedId)?.also { directId ->
-                statusReporter.info("Using direct Testiny id $directId for annotation $normalizedId")
-            }
+        // Annotations contain Wire-Prism IDs; OLD_ID is only migration history.
+        val resolvedId = extractDirectTestCaseId(normalizedId)?.also { directId ->
+            statusReporter.info("Using direct Testiny id $directId for annotation $normalizedId")
         }
 
         if (resolvedId == null) {
             statusReporter.warning("Could not resolve Testiny id for annotation $normalizedId")
         }
         return resolvedId
-    }
-
-    private fun buildLookupCandidates(testCaseId: String): List<String> {
-        val candidates = linkedSetOf<String>()
-        val normalizedId = testCaseId.trim()
-        val directId = extractDirectTestCaseId(normalizedId)
-
-        // Testiny data has used both "TC-123" and "123", so query both forms.
-        candidates += normalizedId
-        directId?.let {
-            candidates += it
-        }
-
-        return candidates.filter(String::isNotBlank)
     }
 
     private fun extractDirectTestCaseId(testCaseId: String): String? {

@@ -60,7 +60,7 @@ class UpgradeVersion : BaseUiTest() {
      * CI installs the old APK before instrumentation starts because Android blocks in-test downgrades.
      */
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-8607")
+    @TestCaseId("TC-12694")
     @Category("regression", "RC", "upgrade")
     @Test
     fun givenTeamUserWithConversationHistory_whenUpdatingFromPreviousWireVersion_thenHistoryIsPreserved() {
@@ -280,7 +280,7 @@ class UpgradeVersion : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4565")
+    @TestCaseId("TC-12643")
     @Category("regression", "RC", "upgrade")
     @Test
     fun givenTeamUserWithMessageHistory_whenUpgradingWire_thenConversationHistoryIsPreserved() {
@@ -502,7 +502,7 @@ class UpgradeVersion : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4571")
+    @TestCaseId("TC-12649")
     @Category("regression", "RC", "upgrade")
     @Test
     fun givenPersonalUserWithMessageHistory_whenUpgradingWire_thenConversationHistoryIsPreserved() {
@@ -685,7 +685,7 @@ class UpgradeVersion : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4566")
+    @TestCaseId("TC-12644")
     @Category("regression", "RC", "upgrade")
     @Test
     fun givenTeamUserWithSharedAssets_whenUpgradingWire_thenAssetsArePreserved() {
@@ -853,7 +853,7 @@ class UpgradeVersion : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4567")
+    @TestCaseId("TC-12645")
     @Category("regression", "RC", "upgrade")
     @Test
     fun givenTeamUserLeftGroup_whenUpgradingWire_thenHistoryRemainsVisibleAndNewMessagesAreNotReceived() {
@@ -1046,7 +1046,7 @@ class UpgradeVersion : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4568")
+    @TestCaseId("TC-12646")
     @Category("regression", "RC", "upgrade")
     @Test
     fun givenTeamUserClearedGroupContent_whenUpgradingWire_thenClearedContentDoesNotReturn() {
@@ -1252,7 +1252,7 @@ class UpgradeVersion : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4569")
+    @TestCaseId("TC-12647")
     @Category("regression", "RC", "upgrade")
     @Test
     fun givenConversationWithRemovedTeamMember_whenUpgradingWire_thenDeletedStatusIsPreserved() {
@@ -1383,7 +1383,7 @@ class UpgradeVersion : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4570")
+    @TestCaseId("TC-12648")
     @Category("regression", "RC", "upgrade")
     @Test
     fun givenDeletedGroupConversation_whenUpgradingWire_thenConversationRemainsDeleted() {

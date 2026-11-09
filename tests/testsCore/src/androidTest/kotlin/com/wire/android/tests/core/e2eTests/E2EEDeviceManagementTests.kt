@@ -43,7 +43,7 @@ class E2EEDeviceManagementTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4323", "TC-4324")
+    @TestCaseId("TC-12455", "TC-12456")
     @Category("regression", "RC", "E2EEDeviceManagement")
     @Test
     fun givenIHaveCurrentAndPreviouslyAddedDevices_whenIOpenDevicesScreen_thenCurrentAndPreviouslyAddedDevicesAreDisplayed() {
@@ -148,7 +148,7 @@ class E2EEDeviceManagementTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4325")
+    @TestCaseId("TC-12457")
     @Category("regression", "RC", "E2EEDeviceManagement")
     @Test
     fun givenCurrentDevice_whenIOpenManageDevices_thenDeviceIdAndAddedDateAreDisplayed() {
@@ -201,8 +201,8 @@ class E2EEDeviceManagementTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4326")
-    @Category("E2EEDeviceManagement")
+    @TestCaseId("TC-12458")
+    @Category("regression", "RC", "E2EEDeviceManagement")
     @Test
     fun givenSevenRegisteredDevices_whenRemovingDeviceWithWrongPassword_thenDeviceRemainsAndLoginIsBlocked() {
         step("Given There is a team owner TeamOwner with team DeviceManagement") {
@@ -305,7 +305,7 @@ class E2EEDeviceManagementTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4327")
+    @TestCaseId("TC-12459")
     @Category("regression", "RC", "E2EEDeviceManagement")
     @Test
     fun givenADeviceWasRemovedFromAnotherClient_whenIOpenDevicesScreen_thenDeviceListIsUpdated() {
@@ -389,7 +389,7 @@ class E2EEDeviceManagementTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4328")
+    @TestCaseId("TC-12460")
     @Category("regression", "RC", "E2EEDeviceManagement")
     @Test
     fun givenIAmLoggedIn_whenMyAccountIsUsedOnAnotherDevice_thenISeeAnAlert() {
@@ -452,7 +452,7 @@ class E2EEDeviceManagementTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4329")
+    @TestCaseId("TC-12461")
     @Category("regression", "RC", "E2EEDeviceManagement")
     @Test
     fun givenIHaveTwoLoggedInAccounts_whenMySecondAccountIsUsedOnAnotherDevice_thenISeeAnAlert() {

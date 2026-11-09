@@ -26,7 +26,9 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -42,6 +44,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -53,6 +56,7 @@ import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.spacers.HorizontalSpace
 import com.wire.android.ui.common.spacers.VerticalSpace
+import com.wire.android.ui.common.typography
 import com.wire.android.ui.home.conversations.SelfDeletionTimerHelper
 import com.wire.android.ui.home.conversations.mock.mockHeader
 import com.wire.android.ui.home.conversations.model.DeliveryStatusContent
@@ -325,6 +329,25 @@ internal fun MessageDecryptionFailure(
                 VerticalSpace.x8()
             }
         }
+    }
+}
+
+/** An app notice in the sender's message slot, so unreadable content never reads as text they typed. */
+@Composable
+internal fun MessageUnsupportedContent(modifier: Modifier = Modifier) {
+    Row(modifier = modifier, verticalAlignment = Alignment.CenterVertically) {
+        Icon(
+            painter = painterResource(id = commonR.drawable.ic_info),
+            contentDescription = null,
+            tint = colorsScheme().secondaryText,
+            modifier = Modifier.size(dimensions().spacing14x),
+        )
+        HorizontalSpace.x8()
+        Text(
+            text = stringResource(R.string.unsupported_message_text),
+            style = typography().body05,
+            color = colorsScheme().secondaryText,
+        )
     }
 }
 

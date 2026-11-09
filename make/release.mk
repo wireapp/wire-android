@@ -1,4 +1,4 @@
-.PHONY: release-notes release-notes/prepare release-notes/format signing-lineage beta-release/validate-source
+.PHONY: release-notes release-notes/prepare release-notes/format signing-lineage beta-release/validate-source release-log/check
 
 beta-release/validate-source:
 	@python3 scripts/release/validate-beta-source.py
@@ -13,3 +13,7 @@ release-notes/format:
 
 signing-lineage:
 	bash scripts/signing/lineage-sign-apks.sh
+
+release-log/check:
+	python3 -m unittest discover -s scripts/release -p 'test_release_log_*.py'
+

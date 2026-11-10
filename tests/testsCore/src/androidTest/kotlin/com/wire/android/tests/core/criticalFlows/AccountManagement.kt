@@ -47,7 +47,7 @@ class AccountManagement : BaseUiTest() {
     }
 
         @Suppress("LongMethod", "CyclomaticComplexMethod")
-        @TestCaseId("TC-8610")
+        @TestCaseId("TC-12697")
         @Category("criticalFlow")
         @Test
         fun givenMember_whenEnablingLoggingAndAppLockAndChangingEmailAndResettingPassword_thenAllSettingsUpdateSuccessfully() {

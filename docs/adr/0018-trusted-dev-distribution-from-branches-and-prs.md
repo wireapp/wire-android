@@ -5,6 +5,7 @@ Date: 2026-10-12
 ## Status
 
 Accepted. Supersedes [ADR 0017](0017-firebase-app-distribution-for-dev-builds.md).
+The PR APK source is superseded by [ADR 0019](0019-build-dev-pr-distribution-on-request.md).
 
 ## Context
 

@@ -42,7 +42,7 @@ class ClearContentTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4271", "TC-4272")
+    @TestCaseId("TC-12405", "TC-12406")
     @Category("regression", "RC", "groups", "clearContent", "fdroid")
     @Test
     fun givenGroupConversation_whenIClearContentViaGroupDetailsAndConversationList_thenContentIsCleared() {
@@ -253,7 +253,7 @@ class ClearContentTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4273")
+    @TestCaseId("TC-12407")
     @Category("regression", "RC", "groups", "clearContent")
     @Test
     fun givenILeftGroupConversation_whenClearingContentFromConversationList_thenConversationContentIsCleared() {
@@ -433,7 +433,7 @@ class ClearContentTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4274")
+    @TestCaseId("TC-12408")
     @Category("regression", "RC", "groups", "clearContent")
     @Test
     fun givenIWasRemovedFromGroupConversation_whenClearingContentFromConversationList_thenContentIsCleared() {
@@ -600,7 +600,7 @@ class ClearContentTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4275")
+    @TestCaseId("TC-12409")
     @Category("regression", "RC", "groups", "clearContent")
     @Test
     fun givenGroupConversationWithAssets_whenIClearContentFromGroupDetails_thenMessagesAndAssetsAreRemoved() {

@@ -32,11 +32,15 @@ import com.wire.android.di.CurrentAccount
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.util.CurrentScreen
 import com.wire.android.util.CurrentScreenManager
+import com.wire.kalium.common.error.CoreFailure
+import com.wire.kalium.common.error.NetworkFailure
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.call.Call
 import com.wire.kalium.logic.data.call.CallStatus
+import com.wire.kalium.logic.data.sync.SyncState
 import com.wire.kalium.logic.data.sync.SyncState.Failed
 import com.wire.kalium.logic.data.sync.SyncState.GatheringPendingEvents
+import com.wire.kalium.logic.data.sync.SyncState.Live
 import com.wire.kalium.logic.data.sync.SyncState.SlowSync
 import com.wire.kalium.logic.data.sync.SyncState.Waiting
 import com.wire.kalium.logic.data.user.UserId
@@ -75,18 +79,7 @@ class CommonTopAppBarViewModel @AssistedInject constructor(
         runCatching {
             coreLogic.value.sessionScope(userId) {
                 combine(observeSyncState(), coreLogic.value.networkStateObserver.observeNetworkState()) { syncState, networkState ->
-                    when {
-                        // Waiting is a pure pre-initialization state: the sync worker has not been
-                        // scheduled yet. It carries no information about network health, so map it
-                        // to Idle (no banner) rather than WaitingConnection or Connecting.
-                        syncState is Waiting -> Connectivity.Idle
-                        syncState is Failed -> Connectivity.WaitingConnection(syncState.cause, syncState.retryDelay)
-                        networkState !is NetworkState.ConnectedWithInternet && params.showNoNetwork ->
-                            Connectivity.WaitingConnection(null, null)
-                        syncState is SlowSync && params.showSync -> Connectivity.Connecting
-                        syncState is GatheringPendingEvents && params.showSync -> Connectivity.Connecting
-                        else -> Connectivity.Connected
-                    }
+                    connectivity(syncState, networkState)
                 }
             }
         }.getOrElse {
@@ -155,6 +148,37 @@ class CommonTopAppBarViewModel @AssistedInject constructor(
             }
         }
     }
+
+    /** Retries a failed sync now, instead of waiting for its scheduled retry. */
+    fun retrySync() {
+        viewModelScope.launch {
+            runCatching { coreLogic.value.sessionScope(currentAccount) { syncExecutor } }
+                .onSuccess { it.retryNow() }
+                .onFailure { appLogger.e("$TAG: Failed to get session scope to retry sync") }
+        }
+    }
+
+    private fun connectivity(syncState: SyncState, networkState: NetworkState): Connectivity = when {
+        // Waiting is a pure pre-initialization state: the sync worker has not been
+        // scheduled yet. It carries no information about network health, so map it
+        // to Idle (no banner) rather than WaitingConnection or Connecting.
+        syncState is Waiting -> Connectivity.Idle
+        syncState is Failed && syncState.cause.isNetworkFailure() -> Connectivity.WaitingConnection(syncState.cause, syncState.retryDelay)
+        params.showNoNetwork && isNetworkUnavailable(networkState, syncState) -> Connectivity.WaitingConnection(null, null)
+        // Sync is catching up, or retrying a failure that is not a network problem.
+        params.showSync && (syncState is Failed || syncState is SlowSync || syncState is GatheringPendingEvents) ->
+            Connectivity.Connecting
+        else -> Connectivity.Connected
+    }
+
+    private fun isNetworkUnavailable(networkState: NetworkState, syncState: SyncState): Boolean = when (networkState) {
+        NetworkState.NotConnected -> true
+        // Android can report a working network as not validated, so a live sync wins.
+        NetworkState.ConnectedWithoutInternet -> syncState !is Live
+        NetworkState.ConnectedWithInternet -> false
+    }
+
+    private fun CoreFailure.isNetworkFailure() = this is NetworkFailure.NoNetworkConnection || this is NetworkFailure.ProxyError
 
     private fun mapToConnectivityUIState(
         currentScreen: CurrentScreen,

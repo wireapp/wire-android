@@ -185,7 +185,7 @@ class CallingTests : BaseCallUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4258", "TC-4268")
+    @TestCaseId("TC-12393", "TC-12402")
     @Category("regression", "calling", "RC", "fdroid")
     @Test
     fun givenMemberCallsMeInForeground_whenIAccept_thenOneOnOneCallIsEstablished() {
@@ -265,7 +265,7 @@ class CallingTests : BaseCallUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4262")
+    @TestCaseId("TC-12397")
     @Category("regression", "calling", "RC")
     @Test
     fun givenMemberCallsMeInForeground_whenITurnCameraOnBeforeAccepting_thenOneOnOneVideoCallIsEstablished() {
@@ -354,7 +354,7 @@ class CallingTests : BaseCallUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4261")
+    @TestCaseId("TC-12396")
     @Category("regression", "RC", "calling", "fdroid")
     @Test
     fun givenMemberCallsMeWithAppInBackground_whenIAccept_thenOneOnOneCallIsEstablished() {
@@ -424,7 +424,7 @@ class CallingTests : BaseCallUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4259")
+    @TestCaseId("TC-12394")
     @Category("regression", "RC", "calling")
     @Test
     fun givenIAmATeamOwner_whenIStartOneOnOneCallWithMemberOfMyTeam_thenOneOnOneCallIsEstablished() {
@@ -504,7 +504,7 @@ class CallingTests : BaseCallUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4260")
+    @TestCaseId("TC-12395")
     @Category("regression", "RC", "calling")
     @Test
     fun givenIAmInOneOnOneCallWithMemberOfMyTeam_whenIEnableVideo_thenOneOnOneVideoCallIsEstablished() {
@@ -616,7 +616,7 @@ class CallingTests : BaseCallUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4263")
+    @TestCaseId("TC-12398")
     @Category("regression", "RC", "calling", "groupCalling", "fdroid")
     @Test
     fun givenAppIsInForeground_whenIAcceptIncomingGroupCall_thenGroupCallIsEstablished() {
@@ -705,7 +705,7 @@ class CallingTests : BaseCallUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4269")
+    @TestCaseId("TC-12403")
     @Category("regression", "calling", "groupCalling", "RC")
     @Test
     fun givenAppIsInForeground_whenIEnableVideoBeforeAcceptingIncomingGroupCall_thenGroupCallIsEstablished() {
@@ -808,7 +808,7 @@ class CallingTests : BaseCallUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4266")
+    @TestCaseId("TC-12401")
     @Category("regression", "RC", "calling", "groupCalling", "fdroid")
     @Test
     fun givenAppIsInBackground_whenIAcceptIncomingGroupCall_thenGroupCallIsEstablished() {
@@ -893,7 +893,7 @@ class CallingTests : BaseCallUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4264")
+    @TestCaseId("TC-12399")
     @Category("regression", "RC", "calling", "groupCalling")
     @Test
     fun givenIAmATeamOwner_whenIStartGroupCallWithMembersOfMyTeam_thenGroupCallIsEstablishedAndJoinButtonIsVisible() {
@@ -981,7 +981,7 @@ class CallingTests : BaseCallUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4265")
+    @TestCaseId("TC-12400")
     @Category("regression", "RC", "calling", "groupCalling", "fdroid")
     @Test
     fun givenIAmInGroupCall_whenIEnableVideo_thenGroupVideoIsVisible() {
@@ -1108,7 +1108,7 @@ class CallingTests : BaseCallUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4270")
+    @TestCaseId("TC-12404")
     @Category("regression", "RC", "calling", "groupCalling")
     @Test
     fun givenMyVideoIsEnabledInGroupCall_whenIMinimiseAndRestoreCall_thenVideoRemainsEnabled() {

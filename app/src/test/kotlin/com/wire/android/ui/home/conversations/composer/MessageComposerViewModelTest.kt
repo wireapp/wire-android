@@ -20,14 +20,18 @@ package com.wire.android.ui.home.conversations.composer
 
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.kalium.logic.data.conversation.Conversation
+import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.conversation.InteractionAvailability
+import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import io.mockk.coVerify
+import io.mockk.mockk
+import kotlin.time.Instant
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
-import kotlin.time.Instant
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
@@ -37,6 +41,62 @@ import org.junit.jupiter.api.extension.ExtendWith
 @ExtendWith(CoroutineTestExtension::class)
 @Suppress("LargeClass")
 class MessageComposerViewModelTest {
+    @Test
+    fun `everyone suggestion matches all prefix only in groups and clears with search`() = runTest {
+        val (_, viewModel) = MessageComposerViewModelArrangement()
+            .withSuccessfulViewModelInit()
+            .withGroupConversation()
+            .arrange()
+
+        for (query in listOf("", "a", "AL", "all")) {
+            viewModel.searchMembersToMention(query)
+            advanceUntilIdle()
+            assertTrue(viewModel.messageComposerViewState.value.showEveryoneMentionSuggestion)
+        }
+        for (query in listOf("other", "everyone", "all ", " all")) {
+            viewModel.searchMembersToMention(query)
+            advanceUntilIdle()
+            assertTrue(!viewModel.messageComposerViewState.value.showEveryoneMentionSuggestion)
+        }
+        viewModel.searchMembersToMention("all")
+        advanceUntilIdle()
+        viewModel.clearMentionSearchResult()
+        assertTrue(!viewModel.messageComposerViewState.value.showEveryoneMentionSuggestion)
+    }
+
+    @Test
+    fun `dismissing an in flight mention search prevents suggestions from reopening`() = runTest {
+        val details = MutableSharedFlow<ObserveConversationDetailsUseCase.Result>(replay = 1)
+        val (_, viewModel) = MessageComposerViewModelArrangement()
+            .withSuccessfulViewModelInit()
+            .withConversationDetails(details)
+            .arrange()
+
+        viewModel.searchMembersToMention("all")
+        advanceUntilIdle()
+        viewModel.clearMentionSearchResult()
+        details.emit(ObserveConversationDetailsUseCase.Result.Success(mockk<ConversationDetails.Group.Regular>()))
+        advanceUntilIdle()
+
+        assertTrue(viewModel.messageComposerViewState.value.mentionSearchResult.isEmpty())
+        assertTrue(!viewModel.messageComposerViewState.value.showEveryoneMentionSuggestion)
+        assertEquals("", viewModel.messageComposerViewState.value.mentionSearchQuery)
+    }
+
+    @Test
+    fun `everyone suggestion is absent when conversation is not a group`() = runTest {
+        val (_, viewModel) = MessageComposerViewModelArrangement()
+            .withSuccessfulViewModelInit()
+            .withConversationDetails(
+                flowOf(ObserveConversationDetailsUseCase.Result.Success(mockk<ConversationDetails.OneOne>()))
+            )
+            .arrange()
+
+        viewModel.searchMembersToMention("all")
+        advanceUntilIdle()
+
+        assertTrue(!viewModel.messageComposerViewState.value.showEveryoneMentionSuggestion)
+    }
 
     @Test
     fun `given guest in foreign-team cells conversation when init then attachment options are disabled`() = runTest {

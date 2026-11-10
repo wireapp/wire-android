@@ -128,6 +128,8 @@ class RegularMessageMapper @Inject constructor(
 
         is MessageContent.Multipart -> toMultipart(message.conversationId, content, userList, message.deliveryStatus)
 
+        is MessageContent.Unknown -> UIMessageContent.Unknown
+
         else -> toText(message.conversationId, content, userList, message.deliveryStatus)
     }
 
@@ -177,12 +179,6 @@ class RegularMessageMapper @Inject constructor(
 
         val uiText = when (content) {
             is MessageContent.Text -> UIText.DynamicString(content.value, content.mentions)
-                is MessageContent.Unknown -> content.typeName?.let {
-                    UIText.StringResource(
-                        messageResourceProvider.sentAMessageWithContent, it
-                    )
-                } ?: UIText.StringResource(R.string.sent_a_message_with_unknown_content)
-
                 is MessageContent.FailedDecryption -> {
                     content.errorCode?.let {
                         UIText.StringResource(R.string.label_message_decryption_failure_message_with_error_code, it)

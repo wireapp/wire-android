@@ -29,6 +29,7 @@ import com.wire.android.pdfviewer.PdfSourceResolver
 import com.wire.android.services.SendPendingMessagesAfterForegroundSyncUseCase
 import com.wire.android.util.CurrentScreenManager
 import com.wire.android.util.deleteFileProviderSharedCacheDirectory
+import com.wire.android.util.deleteUserDownloads
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.logout.LogoutReason
@@ -54,6 +55,8 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import kotlin.coroutines.cancellation.CancellationException
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.SingleIn
@@ -66,7 +69,7 @@ import dev.zacsweers.metro.SingleIn
 @SingleIn(AppScope::class)
 class GlobalObserversManager @Inject constructor(
     @ApplicationContext private val context: Context,
-    dispatcherProvider: DispatcherProvider,
+    private val dispatcherProvider: DispatcherProvider,
     @KaliumCoreLogic private val coreLogic: CoreLogic,
     private val notificationManager: WireNotificationManager,
     private val meetingReminderScheduler: MeetingReminderScheduler,
@@ -157,15 +160,35 @@ class GlobalObserversManager @Inject constructor(
                 override suspend fun invoke(userId: UserId, reason: LogoutReason) {
                     notificationManager.stopObservingOnLogout(userId)
                     if (reason != LogoutReason.SELF_SOFT_LOGOUT) {
-                        userDataStoreProvider.getOrCreate(userId).clear()
-                        context.deleteFileProviderSharedCacheDirectory()
-                        PdfSourceResolver.deleteRenditions(context)
+                        cleanUp("user data store") { userDataStoreProvider.getOrCreate(userId).clear() }
+                        withContext(dispatcherProvider.io()) {
+                            cleanUp("shared file provider cache") { context.deleteFileProviderSharedCacheDirectory() }
+                            cleanUp("pdf renditions") { PdfSourceResolver.deleteRenditions(context) }
+                            if (reason.wipesData()) {
+                                cleanUp("cells downloads") { context.deleteUserDownloads(userId) }
+                            }
+                        }
                     }
                 }
             }
             coreLogic.getGlobalScope().logoutCallbackManager.register(callback)
             awaitClose { coreLogic.getGlobalScope().logoutCallbackManager.unregister(callback) }
         }.launchIn(this)
+    }
+
+    /** Mirrors the reasons for which Kalium wipes the user's data, so files are not deleted while their records stay. */
+    private fun LogoutReason.wipesData(): Boolean = when (this) {
+        LogoutReason.SELF_HARD_LOGOUT -> true
+        LogoutReason.REMOVED_CLIENT, LogoutReason.DELETED_ACCOUNT -> kaliumConfigs.wipeOnDeviceRemoval
+        LogoutReason.SESSION_EXPIRED -> kaliumConfigs.wipeOnCookieInvalid
+        LogoutReason.SELF_SOFT_LOGOUT, LogoutReason.MIGRATION_TO_CC_FAILED -> false
+    }
+
+    private inline fun cleanUp(what: String, action: () -> Unit) {
+        runCatching(action).onFailure {
+            if (it is CancellationException) throw it
+            appLogger.e("$TAG: failed to clean up $what on logout", it)
+        }
     }
 
     private fun CoroutineScope.handleDeleteEphemeralMessageEndDate() {

@@ -92,7 +92,11 @@ class OfflineDownloadManager @Inject constructor(
 
     @Synchronized
     internal fun forAccount(userId: UserId): AccountOfflineDownloads =
-        accounts.value[userId] ?: createAccountDownloads(userId).also { created -> accounts.update { it + (userId to created) } }
+        accounts.value[userId] ?: createAccountDownloads(userId).also { created ->
+            accounts.update {
+                it + (userId to created)
+            }
+        }
 
     private fun createAccountDownloads(userId: UserId): AccountOfflineDownloads {
         val cells = coreLogic.getSessionScope(userId).cells
@@ -105,6 +109,7 @@ class OfflineDownloadManager @Inject constructor(
                 fileHelper = fileHelper,
                 saveOfflineFile = cells.saveOfflineFile,
                 sharedPathCache = pathCache,
+                userId = userId,
             ),
             pathCache = pathCache,
             networkStateObserver = networkStateObserver,

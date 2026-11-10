@@ -34,7 +34,7 @@ class TestinyApi {
     private val baseUrl = "https://app.testiny.io/api/v1"
 
     fun findProjectId(projectName: String): Long {
-        // The workflow passes this name; the reporter currently supports only the Wire Android project.
+        // The workflow passes this name; the reporter currently supports only the Wire-Prism project.
         return when (projectName) {
             TESTINY_PROJECT_NAME -> TESTINY_PROJECT_ID
             else -> throw IllegalArgumentException(
@@ -73,35 +73,6 @@ class TestinyApi {
         )
 
         return response.optString("description", "")
-    }
-
-    fun findIdsByOldIds(projectId: Long, oldIds: List<String>, apiKey: String): List<String> {
-        if (oldIds.isEmpty()) {
-            return emptyList()
-        }
-
-        // Android annotations may still contain old TC-* ids; Testiny keeps that mapping in cf__old_id.
-        val response = postObject(
-            path = "testcase/find",
-            apiKey = apiKey,
-            body = JSONObject().apply {
-                put(
-                    "filter",
-                    JSONObject().apply {
-                        put("cf__old_id", JSONArray().apply { oldIds.forEach(::put) })
-                        put("project_id", projectId)
-                    }
-                )
-                put("idOnly", true)
-            },
-        )
-
-        val cases = response.optJSONArray("data") ?: JSONArray()
-        return buildList(cases.length()) {
-            repeat(cases.length()) { index ->
-                add(cases.getJSONObject(index).get("id").toString())
-            }
-        }
     }
 
     fun createTestRun(projectId: Long, runName: String, apiKey: String): Long {
@@ -219,8 +190,8 @@ class TestinyApi {
         return JSONObject(sendRaw(path, "GET", apiKey))
     }
 
-    private fun postArray(path: String, apiKey: String, body: JSONArray): JSONArray {
-        return JSONArray(postRaw(path, apiKey, body.toString()))
+    private fun postArray(path: String, apiKey: String, body: JSONArray) {
+        postRaw(path, apiKey, body.toString())
     }
 
     private fun putObject(path: String, apiKey: String, body: JSONObject) {
@@ -256,7 +227,7 @@ class TestinyApi {
 
     private companion object {
         // Must match TESTINY_PROJECT_NAME in the Android QA workflows.
-        const val TESTINY_PROJECT_NAME = "Wire Android"
-        const val TESTINY_PROJECT_ID = 8L
+        const val TESTINY_PROJECT_NAME = "Wire-Prism"
+        const val TESTINY_PROJECT_ID = 17L
     }
 }

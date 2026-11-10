@@ -43,7 +43,7 @@ class ConnectTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4295", "TC-4298")
+    @TestCaseId("TC-12428", "TC-12431")
     @Category("regression", "RC", "connect")
     @Test
     fun givenPersonalUser_whenSendingConnectionRequestToAnotherPersonalUser_thenConnectionRequestIsSent() {
@@ -176,7 +176,7 @@ class ConnectTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4296")
+    @TestCaseId("TC-12429")
     @Category("regression", "RC", "connect")
     @Test
     fun givenPersonalUser_whenCancellingConnectionRequest_thenConnectionRequestIsCancelled() {
@@ -274,7 +274,7 @@ class ConnectTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4297")
+    @TestCaseId("TC-12430")
     @Category("regression", "RC", "connect", "fdroid")
     @Test
     fun givenPersonalUser_whenReceivingConnectionRequest_thenConnectionRequestCanBeAccepted() {

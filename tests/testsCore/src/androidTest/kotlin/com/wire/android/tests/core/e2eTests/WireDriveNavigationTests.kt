@@ -62,7 +62,7 @@ class WireDriveNavigationTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-12218")
+    @TestCaseId("TC-12773")
     @Category("regression", "RC", "wireDrive", "wireDriveNavigation")
     @Test
     fun givenFilesInRootAndChildFolders_whenOpeningFoldersAndGoingBack_thenEachFolderShowsOnlyItsOwnFiles() {
@@ -269,7 +269,7 @@ class WireDriveNavigationTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-12216")
+    @TestCaseId("TC-12771")
     @Category("regression", "RC", "wireDrive", "wireDriveNavigation")
     @Test
     fun givenFilesInTwoGroupConversations_whenOpeningDriveAndSharedDrive_thenDriveShowsBothFilesAndSharedDriveShowsOnlyItsConversationsFile() {
@@ -555,7 +555,7 @@ class WireDriveNavigationTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-12217")
+    @TestCaseId("TC-12772")
     @Category("regression", "RC", "wireDrive", "wireDriveNavigation")
     @Test
     fun givenGuestFromTeamWithDriveDisabled_whenOpeningPdfInAnotherTeamsSharedDrive_thenPdfPreviewIsVisibleAndDriveOptionIsHiddenInMainMenu() {
@@ -687,7 +687,8 @@ class WireDriveNavigationTests : BaseUiTest() {
 
         step("Then I see the Viewer access banner and exactly one entry for TeamOwner's PDF in Shared Drive") {
             pages.wireDrivePage.apply {
-                assertSharedDriveVisibleWithViewerAccess()
+                assertViewerAccessBannerVisible("Viewer access: you can’t upload or edit files.")
+                assertNewButtonAbsent()
                 assertFileVisibleOnce(guestFile)
             }
         }
@@ -700,14 +701,15 @@ class WireDriveNavigationTests : BaseUiTest() {
         step("When I use Back to return to Shared Drive, I see the Viewer access banner and exactly one entry for TeamOwner's PDF") {
             pages.pdfViewerPage.navigateBack()
             pages.wireDrivePage.apply {
-                assertSharedDriveVisibleWithViewerAccess()
+                assertViewerAccessBannerVisible("Viewer access: you can’t upload or edit files.")
+                assertNewButtonAbsent()
                 assertFileVisibleOnce(guestFile)
             }
         }
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-12219", "TC-12220")
+    @TestCaseId("TC-12774", "TC-12775")
     @Category("regression", "RC", "wireDrive", "wireDriveNavigation")
     @Test
     fun givenDriveHas35FilesBeforeLogin_whenMemberScrollsFromPage1ToPage2AndOpensPdfs_thenNoFilesAreMissingOrDuplicated() {
@@ -842,7 +844,7 @@ class WireDriveNavigationTests : BaseUiTest() {
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
     // TC-12221 currently fails due to WPB-22171: Drive file timestamps do not follow the device's 12/24-hour setting.
-    @TestCaseId("TC-12221")
+    @TestCaseId("TC-12776")
     @Category("regression", "RC", "wireDrive", "wireDriveNavigation")
     @Test
     fun givenPdfInDriveAndSharedDrive_whenMemberSwitchesBetween12And24HourTime_thenFileTimestampsFollowDeviceSetting() {
@@ -998,7 +1000,7 @@ class WireDriveNavigationTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-12222", "TC-12223")
+    @TestCaseId("TC-12777", "TC-12778")
     @Category("regression", "RC", "wireDrive", "wireDriveNavigation")
     @Test
     fun givenTeamOwnerCanCreateGroupsAndChannels_whenCreatingWithSharedDriveOffAndOn_thenDetailsShowSelectedSetting() {
@@ -1271,7 +1273,7 @@ class WireDriveNavigationTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-12224")
+    @TestCaseId("TC-12779")
     @Category("regression", "RC", "wireDrive", "wireDriveNavigation")
     @Test
     fun givenTeamMemberHasNoSharedDriveEnabledConversations_whenOpeningAndReopeningDrive_thenEmptyStateIsDisplayed() {
@@ -1328,7 +1330,7 @@ class WireDriveNavigationTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-12225")
+    @TestCaseId("TC-12780")
     @Category("regression", "RC", "wireDrive", "wireDriveNavigation")
     @Test
     fun givenGroupAndChannelHaveSharedDrive_whenMemberOpensDetailsRepeatedly_thenSharedDriveAppearsWithoutMedia() {

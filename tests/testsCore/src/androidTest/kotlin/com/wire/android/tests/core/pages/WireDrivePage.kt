@@ -17,12 +17,14 @@
  */
 package com.wire.android.tests.core.pages
 
+import android.graphics.Point
 import android.text.format.DateFormat
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.Direction
 import androidx.test.uiautomator.UiDevice
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import uiautomatorutils.UiSelectorParams
 import uiautomatorutils.UiWaitUtils
@@ -32,6 +34,7 @@ import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
 import java.util.Locale
 import java.util.regex.Pattern
+import kotlin.time.Duration
 
 /** UI actions shared by Wire Drive scenarios; navigation assertions stay scoped to the current folder. */
 data class WireDrivePage(private val device: UiDevice) {
@@ -44,7 +47,6 @@ data class WireDrivePage(private val device: UiDevice) {
     private val driveHeading = UiSelectorParams(text = "Drive")
     private val mainNavigationButton = UiSelectorParams(description = "Main navigation")
     private val sharedDriveHeading = UiSelectorParams(text = "Shared Drive")
-    private val viewerAccessBanner = UiSelectorParams(text = "Viewer access: you can’t upload or edit files.")
     private val emptyDriveTitle = UiSelectorParams(text = "There are no files or folders yet")
     private val emptyDriveMessage = UiSelectorParams(
         text = "For conversations that use file collaboration, you'll find shared files here."
@@ -82,14 +84,83 @@ data class WireDrivePage(private val device: UiDevice) {
         return this
     }
 
-    fun assertSharedDriveVisibleWithViewerAccess(): WireDrivePage {
+    fun assertViewerAccessBannerVisible(viewerAccessBannerText: String): WireDrivePage {
         UiWaitUtils.waitElement(sharedDriveHeading)
-        UiWaitUtils.waitElement(viewerAccessBanner)
+        UiWaitUtils.waitElement(UiSelectorParams(text = viewerAccessBannerText))
+        return this
+    }
+
+    fun assertNewButtonAbsent(): WireDrivePage {
         UiWaitUtils.waitUntilGoneOrThrow(
             selector = By.desc("New"),
             timeout = UiWaitUtils.VERY_SHORT_TIMEOUT,
             errorMessage = "New button is visible with Viewer access"
         )
+        return this
+    }
+
+    fun assertSharedDriveOptionsButtonAbsent(): WireDrivePage {
+        UiWaitUtils.waitUntilGoneOrThrow(
+            selector = By.desc("Open files options"),
+            timeout = UiWaitUtils.VERY_SHORT_TIMEOUT,
+            errorMessage = "Shared Drive options button is visible for a Viewer"
+        )
+        return this
+    }
+
+    fun tapSharedDriveOptionsButton(): WireDrivePage {
+        UiWaitUtils.waitElement(UiSelectorParams(description = "Open files options"), timeout = UiWaitUtils.SHORT_WAIT).click()
+        return this
+    }
+
+    fun assertOpenRecycleBinOptionVisible(): WireDrivePage {
+        UiWaitUtils.waitElement(UiSelectorParams(text = "Open Recycle Bin"), timeout = UiWaitUtils.SHORT_WAIT)
+        return this
+    }
+
+    fun longPressFileInSharedDrive(fileName: String): WireDrivePage {
+        UiWaitUtils.waitElement(UiSelectorParams(text = fileName), timeout = UiWaitUtils.STABLE_TIMEOUT).longClick()
+        return this
+    }
+
+    fun tapFolderForBulkSelection(folderName: String): WireDrivePage {
+        UiWaitUtils.waitElement(UiSelectorParams(text = folderName), timeout = UiWaitUtils.STABLE_TIMEOUT).click()
+        return this
+    }
+
+    fun longPressAndDragBetweenSharedDriveRows(startName: String, endName: String): WireDrivePage {
+        val start = UiWaitUtils.waitElement(UiSelectorParams(text = startName), timeout = UiWaitUtils.STABLE_TIMEOUT)
+        val end = UiWaitUtils.waitElement(UiSelectorParams(text = endName), timeout = UiWaitUtils.STABLE_TIMEOUT).visibleBounds
+        // UIAutomator's drag starts with a long press; both endpoints come from the named rows.
+        start.drag(Point(end.centerX(), end.centerY()))
+        return this
+    }
+
+    fun assertBulkSelectionCount(expectedCount: Int): WireDrivePage {
+        UiWaitUtils.waitElement(UiSelectorParams(text = "$expectedCount selected"), timeout = UiWaitUtils.SHORT_WAIT)
+        return this
+    }
+
+    fun assertBulkMoveAndDeleteActionsEnabled(): WireDrivePage {
+        listOf("Move", "Delete").forEach { action ->
+            UiWaitUtils.waitElement(UiSelectorParams(description = action), timeout = UiWaitUtils.SHORT_WAIT)
+            val button = device.findObject(By.clickable(true).hasDescendant(By.desc(action)))
+            assertTrue("Bulk action '$action' is not enabled", button?.isEnabled == true)
+        }
+        return this
+    }
+
+    fun tapCancelBulkSelectionButton(): WireDrivePage {
+        UiWaitUtils.waitElement(UiSelectorParams(description = "Cancel selection"), timeout = UiWaitUtils.SHORT_WAIT).click()
+        return this
+    }
+
+    fun assertBulkSelectionControlsAbsent(): WireDrivePage {
+        UiWaitUtils.waitElement(sharedDriveHeading, timeout = UiWaitUtils.SHORT_WAIT)
+        assertFalse("Bulk selection count is visible", device.hasObject(By.text(Pattern.compile("\\d+ selected"))))
+        listOf("Cancel selection", "Move", "Delete").forEach { control ->
+            assertFalse("Bulk selection control '$control' is visible in Shared Drive", device.hasObject(By.desc(control)))
+        }
         return this
     }
 
@@ -113,6 +184,28 @@ data class WireDrivePage(private val device: UiDevice) {
 
     fun openFile(fileName: String): WireDrivePage {
         UiWaitUtils.waitElement(UiSelectorParams(text = fileName)).click()
+        return this
+    }
+
+    fun tapOpenOnFileReadyMessageIfShown(fileName: String): WireDrivePage {
+        val readyMessage = "\"$fileName\" ready to open"
+        val next = UiWaitUtils.waitAnyVisible(
+            selectors = listOf(
+                UiSelectorParams(text = readyMessage),
+                UiSelectorParams(text = "Can't open this file. File type isn't supported."),
+                UiSelectorParams(text = "Chrome"),
+                UiSelectorParams(text = "Open with Chrome")
+            ),
+            timeout = UiWaitUtils.VERY_LONG_TIMEOUT
+        )
+        if (next?.text == readyMessage) {
+            UiWaitUtils.waitElement(UiSelectorParams(text = "Open"), timeout = UiWaitUtils.SHORT_WAIT).click()
+        }
+        return this
+    }
+
+    fun assertFolderHeadingVisible(folderName: String): WireDrivePage {
+        UiWaitUtils.waitElement(UiSelectorParams(text = folderName), timeout = UiWaitUtils.SHORT_WAIT)
         return this
     }
 
@@ -168,12 +261,240 @@ data class WireDrivePage(private val device: UiDevice) {
         return this
     }
 
-    fun assertFileVisibleOnce(fileName: String): WireDrivePage {
-        UiWaitUtils.waitElement(UiSelectorParams(text = fileName), timeout = UiWaitUtils.STABLE_TIMEOUT)
+    fun assertFileVisibleOnce(fileName: String, timeout: Duration = UiWaitUtils.STABLE_TIMEOUT): WireDrivePage {
+        UiWaitUtils.waitElement(UiSelectorParams(text = fileName), timeout = timeout)
         assertEquals(
             "Expected one file named '$fileName' in the current folder",
             1,
             device.findObjects(By.text(fileName)).size
+        )
+        return this
+    }
+
+    fun assertSharedDriveVisibleWithoutViewerBanner(): WireDrivePage {
+        assertSharedDriveVisible()
+        assertFalse("Viewer banner is visible for an Editor", device.hasObject(By.text("Viewer access: you can’t upload or edit files.")))
+        return this
+    }
+
+    fun tapFileMenu(fileName: String): WireDrivePage = tapNodeMenu(fileName)
+
+    fun tapFolderMenu(folderName: String): WireDrivePage = tapNodeMenu(folderName)
+
+    private fun tapNodeMenu(nodeName: String): WireDrivePage {
+        UiWaitUtils.waitElement(
+            UiSelectorParams(description = "More options for $nodeName"),
+            timeout = UiWaitUtils.STABLE_TIMEOUT
+        ).click()
+        UiWaitUtils.waitElement(UiSelectorParams(description = "Open"), timeout = UiWaitUtils.SHORT_WAIT)
+        return this
+    }
+
+    fun dismissViewerAccessBanner(): WireDrivePage {
+        UiWaitUtils.waitElement(
+            UiSelectorParams(description = "Close access info"),
+            timeout = UiWaitUtils.SHORT_WAIT
+        ).click()
+        return this
+    }
+
+    fun assertViewerAccessBannerNoLongerVisible(): WireDrivePage {
+        UiWaitUtils.waitElement(sharedDriveHeading, timeout = UiWaitUtils.MEDIUM_TIMEOUT)
+        UiWaitUtils.waitUntilGoneOrThrow(
+            selector = By.text("Viewer access: you can’t upload or edit files."),
+            timeout = UiWaitUtils.SHORT_WAIT,
+            errorMessage = "Viewer access banner is still visible after dismissal"
+        )
+        return this
+    }
+
+    fun assertEditorPdfActionsVisible(): WireDrivePage {
+        val actions = listOf("Open", "Make available offline", "Add or Remove Tags", "Share via Link", "Move to folder", "Rename", "Delete")
+        actions.forEach { action ->
+            val option = UiWaitUtils.waitElement(UiSelectorParams(description = action), timeout = UiWaitUtils.SHORT_WAIT)
+            assertTrue("Editor PDF action '$action' is not clickable", option.isClickable)
+        }
+        return this
+    }
+
+    fun assertEditorDocumentActionsVisible(): WireDrivePage {
+        val actions = listOf(
+            "Open",
+            "Edit file",
+            "See version history",
+            "Add or Remove Tags",
+            "Share via Link",
+            "Move to folder",
+            "Rename",
+            "Delete"
+        )
+        actions.forEach { action ->
+            val option = UiWaitUtils.waitElement(UiSelectorParams(description = action), timeout = UiWaitUtils.SHORT_WAIT)
+            assertTrue("Editor document action '$action' is not clickable", option.isClickable)
+        }
+        return this
+    }
+
+    fun assertViewerPdfMenuActionsInSharedDrive(): WireDrivePage {
+        val open = UiWaitUtils.waitElement(UiSelectorParams(description = "Open"), timeout = UiWaitUtils.SHORT_WAIT)
+        assertTrue("Open is not clickable for a Viewer PDF", open.isClickable)
+        val restrictedActions = listOf(
+            "Make available offline",
+            "Add or Remove Tags",
+            "Share via Link",
+            "Move to folder",
+            "Rename",
+            "Delete"
+        )
+        restrictedActions.forEach { action ->
+            assertFalse(
+                "Restricted action '$action' is visible in the Viewer PDF menu in Shared Drive",
+                device.hasObject(By.descContains(action))
+            )
+        }
+        return this
+    }
+
+    fun assertViewerDocumentMenuActionsInSharedDrive(): WireDrivePage {
+        val open = UiWaitUtils.waitElement(UiSelectorParams(description = "Open"), timeout = UiWaitUtils.SHORT_WAIT)
+        assertTrue("Open is not clickable for a Viewer document", open.isClickable)
+        val restrictedActions = listOf(
+            "Edit file",
+            "See version history",
+            "Add or Remove Tags",
+            "Share via Link",
+            "Move to folder",
+            "Rename",
+            "Delete"
+        )
+        restrictedActions.forEach { action ->
+            assertFalse(
+                "Restricted action '$action' is visible in the Viewer document menu in Shared Drive",
+                device.hasObject(By.descContains(action))
+            )
+        }
+        return this
+    }
+
+    fun assertViewerFolderMenuActionsInSharedDrive(): WireDrivePage {
+        val open = UiWaitUtils.waitElement(UiSelectorParams(description = "Open"), timeout = UiWaitUtils.SHORT_WAIT)
+        assertTrue("Open is not clickable for a Viewer folder", open.isClickable)
+        val restrictedActions = listOf(
+            "Add or Remove Tags",
+            "Share via Link",
+            "Move to folder",
+            "Rename",
+            "Delete"
+        )
+        restrictedActions.forEach { action ->
+            assertFalse(
+                "Restricted action '$action' is visible in the Viewer folder menu in Shared Drive",
+                device.hasObject(By.descContains(action))
+            )
+        }
+        return this
+    }
+
+    fun assertViewerShareActionAbsentInSharedDrive(): WireDrivePage {
+        assertFalse(
+            "Share is visible in the Viewer file menu in Shared Drive",
+            device.hasObject(By.desc("Share")) || device.hasObject(By.desc("Share, disabled in viewer access"))
+        )
+        return this
+    }
+
+    fun tapEditFileOptionOnDocumentMenu(): WireDrivePage {
+        UiWaitUtils.waitElement(UiSelectorParams(description = "Edit file"), timeout = UiWaitUtils.SHORT_WAIT).click()
+        return this
+    }
+
+    fun tapOpenOptionOnActionsMenu(): WireDrivePage {
+        UiWaitUtils.waitElement(UiSelectorParams(description = "Open"), timeout = UiWaitUtils.SHORT_WAIT).click()
+        return this
+    }
+
+    fun assertOpenActionEnabledOnThreeDotMenu(): WireDrivePage {
+        val open = UiWaitUtils.waitElement(UiSelectorParams(description = "Open"), timeout = UiWaitUtils.SHORT_WAIT)
+        assertTrue("Open is not enabled in the three-dot menu", open.isEnabled)
+        assertTrue("Open is not clickable in the three-dot menu", open.isClickable)
+        return this
+    }
+
+    fun assertViewerShareLinkAndOfflineActionsDisabled(): WireDrivePage {
+        listOf("Share", "Share via Link", "Make available offline").forEach { action ->
+            assertViewerFileActionDisabled(action)
+        }
+        return this
+    }
+
+    fun assertViewerFileActionDisabled(actionName: String): WireDrivePage {
+        val action = UiWaitUtils.waitElement(
+            UiSelectorParams(description = "$actionName, disabled in viewer access"),
+            timeout = UiWaitUtils.SHORT_WAIT
+        )
+        assertFalse("'$actionName' is clickable for a Viewer", action.isClickable)
+        return this
+    }
+
+    fun tapDisabledViewerAction(actionName: String): WireDrivePage {
+        UiWaitUtils.waitElement(
+            UiSelectorParams(description = "$actionName, disabled in viewer access"),
+            timeout = UiWaitUtils.SHORT_WAIT
+        ).click()
+        return this
+    }
+
+    fun assertPdfThreeDotMenuVisible(fileName: String): WireDrivePage {
+        UiWaitUtils.waitElement(UiSelectorParams(text = fileName), timeout = UiWaitUtils.SHORT_WAIT)
+        UiWaitUtils.waitElement(UiSelectorParams(description = "Open"), timeout = UiWaitUtils.SHORT_WAIT)
+        return this
+    }
+
+    fun searchInGlobalDrive(query: String): WireDrivePage {
+        UiWaitUtils.waitElement(UiSelectorParams(description = "Search"), timeout = UiWaitUtils.SHORT_WAIT).click()
+        UiWaitUtils.waitElement(UiSelectorParams(className = "android.widget.EditText")).text = query
+        device.pressEnter()
+        UiWaitUtils.waitElement(UiSelectorParams(text = query, className = "android.widget.EditText"))
+        return this
+    }
+
+    fun assertViewerFileAccessInDrive(): WireDrivePage {
+        UiWaitUtils.waitElement(UiSelectorParams(text = "Viewer access"), timeout = UiWaitUtils.SHORT_WAIT)
+        val link = UiWaitUtils.waitElement(
+            UiSelectorParams(description = "Share via Link, disabled in viewer access"),
+            timeout = UiWaitUtils.SHORT_WAIT
+        )
+        assertFalse("Viewer can create a public link in Drive", link.isClickable)
+        val offlineAction = UiWaitUtils.waitElement(
+            UiSelectorParams(description = "Make available offline, disabled in viewer access"),
+            timeout = UiWaitUtils.SHORT_WAIT
+        )
+        assertFalse("Viewer can make a file available offline in Drive", offlineAction.isClickable)
+        return this
+    }
+
+    fun assertEditorFileAccessInDrive(): WireDrivePage {
+        val link = UiWaitUtils.waitElement(UiSelectorParams(description = "Share via Link"), timeout = UiWaitUtils.SHORT_WAIT)
+        assertTrue("Editor cannot create a public link in Drive", link.isClickable)
+        val offlineAction = UiWaitUtils.waitElement(
+            UiSelectorParams(description = "Make available offline"),
+            timeout = UiWaitUtils.SHORT_WAIT
+        )
+        assertTrue("Editor cannot make a file available offline in Drive", offlineAction.isClickable)
+        assertFalse("Viewer access is shown for an Editor file", device.hasObject(By.text("Viewer access")))
+        return this
+    }
+
+    fun assertViewerAccessLabelOnlyOnViewerPdf(viewerFileName: String, editorFileName: String): WireDrivePage {
+        assertFileVisibleOnce(viewerFileName)
+        assertFileVisibleOnce(editorFileName)
+        UiWaitUtils.waitElement(
+            UiSelectorParams(description = "$viewerFileName, viewer access"),
+            timeout = UiWaitUtils.SHORT_WAIT
+        )
+        assertFalse(
+            "Viewer access label is shown for Editor PDF '$editorFileName'",
+            device.hasObject(By.desc("$editorFileName, viewer access"))
         )
         return this
     }

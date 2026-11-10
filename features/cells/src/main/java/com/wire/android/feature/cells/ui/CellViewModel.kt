@@ -266,18 +266,21 @@ class CellViewModel @AssistedInject constructor(
         initialValue = false,
     )
 
-    // Bulk selection is only offered in a shared drive; search results, the recycle bin and All Files keep the single-item flow.
+    /** Whether the bulk actions bar offers the offline actions (make available / remove offline access). */
+    // Declared before bulkSelection, which reads it while being initialized.
+    val bulkOfflineActionsEnabled: Boolean = offlineFilesEnabled && driveOfflineEnabled
+
+    // Bulk selection is offered in a shared drive and the recycle bin, and in All Files where only the offline actions
+    // apply, so there only when those are enabled. Search results keep the single-item flow.
     private val bulkSelection = CellBulkSelection(
-        isSupported = driveBulkActionsEnabled && searchNavArgs == null && (isConversationFiles() || isRecycleBin()),
+        isSupported = driveBulkActionsEnabled && searchNavArgs == null &&
+                (isConversationFiles() || isRecycleBin() || (isAllFiles() && bulkOfflineActionsEnabled)),
         isOnline = isOnline,
         isSelfUserViewerOnly = isSelfUserViewerOnly,
         scope = viewModelScope,
     )
     internal val selectedNodes: StateFlow<Map<String, CellNodeUi>> = bulkSelection.selectedNodes
     internal val isBulkSelectionEnabled: StateFlow<Boolean> = bulkSelection.isEnabled
-
-    /** Whether the bulk actions bar offers the offline actions (make available / remove offline access). */
-    val bulkOfflineActionsEnabled: Boolean = offlineFilesEnabled && driveOfflineEnabled
 
     /** At least one selected file can be saved for offline use, see [canBeMadeAvailableOffline]. */
     internal val canMakeSelectionAvailableOffline: StateFlow<Boolean> = selectedNodes

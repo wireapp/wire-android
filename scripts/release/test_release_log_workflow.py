@@ -121,6 +121,22 @@ class ReporterWorkflowTest(unittest.TestCase):
         self.assertIn("if: github.ref == format('refs/heads/{0}', github.event.repository.default_branch)", header)
 
 
+class PrereleaseSkipTest(unittest.TestCase):
+    def setUp(self):
+        text = (WORKFLOWS / "release-log.yml").read_text()
+        self.condition = re.search(r"(?m)^    if: (.*)$", job_block(text, "report")).group(1)
+
+    def test_production_runs_of_prerelease_tags_are_skipped(self):
+        self.assertRegex(
+            self.condition,
+            r"&& !\(github\.event\.workflow_run\.name == 'Production' "
+            r"&& contains\(github\.event\.workflow_run\.head_branch, '-'\)\)")
+
+    def test_the_default_branch_guard_stays(self):
+        self.assertIn("github.ref == format('refs/heads/{0}', github.event.repository.default_branch)",
+                      self.condition)
+
+
 class MakeEntrypointTest(unittest.TestCase):
     def dry_run(self, *arguments):
         return subprocess.run(["make", "-n", *arguments], cwd=ROOT, capture_output=True, text=True)

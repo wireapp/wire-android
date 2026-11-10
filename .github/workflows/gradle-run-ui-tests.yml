@@ -85,7 +85,7 @@ jobs:
 
       - name: Upload instrumentation diagnostics
         if: always()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           name: ui-test-diagnostics-${{ matrix.api-level }}-${{ inputs.artifact-suffix }}
           if-no-files-found: warn
@@ -106,7 +106,7 @@ jobs:
           zip -r integration-tests-android_${{ env.COMMIT_HASH }}.zip acceptanceTests/flavors/
 
       - name: Upload zipped test results
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           name: integration-tests-android_${{ env.COMMIT_HASH }}-${{ inputs.artifact-suffix }}
           path: integration-tests-android_${{ env.COMMIT_HASH }}.zip

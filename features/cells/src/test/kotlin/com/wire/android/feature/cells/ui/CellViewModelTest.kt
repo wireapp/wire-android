@@ -1851,6 +1851,7 @@ class CellViewModelTest {
                 driveDirectUploadEnabled = true,
                 driveBulkActionsEnabled = true,
                 driveOfflineEnabled = true,
+                bulkRestoreEnabled = true,
             )
         }
     }

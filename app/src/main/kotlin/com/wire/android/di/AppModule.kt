@@ -147,6 +147,10 @@ object AppModule {
     fun provideDriveOfflineEnabled(): Boolean = BuildConfig.DRIVE_OFFLINE_ENABLED
 
     @Provides
+    @Named("driveBulkRestoreEnabled")
+    fun provideDriveBulkRestoreEnabled(): Boolean = BuildConfig.DRIVE_BULK_RESTORE_ENABLED
+
+    @Provides
     @Named("meetingsGuestsLinksEnabled")
     fun provideMeetingsGuestsLinksEnabled(): Boolean = BuildConfig.MEETINGS_GUESTS_LINKS_ENABLED
 

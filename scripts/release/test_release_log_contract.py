@@ -144,6 +144,16 @@ class ValidateRecordTest(unittest.TestCase):
         self.assertEqual(results["total"], sum(results[key] for key in ("passed", "failed", "skipped", "missing")))
         contract.validate_record(record)
 
+    def test_the_rerun_count_cannot_exceed_the_passed_count(self):
+        self.assertRejected("regression", lambda r: r["results"].update(passed_on_rerun=r["results"]["passed"] + 1))
+        self.assertRejected("regression", lambda r: r["results"].update(passed_on_rerun=9999))
+        record = load("regression")
+        record["results"]["passed_on_rerun"] = record["results"]["passed"]
+        contract.validate_record(record)
+        record["results"]["passed"] = None
+        record["results"]["total"] = None
+        contract.validate_record(record)
+
     def test_unavailable_counts_are_allowed_and_stay_null(self):
         record = load("regression")
         record["results"] = {key: None for key in record["results"]}
@@ -276,7 +286,7 @@ class BuildFieldsTest(unittest.TestCase):
 
     def test_missing_or_empty_results_are_incomplete_never_a_pass(self):
         for change in [dict(passed=None, failed=None, skipped=None, missing=None, selected=None, total=None),
-                       dict(passed=0, failed=0, skipped=0, missing=0, selected=0, total=0)]:
+                       dict(passed=0, failed=0, skipped=0, missing=0, selected=0, total=0, passed_on_rerun=0)]:
             with self.subTest(change=change):
                 payload = load("payload_regression")
                 payload["evidence"]["qa"]["results"].update(change)
@@ -502,13 +512,15 @@ class RegressionCountsTest(unittest.TestCase):
         contract.validate_record(record)
 
     def test_a_run_that_executed_nothing_is_never_a_pass(self):
-        fields = self.fields(passed=0, failed=0, skipped=421, missing=0, selected=421, total=421)
+        fields = self.fields(passed=0, failed=0, skipped=421, missing=0, selected=421, total=421,
+                           passed_on_rerun=0)
         self.assertEqual(fields["result"], "partial")
         self.assertIn("No tests were executed", fields["gaps"])
         self.assertIn("0 passed, 0 failed, 421 skipped, 0 missing", fields["tests"])
 
     def test_a_run_with_only_missing_results_is_never_a_pass(self):
-        fields = self.fields(passed=0, failed=0, skipped=0, missing=5, selected=5, total=5)
+        fields = self.fields(passed=0, failed=0, skipped=0, missing=5, selected=5, total=5,
+                           passed_on_rerun=0)
         self.assertEqual(fields["result"], "partial")
         self.assertIn("No tests were executed", fields["gaps"])
 

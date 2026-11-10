@@ -155,6 +155,8 @@ def _results(results, mode):
     parts = [results[key] for key in ("passed", "failed", "skipped", "missing")]
     if results["total"] is not None and None not in parts and results["total"] != sum(parts):
         raise ValueError("results.total must equal passed + failed + skipped + missing")
+    if None not in (results["passed"], results["passed_on_rerun"]) and results["passed_on_rerun"] > results["passed"]:
+        raise ValueError("results.passed_on_rerun must not exceed results.passed")
     if None not in (results["selected"], results["total"]):
         if results["selected"] > results["total"]:
             raise ValueError("results.selected must not exceed results.total")

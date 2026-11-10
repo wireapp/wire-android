@@ -40,6 +40,25 @@ A missing result is a gap and never a pass. A run with no executed test, or with
 
 Only a run that a tag push started (Beta) or a `release` event started (Production) is a release run. The reporter checks the event and the run's `head_branch`. A manual run, or a run from a branch, is not reported, even if the branch is named like a tag. This stops a user with write access from forging an entry with a modified workflow. A skipped run writes no payload, logs `Release log: run <id> is not a release run, nothing to report`, and ends green.
 
+## Production regression evidence
+
+Only a manual run of `qa-android-prod-tests.yml` with the `production` flavor writes a regression record. Scheduled runs, the other QA workflows, and runs of other flavors write none. The `TAGS` value does not identify a production regression, because scheduled runs use `@RC` too. A deflake run of a production regression writes a record as well.
+
+The QA execution job adds two steps after the test summary and before cleanup: `Export release log QA record` and `Upload release log QA record`. Both continue on error and run after failed tests. A cancelled run writes nothing, and the page shows the evidence as unavailable. The artifact is `release-log-qa-<run id>-<attempt>`, kept for 90 days. For a manual run, `<run id>` is the run of `qa-android-prod-tests.yml`, because it calls the shared regression workflow.
+
+The record holds:
+
+- The SHA-256 of the downloaded APK files, under the APK names from the download step. A run that cannot read an APK records no digest and appears as unmatched.
+- The suite, the `TAGS` selector, the mode (`full` or `deflake`), the retry count, the report link, and the test counts.
+- The tests commit. For a deflake run, this is the restored test revision.
+- A fingerprint of the deflake bundle this run wrote, and for a deflake run, the fingerprint of the bundle it used.
+
+Test counts follow `total = passed + failed + skipped + missing`. A deflake run also needs `selected = total`. Counts that contradict each other are dropped and the entry shows no results. The recovered count, `passed on rerun`, comes from the retry state files and not from the Allure summary. A missing result, a run that executed no test, and an empty full run are gaps and never a pass.
+
+Normal runs of the production workflow use two retries. A deflake run uses no retries unless the dispatch sets a count from 0 to 3. A test pins both defaults.
+
+To write the record by hand from the QA step environment, run `make release-log/qa-export output=evidence.json`.
+
 ## The Confluence side
 
 The rule lives in the Confluence automation settings. This repository documents none of it. The field table above is the contract between the reporter and the rule, so a change to a field name needs the same change in the rule. The rule's owner keeps the setup notes.

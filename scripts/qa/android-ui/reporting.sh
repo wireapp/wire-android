@@ -4,7 +4,7 @@ set -euo pipefail
 # Reporting and publication utilities for QA Android UI test workflows.
 
 usage() {
-  echo "Usage: $0 {remove-runtime-secrets|pull-allure-results|combine-retry-state|prepare-deflake-bundle|merge-allure-results|summarize-allure-results|generate-allure-report|publish-allure-report|cleanup-devices|cleanup-workspace}" >&2
+  echo "Usage: $0 {remove-runtime-secrets|pull-allure-results|combine-retry-state|prepare-deflake-bundle|merge-allure-results|summarize-allure-results|export-qa-release-log|generate-allure-report|publish-allure-report|cleanup-devices|cleanup-workspace}" >&2
   exit 2
 }
 
@@ -119,6 +119,14 @@ summarize_allure_results() {
   : "${GITHUB_OUTPUT:?GITHUB_OUTPUT not set}"
 
   python3 scripts/qa/android-ui/summarize_allure_results.py
+}
+
+export_qa_release_log() {
+  : "${RELEASE_LOG_OUTPUT:?RELEASE_LOG_OUTPUT not set}"
+
+  # Evidence only. The Python exporter writes nothing for runs that are not
+  # production regressions, and never reads or changes test results.
+  python3 scripts/qa/android-ui/export_release_log.py --output "${RELEASE_LOG_OUTPUT}"
 }
 
 generate_allure_report() {
@@ -338,6 +346,9 @@ case "${1:-}" in
     ;;
   summarize-allure-results)
     summarize_allure_results
+    ;;
+  export-qa-release-log)
+    export_qa_release_log
     ;;
   generate-allure-report)
     generate_allure_report

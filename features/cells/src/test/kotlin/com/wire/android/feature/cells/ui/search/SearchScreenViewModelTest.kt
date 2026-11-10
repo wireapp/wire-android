@@ -21,6 +21,8 @@ import androidx.paging.LoadState
 import androidx.paging.LoadStates
 import androidx.paging.PagingData
 import com.wire.android.feature.cells.ui.CellFileLocalPathCache
+import com.wire.android.feature.cells.ui.OfflineDownloadStates
+import com.wire.android.feature.cells.ui.offline.SessionOfflineDownloads
 import com.wire.android.feature.cells.ui.search.filter.data.FilterConversationUi
 import com.wire.android.feature.cells.ui.search.filter.data.FilterTagUi
 import com.wire.android.feature.cells.ui.search.sort.SortBy
@@ -41,8 +43,10 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
+import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
@@ -86,6 +90,9 @@ class SearchScreenViewModelTest {
     private lateinit var observeOfflineFiles: ObserveOfflineFilesUseCase
 
     private val sharedPathCache = CellFileLocalPathCache()
+    private val offlineDownloads = mockk<SessionOfflineDownloads> {
+        every { states } returns MutableStateFlow(OfflineDownloadStates())
+    }
 
     @BeforeEach
     fun setup() {
@@ -168,6 +175,7 @@ class SearchScreenViewModelTest {
             getOwners = getOwners,
             getPaginatedConversations = getPaginatedConversations,
             sharedPathCache = sharedPathCache,
+            offlineDownloads = offlineDownloads,
             observeOfflineFiles = observeOfflineFiles,
         )
         advanceUntilIdle()
@@ -413,6 +421,7 @@ class SearchScreenViewModelTest {
             getOwners = getOwners,
             getPaginatedConversations = getPaginatedConversations,
             sharedPathCache = sharedPathCache,
+            offlineDownloads = offlineDownloads,
             observeOfflineFiles = observeOfflineFiles,
         )
     }
@@ -429,6 +438,7 @@ class SearchScreenViewModelTest {
             getOwners = getOwners,
             getPaginatedConversations = getPaginatedConversations,
             sharedPathCache = sharedPathCache,
+            offlineDownloads = offlineDownloads,
             observeOfflineFiles = observeOfflineFiles,
         )
     }
@@ -442,6 +452,7 @@ class SearchScreenViewModelTest {
             getOwners = getOwners,
             getPaginatedConversations = getPaginatedConversations,
             sharedPathCache = sharedPathCache,
+            offlineDownloads = offlineDownloads,
             observeOfflineFiles = observeOfflineFiles,
         )
     }
@@ -454,6 +465,7 @@ class SearchScreenViewModelTest {
             getOwners = getOwners,
             getPaginatedConversations = getPaginatedConversations,
             sharedPathCache = sharedPathCache,
+            offlineDownloads = offlineDownloads,
             observeOfflineFiles = observeOfflineFiles,
         )
     }

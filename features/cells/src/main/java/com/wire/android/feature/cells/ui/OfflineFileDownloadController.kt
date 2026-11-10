@@ -180,6 +180,12 @@ class OfflineFileDownloadController @Inject constructor(
         }
     }
 
+    internal fun isDownloading(uuid: String): Boolean = activeJobs.containsKey(uuid)
+
+    internal fun cancelAll(scope: CoroutineScope) {
+        activeJobs.keys.toList().forEach { cancel(it, scope) }
+    }
+
     /** Free space left where offline files are stored, see [cellFileDestination]. */
     internal fun availableStorageBytes(): Long = fileHelper.getExternalFilesDir().usableSpace
 

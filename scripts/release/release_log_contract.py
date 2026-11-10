@@ -155,8 +155,10 @@ def _results(results, mode):
     parts = [results[key] for key in ("passed", "failed", "skipped", "missing")]
     if results["total"] is not None and None not in parts and results["total"] != sum(parts):
         raise ValueError("results.total must equal passed + failed + skipped + missing")
-    if mode == "deflake" and None not in (results["selected"], results["total"]):
-        if results["selected"] != results["total"]:
+    if None not in (results["selected"], results["total"]):
+        if results["selected"] > results["total"]:
+            raise ValueError("results.selected must not exceed results.total")
+        if mode == "deflake" and results["selected"] != results["total"]:
             raise ValueError("deflake requires selected to equal total")
 
 
@@ -208,7 +210,7 @@ def validate_record(record):
 
 KINDS = ("beta", "production", "regression")
 FIELD_NAMES = ("releaseVersion", "kind", "result", "runUrl", "commit", "apkName", "apkSha256", "buildRunUrl",
-               "deploy", "tests", "gaps")
+               "deploy", "tests", "gaps", "eventId")
 CONCLUSIONS = ("success", "failure", "cancelled", "timed_out", "skipped", "neutral", "action_required",
                "startup_failure", "stale")
 UNMATCHED = "unmatched"
@@ -367,9 +369,14 @@ def _tests(kind, qa, conclusion):
         parts = ["results unavailable"]
         gaps.append("Test results are missing or empty")
     else:
-        parts = ["%d passed, %d failed, %d skipped, %d missing" % tuple(counts)]
+        text = "%d passed, %d failed, %d skipped, %d missing" % tuple(counts)
+        if results["passed_on_rerun"]:
+            text += ", %d passed on rerun" % results["passed_on_rerun"]
+        parts = [text]
         if results["missing"]:
             gaps.append("Selected tests are missing results")
+        if not results["passed"] + results["failed"]:
+            gaps.append("No tests were executed")
     parts.append("selector " + _plain(qa["selector"]))
     if qa["report_url"]:
         parts.append("report " + _link(qa["report_url"]))
@@ -419,6 +426,7 @@ def build_fields(payload):
         "deploy": deploy,
         "tests": tests,
         "gaps": "; ".join(_sentence(gap) for gap in gaps) if gaps else "none",
+        "eventId": payload["event_id"],
     }
     return {name: _clean(value) for name, value in fields.items()}
 

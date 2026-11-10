@@ -28,10 +28,13 @@ Regression runs join the log in a later change.
 | `apkName`, `apkSha256` | The final signed APK, after signing lineage. |
 | `buildRunUrl` | The matched build run, for a regression only. |
 | `deploy` | The result of each release job. |
-| `tests` | Test counts, selector, and report link, for a regression only. |
+| `tests` | Test counts, selector, and report link, for a regression only. A test that failed first and passed on a rerun shows as `N passed on rerun`. |
 | `gaps` | `none`, or each missing or unverified item. |
+| `eventId` | The event identity, `<kind>:<repository>:<run id>:<attempt>`. A replay carries the same value. |
 
-A missing result is a gap and never a pass. A run whose evidence file is missing still gets an entry that says so.
+`eventId` is the twelfth field. Add it to the webhook rule's field list and show it in the entry, so a replay is easy to spot on the page. The rule needs this change before the reporter sends the field.
+
+A missing result is a gap and never a pass. A run with no executed test, or with more selected tests than counted tests, is never a pass either. A run whose evidence file is missing still gets an entry that says so.
 
 ## Manual and branch runs of a release workflow are skipped
 

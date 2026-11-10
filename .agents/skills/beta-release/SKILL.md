@@ -1,6 +1,7 @@
 ---
 name: beta-release
-description: Cut the Wire Android beta at the end of a sprint. Branches release/cycle-X.Y from develop (and kalium release/android-cycle-X.Y), tags vX.Y.Z-beta.N and the matching Kalium tag, watches the pipeline, bumps develop, drafts the changelog and the announcement. Use when asked to release, publish, tag or retry a beta.
+description: Cut a Wire Android internal beta from a release/cycle branch. Tags the build and Kalium, writes the changelog and announcement, bumps develop.
+disable-model-invocation: true
 ---
 
 # Beta release

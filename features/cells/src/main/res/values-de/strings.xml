@@ -353,4 +353,6 @@
     <string name="cells_empty_recycle_bin_confirm">Leeren</string>
     <string name="cells_empty_recycle_bin_success">Papierkorb wurde geleert</string>
     <string name="cells_empty_recycle_bin_failure_title">Papierkorb nicht geleert</string>
+    <string name="cells_bulk_offline_confirmation_button">Herunterladen</string>
+    <string name="cells_bulk_offline_not_enough_storage_title">Nicht genügend Speicherplatz</string>
 </resources>

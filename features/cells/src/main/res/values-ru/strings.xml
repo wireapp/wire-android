@@ -115,6 +115,7 @@
     <string name="loading_files">Загрузка файлов…</string>
     <string name="tap_to_cancel_loading">Нажмите, чтобы отменить загрузку</string>
     <string name="tap_to_cancel_download">Нажмите, чтобы отменить загрузку</string>
+    <string name="tap_to_cancel_queued_download">Ожидание загрузки. Нажмите, чтобы отменить</string>
     <string name="unable_to_load_retry">Не удалось загрузить, повторите попытку</string>
     <string name="ready_to_open">Готов к открытию</string>
     <string name="cancel_loading_label">Отменить загрузку…</string>
@@ -424,5 +425,13 @@
     <string name="cells_empty_recycle_bin_failure_title">Корзина не очищена</string>
     <string name="cells_empty_recycle_bin_failure_message">При очистке корзины произошла ошибка. Некоторые из элементов, возможно, были удалены без возможности восстановления, поэтому перед повторной попыткой проверьте корзину.</string>
     <string name="cells_empty_recycle_bin_failure_message_no_network">При очистке корзины было потеряно подключение. Некоторые из элементов, возможно, были удалены без возможности восстановления, поэтому перед повторной попыткой проверьте корзину.</string>
+    <plurals name="cells_bulk_offline_confirmation_title">
+        <item quantity="one">Сделать %1$d файл доступным оффлайн?</item>
+        <item quantity="few">Сделать %1$d файла доступными оффлайн?</item>
+        <item quantity="many">Сделать %1$d файлов доступными оффлайн?</item>
+        <item quantity="other">Сделать %1$d файла доступными оффлайн?</item>
+    </plurals>
+    <string name="cells_bulk_offline_confirmation_button">Скачать</string>
+    <string name="cells_bulk_offline_not_enough_storage_title">Недостаточно места</string>
     <string name="cells_bulk_action_remove_offline">Удалить оффлайн</string>
 </resources>

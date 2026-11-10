@@ -708,6 +708,15 @@ private fun com.wire.android.feature.cells.ui.dialog.RanOutOfStorageDialog(dialo
     - onDismiss: STABLE (function type)
 
 @Composable
+private fun com.wire.android.feature.cells.ui.dialog.RemoveOfflineConfirmationDialog(confirmation: com.wire.android.feature.cells.ui.dialog.BulkOfflineDialog.RemoveConfirmation, onConfirm: kotlin.Function0<kotlin.Unit>, onDismiss: kotlin.Function0<kotlin.Unit>): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - confirmation: RUNTIME (requires runtime check)
+    - onConfirm: STABLE (function type)
+    - onDismiss: STABLE (function type)
+
+@Composable
 private fun com.wire.android.feature.cells.ui.dialog.SheetContent(menuOptions: com.wire.android.feature.cells.ui.MenuOptions, showViewerOnlyIcon: kotlin.Boolean, onAction: kotlin.Function1<com.wire.android.feature.cells.ui.model.NodeBottomSheetAction, kotlin.Unit>): kotlin.Unit
   skippable: true
   restartable: true

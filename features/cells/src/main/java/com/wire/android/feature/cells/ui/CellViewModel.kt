@@ -41,6 +41,8 @@ import com.wire.android.feature.cells.ui.model.isOfflineDownloadPending
 import com.wire.android.feature.cells.ui.model.localFileAvailable
 import com.wire.android.feature.cells.ui.model.pdfRenditionUrl
 import com.wire.android.feature.cells.ui.model.toUiModel
+import com.wire.android.feature.cells.ui.offline.OfflineDownloadEvent
+import com.wire.android.feature.cells.ui.offline.SessionOfflineDownloads
 import com.wire.android.feature.cells.ui.search.DriveSearchScreenType
 import com.wire.android.feature.cells.ui.search.SearchNavArgs
 import com.wire.android.feature.cells.ui.search.defaultCriteriaFor
@@ -132,7 +134,7 @@ class CellViewModel @AssistedInject constructor(
     private val getWireCellsConfig: GetWireCellConfigurationUseCase,
     private val sharedPathCache: CellFileLocalPathCache,
     private val openFileDownloadController: OpenFileDownloadController,
-    private val offlineFileDownloadController: OfflineFileDownloadController,
+    private val offlineDownloads: SessionOfflineDownloads,
     private val observeOfflineFiles: ObserveOfflineFilesUseCase,
     private val deleteOfflineFile: DeleteOfflineFileUseCase,
     private val getOfflineFile: GetOfflineFileUseCase,
@@ -171,11 +173,18 @@ class CellViewModel @AssistedInject constructor(
     val isDeleteInProgress = _isDeleteInProgress.asStateFlow()
 
     // Kept in the state, not sent as actions, so the dialogs survive configuration changes.
-    /** Bulk "make available offline" queues still holding files; kept to cancel queued files and clean up. */
-    private val bulkOfflineQueues = mutableListOf<BulkOfflineDownloadQueue>()
-
     private val _bulkOfflineDialog = MutableStateFlow<BulkOfflineDialog?>(null)
     internal val bulkOfflineDialog: StateFlow<BulkOfflineDialog?> = _bulkOfflineDialog.asStateFlow()
+
+    /**
+     * The offline download requests made from this screen, by id, and whether each was a bulk one. Downloads run in the
+     * background for the whole app: only this screen reports how its own requests went, and only while it's around.
+     */
+    private val offlineRequests = mutableMapOf<Long, Boolean>()
+
+    init {
+        viewModelScope.launch { offlineDownloads.events.collect(::onOfflineDownloadEvent) }
+    }
 
     private val _bulkDeleteDialog = MutableStateFlow<BulkDeleteDialog?>(null)
     internal val bulkDeleteDialog: StateFlow<BulkDeleteDialog?> = _bulkDeleteDialog.asStateFlow()
@@ -410,7 +419,7 @@ class CellViewModel @AssistedInject constructor(
                     removedItemsFlow,
                     sharedPathCache.openLoadStates,
                     observeOfflineFiles(),
-                    sharedPathCache.offlineDownloadStates,
+                    offlineDownloads.states,
                 ) { pagingData, removedItems, openLoadStates, offlineFiles, downloadStates ->
                     val offlineUuids = offlineFiles.map { it.id }.toSet()
                     var emittedRefreshDone = false
@@ -452,8 +461,8 @@ class CellViewModel @AssistedInject constructor(
         combine(
             observeOfflineFiles(),
             sharedPathCache.openLoadStates,
-            offlineFileDownloadController.downloadProgresses,
-        ) { offlineFiles, openLoadStates, downloadProgresses ->
+            offlineDownloads.states,
+        ) { offlineFiles, openLoadStates, downloadStates ->
             val entries = buildOfflineListing(
                 currentPath = navArgs.conversationId,
                 offlineFiles = offlineFiles,
@@ -466,7 +475,7 @@ class CellViewModel @AssistedInject constructor(
                             conversationName = entry.info.conversationId?.let { getConversationName(it) },
                             userName = entry.info.owner.ifEmpty { null }?.let { getUserName(it) },
                             openLoadState = openLoadStates[entry.info.id],
-                            downloadProgress = downloadProgresses.downloadProgressOf(entry.info.id),
+                            downloadProgress = downloadStates.progresses.downloadProgressOf(entry.info.id),
                         )
                     }
                 },
@@ -617,7 +626,7 @@ class CellViewModel @AssistedInject constructor(
 
         // Files already on the device are saved without being downloaded again.
         val requiredBytes = files.filterNot { it.localFileAvailable() }.sumOf { it.size ?: 0L }
-        val availableBytes = offlineFileDownloadController.availableStorageBytes()
+        val availableBytes = offlineDownloads.availableStorageBytes()
         _bulkOfflineDialog.value = if (requiredBytes + STORAGE_SAFETY_MARGIN_BYTES > availableBytes) {
             BulkOfflineDialog.NotEnoughStorage(requiredBytes = requiredBytes, availableBytes = availableBytes)
         } else {
@@ -626,51 +635,38 @@ class CellViewModel @AssistedInject constructor(
     }
 
     /**
-     * Saves the files of the confirmed [BulkOfflineDialog.Confirmation] for offline use. Downloads are throttled by
-     * [BulkOfflineDownloadQueue], and one message sums it all up once every download settled.
-     * Running out of storage stops the files still queued: they would fail the same way.
+     * Saves the files of the confirmed [BulkOfflineDialog.Confirmation] for offline use. They download in the background,
+     * see [SessionOfflineDownloads], and one message sums it all up once every download settled.
      */
     private fun makeSelectedNodesAvailableOffline() {
         val files = (_bulkOfflineDialog.value as? BulkOfflineDialog.Confirmation)?.files ?: return
         _bulkOfflineDialog.value = null
         bulkSelection.clear()
-
-        val progress = BulkOfflineProgress(total = files.size, onFinished = ::onBulkOfflineFinished)
-        bulkOfflineQueues.removeAll { it.isDrained }
-        lateinit var queue: BulkOfflineDownloadQueue
-        queue = BulkOfflineDownloadQueue(
-            files = files,
-            pathCache = sharedPathCache,
-            onQueuedFileCancelled = { progress.onCancelled() },
-        ) { file, onSettled ->
-            startOfflineDownload(
-                node = file,
-                onSuccess = {
-                    onSettled()
-                    progress.onSaved()
-                },
-                onError = { error ->
-                    if (error == CellError.NO_SPACE_LEFT) queue.cancelPending()
-                    onSettled()
-                    progress.onFailed(error)
-                },
-                onCancel = {
-                    onSettled()
-                    progress.onCancelled()
-                },
-            )
-        }
-        bulkOfflineQueues += queue
-        queue.start()
+        startOfflineDownloads(files, isBulk = true)
     }
 
-    private fun onBulkOfflineFinished(result: BulkOfflineProgress.Result) {
+    private fun onOfflineDownloadEvent(event: OfflineDownloadEvent) {
+        when (event) {
+            // Lets a tap open the file right away, before the list catches up with its new local path.
+            is OfflineDownloadEvent.FileSaved -> sharedPathCache.recordCompletedPath(event.uuid, event.localPath)
+            is OfflineDownloadEvent.RequestFinished -> {
+                val isBulk = offlineRequests.remove(event.requestId) ?: return
+                onOfflineRequestFinished(event.result, isBulk)
+            }
+        }
+    }
+
+    private fun onOfflineRequestFinished(result: BulkOfflineProgress.Result, isBulk: Boolean) {
         when (result) {
-            is BulkOfflineProgress.Result.Saved -> sendAction(ShowOfflineFilesSaved(result.savedCount))
+            is BulkOfflineProgress.Result.Saved ->
+                sendAction(if (isBulk) ShowOfflineFilesSaved(result.savedCount) else ShowOfflineFileSaved)
+
             is BulkOfflineProgress.Result.Failed -> sendAction(ShowError(result.error))
-            is BulkOfflineProgress.Result.RanOutOfStorage -> {
+            is BulkOfflineProgress.Result.RanOutOfStorage -> if (isBulk) {
                 _bulkOfflineDialog.value =
                     BulkOfflineDialog.RanOutOfStorage(savedCount = result.savedCount, totalCount = result.totalCount)
+            } else {
+                sendAction(ShowError(CellError.NO_SPACE_LEFT))
             }
         }
     }
@@ -679,19 +675,8 @@ class CellViewModel @AssistedInject constructor(
     private fun CellNodeUi.File.canBeMadeAvailableOffline(): Boolean =
         !isAvailableOffline && !isOfflineDownloadPending() && featureFlags.collaboraIntegration && !isEditSupported
 
-    /** Cancels an offline download, whether it is running or still waiting in a bulk queue. */
-    private fun cancelOfflineDownload(uuid: String) {
-        if (bulkOfflineQueues.none { it.cancel(uuid) }) {
-            offlineFileDownloadController.cancel(uuid, viewModelScope)
-        }
-    }
-
-    override fun onCleared() {
-        // The queued flags live in the session-wide cache: drop them, nothing will start these downloads anymore.
-        bulkOfflineQueues.forEach { it.clear() }
-        bulkOfflineQueues.clear()
-        super.onCleared()
-    }
+    /** Cancels an offline download, whether it is running or still waiting for its turn. */
+    private fun cancelOfflineDownload(uuid: String) = offlineDownloads.cancel(uuid)
 
     private fun removeSelectedNodesOfflineAccess() {
         val files = bulkSelection.selectedNodes.value.values
@@ -1130,32 +1115,20 @@ class CellViewModel @AssistedInject constructor(
         }
     }
 
-    private fun makeAvailableOffline(node: CellNodeUi.File) {
-        startOfflineDownload(
-            node = node,
-            onSuccess = { sendAction(ShowOfflineFileSaved) },
-            onError = { sendAction(ShowError(it)) },
-        )
-    }
+    private fun makeAvailableOffline(node: CellNodeUi.File) = startOfflineDownloads(listOf(node), isBulk = false)
 
-    private fun startOfflineDownload(
-        node: CellNodeUi.File,
-        onSuccess: () -> Unit,
-        onError: (CellError) -> Unit,
-        onCancel: () -> Unit = {},
-    ) {
-        offlineFileDownloadController.start(
-            scope = viewModelScope,
-            cellNode = node.copy(
-                // Nodes listed inside a conversation don't carry their conversation id, and
-                // [navArgs.conversationId] is the path of the folder being browsed, so only its
-                // root segment is the conversation the file belongs to.
-                conversationId = node.conversationId ?: rootConversationId,
-            ),
-            onSuccess = { _ -> onSuccess() },
-            onError = onError,
-            onCancel = onCancel,
-        )
+    private fun startOfflineDownloads(files: List<CellNodeUi.File>, isBulk: Boolean) {
+        val requestId = offlineDownloads.download(
+            files.map { file ->
+                file.copy(
+                    // Nodes listed inside a conversation don't carry their conversation id, and
+                    // [navArgs.conversationId] is the path of the folder being browsed, so only its
+                    // root segment is the conversation the file belongs to.
+                    conversationId = file.conversationId ?: rootConversationId,
+                )
+            }
+        ) ?: return
+        offlineRequests[requestId] = isBulk
     }
 
     private fun removeOfflineAccess(node: CellNodeUi.File) = viewModelScope.launch {

@@ -19,72 +19,80 @@ package com.wire.android.feature.cells.ui
 
 import com.wire.android.feature.cells.ui.model.CellNodeUi
 
+/** A file waiting in [BulkOfflineDownloadQueue], with what to tell its request once its download settled. */
+internal class QueuedOfflineDownload(
+    val file: CellNodeUi.File,
+    val onSaved: (localPath: String) -> Unit,
+    val onFailed: (CellError) -> Unit,
+    val onCancelled: () -> Unit,
+)
+
 /**
- * Throttles the downloads of one "make available offline" bulk action:
+ * Throttles the offline downloads of one account, whichever request they come from (single file or bulk):
  * - files larger than [largeFileThresholdBytes] go first, one at a time, with nothing else downloading alongside;
- * - the other files then download at most [maxConcurrentDownloads] at a time.
+ * - the other files download at most [maxConcurrentDownloads] at a time.
  *
  * [startDownload] must start the download of the given file and call `onSettled` exactly once when it ends,
  * whether it succeeded, failed or got cancelled, so the next queued file can start.
  *
  * Files waiting for their turn are flagged as queued in [pathCache] so the list can show it; [cancel] takes one out
- * of the queue and reports it through [onQueuedFileCancelled].
+ * of the queue and reports it through [QueuedOfflineDownload.onCancelled].
  */
 internal class BulkOfflineDownloadQueue(
-    files: List<CellNodeUi.File>,
     private val pathCache: CellFileLocalPathCache,
     private val maxConcurrentDownloads: Int = MAX_CONCURRENT_DOWNLOADS,
     private val largeFileThresholdBytes: Long = LARGE_FILE_THRESHOLD_BYTES,
-    private val onQueuedFileCancelled: (file: CellNodeUi.File) -> Unit,
-    private val startDownload: (file: CellNodeUi.File, onSettled: () -> Unit) -> Unit,
+    private val startDownload: (download: QueuedOfflineDownload, onSettled: () -> Unit) -> Unit,
 ) {
-    // Stable sort: large files first, the selection order is kept otherwise.
-    private val pending = ArrayDeque(files.sortedByDescending { it.isLarge() })
+    private val pending = ArrayDeque<QueuedOfflineDownload>()
     private var runningCount = 0
     private var isLargeFileRunning = false
 
-    /** True once every file was started or cancelled; the downloads themselves may still be running. */
-    val isDrained: Boolean
-        @Synchronized get() = pending.isEmpty()
-
-    fun start() {
-        pathCache.setDownloadsQueued(pending.map { it.uuid })
+    /**
+     * Adds [downloads] to the queue: large files go after the large files already waiting but before every small one,
+     * the order is kept otherwise.
+     */
+    @Synchronized
+    fun enqueue(downloads: List<QueuedOfflineDownload>) {
+        if (downloads.isEmpty()) return
+        pathCache.setDownloadsQueued(downloads.map { it.file.uuid })
+        val (large, small) = downloads.partition { it.file.isLarge() }
+        val firstSmallIndex = pending.indexOfFirst { !it.file.isLarge() }.takeIf { it >= 0 } ?: pending.size
+        pending.addAll(firstSmallIndex, large)
+        pending.addAll(small)
         startNextDownloads()
     }
 
-    /** Takes [uuid] out of the queue. Returns false when it isn't waiting in this queue (already started or unknown). */
+    /** True when [uuid] is waiting for its turn. */
+    @Synchronized
+    fun contains(uuid: String): Boolean = pending.any { it.file.uuid == uuid }
+
+    /** Takes [uuid] out of the queue. Returns false when it isn't waiting in the queue (already started or unknown). */
     @Synchronized
     fun cancel(uuid: String): Boolean {
-        val file = pending.firstOrNull { it.uuid == uuid } ?: return false
-        pending.remove(file)
+        val download = pending.firstOrNull { it.file.uuid == uuid } ?: return false
+        pending.remove(download)
         pathCache.clearDownloadsQueued(listOf(uuid))
-        onQueuedFileCancelled(file)
+        download.onCancelled()
         // A cancelled large file at the head of the queue may have been holding the others back.
         startNextDownloads()
         return true
     }
 
-    /** Cancels every file still waiting, reporting each through [onQueuedFileCancelled]. */
+    /** Cancels every file still waiting, reporting each through [QueuedOfflineDownload.onCancelled]. */
     @Synchronized
     fun cancelPending() {
         val cancelled = pending.toList()
         pending.clear()
-        pathCache.clearDownloadsQueued(cancelled.map { it.uuid })
-        cancelled.forEach(onQueuedFileCancelled)
-    }
-
-    /** Drops every file still waiting, without reporting them: used when the screen goes away. */
-    @Synchronized
-    fun clear() {
-        pathCache.clearDownloadsQueued(pending.map { it.uuid })
-        pending.clear()
+        pathCache.clearDownloadsQueued(cancelled.map { it.file.uuid })
+        cancelled.forEach { it.onCancelled() }
     }
 
     @Synchronized
     private fun startNextDownloads() {
         while (pending.isNotEmpty()) {
             val next = pending.first()
-            val canStart = if (next.isLarge()) {
+            val canStart = if (next.file.isLarge()) {
                 runningCount == 0
             } else {
                 !isLargeFileRunning && runningCount < maxConcurrentDownloads
@@ -93,10 +101,10 @@ internal class BulkOfflineDownloadQueue(
 
             pending.removeFirst()
             runningCount++
-            if (next.isLarge()) isLargeFileRunning = true
-            startDownload(next, onSettled(next))
+            if (next.file.isLarge()) isLargeFileRunning = true
+            startDownload(next, onSettled(next.file))
             // Only now: the download flagged the file as downloading, so it never shows up as idle in between.
-            pathCache.clearDownloadsQueued(listOf(next.uuid))
+            pathCache.clearDownloadsQueued(listOf(next.file.uuid))
         }
     }
 

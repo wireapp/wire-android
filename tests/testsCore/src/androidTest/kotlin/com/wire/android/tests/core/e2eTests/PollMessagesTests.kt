@@ -39,7 +39,7 @@ class PollMessagesTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4472", "TC-4473")
+    @TestCaseId("TC-12555", "TC-12556")
     @Category("regression", "RC", "polls")
     @Test
     fun givenGroupConversation_whenIReceivePollAndVote_thenPollIsDisplayedAndVoteIsSelected() {
@@ -84,7 +84,7 @@ class PollMessagesTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4474")
+    @TestCaseId("TC-12557")
     @Category("regression", "RC", "polls")
     @Test
     fun givenIAlreadyVotedInGroupConversationPoll_whenISelectAnotherOption_thenMyVoteIsChanged() {

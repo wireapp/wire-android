@@ -122,8 +122,9 @@ fun MessageBubbleItem(
                 } else {
                     colorsScheme().otherBubble.primary
                 }
+                val isUnsupported = message.messageContent is UIMessageContent.Unknown
                 val bubbleColor = when {
-                    messageStatus.isDeleted || message.decryptionFailed -> {
+                    messageStatus.isDeleted || message.decryptionFailed || isUnsupported -> {
                         colorsScheme().surface
                     }
 
@@ -135,7 +136,7 @@ fun MessageBubbleItem(
                 }
 
                 val borderColor = when {
-                    message.decryptionFailed -> MaterialTheme.wireColorScheme.outline
+                    message.decryptionFailed || isUnsupported -> MaterialTheme.wireColorScheme.outline
                     messageStatus.isDeleted -> if (isSelfMessage) {
                         accent.color(MaterialTheme.wireColorScheme.primary)
                     } else {

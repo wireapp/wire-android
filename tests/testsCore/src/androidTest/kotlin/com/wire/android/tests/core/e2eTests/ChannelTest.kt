@@ -47,7 +47,7 @@ class ChannelTest : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-10985", "TC-10986", "TC-10992")
+    @TestCaseId("TC-12746", "TC-12747", "TC-12753")
     @Category("channels", "regression", "RC")
     @Test
     fun givenTeamMemberWithChannelFeatureEnabled_whenCreatingChannelWithTeammateAndDeletingCreatedChannel_thenChannelConversationIsCreatedAndDeleted() {
@@ -286,7 +286,7 @@ class ChannelTest : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-10988", "TC-10989", "TC-10990")
+    @TestCaseId("TC-12749", "TC-12750", "TC-12751")
     @Category("channels", "regression", "RC")
     @Test
     fun givenTeamMemberWithChannelFeatureEnabled_whenLeavingChannel_thenChannelHistoryRemainsVisibleAndNewMessagesAreNotVisible() {
@@ -533,7 +533,7 @@ class ChannelTest : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-10993", "TC-10994", "TC-10996")
+    @TestCaseId("TC-12754", "TC-12755", "TC-12757")
     @Category("channels", "regression", "RC")
     @Test
     fun givenChannelConversationDeleted_whenSendingAndReceivingMessages_thenMessagesAreSentAndReceivedSuccessfully() {
@@ -796,7 +796,7 @@ class ChannelTest : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-10991", "TC-10995", "TC-10998")
+    @TestCaseId("TC-12752", "TC-12756", "TC-12759")
     @Category("channels", "regression", "RC")
     @Test
     fun givenChannelConversationMembersAreRemovedAndAdded_whenViewingParticipantList_thenParticipantListIsUpdatedCorrectly() {
@@ -1010,7 +1010,7 @@ class ChannelTest : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-11000")
+    @TestCaseId("TC-12760")
     @Category("channels", "regression", "RC")
     @Test
     fun givenExternalUserInTeam_whenAttemptingToCreateChannelConversation_thenChannelConversationCannotBeCreated() {
@@ -1100,7 +1100,7 @@ class ChannelTest : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-10987")
+    @TestCaseId("TC-12748")
     @Category("channels", "regression", "RC")
     @Test
     fun givenUserIsNotCreatorOfChannelConversation_whenViewingChannelConversationOptions_thenDeleteConversationButtonIsNotVisible() {
@@ -1318,7 +1318,7 @@ class ChannelTest : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-10997")
+    @TestCaseId("TC-12758")
     @Category("channels", "regression", "RC")
     @Test
     fun givenAnotherChannelConversationIsDeletedByAnotherUser_whenSendingAndReceivingMessagesInRemainingChannel_thenMessagesAreSentAndReceivedSuccessfully() {

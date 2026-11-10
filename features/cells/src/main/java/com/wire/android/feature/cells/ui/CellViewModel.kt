@@ -435,6 +435,7 @@ class CellViewModel @AssistedInject constructor(
                                     downloadProgress = downloadStates.progresses.downloadProgressOf(node.uuid),
                                     isAvailableOffline = node.uuid in offlineUuids,
                                     isDownloadQueued = node.uuid in downloadStates.queued,
+                                    pausedDownloadProgress = downloadStates.paused[node.uuid],
                                 )
                             }
                         }

@@ -180,7 +180,13 @@ class OfflineDownloadService : Service() {
             .setContentTitle(
                 resources.getQuantityString(R.plurals.notification_offline_download_title, summary.totalCount, summary.totalCount)
             )
-            .setContentText(getString(R.string.notification_offline_download_progress_text, summary.savedCount, summary.totalCount))
+            .setContentText(
+                if (summary.isWaitingForNetwork) {
+                    getString(R.string.notification_offline_download_waiting_for_network_text, summary.savedCount, summary.totalCount)
+                } else {
+                    getString(R.string.notification_offline_download_progress_text, summary.savedCount, summary.totalCount)
+                }
+            )
         // Weighted by bytes rather than file count, so one large file mid-transfer still moves the bar.
         if (summary.totalBytes > 0) {
             builder.setProgress(PROGRESS_MAX, ((summary.downloadedBytes * PROGRESS_MAX) / summary.totalBytes).toInt(), false)

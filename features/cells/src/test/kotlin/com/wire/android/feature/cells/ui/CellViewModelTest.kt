@@ -1666,6 +1666,7 @@ class CellViewModelTest {
                     scope = CoroutineScope(Dispatchers.Main),
                     controller = offlineFileDownloadController,
                     pathCache = sharedPathCache,
+                    networkStateObserver = networkStateObserver,
                 )
             )
 

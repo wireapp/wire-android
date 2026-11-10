@@ -25,6 +25,7 @@ import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.logout.LogoutReason
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.auth.LogoutCallback
+import com.wire.kalium.network.NetworkStateObserver
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
@@ -55,6 +56,7 @@ import kotlinx.coroutines.launch
 class OfflineDownloadManager @Inject constructor(
     @KaliumCoreLogic private val coreLogic: CoreLogic,
     private val fileHelper: FileHelper,
+    private val networkStateObserver: NetworkStateObserver,
 ) {
     // Main, as the screens used to run these downloads: the controller and the queue aren't meant for concurrent calls.
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
@@ -105,6 +107,7 @@ class OfflineDownloadManager @Inject constructor(
                 sharedPathCache = pathCache,
             ),
             pathCache = pathCache,
+            networkStateObserver = networkStateObserver,
         )
     }
 }

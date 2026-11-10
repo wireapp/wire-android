@@ -25,6 +25,7 @@ import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import androidx.paging.map
 import com.wire.android.feature.cells.ui.CellFileLocalPathCache
+import com.wire.android.feature.cells.ui.downloadProgressOf
 import com.wire.android.feature.cells.ui.model.CellNodeUi
 import com.wire.android.feature.cells.ui.model.toUiModel
 import com.wire.android.feature.cells.ui.model.withSessionState
@@ -197,7 +198,7 @@ class SearchScreenViewModel @AssistedInject constructor(
                 if (node is CellNodeUi.File) {
                     node.withSessionState(
                         openLoadState = openLoadStates[node.uuid],
-                        downloadProgress = downloadProgresses[node.uuid],
+                        downloadProgress = downloadProgresses.downloadProgressOf(node.uuid),
                         isAvailableOffline = node.uuid in offlineUuids,
                     )
                 } else {

@@ -44,6 +44,7 @@ internal data object RefreshData : CellViewAction
 internal data class OpenFolder(val path: String, val title: String, val parentFolderUuid: String?) : CellViewAction
 internal data class ShowEditErrorDialog(val nodeUuid: String) : CellViewAction
 internal data object ShowOfflineFileSaved : CellViewAction
+internal data class ShowOfflineFilesSaved(val savedCount: Int) : CellViewAction
 internal data class OpenImageViewer(val file: CellNodeUi.File) : CellViewAction
 internal data class OpenVideoViewer(val file: CellNodeUi.File) : CellViewAction
 internal data class OpenAudioPlayer(val file: CellNodeUi.File) : CellViewAction

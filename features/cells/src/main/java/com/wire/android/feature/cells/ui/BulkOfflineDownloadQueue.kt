@@ -39,7 +39,6 @@ internal class QueuedOfflineDownload(
  * of the queue and reports it through [QueuedOfflineDownload.onCancelled].
  */
 internal class BulkOfflineDownloadQueue(
-    files: List<CellNodeUi.File>,
     private val pathCache: CellFileLocalPathCache,
     private val maxConcurrentDownloads: Int = MAX_CONCURRENT_DOWNLOADS,
     private val largeFileThresholdBytes: Long = LARGE_FILE_THRESHOLD_BYTES,

@@ -109,6 +109,7 @@ import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.withContext
 import okio.Path.Companion.toPath
 import java.io.File
@@ -535,9 +536,13 @@ class CellViewModel @AssistedInject constructor(
             is CellViewIntent.OnEmptyRecycleBinConfirmed -> emptyRecycleBin()
             is CellViewIntent.OnEmptyRecycleBinDialogDismissed -> dismissEmptyRecycleBinDialog()
             is CellViewIntent.OnMakeSelectedNodesAvailableOfflineClick -> showBulkOfflineConfirmation()
-            is CellViewIntent.OnBulkOfflineConfirmed -> makeSelectedNodesAvailableOffline()
+            is CellViewIntent.OnBulkOfflineConfirmed -> when (_bulkOfflineDialog.value) {
+                is BulkOfflineDialog.Confirmation -> makeSelectedNodesAvailableOffline()
+                is BulkOfflineDialog.RemoveConfirmation -> removeSelectedNodesOfflineAccess()
+                else -> _bulkOfflineDialog.value = null
+            }
             is CellViewIntent.OnBulkOfflineDialogDismissed -> _bulkOfflineDialog.value = null
-            is CellViewIntent.OnRemoveSelectedNodesOfflineAccessClick -> removeSelectedNodesOfflineAccess()
+            is CellViewIntent.OnRemoveSelectedNodesOfflineAccessClick -> showRemoveOfflineConfirmation()
 
             is CellViewIntent.OnItemMenuClick -> onItemMenuClick(intent.cellNode)
             is CellViewIntent.OnMenuItemActionSelected -> onMenuItemAction(intent.node, intent.action)
@@ -678,12 +683,26 @@ class CellViewModel @AssistedInject constructor(
     /** Cancels an offline download, whether it is running or still waiting for its turn. */
     private fun cancelOfflineDownload(uuid: String) = offlineDownloads.cancel(uuid)
 
+    /** Asks before removing the offline copy of the selected files; items not saved for offline use are skipped. */
+    private fun showRemoveOfflineConfirmation() {
+        val selected = bulkSelection.selectedNodes.value.values
+        val files = selected.filterIsInstance<CellNodeUi.File>().filter { it.isAvailableOffline }
+        if (files.isEmpty()) return
+        _bulkOfflineDialog.value = BulkOfflineDialog.RemoveConfirmation(files = files, skippedCount = selected.size - files.size)
+    }
+
+    /** Removes the offline copy of the files of the confirmed [BulkOfflineDialog.RemoveConfirmation], then says how many. */
     private fun removeSelectedNodesOfflineAccess() {
-        val files = bulkSelection.selectedNodes.value.values
-            .filterIsInstance<CellNodeUi.File>()
-            .filter { it.isAvailableOffline }
+        val files = (_bulkOfflineDialog.value as? BulkOfflineDialog.RemoveConfirmation)?.files ?: return
+        _bulkOfflineDialog.value = null
         bulkSelection.clear()
-        files.forEach { removeOfflineAccess(it) }
+        viewModelScope.launch {
+            // Local work only, and quick: finish it even if the user leaves the screen meanwhile.
+            withContext(NonCancellable) {
+                files.forEach { deleteOfflineCopy(it) }
+            }
+            sendAction(ShowOfflineAccessRemoved(removedCount = files.size))
+        }
     }
 
     private fun showBulkDeleteConfirmation() {
@@ -1131,7 +1150,10 @@ class CellViewModel @AssistedInject constructor(
         offlineRequests[requestId] = isBulk
     }
 
-    private fun removeOfflineAccess(node: CellNodeUi.File) = viewModelScope.launch {
+    private fun removeOfflineAccess(node: CellNodeUi.File) = viewModelScope.launch { deleteOfflineCopy(node) }
+
+    /** Removes the offline record of [node] and its file on the device. */
+    private suspend fun deleteOfflineCopy(node: CellNodeUi.File) {
         val localPath = getOfflineFile(node.uuid)?.localPath
             ?: node.localPath
             ?: sharedPathCache.getCompletedPath(node.uuid)

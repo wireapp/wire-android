@@ -305,6 +305,15 @@ internal fun CellScreenContent(
                 context.resources.getQuantityString(R.plurals.cells_bulk_offline_success, action.savedCount, action.savedCount),
                 Toast.LENGTH_SHORT
             ).show()
+            is ShowOfflineAccessRemoved -> Toast.makeText(
+                context,
+                context.resources.getQuantityString(
+                    R.plurals.cells_bulk_remove_offline_success,
+                    action.removedCount,
+                    action.removedCount
+                ),
+                Toast.LENGTH_SHORT
+            ).show()
             is OpenImageViewer -> showImageViewer(action.file)
             is OpenVideoViewer -> showVideoViewer(action.file)
             is OpenAudioPlayer -> showAudioPlayer(action.file)

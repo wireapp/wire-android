@@ -584,7 +584,7 @@ internal fun ConversationFilesScreenContent(
                                 offlineActionsEnabled = bulkOfflineActionsEnabled,
                                 canMakeAvailableOffline = canMakeSelectionAvailableOffline,
                                 canRemoveOfflineAccess = canRemoveSelectionOfflineAccess,
-                                bulkRestoreEnabled = bulkRestoreEnabled,
+                                restoreEnabled = bulkRestoreEnabled,
                                 isRecycleBin = isRecycleBin,
                             )
                         },

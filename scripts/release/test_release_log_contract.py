@@ -160,6 +160,13 @@ class ValidateRecordTest(unittest.TestCase):
         contract.validate_record(record)
 
 
+class SkipMarkerTest(unittest.TestCase):
+    def test_the_marker_names_the_run_and_attempt_and_carries_no_evidence(self):
+        self.assertEqual(contract.skip_marker("wireapp/wire-android", 1520, 2),
+                         {"schema_version": 1, "kind": "skip", "repository": "wireapp/wire-android",
+                          "run_id": 1520, "run_attempt": 2})
+
+
 PAYLOADS = ["payload_beta", "payload_failed_build", "payload_regression", "payload_deflake", "payload_unmatched"]
 FIELD_NAMES = {"releaseVersion", "kind", "result", "runUrl", "commit", "apkName", "apkSha256", "buildRunUrl",
                "deploy", "tests", "gaps", "eventId"}

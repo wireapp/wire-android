@@ -1107,6 +1107,7 @@ class RegressionApi:
         self.runs, self.jobs, self.artifacts, self.zips = {}, {}, {}, {}
         self.production, self.calls, self.listing_params = [], [], []
         self.listing_error = None
+        self.default_branch = "develop"
 
     def add_run(self, run, jobs=None):
         self.runs[(run["id"], run["run_attempt"])] = run
@@ -1138,6 +1139,8 @@ class RegressionApi:
     def get(self, path, params=None):
         self.calls.append(path)
         base = "/repos/%s/actions/" % REPO
+        if path == "/repos/" + REPO:
+            return {"default_branch": self.default_branch}
         if path == base + "workflows/build-production.yml/runs":
             self.listing_params.append(dict(params))
             if self.listing_error:
@@ -1209,11 +1212,51 @@ class CollectRegressionTest(unittest.TestCase):
         self.assertIn(UNMATCHED_TEXT, " ".join(payload["evidence"]["gaps"]))
 
     def test_only_manual_production_regression_runs_are_eligible(self):
-        for change in [dict(event="schedule"), dict(event="workflow_call"), dict(event="push"),
-                       dict(path=".github/workflows/qa-android-regression-tests.yml@refs/heads/develop"),
+        for change in [dict(path=".github/workflows/qa-android-regression-tests.yml@refs/heads/develop"),
                        dict(path=".github/workflows/qa-android-beta-tests.yml@refs/heads/develop")]:
             with self.subTest(change=change), self.assertRaises(report.CollectionError):
                 collect_regression(reg_world(**change))
+
+    def test_a_scheduled_or_non_dispatch_run_is_a_clean_skip(self):
+        for event in ("schedule", "workflow_call", "push", "release"):
+            with self.subTest(event=event):
+                api = reg_world(event=event)
+                self.assertIsNone(collect_regression(api))
+                self.assertEqual([c for c in api.calls if "/artifacts" in c or "/git/" in c], [])
+
+    def test_a_dispatch_from_a_feature_branch_cannot_forge_evidence(self):
+        for branch in ("attacker/forge", "release", "releases/4.38", "feature/release/x", "develop-2", None):
+            with self.subTest(branch=branch):
+                api = reg_world(head_branch=branch)
+                self.assertIsNone(collect_regression(api))
+                self.assertEqual([c for c in api.calls if "/artifacts" in c or "/git/" in c or "/jobs" in c], [])
+                self.assertEqual(api.listing_params, [])
+
+    def test_a_dispatch_from_the_default_branch_or_a_release_branch_is_reported(self):
+        for branch, default in [("develop", "develop"), ("release/cycle-4.38.0", "develop"),
+                                ("main", "main")]:
+            with self.subTest(branch=branch, default=default):
+                api = reg_world(head_branch=branch)
+                api.default_branch = default
+                self.assertEqual(collect_regression(api)["kind"], "regression")
+
+    def test_the_default_branch_is_read_once_and_only_for_regressions(self):
+        api = reg_world()
+        collect_regression(api)
+        self.assertEqual(api.calls.count("/repos/" + REPO), 1)
+        beta = FakeApi(artifacts=good_artifacts(), refs=TAG_REFS)
+        collect(beta)
+        self.assertNotIn("/repos/" + REPO, beta.calls)
+
+    def test_a_regression_never_matches_a_build_of_an_ineligible_run(self):
+        for change in [dict(event="workflow_dispatch"), dict(event="push"), dict(head_branch="attacker/forge"),
+                       dict(head_branch="v4.38.0-beta.2")]:
+            with self.subTest(change=change):
+                api = reg_world(production=False)
+                api.add_production(run=prod_run(**change))
+                payload = collect_regression(api)
+                self.assertIsNone(payload["evidence"]["origin"])
+                self.assertIn(UNMATCHED_TEXT, " ".join(payload["evidence"]["gaps"]))
 
     def test_an_unfinished_or_cancelled_run_follows_the_run_rules(self):
         with self.assertRaises(report.CollectionError):
@@ -1567,6 +1610,75 @@ class ProductionEnumerationTest(unittest.TestCase):
         self.assertIsNone(collect_regression(api)["evidence"]["origin"])
 
 
+def skip_zip(**changes):
+    marker = contract.skip_marker(REPO, 1520, 1)
+    marker.update(changes)
+    return zip_of({"skip.json": json.dumps(marker)})
+
+
+def skip_world(artifact_name="release-log-qa-skip-1520-1", content=None, **run_changes):
+    api = RegressionApi()
+    api.add_run(qa_run(**run_changes), qa_jobs())
+    api.add_artifact(1520, artifact_name, skip_zip() if content is None else content)
+    api.add_production()
+    return api
+
+
+class SkippedRegressionTest(unittest.TestCase):
+    def test_a_marker_without_a_record_ends_in_a_clean_skip(self):
+        for conclusion in ("success", "failure"):
+            with self.subTest(conclusion=conclusion):
+                self.assertIsNone(collect_regression(skip_world(conclusion=conclusion)))
+
+    def test_a_missing_marker_and_a_missing_export_is_still_missing_evidence(self):
+        api = RegressionApi()
+        api.add_run(qa_run(), qa_jobs())
+        with self.assertRaises(report.CollectionError) as caught:
+            collect_regression(api)
+        self.assertIn("Regression evidence export is missing", caught.exception.partial["evidence"]["gaps"])
+
+    def test_a_marker_never_turns_a_regression_record_into_a_skip(self):
+        api = reg_world()
+        api.add_artifact(1520, "release-log-qa-skip-1520-1", skip_zip())
+        self.assertEqual(collect_regression(api)["kind"], "regression")
+
+    def test_a_marker_does_not_hide_an_invalid_or_expired_record(self):
+        for expired, content in [(True, qa_record()), (False, b"not a zip")]:
+            with self.subTest(expired=expired):
+                api = skip_world()
+                api.add_artifact(1520, "release-log-qa-1520-1", content, expired=expired)
+                with self.assertRaises(report.CollectionError):
+                    collect_regression(api)
+
+    def test_a_marker_of_another_run_or_attempt_is_not_a_skip(self):
+        for name, content in [("release-log-qa-skip-1520-2", None), ("release-log-qa-skip-1999-1", None),
+                              ("release-log-qa-skip-1520-1", skip_zip(run_id=1999)),
+                              ("release-log-qa-skip-1520-1", skip_zip(run_attempt=2)),
+                              ("release-log-qa-skip-1520-1", skip_zip(repository="other/repo")),
+                              ("release-log-qa-skip-1520-1", skip_zip(kind="regression")),
+                              ("release-log-qa-skip-1520-1", skip_zip(extra="x")),
+                              ("release-log-qa-skip-1520-1", zip_of({"evidence.json": "{}"})),
+                              ("release-log-qa-skip-1520-1", b"not a zip")]:
+            with self.subTest(name=name), self.assertRaises(report.CollectionError):
+                collect_regression(skip_world(name, content))
+
+    def test_two_markers_for_one_run_are_not_a_skip(self):
+        api = skip_world()
+        api.add_artifact(1520, "release-log-qa-skip-1520-1", skip_zip())
+        with self.assertRaises(report.CollectionError):
+            collect_regression(api)
+
+    def test_the_collect_command_writes_no_payload_and_succeeds_on_a_skip(self):
+        with tempfile.TemporaryDirectory() as directory:
+            target = Path(directory) / "payload.json"
+            code, output, errors = CommandLineTest.run_main(
+                self, ["collect", "--repository", REPO, "--run-id", "1520", "--run-attempt", "1",
+                       "--output", str(target)], api=skip_world())
+            self.assertEqual((code, errors), (0, ""))
+            self.assertIn("is not a release run, nothing to report", output)
+            self.assertFalse(target.exists())
+
+
 class UnmatchedRegressionTest(unittest.TestCase):
     def unmatched(self, **record_changes):
         api = reg_world(qa_record(**record_changes), production=False)
@@ -1694,6 +1806,14 @@ class DeflakeAncestryTest(unittest.TestCase):
     def test_a_source_run_that_was_not_manual_fails_attribution(self):
         api = self.chain(source_run=qa_run(event="schedule"))
         self.assertNotAttributed(self.collect(api), "source run is not an eligible regression")
+
+    def test_a_source_run_from_a_branch_fails_attribution(self):
+        api = self.chain(source_run=qa_run(head_branch="attacker/forge"))
+        self.assertNotAttributed(self.collect(api), "source run is not an eligible regression")
+
+    def test_a_source_run_from_a_release_branch_is_accepted(self):
+        api = self.chain(source_run=qa_run(head_branch="release/cycle-4.38.0"))
+        self.assertAttributed(self.collect(api))
 
     def test_a_different_test_revision_fails_attribution(self):
         api = self.chain(source_changes=dict(test_source_sha=OTHER_SHA))

@@ -91,6 +91,32 @@ permissions:
   contents: read
 
 jobs:
+  # A run of another flavor is not a production regression. This job marks it early, so a cancelled run or a
+  # failure before the in-job export is not mistaken for a lost production record.
+  release-log-skip-marker:
+    if: inputs.flavor != 'production'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    continue-on-error: true
+    permissions:
+      contents: read
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+
+      - name: Write the release log skip marker
+        run: make release-log/qa-skip output="${RUNNER_TEMP}/release-log-qa-skip/skip.json"
+
+      - name: Upload release log skip marker
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: release-log-qa-skip-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/release-log-qa-skip/skip.json
+          retention-days: 90
+          if-no-files-found: ignore
+
   run-tests:
     uses: ./.github/workflows/qa-android-regression-tests.yml
     permissions:

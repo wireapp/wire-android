@@ -138,6 +138,13 @@ class PrereleaseSkipTest(unittest.TestCase):
             r"&& !\(github\.event\.workflow_run\.name == 'Production' "
             r"&& contains\(github\.event\.workflow_run\.head_branch, '-'\)\)")
 
+    def test_scheduled_qa_runs_are_skipped_and_the_expression_stays_valid_for_manual_runs(self):
+        self.assertRegex(
+            self.condition,
+            r"&& !\(github\.event\.workflow_run\.name == 'QA Android Prod Regression RC' "
+            r"&& github\.event\.workflow_run\.event == 'schedule'\)")
+        self.assertNotIn("github.event_name", self.condition)
+
     def test_the_default_branch_guard_stays(self):
         self.assertIn("github.ref == format('refs/heads/{0}', github.event.repository.default_branch)",
                       self.condition)

@@ -40,11 +40,13 @@ A missing result is a gap and never a pass. A run with no executed test, or with
 
 Only a run that a tag push started (Beta) or a `release` event started (Production) is a release run. The reporter checks the event and the run's `head_branch`. A manual run, or a run from a branch, is not reported, even if the branch is named like a tag. This stops a user with write access from forging an entry with a modified workflow. A skipped run writes no payload, logs `Release log: run <id> is not a release run, nothing to report`, and ends green.
 
+A regression run of `qa-android-prod-tests.yml` is a release run only when a person dispatched it (`workflow_dispatch`) from the default branch or from a `release/*` branch. A scheduled run, a push, or a dispatch from any other branch is skipped the same way, before the reporter reads any artifact. The reporter reads the default branch from one repository call. A deflake source run must pass the same check. A production build record counts only when its own run was a `release` event on a version tag.
+
 ## Production regression evidence
 
 Only a manual run of `qa-android-prod-tests.yml` with the `production` flavor writes a regression record. Scheduled runs, the other QA workflows, and runs of other flavors write none. The `TAGS` value does not identify a production regression, because scheduled runs use `@RC` too. A deflake run of a production regression writes a record as well.
 
-The QA execution job adds two steps after the test summary and before cleanup: `Export release log QA record` and `Upload release log QA record`. Both continue on error and run after failed tests. A cancelled run writes nothing, and the page shows the evidence as unavailable. The artifact is `release-log-qa-<run id>-<attempt>`, kept for 90 days. For a manual run, `<run id>` is the run of `qa-android-prod-tests.yml`, because it calls the shared regression workflow.
+The QA execution job adds two steps after the test summary and before cleanup: `Export release log QA record` and `Upload release log QA record`. Both continue on error and run after failed tests. A cancelled run writes nothing, and the page shows the evidence as unavailable. Each execution job (normal and deflake) has exactly these two steps and no others for the release log. The artifact is `release-log-qa-<run id>-<attempt>`, kept for 90 days. For a manual run, `<run id>` is the run of `qa-android-prod-tests.yml`, because it calls the shared regression workflow.
 
 The record holds:
 
@@ -69,7 +71,7 @@ A regression that matches no build is still reported. It goes to the page for th
 
 A deflake entry must trace back to a full run. The reporter reads the source run's record and compares two fingerprints: the one in the deflake record, and the one the source run wrote for its bundle. It also checks the tests commit, the suite, and the selector. It follows the chain of source runs until it reaches a full run. A fingerprint that differs, a bundle with no fingerprint, a source with no record, and a chain that repeats all fail the attribution. The entry then appears with the gap and without a build link. The deflake entry keeps its own results and retry count, and the `tests` field says `not a full regression`.
 
-A manual run of the production workflow with another flavor writes no record. The reporter cannot tell that case from a missing export, so such a run shows as an unmatched entry with a missing-evidence gap.
+A manual run with another flavor writes no record. A separate job in `qa-android-prod-tests.yml`, `release-log-skip-marker`, handles it. The job has no `needs`, runs when the `flavor` input is not `production`, continues on error, and has read-only repository access. It runs `make release-log/qa-skip` and uploads a small marker artifact, `release-log-qa-skip-<run id>-<attempt>`, kept for 90 days. The marker holds only the repository, run ID, and attempt. Because the job starts first and needs nothing, a run that is cancelled or fails before the export step still has its marker. No other step uploads that name, so the upload cannot clash within a run. When the record is missing and the marker for that exact run and attempt is present, the reporter ends with no entry and no red run, and the collect step logs that the run is not a release run. A deflake run reuses the flavor of its source, but the job reads the `flavor` input of the dispatch. A deflake dispatched with the default `production` input writes no marker, even for a non-production source. A record always wins over a marker. A missing record with no marker is still missing evidence. The job condition also skips scheduled QA runs, and the reporter skips them again.
 
 ## The Confluence side
 

@@ -33,6 +33,7 @@ help:
 	@printf "  release-log/context         Write the release log context record (event=event.json output=context.json)\n"
 	@printf "  release-log/build           Write the signed APK record (event= flavor= variant= output=)\n"
 	@printf "  release-log/qa-export       Write the production regression record from the QA step environment (output=)\n"
+	@printf "  release-log/qa-skip         Write the marker of a QA run that is not a production regression (output=)\n"
 	@printf "  release-log/collect         Collect release log evidence for a workflow run (run_id= run_attempt= output=)\n"
 	@printf "  release-log/publish         Send a release log entry to Confluence (payload= summary= dry_run=1)\n"
 	@printf "  qa-deflake                  Run Android UI deflake entrypoint\n"

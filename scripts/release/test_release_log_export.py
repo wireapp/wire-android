@@ -530,6 +530,29 @@ class ProductionWorkflowStructureTest(unittest.TestCase):
         self.assertIn('"additional-files": "app/build/outputs/version.txt"', self.text)
 
 
+class QaSkipCommandTest(unittest.TestCase):
+    def run_main(self, **env):
+        values = {"GITHUB_REPOSITORY": "wireapp/wire-android", "GITHUB_RUN_ID": "1520", "GITHUB_RUN_ATTEMPT": "2"}
+        values.update(env)
+        with tempfile.TemporaryDirectory() as directory:
+            output = Path(directory) / "qa" / "skip.json"
+            with patch.dict(os.environ, values, clear=True), redirect_stderr(StringIO()):
+                status = export.main(["qa-skip", "--output", str(output)])
+            return status, (contract.read_json(output) if output.exists() else None)
+
+    def test_it_writes_the_marker_of_this_run_and_attempt(self):
+        status, marker = self.run_main()
+        self.assertEqual(status, 0)
+        self.assertEqual(marker, contract.skip_marker("wireapp/wire-android", 1520, 2))
+
+    def test_it_fails_without_writing_when_the_run_identity_is_bad(self):
+        for change in [dict(GITHUB_RUN_ID="x"), dict(GITHUB_RUN_ID="0"), dict(GITHUB_RUN_ATTEMPT=""),
+                       dict(GITHUB_REPOSITORY="")]:
+            with self.subTest(change=change):
+                status, marker = self.run_main(**change)
+                self.assertEqual((status, marker), (1, None))
+
+
 class MakeTargetTest(unittest.TestCase):
     def dry_run(self, *arguments):
         return subprocess.run(["make", "-n", *arguments], cwd=ROOT, capture_output=True, text=True)

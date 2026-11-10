@@ -451,6 +451,12 @@ def load_json(text):
         raise ValueError("JSON document is nested too deeply") from None
 
 
+def skip_marker(repository, run_id, run_attempt):
+    """The data-only record that says a QA run is not a production regression and has nothing to report."""
+    return {"schema_version": SCHEMA_VERSION, "kind": "skip", "repository": repository, "run_id": run_id,
+            "run_attempt": run_attempt}
+
+
 def read_json(path):
     with open(path, encoding="utf-8") as handle:
         return load_json(handle.read())

@@ -94,6 +94,12 @@ class QaExportStepsTest(unittest.TestCase):
                 self.assertIn("retention-days: 90", block)
                 self.assertIn("if-no-files-found: ignore", block)
 
+    def test_the_execution_jobs_write_no_skip_marker(self):
+        for name, _, job in self.jobs():
+            with self.subTest(job=name):
+                self.assertNotIn("release-log-qa-skip", job)
+                self.assertNotIn("skip.json", job)
+
     def test_the_new_steps_use_no_secrets_and_no_expressions_in_shell(self):
         for name, _, job in self.jobs():
             for step in (EXPORT_STEP, UPLOAD_STEP):
@@ -126,6 +132,89 @@ class QaExportStepsTest(unittest.TestCase):
         self.assertIn("sourceWorkflowFile: .github/workflows/qa-android-prod-tests.yml", prod)
 
 
+PROD = "qa-android-prod-tests.yml"
+EARLY_JOB = "release-log-skip-marker"
+UPLOAD_NAME = re.compile(r"^\s+name: (release-log-[^\n]*)$", re.MULTILINE)
+
+
+def job_names(text):
+    return re.findall(r"^  ([A-Za-z0-9_-]+):\s*$", text.split("\njobs:\n", 1)[1], re.MULTILINE)
+
+
+def artifact_names(block):
+    return UPLOAD_NAME.findall(block)
+
+
+class EarlySkipMarkerJobTest(unittest.TestCase):
+    def setUp(self):
+        self.text = workflow(PROD)
+        self.job = job_block(self.text, EARLY_JOB)
+
+    def test_the_job_exists_and_does_not_wait_for_anything(self):
+        self.assertIn(EARLY_JOB, job_names(self.text))
+        self.assertNotIn("needs:", self.job)
+
+    def test_the_job_never_blocks_the_run_and_only_reads_the_repository(self):
+        self.assertIn("continue-on-error: true", self.job)
+        self.assertIn("permissions:\n      contents: read", self.job)
+        self.assertNotIn("secrets.", self.job)
+
+    def test_the_job_runs_only_for_a_flavor_other_than_production(self):
+        self.assertIn("if: inputs.flavor != 'production'", self.job)
+        self.assertIn("flavor:", self.text.split("jobs:")[0])
+
+    def test_the_job_writes_the_marker_with_the_make_target_and_uploads_it_for_90_days(self):
+        self.assertIn("run: make release-log/qa-skip output=", self.job)
+        self.assertNotIn("run_id", self.job.split("run: make", 1)[1].splitlines()[0])
+        self.assertIn(UPLOAD, self.job)
+        self.assertEqual(artifact_names(self.job), ["release-log-qa-skip-${{ github.run_id }}-${{ github.run_attempt }}"])
+        self.assertIn("retention-days: 90", self.job)
+        self.assertIn("if-no-files-found: ignore", self.job)
+        for body in run_bodies(self.job):
+            self.assertNotIn("${{", body)
+
+    def test_the_job_has_no_effect_on_the_other_jobs(self):
+        self.assertIn("  run-tests:", self.text)
+        self.assertNotIn(EARLY_JOB, job_block(self.text, "run-tests"))
+
+    def test_deflake_runs_of_a_production_source_pass_the_same_flavor_input(self):
+        # The deflake path reads `inputs.flavor || 'production'` too, so the job never skips it.
+        self.assertIn("flavor: ${{ inputs.flavor || 'production' }}", self.text)
+
+    def test_the_change_to_the_prod_workflow_only_adds_lines(self):
+        for base in ("origin/develop", "develop"):
+            found = subprocess.run(["git", "merge-base", "HEAD", base], cwd=ROOT, capture_output=True, text=True)
+            if found.returncode == 0:
+                break
+        else:
+            self.skipTest("no develop branch to compare with")
+        diff = subprocess.run(["git", "diff", "--numstat", found.stdout.strip(), "--", ".github/workflows/" + PROD],
+                              cwd=ROOT, capture_output=True, text=True, check=True).stdout.split()
+        self.assertEqual(diff[1] if diff else "0", "0")
+
+
+class ArtifactNamesAreUniquePerRunTest(unittest.TestCase):
+    """upload-artifact fails on a second upload of one name inside a run."""
+
+    def test_no_release_log_artifact_name_can_be_uploaded_twice_in_one_run(self):
+        prod = workflow(PROD)
+        qa = workflow("qa-android-regression-tests.yml")
+        prod_names = [name for job in job_names(prod) for name in artifact_names(job_block(prod, job))]
+        shared = [name for job in job_names(qa) if job not in EXECUTION_JOBS for name in artifact_names(job_block(qa, job))]
+        for execution in EXECUTION_JOBS:
+            names = prod_names + shared + artifact_names(job_block(qa, execution))
+            with self.subTest(execution=execution):
+                self.assertEqual(len(names), len(set(names)), names)
+        self.assertEqual(len(prod_names), len(set(prod_names)))
+        self.assertIn("release-log-qa-skip-${{ github.run_id }}-${{ github.run_attempt }}", prod_names)
+
+    def test_each_execution_job_uploads_each_name_once(self):
+        qa = workflow("qa-android-regression-tests.yml")
+        for execution in EXECUTION_JOBS:
+            names = artifact_names(job_block(qa, execution))
+            self.assertEqual(len(names), len(set(names)), names)
+
+
 class RetryDefaultTest(unittest.TestCase):
     def test_the_prod_workflow_defaults_to_two_retries_for_normal_runs_and_none_for_deflake(self):
         prod = workflow("qa-android-prod-tests.yml")
@@ -154,6 +243,14 @@ class RetryDefaultTest(unittest.TestCase):
 
 
 class QaMakeEntrypointTest(unittest.TestCase):
+    def test_the_skip_target_is_a_thin_wrapper_and_listed_in_help(self):
+        result = subprocess.run(["make", "-n", "release-log/qa-skip", "output=skip.json"], cwd=ROOT,
+                                capture_output=True, text=True)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn('python3 scripts/release/release_log_export.py qa-skip --output "skip.json"', result.stdout)
+        help_text = subprocess.run(["make", "help"], cwd=ROOT, capture_output=True, text=True).stdout
+        self.assertIn("release-log/qa-skip", help_text)
+
     def test_the_target_is_a_thin_wrapper_and_listed_in_help(self):
         result = subprocess.run(["make", "-n", "release-log/qa-export", "output=evidence.json"], cwd=ROOT,
                                 capture_output=True, text=True)

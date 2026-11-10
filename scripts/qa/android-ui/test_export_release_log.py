@@ -407,6 +407,12 @@ class CommandLineTest(TemporaryFiles):
                 self.assertEqual(status, 0)
                 self.assertFalse(output.exists())
 
+    def test_an_ineligible_run_writes_no_skip_marker(self):
+        for change in [dict(GITHUB_EVENT_NAME="schedule"), dict(FLAVOR_INPUT="alpha beta"), dict(FLAVOR_INPUT="fdroid")]:
+            with self.subTest(change=change):
+                _, output, _ = self.run_main(**change)
+                self.assertEqual(list(output.parent.glob("*")) if output.parent.exists() else [], [])
+
     def test_failed_tests_still_export_what_the_summarizer_wrote(self):
         status, output, _ = self.run_main(TESTS_PASSED="10", TESTS_FAILED="2", TESTS_SKIPPED="0",
                                           TESTS_MISSING="0", TESTS_SELECTED="12", TESTS_TOTAL="12")

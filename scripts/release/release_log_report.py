@@ -184,9 +184,11 @@ def _validate_run(run, repository, run_id, run_attempt):
     return path, WORKFLOW_KINDS[path]
 
 
-def _is_release_run(run, kind):
+def _is_release_run(run, kind, default_branch=None):
     if kind == "regression":
-        return True
+        branch = run.get("head_branch")
+        return run.get("event") == "workflow_dispatch" and isinstance(branch, str) and (
+            branch == default_branch or branch.startswith("release/"))
     if run.get("event") not in ELIGIBLE_EVENTS[kind]:
         return False
     try:
@@ -211,7 +213,7 @@ def _release_jobs(jobs, kind, pattern=_RELEASE_JOB):
     return entries
 
 
-def _read_archive(data):
+def _read_archive(data, member="evidence.json"):
     if len(data) > ARCHIVE_LIMIT:
         raise ValueError("The archive is too large")
     try:
@@ -220,8 +222,8 @@ def _read_archive(data):
         raise ValueError("The artifact is not an archive") from None
     with archive:
         entries = archive.infolist()
-        if len(entries) != 1 or entries[0].filename != "evidence.json":
-            raise ValueError("The archive must hold only evidence.json")
+        if len(entries) != 1 or entries[0].filename != member:
+            raise ValueError("The archive must hold only " + member)
         entry = entries[0]
         if entry.is_dir() or (entry.external_attr >> 16) & 0o170000 == 0o120000:
             raise ValueError("The archive entry is not a regular file")
@@ -314,12 +316,15 @@ def collect_event(repository, run_id, run_attempt, api=None):
         base = "/repos/%s/actions/runs/%d" % (repository, run_id)
         run = api.get("%s/attempts/%d" % (base, run_attempt))
         path, kind = _validate_run(run, repository, run_id, run_attempt)
-        if not _is_release_run(run, kind):
+        default_branch = None
+        if kind == "regression":
+            default_branch = api.get("/repos/" + repository).get("default_branch")
+        if not _is_release_run(run, kind, default_branch):
             return None
         all_jobs = _paginate(api, "%s/attempts/%d/jobs" % (base, run_attempt), "jobs")
         artifacts = _paginate(api, base + "/artifacts", "artifacts")
         if kind == "regression":
-            return _assemble_regression(api, repository, run, path, all_jobs, artifacts)
+            return _assemble_regression(api, repository, run, path, all_jobs, artifacts, default_branch)
         return _assemble(api, repository, run, path, kind, all_jobs, artifacts)
     except ApiError as error:
         raise CollectionError("GitHub request failed: " + str(error)) from None
@@ -431,7 +436,8 @@ def _check_origin_run(run, repository, run_id, attempt):
     full_name = run.get("repository", {}).get("full_name") if isinstance(run, dict) and isinstance(
         run.get("repository"), dict) else None
     raw = run.get("path") if isinstance(run, dict) else None
-    if (not isinstance(run, dict) or run.get("id") != run_id or run.get("run_attempt") != attempt
+    if (not isinstance(run, dict) or not _is_release_run(run, "production") or run.get("id") != run_id
+            or run.get("run_attempt") != attempt
             or full_name != repository or not isinstance(raw, str) or raw.split("@", 1)[0] != PROD_BUILD_PATH
             or not isinstance(run.get("head_sha"), str) or not contract.SHA.fullmatch(run["head_sha"])):
         raise CollectionError("The production run does not match the request")
@@ -492,7 +498,7 @@ def _production_manifests(api, repository, qa_run):
     return manifests, problems
 
 
-def _load_source(api, repository, run_id, attempt):
+def _load_source(api, repository, run_id, attempt, default_branch):
     """Return the exact source QA record of a deflake, or the reason there is none."""
     try:
         run = api.get("/repos/%s/actions/runs/%d/attempts/%d" % (repository, run_id, attempt))
@@ -502,7 +508,7 @@ def _load_source(api, repository, run_id, attempt):
         path, kind = _validate_run(run, repository, run_id, attempt)
     except CollectionError:
         return None, "source run is not an eligible regression"
-    if kind != "regression" or run.get("event") != "workflow_dispatch":
+    if kind != "regression" or not _is_release_run(run, kind, default_branch):
         return None, "source run is not an eligible regression"
     try:
         artifacts = _paginate(api, "/repos/%s/actions/runs/%d/artifacts" % (repository, run_id), "artifacts")
@@ -515,7 +521,7 @@ def _load_source(api, repository, run_id, attempt):
     return record, None
 
 
-def _verify_ancestry(api, repository, qa):
+def _verify_ancestry(api, repository, qa, default_branch):
     """Return None when every source of a deflake is verified, else the reason it is not."""
     seen = {(qa["run_id"], qa["run_attempt"])}
     current = qa
@@ -526,7 +532,7 @@ def _verify_ancestry(api, repository, qa):
         if key in seen:
             return "source chain repeats"
         seen.add(key)
-        source, reason = _load_source(api, repository, *key)
+        source, reason = _load_source(api, repository, *key, default_branch)
         if reason:
             return reason
         if current["source_deflake_bundle_sha256"] is None or source["next_deflake_bundle_sha256"] is None:
@@ -559,13 +565,13 @@ def _regression_version(origin_version, qa):
     return parts[0] if parts else contract.UNMATCHED
 
 
-def _attribute(api, repository, run, qa, gaps):
+def _attribute(api, repository, run, qa, gaps, default_branch):
     """Return the production origin and the release version of a regression, and add the gaps."""
     reason, origin, version = None, None, None
     if qa is None:
         reason = "there is no regression record"
     else:
-        failure = _verify_ancestry(api, repository, qa) if qa["mode"] == "deflake" else None
+        failure = _verify_ancestry(api, repository, qa, default_branch) if qa["mode"] == "deflake" else None
         if failure:
             gaps.append("Deflake source is not verified (%s)" % failure)
             reason = "the deflake source is not verified"
@@ -580,7 +586,20 @@ def _attribute(api, repository, run, qa, gaps):
     return origin, _regression_version(version, qa)
 
 
-def _assemble_regression(api, repository, run, path, all_jobs, artifacts):
+def _is_skipped(api, artifacts, repository, run_id, attempt):
+    """True when the exporter marked this exact run and attempt as not a production regression."""
+    name = "release-log-qa-skip-%d-%d" % (run_id, attempt)
+    matches = [artifact for artifact in artifacts if isinstance(artifact, dict) and artifact.get("name") == name]
+    if len(matches) != 1 or matches[0].get("expired") or not isinstance(matches[0].get("archive_download_url"), str):
+        return False
+    try:
+        marker = _read_archive(api.download(matches[0]["archive_download_url"]), "skip.json")
+    except (ValueError, ApiError):
+        return False
+    return marker == contract.skip_marker(repository, run_id, attempt)
+
+
+def _assemble_regression(api, repository, run, path, all_jobs, artifacts, default_branch):
     run_id, attempt, conclusion = run["id"], run["run_attempt"], run["conclusion"]
     if run.get("event") != "workflow_dispatch":
         raise CollectionError("The run is not a manual production regression")
@@ -588,6 +607,8 @@ def _assemble_regression(api, repository, run, path, all_jobs, artifacts):
     qa_ran = any(_QA_RUN_JOB.match(_leaf(entry.get("name"))) for entry in all_jobs if isinstance(entry, dict))
     gaps, incomplete = [], False
     qa, reason = _load_export(api, artifacts, "release-log-qa-%d-%d" % (run_id, attempt), "regression", run, path)
+    if reason is Export.MISSING and _is_skipped(api, artifacts, repository, run_id, attempt):
+        return None
     if reason:
         gap, failed = _qa_gap(reason, attempt, qa_ran)
         gaps.append(gap)
@@ -595,7 +616,7 @@ def _assemble_regression(api, repository, run, path, all_jobs, artifacts):
     if qa is not None and qa["report_url"] and not qa["report_url"].startswith(_pages_prefix(repository)):
         qa = dict(qa, report_url=None)
         gaps.append("Report link is not on the repository pages site")
-    origin, version = _attribute(api, repository, run, qa, gaps)
+    origin, version = _attribute(api, repository, run, qa, gaps, default_branch)
     payload = {
         "schema_version": contract.SCHEMA_VERSION,
         "release_version": version,

@@ -1,4 +1,4 @@
-.PHONY: release-notes release-notes/prepare release-notes/format signing-lineage beta-release/validate-source release-log/check release-log/context release-log/build release-log/qa-export release-log/collect release-log/publish
+.PHONY: release-notes release-notes/prepare release-notes/format signing-lineage beta-release/validate-source release-log/check release-log/context release-log/build release-log/qa-export release-log/qa-skip release-log/collect release-log/publish
 
 beta-release/validate-source:
 	@python3 scripts/release/validate-beta-source.py
@@ -26,6 +26,9 @@ release-log/build:
 
 release-log/qa-export:
 	python3 scripts/qa/android-ui/export_release_log.py --output "$(output)"
+
+release-log/qa-skip:
+	python3 scripts/release/release_log_export.py qa-skip --output "$(output)"
 
 release-log/collect:
 	python3 scripts/release/release_log_report.py collect --run-id "$(run_id)" --run-attempt "$(run_attempt)" --output "$(output)"

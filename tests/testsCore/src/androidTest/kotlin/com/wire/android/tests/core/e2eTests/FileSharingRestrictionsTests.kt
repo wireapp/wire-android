@@ -39,7 +39,7 @@ class FileSharingRestrictionsTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-8120")
+    @TestCaseId("TC-12658")
     @Category("regression", "RC", "fileSharingRestrictions")
     @Test
     fun givenTeamMember_whenFileSharingIsDisabledForTeam_thenISeeTeamSettingsChangedAlertForFirstTime() {
@@ -130,7 +130,7 @@ class FileSharingRestrictionsTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-8121", "TC-8147", "TC-8148")
+    @TestCaseId("TC-12659", "TC-12676", "TC-12677")
     @Category("regression", "RC", "fileSharingRestrictions")
     @Test
     fun givenFileSharingIsDisabledForTeam_whenContactSendsImageVideoAndAudio_thenIShouldNotBeAbleToReceiveThem() {
@@ -197,7 +197,7 @@ class FileSharingRestrictionsTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-8149", "TC-8047")
+    @TestCaseId("TC-12678", "TC-12650")
     @Category("regression", "RC", "fileSharingRestrictions")
     @Test
     fun givenFileSharingIsDisabledForTeam_whenContactSendsFile_thenReceivingFilesProhibitedPlaceholderIsVisible() {

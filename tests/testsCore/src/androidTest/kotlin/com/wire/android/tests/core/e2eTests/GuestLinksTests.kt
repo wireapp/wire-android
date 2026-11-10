@@ -47,7 +47,7 @@ class GuestLinksTests : BaseUiTest() {
     // ######################
 
     @Suppress("LongMethod")
-    @TestCaseId("TC-4381", "TC-4382")
+    @TestCaseId("TC-12513", "TC-12514")
     @Category("regression", "RC", "guestLinks")
     @Test
     fun givenGuestsAreEnabled_whenAdminCreatesAndDisablesGuestLink_thenLinkIsCreatedAndRevoked() {
@@ -168,7 +168,7 @@ class GuestLinksTests : BaseUiTest() {
     }
 
     @Suppress("LongMethod")
-    @TestCaseId("TC-8122")
+    @TestCaseId("TC-12660")
     @Category("regression", "RC", "guestLinks")
     @Test
     fun givenTeamMemberReceivesGuestLink_whenJoiningConversation_thenConversationIsOpened() {
@@ -262,7 +262,7 @@ class GuestLinksTests : BaseUiTest() {
     }
 
     @Suppress("LongMethod")
-    @TestCaseId("TC-4388")
+    @TestCaseId("TC-12515")
     @Category("regression", "RC", "guestLinks")
     @Test
     fun givenMemberIsAlreadyInConversation_whenOpeningGuestLink_thenConversationOpensWithoutJoiningAgain() {
@@ -342,7 +342,7 @@ class GuestLinksTests : BaseUiTest() {
     }
 
     @Suppress("LongMethod")
-    @TestCaseId("TC-4389")
+    @TestCaseId("TC-12516")
     @Category("regression", "RC", "guestLinks")
     @Test
     fun givenIAmATeamMember_whenICancelJoiningViaGuestLink_thenGroupConversationIsNotInForeground() {
@@ -437,7 +437,7 @@ class GuestLinksTests : BaseUiTest() {
     }
 
     @Suppress("LongMethod")
-    @TestCaseId("TC-8123")
+    @TestCaseId("TC-12661")
     @Category("regression", "RC", "guestLinks")
     @Test
     fun givenGroupConversationHasBeenDeleted_whenIOpenItsInviteDeepLink_thenUnableToJoinAlertIsShown() {
@@ -535,7 +535,7 @@ class GuestLinksTests : BaseUiTest() {
     }
 
     @Suppress("LongMethod")
-    @TestCaseId("TC-8124")
+    @TestCaseId("TC-12662")
     @Category("regression", "RC", "guestLinks")
     @Test
     fun givenGuestLinkHasBeenRevoked_whenIOpenIt_thenUnableToJoinAlertIsShown() {
@@ -633,7 +633,7 @@ class GuestLinksTests : BaseUiTest() {
     }
 
     @Suppress("LongMethod")
-    @TestCaseId("TC-8125")
+    @TestCaseId("TC-12663")
     @Category("regression", "RC", "guestLinks")
     @Test
     fun givenGuestLinkExists_whenAnotherMemberBecomesAdmin_thenGuestLinkRemainsVisible() {
@@ -765,7 +765,7 @@ class GuestLinksTests : BaseUiTest() {
     }
 
     @Suppress("LongMethod")
-    @TestCaseId("TC-8150")
+    @TestCaseId("TC-12679")
     @Category("regression", "RC", "guestLinks")
     @Test
     fun givenMultipleAccountsAreLoggedIn_whenIJoinViaGuestLink_thenLastActiveAccountJoinsConversation() {
@@ -916,7 +916,7 @@ class GuestLinksTests : BaseUiTest() {
     // ######################
 
     @Suppress("LongMethod")
-    @TestCaseId("TC-8126")
+    @TestCaseId("TC-12664")
     @Category("regression", "RC", "guestLinks")
     @Test
     fun givenGuestsAreEnabled_whenAdminCreatesPasswordSecuredGuestLink_thenLinkCanBeShared() {
@@ -1034,7 +1034,7 @@ class GuestLinksTests : BaseUiTest() {
     }
 
     @Suppress("LongMethod")
-    @TestCaseId("TC-8127")
+    @TestCaseId("TC-12665")
     @Category("regression", "RC", "guestLinks")
     @Test
     fun givenPasswordSecuredGuestLink_whenTeamMemberEntersCorrectPassword_thenConversationIsJoined() {
@@ -1137,7 +1137,7 @@ class GuestLinksTests : BaseUiTest() {
     }
 
     @Suppress("LongMethod")
-    @TestCaseId("TC-8128")
+    @TestCaseId("TC-12666")
     @Category("regression", "RC", "guestLinks")
     @Test
     fun givenPasswordSecuredGuestLink_whenTeamMemberEntersWrongPassword_thenConversationIsNotJoined() {
@@ -1240,7 +1240,7 @@ class GuestLinksTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-8129")
+    @TestCaseId("TC-12667")
     @Category("regression", "RC", "guestLinks")
     @Test
     fun givenPasswordSecuredGuestLinkExists_whenAnotherMemberBecomesAdmin_thenLinkRemainsVisible() {

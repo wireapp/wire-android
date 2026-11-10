@@ -47,7 +47,7 @@ class RemoveUserTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4494")
+    @TestCaseId("TC-12577")
     @Category("regression", "RC", "removeUser")
     @Test
     fun givenOneOnOneConversation_whenUserIsRemovedFromTeam_thenConversationIsRemovedAfterRelogin() {
@@ -196,7 +196,7 @@ class RemoveUserTests : BaseUiTest() {
     }
 
     @Suppress("LongMethod")
-    @TestCaseId("TC-4369")
+    @TestCaseId("TC-12501")
     @Category("regression", "RC", "groups", "removeUser")
     @Test
     fun givenIAmLoggedInAsGroupGuest_whenAnotherMemberIsRemovedFromTeam_thenISeeTheyLeftTheConversation() {
@@ -293,7 +293,7 @@ class RemoveUserTests : BaseUiTest() {
     }
 
     @Suppress("LongMethod")
-    @TestCaseId("TC-4363")
+    @TestCaseId("TC-12495")
     @Category("regression", "RC", "groups", "removeUser")
     @Test
     fun givenIAmLoggedInAsTeamOwner_whenAnotherMemberIsRemovedFromTeam_thenISeeTheyWereRemovedFromTeam() {
@@ -374,7 +374,7 @@ class RemoveUserTests : BaseUiTest() {
     }
 
     @Suppress("LongMethod")
-    @TestCaseId("TC-4365")
+    @TestCaseId("TC-12497")
     @Category("regression", "RC", "groups", "removeUser")
     @Test
     fun givenIAmLoggedInAsTeamMember_whenAnotherMemberIsRemovedFromTeam_thenISeeTheyWereRemovedFromTeam() {

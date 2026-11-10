@@ -48,7 +48,7 @@ class GroupsTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4345")
+    @TestCaseId("TC-12477")
     @Category("regression", "RC", "groups")
     @Test
     fun givenIAmATeamMember_whenCreatingGroupConversationWithMembersFromMyTeam_thenGroupConversationIsCreated() {
@@ -146,7 +146,7 @@ class GroupsTests : BaseUiTest() {
     }
 
     @Suppress("LongMethod")
-    @TestCaseId("TC-4360")
+    @TestCaseId("TC-12492")
     @Category("regression", "RC", "groups")
     @Test
     fun givenIAmAnExternalUserInATeam_whenAttemptingToCreateGroupConversation_thenGroupConversationCannotBeCreated() {
@@ -184,7 +184,7 @@ class GroupsTests : BaseUiTest() {
     }
 
     @Suppress("LongMethod")
-    @TestCaseId("TC-4346")
+    @TestCaseId("TC-12478")
     @Category("regression", "RC", "groups", "deleteGroup")
     @Test
     fun givenIAmAGroupCreator_whenDeletingGroupConversation_thenGroupConversationIsDeleted() {
@@ -261,7 +261,7 @@ class GroupsTests : BaseUiTest() {
     }
 
     @Suppress("LongMethod")
-    @TestCaseId("TC-4354")
+    @TestCaseId("TC-12486")
     @Category("regression", "RC", "groups", "deleteGroup")
     @Test
     fun givenIAmAGroupCreator_whenDeletingGroupFromConversationList_thenGroupConversationIsDeleted() {
@@ -336,7 +336,7 @@ class GroupsTests : BaseUiTest() {
     }
 
     @Suppress("LongMethod")
-    @TestCaseId("TC-4347")
+    @TestCaseId("TC-12479")
     @Category("regression", "RC", "groups", "deleteGroup")
     @Test
     fun givenIAmNotAGroupCreator_whenAttemptingToDeleteGroupConversation_thenGroupConversationCannotBeDeleted() {
@@ -402,7 +402,7 @@ class GroupsTests : BaseUiTest() {
     }
 
     @Suppress("LongMethod")
-    @TestCaseId("TC-4356")
+    @TestCaseId("TC-12488")
     @Category("regression", "RC", "groups", "deleteGroup")
     @Test
     fun givenIDeletedAGroupConversation_whenSendingAndReceivingMessages_thenMessagesAreSentAndReceivedSuccessfully() {
@@ -532,7 +532,7 @@ class GroupsTests : BaseUiTest() {
     }
 
     @Suppress("LongMethod")
-    @TestCaseId("TC-4357")
+    @TestCaseId("TC-12489")
     @Category("regression", "RC", "groups", "deleteGroup")
     @Test
     fun givenAnotherUserDeletedAGroupConversation_whenSendingAndReceivingMessages_thenMessagesAreSentAndReceivedSuccessfully() {
@@ -679,7 +679,7 @@ class GroupsTests : BaseUiTest() {
     }
 
     @Suppress("LongMethod")
-    @TestCaseId("TC-4348", "TC-4349", "TC-4350")
+    @TestCaseId("TC-12480", "TC-12481", "TC-12482")
     @Category("regression", "RC", "groups", "leaveGroup")
     @Test
     fun givenIAmAGroupCreator_whenLeavingGroupConversation_thenGroupHistoryRemainsVisibleAndNewMessagesAreNotVisible() {
@@ -799,7 +799,7 @@ class GroupsTests : BaseUiTest() {
     }
 
     @Suppress("LongMethod")
-    @TestCaseId("TC-4355")
+    @TestCaseId("TC-12487")
     @Category("regression", "RC", "groups", "leaveGroup")
     @Test
     fun givenIAmAGroupCreator_whenLeavingGroupConversationFromConversationList_thenGroupConversationIsLeft() {
@@ -877,7 +877,7 @@ class GroupsTests : BaseUiTest() {
     }
 
     @Suppress("LongMethod")
-    @TestCaseId("TC-4361")
+    @TestCaseId("TC-12493")
     @Category("regression", "RC", "groups", "leaveGroup")
     @Test
     fun givenIAmAGroupAdmin_whenAnotherMemberLeavesGroupConversation_thenSystemMessageIsVisible() {
@@ -968,7 +968,7 @@ class GroupsTests : BaseUiTest() {
     }
 
     @Suppress("LongMethod")
-    @TestCaseId("TC-4367")
+    @TestCaseId("TC-12499")
     @Category("regression", "RC", "groups", "leaveGroup")
     @Test
     fun givenIAmAGroupMember_whenAnotherMemberLeavesGroupConversation_thenSystemMessageIsVisible() {
@@ -1059,7 +1059,7 @@ class GroupsTests : BaseUiTest() {
     }
 
     @Suppress("LongMethod")
-    @TestCaseId("TC-4372")
+    @TestCaseId("TC-12504")
     @Category("regression", "RC", "groups", "leaveGroup")
     @Test
     fun givenIAmAGroupGuest_whenAnotherMemberLeavesGroupConversation_thenSystemMessageIsVisible() {
@@ -1157,7 +1157,7 @@ class GroupsTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4351", "TC-4362")
+    @TestCaseId("TC-12483", "TC-12494")
     @Category("regression", "RC", "groups", "removeGroup")
     @Test
     fun givenIAmAGroupAdmin_whenRemovingParticipantFromGroupConversation_thenParticipantIsRemovedAndSystemMessageIsVisible() {
@@ -1289,7 +1289,7 @@ class GroupsTests : BaseUiTest() {
     }
 
     @Suppress("LongMethod")
-    @TestCaseId("TC-4366")
+    @TestCaseId("TC-12498")
     @Category("regression", "RC", "groups", "removeGroup")
     @Test
     fun givenIAmAGroupMember_whenAnotherMemberIsRemovedFromGroupConversation_thenSystemMessageIsVisible() {
@@ -1365,7 +1365,7 @@ class GroupsTests : BaseUiTest() {
     }
 
     @Suppress("LongMethod")
-    @TestCaseId("TC-4370")
+    @TestCaseId("TC-12502")
     @Category("regression", "RC", "groups", "removeGroup")
     @Test
     fun givenIAmAGroupGuest_whenAnotherMemberIsRemovedFromGroupConversation_thenSystemMessageIsVisible() {
@@ -1456,7 +1456,7 @@ class GroupsTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4352", "TC-4364")
+    @TestCaseId("TC-12484", "TC-12496")
     @Category("regression", "RC", "groups", "addGroup")
     @Test
     fun givenIAmAGroupAdmin_whenAddingParticipantToExistingGroupConversation_thenParticipantIsAddedAndSystemMessageIsVisible() {
@@ -1572,7 +1572,7 @@ class GroupsTests : BaseUiTest() {
     }
 
     @Suppress("LongMethod")
-    @TestCaseId("TC-4368")
+    @TestCaseId("TC-12500")
     @Category("regression", "RC", "groups", "addGroup")
     @Test
     fun givenIAmAGroupMember_whenTeamOwnerAddsAnotherMemberToGroupConversation_thenISeeTheSystemMessage() {
@@ -1648,7 +1648,7 @@ class GroupsTests : BaseUiTest() {
     }
 
     @Suppress("LongMethod")
-    @TestCaseId("TC-4371")
+    @TestCaseId("TC-12503")
     @Category("regression", "RC", "groups", "addGroup")
     @Test
     fun givenIAmAGroupGuest_whenTeamOwnerAddsAnotherMemberToGroupConversation_thenISeeTheSystemMessage() {
@@ -1739,7 +1739,7 @@ class GroupsTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4358")
+    @TestCaseId("TC-12490")
     @Category("regression", "RC", "groups", "addGroup", "WPB-3047")
     @Test
     fun givenIAmAGroupMember_whenTeamOwnerRemovesAndAddsMembers_thenISeeUpdatedParticipantList() {
@@ -1896,7 +1896,7 @@ class GroupsTests : BaseUiTest() {
     }
 
     @Suppress("LongMethod")
-    @TestCaseId("TC-4375", "TC-4378", "TC-4373")
+    @TestCaseId("TC-12507", "TC-12510", "TC-12505")
     @Category("regression", "RC", "groups", "membershipIdentifiers")
     @Test
     fun givenGuestsArePresentInGroupConversation_whenIOpenConversation_thenISeeGuestsBanner() {
@@ -1992,7 +1992,7 @@ class GroupsTests : BaseUiTest() {
     }
 
     @Suppress("LongMethod")
-    @TestCaseId("TC-4376", "TC-4379", "TC-4374")
+    @TestCaseId("TC-12508", "TC-12511", "TC-12506")
     @Category("regression", "RC", "groups", "membershipIdentifiers")
     @Test
     fun givenExternalsArePresentInGroupConversation_whenIOpenConversation_thenISeeExternalBanner() {
@@ -2097,7 +2097,7 @@ class GroupsTests : BaseUiTest() {
     }
 
     @Suppress("LongMethod")
-    @TestCaseId("TC-4377")
+    @TestCaseId("TC-12509")
     @Category("groups", "RC", "membershipIdentifiers", "services")
     @Test
     fun givenServiceIsPresentInGroupConversation_whenIOpenConversation_thenISeeServicesBanner() {
@@ -2194,7 +2194,7 @@ class GroupsTests : BaseUiTest() {
     }
 
     @Suppress("LongMethod")
-    @TestCaseId("TC-4380")
+    @TestCaseId("TC-12512")
     @Category("groups", "RC", "membershipIdentifiers", "services")
     @Test
     fun givenExternalsGuestsAndServicesArePresentInGroupConversation_whenIOpenConversation_thenISeeCombinedBanner() {
@@ -2317,7 +2317,7 @@ class GroupsTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4359")
+    @TestCaseId("TC-12491")
     @Category("groups", "RC", "addGroup", "removeGroup", "services")
     @Test
     fun givenIHaveAnExistingGroupConversation_whenIAddAndRemoveService_thenServiceIsAddedAndRemoved() {

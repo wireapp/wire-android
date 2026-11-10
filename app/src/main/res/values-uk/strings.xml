@@ -177,6 +177,7 @@
     <!-- Claimed Domain dialog -->
     <!-- Update App dialog -->
     <string name="update_app_dialog_button">Оновити</string>
+    <!-- Restart App dialog -->
     <!-- Analytics Usage dialog -->
     <!-- session reset -->
     <!-- join conversation dialog -->

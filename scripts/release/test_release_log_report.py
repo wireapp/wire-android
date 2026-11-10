@@ -1044,5 +1044,708 @@ class CommandLineTest(unittest.TestCase):
             self.assertNotIn(banned, text)
 
 
+PROD_TESTS_PATH = ".github/workflows/qa-android-prod-tests.yml"
+PROD_BUILD_PATH = ".github/workflows/build-production.yml"
+TEST_SHA = "0123456789abcdef0123456789abcdef01234567"
+APK_NAME = "wire-prod-compatrelease.apk"
+APK_SHA = "d7330f18" * 8
+PAGES = "https://wireapp.github.io/wire-android/qa-prod-tests/"
+FINGERPRINT = "11aa22bb" * 8
+SECOND_FINGERPRINT = "33cc44dd" * 8
+QA_NOW = "2026-11-09T10:00:00Z"
+UNMATCHED_TEXT = "Tested APK matched no release build"
+NOT_ATTACHED = "this regression is not attached to a build page"
+
+
+def qa_record(run_id=1520, attempt=1, **changes):
+    record = fixture("regression")
+    record.update(run_id=run_id, run_attempt=attempt, report_url=PAGES + "run-%d/" % run_id)
+    record.update(changes)
+    return record
+
+
+def deflake_record(run_id=1600, attempt=1, source=(1520, 1), **changes):
+    record = fixture("regression_deflake")
+    record.update(run_id=run_id, run_attempt=attempt, source_qa_run_id=source[0], source_qa_run_attempt=source[1],
+                  report_url=PAGES + "run-%d/" % run_id, source_deflake_bundle_sha256=FINGERPRINT)
+    record.update(changes)
+    return record
+
+
+def qa_run(run_id=1520, attempt=1, **changes):
+    run = {"id": run_id, "run_attempt": attempt, "path": PROD_TESTS_PATH + "@refs/heads/develop", "head_sha": SHA,
+           "head_branch": "develop", "event": "workflow_dispatch", "status": "completed", "conclusion": "success",
+           "created_at": QA_NOW, "repository": {"full_name": REPO}}
+    run.update(changes)
+    return run
+
+
+def prod_run(run_id=1400, attempt=1, created="2026-10-20T10:00:00Z", **changes):
+    run = {"id": run_id, "run_attempt": attempt, "path": PROD_BUILD_PATH + "@refs/tags/v4.38.0", "head_sha": SHA,
+           "head_branch": "v4.38.0", "event": "release", "status": "completed", "conclusion": "success",
+           "created_at": created, "repository": {"full_name": REPO}}
+    run.update(changes)
+    return run
+
+
+def prod_build(run_id=1400, attempt=1, **changes):
+    record = fixture("build_prod")
+    record.update(run_id=run_id, run_attempt=attempt)
+    record.update(changes)
+    return record
+
+
+def qa_jobs(conclusion="success"):
+    return [job("run-tests / Validate + resolve run inputs"), job("run-tests / Run QA Android Prod Regression RC",
+                                                                  conclusion)]
+
+
+class RegressionApi:
+    """A GitHub stand-in for regression runs and the production runs they are matched against."""
+
+    def __init__(self):
+        self.runs, self.jobs, self.artifacts, self.zips = {}, {}, {}, {}
+        self.production, self.calls, self.listing_params = [], [], []
+        self.listing_error = None
+
+    def add_run(self, run, jobs=None):
+        self.runs[(run["id"], run["run_attempt"])] = run
+        self.jobs[(run["id"], run["run_attempt"])] = qa_jobs() if jobs is None else jobs
+
+    def add_artifact(self, run_id, name, content, expired=False):
+        listed = self.artifacts.setdefault(run_id, [])
+        url = "https://api.github.com/repos/%s/actions/artifacts/%d-%d/zip" % (REPO, run_id, len(listed))
+        listed.append({"id": len(listed), "name": name, "expired": expired, "archive_download_url": url})
+        self.zips[url] = evidence_zip(content) if isinstance(content, dict) else content
+
+    def add_qa(self, record, run=None, jobs=None):
+        self.add_run(run or qa_run(record["run_id"], record["run_attempt"]), jobs)
+        self.add_artifact(record["run_id"], "release-log-qa-%d-%d" % (record["run_id"], record["run_attempt"]),
+                          record)
+
+    def add_production(self, record=None, run=None, expired=False):
+        run = run or prod_run()
+        record = record or prod_build(run["id"], run["run_attempt"])
+        self.production.append(run)
+        self.add_run(run, [])
+        self.add_artifact(run["id"], "release-log-build-Prod-%d-%d" % (run["id"], run["run_attempt"]), record,
+                          expired=expired)
+
+    def page(self, items, key, params):
+        number, size = int(params["page"]), int(params["per_page"])
+        return {"total_count": len(items), key: items[(number - 1) * size:number * size]}
+
+    def get(self, path, params=None):
+        self.calls.append(path)
+        base = "/repos/%s/actions/" % REPO
+        if path == base + "workflows/build-production.yml/runs":
+            self.listing_params.append(dict(params))
+            if self.listing_error:
+                raise self.listing_error
+            return self.page(self.production, "workflow_runs", params)
+        parts = path[len(base):].split("/") if path.startswith(base) else []
+        if len(parts) >= 2 and parts[0] == "runs" and parts[1].isdigit():
+            run_id = int(parts[1])
+            if len(parts) == 3 and parts[2] == "artifacts":
+                return self.page(self.artifacts.get(run_id, []), "artifacts", params)
+            if len(parts) >= 4 and parts[2] == "attempts":
+                key = (run_id, int(parts[3]))
+                if key in self.runs:
+                    if len(parts) == 5 and parts[4] == "jobs":
+                        return self.page(self.jobs[key], "jobs", params)
+                    if len(parts) == 4:
+                        return self.runs[key]
+        raise report.ApiNotFound(path)
+
+    def download(self, url):
+        return self.zips[url]
+
+
+def reg_world(record=None, jobs=None, production=True, **run_changes):
+    api = RegressionApi()
+    record = record or qa_record()
+    api.add_qa(record, qa_run(record["run_id"], record["run_attempt"], **run_changes), jobs)
+    if production:
+        api.add_production()
+    return api
+
+
+def collect_regression(api, run_id=1520, attempt=1):
+    return report.collect_event(REPO, run_id, attempt, api=api)
+
+
+class CollectRegressionTest(unittest.TestCase):
+    def test_a_matched_regression_reports_its_record_origin_and_version(self):
+        payload = collect_regression(reg_world())
+        contract.validate_payload(payload)
+        self.assertEqual((payload["kind"], payload["release_version"], payload["event_id"]),
+                         ("regression", "4.38.0", "regression:wireapp/wire-android:1520:1"))
+        evidence = payload["evidence"]
+        self.assertEqual(evidence["qa"], qa_record())
+        self.assertEqual(evidence["origin"], {"run_id": 1400, "run_attempt": 1,
+                                              "url": "https://github.com/wireapp/wire-android/actions/runs/1400/attempts/1"})
+        self.assertEqual((evidence["gaps"], evidence["build"]), ([], None))
+        self.assertEqual(evidence["source"]["workflow_path"], PROD_TESTS_PATH)
+        self.assertEqual((evidence["source"]["tag"], evidence["source"]["sha"]), (None, SHA))
+        self.assertEqual([entry["name"] for entry in evidence["jobs"]],
+                         ["Validate + resolve run inputs", "Run QA Android Prod Regression RC"])
+        fields = contract.build_fields(payload)
+        self.assertEqual((fields["kind"], fields["result"], fields["releaseVersion"]), ("Regression", "failed", "4.38.0"))
+        self.assertEqual(fields["buildRunUrl"], "https://github.com/wireapp/wire-android/actions/runs/1400/attempts/1")
+        self.assertEqual(fields["eventId"], "regression:wireapp/wire-android:1520:1")
+
+    def test_the_tests_commit_may_differ_from_the_run_commit(self):
+        record = qa_record(test_source_sha=OTHER_SHA)
+        payload = collect_regression(reg_world(record))
+        self.assertEqual(payload["evidence"]["qa"]["test_source_sha"], OTHER_SHA)
+        self.assertEqual(payload["evidence"]["source"]["sha"], SHA)
+        self.assertEqual(payload["release_version"], "4.38.0")
+
+    def test_the_tests_commit_never_identifies_the_apk(self):
+        api = reg_world(qa_record(test_source_sha=SHA), production=False)
+        api.add_production(prod_build(apks=[{"filename": "other.apk", "sha256": "ab" * 32}]))
+        payload = collect_regression(api)
+        self.assertIsNone(payload["evidence"]["origin"])
+        self.assertIn(UNMATCHED_TEXT, " ".join(payload["evidence"]["gaps"]))
+
+    def test_only_manual_production_regression_runs_are_eligible(self):
+        for change in [dict(event="schedule"), dict(event="workflow_call"), dict(event="push"),
+                       dict(path=".github/workflows/qa-android-regression-tests.yml@refs/heads/develop"),
+                       dict(path=".github/workflows/qa-android-beta-tests.yml@refs/heads/develop")]:
+            with self.subTest(change=change), self.assertRaises(report.CollectionError):
+                collect_regression(reg_world(**change))
+
+    def test_an_unfinished_or_cancelled_run_follows_the_run_rules(self):
+        with self.assertRaises(report.CollectionError):
+            collect_regression(reg_world(status="in_progress", conclusion=None))
+
+    def test_records_are_checked_against_the_run_metadata(self):
+        mismatches = [dict(run_id=7), dict(run_attempt=2), dict(repository="other/repo"),
+                      dict(workflow_path=".github/workflows/qa-android-regression-tests.yml"),
+                      dict(flavor="fdroid")]
+        for change in mismatches:
+            with self.subTest(change=change):
+                api = reg_world(production=False)
+                api.artifacts[1520].clear()
+                api.add_artifact(1520, "release-log-qa-1520-1", dict(qa_record(), **change))
+                api.add_production()
+                with self.assertRaises(report.CollectionError) as caught:
+                    collect_regression(api)
+                partial = caught.exception.partial
+                self.assertIsNone(partial["evidence"]["qa"])
+                self.assertIn("Regression evidence export is invalid", partial["evidence"]["gaps"])
+                self.assertEqual(partial["release_version"], "unmatched")
+
+    def test_a_record_of_another_run_with_the_same_apk_names_is_not_accepted(self):
+        api = reg_world(production=False)
+        api.artifacts[1520].clear()
+        api.add_artifact(1520, "release-log-qa-1520-1", qa_record(run_id=1999))
+        api.add_production()
+        with self.assertRaises(report.CollectionError) as caught:
+            collect_regression(api)
+        self.assertIsNone(caught.exception.partial["evidence"]["origin"])
+        self.assertNotIn("1400", contract.build_fields(caught.exception.partial)["buildRunUrl"])
+
+    def test_artifacts_of_earlier_attempts_are_never_taken_for_this_attempt(self):
+        api = RegressionApi()
+        api.add_qa(qa_record(attempt=1), qa_run(attempt=1))
+        api.add_qa(qa_record(attempt=2, results=dict(qa_record()["results"], failed=0, passed=418, passed_on_rerun=0)),
+                   qa_run(attempt=2))
+        api.add_production()
+        first = collect_regression(api, attempt=1)
+        second = collect_regression(api, attempt=2)
+        self.assertEqual((first["evidence"]["qa"]["run_attempt"], second["evidence"]["qa"]["run_attempt"]), (1, 2))
+        self.assertEqual(second["evidence"]["qa"]["results"]["failed"], 0)
+        self.assertEqual(second["event_id"], "regression:wireapp/wire-android:1520:2")
+
+    def test_a_record_that_claims_another_attempt_is_not_accepted(self):
+        api = RegressionApi()
+        api.add_run(qa_run(attempt=2))
+        api.add_artifact(1520, "release-log-qa-1520-2", qa_record(attempt=1))
+        api.add_production()
+        with self.assertRaises(report.CollectionError) as caught:
+            collect_regression(api, attempt=2)
+        self.assertIn("Regression evidence export is invalid", caught.exception.partial["evidence"]["gaps"])
+
+    def test_a_rerun_that_skipped_the_qa_job_points_to_the_earlier_attempt(self):
+        api = RegressionApi()
+        api.add_qa(qa_record(attempt=1), qa_run(attempt=1))
+        api.add_run(qa_run(attempt=2), jobs=[job("run-tests / Validate + resolve run inputs")])
+        api.add_production()
+        payload = collect_regression(api, attempt=2)
+        self.assertIn("Regression evidence belongs to an earlier attempt", payload["evidence"]["gaps"])
+        self.assertIsNone(payload["evidence"]["qa"])
+
+    def test_duplicate_artifacts_are_not_trusted(self):
+        api = reg_world()
+        api.add_artifact(1520, "release-log-qa-1520-1", qa_record())
+        with self.assertRaises(report.CollectionError):
+            collect_regression(api)
+
+    def test_a_missing_export_on_a_successful_run_is_partial_and_fails_visibly(self):
+        api = reg_world()
+        api.artifacts[1520].clear()
+        with self.assertRaises(report.CollectionError) as caught:
+            collect_regression(api)
+        partial = caught.exception.partial
+        contract.validate_payload(partial)
+        self.assertEqual(partial["release_version"], "unmatched")
+        self.assertIn("Regression evidence export is missing", partial["evidence"]["gaps"])
+        self.assertEqual(contract.build_fields(partial)["result"], "partial")
+
+    def test_a_failed_run_without_an_export_is_reported_as_failed(self):
+        api = reg_world(conclusion="failure", jobs=qa_jobs("failure"))
+        api.artifacts[1520].clear()
+        payload = collect_regression(api)
+        fields = contract.build_fields(payload)
+        self.assertEqual((fields["result"], fields["releaseVersion"]), ("failed", "unmatched"))
+
+    def test_a_cancelled_run_is_unavailable_evidence(self):
+        api = reg_world(conclusion="cancelled", jobs=qa_jobs("cancelled"))
+        api.artifacts[1520].clear()
+        payload = collect_regression(api)
+        fields = contract.build_fields(payload)
+        self.assertEqual(fields["result"], "cancelled")
+        self.assertIn("Regression evidence export is missing", fields["gaps"])
+        self.assertEqual((fields["tests"], fields["apkName"]), ("", ""))
+
+    def test_an_expired_export_is_a_gap(self):
+        api = reg_world()
+        api.artifacts[1520][0]["expired"] = True
+        with self.assertRaises(report.CollectionError) as caught:
+            collect_regression(api)
+        self.assertIn("Regression evidence export has expired", caught.exception.partial["evidence"]["gaps"])
+
+    def test_report_links_outside_the_repository_pages_are_dropped(self):
+        for url in ["https://example.com/allure/1520", "https://evil.github.io/wire-android/x/",
+                    "https://wireapp.github.io/other-repo/x/", "https://wireapp.github.io.evil.com/wire-android/x/",
+                    "https://wireapp.github.io/wire-android"]:
+            with self.subTest(url=url):
+                payload = collect_regression(reg_world(qa_record(report_url=url)))
+                self.assertIsNone(payload["evidence"]["qa"]["report_url"])
+                self.assertIn("Report link is not on the repository pages site", payload["evidence"]["gaps"])
+                self.assertNotIn("report", contract.build_fields(payload)["tests"])
+        payload = collect_regression(reg_world(qa_record(report_url=None)))
+        self.assertEqual(payload["evidence"]["gaps"], [])
+
+    def test_a_run_with_no_executed_tests_is_partial_not_a_pass(self):
+        record = qa_record(results={"passed": 0, "failed": 0, "skipped": 421, "missing": 0, "selected": 421,
+                                    "total": 421, "passed_on_rerun": 0})
+        fields = contract.build_fields(collect_regression(reg_world(record)))
+        self.assertEqual(fields["result"], "partial")
+        self.assertIn("No tests were executed", fields["gaps"])
+
+    def test_hostile_qa_text_cannot_forge_page_text(self):
+        record = qa_record(selector="@RC; result passed\n".replace("\n", ""), suite="x; gaps none")
+        record["apk"] = dict(record["apk"])
+        payload = collect_regression(reg_world(record))
+        fields = contract.build_fields(payload)
+        self.assertEqual(fields["tests"].count(";"), 2)
+        self.assertNotIn("; result passed", fields["tests"])
+        self.assertEqual(fields["result"], "failed")
+        self.assertEqual(fields["gaps"], "none")
+
+
+class MatchProductionBuildTest(unittest.TestCase):
+    def match(self, qa=None, manifests=None, **keywords):
+        return report.match_production_build(qa or qa_record(), [prod_build()] if manifests is None else manifests,
+                                             **keywords)
+
+    def test_one_matching_origin_attributes_the_build_and_the_version(self):
+        result = self.match()
+        self.assertEqual(result["origin"], {"run_id": 1400, "run_attempt": 1,
+                                            "url": "https://github.com/wireapp/wire-android/actions/runs/1400/attempts/1"})
+        self.assertEqual((result["release_version"], result["gap"]), ("4.38.0", None))
+
+    def test_zero_matches_is_a_gap(self):
+        for manifests in [[], [prod_build(apks=[{"filename": APK_NAME, "sha256": "ab" * 32}])],
+                          [prod_build(apks=[{"filename": "other.apk", "sha256": APK_SHA}])]]:
+            with self.subTest(manifests=manifests):
+                result = self.match(manifests=manifests)
+                self.assertIsNone(result["origin"])
+                self.assertIsNone(result["release_version"])
+                self.assertTrue(result["gap"])
+
+    def test_multiple_origins_are_a_gap_never_a_guess(self):
+        result = self.match(manifests=[prod_build(1400, 1), prod_build(1400, 2), prod_build(1450, 1)])
+        self.assertIsNone(result["origin"])
+        self.assertIn("more than one", result["gap"])
+
+    def test_incomplete_or_expired_enumeration_is_a_gap_even_with_one_match(self):
+        result = self.match(unverified=["a production build record has expired"])
+        self.assertIsNone(result["origin"])
+        self.assertIn("expired", result["gap"])
+
+    def test_the_digest_and_the_file_name_must_both_match(self):
+        other_name = qa_record(apk=dict(qa_record()["apk"], filename="renamed.apk"))
+        self.assertIsNone(self.match(qa=other_name)["origin"])
+        other_digest = qa_record(apk=dict(qa_record()["apk"], sha256="ee" * 32))
+        self.assertIsNone(self.match(qa=other_digest)["origin"])
+
+    def test_only_production_build_records_are_origins(self):
+        beta = prod_build(flavor="Beta", tag="v4.38.0-beta.2")
+        self.assertIsNone(self.match(manifests=[beta])["origin"])
+        context = fixture("context")
+        self.assertIsNone(self.match(manifests=[context])["origin"])
+
+    def test_version_metadata_must_be_compatible(self):
+        cases = [("4.38.0", True), ("4.38.0-71402", True), (None, True), ("4.38.0-71999", False),
+                 ("4.37.0", False), ("4.38.0-beta.2", False), ("latest", False), ("", False)]
+        for label, ok in cases:
+            with self.subTest(label=label):
+                qa = qa_record(apk=dict(qa_record()["apk"], resolved_version_label=label))
+                result = self.match(qa=qa)
+                self.assertEqual(result["origin"] is not None, ok)
+                if not ok:
+                    self.assertIn("version", result["gap"])
+
+    def test_a_requested_latest_never_identifies_the_apk(self):
+        qa = qa_record(apk=dict(qa_record()["apk"], resolved_version_label="latest"))
+        self.assertIsNone(self.match(qa=qa)["origin"])
+
+    def test_a_missing_record_or_apk_cannot_match(self):
+        self.assertIsNone(self.match(qa=qa_record(apk=None))["origin"])
+        self.assertIn("not recorded", self.match(qa=qa_record(apk=None))["gap"])
+        self.assertIsNone(report.match_production_build(None, [prod_build()])["origin"])
+
+
+class ProductionEnumerationTest(unittest.TestCase):
+    def test_only_the_preceding_90_days_are_enumerated(self):
+        api = reg_world(production=False)
+        api.add_production(run=prod_run(created="2026-07-01T10:00:00Z"))
+        payload = collect_regression(api)
+        self.assertIsNone(payload["evidence"]["origin"])
+        self.assertEqual(api.listing_params[0]["created"], ">=2026-08-11")
+        self.assertIn(UNMATCHED_TEXT, " ".join(payload["evidence"]["gaps"]))
+
+    def test_a_run_just_inside_the_window_matches(self):
+        api = reg_world(production=False)
+        api.add_production(run=prod_run(created="2026-08-12T00:00:00Z"))
+        self.assertEqual(collect_regression(api)["evidence"]["origin"]["run_id"], 1400)
+
+    def test_a_production_run_created_after_the_regression_is_not_its_origin(self):
+        api = reg_world(production=False)
+        api.add_production(run=prod_run(created="2026-11-10T10:00:00Z"))
+        self.assertIsNone(collect_regression(api)["evidence"]["origin"])
+
+    def test_two_origins_with_the_same_digest_are_a_gap(self):
+        api = reg_world()
+        api.add_production(run=prod_run(1450, created="2026-10-25T10:00:00Z"))
+        payload = collect_regression(api)
+        self.assertIsNone(payload["evidence"]["origin"])
+        self.assertIn("more than one", " ".join(payload["evidence"]["gaps"]))
+
+    def test_every_attempt_of_a_production_run_is_its_own_build_record(self):
+        api = reg_world(production=False)
+        run = prod_run(attempt=2)
+        api.runs[(1400, 1)] = prod_run(attempt=1)
+        api.add_production(run=run, record=prod_build(1400, 2))
+        api.add_artifact(1400, "release-log-build-Prod-1400-1", prod_build(1400, 1, apks=[
+            {"filename": "other.apk", "sha256": "ab" * 32}]))
+        payload = collect_regression(api)
+        self.assertEqual(payload["evidence"]["origin"], {
+            "run_id": 1400, "run_attempt": 2,
+            "url": "https://github.com/wireapp/wire-android/actions/runs/1400/attempts/2"})
+
+    def test_a_rerun_production_run_matches_one_origin_when_only_attempt_one_has_the_record(self):
+        api = reg_world(production=False)
+        api.production.append(prod_run(attempt=2))
+        api.add_run(prod_run(attempt=1), [])
+        api.add_run(prod_run(attempt=2), [])
+        api.add_artifact(1400, "release-log-build-Prod-1400-1", prod_build(1400, 1))
+        payload = collect_regression(api)
+        self.assertEqual(payload["evidence"]["gaps"], [])
+        self.assertEqual((payload["evidence"]["origin"]["run_id"], payload["evidence"]["origin"]["run_attempt"]),
+                         (1400, 1))
+
+    def test_a_production_run_listed_twice_is_one_origin(self):
+        api = reg_world()
+        filler = [prod_run(2000 + index, created="2026-10-21T10:00:00Z") for index in range(3)]
+        api.production[:0] = filler[:1]
+        api.production.extend(filler[1:] + [api.production[-1]])
+        for run in filler:
+            api.add_run(run, [])
+            api.add_artifact(run["id"], "release-log-build-Prod-%d-1" % run["id"],
+                             prod_build(run["id"], apks=[{"filename": "x.apk", "sha256": "ab" * 32}]))
+        with patch.object(report, "PER_PAGE", 2):
+            payload = collect_regression(api)
+        self.assertEqual(payload["evidence"]["gaps"], [])
+        self.assertEqual(payload["evidence"]["origin"]["run_id"], 1400)
+
+    def test_a_production_run_that_is_not_completed_is_never_an_origin(self):
+        api = reg_world(production=False)
+        api.add_production(run=prod_run(status="in_progress", conclusion=None))
+        payload = collect_regression(api)
+        self.assertIsNone(payload["evidence"]["origin"])
+        self.assertIn(UNMATCHED_TEXT, " ".join(payload["evidence"]["gaps"]))
+
+    def test_a_regression_without_a_start_time_gets_the_unverified_window_gap(self):
+        for created in (None, "", "yesterday"):
+            with self.subTest(created=created):
+                payload = collect_regression(reg_world(created_at=created))
+                self.assertIsNone(payload["evidence"]["origin"])
+                self.assertIn("the regression run time is unknown", " ".join(payload["evidence"]["gaps"]))
+
+    def test_an_expired_build_record_makes_the_attribution_a_gap(self):
+        api = reg_world(production=False)
+        api.add_production(expired=True)
+        payload = collect_regression(api)
+        self.assertIsNone(payload["evidence"]["origin"])
+        self.assertIn("expired", " ".join(payload["evidence"]["gaps"]))
+
+    def test_an_invalid_or_forged_build_record_makes_the_attribution_a_gap(self):
+        forged = [dict(prod_build(), run_id=99), dict(prod_build(), sha=OTHER_SHA), dict(prod_build(), tag="v9.9.9"),
+                  dict(prod_build(), flavor="Beta"), dict(prod_build(), workflow_path=BETA_PATH), {"kind": "build"}]
+        for record in forged:
+            with self.subTest(record=record.get("tag")):
+                api = reg_world(production=False)
+                api.add_production(record=record)
+                payload = collect_regression(api)
+                self.assertIsNone(payload["evidence"]["origin"])
+                self.assertIn(UNMATCHED_TEXT, " ".join(payload["evidence"]["gaps"]))
+
+    def test_a_listing_failure_is_an_incomplete_enumeration_not_a_crash(self):
+        api = reg_world()
+        api.listing_error = report.ApiError("GitHub is unreachable")
+        payload = collect_regression(api)
+        self.assertIsNone(payload["evidence"]["origin"])
+        self.assertIn("could not be fully enumerated", " ".join(payload["evidence"]["gaps"]))
+
+    def test_a_listing_that_exceeds_the_page_limit_is_incomplete(self):
+        api = reg_world(production=False)
+        for index in range(6):
+            api.add_production(run=prod_run(2000 + index, created="2026-10-21T10:00:00Z"),
+                               record=prod_build(2000 + index, apks=[{"filename": "x.apk", "sha256": "ab" * 32}]))
+        with patch.object(report, "PER_PAGE", 1), patch.object(report, "MAX_PAGES", 3):
+            payload = collect_regression(api)
+        self.assertIsNone(payload["evidence"]["origin"])
+        self.assertIn("could not be fully enumerated", " ".join(payload["evidence"]["gaps"]))
+
+    def test_the_listing_is_paginated(self):
+        api = reg_world(production=False)
+        for index in range(4):
+            api.add_production(run=prod_run(2000 + index, created="2026-10-21T10:00:00Z"),
+                               record=prod_build(2000 + index, apks=[{"filename": "x.apk", "sha256": "ab" * 32}]))
+        api.add_production()
+        with patch.object(report, "PER_PAGE", 2):
+            payload = collect_regression(api)
+        self.assertEqual(payload["evidence"]["origin"]["run_id"], 1400)
+
+    def test_production_runs_of_other_workflows_or_repositories_are_ignored(self):
+        api = reg_world(production=False)
+        api.add_production(run=prod_run(path=".github/workflows/build-beta.yml@refs/tags/v4.38.0"))
+        api.add_production(run=prod_run(1450, repository={"full_name": "other/repo"}))
+        self.assertIsNone(collect_regression(api)["evidence"]["origin"])
+
+
+class UnmatchedRegressionTest(unittest.TestCase):
+    def unmatched(self, **record_changes):
+        api = reg_world(qa_record(**record_changes), production=False)
+        return collect_regression(api)
+
+    def test_the_apk_version_label_names_the_page_and_the_gap_says_it_is_unattached(self):
+        passing = {"passed": 421, "failed": 0, "skipped": 0, "missing": 0, "selected": 421, "total": 421,
+                   "passed_on_rerun": 0}
+        payload = self.unmatched(apk=dict(qa_record()["apk"], resolved_version_label="4.39.0-72000"),
+                                 results=passing)
+        self.assertEqual(payload["release_version"], "4.39.0")
+        fields = contract.build_fields(payload)
+        self.assertEqual((fields["releaseVersion"], fields["buildRunUrl"], fields["result"]), ("4.39.0", "", "partial"))
+        self.assertIn(UNMATCHED_TEXT, fields["gaps"])
+        self.assertIn(NOT_ATTACHED, fields["gaps"])
+
+    def test_without_a_label_the_fixed_unmatched_version_is_used(self):
+        for apk in [dict(qa_record()["apk"], resolved_version_label=None), None,
+                    dict(qa_record()["apk"], resolved_version_label="latest"),
+                    dict(qa_record()["apk"], resolved_version_label="Wire release 9.9.9 label")]:
+            with self.subTest(apk=apk):
+                payload = self.unmatched(apk=apk)
+                self.assertEqual(payload["release_version"], "unmatched")
+                fields = contract.build_fields(payload)
+                self.assertEqual(fields["releaseVersion"], "unmatched")
+                self.assertIn(NOT_ATTACHED, fields["gaps"])
+
+    def test_the_gap_names_why_it_is_unmatched(self):
+        payload = self.unmatched()
+        self.assertIn("no production build", " ".join(payload["evidence"]["gaps"]))
+
+    def test_a_regression_with_a_full_pass_still_shows_the_gap_as_partial(self):
+        results = {"passed": 421, "failed": 0, "skipped": 0, "missing": 0, "selected": 421, "total": 421,
+                   "passed_on_rerun": 0}
+        fields = contract.build_fields(self.unmatched(results=results))
+        self.assertEqual(fields["result"], "partial")
+
+
+class DeflakeAncestryTest(unittest.TestCase):
+    def chain(self, source_changes=None, deflake_changes=None, source_run=None):
+        api = RegressionApi()
+        api.add_qa(qa_record(**dict({"next_deflake_bundle_sha256": FINGERPRINT}, **(source_changes or {}))),
+                   source_run)
+        api.add_qa(deflake_record(**(deflake_changes or {})))
+        api.add_production()
+        return api
+
+    def collect(self, api, run_id=1600):
+        return collect_regression(api, run_id=run_id)
+
+    def assertAttributed(self, payload):
+        self.assertEqual(payload["evidence"]["gaps"], [])
+        self.assertEqual(payload["evidence"]["origin"]["run_id"], 1400)
+
+    def assertNotAttributed(self, payload, reason):
+        self.assertIsNone(payload["evidence"]["origin"])
+        gaps = " ".join(payload["evidence"]["gaps"])
+        self.assertIn("Deflake source is not verified", gaps)
+        self.assertIn(reason, gaps)
+        self.assertIn(NOT_ATTACHED, gaps)
+        self.assertEqual(contract.build_fields(payload)["result"], "partial")
+
+    def test_a_deflake_with_a_matching_source_is_attributed_and_never_a_full_regression(self):
+        payload = self.collect(self.chain())
+        self.assertAttributed(payload)
+        fields = contract.build_fields(payload)
+        self.assertEqual((fields["kind"], fields["result"]), ("Deflake", "passed"))
+        self.assertIn("not a full regression", fields["tests"])
+        self.assertIn("source run 1520", fields["tests"])
+
+    def test_the_current_run_keeps_its_own_results_and_retry_count(self):
+        api = self.chain(deflake_changes=dict(retry_count=1, results={
+            "passed": 6, "failed": 0, "skipped": 0, "missing": 0, "selected": 6, "total": 6, "passed_on_rerun": 1}))
+        qa = self.collect(api)["evidence"]["qa"]
+        self.assertEqual((qa["retry_count"], qa["results"]["total"], qa["results"]["passed_on_rerun"]), (1, 6, 1))
+        self.assertEqual(qa["run_id"], 1600)
+
+    def test_a_chain_of_deflakes_is_followed_to_the_full_run(self):
+        api = RegressionApi()
+        api.add_qa(qa_record(next_deflake_bundle_sha256=FINGERPRINT))
+        api.add_qa(deflake_record(1600, next_deflake_bundle_sha256=SECOND_FINGERPRINT))
+        api.add_qa(deflake_record(1700, source=(1600, 1), source_deflake_bundle_sha256=SECOND_FINGERPRINT))
+        api.add_production()
+        self.assertAttributed(self.collect(api, run_id=1700))
+
+    def test_a_fingerprint_that_differs_from_the_source_record_fails_attribution(self):
+        payload = self.collect(self.chain(deflake_changes=dict(source_deflake_bundle_sha256=SECOND_FINGERPRINT)))
+        self.assertNotAttributed(payload, "bundle fingerprint differs")
+
+    def test_a_legacy_bundle_without_proof_fails_attribution(self):
+        payload = self.collect(self.chain(deflake_changes=dict(source_deflake_bundle_sha256=None)))
+        self.assertNotAttributed(payload, "bundle is unverified")
+
+    def test_a_source_record_without_a_produced_fingerprint_fails_attribution(self):
+        payload = self.collect(self.chain(source_changes=dict(next_deflake_bundle_sha256=None)))
+        self.assertNotAttributed(payload, "bundle is unverified")
+
+    def test_a_missing_source_record_fails_attribution(self):
+        api = self.chain()
+        api.artifacts[1520].clear()
+        self.assertNotAttributed(self.collect(api), "source record is missing")
+
+    def test_a_source_run_that_cannot_be_found_fails_attribution(self):
+        api = self.chain(deflake_changes=dict(source=(1999, 1)))
+        self.assertNotAttributed(self.collect(api), "source run could not be read")
+
+    def test_a_source_record_of_another_run_fails_attribution(self):
+        api = self.chain()
+        api.artifacts[1520].clear()
+        api.add_artifact(1520, "release-log-qa-1520-1", qa_record(run_id=1999, next_deflake_bundle_sha256=FINGERPRINT))
+        self.assertNotAttributed(self.collect(api), "source record is invalid")
+
+    def test_a_source_attempt_record_is_not_taken_from_another_attempt(self):
+        api = RegressionApi()
+        api.add_qa(qa_record(attempt=1, next_deflake_bundle_sha256=FINGERPRINT))
+        api.add_run(qa_run(attempt=2))
+        api.add_qa(deflake_record(source=(1520, 2)))
+        api.add_production()
+        self.assertNotAttributed(self.collect(api), "source record is missing")
+
+    def test_a_source_run_of_another_workflow_fails_attribution(self):
+        api = self.chain(source_run=qa_run(path=".github/workflows/qa-android-regression-tests.yml@refs/heads/x"))
+        self.assertNotAttributed(self.collect(api), "source run is not an eligible regression")
+
+    def test_a_source_run_that_was_not_manual_fails_attribution(self):
+        api = self.chain(source_run=qa_run(event="schedule"))
+        self.assertNotAttributed(self.collect(api), "source run is not an eligible regression")
+
+    def test_a_different_test_revision_fails_attribution(self):
+        api = self.chain(source_changes=dict(test_source_sha=OTHER_SHA))
+        self.assertNotAttributed(self.collect(api), "test revision differs")
+
+    def test_a_different_suite_or_selector_fails_attribution(self):
+        for change in [dict(suite="other"), dict(selector="@criticalFlow")]:
+            with self.subTest(change=change):
+                self.assertNotAttributed(self.collect(self.chain(source_changes=change)), "scope differs")
+
+    def test_a_cycle_fails_attribution(self):
+        api = RegressionApi()
+        api.add_qa(deflake_record(1600, source=(1700, 1), next_deflake_bundle_sha256=FINGERPRINT,
+                                  source_deflake_bundle_sha256=SECOND_FINGERPRINT))
+        api.add_qa(deflake_record(1700, source=(1600, 1), next_deflake_bundle_sha256=SECOND_FINGERPRINT,
+                                  source_deflake_bundle_sha256=FINGERPRINT))
+        api.add_production()
+        self.assertNotAttributed(self.collect(api), "source chain repeats")
+
+    def test_a_deflake_that_names_itself_as_source_fails_attribution(self):
+        api = RegressionApi()
+        api.add_qa(deflake_record(1600, source=(1600, 1), next_deflake_bundle_sha256=FINGERPRINT))
+        api.add_production()
+        self.assertNotAttributed(self.collect(api), "source chain repeats")
+
+    def test_a_chain_that_is_too_long_fails_attribution(self):
+        api = RegressionApi()
+        api.add_qa(qa_record(next_deflake_bundle_sha256=FINGERPRINT))
+        for index in range(1, 5):
+            api.add_qa(deflake_record(1520 + index, source=(1519 + index, 1),
+                                      next_deflake_bundle_sha256=FINGERPRINT))
+        api.add_production()
+        with patch.object(report, "MAX_ANCESTRY", 2):
+            self.assertNotAttributed(self.collect(api, run_id=1524), "source chain is too long")
+
+    def chain_of(self, hops):
+        """A deflake whose full run is `hops` source runs away. Run 1600 is the deflake that is collected."""
+        api = RegressionApi()
+        api.add_qa(qa_record(next_deflake_bundle_sha256=FINGERPRINT))
+        previous = 1520
+        for index in range(hops):
+            run_id = 1600 + index
+            api.add_qa(deflake_record(run_id, source=(previous, 1), next_deflake_bundle_sha256=FINGERPRINT))
+            previous = run_id
+        api.add_production()
+        return api, previous
+
+    def source_reads(self, api, collected):
+        return [call for call in api.calls if "/attempts/" in call and not call.endswith("/jobs")
+                and "/runs/%d/" % collected not in call and "/runs/1400/" not in call]
+
+    def test_a_chain_of_exactly_the_limit_is_verified_and_one_more_is_not(self):
+        with patch.object(report, "MAX_ANCESTRY", 3):
+            api, last = self.chain_of(3)
+            self.assertAttributed(self.collect(api, run_id=last))
+            self.assertEqual(len(self.source_reads(api, last)), 3)
+            api, last = self.chain_of(4)
+            payload = self.collect(api, run_id=last)
+            self.assertNotAttributed(payload, "source chain is too long")
+            self.assertEqual(len(self.source_reads(api, last)), 3)
+
+    def test_an_unverified_deflake_is_still_reported_under_its_apk_version(self):
+        api = self.chain(deflake_changes=dict(source_deflake_bundle_sha256=None))
+        fields = contract.build_fields(self.collect(api))
+        self.assertEqual((fields["releaseVersion"], fields["kind"], fields["buildRunUrl"]), ("4.38.0", "Deflake", ""))
+
+    def test_a_full_run_never_follows_ancestry(self):
+        api = reg_world()
+        collect_regression(api)
+        self.assertEqual([call for call in api.calls if "/attempts/" in call and "1400" not in call
+                          and "1520" not in call], [])
+
+
+class PublishCarriesTheEventIdTest(unittest.TestCase):
+    def test_the_twelve_fields_are_the_contract(self):
+        self.assertIn("eventId", sample_fields())
+        self.assertEqual(set(sample_fields()), set(contract.FIELD_NAMES))
+        with self.assertRaises(ValueError):
+            send(Transport(), fields={key: value for key, value in sample_fields().items() if key != "eventId"},
+                 enabled=False)
+
+
 if __name__ == "__main__":
     unittest.main()

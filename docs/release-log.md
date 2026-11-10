@@ -14,7 +14,7 @@ The release log lists each Android build and regression run for a release on one
 
 Production runs are logged the same way. The report lists only the Prod pipeline: `validate-release`, the Prod build, and one row for each deployment target (`s3`, `google-play`, `github-release`). It leaves out the F-Droid pipeline and the `deployment-summary` job, because a summary is not proof of any one target. F-Droid and other flavors export no evidence and get no entry. A rerun that only deploys reports its own attempt and jobs, and says the build evidence belongs to an earlier attempt.
 
-Regression runs join the log in a later change.
+A manual production regression run joins it through the `QA Android Prod Regression RC` trigger.
 
 ## What an entry holds
 
@@ -59,6 +59,18 @@ Normal runs of the production workflow use two retries. A deflake run uses no re
 
 To write the record by hand from the QA step environment, run `make release-log/qa-export output=evidence.json`.
 
+## How the reporter attributes a regression
+
+The reporter reads the QA record of the run and checks it against the GitHub run: repository, run ID, attempt, and workflow. It does not require the tests commit to equal the run commit. It ignores artifacts of other attempts. It treats the record as data and drops a report link that is not on the repository's GitHub Pages site.
+
+It then looks for the production build that made the tested APK. It lists the production runs from the 90 days before the regression and reads each attempt's build record. It needs exactly one build with the same APK file name and SHA-256, and a version label that fits the build. Zero matches, several matches, an expired or invalid record, and a listing that cannot finish are all gaps. The word `latest` and the tests commit never identify the APK.
+
+A regression that matches no build is still reported. It goes to the page for the APK's version label. When the APK has no readable label, it goes to one shared page for unmatched regressions. The `gaps` field then says the regression is not attached to a build page, and the entry has no `buildRunUrl`.
+
+A deflake entry must trace back to a full run. The reporter reads the source run's record and compares two fingerprints: the one in the deflake record, and the one the source run wrote for its bundle. It also checks the tests commit, the suite, and the selector. It follows the chain of source runs until it reaches a full run. A fingerprint that differs, a bundle with no fingerprint, a source with no record, and a chain that repeats all fail the attribution. The entry then appears with the gap and without a build link. The deflake entry keeps its own results and retry count, and the `tests` field says `not a full regression`.
+
+A manual run of the production workflow with another flavor writes no record. The reporter cannot tell that case from a missing export, so such a run shows as an unmatched entry with a missing-evidence gap.
+
 ## The Confluence side
 
 The rule lives in the Confluence automation settings. This repository documents none of it. The field table above is the contract between the reporter and the rule, so a change to a field name needs the same change in the rule. The rule's owner keeps the setup notes.
@@ -97,6 +109,8 @@ make release-log/publish payload=payload.json summary=/dev/stdout dry_run=1
 | The reporter run fails with "version cannot be established" | The run came from a tag push or a release, but it has no valid release context and its tag no longer points at the run's commit. Nothing was sent, and a rerun repeats the result. Add the entry to the page by hand. |
 | The reporter run fails with an HTTP status | Confluence did not accept the request. Check the rule's audit log, then run the workflow again by hand. A replay can add a duplicate entry. |
 | The reporter succeeds and the page has no entry | HTTP success means Confluence accepted the request. Read the rule's audit log. |
+| A regression sits on the shared page for unmatched regressions | The tested APK matched no production build and had no readable version label. Read the `gaps` field. Move the entry by hand if the release is known. |
+| A regression shows `partial` with a gap about the source | The deflake source did not verify. Read the `gaps` field. The deflake tests still ran. |
 | A page starts with a later build | The first entry never arrived, so the rule created the page for the first event it received. A hand run of the earlier build appends below it. |
 | A release has a second page with a number in its title | The rule did not find the existing page. Someone renamed or moved it, or another page has the same title. Move the entries to one page, restore the title, and tell the rule's owner. |
 

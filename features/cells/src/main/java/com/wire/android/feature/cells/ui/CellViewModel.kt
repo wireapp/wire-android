@@ -150,6 +150,7 @@ class CellViewModel @AssistedInject constructor(
     @Named("driveDirectUploadEnabled") val driveDirectUploadEnabled: Boolean,
     @Named("driveBulkActionsEnabled") private val driveBulkActionsEnabled: Boolean,
     @Named("driveOfflineEnabled") private val driveOfflineEnabled: Boolean,
+    @Named("driveBulkRestoreEnabled") internal val bulkRestoreEnabled: Boolean,
 ) : ActionsViewModel<CellViewAction>() {
 
     @AssistedFactory

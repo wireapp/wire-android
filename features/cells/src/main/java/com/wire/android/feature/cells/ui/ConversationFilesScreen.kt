@@ -99,7 +99,6 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.permission.rememberChooseMultipleFilesFlow
 import com.wire.kalium.cells.domain.CellUploadItem
 import kotlinx.collections.immutable.ImmutableList
-import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toPersistentList
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -177,6 +176,7 @@ internal fun ConversationFilesRouteScreen(
         isBulkSelectionEnabled = viewModel.isBulkSelectionEnabled.collectAsState().value,
         bulkDeleteDialog = viewModel.bulkDeleteDialog.collectAsState().value,
         bulkOfflineActionsEnabled = viewModel.bulkOfflineActionsEnabled,
+        bulkRestoreEnabled = viewModel.bulkRestoreEnabled,
     )
 
     LaunchedEffect(Unit) {
@@ -229,6 +229,7 @@ internal fun ConversationFilesScreenContent(
     isBulkSelectionEnabled: Boolean = false,
     bulkDeleteDialog: BulkDeleteDialog? = null,
     bulkOfflineActionsEnabled: Boolean = false,
+    bulkRestoreEnabled: Boolean = false,
 ) {
     val sharedScope = LocalSharedTransitionScope.current
     val isSelectionMode = selectedNodes.isNotEmpty()
@@ -555,8 +556,8 @@ internal fun ConversationFilesScreenContent(
                         if (state == EnterExitState.Visible) pillCornerRadius() else fabCornerRadius()
                     }
                     CellBulkActionsBar(
-                        actions = remember(bulkOfflineActionsEnabled, isRecycleBin, selectedNodes) {
-                            bulkActions(bulkOfflineActionsEnabled, isRecycleBin, selectedNodes.values)
+                        actions = remember(bulkOfflineActionsEnabled, bulkRestoreEnabled, isRecycleBin, selectedNodes) {
+                            bulkActions(bulkOfflineActionsEnabled, bulkRestoreEnabled, isRecycleBin, selectedNodes.values)
                         },
                         onActionClick = { action -> sendIntent(action.toIntent()) },
                         shape = RoundedCornerShape(barCornerRadius),
@@ -586,11 +587,12 @@ private fun pillCornerRadius(): Dp = dimensions().spacing32x
 // Remove offline access only shows up once the selection holds at least one file saved for offline use.
 private fun bulkActions(
     offlineActionsEnabled: Boolean,
+    restoreEnabled: Boolean,
     isRecycleBin: Boolean,
     selectedNodes: Collection<CellNodeUi>,
 ): ImmutableList<CellBulkAction> =
     if (isRecycleBin) {
-        persistentListOf(CellBulkAction.Restore, CellBulkAction.DeletePermanently)
+        recycleBinBulkActions(restoreEnabled)
     } else {
         listOfNotNull(
             CellBulkAction.Move,
@@ -601,6 +603,13 @@ private fun bulkActions(
             },
         ).toPersistentList()
     }
+
+// Restore is behind a feature flag, see FeatureConfigs.DRIVE_BULK_RESTORE_ENABLED.
+internal fun recycleBinBulkActions(restoreEnabled: Boolean): ImmutableList<CellBulkAction> =
+    listOfNotNull(
+        CellBulkAction.Restore.takeIf { restoreEnabled },
+        CellBulkAction.DeletePermanently,
+    ).toPersistentList()
 
 /**
  * Rolls the title up when the selection count grows and down when it shrinks, so entering selection mode

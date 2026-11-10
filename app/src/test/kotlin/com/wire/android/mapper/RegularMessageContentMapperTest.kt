@@ -67,24 +67,18 @@ class RegularMessageContentMapperTest {
     @Test
     fun givenTextOrNullContent_whenMappingToTextMessageContent_thenCorrectValuesShouldBeReturned() = runTest {
         // Given
-        val (arrangement, mapper) = Arrangement().arrange()
+        val (_, mapper) = Arrangement().arrange()
         val textContent = MessageContent.Text("Some Text Message")
-        val nonTextContent = TestMessage.UNKNOWN_MESSAGE
         // When
         val resultText = mapper.toText(TestConversation.ID, TestMessage.TEXT_MESSAGE.content, userMembers, DeliveryStatus.CompleteDelivery)
-        val resultNonText = mapper.toText(TestConversation.ID, nonTextContent.content, userMembers, DeliveryStatus.CompleteDelivery)
         with(resultText) {
             assertTrue(
                 messageBody.message is UIText.DynamicString &&
                         (messageBody.message as UIText.DynamicString).value == textContent.value
             )
         }
-        with(resultNonText) {
-            assertTrue(
-                messageBody.message is UIText.StringResource &&
-                        (messageBody.message as UIText.StringResource).resId == arrangement.messageResourceProvider.sentAMessageWithContent
-            )
-        }
+        // Unreadable content gets its own type, so it never renders as text the sender typed.
+        assertEquals(UIMessageContent.Unknown, mapper.mapMessage(TestMessage.UNKNOWN_MESSAGE, sender, userMembers))
     }
 
     @Test

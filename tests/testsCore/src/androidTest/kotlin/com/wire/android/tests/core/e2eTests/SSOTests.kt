@@ -64,7 +64,7 @@ class SSOTests : BaseUiTest() {
     }
 
     @Suppress("LongMethod")
-    @TestCaseId("TC-4547")
+    @TestCaseId("TC-12626")
     @Category("regression", "RC", "login", "SSO")
     @Test
     fun givenSsoUserLogsInWithKeycloak_whenCompletingTheSsoFlow_thenUserReachesConversationList() {
@@ -159,7 +159,7 @@ class SSOTests : BaseUiTest() {
     }
 
     @Suppress("LongMethod")
-    @TestCaseId("TC-4548")
+    @TestCaseId("TC-12627")
     @Category("regression", "RC", "login", "SSO")
     @Test
     fun givenSsoUserEntersInvalidCodeAndCredentials_whenTryingToSignIn_thenTheRelevantErrorsAreShown() {
@@ -244,7 +244,7 @@ class SSOTests : BaseUiTest() {
         }
     }
 
-    @TestCaseId("TC-11928")
+    @TestCaseId("TC-12769")
     @Category("regression", "RC", "login", "SSO")
     @Test
     fun givenClaimedDomain_whenEnteringMatchingEmail_thenAppRedirectsToOnPremisesBackend() {
@@ -291,7 +291,7 @@ class SSOTests : BaseUiTest() {
     }
 
     @Suppress("LongMethod")
-    @TestCaseId("TC-11929")
+    @TestCaseId("TC-12770")
     @Category("regression", "RC", "login", "SSO")
     @Test
     fun givenSsoClaimedDomain_whenLoggingInWithClaimedEmail_thenConversationListIsVisible() {

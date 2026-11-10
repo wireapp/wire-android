@@ -51,7 +51,7 @@ class PersonalAccountLifeCycle : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-8609")
+    @TestCaseId("TC-12696")
     @Category("criticalFlow")
     @Test
     fun givenNoAccount_whenCreatingAndDeletingPersonalAccount_thenAccountIsRemoved() {

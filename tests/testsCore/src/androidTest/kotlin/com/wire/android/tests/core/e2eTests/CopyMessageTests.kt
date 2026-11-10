@@ -40,7 +40,7 @@ class CopyMessageTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4315")
+    @TestCaseId("TC-12448")
     @Category("regression", "RC", "copyMessage")
     @Test
     fun givenGroupMessage_whenICopyAndPasteIt_thenCopiedMessageIsSentSuccessfully() {
@@ -88,7 +88,7 @@ class CopyMessageTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4314")
+    @TestCaseId("TC-12447")
     @Category("regression", "RC", "copyMessage", "WPB-3525")
     @Test
     fun givenConversationWithManyMessages_whenICopyMessageAfterScrolling_thenCorrectMessageIsCopied() {
@@ -134,16 +134,16 @@ class CopyMessageTests : BaseUiTest() {
                 scrollToBottomOfConversationScreen()
                 longPressOnMessage("That is a lot of messages")
                 tapCopyMessageOption()
-                dismissClipboardOverlay()
             }
         }
 
-        step("Then I see Message copied toast message") {
+        step("Then I see the Message copied snackbar") {
             waitUntilToastIsDisplayed("Message copied")
         }
 
-        step("When I paste the copied text into the input field and send it") {
+        step("When I dismiss the clipboard overlay, paste the copied text into the input field and send it") {
             pages.conversationViewPage.apply {
+                dismissClipboardOverlay()
                 pasteCopiedTextIntoMessageInputField("That is a lot of messages")
                 clickSendButton()
             }

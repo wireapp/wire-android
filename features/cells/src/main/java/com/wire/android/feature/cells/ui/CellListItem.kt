@@ -21,12 +21,15 @@ package com.wire.android.feature.cells.ui
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.SizeTransform
 import androidx.compose.animation.expandHorizontally
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.animation.shrinkHorizontally
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -82,6 +85,7 @@ import com.wire.android.feature.cells.domain.model.icon
 import com.wire.android.feature.cells.domain.model.previewSupported
 import com.wire.android.feature.cells.ui.model.CellNodeUi
 import com.wire.android.feature.cells.ui.model.OpenLoadState
+import com.wire.android.feature.cells.ui.model.isOfflineDownloadPending
 import com.wire.android.feature.cells.ui.search.sort.SortBy
 import com.wire.android.feature.cells.ui.util.PreviewMultipleThemes
 import com.wire.android.ui.common.chip.WireDisplayChipWithOverFlow
@@ -246,6 +250,8 @@ private fun CellItemIcon(cell: CellNodeUi, showReadyState: Boolean, showViewerOn
     val iconState = when {
         cell.isOpenLoading -> CellIconState.Loading(cell.openLoadProgress)
         cell.downloadProgress != null -> CellIconState.Downloading(cell.downloadProgress)
+        // An empty ring: the download hasn't started yet.
+        cell.isOfflineDownloadPending() -> CellIconState.Downloading(0f)
         showReadyState -> CellIconState.Ready
         cell is CellNodeUi.File -> CellIconState.FileIcon(cell)
         else -> CellIconState.FolderIcon(cell as CellNodeUi.Folder)
@@ -271,8 +277,42 @@ private fun CellItemIcon(cell: CellNodeUi, showReadyState: Boolean, showViewerOn
 
 @Composable
 private fun CellItemSubtitle(cell: CellNodeUi, showReadyState: Boolean, showConversationName: Boolean, sortBy: SortBy) {
-    when {
-        cell.openLoadState is OpenLoadState.Loading -> Text(
+    val subtitleState = when {
+        cell.openLoadState is OpenLoadState.Loading -> CellSubtitleState.OpenLoading
+        cell.openLoadState is OpenLoadState.Error -> CellSubtitleState.OpenError
+        cell.downloadProgress == null && cell.isOfflineDownloadPending() -> CellSubtitleState.DownloadQueued
+        cell.downloadProgress != null -> CellSubtitleState.Downloading
+        showReadyState -> CellSubtitleState.Ready
+        else -> CellSubtitleState.Default
+    }
+
+    // Rolls the new text in from below, like SelectionAwareTitle: queued -> downloading -> done reads as one motion.
+    AnimatedContent(
+        targetState = subtitleState,
+        contentAlignment = Alignment.CenterStart,
+        transitionSpec = {
+            (slideInVertically { height -> height } + fadeIn()) togetherWith
+                    (slideOutVertically { height -> -height } + fadeOut()) using
+                    SizeTransform(clip = false)
+        },
+        label = "cell_subtitle_transition",
+    ) { state ->
+        CellItemSubtitleContent(state, cell, showConversationName, sortBy)
+    }
+}
+
+/** What the subtitle of a cell shows; changing from one to another is animated by [CellItemSubtitle]. */
+private enum class CellSubtitleState { OpenLoading, OpenError, DownloadQueued, Downloading, Ready, Default }
+
+@Composable
+private fun CellItemSubtitleContent(
+    state: CellSubtitleState,
+    cell: CellNodeUi,
+    showConversationName: Boolean,
+    sortBy: SortBy,
+) {
+    when (state) {
+        CellSubtitleState.OpenLoading -> Text(
             text = stringResource(R.string.tap_to_cancel_loading),
             textAlign = TextAlign.Left,
             overflow = TextOverflow.Ellipsis,
@@ -281,7 +321,7 @@ private fun CellItemSubtitle(cell: CellNodeUi, showReadyState: Boolean, showConv
             maxLines = 1,
         )
 
-        cell.openLoadState is OpenLoadState.Error -> Text(
+        CellSubtitleState.OpenError -> Text(
             text = stringResource(R.string.unable_to_load_retry),
             textAlign = TextAlign.Left,
             overflow = TextOverflow.Ellipsis,
@@ -290,7 +330,17 @@ private fun CellItemSubtitle(cell: CellNodeUi, showReadyState: Boolean, showConv
             maxLines = 1,
         )
 
-        cell.downloadProgress != null ->
+        CellSubtitleState.DownloadQueued ->
+            Text(
+                text = stringResource(R.string.tap_to_cancel_queued_download),
+                textAlign = TextAlign.Left,
+                overflow = TextOverflow.Ellipsis,
+                style = typography().label04,
+                color = colorsScheme().secondaryText,
+                maxLines = 1,
+            )
+
+        CellSubtitleState.Downloading ->
             Text(
                 text = stringResource(R.string.tap_to_cancel_download),
                 textAlign = TextAlign.Left,
@@ -300,7 +350,7 @@ private fun CellItemSubtitle(cell: CellNodeUi, showReadyState: Boolean, showConv
                 maxLines = 1,
             )
 
-        showReadyState -> Text(
+        CellSubtitleState.Ready -> Text(
             text = stringResource(R.string.ready_to_open),
             textAlign = TextAlign.Left,
             overflow = TextOverflow.Ellipsis,
@@ -309,7 +359,8 @@ private fun CellItemSubtitle(cell: CellNodeUi, showReadyState: Boolean, showConv
             maxLines = 1,
         )
 
-        else -> {
+        // In its own Row: AnimatedContent stacks its content in a Box.
+        CellSubtitleState.Default -> Row(verticalAlignment = Alignment.CenterVertically) {
             if (cell.isAvailableOffline) {
                 Icon(
                     modifier = Modifier

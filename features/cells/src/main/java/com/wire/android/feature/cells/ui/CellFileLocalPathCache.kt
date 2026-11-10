@@ -26,6 +26,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.updateAndGet
 import com.wire.android.di.metro.MetroSessionScope
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
@@ -39,6 +40,8 @@ import dev.zacsweers.metro.SingleIn
  * - [fileReadyEvents]: emitted when a slow download finishes so the UI can show a snackbar.
  * - [openLoadStates]: per-uuid Loading / Ready / Error state consumed by paging combines.
  * - [downloadProgresses]: per-uuid offline-download progress
+ * - [offlineDownloadStates]: the progresses along with the files waiting for their turn in a bulk
+ *   "make available offline" queue, in one state so a file moving from queued to downloading is seen in one go
  *
  * Scoped to [MetroSessionScope] rather than `AppScope` so the paths and load states it holds are
  * discarded on logout instead of surviving into the next account, and so that
@@ -53,6 +56,12 @@ class CellFileLocalPathCache @Inject constructor() {
     private val _openLoadStates = MutableStateFlow<Map<String, OpenLoadState>>(emptyMap())
     val openLoadStates: StateFlow<Map<String, OpenLoadState>> = _openLoadStates.asStateFlow()
 
+    // Source of truth for the progresses and the queued files. Combining two separate flows instead would let a
+    // collector see a file already out of the queue but not downloading yet, showing it idle for a frame.
+    private val _offlineDownloadStates = MutableStateFlow(OfflineDownloadStates())
+    internal val offlineDownloadStates: StateFlow<OfflineDownloadStates> = _offlineDownloadStates.asStateFlow()
+
+    // Mirror of [OfflineDownloadStates.progresses] for the screens that don't deal with the queue.
     private val _downloadProgresses = MutableStateFlow<Map<String, Float?>>(emptyMap())
     internal val downloadProgresses: StateFlow<Map<String, Float?>> = _downloadProgresses.asStateFlow()
 
@@ -80,8 +89,37 @@ class CellFileLocalPathCache @Inject constructor() {
     fun clearOpenLoadState(uuid: String) = _openLoadStates.update { it - uuid }
 
     internal fun setDownloadProgress(uuid: String, progress: Float?) =
-        _downloadProgresses.update { it + (uuid to progress) }
+        updateOfflineDownloadStates { it.copy(progresses = it.progresses + (uuid to progress)) }
 
     internal fun clearDownloadProgress(uuid: String) =
-        _downloadProgresses.update { it - uuid }
+        updateOfflineDownloadStates { it.copy(progresses = it.progresses - uuid) }
+
+    internal fun setDownloadsQueued(uuids: Collection<String>) =
+        updateOfflineDownloadStates { it.copy(queued = it.queued + uuids) }
+
+    internal fun clearDownloadsQueued(uuids: Collection<String>) =
+        updateOfflineDownloadStates { it.copy(queued = it.queued - uuids.toSet()) }
+
+    @Synchronized
+    private fun updateOfflineDownloadStates(transform: (OfflineDownloadStates) -> OfflineDownloadStates) {
+        val updated = _offlineDownloadStates.updateAndGet(transform)
+        _downloadProgresses.value = updated.progresses
+    }
 }
+
+/**
+ * The download progress of [uuid] as [CellNodeUi.downloadProgress] expects it: null when it isn't downloading.
+ * A download whose progress isn't known yet is stored as a null value, a plain lookup would mistake it for no download,
+ * so it shows as just started instead.
+ */
+internal fun Map<String, Float?>.downloadProgressOf(uuid: String): Float? =
+    if (containsKey(uuid)) get(uuid) ?: 0f else null
+
+/**
+ * @param progresses per-uuid offline download progress, a null value while the progress isn't known yet.
+ * @param queued files waiting for their turn in a bulk "make available offline" queue.
+ */
+internal data class OfflineDownloadStates(
+    val progresses: Map<String, Float?> = emptyMap(),
+    val queued: Set<String> = emptySet(),
+)

@@ -41,7 +41,7 @@ class LinksTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4433")
+    @TestCaseId("TC-12518")
     @Category("regression", "RC", "links")
     @Test
     fun givenGroupConversationWithLink_whenITapReceivedLink_thenWebpageOpensInBrowser() {
@@ -165,7 +165,7 @@ class LinksTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4434")
+    @TestCaseId("TC-12519")
     @Category("regression", "RC", "links", "WPB-3518")
     @Test
     fun givenConversationWithManyMessages_whenITapLinkAfterScrolling_thenWebpageOpensInBrowser() {

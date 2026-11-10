@@ -281,8 +281,11 @@ class CellViewModel @AssistedInject constructor(
 
     /** At least one selected file can be saved for offline use, see [canBeMadeAvailableOffline]. */
     internal val canMakeSelectionAvailableOffline: StateFlow<Boolean> = selectedNodes
-        .map { nodes -> bulkOfflineActionsEnabled && nodes.values.any { it is CellNodeUi.File && it.canBeMadeAvailableOffline() } }
-        .stateIn(viewModelScope, SharingStarted.Eagerly, false)
+        .map { nodes ->
+            bulkOfflineActionsEnabled && nodes.values.any {
+                it is CellNodeUi.File && it.canBeMadeAvailableOffline()
+            }
+        }.stateIn(viewModelScope, SharingStarted.Eagerly, false)
 
     /** At least one selected file is already saved for offline use. */
     internal val canRemoveSelectionOfflineAccess: StateFlow<Boolean> = selectedNodes

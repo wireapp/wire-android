@@ -43,7 +43,7 @@ class ConversationListFilterTests : BaseUiTest() {
         device = UiAutomatorSetup.start(UiAutomatorSetup.APP_ALPHA)
     }
 
-    @TestCaseId("TC-4299")
+    @TestCaseId("TC-12432")
     @Category("regression", "RC", "conversationListFilter", "search")
     @Test
     fun givenConnectedPersonalUser_whenSearchingForContactByFullName_thenContactIsVisibleInSearchResults() {
@@ -61,7 +61,7 @@ class ConversationListFilterTests : BaseUiTest() {
         }
     }
 
-    @TestCaseId("TC-4300")
+    @TestCaseId("TC-12433")
     @Category("regression", "RC", "conversationListFilter", "search")
     @Test
     fun givenTeamOwnerWithGroupConversation_whenSearchingByFullName_thenGroupConversationIsVisibleInSearchResults() {
@@ -79,7 +79,7 @@ class ConversationListFilterTests : BaseUiTest() {
         }
     }
 
-    @TestCaseId("TC-4302")
+    @TestCaseId("TC-12435")
     @Category("regression", "RC", "conversationListFilter", "search")
     @Test
     fun givenTeamOwnerWithGroupConversation_whenSearchingByPartialName_thenGroupConversationIsVisibleInSearchResults() {
@@ -97,7 +97,7 @@ class ConversationListFilterTests : BaseUiTest() {
         }
     }
 
-    @TestCaseId("TC-4303")
+    @TestCaseId("TC-12436")
     @Category("regression", "RC", "conversationListFilter", "search")
     @Test
     fun givenTeamOwnerWithGroupConversation_whenSearchingInLowercase_thenGroupConversationIsVisibleInSearchResults() {
@@ -115,7 +115,7 @@ class ConversationListFilterTests : BaseUiTest() {
         }
     }
 
-    @TestCaseId("TC-4304")
+    @TestCaseId("TC-12437")
     @Category("regression", "RC", "conversationListFilter", "search")
     @Test
     fun givenTeamOwnerWithGroupConversation_whenSearchingInUppercase_thenGroupConversationIsVisibleInSearchResults() {
@@ -133,7 +133,7 @@ class ConversationListFilterTests : BaseUiTest() {
         }
     }
 
-    @TestCaseId("TC-4301")
+    @TestCaseId("TC-12434")
     @Category("regression", "RC", "conversationListFilter", "search")
     @Test
     fun givenConnectedPersonalUser_whenSearchingForContactByPartialName_thenContactIsVisibleInSearchResults() {
@@ -151,7 +151,7 @@ class ConversationListFilterTests : BaseUiTest() {
         }
     }
 
-    @TestCaseId("TC-4305")
+    @TestCaseId("TC-12438")
     @Category("regression", "RC", "conversationListFilter", "search")
     @Test
     fun givenExistingGroupConversation_whenSearchingForNonMatchingConversation_thenNoSearchResultIsVisible() {

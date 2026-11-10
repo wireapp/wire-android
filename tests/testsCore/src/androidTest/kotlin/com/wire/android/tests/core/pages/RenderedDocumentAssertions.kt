@@ -19,22 +19,17 @@ package com.wire.android.tests.core.pages
 
 import android.graphics.Bitmap
 import android.graphics.Color
+import android.graphics.Rect
 import androidx.test.platform.app.InstrumentationRegistry
-import androidx.test.uiautomator.UiObject2
 import org.junit.Assert.assertTrue
 import uiautomatorutils.UiWaitUtils
 
 // Crop to the document area and wait for visible content before using it as a reference.
-fun captureRenderedDocumentScreenshot(document: UiObject2): Bitmap {
+fun captureRenderedDocumentScreenshot(bounds: Rect): Bitmap {
     var image: Bitmap? = null
     val loaded = UiWaitUtils.retryUntilTimeout(UiWaitUtils.SHORT_TIMEOUT) {
         image?.recycle()
-        val source = requireNotNull(InstrumentationRegistry.getInstrumentation().uiAutomation.takeScreenshot())
-        val screenshot = requireNotNull(source.copy(Bitmap.Config.ARGB_8888, false))
-        source.recycle()
-        val bounds = document.visibleBounds
-        val cropped = Bitmap.createBitmap(screenshot, bounds.left, bounds.top, bounds.width(), bounds.height())
-        if (cropped !== screenshot) screenshot.recycle()
+        val cropped = captureDocumentArea(bounds)
         image = cropped
         val pixels = IntArray(cropped.width * cropped.height)
         cropped.getPixels(pixels, 0, cropped.width, 0, 0, cropped.width, cropped.height)
@@ -47,11 +42,24 @@ fun captureRenderedDocumentScreenshot(document: UiObject2): Bitmap {
     return requireNotNull(image)
 }
 
-fun assertRenderedDocumentMatchesScreenshot(document: UiObject2, expected: Bitmap) {
-    val actual = captureRenderedDocumentScreenshot(document)
-    try {
-        assertTrue("Document screenshot does not match the expected content in the same viewer", expected.sameAs(actual))
-    } finally {
-        actual.recycle()
+fun assertRenderedDocumentMatchesScreenshot(bounds: Rect, expected: Bitmap) {
+    // The canvas can appear before the page finishes drawing.
+    val matches = UiWaitUtils.retryUntilTimeout(UiWaitUtils.STABLE_TIMEOUT) {
+        val actual = captureDocumentArea(bounds)
+        try {
+            expected.sameAs(actual)
+        } finally {
+            actual.recycle()
+        }
     }
+    assertTrue("Document screenshot does not match the expected content in the same viewer", matches)
+}
+
+private fun captureDocumentArea(bounds: Rect): Bitmap {
+    val source = requireNotNull(InstrumentationRegistry.getInstrumentation().uiAutomation.takeScreenshot())
+    val screenshot = requireNotNull(source.copy(Bitmap.Config.ARGB_8888, false))
+    source.recycle()
+    val cropped = Bitmap.createBitmap(screenshot, bounds.left, bounds.top, bounds.width(), bounds.height())
+    if (cropped !== screenshot) screenshot.recycle()
+    return cropped
 }

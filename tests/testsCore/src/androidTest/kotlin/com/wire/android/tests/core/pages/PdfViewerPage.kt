@@ -35,12 +35,12 @@ data class PdfViewerPage(private val device: UiDevice) {
 
     fun capturePdfPageScreenshot(): Bitmap {
         val page = UiWaitUtils.waitElement(firstPage, timeout = UiWaitUtils.VERY_LONG_TIMEOUT)
-        return captureRenderedDocumentScreenshot(page)
+        return captureRenderedDocumentScreenshot(page.visibleBounds)
     }
 
     fun assertPdfMatchesScreenshot(expected: Bitmap): PdfViewerPage {
         val page = UiWaitUtils.waitElement(firstPage, timeout = UiWaitUtils.VERY_LONG_TIMEOUT)
-        assertRenderedDocumentMatchesScreenshot(page, expected)
+        assertRenderedDocumentMatchesScreenshot(page.visibleBounds, expected)
         return this
     }
 

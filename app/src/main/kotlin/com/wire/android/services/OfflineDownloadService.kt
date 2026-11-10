@@ -78,6 +78,7 @@ class OfflineDownloadService : Service() {
         super.onCreate()
     }
 
+    @Suppress("ReturnCount")
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         lastStartId = startId
 

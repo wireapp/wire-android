@@ -23,8 +23,10 @@ import android.content.Intent
 import com.wire.android.appLogger
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
 import kotlin.time.Duration.Companion.seconds
 
@@ -56,6 +58,9 @@ abstract class CoroutineReceiver : BroadcastReceiver() {
                 )
             } finally {
                 result.finish()
+                withContext(NonCancellable) {
+                    onReceiveFinished(context, intent)
+                }
             }
         }
     }
@@ -63,6 +68,9 @@ abstract class CoroutineReceiver : BroadcastReceiver() {
     private fun timeoutMessage() = "${this::class.java.simpleName} has been suspended for more than $MaxDuration"
 
     abstract suspend fun receive(context: Context, intent: Intent)
+
+    /** Runs after the broadcast is finished, including on timeout. Keep any suspending cleanup bounded. */
+    protected open suspend fun onReceiveFinished(context: Context, intent: Intent) = Unit
 
     protected open fun onTimeout(context: Context, intent: Intent, exception: Exception) {
         appLogger.e(timeoutMessage(), exception)

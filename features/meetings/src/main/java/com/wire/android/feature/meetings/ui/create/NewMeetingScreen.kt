@@ -207,7 +207,7 @@ fun NewMeetingContent(
                     participants = state.confirmedContacts,
                     onClick = onParticipantsClicked,
                 )
-                if (type == NewMeetingType.Schedule && state.isGuestLinkSharingEnabled) {
+                if (type !is NewMeetingType.Edit && state.isGuestLinkSharingEnabled) {
                     VerticalSpace.x24()
                     PasswordInput(
                         passwordState = passwordState,

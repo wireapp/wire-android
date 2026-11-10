@@ -171,7 +171,7 @@ class NewMeetingViewModelImpl @AssistedInject constructor(
                     }
                 }
                 state = state.copy(
-                    isGuestLinkSharingEnabled = meetingType == NewMeetingType.Schedule
+                    isGuestLinkSharingEnabled = meetingType !is NewMeetingType.Edit
                             && meetingsGuestsLinksEnabled
                             && isMeetingsEnabledUseCase.isGuestLinkSharingEnabled(),
                     initialLoading = InitialLoadingState.Loaded,
@@ -208,13 +208,12 @@ class NewMeetingViewModelImpl @AssistedInject constructor(
         state = state.copy(
             invalidPassword = false,
             passwordsDoNotMatch = false,
-            continueButtonEnabled = titleTextState.text.trim().isNotEmpty() &&
-                    state.titleError == null && state.startTimeError == null && state.endTimeError == null && !state.isSubmitting
+            continueButtonEnabled = validateContinueButton()
         )
     }
 
     override fun onGenerateRandomPassword() {
-        if (type == NewMeetingType.Schedule && state.isGuestLinkSharingEnabled) {
+        if (type !is NewMeetingType.Edit && state.isGuestLinkSharingEnabled) {
             val password = generatePassword()
             passwordTextState.setTextAndPlaceCursorAtEnd(password)
             confirmPasswordTextState.setTextAndPlaceCursorAtEnd(password)
@@ -223,7 +222,7 @@ class NewMeetingViewModelImpl @AssistedInject constructor(
 
     private val optionalPassword: String?
         get() = passwordTextState.text.toString().takeIf {
-            type == NewMeetingType.Schedule && state.isGuestLinkSharingEnabled && it.isNotEmpty()
+            type !is NewMeetingType.Edit && state.isGuestLinkSharingEnabled && it.isNotEmpty()
         }
 
     private fun validateOptionalPassword(): Boolean {
@@ -234,7 +233,7 @@ class NewMeetingViewModelImpl @AssistedInject constructor(
         state = state.copy(
             invalidPassword = invalidPassword,
             passwordsDoNotMatch = passwordsDoNotMatch,
-            continueButtonEnabled = state.continueButtonEnabled && passwordValid,
+            continueButtonEnabled = validateContinueButton()
         )
         return passwordValid
     }
@@ -309,10 +308,7 @@ class NewMeetingViewModelImpl @AssistedInject constructor(
         }
         state = state.copy(
             titleError = titleError,
-            continueButtonEnabled = titleTextState.text.trim().isNotEmpty() &&
-                    titleError == null &&
-                    state.startTimeError == null &&
-                    state.endTimeError == null && !state.hasPasswordError
+            continueButtonEnabled = validateContinueButton()
         )
         return titleError == null
     }
@@ -331,13 +327,13 @@ class NewMeetingViewModelImpl @AssistedInject constructor(
         state = state.copy(
             startTimeError = startTimeError,
             endTimeError = endTimeError,
-            continueButtonEnabled = titleTextState.text.trim().isNotEmpty() &&
-                    state.titleError == null &&
-                    startTimeError == null &&
-                    endTimeError == null && !state.hasPasswordError
+            continueButtonEnabled = validateContinueButton()
         )
         return startTimeError == null && endTimeError == null
     }
+
+    private fun validateContinueButton(): Boolean = titleTextState.text.trim().isNotEmpty() && state.titleError == null &&
+            state.startTimeError == null && state.endTimeError == null && !state.hasPasswordError && !state.isSubmitting
 
     override fun submitCreation() {
         viewModelScope.launch {
@@ -368,7 +364,7 @@ class NewMeetingViewModelImpl @AssistedInject constructor(
                         otherParticipants = state.confirmedContacts.map { UserId(it.id, it.domain) }
                     )
                 )
-                state = state.copy(isSubmitting = false, continueButtonEnabled = true)
+                state = state.copy(isSubmitting = false, continueButtonEnabled = validateContinueButton())
                 when (creationResult) {
                     is CreateNewMeetingUseCase.Result.Success -> sendAction(
                         NewMeetingViewActions.Success(
@@ -401,7 +397,7 @@ class NewMeetingViewModelImpl @AssistedInject constructor(
                         otherParticipants = state.confirmedContacts.map { UserId(it.id, it.domain) }
                     )
                 )
-                state = state.copy(isSubmitting = false, continueButtonEnabled = true)
+                state = state.copy(isSubmitting = false, continueButtonEnabled = validateContinueButton())
                 when (updateResult) {
                     is UpdateMeetingUseCase.Result.Success -> sendAction(NewMeetingViewActions.Success())
                     is UpdateMeetingUseCase.Result.Failure -> state = state.copy(
@@ -421,7 +417,7 @@ class NewMeetingViewModelImpl @AssistedInject constructor(
         viewModelScope.launch {
             state = state.copy(isSubmitting = true, continueButtonEnabled = false)
             renameConversationUseCase(conversationId = conversationId, conversationName = titleTextState.text.trim().toString()).let {
-                state = state.copy(isSubmitting = false, continueButtonEnabled = true)
+                state = state.copy(isSubmitting = false, continueButtonEnabled = validateContinueButton())
                 when (it) {
                     is RenamingResult.Failure ->
                         state = state.copy(submitError = NewMeetingState.SubmitError.UpdateConversationNameFailure(conversationId))

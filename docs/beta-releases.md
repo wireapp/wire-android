@@ -1,7 +1,9 @@
 # Beta releases
 
 Beta releases use tags such as `v4.37.0-beta.1` at the current remote tip of a
-release-cycle branch named `release/cycle-*`, such as `release/cycle-4.37.0`.
+release-cycle branch named `release/cycle-*`, such as `release/cycle-4.37`.
+Name the branch with the minor line only, without the patch number. One branch
+carries `4.37.0` and later patch releases such as `4.37.1`.
 The base version must match `AndroidApp.versionName` in that commit. Beta numbers
 are positive integers without leading zeros. Merges into `develop` still publish
 alpha builds; pushes to `main` no longer publish beta builds. Stabilization fixes
@@ -19,8 +21,8 @@ not supported; if the branch advances before validation, run the action again
 on its latest commit.
 
 ```sh
-gh workflow run release-beta.yml --ref release/cycle-4.37.0
-gh workflow run release-beta.yml --ref release/cycle-4.37.0 -f beta-number=3
+gh workflow run release-beta.yml --ref release/cycle-4.37
+gh workflow run release-beta.yml --ref release/cycle-4.37 -f beta-number=3
 ```
 
 The action creates an annotated tag and explicitly starts **Beta release** at
@@ -29,7 +31,7 @@ that tag. It uses `GITHUB_TOKEN` and needs no personal access token.
 ## Release by pushing a tag
 
 ```sh
-git fetch origin release/cycle-4.37.0 --tags
+git fetch origin release/cycle-4.37 --tags
 git tag -a v4.37.0-beta.1 FETCH_HEAD -m "Beta 4.37.0, build 1"
 git push origin refs/tags/v4.37.0-beta.1
 ```
@@ -78,7 +80,7 @@ their existing workflows.
 
 ```sh
 SOURCE_COMMIT=HEAD make beta-release/validate-source
-SOURCE_BRANCH=release/cycle-4.37.0 SOURCE_COMMIT=HEAD make beta-release/validate-source
+SOURCE_BRANCH=release/cycle-4.37 SOURCE_COMMIT=HEAD make beta-release/validate-source
 ```
 
 The validator reads live heads from `origin`, prints the accepted commit SHA,

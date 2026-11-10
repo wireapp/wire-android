@@ -21,6 +21,7 @@ import com.wire.android.feature.cells.ui.model.CellNodeUi
 import com.wire.android.feature.cells.ui.model.NodeBottomSheetAction
 import com.wire.android.feature.cells.ui.model.NodeMenuItem
 import com.wire.android.feature.cells.ui.model.isEditSupported
+import com.wire.android.feature.cells.ui.model.isOfflineDownloadPending
 import com.wire.android.feature.cells.ui.model.localFileAvailable
 import com.wire.kalium.logic.featureFlags.KaliumConfigs
 import dev.zacsweers.metro.Inject
@@ -64,7 +65,7 @@ class CellFileActionsMenu @Inject constructor(
             isConversationFiles -> {
                 val common = commonActions(cellNode, isConversationFiles = true)
                 val isTerminal = cellNode is CellNodeUi.File &&
-                        (cellNode.isOpenLoading || cellNode.downloadProgress != null)
+                        (cellNode.isOpenLoading || cellNode.isOfflineDownloadPending())
                 if (isTerminal) {
                     common
                 } else {
@@ -97,7 +98,7 @@ class CellFileActionsMenu @Inject constructor(
                     return@buildList
                 }
 
-                cellNode.downloadProgress != null -> {
+                cellNode.isOfflineDownloadPending() -> {
                     add(NodeMenuItem(NodeBottomSheetAction.CANCEL_DOWNLOAD))
                     return@buildList
                 }

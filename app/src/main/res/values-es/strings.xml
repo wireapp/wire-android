@@ -820,6 +820,7 @@ Un mensaje eliminado no puede ser restaurado.</string>
     <string name="cancel_login_button_label">Cancelar</string>
     <string name="cancel_login_dialog_description">Si cancelas ahora, se cerrar&#225; tu sesi&#243;n</string>
     <string name="cancel_login_dialog_title">&#191;Seguro que quieres cancelar?</string>
+    <!-- Restart App dialog -->
     <!-- Analytics Usage dialog -->
     <!-- session reset -->
     <string name="label_system_message_session_reset">%1$s no pudo descifrar algunos de tus mensajes pero ha resuelto el problema. Esto afect&#243; a todas las conversaciones que compartes juntos.</string>

@@ -109,6 +109,7 @@
     <string name="content_description_conversation_send_emoticon">Отправить смайл</string>
     <string name="content_description_conversation_send_gif">Отправить GIF</string>
     <string name="content_description_conversation_mention_someone">Упомянуть кого-нибудь</string>
+    <string name="mention_everyone_description">Уведомить всех в этой беседе</string>
     <string name="content_description_conversation_back_btn">Вернуться к списку бесед</string>
     <string name="content_description_conversation_open_details_label">открыть информацию о беседе</string>
     <string name="content_description_new_conversation">Новый. Начать новую беседу</string>
@@ -430,6 +431,7 @@
     <string name="delete_message_for_yourself_dialog_title">Удалить это сообщение у себя?</string>
     <string name="delete_message_for_yourself_dialog_message">После удаления сообщения у себя, оно останется видимым только у других участников.\n\nУдаленное сообщение не может быть восстановлено.</string>
     <string name="deleted_message_text">Удаленное сообщение</string>
+    <string name="unsupported_message_text">Это сообщение не может быть показано в этой версии.</string>
     <string name="deleted_message_options_closed">Опции были закрыты, поскольку это сообщение больше не доступно.</string>
     <string name="deleted_conversation_options_closed">Опции были закрыты, поскольку эта беседа больше не доступна.</string>
     <!-- Replies/Quotes to other messages -->
@@ -1486,6 +1488,7 @@
     <string name="cancel_login_button_label">Отмена</string>
     <string name="cancel_login_dialog_description">В случае отказа произойдет завершение сеанса.</string>
     <string name="cancel_login_dialog_title">Вы действительно хотите отменить?</string>
+    <!-- Restart App dialog -->
     <!-- Analytics Usage dialog -->
     <string name="analytics_usage_dialog_title">Согласие на передачу пользовательских данных</string>
     <string name="analytics_usage_dialog_text">Помогите улучшить Wire, поделившись данными о своем использовании с помощью псевдонимного идентификатора. Эти данные не связаны с вашей личной информацией и не передаются третьим лицам, помимо Wire Group. К ним относятся, например, время использования функции, версия вашего приложения, тип устройства или операционная система. Эти данные будут удалены не позднее чем через 365 дней.\n\nБолее подробная информация содержится в нашей Политике конфиденциальности. Вы можете отозвать свое согласие в любое время.</string>

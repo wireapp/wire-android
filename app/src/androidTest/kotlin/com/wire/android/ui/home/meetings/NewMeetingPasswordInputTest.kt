@@ -18,10 +18,14 @@
 package com.wire.android.ui.home.meetings
 
 import android.content.ClipboardManager
+import androidx.activity.ComponentActivity
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.InputMode
+import androidx.compose.ui.input.InputModeManager
+import androidx.compose.ui.platform.LocalInputModeManager
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertIsDisplayed
@@ -29,6 +33,7 @@ import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsFocused
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.hasContentDescription
+import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
@@ -38,6 +43,7 @@ import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.test.platform.app.InstrumentationRegistry
+import androidx.test.uiautomator.UiDevice
 import com.wire.android.feature.meetings.ui.create.NewMeetingContent
 import com.wire.android.feature.meetings.ui.create.NewMeetingState
 import com.wire.android.feature.meetings.ui.create.NewMeetingType
@@ -63,10 +69,11 @@ class NewMeetingPasswordInputTest(private val meetingType: NewMeetingType) {
     }
 
     @get:Rule
-    val composeTestRule = createComposeRule()
+    val composeTestRule = createAndroidComposeRule<ComponentActivity>()
 
     private val context get() = InstrumentationRegistry.getInstrumentation().targetContext
     private var errorColor = Color.Unspecified
+    private lateinit var inputModeManager: InputModeManager
     private val initialState = NewMeetingState(
         startTime = Instant.parse("2026-11-10T12:00:00Z"),
         endTime = Instant.parse("2026-11-10T13:00:00Z"),
@@ -138,10 +145,28 @@ class NewMeetingPasswordInputTest(private val meetingType: NewMeetingType) {
     fun givenPasswordFocused_whenPressingImeNext_thenConfirmationReceivesFocus() {
         renderMeeting()
 
-        composeTestRule.onNodeWithTag("meetingPasswordInput")
-            .performScrollTo()
-            .performClick()
-            .performImeAction()
+        composeTestRule.runOnIdle {
+            assertTrue(inputModeManager.requestInputMode(InputMode.Keyboard))
+        }
+        composeTestRule.waitUntil(timeoutMillis = 5_000) { inputModeManager.inputMode == InputMode.Keyboard }
+
+        val passwordInput = composeTestRule.onNodeWithTag("meetingPasswordInput").performScrollTo()
+        val passwordCenter = passwordInput.fetchSemanticsNode().boundsInWindow.center
+        val locationOnScreen = IntArray(2)
+        val locationInWindow = IntArray(2)
+        composeTestRule.runOnIdle {
+            composeTestRule.activity.window.decorView.getLocationOnScreen(locationOnScreen)
+            composeTestRule.activity.window.decorView.getLocationInWindow(locationInWindow)
+        }
+        // Inject through Android so the tap also switches the host out of keyboard navigation mode.
+        assertTrue(
+            UiDevice.getInstance(InstrumentationRegistry.getInstrumentation()).click(
+                (passwordCenter.x + locationOnScreen[0] - locationInWindow[0]).toInt(),
+                (passwordCenter.y + locationOnScreen[1] - locationInWindow[1]).toInt(),
+            )
+        )
+        composeTestRule.waitUntil(timeoutMillis = 5_000) { inputModeManager.inputMode == InputMode.Touch }
+        passwordInput.assertIsFocused().performImeAction()
 
         composeTestRule.onNodeWithTag("meetingConfirmPasswordInput").assertIsFocused()
     }
@@ -213,6 +238,7 @@ class NewMeetingPasswordInputTest(private val meetingType: NewMeetingType) {
         composeTestRule.setContent {
             WireTestTheme {
                 errorColor = MaterialTheme.colorScheme.error
+                inputModeManager = LocalInputModeManager.current
                 NewMeetingContent(
                     state = state,
                     titleState = TextFieldState("Meeting"),
@@ -223,6 +249,7 @@ class NewMeetingPasswordInputTest(private val meetingType: NewMeetingType) {
                 )
             }
         }
+        composeTestRule.waitUntil(timeoutMillis = 5_000) { composeTestRule.activity.hasWindowFocus() }
     }
 }
 

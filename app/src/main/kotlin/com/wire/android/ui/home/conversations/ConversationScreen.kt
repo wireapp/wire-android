@@ -322,8 +322,8 @@ internal fun ConversationScreenRouteContent(
             }
     }
 
-    conversationMigrationViewModel.migratedConversationId?.let { migratedConversationId ->
-        navigation.replaceConversation(migratedConversationId)
+    LaunchedEffect(conversationMigrationViewModel.migratedConversationId) {
+        conversationMigrationViewModel.migratedConversationId?.let(navigation::replaceConversation)
     }
 
     when (showDialog.value) {

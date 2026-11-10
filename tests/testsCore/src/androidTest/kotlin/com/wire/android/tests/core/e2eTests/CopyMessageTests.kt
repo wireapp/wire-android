@@ -40,7 +40,7 @@ class CopyMessageTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4315")
+    @TestCaseId("TC-12448")
     @Category("regression", "RC", "copyMessage")
     @Test
     fun givenGroupMessage_whenICopyAndPasteIt_thenCopiedMessageIsSentSuccessfully() {
@@ -88,7 +88,7 @@ class CopyMessageTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4314")
+    @TestCaseId("TC-12447")
     @Category("regression", "RC", "copyMessage", "WPB-3525")
     @Test
     fun givenConversationWithManyMessages_whenICopyMessageAfterScrolling_thenCorrectMessageIsCopied() {
@@ -134,16 +134,16 @@ class CopyMessageTests : BaseUiTest() {
                 scrollToBottomOfConversationScreen()
                 longPressOnMessage("That is a lot of messages")
                 tapCopyMessageOption()
-                dismissClipboardOverlay()
             }
         }
 
-        step("Then I see Message copied toast message") {
+        step("Then I see the Message copied snackbar") {
             waitUntilToastIsDisplayed("Message copied")
         }
 
-        step("When I paste the copied text into the input field and send it") {
+        step("When I dismiss the clipboard overlay, paste the copied text into the input field and send it") {
             pages.conversationViewPage.apply {
+                dismissClipboardOverlay()
                 pasteCopiedTextIntoMessageInputField("That is a lot of messages")
                 clickSendButton()
             }
@@ -166,6 +166,7 @@ class CopyMessageTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "CopyCats", backendClient)
         }
 
         step("And User user1Name adds user user2Name to team CopyCats with role Member") {
@@ -180,17 +181,20 @@ class CopyMessageTests : BaseUiTest() {
             )
         }
 
-        step("And User user1Name has group conversation CopyMe with user2Name") {
-            backendSetupHelper.userHasGroupConversationInTeam(
-                "user1Name",
-                "CopyMe",
-                "user2Name",
-                "CopyCats"
-            )
+        step("And MLS devices are registered for all participants") {
+            testServiceHelper.apply {
+                addDevice("user1Name", null, "Device1")
+                addDevice("user2Name", null, "Device1")
+            }
         }
 
-        step("And User user2Name adds a new device Device1 with label Device1") {
-            testServiceHelper.addDevice("user2Name", null, "Device1")
+        step("And User user1Name creates MLS group conversation CopyMe with user2Name") {
+            testServiceHelper.userCreatesMLSGroupConversation(
+                ownerAlias = "user1Name",
+                participantAliases = "user2Name",
+                conversationName = "CopyMe",
+                deviceName = "Device1"
+            )
         }
 
         step("And User user1Name is me") {

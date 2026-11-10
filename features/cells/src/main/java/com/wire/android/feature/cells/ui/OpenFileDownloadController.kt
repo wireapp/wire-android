@@ -17,13 +17,16 @@
  */
 package com.wire.android.feature.cells.ui
 
+import com.wire.android.di.CurrentAccount
 import com.wire.android.feature.cells.ui.OpenFileDownloadController.Companion.SPINNER_THRESHOLD_MS
 import com.wire.android.feature.cells.ui.model.CellNodeUi
 import com.wire.android.feature.cells.ui.model.OpenLoadState
 import com.wire.android.feature.cells.util.FileHelper
+import com.wire.android.feature.cells.util.cellFileDestination
 import com.wire.kalium.cells.domain.usecase.download.DownloadCellFileUseCase
 import com.wire.kalium.common.functional.Either
 import com.wire.kalium.common.functional.onSuccess
+import com.wire.kalium.logic.data.user.UserId
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -58,6 +61,7 @@ class OpenFileDownloadController @Inject constructor(
     private val download: DownloadCellFileUseCase,
     private val fileHelper: FileHelper,
     private val sharedPathCache: CellFileLocalPathCache,
+    @CurrentAccount private val userId: UserId,
 ) {
     private data class ActiveDownload(val job: Job, val filePath: Path)
 
@@ -88,10 +92,7 @@ class OpenFileDownloadController @Inject constructor(
             return
         }
 
-        val filePath = File(fileHelper.getExternalFilesDir(), cellNode.conversationId ?: cellNode.uuid)
-            .also { it.mkdirs() }
-            .let { File(it, nodeName) }
-            .toOkioPath()
+        val filePath = fileHelper.cellFileDestination(userId, cellNode.conversationId, cellNode.uuid, nodeName).toOkioPath()
 
         val job = scope.launch {
             performDownload(cellNode, filePath, onOpenFile, onError)

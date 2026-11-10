@@ -15,6 +15,9 @@ jobs:
     # Expose /dev/kvm for hardware-accelerated Android emulator tests.
     runs-on: "warp-ubuntu-2404-x64-8x;nested-virtualization.enabled=true"
     timeout-minutes: 30
+    env:
+      # 37.2.12 passed CI; 37.2.13 disconnects during instrumentation tests.
+      EMULATOR_BUILD: '16428233'
     strategy:
       matrix:
         api-level: [ 31 ]
@@ -47,13 +50,13 @@ jobs:
           enable-kvm: true
 
       - name: AVD cache
-        uses: WarpBuilds/cache@40f3443ae7b70e568d6e2070ea897f3df94d7553 # v1
+        uses: WarpBuilds/cache@dad44e2487e9dc889ad6e6bd198e77bb2d828eee # v2
         id: avd-cache
         with:
           path: |
             ~/.android/avd/*
             ~/.android/adb*
-          key: ${{ runner.os }}-avd-${{ matrix.api-level }}-google_apis-x86_64
+          key: ${{ runner.os }}-avd-${{ matrix.api-level }}-google_apis-x86_64-${{ env.EMULATOR_BUILD }}
 
       - name: create AVD and generate snapshot for caching
         if: steps.avd-cache.outputs.cache-hit != 'true'
@@ -63,6 +66,7 @@ jobs:
           target: google_apis
           arch: x86_64
           force-avd-creation: false
+          emulator-build: ${{ env.EMULATOR_BUILD }}
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
           disable-animations: true
           script: echo "Generated AVD snapshot for caching."
@@ -73,10 +77,21 @@ jobs:
           api-level: ${{ matrix.api-level }}
           target: google_apis
           arch: x86_64
+          emulator-build: ${{ env.EMULATOR_BUILD }}
           script: make ui-tests
         env:
           GITHUB_USER: ${{ github.actor }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload instrumentation diagnostics
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: ui-test-diagnostics-${{ matrix.api-level }}-${{ inputs.artifact-suffix }}
+          if-no-files-found: warn
+          path: |
+            app/build/reports/androidTests/
+            app/build/outputs/androidTest-results/
 
       - name: Get commit hash
         run: echo "COMMIT_HASH=$(git rev-parse HEAD)" >> $GITHUB_ENV

@@ -18,6 +18,8 @@
 package com.wire.android.tests.core.e2eTests
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import backendUtils.conversation.getConversationByName
+import backendUtils.conversation.setConversationAccess
 import backendUtils.team.getTeamByName
 import backendUtils.team.TeamRoles
 import backendUtils.team.updateUserProfileImage
@@ -27,6 +29,7 @@ import com.wire.android.tests.support.UiAutomatorSetup
 import com.wire.android.tests.support.tags.Category
 import com.wire.android.tests.support.tags.TestCaseId
 import kotlinx.coroutines.runBlocking
+import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -54,7 +57,7 @@ class ConferenceCallingRestrictionTests : BaseCallUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4277", "TC-4285", "TC-4276", "TC-4280")
+    @TestCaseId("TC-12411", "TC-12418", "TC-12410", "TC-12414")
     @Category("regression", "RC", "conferenceRestrictions")
     @Test
     fun givenIAmATeamMemberOfNonPayingTeam_whenIInitiateConferenceCall_thenISeeUpgradeInfoDialog() {
@@ -67,6 +70,7 @@ class ConferenceCallingRestrictionTests : BaseCallUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "SuperTeam", backendClient)
         }
 
         step("And User TeamOwner adds users Member1 and Member2 to team SuperTeam with role Member") {
@@ -81,12 +85,20 @@ class ConferenceCallingRestrictionTests : BaseCallUiTest() {
             )
         }
 
-        step("And User TeamOwner has group conversation ConferenceCall with Member1 and Member2") {
-            backendSetupHelper.userHasGroupConversationInTeam(
-                "user1Name",
-                "ConferenceCall",
-                "user2Name,user3Name",
-                "SuperTeam"
+        step("And MLS devices are registered for all participants") {
+            testServiceHelper.apply {
+                addDevice("user1Name", null, "Device1")
+                addDevice("user2Name", null, "Device1")
+                addDevice("user3Name", null, "Device1")
+            }
+        }
+
+        step("And User TeamOwner has MLS group conversation ConferenceCall with Member1 and Member2") {
+            testServiceHelper.userCreatesMLSGroupConversation(
+                ownerAlias = "user1Name",
+                participantAliases = "user2Name,user3Name",
+                conversationName = "ConferenceCall",
+                deviceName = "Device1"
             )
         }
 
@@ -222,7 +234,7 @@ class ConferenceCallingRestrictionTests : BaseCallUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4281", "TC-4283", "TC-4284", "TC-4288")
+    @TestCaseId("TC-12415", "TC-12416", "TC-12417", "TC-12421")
     @Category("regression", "RC", "conferenceRestrictions")
     @Test
     fun givenIAmATeamAdminOfNonPayingTeam_whenIInitiateConferenceCall_thenISeeUpgradeInfoDialog() {
@@ -235,6 +247,7 @@ class ConferenceCallingRestrictionTests : BaseCallUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "SuperTeam", backendClient)
         }
 
         step("And User TeamOwner adds users Member1 and Member2 to team SuperTeam with role Member") {
@@ -249,12 +262,20 @@ class ConferenceCallingRestrictionTests : BaseCallUiTest() {
             )
         }
 
-        step("And User TeamOwner has group conversation ConferenceCall with Member1 and Member2") {
-            backendSetupHelper.userHasGroupConversationInTeam(
-                "user1Name",
-                "ConferenceCall",
-                "user2Name,user3Name",
-                "SuperTeam"
+        step("And MLS devices are registered for all participants") {
+            testServiceHelper.apply {
+                addDevice("user1Name", null, "Device1")
+                addDevice("user2Name", null, "Device1")
+                addDevice("user3Name", null, "Device1")
+            }
+        }
+
+        step("And User TeamOwner has MLS group conversation ConferenceCall with Member1 and Member2") {
+            testServiceHelper.userCreatesMLSGroupConversation(
+                ownerAlias = "user1Name",
+                participantAliases = "user2Name,user3Name",
+                conversationName = "ConferenceCall",
+                deviceName = "Device1"
             )
         }
 
@@ -441,7 +462,7 @@ class ConferenceCallingRestrictionTests : BaseCallUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4278", "TC-4279")
+    @TestCaseId("TC-12412", "TC-12413")
     @Category("regression", "RC", "conferenceRestrictions")
     @Test
     fun givenIAmAPersonalUserOutsidePayingTeam_whenIInitiateConferenceCall_thenISeeFeatureUnavailableAlert() {
@@ -471,11 +492,24 @@ class ConferenceCallingRestrictionTests : BaseCallUiTest() {
             backendSetupHelper.userIsConnectedTo("user1Name", "user2Name")
         }
 
-        step("And User Myself has group conversation ConferenceCall with Contact1 as a personal user") {
-            backendSetupHelper.userHasGroupConversationAsPersonalUser(
-                "user1Name",
-                "ConferenceCall",
-                "user2Name"
+        step("And MLS devices are registered for all participants") {
+            testServiceHelper.apply {
+                addDevice("user1Name", null, "Device1")
+                addDevice("user2Name", null, "Device1")
+            }
+        }
+
+        step("And User Myself has MLS group conversation ConferenceCall with Contact1 as a personal user") {
+            testServiceHelper.userCreatesMLSGroupConversation(
+                ownerAlias = "user1Name",
+                participantAliases = "user2Name",
+                conversationName = "ConferenceCall",
+                deviceName = "Device1"
+            )
+            assertEquals(
+                "Group conversation must use MLS",
+                "mls",
+                testServiceHelper.toConvoObj(personalUser, "ConferenceCall").protocol
             )
         }
 
@@ -565,7 +599,7 @@ class ConferenceCallingRestrictionTests : BaseCallUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4286", "TC-4289")
+    @TestCaseId("TC-12419", "TC-12422")
     @Category("regression", "RC", "conferenceRestrictions")
     @Test
     fun givenIAmAPersonalGuestOutsidePayingTeam_whenIJoinAndInitiateConferenceCall_thenICanJoinButCannotInitiate() {
@@ -578,6 +612,7 @@ class ConferenceCallingRestrictionTests : BaseCallUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "SuperTeam", backendClient)
             teamOwner = clientUserManager.findUserByNameOrNameAlias("user1Name")
             runBlocking {
                 backendClient.upgradeToEnterprisePlanResult(
@@ -611,12 +646,20 @@ class ConferenceCallingRestrictionTests : BaseCallUiTest() {
             )
         }
 
+        step("And MLS devices are registered for the team participants") {
+            testServiceHelper.apply {
+                addDevice("user1Name", null, "Device1")
+                addDevice("user2Name", null, "Device1")
+                addDevice("user3Name", null, "Device1")
+            }
+        }
+
         step("And User TeamOwner has group conversation ConferenceCall with Member1 and Member2") {
-            backendSetupHelper.userHasGroupConversationInTeam(
-                "user1Name",
-                "ConferenceCall",
-                "user2Name,user3Name",
-                "SuperTeam"
+            testServiceHelper.userCreatesMLSGroupConversation(
+                ownerAlias = "user1Name",
+                participantAliases = "user2Name,user3Name",
+                conversationName = "ConferenceCall",
+                deviceName = "Device1"
             )
         }
 
@@ -632,11 +675,16 @@ class ConferenceCallingRestrictionTests : BaseCallUiTest() {
             backendSetupHelper.userIsConnectedTo("user1Name", "user4Name")
         }
 
+        step("And an MLS device is registered for Guest") {
+            testServiceHelper.addDevice("user4Name", null, "Device1")
+        }
+
         step("And User TeamOwner adds user Guest to group conversation ConferenceCall") {
-            backendSetupHelper.userXAddedContactsToGroupChat(
-                "user1Name",
-                "user4Name",
-                "ConferenceCall"
+            testServiceHelper.userXAddedContactsToGroupChat(
+                userAsNameAlias = "user1Name",
+                contactsToAddNameAliases = "user4Name",
+                chatName = "ConferenceCall",
+                deviceName = "Device1"
             )
         }
 
@@ -777,8 +825,8 @@ class ConferenceCallingRestrictionTests : BaseCallUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4287")
-    @Category("regression", "conferenceRestrictions")
+    @TestCaseId("TC-12420")
+    @Category("regression", "RC", "conferenceRestrictions")
     @Test
     fun givenIAmPersonalUserOutsidePayingTeam_whenIJoinConferenceThroughGuestLink_thenICanJoinButCannotInitiate() {
         step("Given There is a team owner TeamOwner with team SuperTeam") {
@@ -790,6 +838,7 @@ class ConferenceCallingRestrictionTests : BaseCallUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "SuperTeam", backendClient)
             teamOwner = clientUserManager.findUserByNameOrNameAlias("user1Name")
             runBlocking {
                 backendClient.upgradeToEnterprisePlanResult(
@@ -824,13 +873,32 @@ class ConferenceCallingRestrictionTests : BaseCallUiTest() {
             member1 = clientUserManager.findUserByNameOrNameAlias("user2Name")
         }
 
-        step("And User TeamOwner has group conversation ConferenceCall with Member1 and Member2 in team SuperTeam") {
-            backendSetupHelper.userHasGroupConversationInTeam(
-                "user1Name",
-                "ConferenceCall",
-                "user2Name,user3Name",
-                "SuperTeam"
+        step("And MLS devices are registered for all participants") {
+            testServiceHelper.apply {
+                addDevice("user1Name", null, "Device1")
+                addDevice("user2Name", null, "Device1")
+                addDevice("user3Name", null, "Device1")
+            }
+        }
+
+        step("And User TeamOwner has MLS group conversation ConferenceCall with Member1 and Member2 in team SuperTeam") {
+            testServiceHelper.userCreatesMLSGroupConversation(
+                ownerAlias = "user1Name",
+                participantAliases = "user2Name,user3Name",
+                conversationName = "ConferenceCall",
+                deviceName = "Device1"
             )
+        }
+
+        step("And TeamOwner enables guest access for conversation ConferenceCall") {
+            runBlocking {
+                backendClient.setConversationAccess(
+                    asUser = teamOwner,
+                    conversation = backendClient.getConversationByName(teamOwner, "ConferenceCall"),
+                    access = listOf("invite", "code"),
+                    accessRoles = listOf("team_member", "non_team_member", "guest")
+                )
+            }
         }
 
         step("And User TeamOwner creates invite link for conversation ConferenceCall") {
@@ -988,7 +1056,7 @@ class ConferenceCallingRestrictionTests : BaseCallUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4290", "TC-4291")
+    @TestCaseId("TC-12423", "TC-12424")
     @Category("regression", "RC", "conferenceRestrictions")
     @Test
     fun givenIAmTeamMemberOfNonPayingTeam_whenIInitiateCallWithOneParticipant_thenAudioAndVideoCallCanBeCompleted() {
@@ -1001,6 +1069,7 @@ class ConferenceCallingRestrictionTests : BaseCallUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user3Name", "SuperTeam", backendClient)
         }
 
         step("And User TeamOwner adds users Member1 and Member2 to team SuperTeam with role Member") {
@@ -1133,7 +1202,7 @@ class ConferenceCallingRestrictionTests : BaseCallUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4292")
+    @TestCaseId("TC-12425")
     @Category("regression", "RC", "conferenceRestrictions")
     @Test
     fun givenIAmTeamOwnerOfNonPayingTeam_whenIInitiateGroupCall_thenUpgradeToEnterpriseAlertIsDisplayed() {
@@ -1146,6 +1215,7 @@ class ConferenceCallingRestrictionTests : BaseCallUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "SuperTeam", backendClient)
         }
 
         step("And User TeamOwner adds user Member1 to team SuperTeam with role Member") {
@@ -1160,12 +1230,19 @@ class ConferenceCallingRestrictionTests : BaseCallUiTest() {
             )
         }
 
-        step("And User TeamOwner has group conversation ConferenceCall with Member1 in team SuperTeam") {
-            backendSetupHelper.userHasGroupConversationInTeam(
-                "user1Name",
-                "ConferenceCall",
-                "user2Name",
-                "SuperTeam"
+        step("And MLS devices are registered for all participants") {
+            testServiceHelper.apply {
+                addDevice("user1Name", null, "Device1")
+                addDevice("user2Name", null, "Device1")
+            }
+        }
+
+        step("And User TeamOwner has MLS group conversation ConferenceCall with Member1 in team SuperTeam") {
+            testServiceHelper.userCreatesMLSGroupConversation(
+                ownerAlias = "user1Name",
+                participantAliases = "user2Name",
+                conversationName = "ConferenceCall",
+                deviceName = "Device1"
             )
         }
 
@@ -1240,7 +1317,7 @@ class ConferenceCallingRestrictionTests : BaseCallUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4293")
+    @TestCaseId("TC-12426")
     @Category("regression", "RC", "conferenceRestrictions")
     @Test
     fun givenIAmNonPayingTeamMember_whenIInitiateAudioOrVideoCallInGroupWithOneParticipant_thenFeatureUnavailableAlertIsDisplayed() {
@@ -1253,6 +1330,7 @@ class ConferenceCallingRestrictionTests : BaseCallUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "SuperTeam", backendClient)
         }
 
         step("And User TeamOwner adds user Member1 to team SuperTeam with role Member") {
@@ -1267,12 +1345,19 @@ class ConferenceCallingRestrictionTests : BaseCallUiTest() {
             )
         }
 
-        step("And User TeamOwner has group conversation ConferenceCall with Member1 in team SuperTeam") {
-            backendSetupHelper.userHasGroupConversationInTeam(
-                "user1Name",
-                "ConferenceCall",
-                "user2Name",
-                "SuperTeam"
+        step("And MLS devices are registered for all participants") {
+            testServiceHelper.apply {
+                addDevice("user1Name", null, "Device1")
+                addDevice("user2Name", null, "Device1")
+            }
+        }
+
+        step("And User TeamOwner has MLS group conversation ConferenceCall with Member1 in team SuperTeam") {
+            testServiceHelper.userCreatesMLSGroupConversation(
+                ownerAlias = "user1Name",
+                participantAliases = "user2Name",
+                conversationName = "ConferenceCall",
+                deviceName = "Device1"
             )
         }
 
@@ -1344,7 +1429,7 @@ class ConferenceCallingRestrictionTests : BaseCallUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4294")
+    @TestCaseId("TC-12427")
     @Category("regression", "RC", "conferenceRestrictions")
     @Test
     fun givenIAmPersonalUser_whenIInitiateAudioOrVideoCallInGroupWithOneParticipant_thenFeatureUnavailableAlertIsDisplayed() {
@@ -1369,11 +1454,24 @@ class ConferenceCallingRestrictionTests : BaseCallUiTest() {
             backendSetupHelper.userIsConnectedTo("user1Name", "user2Name")
         }
 
-        step("And User Myself has group conversation Group with Contact as a personal user") {
-            backendSetupHelper.userHasGroupConversationAsPersonalUser(
-                "user1Name",
-                "Group",
-                "user2Name"
+        step("And MLS devices are registered for all participants") {
+            testServiceHelper.apply {
+                addDevice("user1Name", null, "Device1")
+                addDevice("user2Name", null, "Device1")
+            }
+        }
+
+        step("And User Myself has MLS group conversation Group with Contact as a personal user") {
+            testServiceHelper.userCreatesMLSGroupConversation(
+                ownerAlias = "user1Name",
+                participantAliases = "user2Name",
+                conversationName = "Group",
+                deviceName = "Device1"
+            )
+            assertEquals(
+                "Group conversation must use MLS",
+                "mls",
+                testServiceHelper.toConvoObj(personalUser, "Group").protocol
             )
         }
 

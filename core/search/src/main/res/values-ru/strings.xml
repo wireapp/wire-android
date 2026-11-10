@@ -17,6 +17,9 @@
   ~ along with this program. If not, see http://www.gnu.org/licenses/.
   -->
 <resources>
+    <string name="label_search_groups_instruction">Поиск групп и каналов по названию</string>
+    <string name="label_add_member_groups">Группы и каналы</string>
+    <string name="label_search_people_groups">Поиск пользователей, групп и каналов</string>
     <string name="label_no_results_found">Результатов не найдено. Пожалуйста, попробуйте еще раз.</string>
     <string name="search_results_apps_empty_title">Ваша команда еще не добавила приложения</string>
     <string name="search_results_apps_empty_description_team_admin">Приложения - это помощники, которые могут улучшить ваш рабочий процесс. Как администратор команды, вы можете добавить их в управлении командой.</string>

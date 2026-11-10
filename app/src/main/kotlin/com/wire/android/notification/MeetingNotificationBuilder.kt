@@ -28,7 +28,7 @@ import com.wire.kalium.logic.data.meeting.MeetingReminder
 import com.wire.kalium.logic.data.notification.LocalNotification
 import com.wire.kalium.logic.data.user.UserId
 import dev.zacsweers.metro.Inject
-import kotlinx.datetime.Instant
+import kotlin.time.Instant
 
 class MeetingNotificationBuilder @Inject constructor(
     private val context: Context,

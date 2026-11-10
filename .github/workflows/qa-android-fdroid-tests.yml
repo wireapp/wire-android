@@ -1,0 +1,121 @@
+name: QA Android F-Droid Prod Regression
+run-name: ${{ inputs.runMode == 'Deflake failed tests' && format('QA Android F-Droid Prod Regression - Manual Deflake from {0}', inputs.sourceRunId || 'latest completed run') || 'QA Android F-Droid Prod Regression' }}
+
+# The reused pipeline owns the device-group lock.
+on:
+  schedule:
+    - cron: "0 8 * * *"
+      timezone: "Europe/Berlin"
+  workflow_dispatch:
+    inputs:
+      runMode:
+        description: "Run tests (default '@fdroid') or deflake failures from this workflow."
+        required: true
+        default: "Normal tests"
+        type: choice
+        options:
+          - Normal tests
+          - Deflake failed tests
+
+      sourceRunId:
+        description: "Deflake only: leave empty for the latest completed F-Droid run, or enter a specific 'manual deflake id'."
+        required: false
+        default: ""
+        type: string
+
+      testServiceUrl:
+        description: "Test Service URL. Leave empty to use the default test service."
+        required: false
+        default: ""
+        type: string
+
+      appBuildNumber:
+        description: "Normal runs only: 'latest' or build number (e.g. 71389). Deflake reuses the source build."
+        required: true
+        default: "latest"
+        type: string
+
+      isUpgrade:
+        description: "Normal runs only: upgrade test? oldBuildNumber defaults to the previous APK."
+        required: true
+        default: false
+        type: boolean
+
+      oldBuildNumber:
+        description: "Old build number (optional). Upgrade tests use the previous build unless specified."
+        required: false
+        default: ""
+        type: string
+
+      flavor:
+        description: "F-Droid app flavor. Deflake reuses the source build."
+        required: true
+        type: choice
+        options:
+          - fdroid
+        default: fdroid
+
+      TAGS:
+        description: "Defaults to '@fdroid'. Enter another tag or test ID, e.g. '@regression' or '@TC-8143'."
+        required: false
+        default: "@fdroid"
+        type: string
+
+      testinyRunName:
+        description: "Normal runs only: TESTINY_RUN_NAME. Deflake automatically reuses the source run's setting."
+        required: false
+        default: ""
+        type: string
+
+      androidDeviceId:
+        description: "Device ID (optional). Enter a device serial to run on one device instead of the whole group."
+        required: false
+        default: ""
+        type: string
+
+      androidDeviceGroup:
+        description: "Device group to run tests on. Defaults to GrapheneOS; enter another configured group to override."
+        required: true
+        default: "GrapheneOS"
+        type: string
+
+      rerunFailedCount:
+        description: "Retry count (0–3). Leave blank to use the default. Normal runs: 1 retry · Deflake: 0 retries."
+        required: false
+        default: ""
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  run-tests:
+    uses: ./.github/workflows/qa-android-regression-tests.yml
+    permissions:
+      contents: write
+      actions: read
+    with:
+      workflowTitle: QA Android F-Droid Prod Regression
+      sourceWorkflowFile: .github/workflows/qa-android-fdroid-tests.yml
+      reportTitle: android fdroid prod regression
+      reportDirectory: qa-fdroid-tests
+      jobTimeoutMinutes: 40
+      runMode: ${{ inputs.runMode || 'Normal tests' }}
+      sourceRunId: ${{ inputs.sourceRunId || '' }}
+      testServiceUrl: ${{ inputs.testServiceUrl || '' }}
+      appBuildNumber: ${{ inputs.appBuildNumber || 'latest' }}
+      isUpgrade: ${{ inputs.isUpgrade || false }}
+      oldBuildNumber: ${{ inputs.oldBuildNumber || '' }}
+      flavor: fdroid
+      TAGS: ${{ github.event_name == 'schedule' && '@fdroid' || inputs.TAGS }}
+      testinyRunName: ${{ inputs.testinyRunName || '' }}
+      androidDeviceId: ${{ inputs.androidDeviceId || '' }}
+      androidDeviceGroup: ${{ inputs.androidDeviceGroup || 'GrapheneOS' }}
+      rerunFailedCount: ${{ inputs.rerunFailedCount || '' }}
+    secrets:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
+      OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
+      WIRE_QA_AUTOMATION_CHANNEL_URL: ${{ secrets.WIRE_QA_AUTOMATION_CHANNEL_URL }}
+      WIRE_QA_AUTOMATION_CHANNEL_TOKEN: ${{ secrets.WIRE_QA_AUTOMATION_CHANNEL_TOKEN }}

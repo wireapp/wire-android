@@ -57,8 +57,9 @@ if not output_path:
     sys.exit(1)
 
 with open(env_path, "a", encoding="utf-8") as handle:
-    # Only keep install-related values job-wide.
+    # Keep the selected app and its consent setting available to every test attempt.
     handle.write(f"APP_ID={app}\n")
+    handle.write(f"IS_COUNTLY_AVAILABLE={'false' if flavor == 'fdroid' else 'true'}\n")
     handle.write("PACKAGES_TO_UNINSTALL=" + " ".join(pkgs) + "\n")
 
 with open(output_path, "a", encoding="utf-8") as handle:

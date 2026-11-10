@@ -47,8 +47,8 @@ class GdprTest : BaseUiTest() {
     }
 
     @Suppress("LongMethod")
-    @TestCaseId("TC-8704", "TC-8132")
-    @Category("regression", "RC", "gdpr")
+    @TestCaseId("TC-12719", "TC-12668")
+    @Category("regression", "gdpr")
     @Test
     fun givenTeamMember_whenAcceptingAnonymousDataSharing_thenAnalyticsInitializedIsSetToTrueAndIdentifierIsVisibleInDebugSettings() {
         step("Given There is a team owner user1Name with team GDPR and member user2Name") {
@@ -60,6 +60,7 @@ class GdprTest : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "GDPR", backendClient)
             backendSetupHelper.userXAddsUsersToTeam(
                 "user1Name",
                 "user2Name",
@@ -135,8 +136,8 @@ class GdprTest : BaseUiTest() {
     }
 
     @Suppress("LongMethod")
-    @TestCaseId("TC-8705", "TC-8134")
-    @Category("regression", "RC", "gdpr")
+    @TestCaseId("TC-12720", "TC-12670")
+    @Category("regression", "gdpr")
     @Test
     fun givenPersonalUser_whenAcceptingAnonymousDataSharing_thenAnalyticsInitializedIsSetToTrueAndIdentifierIsVisibleInDebugSettings() {
         step("Given There is a personal user user1Name and User user1Name is me") {
@@ -211,8 +212,8 @@ class GdprTest : BaseUiTest() {
     }
 
     @Suppress("LongMethod")
-    @TestCaseId("TC-8706", "TC-8133")
-    @Category("regression", "RC", "gdpr")
+    @TestCaseId("TC-12721", "TC-12669")
+    @Category("regression", "gdpr")
     @Test
     fun givenTeamMember_whenDecliningAnonymousDataSharing_thenAnalyticsInitializedIsSetToFalseAndIdentifierIsVisibleInDebugSettings() {
         step("Given There is a team owner user1Name with team GDPR and member user2Name") {
@@ -224,6 +225,7 @@ class GdprTest : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "GDPR", backendClient)
             backendSetupHelper.userXAddsUsersToTeam(
                 "user1Name",
                 "user2Name",
@@ -299,8 +301,8 @@ class GdprTest : BaseUiTest() {
     }
 
     @Suppress("LongMethod")
-    @TestCaseId("TC-8707", "TC-8135")
-    @Category("regression", "RC", "gdpr")
+    @TestCaseId("TC-12722", "TC-12671")
+    @Category("regression", "gdpr")
     @Test
     fun givenPersonalUser_whenDecliningAnonymousDataSharing_thenAnalyticsInitializedIsSetToFalseAndIdentifierIsVisibleInDebugSettings() {
         step("Given There is a personal user user1Name and User user1Name is me") {

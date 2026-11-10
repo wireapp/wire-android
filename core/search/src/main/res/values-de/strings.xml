@@ -17,6 +17,9 @@
   ~ along with this program. If not, see http://www.gnu.org/licenses/.
   -->
 <resources>
+    <string name="label_search_groups_instruction">Gruppen und Channels suchen</string>
+    <string name="label_add_member_groups">Gruppen &amp; Channels</string>
+    <string name="label_search_people_groups">Personen, Gruppen und Channels suchen</string>
     <string name="label_no_results_found">Keine Ergebnisse, bitte erneut versuchen.</string>
     <string name="search_results_apps_empty_title">Ihr Team hat noch keine Apps hinzugefügt</string>
     <string name="search_results_apps_empty_description_team_admin">Apps sind Helfer, die Ihren Workflow verbessern können. Als Team-Admin können Sie diese im Team-Management hinzufügen.</string>

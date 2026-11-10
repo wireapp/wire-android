@@ -45,7 +45,7 @@ class ArchiveTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4234", "TC-4235")
+    @TestCaseId("TC-12369", "TC-12370")
     @Category("regression", "RC", "archive")
     @Test
     fun givenOneOnOneConversation_whenArchivingFromUserProfilePageAndConversationListPage_thenICanArchiveAndUnarchive() {
@@ -58,6 +58,7 @@ class ArchiveTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "Archive", backendClient)
         }
 
         step("And User TeamOwner adds user Member1 to team Archive with role Member") {
@@ -70,6 +71,10 @@ class ArchiveTests : BaseUiTest() {
                 context,
                 true
             )
+        }
+
+        step("And User Member1 has Device1 available for pre-login archive notification checks") {
+            testServiceHelper.addDevice("user2Name", null, "Device1")
         }
 
         step("And User TeamOwner has 1:1 conversation with Member1 in team Archive") {
@@ -298,7 +303,7 @@ class ArchiveTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4236", "TC-4237")
+    @TestCaseId("TC-12371", "TC-12372")
     @Category("regression", "RC", "archive")
     @Test
     fun givenGroupConversation_whenArchivingFromGroupDetailsPageAndConversationListPage_thenICanArchiveAndUnarchive() {
@@ -311,6 +316,7 @@ class ArchiveTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "Archive", backendClient)
         }
 
         step("And User TeamOwner adds users Member1 and Member2 to team Archive with role Member") {
@@ -329,12 +335,20 @@ class ArchiveTests : BaseUiTest() {
             teamOwner = clientUserManager.findUserByNameOrNameAlias("user1Name")
         }
 
+        step("And MLS devices are registered for all participants") {
+            testServiceHelper.apply {
+                addDevice("user1Name", null, "Device1")
+                addDevice("user2Name", null, "Device1")
+                addDevice("user3Name", null, "Device1")
+            }
+        }
+
         step("And User TeamOwner has group conversation MyTeam with Member1 and Member2 in team Archive") {
-            backendSetupHelper.userHasGroupConversationInTeam(
-                "user1Name",
-                "MyTeam",
-                "user2Name,user3Name",
-                "Archive"
+            testServiceHelper.userCreatesMLSGroupConversation(
+                ownerAlias = "user1Name",
+                participantAliases = "user2Name,user3Name",
+                conversationName = "MyTeam",
+                deviceName = "Device1"
             )
         }
 
@@ -563,7 +577,7 @@ class ArchiveTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4238")
+    @TestCaseId("TC-12373")
     @Category("regression", "RC", "archive")
     @Test
     fun givenArchivedGroupConversation_whenSendingAndReceivingMessages_thenCanICanSendAndReceiveMessage() {
@@ -576,6 +590,7 @@ class ArchiveTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "Archive", backendClient)
         }
 
         step("And User TeamOwner adds users Member1 and Member2 to team Archive with role Member") {
@@ -594,16 +609,20 @@ class ArchiveTests : BaseUiTest() {
             teamOwner = clientUserManager.findUserByNameOrNameAlias("user1Name")
         }
 
-        step("And User Member2 has Device1 available for backend messaging") {
-            testServiceHelper.addDevice("user3Name", null, "Device1")
+        step("And MLS devices are registered for all participants") {
+            testServiceHelper.apply {
+                addDevice("user1Name", null, "Device1")
+                addDevice("user2Name", null, "Device1")
+                addDevice("user3Name", null, "Device1")
+            }
         }
 
         step("And User TeamOwner has group conversation MyTeam with Member1 and Member2 in team Archive") {
-            backendSetupHelper.userHasGroupConversationInTeam(
-                "user1Name",
-                "MyTeam",
-                "user2Name,user3Name",
-                "Archive"
+            testServiceHelper.userCreatesMLSGroupConversation(
+                ownerAlias = "user1Name",
+                participantAliases = "user2Name,user3Name",
+                conversationName = "MyTeam",
+                deviceName = "Device1"
             )
         }
 
@@ -701,7 +720,7 @@ class ArchiveTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4239")
+    @TestCaseId("TC-12374")
     @Category("regression", "RC", "archive")
     @Test
     fun givenILeftGroupConversation_whenArchivingFromConversationListPage_thenICanArchive() {
@@ -714,6 +733,7 @@ class ArchiveTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "Archive", backendClient)
         }
 
         step("And User TeamOwner adds users Member1 and Member2 to team Archive with role Member") {
@@ -732,12 +752,20 @@ class ArchiveTests : BaseUiTest() {
             teamOwner = clientUserManager.findUserByNameOrNameAlias("user1Name")
         }
 
+        step("And MLS devices are registered for all participants") {
+            testServiceHelper.apply {
+                addDevice("user1Name", null, "Device1")
+                addDevice("user2Name", null, "Device1")
+                addDevice("user3Name", null, "Device1")
+            }
+        }
+
         step("And User TeamOwner has group conversation MyTeam with Member1 and Member2 in team Archive") {
-            backendSetupHelper.userHasGroupConversationInTeam(
-                "user1Name",
-                "MyTeam",
-                "user2Name,user3Name",
-                "Archive"
+            testServiceHelper.userCreatesMLSGroupConversation(
+                ownerAlias = "user1Name",
+                participantAliases = "user2Name,user3Name",
+                conversationName = "MyTeam",
+                deviceName = "Device1"
             )
         }
 
@@ -828,8 +856,8 @@ class ArchiveTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4240")
-    @Category("regression", "archive")
+    @TestCaseId("TC-12375")
+    @Category("regression", "RC", "archive")
     @Test
     fun givenArchivedConversations_whenReceivingMessages_thenNoNotifications() {
         step("Given There is a team owner TeamOwner with team Archive") {
@@ -841,6 +869,7 @@ class ArchiveTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "Archive", backendClient)
         }
 
         step("And User TeamOwner adds user Member1 to team Archive with role Member") {
@@ -868,11 +897,11 @@ class ArchiveTests : BaseUiTest() {
         }
 
         step("And User TeamOwner has group conversation ArchivedConvo with Member1 in team Archive") {
-            backendSetupHelper.userHasGroupConversationInTeam(
-                "user1Name",
-                "ArchivedConvo",
-                "user2Name",
-                "Archive"
+            testServiceHelper.userCreatesMLSGroupConversation(
+                ownerAlias = "user1Name",
+                participantAliases = "user2Name",
+                conversationName = "ArchivedConvo",
+                deviceName = "Device1"
             )
         }
 
@@ -994,8 +1023,8 @@ class ArchiveTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4241")
-    @Category("regression", "archive")
+    @TestCaseId("TC-12376")
+    @Category("regression", "RC", "archive")
     @Test
     fun givenArchivedConversations_whenReceivingSelfDeletingMessages_thenNoNotifications() {
         step("Given There is a team owner TeamOwner with team Archive") {
@@ -1007,6 +1036,7 @@ class ArchiveTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "Archive", backendClient)
         }
 
         step("And User TeamOwner adds user Member1 to team Archive with role Member") {
@@ -1034,11 +1064,11 @@ class ArchiveTests : BaseUiTest() {
         }
 
         step("And User TeamOwner has group conversation ArchivedConvo with Member1 in team Archive") {
-            backendSetupHelper.userHasGroupConversationInTeam(
-                "user1Name",
-                "ArchivedConvo",
-                "user2Name",
-                "Archive"
+            testServiceHelper.userCreatesMLSGroupConversation(
+                ownerAlias = "user1Name",
+                participantAliases = "user2Name",
+                conversationName = "ArchivedConvo",
+                deviceName = "Device1"
             )
         }
 
@@ -1158,7 +1188,7 @@ class ArchiveTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4242")
+    @TestCaseId("TC-12377")
     @Category("regression", "RC", "archive")
     @Test
     fun givenConversationsArchivedBeforeLogin_whenAppIsInForegroundAndReceivingMessages_thenNoNotifications() {
@@ -1171,6 +1201,7 @@ class ArchiveTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "Archive", backendClient)
         }
 
         step("And User TeamOwner adds user Member1 to team Archive with role Member") {
@@ -1194,17 +1225,13 @@ class ArchiveTests : BaseUiTest() {
         }
 
         step("And User TeamOwner has group conversation ArchivedConvo with Member1 in team Archive") {
-            backendSetupHelper.userHasGroupConversationInTeam(
-                "user1Name",
-                "ArchivedConvo",
-                "user2Name",
-                "Archive"
+            testServiceHelper.userCreatesMLSGroupConversation(
+                ownerAlias = "user1Name",
+                participantAliases = "user2Name",
+                conversationName = "ArchivedConvo",
+                deviceName = "Device1"
             )
         }
-        step("And User Member1 has Device1 available for pre-login archive notification checks") {
-            testServiceHelper.addDevice("user2Name", null, "Device1")
-        }
-
         step("And User TeamOwner is me") {
             teamOwner = clientUserManager.findUserByNameOrNameAlias("user1Name")
         }

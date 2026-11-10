@@ -1059,6 +1059,7 @@
         <item quantity="other">%1$d Dateien hochgeladen</item>
     </plurals>
     <string name="notification_drive_upload_progress_text">%1$d von %2$d abgeschlossen</string>
+    <string name="notification_drive_upload_title_with_conversation">%1$s • %2$s</string>
     <string name="notification_drive_upload_complete_title">Upload abgeschlossen</string>
     <plurals name="notification_drive_upload_complete_text">
         <item quantity="one">%1$d Datei hochgeladen</item>
@@ -1281,16 +1282,14 @@ Bei Gruppenunterhaltungen kann der Gruppen-Admin diese Einstellung überschreibe
     <string name="other_devices_label">Andere Geräte</string>
     <!--max account reached dialog-->
     <plurals name="max_account_reached_dialog_title">
-        <item quantity="one">ein aktives Konto</item>
+        <item quantity="one">Ein aktives Konto</item>
         <item quantity="other">%1$d aktive Konten</item>
     </plurals>
     <plurals name="max_account_reached_dialog_message">
-        <item quantity="one">Sie können nur mit einem Konto angemeldet sein. Melden Sie sich von einem Konto ab, um ein anderes hinzuzufügen.</item>
-        <item quantity="other">Sie können nur mit %1$d Konten gleichzeitig angemeldet sein. Melden Sie sich von einem ab, um ein anderes hinzuzufügen.</item>
+        <item quantity="one">Sie können nur mit einem Benutzerkonto angemeldet sein. Melden Sie sich von diesem Konto ab, um ein anderes hinzuzufügen.</item>
+        <item quantity="other">Sie können nur mit %1$d Benutzerkonten gleichzeitig angemeldet sein. Melden Sie sich von einem ab, um ein anderes hinzuzufügen.</item>
     </plurals>
     <string name="max_account_reached_dialog_button_open_profile">Profil öffnen</string>
-    <!--nomad account blocks login dialog-->
-    <string name="nomad_login_blocked_message">Anmeldung nicht möglich, wenn ein anderes Konto aktiv ist</string>
     <string name="cant_switch_account_in_call">Sie können während eines Anrufs nicht das Konto wechseln</string>
     <string name="cross_backend_login_blocked_title">Wechseln der Backends ist gesperrt</string>
     <string name="cross_backend_login_blocked_message">Derzeit können Sie sich nicht bei einem anderen Backend anmelden. Melden Sie sich zunächst ab und melden Sie sich dann bei einem anderen Backend an.</string>
@@ -1866,21 +1865,23 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
     <string name="notification_meeting_update_short">Meeting aktualisiert</string>
     <string name="notification_meeting_cancel">%1$s hat dieses Meeting abgesagt</string>
     <string name="notification_meeting_cancel_short">Meeting abgesagt</string>
+    <string name="notification_meeting_starting_at">Beginnt %1$s</string>
+    <string name="meeting_reminder_exact_alarm_settings">Einstellungen öffnen</string>
     <plurals name="startup_account_limit_title">
-        <item quantity="one">Ein Konto entfernen</item>
+        <item quantity="one">Konto entfernen</item>
         <item quantity="other">%1$d Konten entfernen</item>
     </plurals>
     <plurals name="startup_account_limit_message_one_allowed">
-        <item quantity="one">Auf diesem Gerät können Sie jeweils nur ein Benutzerkonto verwenden. Melden Sie sich von diesem Konto ab oder wählen Sie „Später“, um sich von dem anderen Konto abzumelden.\nErstellen Sie eine Datensicherung, um Ihren Gesprächsverlauf zu erhalten.</item>
-        <item quantity="other">Auf diesem Gerät können Sie jeweils nur ein Benutzerkonto verwenden. Melden Sie sich von diesem Konto ab oder wählen Sie „Später“, um sich von den anderen Konten abzumelden.\nErstellen Sie eine Datensicherung, um Ihren Gesprächsverlauf zu erhalten.</item>
+        <item quantity="one">Auf diesem Gerät können Sie jeweils nur ein Benutzerkonto verwenden. Melden Sie sich von diesem Konto ab oder wählen Sie Später, um sich vom anderen Konto abzumelden.\nErstellen Sie eine Datensicherung, um Ihren Gesprächsverlauf zu erhalten.</item>
+        <item quantity="other">Auf diesem Gerät können Sie jeweils nur ein Benutzerkonto verwenden. Melden Sie sich von diesem Konto ab oder wählen Sie Später, um sich von den anderen Konten abzumelden.\nErstellen Sie eine Datensicherung, um Ihren Gesprächsverlauf zu erhalten.</item>
     </plurals>
     <plurals name="startup_account_limit_message_two_allowed">
-        <item quantity="one">Auf diesem Gerät können Sie nur zwei Benutzerkonten gleichzeitig verwenden. Melden Sie sich von diesem Konto ab oder wählen Sie „Später“, um sich vom anderen Konto abzumelden.\nErstellen Sie eine Datensicherung, um Ihren Gesprächsverlauf zu erhalten.</item>
-        <item quantity="other">Auf diesem Gerät können Sie nur zwei Benutzerkonten gleichzeitig verwenden. Melden Sie sich von diesem Konto ab oder wählen Sie „Später“, um sich von den anderen Konten abzumelden.\nErstellen Sie eine Datensicherung, um Ihren Gesprächsverlauf zu erhalten.</item>
+        <item quantity="one">Auf diesem Gerät können Sie jeweils nur zwei Benutzerkonten gleichzeitig verwenden. Melden Sie sich von diesem Konto ab oder wählen Sie Später, um sich vom anderen Konto abzumelden.\nErstellen Sie eine Datensicherung, um Ihren Gesprächsverlauf zu erhalten.</item>
+        <item quantity="other">Auf diesem Gerät können Sie jeweils nur zwei Benutzerkonten gleichzeitig verwenden. Melden Sie sich von diesem Konto ab oder wählen Sie Später, um sich von den anderen Konten abzumelden.\nErstellen Sie eine Datensicherung, um Ihren Gesprächsverlauf zu erhalten.</item>
     </plurals>
     <plurals name="startup_account_limit_message_other_allowed">
-        <item quantity="one">Auf diesem Gerät können Sie nur %1$d Benutzerkonten gleichzeitig verwenden. Melden Sie sich von diesem Konto ab oder wählen Sie „Später“, um sich vom anderen Konto abzumelden.\nErstellen Sie eine Datensicherung, um Ihren Gesprächsverlauf zu erhalten.</item>
-        <item quantity="other">Auf diesem Gerät können Sie nur %1$d Benutzerkonten gleichzeitig verwenden. Melden Sie sich von diesem Konto ab oder wählen Sie „Später“, um sich von den anderen Konten abzumelden.\nErstellen Sie eine Datensicherung, um Ihren Gesprächsverlauf zu erhalten.</item>
+        <item quantity="one">Auf diesem Gerät können Sie jeweils nur %1$d Benutzerkonten verwenden. Melden Sie sich von diesem Konto ab oder wählen Sie Später, um sich vom anderen Konto abzumelden.\nErstellen Sie eine Datensicherung, um Ihren Gesprächsverlauf zu erhalten.</item>
+        <item quantity="other">Auf diesem Gerät können Sie jeweils nur %1$d Benutzerkonten verwenden. Melden Sie sich von diesem Konto ab oder wählen Sie Später, um sich von den anderen Konten abzumelden.\nErstellen Sie eine Datensicherung, um Ihren Gesprächsverlauf zu erhalten.</item>
     </plurals>
     <string name="startup_account_limit_logout">Von diesem Konto abmelden</string>
     <string name="startup_account_limit_later">Später</string>

@@ -139,8 +139,24 @@ object AppModule {
     fun provideDriveDirectUploadEnabled(): Boolean = BuildConfig.DRIVE_DIRECT_UPLOAD_ENABLED
 
     @Provides
+    @Named("driveBulkActionsEnabled")
+    fun provideDriveBulkActionsEnabled(): Boolean = BuildConfig.DRIVE_BULK_ACTIONS_ENABLED
+
+    @Provides
+    @Named("driveOfflineEnabled")
+    fun provideDriveOfflineEnabled(): Boolean = BuildConfig.DRIVE_OFFLINE_ENABLED
+
+    @Provides
+    @Named("meetingsGuestsLinksEnabled")
+    fun provideMeetingsGuestsLinksEnabled(): Boolean = BuildConfig.MEETINGS_GUESTS_LINKS_ENABLED
+
+    @Provides
     @Named("inAppImageViewerEnabled")
     fun provideInAppImageViewerEnabled(): Boolean = BuildConfig.IN_APP_IMAGE_VIEWER_ENABLED
+
+    @Provides
+    @Named("everyoneMentionEnabled")
+    fun provideEveryoneMentionEnabled(): Boolean = BuildConfig.EVERYONE_MENTION_ENABLED
 
     @Provides
     fun provideGetMediaMetadataUseCase(): GetMediaMetadataUseCase = GetMediaMetadataUseCaseImpl()

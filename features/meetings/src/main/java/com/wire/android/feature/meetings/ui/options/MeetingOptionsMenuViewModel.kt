@@ -39,15 +39,17 @@ import com.wire.kalium.logic.feature.call.usecase.ObserveActiveCallsUseCase
 import com.wire.kalium.logic.feature.meeting.DeleteMeetingForEveryoneUseCase
 import com.wire.kalium.logic.feature.meeting.DeleteMeetingForMeUseCase
 import com.wire.kalium.logic.feature.meeting.ObserveMeetingOccurrenceUseCase
+import com.wire.kalium.logic.feature.user.ObserveIsMeetingsEnabledUseCase
+import dev.zacsweers.metro.Named
 import dev.zacsweers.metro.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flatMapConcat
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.util.concurrent.ConcurrentHashMap
@@ -85,6 +87,8 @@ class MeetingOptionsMenuViewModelImpl @Inject constructor(
     private val deleteMeetingForEveryoneUseCase: DeleteMeetingForEveryoneUseCase,
     private val deleteMeetingForMeUseCase: DeleteMeetingForMeUseCase,
     private val observeActiveCallsUseCase: ObserveActiveCallsUseCase,
+    private val observeIsMeetingsEnabledUseCase: ObserveIsMeetingsEnabledUseCase,
+    @Named("meetingsGuestsLinksEnabled") private val meetingsGuestsLinksEnabled: Boolean,
 ) : MeetingOptionsMenuViewModel, ActionsViewModel<MeetingOptionsMenuViewAction>() {
     private val stateFlow: ConcurrentHashMap<String, StateFlow<MeetingOptionsMenuState>> = ConcurrentHashMap()
     override val deleteMeetingDialogState: VisibilityState<DeleteMeetingDialogState> by mutableStateOf(VisibilityState())
@@ -92,14 +96,19 @@ class MeetingOptionsMenuViewModelImpl @Inject constructor(
     override fun observeMeetingStateFlow(occurrenceId: String): StateFlow<MeetingOptionsMenuState> = stateFlow.getOrPut(occurrenceId) {
         flowOf(occurrenceId)
             .flatMapConcat { occurrenceId ->
-                observeMeetingOccurrenceUseCase.invoke(occurrenceId).map {
-                    it?.let {
+                combine(
+                    observeMeetingOccurrenceUseCase.invoke(occurrenceId),
+                    observeIsMeetingsEnabledUseCase.observeGuestLinkSharingEnabled(),
+                ) { occurrence, guestLinkSharingEnabled ->
+                    occurrence?.let {
                         val hasEnded = it.occurrenceEndTime < currentTimeProvider()
                         MeetingOptionsMenuState.Meeting(
                             meetingId = it.meeting.meetingId,
                             conversationId = it.meeting.conversationId,
                             title = it.meeting.title,
                             selfRole = it.selfRole.toItemSelfRole(),
+                            meetingLinkEnabled = it.selfRole == MeetingOccurrence.SelfRole.Creator &&
+                                meetingsGuestsLinksEnabled && guestLinkSharingEnabled && !hasEnded,
                             editMeetingEnabled = it.selfRole == MeetingOccurrence.SelfRole.Creator && !hasEnded,
                             deleteOption = when (it.selfRole) {
                                 MeetingOccurrence.SelfRole.Creator -> MeetingOptionsMenuState.Meeting.DeleteOption.ForEveryone
@@ -178,7 +187,7 @@ sealed interface MeetingOptionsMenuState {
         val selfRole: MeetingItem.SelfRole = MeetingItem.SelfRole.Member,
         val deleteOption: DeleteOption = DeleteOption.None,
         val createConversationEnabled: Boolean = false,
-        val copyLinkEnabled: Boolean = false,
+        val meetingLinkEnabled: Boolean = false,
         val editMeetingEnabled: Boolean = false,
     ) : MeetingOptionsMenuState {
         enum class DeleteOption {

@@ -23,6 +23,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -34,6 +35,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
@@ -43,28 +45,30 @@ import com.wire.android.model.BadgeEventType
 import com.wire.android.model.Clickable
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.calling.controlbuttons.JoinButton
-import com.wire.android.ui.common.R as commonR
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.rememberClickBlockAction
 import com.wire.android.ui.home.conversations.model.MessageBody
 import com.wire.android.ui.home.conversations.model.UILastMessageContent
-import com.wire.android.ui.home.conversationslist.showLegalHoldIndicator
 import com.wire.android.ui.home.conversationslist.model.BlockingState
 import com.wire.android.ui.home.conversationslist.model.ConversationInfo
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.home.conversationslist.model.PlayingAudioInConversation
 import com.wire.android.ui.home.conversationslist.model.toUserInfoLabel
+import com.wire.android.ui.home.conversationslist.showLegalHoldIndicator
 import com.wire.android.ui.markdown.MarkdownConstants
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.UIText
+import com.wire.android.util.ui.handleContextMenuShortcut
 import com.wire.android.util.ui.toUIText
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.android.ui.common.R as commonR
 
 private const val DISABLED_CONVERSATION_ITEM_ALPHA = 0.5f
 
@@ -122,51 +126,73 @@ fun ConversationItemFactory(
         }
     }
 
-    GeneralConversationItem(
-        modifier = modifier
-            .alpha(if (isEnabled) 1f else DISABLED_CONVERSATION_ITEM_ALPHA)
-            .semantics(mergeDescendants = true) { },
-        conversation = conversation,
-        selectionMode = selectionMode,
-        isChecked = isChecked,
-        isEnabled = isEnabled,
-        onSelectionChanged = onConversationSelectionChanged,
-        subTitle = {
-            if (selectionMode == ConversationItemSelectionMode.NONE) {
-                when (val messageContent = conversation.lastMessageContent) {
-                    is UILastMessageContent.TextMessage -> LastMessageSubtitle(
-                        messageContent.messageBody.message,
-                        messageContent.markdownPreview,
-                        messageContent.markdownLocaleTag
-                    )
+    ConversationMenuKeyboardScope(onConversationItemClick, selectionMode, modifier) {
+        GeneralConversationItem(
+            modifier = Modifier
+                .alpha(if (isEnabled) 1f else DISABLED_CONVERSATION_ITEM_ALPHA)
+                .semantics(mergeDescendants = true) { },
+            conversation = conversation,
+            selectionMode = selectionMode,
+            isChecked = isChecked,
+            isEnabled = isEnabled,
+            onSelectionChanged = onConversationSelectionChanged,
+            subTitle = {
+                if (selectionMode == ConversationItemSelectionMode.NONE) {
+                    when (val messageContent = conversation.lastMessageContent) {
+                        is UILastMessageContent.TextMessage -> LastMessageSubtitle(
+                            messageContent.messageBody.message,
+                            messageContent.markdownPreview,
+                            messageContent.markdownLocaleTag
+                        )
 
-                    is UILastMessageContent.MultipleMessage -> LastMultipleMessages(messageContent.messages, messageContent.separator)
-                    is UILastMessageContent.SenderWithMessage -> LastMessageSubtitleWithAuthor(
-                        messageContent.sender,
-                        messageContent.message,
-                        messageContent.separator,
-                        messageContent.markdownPreview,
-                        messageContent.markdownLocaleTag
-                    )
+                        is UILastMessageContent.MultipleMessage -> LastMultipleMessages(messageContent.messages, messageContent.separator)
+                        is UILastMessageContent.SenderWithMessage -> LastMessageSubtitleWithAuthor(
+                            messageContent.sender,
+                            messageContent.message,
+                            messageContent.separator,
+                            messageContent.markdownPreview,
+                            messageContent.markdownLocaleTag
+                        )
 
-                    is UILastMessageContent.Connection -> ConnectionLabel(connectionInfo = messageContent)
-                    is UILastMessageContent.VerificationChanged -> LastMessageSubtitle(UIText.StringResource(messageContent.textResId))
+                        is UILastMessageContent.Connection -> ConnectionLabel(connectionInfo = messageContent)
+                        is UILastMessageContent.VerificationChanged -> LastMessageSubtitle(UIText.StringResource(messageContent.textResId))
 
-                    else -> {}
+                        else -> {}
+                    }
                 }
-            }
-        },
-        onConversationItemClick = onConversationItemClick,
-        onJoinCallClick = {
-            joinCall(conversation.conversationId)
-        },
-        onAudioPermissionPermanentlyDenied = onAudioPermissionPermanentlyDenied,
-        searchQuery = searchQuery,
-        showLegalHoldIndicator = showLegalHoldIndicator,
-        playingAudio = playingAudioInConversation,
-        onPlayPauseCurrentAudio = onPlayPauseCurrentAudio,
-        onStopCurrentAudio = onStopCurrentAudio
-    )
+            },
+            onConversationItemClick = onConversationItemClick,
+            onJoinCallClick = {
+                joinCall(conversation.conversationId)
+            },
+            onAudioPermissionPermanentlyDenied = onAudioPermissionPermanentlyDenied,
+            searchQuery = searchQuery,
+            showLegalHoldIndicator = showLegalHoldIndicator,
+            playingAudio = playingAudioInConversation,
+            onPlayPauseCurrentAudio = onPlayPauseCurrentAudio,
+            onStopCurrentAudio = onStopCurrentAudio
+        )
+    }
+}
+
+@Composable
+private fun ConversationMenuKeyboardScope(
+    clickable: Clickable,
+    selectionMode: ConversationItemSelectionMode,
+    modifier: Modifier = Modifier,
+    content: @Composable () -> Unit,
+) {
+    val onOpenMenu = clickable.onLongClick?.takeIf {
+        clickable.enabled && selectionMode == ConversationItemSelectionMode.NONE
+    }?.let { rememberClickBlockAction(clickable.clickBlockParams, it) }
+    // The handler must be an ancestor of the row's clickable focus target and its controls.
+    Box(
+        modifier.onPreviewKeyEvent { event ->
+            onOpenMenu?.let { event.handleContextMenuShortcut(it) } ?: false
+        }
+    ) {
+        content()
+    }
 }
 
 @Suppress("ComplexMethod")

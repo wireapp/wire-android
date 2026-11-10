@@ -47,8 +47,8 @@ class TeamCreationTest : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4558", "TC-4562")
-    @Category("regression", "RC", "teamCreation", "TEMP")
+    @TestCaseId("TC-12636", "TC-12640")
+    @Category("regression", "RC", "teamCreation")
     @Test
     fun givenIWantToBeAbleToCreateATeam_whenICompleteTeamCreation_thenTeamIsCreatedAndTeamOwnerSuccessfullyLogsIn() {
         lateinit var userInfo: ClientUser
@@ -150,6 +150,7 @@ class TeamCreationTest : BaseUiTest() {
                 assertTeamCreatedPageVisible()
             }
             registerTeamOwnerForCleanup(userInfo)
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "SuperTeam", backendClient)
         }
 
         step("When I close team created page") {
@@ -189,6 +190,7 @@ class TeamCreationTest : BaseUiTest() {
 
         step("And I decline share data alert after username confirmation") {
             pages.registrationPage.apply {
+                clickAllowNotificationButton()
                 clickDeclineShareDataAlert()
             }
         }
@@ -201,8 +203,8 @@ class TeamCreationTest : BaseUiTest() {
     }
 
     @Suppress("LongMethod")
-    @TestCaseId("TC-4559")
-    @Category("regression", "RC", "teamCreation", "TEMP")
+    @TestCaseId("TC-12637")
+    @Category("regression", "RC", "teamCreation")
     @Test
     fun givenIWantToRegisterWithAnInvalidEmail_whenISubmitTheEmail_thenISeeAnError() {
         lateinit var userInfo: ClientUser
@@ -280,8 +282,8 @@ class TeamCreationTest : BaseUiTest() {
     }
 
     @Suppress("LongMethod")
-    @TestCaseId("TC-4561")
-    @Category("regression", "RC", "teamCreation", "TEMP")
+    @TestCaseId("TC-12639")
+    @Category("regression", "RC", "teamCreation")
     @Test
     fun givenIWantToRegisterWithUnmatchedPasswords_whenISubmitTheForm_thenISeeAnError() {
         lateinit var userInfo: ClientUser
@@ -356,8 +358,8 @@ class TeamCreationTest : BaseUiTest() {
     }
 
     @Suppress("LongMethod")
-    @TestCaseId("TC-4560")
-    @Category("regression", "RC", "teamCreation", "TEMP")
+    @TestCaseId("TC-12638")
+    @Category("regression", "RC", "teamCreation")
     @Test
     fun givenIWantToRegisterWithAnInvalidPassword_whenISubmitTheForm_thenISeeAnError() {
         lateinit var userInfo: ClientUser
@@ -434,8 +436,8 @@ class TeamCreationTest : BaseUiTest() {
     }
 
     @Suppress("LongMethod")
-    @TestCaseId("TC-4563")
-    @Category("regression", "RC", "teamCreation", "TEMP")
+    @TestCaseId("TC-12641")
+    @Category("regression", "RC", "teamCreation")
     @Test
     fun givenIAmRegisteringATeam_whenIEnterAWrongVerificationCode_thenISeeAnError() {
         lateinit var userInfo: ClientUser

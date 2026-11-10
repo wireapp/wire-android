@@ -45,7 +45,7 @@ class AudioMessages : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4081")
+    @TestCaseId("TC-12357")
     @Category("audioMessages", "regression", "RC")
     @Test
     fun givenUserReceivesAudioFile_whenPlayingAndPausingAudioMessage_thenAudioPlaybackTimeIsUpdated() {
@@ -58,6 +58,7 @@ class AudioMessages : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "Audio", backendClient)
         }
 
         step("And User TeamOwner adds user Member1 to team Audio with role Member") {
@@ -72,20 +73,23 @@ class AudioMessages : BaseUiTest() {
             )
         }
 
-        step("And User TeamOwner adds a new device Device1 with label Device1") {
-            testServiceHelper.addDevice("user1Name", null, "Device1")
-        }
-
         step("And User Member1 is me") {
             member1 = clientUserManager.findUserBy("user2Name", ClientUserManager.FindBy.NAME_ALIAS)
         }
 
-        step("And User TeamOwner has group conversation SendYourAudioHere with Member1 in team Audio") {
-            backendSetupHelper.userHasGroupConversationInTeam(
-                "user1Name",
-                "SendYourAudioHere",
-                "user2Name",
-                "Audio"
+        step("And MLS devices are registered for all participants") {
+            testServiceHelper.apply {
+                addDevice("user1Name", null, "Device1")
+                addDevice("user2Name", null, "Device1")
+            }
+        }
+
+        step("And User TeamOwner creates MLS group conversation SendYourAudioHere with Member1 in team Audio") {
+            testServiceHelper.userCreatesMLSGroupConversation(
+                ownerAlias = "user1Name",
+                participantAliases = "user2Name",
+                conversationName = "SendYourAudioHere",
+                deviceName = "Device1"
             )
         }
 
@@ -178,7 +182,7 @@ class AudioMessages : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4082")
+    @TestCaseId("TC-12358")
     @Category("audioMessages", "regression", "RC")
     @Test
     fun givenUserRecordsAudioMessage_whenSendingRecordedAudioMessage_thenAudioFileIsVisibleInConversation() {
@@ -191,6 +195,7 @@ class AudioMessages : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "Audio", backendClient)
         }
 
         step("And User TeamOwner adds user Member1 to team Audio with role Member") {
@@ -205,20 +210,23 @@ class AudioMessages : BaseUiTest() {
             )
         }
 
-        step("And User TeamOwner adds a new device Device1 with label Device1") {
-            testServiceHelper.addDevice("user1Name", null, "Device1")
-        }
-
         step("And User Member1 is me") {
             member1 = clientUserManager.findUserBy("user2Name", ClientUserManager.FindBy.NAME_ALIAS)
         }
 
-        step("And User TeamOwner has group conversation SendYourAudioHere with Member1 in team Audio") {
-            backendSetupHelper.userHasGroupConversationInTeam(
-                "user1Name",
-                "SendYourAudioHere",
-                "user2Name",
-                "Audio"
+        step("And MLS devices are registered for all participants") {
+            testServiceHelper.apply {
+                addDevice("user1Name", null, "Device1")
+                addDevice("user2Name", null, "Device1")
+            }
+        }
+
+        step("And User TeamOwner creates MLS group conversation SendYourAudioHere with Member1 in team Audio") {
+            testServiceHelper.userCreatesMLSGroupConversation(
+                ownerAlias = "user1Name",
+                participantAliases = "user2Name",
+                conversationName = "SendYourAudioHere",
+                deviceName = "Device1"
             )
         }
 
@@ -305,12 +313,6 @@ class AudioMessages : BaseUiTest() {
             }
         }
 
-        step("And I tap file sharing button") {
-            pages.conversationViewPage.apply {
-                iTapFileSharingButton()
-            }
-        }
-
         step("Then I see an audio file in the conversation view") {
             pages.conversationViewPage.apply {
                 assertAudioMessageIsVisible()
@@ -319,7 +321,7 @@ class AudioMessages : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4083", "TC-4084")
+    @TestCaseId("TC-12359", "TC-12360")
     @Category("audioMessages", "regression", "RC")
     @Test
     fun givenUserRecordsLongAudioMessage_whenPlayingAndApplyingFilterBeforeSending_thenAudioFileIsVisibleInConversation() {
@@ -332,6 +334,7 @@ class AudioMessages : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "Audio", backendClient)
         }
 
         step("And User TeamOwner adds user Member1 to team Audio with role Member") {
@@ -346,20 +349,23 @@ class AudioMessages : BaseUiTest() {
             )
         }
 
-        step("And User TeamOwner adds a new device Device1 with label Device1") {
-            testServiceHelper.addDevice("user1Name", null, "Device1")
-        }
-
         step("And User Member1 is me") {
             member1 = clientUserManager.findUserBy("user2Name", ClientUserManager.FindBy.NAME_ALIAS)
         }
 
-        step("And User TeamOwner has group conversation SendYourAudioHere with Member1 in team Audio") {
-            backendSetupHelper.userHasGroupConversationInTeam(
-                "user1Name",
-                "SendYourAudioHere",
-                "user2Name",
-                "Audio"
+        step("And MLS devices are registered for all participants") {
+            testServiceHelper.apply {
+                addDevice("user1Name", null, "Device1")
+                addDevice("user2Name", null, "Device1")
+            }
+        }
+
+        step("And User TeamOwner creates MLS group conversation SendYourAudioHere with Member1 in team Audio") {
+            testServiceHelper.userCreatesMLSGroupConversation(
+                ownerAlias = "user1Name",
+                participantAliases = "user2Name",
+                conversationName = "SendYourAudioHere",
+                deviceName = "Device1"
             )
         }
 
@@ -424,7 +430,7 @@ class AudioMessages : BaseUiTest() {
             }
         }
 
-        step("And I wait for 20 seconds") {
+        step("And I wait for 10 seconds") {
             UiWaitUtils.waitFor(10.seconds)
         }
 
@@ -479,12 +485,6 @@ class AudioMessages : BaseUiTest() {
         step("And I send my recorded audio message") {
             pages.conversationViewPage.apply {
                 sendRecordedAudioMessage()
-            }
-        }
-
-        step("And I tap file sharing button") {
-            pages.conversationViewPage.apply {
-                iTapFileSharingButton()
             }
         }
 

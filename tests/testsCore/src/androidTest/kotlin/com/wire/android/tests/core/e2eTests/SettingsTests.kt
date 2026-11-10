@@ -41,7 +41,7 @@ class SettingsTests : BaseUiTest() {
     }
 
     @Suppress("LongMethod")
-    @TestCaseId("TC-4545")
+    @TestCaseId("TC-12624")
     @Category("regression", "RC", "settings")
     @Test
     fun givenLoggedInTeamMember_whenIOpenAccountDetails_thenUserDetailsAreDisplayed() {
@@ -54,6 +54,7 @@ class SettingsTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "MyAmazingTeam", backendClient)
         }
 
         step("And User user1Name adds user user2Name to team MyAmazingTeam with role Member") {
@@ -104,7 +105,7 @@ class SettingsTests : BaseUiTest() {
     }
 
     @Suppress("LongMethod")
-    @TestCaseId("TC-4543")
+    @TestCaseId("TC-12622")
     @Category("regression", "RC", "settings")
     @Test
     fun givenLoggedInTeamMember_whenITapResetPassword_thenAccountRecoveryPageIsDisplayed() {
@@ -117,6 +118,7 @@ class SettingsTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "ResetPassword", backendClient)
         }
 
         step("And User user1Name adds user user2Name to team ResetPassword with role Member") {
@@ -165,7 +167,7 @@ class SettingsTests : BaseUiTest() {
     }
 
     @Suppress("LongMethod")
-    @TestCaseId("TC-4544")
+    @TestCaseId("TC-12623")
     @Category("regression", "RC", "settings")
     @Test
     fun givenLoggedInPersonalUser_whenITapResetPassword_thenAccountRecoveryPageIsDisplayed() {
@@ -210,7 +212,7 @@ class SettingsTests : BaseUiTest() {
     }
 
     @Suppress("LongMethod")
-    @TestCaseId("TC-4546")
+    @TestCaseId("TC-12625")
     @Category("regression", "RC", "settings")
     @Test
     fun givenLoggedInTeamMember_whenIChangeMyProfileName_thenNewProfileNameIsDisplayed() {
@@ -223,6 +225,7 @@ class SettingsTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "ChangeUserName", backendClient)
         }
 
         step("And User user1Name adds user user2Name to team ChangeUserName with role Member") {
@@ -278,7 +281,7 @@ class SettingsTests : BaseUiTest() {
     }
 
     @Suppress("LongMethod")
-    @TestCaseId("TC-4540")
+    @TestCaseId("TC-12619")
     @Category("regression", "RC", "settings")
     @Test
     fun givenLoggedInTeamMember_whenIOpenReportBug_thenAndroidShareSheetIsDisplayed() {
@@ -291,6 +294,7 @@ class SettingsTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "ReportBug", backendClient)
         }
 
         step("And User user1Name adds user user2Name to team ReportBug with role Member") {
@@ -333,7 +337,7 @@ class SettingsTests : BaseUiTest() {
     }
 
     @Suppress("LongMethod")
-    @TestCaseId("TC-4541", "TC-4542")
+    @TestCaseId("TC-12620", "TC-12621")
     @Category("regression", "RC", "settings")
     @Test
     fun givenLoggedInTeamMember_whenIToggleWebsocketConnection_thenSwitchChangesFromOnToOff() {
@@ -346,6 +350,7 @@ class SettingsTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "NetworkSettings", backendClient)
         }
 
         step("And User user1Name adds user user2Name to team NetworkSettings with role Member") {
@@ -434,7 +439,12 @@ class SettingsTests : BaseUiTest() {
         }
 
         step("And I wait until I am fully logged in and decline share data alert") {
-            pages.registrationPage.waitUntilConversationPageVisibleDismissingPostLoginPrompts()
+            pages.registrationPage.apply {
+                waitUntilLoginFlowIsCompleted()
+                clickAllowNotificationButton()
+                clickDeclineShareDataAlert()
+                assertConversationPageVisible()
+            }
             pages.conversationListPage.waitUntilWireServiceNotificationDisappears()
         }
     }

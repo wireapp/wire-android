@@ -43,7 +43,7 @@ class ConnectTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4295", "TC-4298")
+    @TestCaseId("TC-12428", "TC-12431")
     @Category("regression", "RC", "connect")
     @Test
     fun givenPersonalUser_whenSendingConnectionRequestToAnotherPersonalUser_thenConnectionRequestIsSent() {
@@ -54,6 +54,10 @@ class ConnectTests : BaseUiTest() {
             )
             personalUser = clientUserManager.findUserByNameOrNameAlias("user1Name")
             contact = clientUserManager.findUserByNameOrNameAlias("user2Name")
+        }
+
+        step("And User user2Name registers an MLS device") {
+            testServiceHelper.addDevice("user2Name", null, "Device1")
         }
 
         step("And users user1Name and user2Name set their unique usernames") {
@@ -160,6 +164,7 @@ class ConnectTests : BaseUiTest() {
 
         step("When I send the message Hello!") {
             pages.conversationViewPage.apply {
+                waitUntilConversationTurnsMls()
                 typeMessageInInputField("Hello!")
                 clickSendButton()
             }
@@ -171,7 +176,7 @@ class ConnectTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4296")
+    @TestCaseId("TC-12429")
     @Category("regression", "RC", "connect")
     @Test
     fun givenPersonalUser_whenCancellingConnectionRequest_thenConnectionRequestIsCancelled() {
@@ -182,6 +187,10 @@ class ConnectTests : BaseUiTest() {
             )
             personalUser = clientUserManager.findUserByNameOrNameAlias("user1Name")
             contact = clientUserManager.findUserByNameOrNameAlias("user2Name")
+        }
+
+        step("And User user2Name registers an MLS device") {
+            testServiceHelper.addDevice("user2Name", null, "Device1")
         }
 
         step("And users user1Name and user2Name set their unique usernames") {
@@ -265,8 +274,8 @@ class ConnectTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4297")
-    @Category("regression", "RC", "connect", "smoke", "smokeSchwarz")
+    @TestCaseId("TC-12430")
+    @Category("regression", "RC", "connect", "fdroid")
     @Test
     fun givenPersonalUser_whenReceivingConnectionRequest_thenConnectionRequestCanBeAccepted() {
         step("Given There are personal users user1Name and user2Name") {
@@ -276,6 +285,10 @@ class ConnectTests : BaseUiTest() {
             )
             personalUser = clientUserManager.findUserByNameOrNameAlias("user1Name")
             contact = clientUserManager.findUserByNameOrNameAlias("user2Name")
+        }
+
+        step("And User user2Name registers an MLS device") {
+            testServiceHelper.addDevice("user2Name", null, "Device1")
         }
 
         step("And users user1Name and user2Name set their unique usernames") {

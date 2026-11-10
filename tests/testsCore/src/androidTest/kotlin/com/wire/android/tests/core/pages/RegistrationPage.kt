@@ -27,10 +27,12 @@ import org.hamcrest.CoreMatchers.`is`
 import org.junit.Assert.assertTrue
 import uiautomatorutils.UiSelectorParams
 import uiautomatorutils.UiWaitUtils
+import uiautomatorutils.UiWaitUtils.toBySelector
 import uiautomatorutils.UiWaitUtils.waitUntilElementGone
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
+import kotlin.time.TimeSource
 
 class RegistrationPage(private val device: UiDevice) {
 
@@ -279,10 +281,29 @@ class RegistrationPage(private val device: UiDevice) {
         return this
     }
 
-    @Suppress("MagicNumber")
     fun clickDeclineShareDataAlert(timeout: Duration = UiWaitUtils.SHORT_TIMEOUT): RegistrationPage {
-        UiWaitUtils.waitElement(consentDialogTitle, timeout = timeout)
-        UiWaitUtils.waitElement(declineButton, timeout = timeout).click()
+        val consentExpected = InstrumentationRegistry.getArguments()
+            .getString("isCountlyAvailable", "true")
+            .toBooleanStrict()
+        if (!consentExpected) return this
+
+        val started = TimeSource.Monotonic.markNow()
+        fun remaining() = (timeout - started.elapsedNow()).coerceAtLeast(Duration.ZERO)
+
+        UiWaitUtils.waitUntilVisibleOrThrow(
+            consentDialogTitle,
+            remaining(),
+            "Share-data consent dialog did not appear."
+        )
+        assertTrue(
+            "Share-data consent Decline button could not be clicked.",
+            UiWaitUtils.clickWhenClickable(declineButton, timeout = remaining())
+        )
+        UiWaitUtils.waitUntilGoneOrThrow(
+            consentDialogTitle.toBySelector(),
+            remaining(),
+            "Share-data consent dialog did not close after tapping Decline."
+        )
         return this
     }
 
@@ -302,13 +323,6 @@ class RegistrationPage(private val device: UiDevice) {
         return this
     }
 
-    fun waitUntilConversationPageVisibleDismissingPostLoginPrompts(timeout: Duration = 45.seconds): RegistrationPage {
-        clickAllowNotificationButton()
-        clickDeclineShareDataAlert(timeout = timeout)
-        assertConversationPageVisible(timeout = timeout)
-        return this
-    }
-
     fun waitUntilLoginFlowIsCompleted(): RegistrationPage {
         val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
         try {
@@ -320,6 +334,18 @@ class RegistrationPage(private val device: UiDevice) {
                 e
             )
         }
+        return this
+    }
+
+    fun waitUntilSsoLoginFlowIsCompleted(): RegistrationPage {
+        val postLoginScreen = UiWaitUtils.waitAnyVisible(
+            selectors = allowNotificationButtons + listOf(consentDialogTitle, conversationsPage, searchConversationsButton),
+            timeout = 35.seconds
+        )
+        assertTrue(
+            "SSO login did not complete within 35 seconds: no post-login prompt or conversation list appeared.",
+            postLoginScreen != null
+        )
         return this
     }
 

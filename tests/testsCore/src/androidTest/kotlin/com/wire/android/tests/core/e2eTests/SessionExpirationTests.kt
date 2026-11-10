@@ -48,7 +48,7 @@ class SessionExpirationTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4537")
+    @TestCaseId("TC-12616")
     @Category("regression", "RC", "sessionExpiration")
     @Test
     fun givenLoggedInTeamMember_whenTheirDeviceIsRemoved_thenAppropriateDeviceIsSignedOut() {
@@ -61,6 +61,7 @@ class SessionExpirationTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "SessionExpiration", backendClient)
         }
 
         step("And User TeamOwner adds Member1 to team SessionExpiration with role Member") {
@@ -139,7 +140,7 @@ class SessionExpirationTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4538")
+    @TestCaseId("TC-12617")
     @Category("regression", "RC", "sessionExpiration", "multipleAccounts")
     @Test
     fun givenThreeLoggedInAccounts_whenEachClientIsRemoved_thenAccountsAreLoggedOutInSequence() {
@@ -155,6 +156,7 @@ class SessionExpirationTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "TeamStaging", backendClient)
         }
 
         step("And User TeamOwnerStaging adds MemberStaging to team TeamStaging with role Member") {
@@ -178,6 +180,7 @@ class SessionExpirationTests : BaseUiTest() {
                 antaBackend,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user2Name", "TeamAnta", antaBackend)
         }
 
         step("And User TeamOwnerAnta adds MemberAnta to team TeamAnta with role Member") {
@@ -201,6 +204,7 @@ class SessionExpirationTests : BaseUiTest() {
                 bellaBackend,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user3Name", "TeamBella", bellaBackend)
         }
 
         step("And User TeamOwnerBella adds MemberBella to team TeamBella with role Member") {
@@ -357,7 +361,7 @@ class SessionExpirationTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4539")
+    @TestCaseId("TC-12618")
     @Category("regression", "RC", "sessionExpiration")
     @Test
     fun givenIAmLoggedIn_whenMyAccountIsRemovedFromTeam_thenIAmAutomaticallyLoggedOut() {
@@ -370,6 +374,7 @@ class SessionExpirationTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "SessionExpiration", backendClient)
         }
 
         step("And User TeamOwner adds Member1 to team SessionExpiration with role Member") {

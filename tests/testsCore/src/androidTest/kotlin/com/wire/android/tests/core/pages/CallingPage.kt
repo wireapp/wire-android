@@ -353,6 +353,39 @@ data class CallingPage(private val device: UiDevice) {
         return this
     }
 
+    fun assertNetworkQualityMetricsChange(): CallingPage {
+        var initialValues = emptyMap<String, String>()
+        val metricsVisible = UiWaitUtils.retryUntilTimeout(timeout = UiWaitUtils.MEDIUM_TIMEOUT) {
+            initialValues = numericNetworkQualityMetrics()
+            initialValues.size == 3
+        }
+        if (!metricsVisible) {
+            throw AssertionError("Packet loss, Ping and Jitter must have numeric values. Found: $initialValues")
+        }
+
+        var currentValues = initialValues
+        val metricsChanged = UiWaitUtils.retryUntilTimeout(timeout = UiWaitUtils.VERY_LONG_TIMEOUT) {
+            currentValues = numericNetworkQualityMetrics()
+            currentValues.size == 3 && currentValues != initialValues
+        }
+        if (!metricsChanged) {
+            throw AssertionError("Network quality metrics did not change. Initial: $initialValues. Latest: $currentValues")
+        }
+        return this
+    }
+
+    private fun numericNetworkQualityMetrics(): Map<String, String> {
+        return currentStateDescriptions().mapNotNull { description ->
+            val name = description.substringBefore(":")
+            val value = description.substringAfter(":").trim()
+            if (name in listOf("Packet loss", "Ping", "Jitter") && value.firstOrNull()?.isDigit() == true) {
+                name to value
+            } else {
+                null
+            }
+        }.toMap()
+    }
+
     // Network quality values are exposed through accessibility stateDescription, not regular text.
     // stateDescription is available from Android R, so older API levels return no values here.
     private fun currentStateDescriptions(): List<String> {

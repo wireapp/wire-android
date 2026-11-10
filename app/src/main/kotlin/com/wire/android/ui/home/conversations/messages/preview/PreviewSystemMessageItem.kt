@@ -21,6 +21,7 @@ package com.wire.android.ui.home.conversations.messages.preview
 
 import androidx.compose.runtime.Composable
 import com.wire.android.ui.home.conversations.messages.item.AdminlessGroupDeleteReminderItem
+import com.wire.android.ui.home.conversations.messages.item.ConversationEncryptionNoticeItem
 import com.wire.android.ui.home.conversations.messages.item.SystemMessageItem
 import com.wire.android.ui.home.conversations.mock.mockMessageWithKnock
 import com.wire.android.ui.home.conversations.mock.mockUsersUITexts
@@ -30,7 +31,7 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.toUIText
 import com.wire.kalium.logic.data.conversation.Conversation
-import kotlinx.datetime.Instant
+import kotlin.time.Instant
 
 @PreviewMultipleThemes
 @Composable
@@ -463,13 +464,9 @@ fun PreviewSystemMessageConversationDegradedMLS() {
 
 @PreviewMultipleThemes
 @Composable
-fun PreviewSystemMessageConversationMessageCreatedUnverifiedWarning() {
+fun PreviewConversationEncryptionNotice() {
     WireTheme {
-        SystemMessageItem(
-            message = mockMessageWithKnock.copy(
-                messageContent = UIMessageContent.SystemMessage.ConversationMessageCreatedUnverifiedWarning
-            )
-        )
+        ConversationEncryptionNoticeItem(isWireCellsEnabled = false)
     }
 }
 

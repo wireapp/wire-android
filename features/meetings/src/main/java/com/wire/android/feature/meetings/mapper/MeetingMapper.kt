@@ -29,7 +29,7 @@ import com.wire.kalium.logic.data.meeting.MeetingOccurrence
 import com.wire.kalium.logic.data.user.UserId
 import kotlin.time.Duration.Companion.minutes
 import kotlinx.collections.immutable.toImmutableList
-import kotlinx.datetime.Instant
+import kotlin.time.Instant
 
 private val BUFFER_TIME = 5.minutes
 

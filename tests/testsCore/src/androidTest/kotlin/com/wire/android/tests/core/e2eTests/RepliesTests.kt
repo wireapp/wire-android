@@ -42,7 +42,7 @@ class RepliesTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4495")
+    @TestCaseId("TC-12578")
     @Category("regression", "RC", "replies")
     @Test
     fun givenGroupConversation_whenIReplyToReceivedMessage_thenReplyQuotesTheOriginalMessage() {
@@ -55,6 +55,7 @@ class RepliesTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "Reply", backendClient)
         }
 
         step("And User TeamOwner adds Member1 to team Reply with role Member") {
@@ -69,17 +70,20 @@ class RepliesTests : BaseUiTest() {
             )
         }
 
-        step("And User TeamOwner has group conversation Replies with Member1 in team Reply") {
-            backendSetupHelper.userHasGroupConversationInTeam(
-                "user1Name",
-                "Replies",
-                "user2Name",
-                "Reply"
-            )
+        step("And MLS devices are registered for all participants") {
+            testServiceHelper.apply {
+                addDevice("user1Name", null, "Device1")
+                addDevice("user2Name", null, "Device1")
+            }
         }
 
-        step("And User TeamOwner adds a new device Device1 with label Device1") {
-            testServiceHelper.addDevice("user1Name", null, "Device1")
+        step("And User TeamOwner creates MLS group conversation Replies with Member1 in team Reply") {
+            testServiceHelper.userCreatesMLSGroupConversation(
+                ownerAlias = "user1Name",
+                participantAliases = "user2Name",
+                conversationName = "Replies",
+                deviceName = "Device1"
+            )
         }
 
         step("And User Member1 is me") {
@@ -139,7 +143,7 @@ class RepliesTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4496", "TC-4497")
+    @TestCaseId("TC-12579", "TC-12580")
     @Category("regression", "RC", "replies")
     @Test
     fun givenGroupConversation_whenIReceiveReplyToMyMessageAndReplyBack_thenBothRepliesQuoteTheCorrectMessages() {
@@ -152,6 +156,7 @@ class RepliesTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "Reply", backendClient)
         }
 
         step("And User TeamOwner adds Member1 to team Reply with role Member") {
@@ -166,17 +171,20 @@ class RepliesTests : BaseUiTest() {
             )
         }
 
-        step("And User TeamOwner has group conversation Replies with Member1 in team Reply") {
-            backendSetupHelper.userHasGroupConversationInTeam(
-                "user1Name",
-                "Replies",
-                "user2Name",
-                "Reply"
-            )
+        step("And MLS devices are registered for all participants") {
+            testServiceHelper.apply {
+                addDevice("user1Name", null, "Device1")
+                addDevice("user2Name", null, "Device1")
+            }
         }
 
-        step("And User TeamOwner adds a new device Device1 with label Device1") {
-            testServiceHelper.addDevice("user1Name", null, "Device1")
+        step("And User TeamOwner creates MLS group conversation Replies with Member1 in team Reply") {
+            testServiceHelper.userCreatesMLSGroupConversation(
+                ownerAlias = "user1Name",
+                participantAliases = "user2Name",
+                conversationName = "Replies",
+                deviceName = "Device1"
+            )
         }
 
         step("And User Member1 is me") {
@@ -245,7 +253,7 @@ class RepliesTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4498")
+    @TestCaseId("TC-12581")
     @Category("regression", "RC", "replies")
     @Test
     fun givenOneOnOneConversation_whenIReplyToReceivedMessage_thenISeeMyReplyInConversation() {
@@ -258,6 +266,7 @@ class RepliesTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "Reply", backendClient)
         }
 
         step("And User TeamOwner adds Member1 to team Reply with role Member") {
@@ -338,7 +347,7 @@ class RepliesTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4499")
+    @TestCaseId("TC-12582")
     @Category("regression", "RC", "replies")
     @Test
     fun givenOneOnOneConversation_whenTeamOwnerRepliesToMyMessage_thenISeeReplyToMyOwnMessage() {
@@ -351,6 +360,7 @@ class RepliesTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "Reply", backendClient)
         }
 
         step("And User TeamOwner adds Member1 to team Reply with role Member") {
@@ -419,7 +429,7 @@ class RepliesTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4500")
+    @TestCaseId("TC-12583")
     @Category("regression", "RC", "replies")
     @Test
     fun givenOneOnOneConversation_whenIReplyToAReply_thenISeeMyReplyInConversation() {
@@ -432,6 +442,7 @@ class RepliesTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "Reply", backendClient)
         }
 
         step("And User TeamOwner adds Member1 to team Reply with role Member") {
@@ -520,7 +531,7 @@ class RepliesTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4501")
+    @TestCaseId("TC-12584")
     @Category("regression", "RC", "replies", "WPB-3525")
     @Test
     fun givenGroupConversationWithManyMessages_whenIReplyAfterScrolling_thenISeeMyReplyToTheCorrectMessage() {
@@ -533,6 +544,7 @@ class RepliesTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "Reply", backendClient)
         }
 
         step("And User TeamOwner adds Member1 to team Reply with role Member") {
@@ -547,17 +559,20 @@ class RepliesTests : BaseUiTest() {
             )
         }
 
-        step("And User TeamOwner has group conversation Replies with Member1 in team Reply") {
-            backendSetupHelper.userHasGroupConversationInTeam(
-                "user1Name",
-                "Replies",
-                "user2Name",
-                "Reply"
-            )
+        step("And MLS devices are registered for all participants") {
+            testServiceHelper.apply {
+                addDevice("user1Name", null, "Device1")
+                addDevice("user2Name", null, "Device1")
+            }
         }
 
-        step("And User Member1 adds a new device Device1 with label Device1") {
-            testServiceHelper.addDevice("user2Name", null, "Device1")
+        step("And User TeamOwner creates MLS group conversation Replies with Member1 in team Reply") {
+            testServiceHelper.userCreatesMLSGroupConversation(
+                ownerAlias = "user1Name",
+                participantAliases = "user2Name",
+                conversationName = "Replies",
+                deviceName = "Device1"
+            )
         }
 
         step("And User TeamOwner is me") {

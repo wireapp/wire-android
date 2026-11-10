@@ -63,7 +63,6 @@ import com.wire.kalium.logic.feature.conversation.ClearUsersTypingEventsUseCase
 import com.wire.kalium.logic.feature.conversation.GetConversationUnreadEventsCountUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
-import com.wire.kalium.logic.feature.message.FetchOlderNomadMessagesByConversationUseCase
 import com.wire.kalium.logic.feature.message.GetMessageByIdUseCase
 import com.wire.kalium.logic.feature.message.GetSearchedConversationMessagePositionUseCase
 import com.wire.kalium.logic.feature.message.ToggleReactionUseCase
@@ -108,7 +107,6 @@ class ConversationMessagesViewModel @AssistedInject constructor(
     private val fileManager: FileManager,
     private val dispatchers: DispatcherProvider,
     private val getMessageForConversation: GetMessagesForConversationUseCase,
-    private val fetchOlderNomadMessages: FetchOlderNomadMessagesByConversationUseCase,
     private val toggleReaction: ToggleReactionUseCase,
     private val resetSession: ResetSessionUseCase,
     private val audioMessagePlayer: ConversationAudioMessagePlayer,
@@ -259,24 +257,6 @@ class ConversationMessagesViewModel @AssistedInject constructor(
         )
 
         handleSelectedSearchedMessageHighlighting()
-    }
-
-    fun fetchOlderMessagesIfNeeded() {
-        if (conversationViewState.isFetchingOlderMessages || !conversationViewState.hasMoreRemoteMessages) {
-            return
-        }
-
-        viewModelScope.launch {
-            conversationViewState = conversationViewState.copy(isFetchingOlderMessages = true)
-            try {
-                val result = fetchOlderNomadMessages(conversationId)
-                conversationViewState = conversationViewState.copy(
-                    hasMoreRemoteMessages = result.hasMore,
-                )
-            } finally {
-                conversationViewState = conversationViewState.copy(isFetchingOlderMessages = false)
-            }
-        }
     }
 
     private suspend fun handleSelectedSearchedMessageHighlighting() {

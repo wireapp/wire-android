@@ -1120,6 +1120,7 @@
         <item quantity="other">Загрузка %1$d файла</item>
     </plurals>
     <string name="notification_drive_upload_progress_text">%1$d из %2$d завершено</string>
+    <string name="notification_drive_upload_title_with_conversation">%1$s • %2$s</string>
     <string name="notification_drive_upload_complete_title">Загрузка завершена</string>
     <plurals name="notification_drive_upload_complete_text">
         <item quantity="one">%1$d файл загружен</item>
@@ -1359,10 +1360,6 @@
         <item quantity="other">Одновременно можно авторизоваться только в %1$d аккаунтах. Выйдите, чтобы добавить другой.</item>
     </plurals>
     <string name="max_account_reached_dialog_button_open_profile">Открыть профиль</string>
-    <!--nomad account blocks login dialog-->
-    <string name="nomad_login_blocked_message">Невозможно авторизоваться, пока активен другой аккаунт</string>
-    <string name="nomad_account_blocks_login_title">Вход заблокирован</string>
-    <string name="nomad_account_blocks_login_message">В данный момент в системе авторизован управляемый профиль. Перед добавлением другого аккаунта необходимо сначала осуществить выход.</string>
     <string name="cant_switch_account_in_call">Невозможно переключать аккаунты во время звонка</string>
     <string name="cross_backend_login_blocked_title">Переключение бэкэндов заблокировано</string>
     <string name="cross_backend_login_blocked_message">В данный момент вы не можете войти в другой бэкенд. Сначала необходимо осуществить выход, а затем войти в другой бэкенд.</string>
@@ -1994,4 +1991,34 @@
     <string name="notification_meeting_update_short">Встрече обновлена</string>
     <string name="notification_meeting_cancel">%1$s отменил(а) эту встречу</string>
     <string name="notification_meeting_cancel_short">Встреча отменена</string>
+    <string name="notification_meeting_starting_at">Начало в %1$s</string>
+    <string name="meeting_reminder_exact_alarm_title">Включить точные напоминания о встрече</string>
+    <string name="meeting_reminder_exact_alarm_description">Включите уведомления и напоминания для Wire в настройках устройства, чтобы вовремя получать напоминания о собраниях.</string>
+    <string name="meeting_reminder_exact_alarm_settings">Открыть настройки</string>
+    <plurals name="startup_account_limit_title">
+        <item quantity="one">Удалить аккаунт</item>
+        <item quantity="few">Удалить %1$d аккаунта</item>
+        <item quantity="many">Удалить %1$d аккаунтов</item>
+        <item quantity="other">Удалить %1$d аккаунта</item>
+    </plurals>
+    <plurals name="startup_account_limit_message_one_allowed">
+        <item quantity="one">На этом устройстве можно использовать только один аккаунт одновременно. Выйдите из этого аккаунта или нажмите Позже, чтобы выйти из другого аккаунта.\nСоздайте резервную копию, чтобы сохранить историю переписки.</item>
+        <item quantity="few">На этом устройстве можно использовать только один аккаунт одновременно. Выйдите из этого аккаунта или нажмите Позже, чтобы выйти из другого аккаунта.\nСоздайте резервную копию, чтобы сохранить историю переписки.</item>
+        <item quantity="many">На этом устройстве можно использовать только один аккаунт одновременно. Выйдите из этого аккаунта или нажмите Позже, чтобы выйти из другого аккаунта.\nСоздайте резервную копию, чтобы сохранить историю переписки.</item>
+        <item quantity="other">На этом устройстве можно использовать только один аккаунт одновременно. Выйдите из этого аккаунта или нажмите Позже, чтобы выйти из другого аккаунта.\nСоздайте резервную копию, чтобы сохранить историю переписки.</item>
+    </plurals>
+    <plurals name="startup_account_limit_message_two_allowed">
+        <item quantity="one">На этом устройстве можно использовать только два аккаунта одновременно. Выйдите из этого аккаунта или нажмите Позже, чтобы выйти из других аккаунтов.\nСоздайте резервную копию, чтобы сохранить историю переписки.</item>
+        <item quantity="few">На этом устройстве можно использовать только два аккаунта одновременно. Выйдите из этого аккаунта или нажмите Позже, чтобы выйти из других аккаунтов.\nСоздайте резервную копию, чтобы сохранить историю переписки.</item>
+        <item quantity="many">На этом устройстве можно использовать только два аккаунта одновременно. Выйдите из этого аккаунта или нажмите Позже, чтобы выйти из других аккаунтов.\nСоздайте резервную копию, чтобы сохранить историю переписки.</item>
+        <item quantity="other">На этом устройстве можно использовать только два аккаунта одновременно. Выйдите из этого аккаунта или нажмите Позже, чтобы выйти из других аккаунтов.\nСоздайте резервную копию, чтобы сохранить историю переписки.</item>
+    </plurals>
+    <plurals name="startup_account_limit_message_other_allowed">
+        <item quantity="one">На этом устройстве можно использовать только %1$d аккаунтов одновременно. Выйдите из этого аккаунта или нажмите Позже, чтобы выйти из других аккаунтов.\nСоздайте резервную копию, чтобы сохранить историю переписки.</item>
+        <item quantity="few">На этом устройстве можно использовать только %1$d аккаунтов одновременно. Выйдите из этого аккаунта или нажмите Позже, чтобы выйти из других аккаунтов.\nСоздайте резервную копию, чтобы сохранить историю переписки.</item>
+        <item quantity="many">На этом устройстве можно использовать только %1$d аккаунтов одновременно. Выйдите из этого аккаунта или нажмите Позже, чтобы выйти из других аккаунтов.\nСоздайте резервную копию, чтобы сохранить историю переписки.</item>
+        <item quantity="other">На этом устройстве можно использовать только %1$d аккаунтов одновременно. Выйдите из этого аккаунта или нажмите Позже, чтобы выйти из других аккаунтов.\nСоздайте резервную копию, чтобы сохранить историю переписки.</item>
+    </plurals>
+    <string name="startup_account_limit_logout">Выйти из этого аккаунта</string>
+    <string name="startup_account_limit_later">Позже</string>
 </resources>

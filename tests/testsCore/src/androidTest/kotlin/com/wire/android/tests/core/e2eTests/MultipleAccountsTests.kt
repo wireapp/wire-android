@@ -47,7 +47,7 @@ class MultipleAccountsTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4457")
+    @TestCaseId("TC-12540")
     @Category("regression", "RC", "login", "multipleAccounts")
     @Test
     fun givenTwoTeamMembers_whenILogInWithBothAccounts_thenBothAccountsAreLoggedInSimultaneously() {
@@ -60,6 +60,7 @@ class MultipleAccountsTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "MultiAccount", backendClient)
         }
 
         step("And User TeamOwner adds users Member1 and Member2 to team MultiAccount with role Member") {
@@ -125,7 +126,7 @@ class MultipleAccountsTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4458")
+    @TestCaseId("TC-12541")
     @Category("regression", "RC", "multipleAccounts")
     @Test
     fun givenTwoLoggedInAccounts_whenISendMessageFromSecondAccount_thenFirstAccountReceivesIt() {
@@ -138,6 +139,7 @@ class MultipleAccountsTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "MultiAccount", backendClient)
         }
 
         step("And User TeamOwner adds users Member1 and Member2 to team MultiAccount with role Member") {
@@ -267,7 +269,7 @@ class MultipleAccountsTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4459")
+    @TestCaseId("TC-12542")
     @Category("regression", "RC", "logout", "multipleAccounts")
     @Test
     fun givenThreeAccountsAreLoggedIn_whenILogOutEachAccount_thenAllAccountsAreLoggedOut() {
@@ -290,6 +292,7 @@ class MultipleAccountsTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "TeamStaging", backendClient)
         }
 
         step("And User TeamOwnerStaging adds MemberStaging to team TeamStaging with role Member") {
@@ -313,6 +316,7 @@ class MultipleAccountsTests : BaseUiTest() {
                 antaBackend,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user2Name", "TeamAnta", antaBackend)
         }
 
         step("And User TeamOwnerAnta adds MemberAnta to team TeamAnta with role Member") {
@@ -336,6 +340,7 @@ class MultipleAccountsTests : BaseUiTest() {
                 bellaBackend,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user3Name", "TeamBella", bellaBackend)
         }
 
         step("And User TeamOwnerBella adds MemberBella to team TeamBella with role Member") {

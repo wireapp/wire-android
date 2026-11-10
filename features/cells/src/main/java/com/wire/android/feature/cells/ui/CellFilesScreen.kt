@@ -17,8 +17,9 @@
  */
 package com.wire.android.feature.cells.ui
 
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -36,6 +37,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -70,6 +72,10 @@ internal fun CellFilesScreen(
     showConversationName: Boolean = true,
     showViewerOnlyIcon: Boolean = false,
     sortBy: SortBy = SortBy.Default,
+    selectedNodeIds: Set<String> = emptySet(),
+    onItemLongClick: ((CellNodeUi) -> Unit)? = null,
+    onDragSelection: (List<CellNodeUi>) -> Unit = {},
+    onDragSelectionEnd: () -> Unit = {},
     onItemMenuClick: (CellNodeUi) -> Unit
 ) {
     if (isPullToRefreshEnabled) {
@@ -86,6 +92,10 @@ internal fun CellFilesScreen(
                 showConversationName = showConversationName,
                 showViewerOnlyIcon = showViewerOnlyIcon,
                 sortBy = sortBy,
+                selectedNodeIds = selectedNodeIds,
+                onItemLongClick = onItemLongClick,
+                onDragSelection = onDragSelection,
+                onDragSelectionEnd = onDragSelectionEnd,
             )
         }
     } else {
@@ -98,6 +108,10 @@ internal fun CellFilesScreen(
             showConversationName = showConversationName,
             showViewerOnlyIcon = showViewerOnlyIcon,
             sortBy = sortBy,
+            selectedNodeIds = selectedNodeIds,
+            onItemLongClick = onItemLongClick,
+            onDragSelection = onDragSelection,
+            onDragSelectionEnd = onDragSelectionEnd,
         )
     }
 }
@@ -112,9 +126,18 @@ private fun ContentList(
     showConversationName: Boolean = true,
     showViewerOnlyIcon: Boolean = false,
     sortBy: SortBy = SortBy.Default,
+    selectedNodeIds: Set<String> = emptySet(),
+    onItemLongClick: ((CellNodeUi) -> Unit)? = null,
+    onDragSelection: (List<CellNodeUi>) -> Unit = {},
+    onDragSelectionEnd: () -> Unit = {},
 ) {
+    val isSelectionMode = selectedNodeIds.isNotEmpty()
+    val dragSelectionState = rememberCellDragSelectionState(lazyListState, cellNodes, onDragSelection, onDragSelectionEnd)
     LazyColumn(
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier
+            .fillMaxWidth()
+            // Selection is available exactly when items can be long clicked, which is what starts a drag.
+            .cellDragSelection(dragSelectionState.takeIf { onItemLongClick != null }),
         state = lazyListState,
         contentPadding = PaddingValues(bottom = dimensions().spacing80x)
     ) {
@@ -125,15 +148,25 @@ private fun ContentList(
         ) { index ->
 
             cellNodes[index]?.let { item ->
+                val isSelected = item.uuid in selectedNodeIds
+                val backgroundColor by animateColorAsState(
+                    targetValue = if (isSelected) colorsScheme().primaryVariant else colorsScheme().surface,
+                    label = "CellListItemBackground",
+                )
                 CellListItem(
                     modifier = Modifier
                         .animateItem()
-                        .background(color = colorsScheme().surface)
-                        .clickable { onItemClick(item) },
+                        .background(color = backgroundColor)
+                        .combinedClickable(
+                            onClick = { onItemClick(item) },
+                            onLongClick = onItemLongClick?.let { { it(item) } },
+                        ),
                     cell = item,
                     showConversationName = showConversationName,
                     showViewerOnlyIcon = showViewerOnlyIcon,
                     sortBy = sortBy,
+                    isSelectionMode = isSelectionMode,
+                    isSelected = isSelected,
                     onMenuClick = { onItemMenuClick(item) }
                 )
                 WireDivider(modifier = Modifier.fillMaxWidth())

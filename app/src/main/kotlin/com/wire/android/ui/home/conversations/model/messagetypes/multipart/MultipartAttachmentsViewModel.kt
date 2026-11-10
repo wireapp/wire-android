@@ -233,7 +233,7 @@ class MultipartAttachmentsViewModelImpl @AssistedInject constructor(
                 openEditableAttachment(attachment, openInPdfViewer)
 
             attachment.fileNotFound() -> {
-                refreshHelper.refresh(attachment.uuid, conversationId.toString())
+                refreshHelper.refresh(attachment.uuid)
             }
 
             attachment.isVideo() && (attachment.localFileAvailable() || attachment.canOpenWithUrl()) ->

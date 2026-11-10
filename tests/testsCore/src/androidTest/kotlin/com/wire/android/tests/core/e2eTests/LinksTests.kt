@@ -41,7 +41,7 @@ class LinksTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4433")
+    @TestCaseId("TC-12518")
     @Category("regression", "RC", "links")
     @Test
     fun givenGroupConversationWithLink_whenITapReceivedLink_thenWebpageOpensInBrowser() {
@@ -54,6 +54,7 @@ class LinksTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "Linking", backendClient)
         }
 
         step("And User TeamOwner adds Member1 to team Linking with role Member") {
@@ -68,16 +69,19 @@ class LinksTests : BaseUiTest() {
             )
         }
 
-        step("And User Member1 adds a new device Device1 with label Device1") {
-            testServiceHelper.addDevice("user2Name", null, "Device1")
+        step("And MLS devices are registered for all participants") {
+            testServiceHelper.apply {
+                addDevice("user1Name", null, "Device1")
+                addDevice("user2Name", null, "Device1")
+            }
         }
 
-        step("And User TeamOwner has group conversation WeLikeLinks with Member1 in team Linking") {
-            backendSetupHelper.userHasGroupConversationInTeam(
-                "user1Name",
-                "WeLikeLinks",
-                "user2Name",
-                "Linking"
+        step("And User TeamOwner creates MLS group conversation WeLikeLinks with Member1 in team Linking") {
+            testServiceHelper.userCreatesMLSGroupConversation(
+                ownerAlias = "user1Name",
+                participantAliases = "user2Name",
+                conversationName = "WeLikeLinks",
+                deviceName = "Device1"
             )
         }
 
@@ -161,7 +165,7 @@ class LinksTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4434")
+    @TestCaseId("TC-12519")
     @Category("regression", "RC", "links", "WPB-3518")
     @Test
     fun givenConversationWithManyMessages_whenITapLinkAfterScrolling_thenWebpageOpensInBrowser() {
@@ -174,6 +178,7 @@ class LinksTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "Linking", backendClient)
         }
 
         step("And User TeamOwner adds Member1 to team Linking with role Member") {
@@ -188,17 +193,20 @@ class LinksTests : BaseUiTest() {
             )
         }
 
-        step("And User TeamOwner has group conversation WeLikeLinks with Member1 in team Linking") {
-            backendSetupHelper.userHasGroupConversationInTeam(
-                "user1Name",
-                "WeLikeLinks",
-                "user2Name",
-                "Linking"
-            )
+        step("And MLS devices are registered for all participants") {
+            testServiceHelper.apply {
+                addDevice("user1Name", null, "Device1")
+                addDevice("user2Name", null, "Device1")
+            }
         }
 
-        step("And User Member1 adds a new device Device1 with label Device1") {
-            testServiceHelper.addDevice("user2Name", null, "Device1")
+        step("And User TeamOwner creates MLS group conversation WeLikeLinks with Member1 in team Linking") {
+            testServiceHelper.userCreatesMLSGroupConversation(
+                ownerAlias = "user1Name",
+                participantAliases = "user2Name",
+                conversationName = "WeLikeLinks",
+                deviceName = "Device1"
+            )
         }
 
         step("And User TeamOwner is me") {

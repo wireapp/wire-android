@@ -62,7 +62,7 @@ class LoginOldTests : BaseUiTest() {
     }
 
     @Suppress("LongMethod")
-    @TestCaseId("TC-4435", "TC-4438", "TC-4439")
+    @TestCaseId("TC-12520", "TC-12522", "TC-12523")
     @Category("regression", "RC", "loginOld")
     @Test
     fun givenPersonalUser_whenLoggingInWithValidCredentialsUsingOldFlow_thenLoginIsSuccessful() {
@@ -109,7 +109,7 @@ class LoginOldTests : BaseUiTest() {
     }
 
     @Suppress("LongMethod")
-    @TestCaseId("TC-4442")
+    @TestCaseId("TC-12526")
     @Category("regression", "RC", "loginOld")
     @Test
     fun givenPersonalUser_whenLoggingInWithInvalidEmailCredentialsUsingOldFlow_thenLoginDoesNotProceed() {
@@ -150,7 +150,7 @@ class LoginOldTests : BaseUiTest() {
     }
 
     @Suppress("LongMethod")
-    @TestCaseId("TC-4436")
+    @TestCaseId("TC-12521")
     @Category("regression", "RC", "loginOld", "SF.Channel", "TSFI.UserInterface", "S0.1", "S2")
     @Test
     fun givenPersonalUser_whenLoggingInWithValidEmailAndWrongPasswordUsingOldFlow_thenLoginDoesNotProceed() {
@@ -179,7 +179,7 @@ class LoginOldTests : BaseUiTest() {
     }
 
     @Suppress("LongMethod")
-    @TestCaseId("TC-4440")
+    @TestCaseId("TC-12524")
     @Category("regression", "RC", "loginOld")
     @Test
     fun givenPersonalUser_whenLoggingInWithUsernameUsingOldFlow_thenLoginIsSuccessful() {
@@ -215,7 +215,7 @@ class LoginOldTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4441")
+    @TestCaseId("TC-12525")
     @Category("regression", "RC", "loginOld", "sessionExpiration")
     @Test
     fun givenTeamMemberDeviceWasRemoved_whenLoggingInAgainUsingOldFlow_thenLoginIsSuccessful() {
@@ -259,7 +259,7 @@ class LoginOldTests : BaseUiTest() {
 
         step("When I tap OK button on the alert and see email verification Welcome Page") {
             pages.commonAppPage.confirmRemovedDeviceDialog()
-            pages.registrationPage.assertEmailWelcomePage()
+            pages.loginPage.assertEmailInputPageVisible()
         }
 
         step("And I open staging backend deep link for old login flows and see Welcome Page") {
@@ -293,7 +293,7 @@ class LoginOldTests : BaseUiTest() {
     }
 
     @Suppress("LongMethod")
-    @TestCaseId("TC-4443")
+    @TestCaseId("TC-12527")
     @Category("regression", "RC", "loginOld")
     @Test
     fun givenTeamMemberOnOldLoginScreen_whenTappingForgotPasswordLink_thenAccountRecoveryWebpageIsOpened() {
@@ -321,8 +321,8 @@ class LoginOldTests : BaseUiTest() {
     }
 
     @Suppress("LongMethod")
-    @TestCaseId("TC-8711")
-    @Category("regression", "RC", "loginOld", "SSO", "TEMP")
+    @TestCaseId("TC-12723")
+    @Category("regression", "RC", "loginOld", "SSO")
     @Test
     fun givenKeycloakSsoUser_whenLoggingInWithSsoCodeUsingOldFlow_thenLoginIsSuccessful() {
         step("Given There is a team owner \"user1Name\" with SSO team \"SSO\" configured for keycloak") {
@@ -339,6 +339,7 @@ class LoginOldTests : BaseUiTest() {
                     keycloakApiClient
                 )
             }
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "SSO", backendClient)
             SSOServiceHelper.setCurrentSsoUser("user2Name")
             teamMember = clientUserManager.findUserByNameOrNameAlias("user2Name")
         }
@@ -382,7 +383,7 @@ class LoginOldTests : BaseUiTest() {
 
         step("And I wait until I am fully logged in and decline share data alert") {
             pages.registrationPage.apply {
-                waitUntilLoginFlowIsCompleted()
+                waitUntilSsoLoginFlowIsCompleted()
                 clickAllowNotificationButton()
                 clickDeclineShareDataAlert()
             }
@@ -428,6 +429,7 @@ class LoginOldTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", teamName, backendClient)
             backendSetupHelper.userXAddsUsersToTeam(
                 "user1Name",
                 "user2Name",

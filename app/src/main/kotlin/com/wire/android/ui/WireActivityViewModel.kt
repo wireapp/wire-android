@@ -28,7 +28,6 @@ import androidx.work.WorkManager
 import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.appLogger
-import com.wire.android.config.NomadProfilesFeatureConfig
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.di.IsProfileQRCodeEnabledUseCaseProvider
 import com.wire.android.di.KaliumCoreLogic
@@ -64,8 +63,6 @@ import com.wire.android.util.deeplink.DeepLinkProcessor
 import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.android.util.deeplink.LoginType
 import com.wire.android.util.dispatchers.DispatcherProvider
-import com.wire.android.util.lifecycle.AutomatedLoginManager
-import com.wire.android.util.lifecycle.IntentsProcessor
 import com.wire.android.util.ui.UIText
 import com.wire.android.workmanager.worker.cancelPeriodicPersistentWebsocketCheckWorker
 import com.wire.android.workmanager.worker.enqueuePeriodicPersistentWebsocketCheckWorker
@@ -78,8 +75,6 @@ import com.wire.kalium.logic.data.logout.LogoutReason
 import com.wire.kalium.logic.data.sync.SyncState
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.appVersioning.ObserveIfAppUpdateRequiredUseCase
-import com.wire.kalium.logic.feature.auth.IsNomadProfilesEnabledUseCase
-import com.wire.kalium.logic.feature.auth.autoVersioningAuth.AutoVersionAuthScopeUseCase
 import com.wire.kalium.logic.feature.client.ClearNewClientsForUserUseCase
 import com.wire.kalium.logic.feature.client.NewClientResult
 import com.wire.kalium.logic.feature.client.ObserveNewClientsUseCase
@@ -90,7 +85,6 @@ import com.wire.kalium.logic.feature.server.GetServerConfigUseCase
 import com.wire.kalium.logic.feature.server.IsCrossBackendLoginBlockedUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionFlowUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
-import com.wire.kalium.logic.feature.session.DoesValidNomadAccountExistUseCase
 import com.wire.kalium.logic.feature.session.DoesValidSessionExistResult
 import com.wire.kalium.logic.feature.session.DoesValidSessionExistUseCase
 import com.wire.kalium.logic.feature.session.GetAllSessionsResult
@@ -116,12 +110,10 @@ import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlinx.datetime.Instant
+import kotlin.time.Instant
 import kotlinx.serialization.json.Json
 import java.io.InputStream
 import java.io.InputStreamReader
-
-private const val AUTOMATED_NOMAD_COOKIE_LABEL = "shared-device"
 
 @Suppress("LongParameterList", "TooManyFunctions", "LargeClass")
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -132,7 +124,6 @@ class WireActivityViewModel @Inject constructor(
     private val doesValidSessionExist: Lazy<DoesValidSessionExistUseCase>,
     private val getServerConfigUseCase: Lazy<GetServerConfigUseCase>,
     private val deepLinkProcessor: Lazy<DeepLinkProcessor>,
-    private val intentsProcessor: Lazy<IntentsProcessor>,
     private val observeSessions: Lazy<ObserveSessionsUseCase>,
     private val accountSwitch: Lazy<AccountSwitchUseCase>,
     private val servicesManager: Lazy<ServicesManager>,
@@ -152,15 +143,13 @@ class WireActivityViewModel @Inject constructor(
     private val monitorSyncWorkUseCase: MonitorSyncWorkUseCase,
     private val managedConfigurationsManager: ManagedConfigurationsManager,
     private val defaultServerConfig: ServerConfig.Links,
-    private val automatedLoginManager: AutomatedLoginManager,
-    private val nomadProfilesFeatureConfig: NomadProfilesFeatureConfig,
     private val loginTypeSelector: LoginTypeSelector,
-    private val doesValidNomadAccountExist: Lazy<DoesValidNomadAccountExistUseCase>,
     private val startupAccountLimitGate: StartupAccountLimitGate,
 ) : ActionsViewModel<WireActivityViewAction>() {
 
     var globalAppState: GlobalAppState by mutableStateOf(GlobalAppState())
         private set
+    private val globalAppStateLock = Any()
 
     private val _observeSyncFlowState: MutableStateFlow<SyncState?> = MutableStateFlow(null)
     val observeSyncFlowState: StateFlow<SyncState?> = _observeSyncFlowState
@@ -195,6 +184,17 @@ class WireActivityViewModel @Inject constructor(
         viewModelScope.launch(dispatchers.io()) { monitorSyncWorkUseCase() }
     }
 
+    /**
+     * [globalAppState] is updated from multiple coroutines running on different threads, so every
+     * read-modify-write has to be atomic, otherwise concurrent updates overwrite each other.
+     */
+    @VisibleForTesting
+    internal fun updateGlobalAppState(transform: (GlobalAppState) -> GlobalAppState) {
+        synchronized(globalAppStateLock) {
+            globalAppState = transform(globalAppState)
+        }
+    }
+
     private suspend fun shouldEnrollToE2ei(userId: UserId): Boolean =
         observeIfE2EIRequiredDuringLoginUseCaseProviderFactory.create(userId)
             .observeIfE2EIIsRequiredDuringLogin().first() ?: false
@@ -204,7 +204,7 @@ class WireActivityViewModel @Inject constructor(
             globalDataStore.value.selectedThemeOptionFlow()
                 .distinctUntilChanged()
                 .collect {
-                    globalAppState = globalAppState.copy(themeOption = it)
+                    updateGlobalAppState { state -> state.copy(themeOption = it) }
                 }
         }
     }
@@ -220,7 +220,7 @@ class WireActivityViewModel @Inject constructor(
             }
                 .distinctUntilChanged()
                 .collectLatest {
-                    globalAppState = globalAppState.copy(userAccent = it)
+                    updateGlobalAppState { state -> state.copy(userAccent = it) }
                 }
         }
     }
@@ -266,7 +266,7 @@ class WireActivityViewModel @Inject constructor(
     private fun observeCurrentUserState() {
         viewModelScope.launch(dispatchers.io()) {
             observeCurrentAccountInfo.collectLatest { accountInfo ->
-                globalAppState = globalAppState.withObservedCurrentAccount(accountInfo)
+                updateGlobalAppState { state -> state.withObservedCurrentAccount(accountInfo) }
             }
         }
     }
@@ -278,10 +278,12 @@ class WireActivityViewModel @Inject constructor(
                     when (it) {
                         is AccountInfo.Invalid -> handleInvalidSession(it.userId, it.logoutReason)
                         is AccountInfo.Valid -> withContext(dispatchers.main()) {
-                            globalAppState = globalAppState.copy(
-                                blockUserUI = null,
-                                pendingRemovedClientRecovery = null,
-                            )
+                            updateGlobalAppState { state ->
+                                state.copy(
+                                    blockUserUI = null,
+                                    pendingRemovedClientRecovery = null,
+                                )
+                            }
                         }
 
                         null -> {}
@@ -296,7 +298,7 @@ class WireActivityViewModel @Inject constructor(
             observeIfAppUpdateRequired.value.invoke(BuildConfig.VERSION_CODE)
                 .distinctUntilChanged()
                 .collect {
-                    globalAppState = globalAppState.copy(updateAppDialog = it)
+                    updateGlobalAppState { state -> state.copy(updateAppDialog = it) }
                 }
         }
     }
@@ -313,7 +315,7 @@ class WireActivityViewModel @Inject constructor(
                 }
                 .collect {
                     val newClientDialog = NewClientsData.fromUseCaseResul(it)
-                    globalAppState = globalAppState.copy(newClientDialog = newClientDialog)
+                    updateGlobalAppState { state -> state.copy(newClientDialog = newClientDialog) }
                 }
         }
     }
@@ -331,7 +333,7 @@ class WireActivityViewModel @Inject constructor(
                     } ?: flowOf(false)
                 }
                 .collect {
-                    globalAppState = globalAppState.copy(screenshotCensoringEnabled = it)
+                    updateGlobalAppState { state -> state.copy(screenshotCensoringEnabled = it) }
                 }
         }
     }
@@ -362,16 +364,18 @@ class WireActivityViewModel @Inject constructor(
             taskId = taskId,
         )
         withContext(dispatchers.main()) {
-            globalAppState = globalAppState.copy(
-                currentUserId = currentValidUserId,
-                startupAccountLimitExcessAccounts = if (showAccountLimitDialog) {
-                    accounts.count { it is AccountInfo.Valid } - BuildConfig.MAX_ACCOUNTS
-                } else {
-                    globalAppState.startupAccountLimitExcessAccounts
-                },
-                isSessionTransitionInProgress = false,
-                sessionTransitionReason = null,
-            )
+            updateGlobalAppState { state ->
+                state.copy(
+                    currentUserId = currentValidUserId,
+                    startupAccountLimitExcessAccounts = if (showAccountLimitDialog) {
+                        accounts.count { it is AccountInfo.Valid } - BuildConfig.MAX_ACCOUNTS
+                    } else {
+                        state.startupAccountLimitExcessAccounts
+                    },
+                    isSessionTransitionInProgress = false,
+                    sessionTransitionReason = null,
+                )
+            }
         }
         InitialStartupSnapshot(
             initialAppState = initialAppState,
@@ -408,30 +412,35 @@ class WireActivityViewModel @Inject constructor(
             }
         }.getOrNull()
         withContext(dispatchers.main()) {
-            globalAppState = globalAppState.copy(
-                currentUserId = null,
-                blockUserUI = CurrentSessionErrorState.RemovedClient,
-                isSessionTransitionInProgress = false,
-                sessionTransitionReason = SessionTransitionReason.REMOVED_CLIENT,
-                pendingRemovedClientRecovery = serverLinks?.let {
-                    PendingRemovedClientRecovery(userId, it)
-                },
-            )
+            updateGlobalAppState { state ->
+                state.copy(
+                    currentUserId = null,
+                    blockUserUI = CurrentSessionErrorState.RemovedClient,
+                    isSessionTransitionInProgress = false,
+                    sessionTransitionReason = SessionTransitionReason.REMOVED_CLIENT,
+                    pendingRemovedClientRecovery = serverLinks?.let {
+                        PendingRemovedClientRecovery(userId, it)
+                    },
+                )
+            }
         }
     }
 
-    fun consumeSessionRecoveryServerLinks(): ServerConfig.Links? =
+    fun consumeSessionRecoveryServerLinks(): ServerConfig.Links? = synchronized(globalAppStateLock) {
         globalAppState.pendingRemovedClientRecovery?.serverLinks.also {
             globalAppState = globalAppState.copy(pendingRemovedClientRecovery = null)
         }
+    }
 
     private suspend fun setCurrentSessionError(errorState: CurrentSessionErrorState) {
         withContext(dispatchers.main()) {
-            globalAppState = globalAppState.copy(
-                blockUserUI = errorState,
-                isSessionTransitionInProgress = false,
-                sessionTransitionReason = null,
-            )
+            updateGlobalAppState { state ->
+                state.copy(
+                    blockUserUI = errorState,
+                    isSessionTransitionInProgress = false,
+                    sessionTransitionReason = null,
+                )
+            }
         }
     }
 
@@ -473,7 +482,7 @@ class WireActivityViewModel @Inject constructor(
                         isCrossBackendLoginBlocked(IsCrossBackendLoginBlockedUseCase.Target.SsoConfigId(result.serverConfigId))
                     ) {
                         appLogger.w("Cross-backend SSO login blocked: deeplink target differs from active session backend")
-                        globalAppState = globalAppState.copy(crossBackendLoginBlockedDialog = true)
+                        updateGlobalAppState { state -> state.copy(crossBackendLoginBlockedDialog = true) }
                     } else {
                         sendAction(OnSSOLogin(result))
                     }
@@ -511,7 +520,7 @@ class WireActivityViewModel @Inject constructor(
                         sendAction(ShowToast(R.string.public_share_ignored_wire_internal_files))
                         return@launch
                     }
-                    sendAction(OnShowImportMediaScreen)
+                    sendAction(OnShowImportMediaScreen(isSharedFromWire = hasTrustedWireShareCaller))
                 }
                 DeepLinkResult.Unknown -> {
                     sendAction(OnUnknownDeepLink)
@@ -537,107 +546,8 @@ class WireActivityViewModel @Inject constructor(
         appLogger.w("Rejected public share intent: ${Json.encodeToString(logMap)}")
     }
 
-    // Returns whether an intent was handled, or if there was nothing to do
-    @Suppress("ReturnCount")
-    suspend fun handleIntentsThatAreNotDeepLinks(intent: Intent?): Boolean {
-        val result = intentsProcessor.value.invoke(intent)
-        if (result != null) {
-            if (!nomadProfilesFeatureConfig.isEnabled()) {
-                appLogger.w("Nomad login ignored: local Nomad profiles flag is disabled")
-                return true
-            }
-            viewModelScope.launch(dispatchers.io()) {
-                val serverLinks = result.backendConfig?.let { loadServerConfig(it) }
-                val backendConfigLoadFailed = result.backendConfig != null && serverLinks == null
-                if (backendConfigLoadFailed) {
-                    sendAction(OnUnknownDeepLink)
-                    return@launch
-                }
-
-                if (serverLinks?.isProductionApi() == true) {
-                    appLogger.w("Nomad login ignored: resolved backend is Wire production")
-                    return@launch
-                }
-
-                if (!isNomadProfilesFlowEnabled(serverLinks)) {
-                    return@launch
-                }
-
-                initValidSessionsFlowIfNeeded()
-                if (validSessions.value.filterIsInstance<AccountInfo.Valid>().isNotEmpty()) {
-					appLogger.w("Nomad login blocked: a non-nomad session already exists")
-                    if (!doesValidNomadAccountExist.value.invoke()) {
-                        sendAction(ShowToast(R.string.nomad_login_blocked_message))
-                    }
-					return@launch
-                }
-
-                onAutomaticLoginParameters(
-                    serverLinks = serverLinks,
-                    ssoCode = result.ssoCode,
-                    nomadServiceUrl = result.nomadProfilesHost,
-                )
-            }
-            return true
-        }
-        return false
-    }
-
-    private fun onAutomaticLoginParameters(
-        serverLinks: ServerConfig.Links?,
-        ssoCode: String?,
-        nomadServiceUrl: String?,
-    ) {
-        viewModelScope.launch(dispatchers.io()) {
-            if (ssoCode == null) {
-                sendAction(OnUnknownDeepLink)
-            } else {
-                automatedLoginManager.markPendingMoveToBackgroundAfterSync()
-                sendAction(
-                    OnAutomaticLogin(
-                        serverLinks = serverLinks,
-                        ssoCode = ssoCode,
-                        nomadServiceUrl = nomadServiceUrl,
-                        cookieLabel = AUTOMATED_NOMAD_COOKIE_LABEL,
-                        useNewLogin = resolveUseNewLogin(LoginType.Default, serverLinks)
-                    )
-                )
-            }
-        }
-    }
-
-    private suspend fun isNomadProfilesFlowEnabled(serverLinks: ServerConfig.Links?): Boolean {
-        if (serverLinks == null) {
-            appLogger.w("Nomad login ignored: missing server links")
-            return false
-        }
-
-        return when (val authScopeResult = coreLogic.value.versionedAuthenticationScope(serverLinks).invoke(null)) {
-            is AutoVersionAuthScopeUseCase.Result.Failure -> {
-                appLogger.w("Nomad login ignored: failed to create auth scope for backend ${serverLinks.api}")
-                false
-            }
-
-            is AutoVersionAuthScopeUseCase.Result.Success -> {
-                when (val result = authScopeResult.authenticationScope.isNomadProfilesEnabled()) {
-                    is IsNomadProfilesEnabledUseCase.Result.Failure -> {
-                        appLogger.w("Nomad login ignored: failed to fetch server Nomad settings")
-                        false
-                    }
-
-                    is IsNomadProfilesEnabledUseCase.Result.Success -> {
-                        if (!result.isEnabled) {
-                            appLogger.w("Nomad login ignored: server does not support Nomad profiles")
-                        }
-                        result.isEnabled && nomadProfilesFeatureConfig.isEnabled()
-                    }
-                }
-            }
-        }
-    }
-
     fun dismissCustomBackendDialog() {
-        globalAppState = globalAppState.copy(customBackendDialog = null)
+        updateGlobalAppState { state -> state.copy(customBackendDialog = null) }
     }
 
     fun customBackendDialogProceedButtonClicked(loginType: LoginType) {
@@ -664,11 +574,13 @@ class WireActivityViewModel @Inject constructor(
         wipeData: Boolean = true
     ) {
         viewModelScope.launch {
-            globalAppState = globalAppState.copy(
-                currentUserId = null,
-                isSessionTransitionInProgress = true,
-                sessionTransitionReason = SessionTransitionReason.SELF_LOGOUT,
-            )
+            updateGlobalAppState { state ->
+                state.copy(
+                    currentUserId = null,
+                    isSessionTransitionInProgress = true,
+                    sessionTransitionReason = SessionTransitionReason.SELF_LOGOUT,
+                )
+            }
             coreLogic.value.getGlobalScope().session.currentSession().takeIf {
                 it is CurrentSessionResult.Success
             }?.let {
@@ -690,7 +602,7 @@ class WireActivityViewModel @Inject constructor(
     }
 
     fun dismissNewClientsDialog(userId: UserId) {
-        globalAppState = globalAppState.copy(newClientDialog = null)
+        updateGlobalAppState { state -> state.copy(newClientDialog = null) }
         viewModelScope.launch {
             doesValidSessionExist.value.invoke(userId).let {
                 if (it is DoesValidSessionExistResult.Success && it.doesValidSessionExist) {
@@ -711,10 +623,10 @@ class WireActivityViewModel @Inject constructor(
 
     fun tryToSwitchAccount(actions: SwitchAccountActions) {
         viewModelScope.launch {
-            globalAppState = globalAppState.copy(isSessionTransitionInProgress = true)
+            updateGlobalAppState { state -> state.copy(isSessionTransitionInProgress = true) }
             val result = accountSwitch.value.invoke(SwitchAccountParam.TryToSwitchToNextAccount)
             syncCurrentUserIdFromSession()
-            globalAppState = globalAppState.copy(blockUserUI = null)
+            updateGlobalAppState { state -> state.copy(blockUserUI = null) }
             result.callAction(actions)
         }
     }
@@ -723,7 +635,7 @@ class WireActivityViewModel @Inject constructor(
         viewModelScope.launch {
             syncCurrentUserIdFromSession()
             if (globalAppState.currentUserId == null) {
-                globalAppState = globalAppState.copy(blockUserUI = null)
+                updateGlobalAppState { state -> state.copy(blockUserUI = null) }
                 val result = accountSwitch.value.invoke(SwitchAccountParam.TryToSwitchToNextAccount)
                 syncCurrentUserIdFromSession()
                 result.callAction(actions)
@@ -739,7 +651,7 @@ class WireActivityViewModel @Inject constructor(
     fun checkNumberOfSessions(): Boolean {
         val reachedMax = validSessions.value.size >= BuildConfig.MAX_ACCOUNTS
         if (reachedMax) {
-            globalAppState = globalAppState.copy(maxAccountDialog = true)
+            updateGlobalAppState { state -> state.copy(maxAccountDialog = true) }
         }
         return !reachedMax
     }
@@ -773,7 +685,7 @@ class WireActivityViewModel @Inject constructor(
                 isCrossBackendLoginBlocked(IsCrossBackendLoginBlockedUseCase.Target.Links(serverLinks))
             ) {
                 appLogger.w("Cross-backend login blocked: deeplink target differs from active session backend")
-                globalAppState = globalAppState.copy(crossBackendLoginBlockedDialog = true)
+                updateGlobalAppState { state -> state.copy(crossBackendLoginBlockedDialog = true) }
                 return@launch
             }
 
@@ -781,9 +693,11 @@ class WireActivityViewModel @Inject constructor(
                 ?.let { CustomServerDetailsDialogState(serverLinks = it, loginType = loginType) }
                 ?: CustomServerNoNetworkDialogState(customServerUrl = customServerUrl, loginType = loginType)
 
-            globalAppState = globalAppState.copy(
-                customBackendDialog = customBackendDialogData
-            )
+            updateGlobalAppState { state ->
+                state.copy(
+                    customBackendDialog = customBackendDialogData
+                )
+            }
         }
     }
 
@@ -807,8 +721,8 @@ class WireActivityViewModel @Inject constructor(
                             appLogger.d("user is already a member of the conversation")
                             onSuccess(result.conversationId)
                         } else {
-                            globalAppState =
-                                globalAppState.copy(
+                            updateGlobalAppState { state ->
+                                state.copy(
                                     conversationJoinedDialog = JoinConversationViaCodeState.Show(
                                         result.name,
                                         code,
@@ -817,21 +731,23 @@ class WireActivityViewModel @Inject constructor(
                                         result.isPasswordProtected
                                     )
                                 )
+                            }
                         }
                     }
 
                     is CheckConversationInviteCodeUseCase.Result.Failure ->
-                        globalAppState =
-                            globalAppState.copy(
+                        updateGlobalAppState { state ->
+                            state.copy(
                                 conversationJoinedDialog = JoinConversationViaCodeState.Error(result)
                             )
+                        }
                 }
             }
         }
     }
 
     fun onJoinConversationFlowCompleted() {
-        globalAppState = globalAppState.copy(conversationJoinedDialog = null)
+        updateGlobalAppState { state -> state.copy(conversationJoinedDialog = null) }
     }
 
     private suspend fun currentValidUserId(): UserId? =
@@ -851,19 +767,21 @@ class WireActivityViewModel @Inject constructor(
             currentSessionUserId()
         }
         withContext(dispatchers.main()) {
-            globalAppState = globalAppState.copy(
-                currentUserId = userId,
-                isSessionTransitionInProgress = if (userId != null) {
-                    false
-                } else {
-                    globalAppState.isSessionTransitionInProgress
-                },
-                sessionTransitionReason = if (userId != null) {
-                    null
-                } else {
-                    globalAppState.sessionTransitionReason
-                },
-            )
+            updateGlobalAppState { state ->
+                state.copy(
+                    currentUserId = userId,
+                    isSessionTransitionInProgress = if (userId != null) {
+                        false
+                    } else {
+                        state.isSessionTransitionInProgress
+                    },
+                    sessionTransitionReason = if (userId != null) {
+                        null
+                    } else {
+                        state.sessionTransitionReason
+                    },
+                )
+            }
         }
     }
 
@@ -878,22 +796,24 @@ class WireActivityViewModel @Inject constructor(
     }
 
     fun finishSessionTransition() {
-        globalAppState = globalAppState.copy(
-            isSessionTransitionInProgress = false,
-            sessionTransitionReason = null,
-        )
+        updateGlobalAppState { state ->
+            state.copy(
+                isSessionTransitionInProgress = false,
+                sessionTransitionReason = null,
+            )
+        }
     }
 
     fun dismissStartupAccountLimitDialog() {
-        globalAppState = globalAppState.copy(startupAccountLimitExcessAccounts = null)
+        updateGlobalAppState { state -> state.copy(startupAccountLimitExcessAccounts = null) }
     }
 
     fun dismissMaxAccountDialog() {
-        globalAppState = globalAppState.copy(maxAccountDialog = false)
+        updateGlobalAppState { state -> state.copy(maxAccountDialog = false) }
     }
 
     fun dismissCrossBackendLoginBlockedDialog() {
-        globalAppState = globalAppState.copy(crossBackendLoginBlockedDialog = false)
+        updateGlobalAppState { state -> state.copy(crossBackendLoginBlockedDialog = false) }
     }
 
     fun applyPersistentWebSocketConfigFromMDM() {
@@ -1089,18 +1009,10 @@ sealed interface WireActivityViewAction
 internal data class OpenConversation(val result: DeepLinkResult.OpenConversation) : WireActivityViewAction
 internal data class OpenMeetings(val result: DeepLinkResult.OpenMeetings) : WireActivityViewAction
 internal data class OpenDriveFiles(val result: DeepLinkResult.OpenDriveFiles) : WireActivityViewAction
-internal data object OnShowImportMediaScreen : WireActivityViewAction
+internal data class OnShowImportMediaScreen(val isSharedFromWire: Boolean = false) : WireActivityViewAction
 internal data object OnAuthorizationNeeded : WireActivityViewAction
 internal data object OnUnknownDeepLink : WireActivityViewAction
 internal data class OnMigrationLogin(val result: DeepLinkResult.MigrationLogin) : WireActivityViewAction
-internal data class OnAutomaticLogin(
-    val serverLinks: ServerConfig.Links?,
-    val ssoCode: String?,
-    val nomadServiceUrl: String?,
-    val cookieLabel: String? = null,
-    val useNewLogin: Boolean,
-) : WireActivityViewAction
-
 internal data class OnCustomBackendLogin(
     val serverLinks: ServerConfig.Links,
     val useNewLogin: Boolean,
@@ -1109,7 +1021,3 @@ internal data class OnCustomBackendLogin(
 internal data class OnOpenUserProfile(val result: DeepLinkResult.OpenOtherUserProfile) : WireActivityViewAction
 internal data class OnSSOLogin(val result: DeepLinkResult.SSOLogin) : WireActivityViewAction
 internal data class ShowToast(val messageResId: Int) : WireActivityViewAction
-
-// TODO: replace with the kalium `ServerConfig.isProductionApi()` once it is made public and supports `Links`
-internal fun ServerConfig.Links.isProductionApi(): Boolean =
-    ServerConfig.PRODUCTION.api.contains(java.net.URI(api).host ?: "")

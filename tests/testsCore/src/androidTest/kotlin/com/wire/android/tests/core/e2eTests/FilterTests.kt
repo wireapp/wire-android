@@ -43,7 +43,7 @@ class FilterTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-8642", "TC-8652", "TC-8645")
+    @TestCaseId("TC-12699", "TC-12708", "TC-12702")
     @Category("regression", "filter", "RC")
     @Test
     fun givenIHaveCreatedFavorite_whenILogOutWithClearDataAndLogInAgain_thenFavoriteIsVisibleAndCanBeRemoved() {
@@ -56,6 +56,7 @@ class FilterTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "Filters", backendClient)
             backendSetupHelper.createTeamOwnerByAlias(
                 "user5Name",
                 "ConnectedFriend",
@@ -64,6 +65,7 @@ class FilterTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user5Name", "ConnectedFriend", backendClient)
             backendSetupHelper.createTeamOwnerByAlias(
                 "user2Name",
                 "ConnectedFriend2",
@@ -72,6 +74,7 @@ class FilterTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user2Name", "ConnectedFriend2", backendClient)
         }
 
         step("And TeamOwner adds Member1 to team Filters with role Member") {
@@ -91,12 +94,19 @@ class FilterTests : BaseUiTest() {
             backendSetupHelper.userIsConnectedTo("user1Name", "user2Name")
         }
 
+        step("And MLS devices are registered for all participants") {
+            testServiceHelper.apply {
+                addDevice("user1Name", null, "Device1")
+                addDevice("user3Name", null, "Device1")
+            }
+        }
+
         step("And TeamOwner has group conversation Filter Group with Member1") {
-            backendSetupHelper.userHasGroupConversationInTeam(
-                "user1Name",
-                "Filter Group",
-                "user3Name",
-                "Filters"
+            testServiceHelper.userCreatesMLSGroupConversation(
+                ownerAlias = "user1Name",
+                participantAliases = "user3Name",
+                conversationName = "Filter Group",
+                deviceName = "Device1"
             )
         }
 
@@ -238,7 +248,7 @@ class FilterTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-8643", "TC-8644", "TC-8646", "TC-8666")
+    @TestCaseId("TC-12700", "TC-12701", "TC-12703", "TC-12711")
     @Category("regression", "filter", "RC")
     @Test
     fun givenIHaveCreatedConversationFolder_whenILogOutWithClearDataAndLogInAgain_thenFolderIsVisibleAndConversationsCanBeManaged() {
@@ -450,7 +460,7 @@ class FilterTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-8651", "TC-8650")
+    @TestCaseId("TC-12707", "TC-12706")
     @Category("regression", "filter", "RC")
     @Test
     fun givenOneToOneConversation_whenIMoveItToFolderFromUserProfile_thenConversationIsVisibleInFavoritesAndFolder() {
@@ -463,6 +473,7 @@ class FilterTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "folderFilter", backendClient)
             backendSetupHelper.createTeamOwnerByAlias(
                 "user2Name",
                 "ConnectedFriend",
@@ -471,6 +482,7 @@ class FilterTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user2Name", "ConnectedFriend", backendClient)
         }
 
         step("And TeamOwner adds Member1 to team folderFilter with role Member") {
@@ -637,7 +649,7 @@ class FilterTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-8654", "TC-8655")
+    @TestCaseId("TC-12709", "TC-12710")
     @Category("regression", "filter", "RC")
     @Test
     fun givenGroupAndOneToOneConversations_whenIFilterByType_thenOnlyMatchingConversationsAreVisible() {
@@ -695,7 +707,7 @@ class FilterTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-8647")
+    @TestCaseId("TC-12704")
     @Category("regression", "filter", "RC")
     @Test
     fun givenArchivedOneToOneConversation_whenIOpenUserProfileOptions_thenMoveToFolderButtonIsNotVisible() {
@@ -766,7 +778,7 @@ class FilterTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-8648")
+    @TestCaseId("TC-12705")
     @Category("regression", "filter", "RC")
     @Test
     fun givenConversationInFolder_whenIArchiveAndUnarchiveIt_thenConversationReturnsToSameFolder() {
@@ -931,6 +943,7 @@ class FilterTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "Folder", backendClient)
             backendSetupHelper.createTeamOwnerByAlias(
                 "user2Name",
                 "ConnectedFriend",
@@ -939,6 +952,7 @@ class FilterTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user2Name", "ConnectedFriend", backendClient)
         }
 
         step("And TeamOwner adds Member1 to team Folder with role Member") {
@@ -957,12 +971,19 @@ class FilterTests : BaseUiTest() {
             backendSetupHelper.userIsConnectedTo("user1Name", "user2Name")
         }
 
+        step("And MLS devices are registered for all participants") {
+            testServiceHelper.apply {
+                addDevice("user1Name", null, "Device1")
+                addDevice("user3Name", null, "Device1")
+            }
+        }
+
         step("And TeamOwner has group conversation Folder Group with Member1") {
-            backendSetupHelper.userHasGroupConversationInTeam(
-                "user1Name",
-                "Folder Group",
-                "user3Name",
-                "Folder"
+            testServiceHelper.userCreatesMLSGroupConversation(
+                ownerAlias = "user1Name",
+                participantAliases = "user3Name",
+                conversationName = "Folder Group",
+                deviceName = "Device1"
             )
         }
 

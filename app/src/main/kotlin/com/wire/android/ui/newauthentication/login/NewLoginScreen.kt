@@ -28,11 +28,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.TextFieldState
-import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -47,7 +45,6 @@ import androidx.compose.ui.semantics.testTagsAsResourceId
 import com.wire.android.R
 import com.wire.android.ui.authentication.create.common.ServerTitle
 import com.wire.android.ui.authentication.login.LoginErrorDialog
-import com.wire.android.ui.authentication.login.LoginNavArgs
 import com.wire.android.ui.authentication.login.WireAuthBackgroundLayout
 import com.wire.android.ui.authentication.login.sso.SsoIdentityChangedDialog
 import com.wire.android.ui.authentication.login.toLoginDialogErrorData
@@ -75,24 +72,11 @@ import com.wire.kalium.logic.configuration.server.ServerConfig
  */
 @Composable
 internal fun NewLoginRouteScreen(
-    navArgs: LoginNavArgs,
     viewModel: NewLoginViewModel,
     canNavigateBack: Boolean,
     navigateBack: () -> Unit,
     onAction: (NewLoginAction) -> Unit,
 ) {
-    // Handle SSO code auto-login from intent parameter
-    LaunchedEffect(navArgs.ssoCodeAutoLogin) {
-        navArgs.ssoCodeAutoLogin?.let {
-            // Pre-fill the SSO code in the user identifier field
-            viewModel.userIdentifierTextState.setTextAndPlaceCursorAtEnd(it.ssoCode)
-
-            // Auto-initiate login if flag is set
-            if (it.autoInitiateLogin) {
-                viewModel.onLoginStarted()
-            }
-        }
-    }
     (viewModel.state.flowState as? NewLoginFlowState.CustomConfigDialog)?.let { customServerDialogState ->
         CustomServerDetailsDialog(
             serverLinks = customServerDialogState.serverLinks,
@@ -225,7 +209,7 @@ private fun LoginContent(
 
                         else -> null
                     }
-                    EmailOrSSOCodeInput(userIdentifierState, error)
+                    EmailOrSSOCodeInput(userIdentifierState, error, loginEmailSSOState.userIdentifierEnabled)
                     VerticalSpace.x8()
                     LoginNextButton(
                         loading = loginEmailSSOState.flowState is NewLoginFlowState.Loading,
@@ -261,16 +245,18 @@ private fun LoginNextButton(
 }
 
 @Composable
-private fun EmailOrSSOCodeInput(
+internal fun EmailOrSSOCodeInput(
     userIdentifierState: TextFieldState,
-    error: String?
+    error: String?,
+    enabled: Boolean,
 ) {
     WireTextField(
-        autoFillType = WireAutoFillType.Login,
+        autoFillType = if (enabled) WireAutoFillType.Login else WireAutoFillType.None,
         textState = userIdentifierState,
         placeholderText = stringResource(R.string.enterprise_login_user_identifier_label_placeholder),
         labelText = stringResource(R.string.enterprise_login_user_identifier_label),
         state = when {
+            !enabled -> WireTextFieldState.Disabled
             error != null -> WireTextFieldState.Error(error)
             else -> WireTextFieldState.Default
         },
@@ -308,6 +294,25 @@ fun PreviewNewLoginScreenCustomConfig() = WireTheme {
             LoginContent(
                 loginEmailSSOState = NewLoginScreenState(),
                 userIdentifierState = TextFieldState(),
+                serverConfig = ServerConfig.DEFAULT.copy(isOnPremises = true),
+                onNextClicked = {},
+                onBackendConfigLinkEntered = {},
+                onBackendConfigSuccessContinue = {},
+                canNavigateBack = false,
+                navigateBack = {},
+            )
+        }
+    }
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewNewLoginScreenDisabledSSOCode() = WireTheme {
+    EdgeToEdgePreview(useDarkIcons = false) {
+        WireAuthBackgroundLayout {
+            LoginContent(
+                loginEmailSSOState = NewLoginScreenState(userIdentifierEnabled = false, nextEnabled = true),
+                userIdentifierState = TextFieldState("wire-fd994b20-b9af-11ec-ae36-00163e9b33ca"),
                 serverConfig = ServerConfig.DEFAULT.copy(isOnPremises = true),
                 onNextClicked = {},
                 onBackendConfigLinkEntered = {},

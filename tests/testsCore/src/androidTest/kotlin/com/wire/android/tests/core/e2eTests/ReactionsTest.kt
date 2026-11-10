@@ -44,7 +44,7 @@ class ReactionsTest : BaseUiTest() {
     }
 
     @Suppress("LongMethod")
-    @TestCaseId("TC-4478")
+    @TestCaseId("TC-12561")
     @Category("regression", "RC", "reactions")
     @Test
     fun givenOneOnOneConversation_whenMemberReactsToMyMessage_thenISeeTheReactions() {
@@ -119,7 +119,7 @@ class ReactionsTest : BaseUiTest() {
     }
 
     @Suppress("LongMethod")
-    @TestCaseId("TC-4479", "TC-4480", "TC-4481")
+    @TestCaseId("TC-12562", "TC-12563", "TC-12564")
     @Category("regression", "RC", "reactions")
     @Test
     fun givenGroupConversation_whenMembersReactToMyMessage_thenReactionDetailsAreVisible() {
@@ -244,7 +244,7 @@ class ReactionsTest : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4475", "TC-4483")
+    @TestCaseId("TC-12558", "TC-12566")
     @Category("regression", "RC", "reactions")
     @Test
     fun givenMessageFromMember_whenIAddAndRemoveReactions_thenReactionDetailsAreUpdated() {
@@ -377,7 +377,7 @@ class ReactionsTest : BaseUiTest() {
     }
 
     @Suppress("LongMethod")
-    @TestCaseId("TC-4476", "TC-4484")
+    @TestCaseId("TC-12559", "TC-12567")
     @Category("regression", "RC", "reactions")
     @Test
     fun givenGroupMessage_whenIAddAndRemoveReactions_thenReactionDetailsAreUpdated() {
@@ -516,7 +516,7 @@ class ReactionsTest : BaseUiTest() {
     }
 
     @Suppress("LongMethod")
-    @TestCaseId("TC-4477", "TC-4485")
+    @TestCaseId("TC-12560", "TC-12568")
     @Category("regression", "RC", "reactions")
     @Test
     fun givenGroupImage_whenIAddAndRemoveReactions_thenReactionDetailsAreUpdated() {
@@ -649,7 +649,7 @@ class ReactionsTest : BaseUiTest() {
     }
 
     @Suppress("LongMethod")
-    @TestCaseId("TC-4482", "TC-4486")
+    @TestCaseId("TC-12565", "TC-12569")
     @Category("regression", "RC", "reactions")
     @Test
     fun givenGroupMessageWithReactions_whenSenderEditsMessage_thenAllReactionsAreRemoved() {
@@ -789,7 +789,7 @@ class ReactionsTest : BaseUiTest() {
     }
 
     @Suppress("LongMethod")
-    @TestCaseId("TC-4487")
+    @TestCaseId("TC-12570")
     @Category("regression", "RC", "reactions", "WPB-3525")
     @Test
     fun givenGroupConversationWithManyMessages_whenIScrollAwayAndBack_thenICanReactToMessage() {
@@ -897,6 +897,7 @@ class ReactionsTest : BaseUiTest() {
         }
 
         step("Then I see the ❤️ reaction from 1 user") {
+            closeKeyboardIfOpened()
             pages.conversationViewPage.assertReactionAndUserCountVisible("❤️", 1)
         }
     }

@@ -42,7 +42,7 @@ class LogoutTests : BaseUiTest() {
     }
 
     @Suppress("LongMethod")
-    @TestCaseId("TC-4445")
+    @TestCaseId("TC-12528")
     @Category("regression", "RC", "logout")
     @Test
     fun givenTeamOwner_whenILogInAndLogOut_thenLogoutIsSuccessful() {
@@ -55,6 +55,7 @@ class LogoutTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "Logout", backendClient)
             teamOwner = clientUserManager.findUserByNameOrNameAlias("user1Name")
         }
 
@@ -93,7 +94,10 @@ class LogoutTests : BaseUiTest() {
         }
 
         step("And I tap User Profile Button and see User Profile Page") {
-            pages.conversationListPage.clickUserProfileButton()
+            pages.conversationListPage.apply {
+                waitUntilWireServiceNotificationDisappears()
+                clickUserProfileButton()
+            }
             pages.selfUserProfilePage.iSeeUserProfilePage()
         }
 
@@ -115,7 +119,7 @@ class LogoutTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4447")
+    @TestCaseId("TC-12530")
     @Category("regression", "RC", "logout")
     @Test
     fun givenTeamMemberWithConversation_whenILogOutWithoutClearingDataAndLogInAgain_thenHistoryIsPreserved() {
@@ -196,7 +200,7 @@ class LogoutTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4446")
+    @TestCaseId("TC-12529")
     @Category("regression", "RC", "logout")
     @Test
     fun givenTeamMemberWithConversation_whenILogOutWithClearData_thenConversationHistoryIsRemoved() {
@@ -300,6 +304,7 @@ class LogoutTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "Logout", backendClient)
         }
 
         step("And User TeamOwner adds Member1 and Member2 to team Logout with role Member") {

@@ -40,7 +40,7 @@ class ConversationNotificationsTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4312", "TC-4313", "TC-4307")
+    @TestCaseId("TC-12445", "TC-12446", "TC-12440")
     @Category("regression", "RC", "groups", "conversationNotifications")
     @Test
     fun givenGroupConversation_whenNotificationsAreSetToCallsMentionsAndReplies_thenPushNotificationIsNotReceived() {
@@ -133,7 +133,7 @@ class ConversationNotificationsTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4306")
+    @TestCaseId("TC-12439")
     @Category("regression", "RC", "groups", "conversationNotifications")
     @Test
     fun givenGroupConversation_whenNotificationsAreSetToNothing_thenPushNotificationIsNotReceived() {
@@ -215,7 +215,7 @@ class ConversationNotificationsTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4308", "TC-4309", "TC-4310")
+    @TestCaseId("TC-12441", "TC-12442", "TC-12443")
     @Category("regression", "RC", "conversationNotifications")
     @Test
     fun givenOneOnOneConversation_whenNotificationsAreSetToCallsMentionsAndReplies_thenPushNotificationIsNotReceived() {
@@ -307,7 +307,7 @@ class ConversationNotificationsTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4311")
+    @TestCaseId("TC-12444")
     @Category("regression", "RC", "conversationNotifications")
     @Test
     fun givenOneOnOneConversation_whenNotificationsAreSetToNothing_thenPushNotificationIsNotReceived() {
@@ -409,6 +409,7 @@ class ConversationNotificationsTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "Notification", backendClient)
         }
 
         step("And User user1Name adds user user2Name to team Notification with role Member") {
@@ -484,6 +485,7 @@ class ConversationNotificationsTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "Notification", backendClient)
         }
 
         step("And User user1Name adds users user2Name,user3Name to team Notification with role Member") {
@@ -498,12 +500,20 @@ class ConversationNotificationsTests : BaseUiTest() {
             )
         }
 
+        step("And MLS devices are registered for all participants") {
+            testServiceHelper.apply {
+                addDevice("user1Name", null, "Device1")
+                addDevice("user2Name", null, "Device1")
+                addDevice("user3Name", null, "Device1")
+            }
+        }
+
         step("And User user1Name has group conversation MyTeam with user2Name,user3Name") {
-            backendSetupHelper.userHasGroupConversationInTeam(
-                "user1Name",
-                "MyTeam",
-                "user2Name,user3Name",
-                "Notification"
+            testServiceHelper.userCreatesMLSGroupConversation(
+                ownerAlias = "user1Name",
+                participantAliases = "user2Name,user3Name",
+                conversationName = "MyTeam",
+                deviceName = "Device1"
             )
         }
 
@@ -511,10 +521,6 @@ class ConversationNotificationsTests : BaseUiTest() {
             teamMember = clientUserManager.findUserByNameOrNameAlias("user2Name")
             messageSender = clientUserManager.findUserByNameOrNameAlias("user3Name")
             clientUserManager.setSelfUser(teamMember)
-        }
-
-        step("And User user3Name has Device1 available for backend messaging") {
-            testServiceHelper.addDevice("user3Name", null, "Device1")
         }
 
         step("And I see email verification Welcome Page") {

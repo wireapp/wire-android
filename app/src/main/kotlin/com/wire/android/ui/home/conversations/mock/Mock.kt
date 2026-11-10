@@ -48,7 +48,7 @@ import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserAssetId
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import kotlinx.collections.immutable.persistentListOf
-import kotlinx.datetime.Instant
+import kotlin.time.Instant
 import okio.Path.Companion.toPath
 
 private const val MOCK_TIME_IN_SECONDS: Long = 1729837498

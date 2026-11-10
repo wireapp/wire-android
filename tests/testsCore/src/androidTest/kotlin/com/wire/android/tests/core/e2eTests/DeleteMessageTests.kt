@@ -41,7 +41,7 @@ class DeleteMessageTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4316")
+    @TestCaseId("TC-12449")
     @Category("regression", "RC", "conversationView", "deleteMessage")
     @Test
     fun givenOneOnOneConversation_whenIDeleteMyMessageForEveryone_thenMessageIsDeletedForEveryone() {
@@ -123,7 +123,7 @@ class DeleteMessageTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4317")
+    @TestCaseId("TC-12450")
     @Category("regression", "RC", "conversationView", "deleteMessage")
     @Test
     fun givenOneOnOneConversation_whenIDeleteMessagesForMyself_thenMessagesAreDeletedOnlyForMe() {
@@ -226,7 +226,7 @@ class DeleteMessageTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4318")
+    @TestCaseId("TC-12451")
     @Category("regression", "RC", "groups", "deleteMessage")
     @Test
     fun givenGroupConversation_whenIDeleteMyMessageForEveryone_thenMessageIsDeletedForEveryone() {
@@ -299,7 +299,7 @@ class DeleteMessageTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4319")
+    @TestCaseId("TC-12452")
     @Category("regression", "RC", "groups", "deleteMessage")
     @Test
     fun givenGroupConversation_whenIDeleteMessagesForMyself_thenMessagesAreDeletedOnlyForMe() {
@@ -422,6 +422,7 @@ class DeleteMessageTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "Messaging", backendClient)
         }
 
         step("And User TeamOwner adds user Member1 to team Messaging with role Member") {
@@ -501,6 +502,7 @@ class DeleteMessageTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "MessageDeleting", backendClient)
         }
 
         step("And User TeamOwner adds Member1 and Member2 to team MessageDeleting with role Member") {
@@ -520,17 +522,21 @@ class DeleteMessageTests : BaseUiTest() {
             clientUserManager.setSelfUser(member1)
         }
 
-        step("And User TeamOwner has group conversation MyTeam with Member1 and Member2") {
-            backendSetupHelper.userHasGroupConversationInTeam(
-                "user1Name",
-                "MyTeam",
-                "user2Name,user3Name",
-                "MessageDeleting"
-            )
+        step("And MLS devices are registered for all participants") {
+            testServiceHelper.apply {
+                addDevice("user1Name", null, "Device1")
+                addDevice("user2Name", null, "Device1")
+                addDevice("user3Name", null, "Device1")
+            }
         }
 
-        step("And User Member2 adds a new device Device1 with label Device1") {
-            testServiceHelper.addDevice("user3Name", null, "Device1")
+        step("And User TeamOwner creates MLS group conversation MyTeam with Member1 and Member2") {
+            testServiceHelper.userCreatesMLSGroupConversation(
+                ownerAlias = "user1Name",
+                participantAliases = "user2Name,user3Name",
+                conversationName = "MyTeam",
+                deviceName = "Device1"
+            )
         }
 
         step("And I see email verification Welcome Page") {

@@ -28,5 +28,6 @@ help:
 	@printf "  release-notes               Prepare Play release notes\n"
 	@printf "  release-notes/prepare       Prepare raw Play release notes\n"
 	@printf "  release-notes/format        Format latest Play release notes\n"
+	@printf "  beta-release/validate-source Validate beta source against live release-cycle tips\n"
 	@printf "  qa-deflake                  Run Android UI deflake entrypoint\n"
 	@printf "  new-feature name=foo        Create a feature module\n"

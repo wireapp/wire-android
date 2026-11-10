@@ -21,10 +21,10 @@ package com.wire.android.mapper
 import com.wire.android.util.ifNotEmpty
 import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.data.user.type.isFederated
-import kotlinx.datetime.Clock
-import kotlinx.datetime.Instant
+import kotlin.time.Clock
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.DurationUnit
+import kotlin.time.Instant
 
 @Suppress("MagicNumber")
 object UsernameMapper {

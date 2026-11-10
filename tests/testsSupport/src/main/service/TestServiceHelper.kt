@@ -27,6 +27,7 @@ package service
 
 import android.content.Context
 import android.graphics.Bitmap
+import android.net.Uri
 import androidx.annotation.RawRes
 import backendUtils.BackendClient
 import backendUtils.conversation.getConversationByName
@@ -46,6 +47,7 @@ import org.json.JSONObject
 import service.enums.LegalHoldStatus
 import service.models.Conversation
 import service.models.Mentions
+import service.models.QualifiedID
 import service.models.SendFileParams
 import service.models.SendLocationParams
 import service.models.SendTextParams
@@ -165,6 +167,52 @@ class TestServiceHelper(
         }
 
         return conversation.messageTimerInMilliseconds
+    }
+
+    @Suppress("LongParameterList")
+    fun contactSendsLocalPdfConversation(
+        context: Context,
+        fileName: String,
+        fileUri: Uri,
+        senderAlias: String,
+        deviceName: String,
+        dstConvoName: String
+    ) {
+        contactSendsLocalFileConversation(context, fileName, fileUri, senderAlias, deviceName, dstConvoName, "application/pdf")
+    }
+
+    // Sends local fixtures with their actual MIME type through the existing test-service file endpoint.
+    @Suppress("LongParameterList")
+    fun contactSendsLocalFileConversation(
+        context: Context,
+        fileName: String,
+        fileUri: Uri,
+        senderAlias: String,
+        deviceName: String,
+        dstConvoName: String,
+        mimeType: String
+    ) {
+        val sender = toClientUser(senderAlias)
+        val conversation = toConvoObj(sender, dstConvoName)
+        val file = File(context.cacheDir, fileName)
+        try {
+            val input = context.contentResolver.openInputStream(fileUri)
+                ?: throw IOException("Could not open file '$fileName'")
+            input.use { source ->
+                file.outputStream().use { output -> source.copyTo(output) }
+            }
+            testServiceClient.sendFile(
+                sender,
+                deviceName,
+                conversation.qualifiedID.id,
+                conversation.qualifiedID.domain,
+                getSelfDeletingMessageTimeout(senderAlias, dstConvoName),
+                file.absolutePath,
+                mimeType
+            )
+        } finally {
+            file.delete()
+        }
     }
 
     fun contactSendsLocalAudioPersonalMLSConversation(
@@ -420,6 +468,36 @@ class TestServiceHelper(
         )
     }
 
+    fun contactSendsLocalImageMessagePersonalMLSConversation(
+        context: Context,
+        fileName: String,
+        senderAlias: String,
+        deviceName: String,
+        dstConvoName: String
+    ) {
+        val image = getRawResourceAsFile(context, R.raw.testing_image, fileName)
+        val conversation = toConvoObjPersonal(senderAlias, dstConvoName)
+
+        if (image?.exists() != true) {
+            throw Exception("Image file not found")
+        }
+
+        testServiceClient.sendImage(
+            SendFileParams(
+                owner = toClientUser(senderAlias),
+                deviceName = deviceName,
+                convoId = conversation.qualifiedID.id,
+                convoDomain = conversation.qualifiedID.domain,
+                timeout = getSelfDeletingMessageTimeout(senderAlias, dstConvoName),
+                filePath = image.absolutePath.orEmpty(),
+                type = "image/jpeg",
+                otherAlgorithm = false,
+                otherHash = false,
+                invalidHash = false
+            )
+        )
+    }
+
     fun toConvoObjPersonal(ownerAlias: String, convoName: String): Conversation {
         return toConvoObjPersonal(toClientUser(ownerAlias), convoName)
     }
@@ -470,7 +548,8 @@ class TestServiceHelper(
         ownerAlias: String,
         participantAliases: String,
         conversationName: String,
-        deviceName: String
+        deviceName: String,
+        cellsEnabled: Boolean = false
     ) {
         val owner = toClientUser(ownerAlias)
         val participants = usersManager
@@ -481,7 +560,65 @@ class TestServiceHelper(
             owner = owner,
             participants = participants,
             chatName = conversationName,
-            deviceName = deviceName
+            deviceName = deviceName,
+            cellsEnabled = cellsEnabled
+        )
+    }
+
+    fun userXAddedContactsToGroupChat(
+        userAsNameAlias: String,
+        contactsToAddNameAliases: String,
+        chatName: String,
+        deviceName: String
+    ) {
+        val userAs = toClientUser(userAsNameAlias)
+        val conversation = toConvoObj(userAs, chatName)
+        val contactsToAdd = usersManager.splitAliases(contactsToAddNameAliases).map { alias ->
+            val user = toClientUser(alias)
+            QualifiedID(
+                id = requireNotNull(user.id) { "The user to add must have a registered ID." },
+                domain = backendFor(user).domain
+            )
+        }
+
+        testServiceClient.addMembersToConversation(
+            owner = userAs,
+            deviceName = deviceName,
+            convoId = conversation.qualifiedID.id,
+            convoDomain = conversation.qualifiedID.domain,
+            users = contactsToAdd
+        )
+    }
+
+    fun userRemovesUserFromGroupConversation(
+        userWhoRemovesAlias: String,
+        userToRemoveAlias: String,
+        chatName: String,
+        deviceName: String
+    ) {
+        val userWhoRemoves = toClientUser(userWhoRemovesAlias)
+        val userToRemove = toClientUser(userToRemoveAlias)
+        val conversation = toConvoObj(userWhoRemoves, chatName)
+
+        testServiceClient.removeMemberFromConversation(
+            owner = userWhoRemoves,
+            deviceName = deviceName,
+            convoId = conversation.qualifiedID.id,
+            convoDomain = conversation.qualifiedID.domain,
+            userId = requireNotNull(userToRemove.id) { "The user to remove must have a registered ID." },
+            userDomain = backendFor(userToRemove).domain
+        )
+    }
+
+    fun userLeavesGroupConversation(userAlias: String, chatName: String, deviceName: String) {
+        val user = toClientUser(userAlias)
+        val conversation = toConvoObj(user, chatName)
+
+        testServiceClient.leaveConversation(
+            owner = user,
+            deviceName = deviceName,
+            convoId = conversation.qualifiedID.id,
+            convoDomain = conversation.qualifiedID.domain
         )
     }
 
@@ -835,6 +972,35 @@ class TestServiceHelper(
         val user = toClientUser(userAlias)
         val conversation = toConvoObj(user, conversationName)
         return getRecentMessageId(user, deviceName, conversation.qualifiedID.id, conversation.qualifiedID.domain)
+    }
+
+    fun assertImageReceivedInGroupConversation(
+        receiverAlias: String,
+        deviceName: String,
+        conversationName: String
+    ) {
+        val receiver = toClientUser(receiverAlias)
+        val conversation = toConvoObj(receiver, conversationName)
+        val received = UiWaitUtils.retryUntilTimeout(UiWaitUtils.VERY_LONG_TIMEOUT, pollingInterval = 1.seconds) {
+            val messages = testServiceClient.getMessages(
+                receiver,
+                deviceName,
+                conversation.qualifiedID.id,
+                conversation.qualifiedID.domain
+            )
+            (0 until messages.length()).any { index ->
+                val content = messages.getJSONObject(index).optJSONObject("content")
+                val asset = content?.optJSONObject("value")
+                val attachments = content?.optJSONArray("attachments") ?: JSONArray()
+                asset?.optString("mimeType")?.startsWith("image/") == true ||
+                    (0 until attachments.length()).any { attachment ->
+                        attachments.getJSONObject(attachment).optString("mimeType").startsWith("image/")
+                    }
+            }
+        }
+        if (!received) {
+            throw AssertionError("'$receiverAlias' on '$deviceName' did not receive an image in '$conversationName'.")
+        }
     }
 
     fun assertMessageReceivedInGroupConversation(

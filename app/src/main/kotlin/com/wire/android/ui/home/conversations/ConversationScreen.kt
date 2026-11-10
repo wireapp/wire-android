@@ -117,7 +117,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
-import kotlinx.datetime.Instant
+import kotlin.time.Instant
 import kotlin.time.Duration.Companion.milliseconds
 import com.wire.android.ui.common.R as commonR
 import com.wire.android.pdfviewer.PdfDocumentSource
@@ -169,8 +169,8 @@ internal fun ConversationScreenRouteContent(
                 messageComposerStateHolder.messageCompositionInputStateHolder.setFocused()
             }
         ),
-        editSheetState = rememberWireModalSheetState(
-            onDismissAction = {
+        messageOptionsState = rememberMessageOptionsState(
+            onTouchDismiss = {
                 messageComposerStateHolder.messageCompositionInputStateHolder.setFocused()
             },
         ),
@@ -234,7 +234,7 @@ internal fun ConversationScreenRouteContent(
             sendMessageViewModel.trySendMessage(
                 ComposableMessageBundle.UriPickedBundle(
                     conversationId = conversationMessagesViewModel.conversationId,
-                    attachmentUri = UriAsset(it),
+                    attachmentUri = UriAsset(it, isCameraCapture = true),
                 )
             )
         }
@@ -418,7 +418,11 @@ internal fun ConversationScreenRouteContent(
         },
         onAttachmentPicked = {
             if (conversationInfoViewModel.conversationInfoViewState.isWireCellEnabled) {
-                messageAttachmentsViewModel.onFilesSelected(listOf(it.uri))
+                if (it.isCameraCapture) {
+                    messageAttachmentsViewModel.onCameraCaptured(it.uri)
+                } else {
+                    messageAttachmentsViewModel.onFilesSelected(listOf(it.uri))
+                }
                 messageComposerStateHolder.messageCompositionInputStateHolder.showAttachments(false)
             } else {
                 val bundle = ComposableMessageBundle.UriPickedBundle(conversationInfoViewModel.conversationId, it)
@@ -552,9 +556,6 @@ internal fun ConversationScreenRouteContent(
             )
         },
         currentTimeInMillisFlow = conversationMessagesViewModel.currentTimeInMillisFlow,
-        onReachedOldestMessage = {
-            conversationMessagesViewModel.fetchOlderMessagesIfNeeded()
-        },
         onAttachmentClick = messageAttachmentsViewModel::onAttachmentClicked,
         onAttachmentMenuClick = messageAttachmentsViewModel::onAttachmentMenuClicked,
         isWireCellsEnabled = conversationInfoViewModel.conversationInfoViewState.isWireCellEnabled,
@@ -687,12 +688,11 @@ private fun ConversationScreenContent(
     onAttachmentClick: (AttachmentDraftUi) -> Unit,
     onAttachmentMenuClick: (AttachmentDraftUi) -> Unit,
     currentTimeInMillisFlow: Flow<Long> = flow { },
-    onReachedOldestMessage: () -> Unit = {},
     isWireCellsEnabled: Boolean = false,
 ) {
     val context = LocalContext.current
     val snackbarHostState = LocalSnackbarHostState.current
-    Box(modifier = Modifier) {
+    Box {
         // only here we will use normal Scaffold because of specific behaviour of message composer
         Scaffold(
             contentColor = if (IS_BUBBLE_UI_ENABLED) {
@@ -777,6 +777,12 @@ private fun ConversationScreenContent(
                         onOpenProfile = onOpenProfile,
                         onUpdateConversationReadDate = onUpdateConversationReadDate,
                         onShowEditingOptions = conversationScreenState::showEditContextMenu,
+                        onKeyboardOptionsRequested = {
+                            conversationScreenState.messageOptionsState.open(it.header.messageId, fromKeyboard = true)
+                        },
+                        retainMessageNavigationForOptions = conversationScreenState.messageOptionsState.retainMessageNavigation,
+                        messageOptionsDismissal = conversationScreenState.messageOptionsState.dismissal,
+                        onMessageOptionsDismissalHandled = conversationScreenState.messageOptionsState::acknowledgeDismissal,
                         onSwipedToReply = messageComposerStateHolder::toReply,
                         onSelfDeletingMessageRead = onSelfDeletingMessageRead,
                         onFailedMessageCancelClicked = remember { { onDeleteMessage(it, false) } },
@@ -790,13 +796,11 @@ private fun ConversationScreenContent(
                         onLinkClick = onLinkClick,
                         onNavigateToReplyOriginalMessage = onNavigateToReplyOriginalMessage,
                         currentTimeInMillisFlow = currentTimeInMillisFlow,
-                        onReachedOldestMessage = onReachedOldestMessage,
                         openDrawingCanvas = openDrawingCanvas,
                         onAttachmentClick = onAttachmentClick,
                         onAttachmentMenuClick = onAttachmentMenuClick,
                         showHistoryLoadingIndicator = conversationInfoViewState.showHistoryLoadingIndicator,
-                        isFetchingOlderMessages = conversationMessagesViewState.isFetchingOlderMessages,
-                        hasMoreRemoteMessages = conversationMessagesViewState.hasMoreRemoteMessages,
+                        showsEncryptionNotice = conversationInfoViewState.showsEncryptionNotice,
                         isBubbleUiEnabled = IS_BUBBLE_UI_ENABLED,
                         isWireCellsEnabled = isWireCellsEnabled,
                         initialLoading = conversationInfoViewState.initialLoadingState != InitialLoadingState.LOADED,
@@ -807,7 +811,7 @@ private fun ConversationScreenContent(
 
         MessageOptionsModalSheetLayout(
             conversationId = conversationInfoViewState.conversationId,
-            sheetState = conversationScreenState.editSheetState,
+            optionsState = conversationScreenState.messageOptionsState,
             isNetworkAvailable = conversationMessagesViewState.isNetworkAvailable,
             onCopyClick = conversationScreenState::copyMessage,
             onDeleteClick = onDeleteMessage,

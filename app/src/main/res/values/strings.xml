@@ -116,6 +116,7 @@
     <string name="content_description_conversation_send_emoticon">Send Emoticon</string>
     <string name="content_description_conversation_send_gif">Send GIF</string>
     <string name="content_description_conversation_mention_someone">Mention someone</string>
+    <string name="mention_everyone_description">Notify everyone in this conversation</string>
     <string name="content_description_conversation_back_btn">Go back to conversation list</string>
     <string name="content_description_conversation_open_details_label">open conversation details</string>
     <string name="content_description_new_conversation">New. Start a new conversation</string>
@@ -448,6 +449,7 @@
     <string name="delete_message_for_yourself_dialog_title">Delete this Message for yourself?</string>
     <string name="delete_message_for_yourself_dialog_message">If you delete the message for yourself, it will only be visible to other participants.\n\nA deleted message can not be restored.</string>
     <string name="deleted_message_text">Deleted message</string>
+    <string name="unsupported_message_text">This message can\'t be shown in this version.</string>
     <string name="deleted_message_options_closed">The options have been closed as this message is no longer available.</string>
     <string name="deleted_conversation_options_closed">The options have been closed as this conversation is no longer available.</string>
     <!-- Replies/Quotes to other messages -->
@@ -1328,10 +1330,6 @@ In group conversations, the group admin can overwrite this setting.</string>
         <item quantity="other">You can only be logged in with %1$d accounts at once. Log out from one to add another.</item>
     </plurals>
     <string name="max_account_reached_dialog_button_open_profile">Open Profile</string>
-    <!--nomad account blocks login dialog-->
-    <string name="nomad_login_blocked_message">Cannot login while another account is active</string>
-    <string name="nomad_account_blocks_login_title">Login Blocked</string>
-    <string name="nomad_account_blocks_login_message">A managed profile is currently logged in. Please log out first before adding another account.</string>
     <string name="cant_switch_account_in_call">You can\'t switch accounts while in a call</string>
     <string name="cross_backend_login_blocked_title">Switching backends is blocked</string>
     <string name="cross_backend_login_blocked_message">You can\'t log in to a different backend at this point. Log out first, then log in to another backend.</string>

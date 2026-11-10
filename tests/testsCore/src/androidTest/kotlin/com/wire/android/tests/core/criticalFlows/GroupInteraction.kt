@@ -46,7 +46,7 @@ class GroupInteraction : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-8601")
+    @TestCaseId("TC-12688")
     @Category("criticalFlow")
     @Test
     fun givenTeamOwnerWithGroupConversationAndApp_whenValidatingReactionsAndInteractions_thenFlowSucceeds() {

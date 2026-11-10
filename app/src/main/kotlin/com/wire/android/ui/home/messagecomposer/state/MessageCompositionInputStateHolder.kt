@@ -40,13 +40,15 @@ import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.textfield.WireTextFieldColors
 import com.wire.android.ui.common.textfield.wireTextFieldColors
 import com.wire.android.util.isNotMarkdownBlank
+import com.wire.kalium.logic.data.message.mention.MessageMention
 
 @Stable
 class MessageCompositionInputStateHolder(
     val messageTextState: TextFieldState,
     private val keyboardController: SoftwareKeyboardController?,
     private val focusManager: FocusManager,
-    val focusRequester: FocusRequester
+    val focusRequester: FocusRequester,
+    private val currentMentions: () -> List<MessageMention> = { emptyList() },
 ) {
     var inputFocused: Boolean by mutableStateOf(false)
 
@@ -70,11 +72,8 @@ class MessageCompositionInputStateHolder(
             )
 
             is CompositionState.Editing -> InputType.Editing(
-                isEditButtonEnabled = when {
-                    messageTextState.text.isNotMarkdownBlank() && messageTextState.text != state.originalMessageText -> true
-                    !messageTextState.text.isNotMarkdownBlank() && state.allowEmptyText -> true
-                    else -> false
-                }
+                isEditButtonEnabled = (messageTextState.text.isNotMarkdownBlank() || state.allowEmptyText) &&
+                    state.hasChanges(messageTextState.text.toString(), currentMentions())
             )
         }
     }
@@ -107,8 +106,8 @@ class MessageCompositionInputStateHolder(
         optionsVisible = showOptions
     }
 
-    fun toEdit(editMessageText: String, isMultipart: Boolean) {
-        compositionState = CompositionState.Editing(editMessageText, isMultipart)
+    fun toEdit(editMessageText: String, isMultipart: Boolean, mentions: List<MessageMention> = emptyList()) {
+        compositionState = CompositionState.Editing(editMessageText, isMultipart, mentions)
         requestFocus()
     }
 
@@ -183,12 +182,14 @@ class MessageCompositionInputStateHolder(
          */
         val composeTextHeight = 128.dp
 
+        @Suppress("LongParameterList")
         fun saver(
             messageTextState: TextFieldState,
             keyboardController: SoftwareKeyboardController?,
             focusManager: FocusManager,
             focusRequester: FocusRequester,
-            density: Density
+            density: Density,
+            currentMentions: () -> List<MessageMention> = { emptyList() },
         ): Saver<MessageCompositionInputStateHolder, *> = Saver(
             save = {
                 with(density) {
@@ -206,7 +207,8 @@ class MessageCompositionInputStateHolder(
                         messageTextState = messageTextState,
                         keyboardController = keyboardController,
                         focusManager = focusManager,
-                        focusRequester = focusRequester
+                        focusRequester = focusRequester,
+                        currentMentions = currentMentions,
                     ).apply {
                         inputFocused = savedState[0] as Boolean
                         keyboardHeight = (savedState[1] as Float).toDp()
@@ -219,9 +221,18 @@ class MessageCompositionInputStateHolder(
     }
 }
 
+private fun List<MessageMention>.targets() = map { Triple(it.start, it.length, it.userId) }.toSet()
+
 private sealed class CompositionState {
     data object Composing : CompositionState()
-    data class Editing(val originalMessageText: String, val allowEmptyText: Boolean) : CompositionState()
+    data class Editing(
+        val originalMessageText: String,
+        val allowEmptyText: Boolean,
+        val originalMentions: List<MessageMention>,
+    ) : CompositionState() {
+        fun hasChanges(text: String, mentions: List<MessageMention>): Boolean =
+            text != originalMessageText || mentions.targets() != originalMentions.targets()
+    }
 }
 
 sealed class InputType {

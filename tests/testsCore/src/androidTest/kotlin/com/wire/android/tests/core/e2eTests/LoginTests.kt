@@ -33,7 +33,6 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import uiautomatorutils.KeyboardUtils.closeKeyboardIfOpened
-import uiautomatorutils.UiWaitUtils
 import user.utils.ClientUser
 
 @RunWith(AndroidJUnit4::class)
@@ -58,7 +57,7 @@ class LoginTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-8684", "TC-8685", "TC-4439")
+    @TestCaseId("TC-12353", "TC-12712", "TC-12523")
     @Category("regression", "RC", "login")
     @Test
     fun givenPersonalUser_whenLoggingInWithValidCredentials_thenLoginIsSuccessful() {
@@ -119,7 +118,7 @@ class LoginTests : BaseUiTest() {
         }
     }
 
-    @TestCaseId("TC-8686")
+    @TestCaseId("TC-12713")
     @Category("regression", "RC", "login")
     @Test
     fun givenPersonalUser_whenSubmittingInvalidEmail_thenLoginDoesNotProceed() {
@@ -143,7 +142,7 @@ class LoginTests : BaseUiTest() {
         }
     }
 
-    @TestCaseId("TC-8687")
+    @TestCaseId("TC-12714")
     @Category("regression", "RC", "login")
     @Test
     fun givenPersonalUser_whenLoggingInWithValidEmailAndWrongPassword_thenLoginDoesNotProceed() {
@@ -184,7 +183,7 @@ class LoginTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-8689")
+    @TestCaseId("TC-12715")
     @Category("regression", "RC", "login", "sessionExpiration")
     @Test
     fun givenTeamMemberDeviceWasRemoved_whenLoggingInAgain_thenLoginIsSuccessful() {
@@ -229,7 +228,7 @@ class LoginTests : BaseUiTest() {
 
         step("When I tap OK button on the alert and see email verification Welcome Page") {
             pages.commonAppPage.confirmRemovedDeviceDialog()
-            pages.registrationPage.assertEmailWelcomePage()
+            pages.loginPage.assertEmailInputPageVisible()
         }
 
         step("And I open staging backend deep link") {
@@ -269,7 +268,7 @@ class LoginTests : BaseUiTest() {
     }
 
     @Suppress("LongMethod")
-    @TestCaseId("TC-8690")
+    @TestCaseId("TC-12716")
     @Category("regression", "RC", "login")
     @Test
     fun givenTeamMemberOnPasswordScreen_whenTappingForgotPasswordLink_thenAccountRecoveryWebpageIsOpened() {
@@ -302,7 +301,7 @@ class LoginTests : BaseUiTest() {
     }
 
     @Suppress("LongMethod")
-    @TestCaseId("TC-8691")
+    @TestCaseId("TC-12717")
     @Category("regression", "RC", "login")
     @Test
     fun givenPersonalUserOnFederatedBackend_whenLoggingInUsingDeeplink_thenLoginIsSuccessful() {
@@ -356,8 +355,8 @@ class LoginTests : BaseUiTest() {
     }
 
     @Suppress("LongMethod")
-    @TestCaseId("TC-8713", "TC-8712")
-    @Category("regression", "RC", "login", "SSO", "TEMP")
+    @TestCaseId("TC-12725", "TC-12724")
+    @Category("regression", "RC", "login", "SSO")
     @Test
     fun givenKeycloakSsoUser_whenLoggingInWithSsoCode_thenLoginIsSuccessful() {
         step("Given There is a team owner \"user1Name\" with SSO team \"SSO\" configured for keycloak") {
@@ -374,6 +373,7 @@ class LoginTests : BaseUiTest() {
                     keycloakApiClient
                 )
             }
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "SSO", backendClient)
             SSOServiceHelper.setCurrentSsoUser("user2Name")
             teamMember = clientUserManager.findUserByNameOrNameAlias("user2Name")
         }
@@ -419,9 +419,9 @@ class LoginTests : BaseUiTest() {
 
         step("And I wait until I am fully logged in and decline share data alert") {
             pages.registrationPage.apply {
-                waitUntilLoginFlowIsCompleted()
+                waitUntilSsoLoginFlowIsCompleted()
                 clickAllowNotificationButton()
-                clickDeclineShareDataAlert(timeout = UiWaitUtils.SHORT_WAIT)
+                clickDeclineShareDataAlert()
             }
         }
 
@@ -441,6 +441,7 @@ class LoginTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", teamName, backendClient)
             backendSetupHelper.userXAddsUsersToTeam(
                 "user1Name",
                 "user2Name",

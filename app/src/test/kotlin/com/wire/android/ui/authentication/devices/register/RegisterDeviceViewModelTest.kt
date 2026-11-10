@@ -227,7 +227,7 @@ class RegisterDeviceViewModelTest {
         val (arrangement, registerDeviceViewModel) = Arrangement()
             .withRegisterClientReturning(RegisterClientResult.Failure.InvalidCredentials.Invalid2FA)
             .withGetSelfReturning(SELF_USER.copy(email = email))
-            .withRequestSecondFactorVerificationCodeReturning(RequestSecondFactorVerificationCodeUseCase.Result.Failure.TooManyRequests)
+            .withRequestSecondFactorVerificationCodeReturning(RequestSecondFactorVerificationCodeUseCase.Result.Failure.TooManyRequests())
             .arrange()
 
         registerDeviceViewModel.onContinue()

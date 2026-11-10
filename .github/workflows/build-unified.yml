@@ -4,9 +4,10 @@ on:
   workflow_call:
     inputs:
       build-config:
-        description: "JSON build configuration matrix"
-        required: true
+        description: "JSON build configuration matrix; '[]' runs quality checks only"
+        required: false
         type: string
+        default: '[]'
       enable-deployment:
         description: "Enable deployment after successful build"
         required: false
@@ -113,7 +114,7 @@ jobs:
       security-events: write # required for SARIF upload
     steps:
       - name: Checkout repository
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
         with:
           persist-credentials: false
 
@@ -121,7 +122,10 @@ jobs:
         id: zizmor
         uses: zizmorcore/zizmor-action@5f14fd08f7cf1cb1609c1e344975f152c7ee938d # v0.5.6
         with:
-          inputs: .github/workflows/build-unified.yml
+          inputs: |
+            .github/workflows/build-unified.yml
+            .github/workflows/distribute-dev-firebase.yml
+            .github/workflows/distribute-dev-pr-comment.yml
           version: 1.25.2
           persona: pedantic
           min-severity: informational
@@ -140,10 +144,10 @@ jobs:
   lint:
     name: Lint
     needs: [workflow-security]
-    runs-on: ubuntu-latest
+    runs-on: warp-ubuntu-2404-x64-8x
     steps:
       - name: Checkout
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
         with:
           persist-credentials: false
           submodules: recursive # Needed in order to fetch Kalium sources for building
@@ -165,7 +169,7 @@ jobs:
     runs-on: warp-ubuntu-2404-x64-2x
     steps:
       - name: Checkout
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
         with:
           persist-credentials: false
           submodules: recursive # Needed in order to fetch Kalium sources for building
@@ -184,10 +188,10 @@ jobs:
   compose-stability:
     name: Compose Stability
     needs: [workflow-security]
-    runs-on: ubuntu-latest
+    runs-on: warp-ubuntu-2404-x64-8x
     steps:
       - name: Checkout
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
         with:
           persist-credentials: false
           submodules: recursive # Needed in order to fetch Kalium sources for building
@@ -223,6 +227,7 @@ jobs:
   # Build matrix job - only runs if all quality checks pass
   build:
     name: "Build ${{ matrix.flavor }}-${{ matrix.variant }}"
+    if: inputs.build-config != '[]'
     env:
       WIRE_RELEASE_VERSION: ${{ inputs.release-version }}
     needs: [ workflow-security, lint, style, compose-stability, ui-tests, unit-tests ]
@@ -243,7 +248,7 @@ jobs:
           echo "🚀 Building ${BUILD_FLAVOR}${BUILD_VARIANT}..." >> $GITHUB_STEP_SUMMARY
 
       - name: Checkout
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
         with:
           persist-credentials: false
           submodules: recursive
@@ -391,6 +396,7 @@ jobs:
           OLD_STORE_PASSWORD: ${{ secrets.SIGNING_STORE_PASSWORD_PUBLIC_RELEASE_OLD }}
           APK_SIGNING_LINEAGE_B64: ${{ secrets.APK_SIGNING_LINEAGE_PUBLIC_RELEASE_B64 }}
         run: |
+          export APK_DIR="$(printf '%s' "$APK_DIR" | tr '[:upper:]' '[:lower:]')"
           make signing-lineage
 
       - name: Build AAB
@@ -461,7 +467,7 @@ jobs:
   # Deploy job (conditional)
   deploy:
     needs: build
-    if: inputs.enable-deployment == true
+    if: inputs.enable-deployment == true && inputs.build-config != '[]'
     permissions:
       contents: write # required by called deploy.yml workflow
       actions: read # required by called deploy.yml workflow

@@ -29,6 +29,8 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import uiautomatorutils.UiSelectorParams
+import uiautomatorutils.UiWaitUtils
 import user.utils.ClientUser
 
 @RunWith(AndroidJUnit4::class)
@@ -51,7 +53,7 @@ class LargeTeamTests : BaseUiTest() {
     // TODO: Increase the Kalium Test Service timeout so Member1 can log in and send a message.
     // TODO: Re-enable the commented steps after the timeout is increased.
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4398", "TC-8630")
+    @TestCaseId("TC-12517", "TC-12698")
     @Category("regression", "RC", "largeTeams")
     @Test
     fun givenIAmInLargeTeam_whenICreateGroupAndExchangeMessages_thenGroupIsCreatedAndMessagesAreReceived() {
@@ -133,10 +135,12 @@ class LargeTeamTests : BaseUiTest() {
             pages.searchPage.apply {
                 tapSearchPeopleField()
                 typeUserNameInSearchField(clientUserManager, "Solomon Conroy")
+                UiWaitUtils.waitElement(UiSelectorParams(text = "@881d169258"))
                 assertUsernameInSearchResultIs("@881d169258")
                 tapUsernameInSearchResult("@881d169258")
                 clearSearchInputField()
                 typeUserNameInSearchField(clientUserManager, "Florencio Larkin")
+                UiWaitUtils.waitElement(UiSelectorParams(text = "@9d966fc182"))
                 assertUsernameInSearchResultIs("@9d966fc182")
                 tapUsernameInSearchResult("@9d966fc182")
                 clearSearchInputField()

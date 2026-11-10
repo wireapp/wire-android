@@ -42,6 +42,8 @@ import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.MethodSource
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(CoroutineTestExtension::class)
@@ -69,14 +71,14 @@ class OutgoingCallViewModelTest {
             assertTrue { viewModel.state.flowState is OutgoingCallState.FlowState.CallClosed }
         }
 
-    @Test
-    fun `given a start call error, when user tries to start a call, call ring tone is not called`() =
+    @ParameterizedTest
+    @MethodSource("callStartFailures")
+    fun `given a start call error, when user tries to start a call, call ring tone is not called`(failure: StartCallUseCase.Result) =
         runTest {
             // Given
             val (arrangement, viewModel) = Arrangement()
-                .withObserveOutgoingCallReturning(listOf(call))
-                .withNoInternetConnection()
-                .withStartCallSucceeding()
+                .withObserveOutgoingCallReturning(emptyList())
+                .withStartCallReturning(failure)
                 .arrange()
 
             // When
@@ -84,7 +86,8 @@ class OutgoingCallViewModelTest {
 
             // Then
             with(arrangement) {
-                coVerify(exactly = 0) { callRinger.ring(any()) }
+                coVerify { startCall(any(), any()) }
+                coVerify(exactly = 0) { callRinger.ring(any(), any(), any()) }
             }
         }
 
@@ -152,9 +155,8 @@ class OutgoingCallViewModelTest {
             every { callRinger.stop() } returns Unit
         }
 
-        fun withNoInternetConnection(): Arrangement = apply {
-            coEvery { startCall(any(), any()) } returns StartCallUseCase.Result.SyncFailure
-            every { callRinger.stop() } returns Unit
+        fun withStartCallReturning(result: StartCallUseCase.Result): Arrangement = apply {
+            coEvery { startCall(any(), any()) } returns result
         }
 
         fun withStartCallSucceeding() = apply {
@@ -169,6 +171,12 @@ class OutgoingCallViewModelTest {
     }
 
     companion object {
+        @JvmStatic
+        fun callStartFailures(): List<StartCallUseCase.Result> = listOf(
+            StartCallUseCase.Result.SyncFailure,
+            StartCallUseCase.Result.StartFailure,
+        )
+
         val call = Call(
             conversationId = ConversationId("caller", "domain"),
             status = CallStatus.STARTED,

@@ -168,8 +168,8 @@ class StartupAccountLimitDialogTest {
         composeRule.onNodeWithText("Später").assertExists()
         val introductions = listOf(
             1 to "Auf diesem Gerät können Sie jeweils nur ein Benutzerkonto verwenden.",
-            2 to "Auf diesem Gerät können Sie nur zwei Benutzerkonten gleichzeitig verwenden.",
-            3 to "Auf diesem Gerät können Sie nur 3 Benutzerkonten gleichzeitig verwenden.",
+            2 to "Auf diesem Gerät können Sie jeweils nur zwei Benutzerkonten gleichzeitig verwenden.",
+            3 to "Auf diesem Gerät können Sie jeweils nur 3 Benutzerkonten verwenden.",
         )
         for ((allowed, introduction) in introductions) {
             for (excess in listOf(1, 2)) {
@@ -177,15 +177,11 @@ class StartupAccountLimitDialogTest {
                     maxAccounts.intValue = allowed
                     excessAccounts.value = excess
                 }
-                val title = if (excess == 1) "Ein Konto entfernen" else "2 Konten entfernen"
-                val otherAccounts = when {
-                    excess == 2 -> "von den anderen Konten"
-                    allowed == 1 -> "von dem anderen Konto"
-                    else -> "vom anderen Konto"
-                }
+                val title = if (excess == 1) "Konto entfernen" else "2 Konten entfernen"
+                val otherAccounts = if (excess == 2) "von den anderen Konten" else "vom anderen Konto"
                 composeRule.onNodeWithText(title).assertExists()
                 composeRule.onNodeWithText(
-                    "$introduction Melden Sie sich von diesem Konto ab oder wählen Sie „Später“, " +
+                    "$introduction Melden Sie sich von diesem Konto ab oder wählen Sie Später, " +
                         "um sich $otherAccounts abzumelden.\n" +
                         "Erstellen Sie eine Datensicherung, um Ihren Gesprächsverlauf zu erhalten."
                 ).assertExists()

@@ -55,8 +55,8 @@ class SelfDeletingMessagesTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4517", "TC-4523")
-    @Category("regression", "RC", "selfDeletingMessages", "smoke")
+    @TestCaseId("TC-12599", "TC-12605")
+    @Category("regression", "RC", "selfDeletingMessages", "fdroid")
     @Test
     fun givenGroupConversation_whenISendTenSecondSelfDeletingMessage_thenMessageExpires() {
         step("Given There is a team owner TeamOwner with team Deleting") {
@@ -68,6 +68,7 @@ class SelfDeletingMessagesTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "Deleting", backendClient)
         }
 
         step("And User TeamOwner adds user Member1 to team Deleting with role Member") {
@@ -82,17 +83,20 @@ class SelfDeletingMessagesTests : BaseUiTest() {
             )
         }
 
-        step("And User TeamOwner has group conversation SelfDeleting with Member1 in team Deleting") {
-            backendSetupHelper.userHasGroupConversationInTeam(
-                "user1Name",
-                "SelfDeleting",
-                "user2Name",
-                "Deleting"
-            )
+        step("And MLS devices are registered for all participants") {
+            testServiceHelper.apply {
+                addDevice("user1Name", null, "Device1")
+                addDevice("user2Name", null, "Device1")
+            }
         }
 
-        step("And User TeamOwner adds a new device Device1 with label Device1") {
-            testServiceHelper.addDevice("user1Name", null, "Device1")
+        step("And User TeamOwner creates MLS group conversation SelfDeleting with Member1 in team Deleting") {
+            testServiceHelper.userCreatesMLSGroupConversation(
+                ownerAlias = "user1Name",
+                participantAliases = "user2Name",
+                conversationName = "SelfDeleting",
+                deviceName = "Device1"
+            )
         }
 
         step("And User Member1 is me") {
@@ -193,7 +197,7 @@ class SelfDeletingMessagesTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4524")
+    @TestCaseId("TC-12606")
     @Category("regression", "selfDeletingMessages")
     @Test
     fun givenGroupConversation_whenISendOneMinuteSelfDeletingMessage_thenMessageExpires() {
@@ -206,6 +210,7 @@ class SelfDeletingMessagesTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "Deleting", backendClient)
         }
 
         step("And User TeamOwner adds user Member1 to team Deleting with role Member") {
@@ -220,17 +225,20 @@ class SelfDeletingMessagesTests : BaseUiTest() {
             )
         }
 
-        step("And User TeamOwner has group conversation SelfDeleting with Member1 in team Deleting") {
-            backendSetupHelper.userHasGroupConversationInTeam(
-                "user1Name",
-                "SelfDeleting",
-                "user2Name",
-                "Deleting"
-            )
+        step("And MLS devices are registered for all participants") {
+            testServiceHelper.apply {
+                addDevice("user1Name", null, "Device1")
+                addDevice("user2Name", null, "Device1")
+            }
         }
 
-        step("And User TeamOwner adds a new device Device1 with label Device1") {
-            testServiceHelper.addDevice("user1Name", null, "Device1")
+        step("And User TeamOwner creates MLS group conversation SelfDeleting with Member1 in team Deleting") {
+            testServiceHelper.userCreatesMLSGroupConversation(
+                ownerAlias = "user1Name",
+                participantAliases = "user2Name",
+                conversationName = "SelfDeleting",
+                deviceName = "Device1"
+            )
         }
 
         step("And User Member1 is me") {
@@ -317,7 +325,7 @@ class SelfDeletingMessagesTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4518")
+    @TestCaseId("TC-12600")
     @Category("regression", "RC", "selfDeletingMessages")
     @Test
     fun givenGroupConversation_whenIReceiveSelfDeletingMessage_thenMessageExpires() {
@@ -330,6 +338,7 @@ class SelfDeletingMessagesTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "Deleting", backendClient)
         }
 
         step("And User TeamOwner adds user Member1 to team Deleting with role Member") {
@@ -344,17 +353,20 @@ class SelfDeletingMessagesTests : BaseUiTest() {
             )
         }
 
-        step("And User TeamOwner has group conversation SelfDeleting with Member1 in team Deleting") {
-            backendSetupHelper.userHasGroupConversationInTeam(
-                "user1Name",
-                "SelfDeleting",
-                "user2Name",
-                "Deleting"
-            )
+        step("And MLS devices are registered for all participants") {
+            testServiceHelper.apply {
+                addDevice("user1Name", null, "Device1")
+                addDevice("user2Name", null, "Device1")
+            }
         }
 
-        step("And User TeamOwner adds a new device Device1 with label Device1") {
-            testServiceHelper.addDevice("user1Name", null, "Device1")
+        step("And User TeamOwner creates MLS group conversation SelfDeleting with Member1 in team Deleting") {
+            testServiceHelper.userCreatesMLSGroupConversation(
+                ownerAlias = "user1Name",
+                participantAliases = "user2Name",
+                conversationName = "SelfDeleting",
+                deviceName = "Device1"
+            )
         }
 
         step("And User Member1 is me") {
@@ -418,7 +430,7 @@ class SelfDeletingMessagesTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4519")
+    @TestCaseId("TC-12601")
     @Category("regression", "RC", "selfDeletingMessages")
     @Test
     fun givenOneOnOneConversation_whenISendTenSecondSelfDeletingMessage_thenMessageExpires() {
@@ -431,6 +443,7 @@ class SelfDeletingMessagesTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "Deleting", backendClient)
         }
 
         step("And User TeamOwner adds user Member1 to team Deleting with role Member") {
@@ -545,7 +558,7 @@ class SelfDeletingMessagesTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4520")
+    @TestCaseId("TC-12602")
     @Category("regression", "RC", "selfDeletingMessages")
     @Test
     fun givenOneOnOneConversation_whenIReceiveSelfDeletingMessage_thenMessageExpires() {
@@ -558,6 +571,7 @@ class SelfDeletingMessagesTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "Deleting", backendClient)
         }
 
         step("And User TeamOwner adds user Member1 to team Deleting with role Member") {
@@ -646,7 +660,7 @@ class SelfDeletingMessagesTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4525")
+    @TestCaseId("TC-12607")
     @Category("regression", "RC", "selfDeletingMessages", "fileSharing")
     @Test
     fun givenGroupConversation_whenISendTenSecondSelfDeletingImage_thenImageExpires() {
@@ -659,6 +673,7 @@ class SelfDeletingMessagesTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "Deleting", backendClient)
         }
 
         step("And User TeamOwner adds user Member1 to team Deleting with role Member") {
@@ -673,17 +688,20 @@ class SelfDeletingMessagesTests : BaseUiTest() {
             )
         }
 
-        step("And User TeamOwner has group conversation SelfDeleting with Member1 in team Deleting") {
-            backendSetupHelper.userHasGroupConversationInTeam(
-                "user1Name",
-                "SelfDeleting",
-                "user2Name",
-                "Deleting"
-            )
+        step("And MLS devices are registered for all participants") {
+            testServiceHelper.apply {
+                addDevice("user1Name", null, "Device1")
+                addDevice("user2Name", null, "Device1")
+            }
         }
 
-        step("And User TeamOwner adds a new device Device1 with label Device1") {
-            testServiceHelper.addDevice("user1Name", null, "Device1")
+        step("And User TeamOwner creates MLS group conversation SelfDeleting with Member1 in team Deleting") {
+            testServiceHelper.userCreatesMLSGroupConversation(
+                ownerAlias = "user1Name",
+                participantAliases = "user2Name",
+                conversationName = "SelfDeleting",
+                deviceName = "Device1"
+            )
         }
 
         step("And User Member1 is me") {
@@ -776,7 +794,7 @@ class SelfDeletingMessagesTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4527")
+    @TestCaseId("TC-12609")
     @Category("regression", "RC", "selfDeletingMessages", "fileSharing")
     @Test
     fun givenGroupConversation_whenISendTenSecondSelfDeletingFile_thenFileExpires() {
@@ -789,6 +807,7 @@ class SelfDeletingMessagesTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "Deleting", backendClient)
         }
 
         step("And User TeamOwner adds user Member1 to team Deleting with role Member") {
@@ -803,17 +822,20 @@ class SelfDeletingMessagesTests : BaseUiTest() {
             )
         }
 
-        step("And User TeamOwner has group conversation SelfDeleting with Member1 in team Deleting") {
-            backendSetupHelper.userHasGroupConversationInTeam(
-                "user1Name",
-                "SelfDeleting",
-                "user2Name",
-                "Deleting"
-            )
+        step("And MLS devices are registered for all participants") {
+            testServiceHelper.apply {
+                addDevice("user1Name", null, "Device1")
+                addDevice("user2Name", null, "Device1")
+            }
         }
 
-        step("And User TeamOwner adds a new device Device1 with label Device1") {
-            testServiceHelper.addDevice("user1Name", null, "Device1")
+        step("And User TeamOwner creates MLS group conversation SelfDeleting with Member1 in team Deleting") {
+            testServiceHelper.userCreatesMLSGroupConversation(
+                ownerAlias = "user1Name",
+                participantAliases = "user2Name",
+                conversationName = "SelfDeleting",
+                deviceName = "Device1"
+            )
         }
 
         step("And User Member1 is me") {
@@ -893,7 +915,7 @@ class SelfDeletingMessagesTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4526", "TC-4522")
+    @TestCaseId("TC-12608", "TC-12604")
     @Category("regression", "RC", "selfDeletingMessages", "fileSharing")
     @Test
     fun givenGroupConversation_whenIReceiveTenSecondSelfDeletingImage_thenImageExpires() {
@@ -906,6 +928,7 @@ class SelfDeletingMessagesTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "Deleting", backendClient)
         }
 
         step("And User TeamOwner adds user Member1 to team Deleting with role Member") {
@@ -920,12 +943,19 @@ class SelfDeletingMessagesTests : BaseUiTest() {
             )
         }
 
-        step("And User TeamOwner has group conversation SelfDeleting with Member1 in team Deleting") {
-            backendSetupHelper.userHasGroupConversationInTeam(
-                "user1Name",
-                "SelfDeleting",
-                "user2Name",
-                "Deleting"
+        step("And MLS devices are registered for all participants") {
+            testServiceHelper.apply {
+                addDevice("user1Name", null, "Device1")
+                addDevice("user2Name", null, "Device1")
+            }
+        }
+
+        step("And User TeamOwner creates MLS group conversation SelfDeleting with Member1 in team Deleting") {
+            testServiceHelper.userCreatesMLSGroupConversation(
+                ownerAlias = "user1Name",
+                participantAliases = "user2Name",
+                conversationName = "SelfDeleting",
+                deviceName = "Device1"
             )
         }
 
@@ -987,7 +1017,7 @@ class SelfDeletingMessagesTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4531")
+    @TestCaseId("TC-12613")
     @Category("regression", "selfDeletingMessages", "fileSharing", "WPB-439")
     @Test
     fun givenSelfDeletingImage_whenIOpenItsContextMenu_thenOnlyAllowedOptionsAreDisplayed() {
@@ -1000,6 +1030,7 @@ class SelfDeletingMessagesTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "Deleting", backendClient)
         }
 
         step("And User TeamOwner adds user Member1 to team Deleting with role Member") {
@@ -1014,17 +1045,20 @@ class SelfDeletingMessagesTests : BaseUiTest() {
             )
         }
 
-        step("And User TeamOwner has group conversation SelfDeleting with Member1 in team Deleting") {
-            backendSetupHelper.userHasGroupConversationInTeam(
-                "user1Name",
-                "SelfDeleting",
-                "user2Name",
-                "Deleting"
-            )
+        step("And MLS devices are registered for all participants") {
+            testServiceHelper.apply {
+                addDevice("user1Name", null, "Device1")
+                addDevice("user2Name", null, "Device1")
+            }
         }
 
-        step("And User TeamOwner adds a new device Device1 with label Device1") {
-            testServiceHelper.addDevice("user1Name", null, "Device1")
+        step("And User TeamOwner creates MLS group conversation SelfDeleting with Member1 in team Deleting") {
+            testServiceHelper.userCreatesMLSGroupConversation(
+                ownerAlias = "user1Name",
+                participantAliases = "user2Name",
+                conversationName = "SelfDeleting",
+                deviceName = "Device1"
+            )
         }
 
         step("And User Member1 is me") {
@@ -1146,7 +1180,7 @@ class SelfDeletingMessagesTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4529", "TC-4521")
+    @TestCaseId("TC-12611", "TC-12603")
     @Category("regression", "RC", "selfDeletingMessages")
     @Test
     fun givenGroupConversation_whenISetSelfDeletingTimer_thenExchangedMessagesExpire() {
@@ -1159,6 +1193,7 @@ class SelfDeletingMessagesTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "Deleting", backendClient)
         }
 
         step("And User TeamOwner adds user Member1 to team Deleting with role Member") {
@@ -1173,12 +1208,19 @@ class SelfDeletingMessagesTests : BaseUiTest() {
             )
         }
 
-        step("And User TeamOwner has group conversation SelfDeleting with Member1 in team Deleting") {
-            backendSetupHelper.userHasGroupConversationInTeam(
-                "user1Name",
-                "SelfDeleting",
-                "user2Name",
-                "Deleting"
+        step("And MLS devices are registered for all participants") {
+            testServiceHelper.apply {
+                addDevice("user1Name", null, "Device1")
+                addDevice("user2Name", null, "Device1")
+            }
+        }
+
+        step("And User TeamOwner creates MLS group conversation SelfDeleting with Member1 in team Deleting") {
+            testServiceHelper.userCreatesMLSGroupConversation(
+                ownerAlias = "user1Name",
+                participantAliases = "user2Name",
+                conversationName = "SelfDeleting",
+                deviceName = "Device1"
             )
         }
 
@@ -1260,7 +1302,7 @@ class SelfDeletingMessagesTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4530", "TC-4528")
+    @TestCaseId("TC-12612", "TC-12610")
     @Category("regression", "RC", "selfDeletingMessages", "WPB-286", "WPB-10854")
     @Test
     fun givenGroupConversation_whenISetSelfDeletingTimer_thenSystemMessagesAreDisplayedOnce() {
@@ -1273,6 +1315,7 @@ class SelfDeletingMessagesTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "Deleting", backendClient)
         }
 
         step("And User TeamOwner adds user Member1 to team Deleting with role Member") {
@@ -1287,12 +1330,19 @@ class SelfDeletingMessagesTests : BaseUiTest() {
             )
         }
 
-        step("And User TeamOwner has group conversation SelfDeleting with Member1 in team Deleting") {
-            backendSetupHelper.userHasGroupConversationInTeam(
-                "user1Name",
-                "SelfDeleting",
-                "user2Name",
-                "Deleting"
+        step("And MLS devices are registered for all participants") {
+            testServiceHelper.apply {
+                addDevice("user1Name", null, "Device1")
+                addDevice("user2Name", null, "Device1")
+            }
+        }
+
+        step("And User TeamOwner creates MLS group conversation SelfDeleting with Member1 in team Deleting") {
+            testServiceHelper.userCreatesMLSGroupConversation(
+                ownerAlias = "user1Name",
+                participantAliases = "user2Name",
+                conversationName = "SelfDeleting",
+                deviceName = "Device1"
             )
         }
 
@@ -1404,7 +1454,7 @@ class SelfDeletingMessagesTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4532")
+    @TestCaseId("TC-12614")
     @Category("regression", "RC", "selfDeletingMessages")
     @Test
     fun givenEnforcedSelfDeletingTimer_whenITryToChangeIt_thenTimerOptionsAreNotDisplayed() {
@@ -1417,6 +1467,7 @@ class SelfDeletingMessagesTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "Deleting", backendClient)
         }
 
         step("And User TeamOwner adds user Member1 to team Deleting with role Member") {
@@ -1431,12 +1482,19 @@ class SelfDeletingMessagesTests : BaseUiTest() {
             )
         }
 
-        step("And User TeamOwner has group conversation SelfDeleting with Member1 in team Deleting") {
-            backendSetupHelper.userHasGroupConversationInTeam(
-                "user1Name",
-                "SelfDeleting",
-                "user2Name",
-                "Deleting"
+        step("And MLS devices are registered for all participants") {
+            testServiceHelper.apply {
+                addDevice("user1Name", null, "Device1")
+                addDevice("user2Name", null, "Device1")
+            }
+        }
+
+        step("And User TeamOwner creates MLS group conversation SelfDeleting with Member1 in team Deleting") {
+            testServiceHelper.userCreatesMLSGroupConversation(
+                ownerAlias = "user1Name",
+                participantAliases = "user2Name",
+                conversationName = "SelfDeleting",
+                deviceName = "Device1"
             )
         }
 

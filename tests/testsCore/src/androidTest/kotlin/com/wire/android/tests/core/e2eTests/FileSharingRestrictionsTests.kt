@@ -39,7 +39,7 @@ class FileSharingRestrictionsTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-8120")
+    @TestCaseId("TC-12658")
     @Category("regression", "RC", "fileSharingRestrictions")
     @Test
     fun givenTeamMember_whenFileSharingIsDisabledForTeam_thenISeeTeamSettingsChangedAlertForFirstTime() {
@@ -52,6 +52,7 @@ class FileSharingRestrictionsTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user2Name", "File sharing", backendClient)
         }
 
         step("And TeamOwner adds Member1 to team File sharing with role Member") {
@@ -129,7 +130,7 @@ class FileSharingRestrictionsTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-8121", "TC-8147", "TC-8148")
+    @TestCaseId("TC-12659", "TC-12676", "TC-12677")
     @Category("regression", "RC", "fileSharingRestrictions")
     @Test
     fun givenFileSharingIsDisabledForTeam_whenContactSendsImageVideoAndAudio_thenIShouldNotBeAbleToReceiveThem() {
@@ -196,7 +197,7 @@ class FileSharingRestrictionsTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-8149", "TC-8047")
+    @TestCaseId("TC-12678", "TC-12650")
     @Category("regression", "RC", "fileSharingRestrictions")
     @Test
     fun givenFileSharingIsDisabledForTeam_whenContactSendsFile_thenReceivingFilesProhibitedPlaceholderIsVisible() {
@@ -256,6 +257,7 @@ class FileSharingRestrictionsTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "FileSharing", backendClient)
         }
 
         step("And TeamOwner adds Member1 to team FileSharing with role Member") {
@@ -283,16 +285,20 @@ class FileSharingRestrictionsTests : BaseUiTest() {
             clientUserManager.setSelfUser(member1)
         }
 
-        step("And Contact adds new device Device1 with label Device1") {
-            testServiceHelper.addDevice("user3Name", null, "Device1")
+        step("And MLS devices are registered for all participants") {
+            testServiceHelper.apply {
+                addDevice("user1Name", null, "Device1")
+                addDevice("user2Name", null, "Device1")
+                addDevice("user3Name", null, "Device1")
+            }
         }
 
-        step("And TeamOwner has group conversation SendFilesHere with Member1 and Contact") {
-            backendSetupHelper.userHasGroupConversationInTeam(
-                "user1Name",
-                "SendFilesHere",
-                "user2Name,user3Name",
-                "FileSharing"
+        step("And TeamOwner creates MLS group conversation SendFilesHere with Member1 and Contact") {
+            testServiceHelper.userCreatesMLSGroupConversation(
+                ownerAlias = "user1Name",
+                participantAliases = "user2Name,user3Name",
+                conversationName = "SendFilesHere",
+                deviceName = "Device1"
             )
         }
 

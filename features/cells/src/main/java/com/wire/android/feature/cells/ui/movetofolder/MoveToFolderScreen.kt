@@ -17,9 +17,12 @@
  */
 package com.wire.android.feature.cells.ui.movetofolder
 
+import android.content.Context
 import android.widget.Toast
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
@@ -38,8 +41,10 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.text.style.TextAlign
 import com.wire.android.feature.cells.ui.moveToFolderViewModel
 import com.wire.android.feature.cells.R
@@ -47,6 +52,9 @@ import com.wire.android.feature.cells.ui.common.Breadcrumbs
 import com.wire.android.feature.cells.ui.common.LoadingScreen
 import com.wire.android.model.ClickBlockParams
 import com.wire.android.ui.common.HandleActions
+import com.wire.android.ui.common.WireDialog
+import com.wire.android.ui.common.WireDialogButtonProperties
+import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.button.WireSecondaryButton
@@ -67,12 +75,17 @@ internal fun MoveToFolderRouteScreen(
     onCloseFlow: () -> Unit,
     onNavigateBackSteps: (Int) -> Unit,
     onOpenCreateFolder: (String) -> Unit,
-    onOpenFolder: (String, String, String, List<String>) -> Unit,
+    onOpenFolder: (String, List<NodeToMove>, List<String>) -> Unit,
     moveToFolderViewModel: MoveToFolderViewModel,
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
     val viewState by moveToFolderViewModel.state.collectAsState()
+
+    val isMoving = viewState.screenState == MoveToFolderScreenState.LOADING_IN_FULL_SCREEN
+
+    // Swallow system back while moving, see MoveToFolderViewModel.isMoving.
+    BackHandler(enabled = isMoving) {}
 
     Box(modifier = Modifier.fillMaxSize()) {
         WireScaffold(
@@ -80,8 +93,9 @@ internal fun MoveToFolderRouteScreen(
             topBar = {
                 TopScreenBar(
                     breadcrumbs = viewState.breadcrumbs.toTypedArray(),
+                    isNavigateBackVisible = !isMoving,
                     onBreadcrumbClick = moveToFolderViewModel::onBreadcrumbClick,
-                    onNavigateBack = onNavigateBack,
+                    onNavigateBack = { if (!moveToFolderViewModel.isMoving()) onNavigateBack() },
                 )
             },
             bottomBar = {
@@ -123,15 +137,16 @@ internal fun MoveToFolderRouteScreen(
         }
     }
 
+    viewState.moveFailure?.let { failure ->
+        // Folder lists were already refreshed by the ViewModel, so closing the flow shows the actual result.
+        MoveFailureDialog(failure = failure, onDismiss = onCloseFlow)
+    }
+
     HandleActions(moveToFolderViewModel.actions) { action ->
         when (action) {
             is MoveToFolderViewAction.Success -> {
-                Toast.makeText(context, context.resources.getString(R.string.item_move_success), Toast.LENGTH_SHORT).show()
-                onCloseFlow()
-            }
-
-            is MoveToFolderViewAction.Failure -> {
-                Toast.makeText(context, context.resources.getString(R.string.item_move_failure), Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, context.moveSuccessMessage(action.movedCount, action.destinationFolderName), Toast.LENGTH_SHORT)
+                    .show()
                 onCloseFlow()
             }
 
@@ -144,21 +159,61 @@ internal fun MoveToFolderRouteScreen(
             }
 
             is MoveToFolderViewAction.OpenFolder -> {
-                onOpenFolder(action.path, action.nodePath, action.nodeUuid, action.breadcrumbs)
+                onOpenFolder(action.path, action.nodesToMove, action.breadcrumbs)
             }
         }
     }
 }
 
+private fun Context.moveSuccessMessage(movedCount: Int, folderName: String?): String = when {
+    folderName == null && movedCount == 1 -> getString(R.string.item_move_success)
+    folderName == null -> resources.getQuantityString(R.plurals.cells_items_move_success, movedCount, movedCount)
+    movedCount == 1 -> getString(R.string.cells_item_move_success_to_folder, folderName)
+    else -> resources.getQuantityString(R.plurals.cells_items_move_success_to_folder, movedCount, movedCount, folderName)
+}
+
+@Composable
+private fun MoveFailureDialog(
+    failure: MoveFailure,
+    onDismiss: () -> Unit,
+) {
+    val isSingleItem = failure.totalCount == 1
+    WireDialog(
+        title = stringResource(
+            if (isSingleItem) R.string.cells_move_failure_dialog_title_one else R.string.cells_move_failure_dialog_title_many
+        ),
+        text = stringResource(
+            when {
+                isSingleItem && failure.isNoNetworkConnection -> R.string.cells_move_failure_dialog_message_one_no_network
+                isSingleItem -> R.string.cells_move_failure_dialog_message_one
+                failure.isNoNetworkConnection -> R.string.cells_move_failure_dialog_message_many_no_network
+                else -> R.string.cells_move_failure_dialog_message_many
+            }
+        ),
+        onDismiss = onDismiss,
+        optionButton1Properties = WireDialogButtonProperties(
+            onClick = onDismiss,
+            text = stringResource(R.string.ok_label),
+            type = WireDialogButtonType.Primary,
+        ),
+    )
+}
+
 @Composable
 private fun TopScreenBar(
     breadcrumbs: Array<String>,
+    isNavigateBackVisible: Boolean,
     onBreadcrumbClick: (Int) -> Unit,
     onNavigateBack: () -> Unit,
 ) {
+    // Faded out instead of removed so the title doesn't shift; hidden from accessibility while invisible.
+    val navigateBackAlpha by animateFloatAsState(targetValue = if (isNavigateBackVisible) 1f else 0f)
     Column {
         WireCenterAlignedTopAppBar(
             onNavigationPressed = onNavigateBack,
+            navigationIconModifier = Modifier
+                .alpha(navigateBackAlpha)
+                .then(if (isNavigateBackVisible) Modifier else Modifier.clearAndSetSemantics {}),
             title = stringResource(R.string.move_to_folder),
             navigationIconType = NavigationIconType.Back(),
             elevation = dimensions().spacing0x
@@ -218,7 +273,8 @@ private fun BottomScreenBar(
                 WirePrimaryButton(
                     text = stringResource(R.string.move_here),
                     onClick = onMoveToFolderClick,
-                    state = if (viewState.isAllowedToMoveToCurrentPath) WireButtonState.Default else WireButtonState.Disabled,
+                    // `loading` only shows the spinner, the button must also be disabled to stop taps while moving.
+                    state = if (viewState.isAllowedToMoveToCurrentPath && !isLoading) WireButtonState.Default else WireButtonState.Disabled,
                     loading = isLoading,
                     clickBlockParams = ClickBlockParams(blockWhenSyncing = true, blockWhenConnecting = true),
                 )
@@ -257,8 +313,8 @@ fun PreviewMoveToFolderScreen() {
             onCloseFlow = {},
             onNavigateBackSteps = {},
             onOpenCreateFolder = {},
-            onOpenFolder = { _, _, _, _ -> },
-            moveToFolderViewModel = moveToFolderViewModel(MoveToFolderNavArgs("", "", "")),
+            onOpenFolder = { _, _, _ -> },
+            moveToFolderViewModel = moveToFolderViewModel(MoveToFolderNavArgs("", emptyList())),
         )
     }
 }

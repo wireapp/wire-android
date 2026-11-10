@@ -36,7 +36,6 @@
     <string name="cancel">İptal</string>
     <string name="confirm_delete_file_title">Dosyayı sil</string>
     <string name="confirm_delete_folder_title">Klasörü sil</string>
-    <string name="confirm_delete_file_text">%1$s dosyası bu konuşmanın geri dönüşüm kutusuna taşınacak.</string>
     <string name="confirm_permanent_delete_file_text">Bu, tüm katılımcılar için %1$s dosyasını kalıcı olarak silecektir.</string>
     <string name="confirm_permanent_delete_folder_text">Bu, tüm katılımcılar için %1$s klasörünü kalıcı olarak silecektir.</string>
     <string name="reload">Tekrar yükle</string>
@@ -71,4 +70,5 @@
     <string name="add_tag_label">Etiket ekle</string>
     <string name="enter_name_label">Etiket adı girin</string>
     <string name="tags_edited">Etiketler düzenlendi</string>
+    <!-- Badge marking a newly released feature, not the "create new" action of cells_new_label -->
 </resources>

@@ -51,8 +51,12 @@ data class NodeActions(
 )
 
 data class DisplayMention(
-    val userId: UserId,
+    val userId: UserId?,
     val length: Int,
     val isSelfMention: Boolean,
-    val mentionUserName: String
-)
+    val mentionUserName: String,
+    val marker: String
+) {
+    val isEveryone: Boolean get() = userId == null
+    val markedText: String get() = marker + mentionUserName + MarkdownConstants.MENTION_MARK
+}

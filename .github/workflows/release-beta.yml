@@ -1,13 +1,9 @@
 name: "Release beta"
-run-name: "Release beta from ${{ inputs.commit || github.sha }}"
+run-name: "Release beta from ${{ github.ref_name }} at ${{ github.sha }}"
 
 on:
   workflow_dispatch:
     inputs:
-      commit:
-        description: "Commit SHA on develop. Leave blank to use the selected develop commit."
-        required: false
-        type: string
       beta-number:
         description: "Beta number, such as 1. Leave blank to choose the next number."
         required: false
@@ -24,14 +20,13 @@ concurrency:
 jobs:
   create-tag:
     name: Create beta tag
-    if: github.ref == 'refs/heads/develop'
     runs-on: ubuntu-latest
     permissions:
       contents: write # create an annotated beta tag
       actions: write # dispatch the build at the created tag
     steps:
       - name: Checkout
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
         with:
           persist-credentials: false
           fetch-depth: 0
@@ -40,15 +35,16 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           REPOSITORY: ${{ github.repository }}
-          SOURCE_COMMIT: ${{ inputs.commit || github.sha }}
+          SOURCE_COMMIT: ${{ github.sha }}
+          SOURCE_BRANCH: ${{ github.ref_name }}
+          SOURCE_REF: ${{ github.ref }}
           BETA_NUMBER: ${{ inputs.beta-number }}
         run: |
-          if [[ ! "$SOURCE_COMMIT" =~ ^[0-9a-fA-F]{7,40}$ ]]; then
-            echo "Commit must be a Git commit SHA on develop"
+          if [[ "$SOURCE_REF" != refs/heads/release/cycle-* ]]; then
+            echo "Select a release-cycle branch named release/cycle-*"
             exit 1
           fi
-          commit=$(git rev-parse --verify "${SOURCE_COMMIT}^{commit}")
-          git merge-base --is-ancestor "$commit" origin/develop
+          commit=$(make -s beta-release/validate-source)
           version=$(git show "$commit:build-logic/plugins/src/main/kotlin/AndroidCoordinates.kt" | sed -nE 's/^[[:space:]]*const val versionName = "([^"]+)".*/\1/p')
           if [[ -z "$BETA_NUMBER" ]]; then
             previous=$(git tag --list "v${version}-beta.*" | sed -nE 's/.*-beta\.([1-9][0-9]*)$/\1/p' | sort -n | tail -n1)

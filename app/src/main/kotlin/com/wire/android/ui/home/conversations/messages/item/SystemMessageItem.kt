@@ -80,13 +80,12 @@ fun SystemMessageItem(
     message: UIMessage.System,
     modifier: Modifier = Modifier,
     initiallyExpanded: Boolean = false,
-    isWireCellsEnabled: Boolean = false,
     failureInteractionAvailable: Boolean = true,
     onFailedMessageRetryClicked: (String, ConversationId) -> Unit = { _, _ -> },
     onFailedMessageCancelClicked: (String) -> Unit = {},
 ) {
     SystemMessageContentItem(
-        content = message.messageContent.buildContent(isWireCellsEnabled),
+        content = message.messageContent.buildContent(),
         message = message,
         modifier = modifier,
         initiallyExpanded = initiallyExpanded,
@@ -98,12 +97,24 @@ fun SystemMessageItem(
 
 @Composable
 fun AdminlessGroupDeleteReminderItem(
-    deletionScheduledFor: kotlinx.datetime.Instant,
+    deletionScheduledFor: kotlin.time.Instant,
     modifier: Modifier = Modifier,
     is24HourFormat: Boolean? = null,
 ) {
     SystemMessageContentItem(
         content = adminlessGroupDeleteReminderContent(deletionScheduledFor, is24HourFormat),
+        modifier = modifier,
+    )
+}
+
+/** The end-to-end encryption notice the timeline shows above the oldest message. */
+@Composable
+fun ConversationEncryptionNoticeItem(
+    isWireCellsEnabled: Boolean,
+    modifier: Modifier = Modifier,
+) {
+    SystemMessageContentItem(
+        content = encryptionNoticeContent(isWireCellsEnabled),
         modifier = modifier,
     )
 }
@@ -188,7 +199,7 @@ private fun SystemMessageContentItem(
 
 @Suppress("LongParameterList", "SpreadOperator", "ComplexMethod", "LongMethod")
 @Composable
-private fun SystemMessage.buildContent(isWireCellsEnabled: Boolean) = when (this) {
+private fun SystemMessage.buildContent() = when (this) {
     SystemMessage.Offline -> buildContent(
         iconResId = R.drawable.ic_no_network,
         iconTintColor = MaterialTheme.wireColorScheme.primary,
@@ -557,39 +568,6 @@ private fun SystemMessage.buildContent(isWireCellsEnabled: Boolean) = when (this
         }
     }
 
-    is SystemMessage.ConversationMessageCreatedUnverifiedWarning -> buildContent(
-        iconResId = commonR.drawable.ic_shield_holo,
-        iconTintColor = MaterialTheme.wireColorScheme.onPositiveVariant,
-        backgroundColor = MaterialTheme.wireColorScheme.positiveVariant,
-        additionalVerticalPaddings = MaterialTheme.wireDimensions.spacing12x,
-        learnMorePage = SupportPage.E2EE
-    ) {
-        val markdownTextStyle = DefaultMarkdownTextStyle.copy(
-            normalColor = MaterialTheme.wireColorScheme.onSurface,
-            boldColor = MaterialTheme.wireColorScheme.onPositiveVariant
-        )
-        val header = if (isWireCellsEnabled) {
-            stringResource(R.string.label_system_message_conversation_started_sensitive_information_header_with_shared_drive_on)
-        } else {
-            stringResource(R.string.label_system_message_conversation_started_sensitive_information_header)
-        }
-        val message = if (isWireCellsEnabled) {
-            stringResource(R.string.label_system_message_conversation_started_sensitive_information_message_with_shared_drive_on)
-        } else {
-            stringResource(R.string.label_system_message_conversation_started_sensitive_information_message)
-        }
-        val footer = stringResource(R.string.label_system_message_conversation_started_sensitive_information_footer)
-        buildAnnotatedString {
-            append(header.toMarkdownAnnotatedString(markdownTextStyle))
-            appendVerticalSpace()
-            append(message.toMarkdownAnnotatedString(markdownTextStyle))
-            appendVerticalSpace()
-            append(footer.toMarkdownAnnotatedString(markdownTextStyle))
-            appendVerticalSpace()
-            append("") // so that "learn more" can be on a new line below another vertical space
-        }
-    }
-
     is SystemMessage.SelfUserPromotedToAdmin -> buildContent(
         iconResId = R.drawable.ic_member_role_updated,
         iconTintColor = MaterialTheme.wireColorScheme.onBackground,
@@ -680,8 +658,42 @@ private fun SystemMessage.buildContent(isWireCellsEnabled: Boolean) = when (this
 }
 
 @Composable
+private fun encryptionNoticeContent(isWireCellsEnabled: Boolean) = buildContent(
+    iconResId = commonR.drawable.ic_shield_holo,
+    iconTintColor = MaterialTheme.wireColorScheme.onPositiveVariant,
+    backgroundColor = MaterialTheme.wireColorScheme.positiveVariant,
+    additionalVerticalPaddings = MaterialTheme.wireDimensions.spacing12x,
+    learnMorePage = SupportPage.E2EE
+) {
+    val markdownTextStyle = DefaultMarkdownTextStyle.copy(
+        normalColor = MaterialTheme.wireColorScheme.onSurface,
+        boldColor = MaterialTheme.wireColorScheme.onPositiveVariant
+    )
+    val header = if (isWireCellsEnabled) {
+        stringResource(R.string.label_system_message_conversation_started_sensitive_information_header_with_shared_drive_on)
+    } else {
+        stringResource(R.string.label_system_message_conversation_started_sensitive_information_header)
+    }
+    val message = if (isWireCellsEnabled) {
+        stringResource(R.string.label_system_message_conversation_started_sensitive_information_message_with_shared_drive_on)
+    } else {
+        stringResource(R.string.label_system_message_conversation_started_sensitive_information_message)
+    }
+    val footer = stringResource(R.string.label_system_message_conversation_started_sensitive_information_footer)
+    buildAnnotatedString {
+        append(header.toMarkdownAnnotatedString(markdownTextStyle))
+        appendVerticalSpace()
+        append(message.toMarkdownAnnotatedString(markdownTextStyle))
+        appendVerticalSpace()
+        append(footer.toMarkdownAnnotatedString(markdownTextStyle))
+        appendVerticalSpace()
+        append("") // so that "learn more" can be on a new line below another vertical space
+    }
+}
+
+@Composable
 private fun adminlessGroupDeleteReminderContent(
-    deletionScheduledFor: kotlinx.datetime.Instant,
+    deletionScheduledFor: kotlin.time.Instant,
     is24HourFormat: Boolean?,
 ) = buildContent(
         iconResId = commonR.drawable.ic_info,

@@ -17,6 +17,8 @@
  */
 package com.wire.android.tests.core.pages
 
+import android.graphics.Bitmap
+import android.graphics.Rect
 import android.view.KeyEvent
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.By
@@ -32,8 +34,10 @@ import uiautomatorutils.UiSelectorParams
 import uiautomatorutils.UiWaitUtils
 import uiautomatorutils.UiWaitUtils.findElementOrNull
 import uiautomatorutils.UiWaitUtils.waitElement
+import util.decodeQRCode
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
 import kotlin.test.DefaultAsserter.assertTrue
 import kotlin.test.assertEquals
 import kotlin.time.Duration
@@ -84,11 +88,11 @@ data class ConversationViewPage(private val device: UiDevice) {
     private fun userInMentionList(userName: String): UiObject2 {
         var user: UiObject2? = null
         val visible = UiWaitUtils.retryUntilTimeout(UiWaitUtils.DEFAULT_TIMEOUT) {
-            user = device.findObjects(By.res("User avatar"))
-                .firstNotNullOfOrNull { avatar ->
-                    avatar.parent?.parent?.findObject(By.textContains(userName))
-                }
-            user != null
+            user = device.findObject(By.clazz("android.widget.Button").descStartsWith("$userName,"))
+                ?: device.findObject(
+                    By.clickable(true).hasChild(By.text(userName)).hasChild(By.textStartsWith("@"))
+                )
+            user?.visibleBounds?.isEmpty == false
         }
         if (!visible) {
             throw AssertionError("User '$userName' is not visible in the mention list.")
@@ -362,7 +366,7 @@ data class ConversationViewPage(private val device: UiDevice) {
 
         Assert.assertTrue("Edited label is not visible for message '$message'.", "Edited" in labels)
 
-        val timeFormatter = DateTimeFormatter.ofPattern("HH:mm")
+        val timeFormatter = DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT)
         val currentTime = LocalTime.now()
         val expectedTimes = setOf(currentTime.format(timeFormatter), currentTime.minusMinutes(1).format(timeFormatter))
         Assert.assertTrue(
@@ -694,6 +698,53 @@ data class ConversationViewPage(private val device: UiDevice) {
         val field = UiWaitUtils.waitElement(messageInputField)
         field.click()
         field.text = message
+        return this
+    }
+
+    fun assertQrImageAttachedToComposer(expectedValue: String): ConversationViewPage {
+        val found = UiWaitUtils.retryUntilTimeout(UiWaitUtils.LONG_TIMEOUT) {
+            val input = UiWaitUtils.waitElement(typeMessageField).visibleBounds
+            qrCodeInScreenArea(Rect(0, input.bottom, device.displayWidth, device.displayHeight)) == expectedValue
+        }
+        Assert.assertTrue("The imported QR image is not attached to the message composer", found)
+        return this
+    }
+
+    fun assertQrImageVisibleInMessageHistory(expectedValue: String): ConversationViewPage {
+        val found = UiWaitUtils.retryUntilTimeout(UiWaitUtils.VERY_LONG_TIMEOUT) {
+            val input = UiWaitUtils.waitElement(typeMessageField).visibleBounds
+            qrCodeInScreenArea(Rect(0, 0, device.displayWidth, input.top)) == expectedValue
+        }
+        Assert.assertTrue("The expected QR image is not visible in the conversation's message history", found)
+        return this
+    }
+
+    fun assertQrImageAbsentFromConversation(expectedValue: String): ConversationViewPage {
+        UiWaitUtils.waitElement(typeMessageField)
+        Assert.assertNotEquals(
+            "The Viewer conversation received the imported image",
+            expectedValue,
+            qrCodeInScreenArea(Rect(0, 0, device.displayWidth, device.displayHeight))
+        )
+        return this
+    }
+
+    private fun qrCodeInScreenArea(bounds: Rect): String? {
+        val screenshot = requireNotNull(InstrumentationRegistry.getInstrumentation().uiAutomation.takeScreenshot())
+        val area = Bitmap.createBitmap(screenshot, bounds.left, bounds.top, bounds.width(), bounds.height())
+        return try {
+            decodeQRCode(area)
+        } finally {
+            area.recycle()
+            screenshot.recycle()
+        }
+    }
+
+    fun assertSendButtonEnabledOnMessageComposer(): ConversationViewPage {
+        val enabled = UiWaitUtils.retryUntilTimeout(UiWaitUtils.VERY_LONG_TIMEOUT) {
+            device.findObject(By.clickable(true).hasDescendant(By.desc("Send")))?.isEnabled == true
+        }
+        Assert.assertTrue("The message composer's Send button did not become enabled", enabled)
         return this
     }
 
@@ -1033,6 +1084,21 @@ data class ConversationViewPage(private val device: UiDevice) {
         return this
     }
 
+    fun tapGroupConversationHeader(conversationName: String): ConversationViewPage {
+        UiWaitUtils.waitElement(conversationDetailsGroup(conversationName)).click()
+        return this
+    }
+
+    fun assertGroupConversationDetailsDisabled(conversationName: String): ConversationViewPage {
+        UiWaitUtils.waitElement(conversationDetailsGroup(conversationName))
+        Assert.assertFalse(
+            "Removed participant can open Conversation details",
+            device.hasObject(By.clickable(true).enabled(true).hasDescendant(By.text(conversationName)))
+        )
+        Assert.assertFalse("Conversation details opened after removal", device.hasObject(By.text("Conversation Details")))
+        return this
+    }
+
     fun assertOneOnOneConversationInForeground(userName: String): ConversationViewPage {
         UiWaitUtils.waitElement(conversationDetails1On1(userName))
         UiWaitUtils.waitElement(typeMessageField)
@@ -1106,20 +1172,23 @@ data class ConversationViewPage(private val device: UiDevice) {
         val params = conversationDetailsGroup(userName)
         UiWaitUtils.waitElement(backButton, timeout = UiWaitUtils.MEDIUM_TIMEOUT)
 
-        val clicked = UiWaitUtils.clickWhenClickable(
-            params = params,
+        val detailsOpened = UiWaitUtils.retryUntilTimeout(
             timeout = UiWaitUtils.MEDIUM_TIMEOUT,
-            pollingInterval = UiWaitUtils.POLLING_FAST
-        )
-
-        if (!clicked) {
-            throw AssertionError("Group conversation details for user '$userName' was not clickable.")
+            pollingInterval = UiWaitUtils.POLLING_DEFAULT
+        ) {
+            if (findElementOrNull(conversationOptionsButton)?.let { !it.visibleBounds.isEmpty } == true) {
+                return@retryUntilTimeout true
+            }
+            UiWaitUtils.clickWhenClickable(
+                params = params,
+                timeout = UiWaitUtils.POLLING_DEFAULT,
+                pollingInterval = UiWaitUtils.POLLING_FAST
+            )
+            findElementOrNull(conversationOptionsButton)?.let { !it.visibleBounds.isEmpty } == true
         }
 
-        try {
-            UiWaitUtils.waitElement(conversationOptionsButton, timeout = UiWaitUtils.MEDIUM_TIMEOUT)
-        } catch (e: AssertionError) {
-            throw AssertionError("Group conversation details for user '$userName' did not open.", e)
+        if (!detailsOpened) {
+            throw AssertionError("Group conversation details for user '$userName' did not open.")
         }
         return this
     }

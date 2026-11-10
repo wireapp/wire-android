@@ -24,7 +24,6 @@ import com.wire.android.ui.authentication.login.DomainClaimedByOrg
 import com.wire.android.ui.authentication.login.LoginNavArgs
 import com.wire.android.ui.authentication.login.LoginPasswordPath
 import com.wire.android.ui.authentication.login.PreFilledUserIdentifierType
-import com.wire.android.ui.authentication.login.SSOCodeAutoLogin
 import com.wire.android.ui.authentication.welcome.WelcomeNavArgs
 import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.android.util.deeplink.SSOFailureCodes
@@ -41,14 +40,6 @@ internal fun LoginNavArgs.toAuthenticationArguments(): AuthenticationLoginArgume
         },
         ssoLoginResult = ssoLoginResult?.toAuthenticationSsoLoginResult(),
         loginPasswordPath = loginPasswordPath?.toAuthenticationLoginPasswordPath(),
-        ssoCodeAutoLogin = ssoCodeAutoLogin?.let {
-            AuthenticationSsoCodeAutoLogin(
-                ssoCode = it.ssoCode,
-                autoInitiateLogin = it.autoInitiateLogin,
-                nomadServiceUrl = it.nomadServiceUrl,
-                cookieLabel = it.cookieLabel,
-            )
-        },
         showBackendConfigSuccess = showBackendConfigSuccess,
     )
 
@@ -62,14 +53,6 @@ internal fun AuthenticationLoginArguments.toLegacy(): LoginNavArgs =
         },
         ssoLoginResult = ssoLoginResult?.toLegacy(),
         loginPasswordPath = loginPasswordPath?.toLegacy(),
-        ssoCodeAutoLogin = ssoCodeAutoLogin?.let {
-            SSOCodeAutoLogin(
-                ssoCode = it.ssoCode,
-                autoInitiateLogin = it.autoInitiateLogin,
-                nomadServiceUrl = it.nomadServiceUrl,
-                cookieLabel = it.cookieLabel,
-            )
-        },
         showBackendConfigSuccess = showBackendConfigSuccess,
     )
 

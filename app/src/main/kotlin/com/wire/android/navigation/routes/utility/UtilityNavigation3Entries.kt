@@ -24,7 +24,7 @@ import com.wire.android.ui.initialsync.InitialSyncRouteScreen
 import com.wire.navigation.WireNavigationCommand
 
 internal fun interface InitialSyncNavigation3Actions {
-    fun completeInitialSync(route: InitialSyncRoute, shouldMoveToBackground: Boolean)
+    fun completeInitialSync(route: InitialSyncRoute)
 }
 
 internal object UtilityNavigation3Contribution {
@@ -42,8 +42,8 @@ internal fun utilityNavigation3Entries(
     initialSyncActions: InitialSyncNavigation3Actions,
 ): WireEntryProviderInstaller = {
     wireEntry<InitialSyncRoute>(presentation = WireEntryPresentation.None) { route ->
-        InitialSyncRouteScreen { shouldMoveToBackground ->
-            initialSyncActions.completeInitialSync(route, shouldMoveToBackground)
+        InitialSyncRouteScreen {
+            initialSyncActions.completeInitialSync(route)
         }
     }
     wireEntry<DebugRoute> { route ->

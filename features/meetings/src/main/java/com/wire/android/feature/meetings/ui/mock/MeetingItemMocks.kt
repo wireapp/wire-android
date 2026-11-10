@@ -30,7 +30,7 @@ import com.wire.kalium.logic.data.id.MeetingId
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toPersistentList
 import kotlinx.datetime.DateTimeUnit
-import kotlinx.datetime.Instant
+import kotlin.time.Instant
 import kotlinx.datetime.minus
 import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.minutes

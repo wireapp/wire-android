@@ -42,7 +42,7 @@ import com.wire.kalium.logic.data.user.UserId
 import kotlinx.collections.immutable.PersistentMap
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
-import kotlinx.datetime.Instant
+import kotlin.time.Instant
 
 @Suppress("LongParameterList")
 @Composable
@@ -73,6 +73,10 @@ internal fun ConversationMessageComposer(
     onOpenProfile: (senderId: MessageSenderId) -> Unit,
     onUpdateConversationReadDate: (Instant) -> Unit,
     onShowEditingOptions: (UIMessage.Regular) -> Unit,
+    onKeyboardOptionsRequested: (UIMessage.Regular) -> Unit,
+    retainMessageNavigationForOptions: Boolean,
+    messageOptionsDismissal: MessageOptionsDismissal?,
+    onMessageOptionsDismissalHandled: (MessageOptionsDismissal) -> Boolean,
     onSwipedToReply: (UIMessage.Regular) -> Unit,
     onSelfDeletingMessageRead: (UIMessage) -> Unit,
     conversationDetailsData: ConversationDetailsData,
@@ -90,10 +94,8 @@ internal fun ConversationMessageComposer(
     onAttachmentClick: (AttachmentDraftUi) -> Unit,
     onAttachmentMenuClick: (AttachmentDraftUi) -> Unit,
     currentTimeInMillisFlow: Flow<Long> = flow {},
-    onReachedOldestMessage: () -> Unit = {},
     showHistoryLoadingIndicator: Boolean = false,
-    isFetchingOlderMessages: Boolean = false,
-    hasMoreRemoteMessages: Boolean = false,
+    showsEncryptionNotice: Boolean = false,
     isBubbleUiEnabled: Boolean = false,
     isWireCellsEnabled: Boolean = false,
     initialLoading: Boolean = false,
@@ -124,6 +126,10 @@ internal fun ConversationMessageComposer(
                 playingAudioMessage = playingAudioMessage,
                 assetStatuses = assetStatuses,
                 onUpdateConversationReadDate = onUpdateConversationReadDate,
+                onKeyboardOptionsRequested = onKeyboardOptionsRequested,
+                retainMessageNavigationForOptions = retainMessageNavigationForOptions,
+                messageOptionsDismissal = messageOptionsDismissal,
+                onMessageOptionsDismissalHandled = onMessageOptionsDismissalHandled,
                 clickActions = MessageClickActions.Content(
                     onFullMessageLongClicked = onShowEditingOptions,
                     onProfileClicked = onOpenProfile,
@@ -148,10 +154,8 @@ internal fun ConversationMessageComposer(
                 selectedMessageId = selectedMessageId,
                 interactionAvailability = messageComposerStateHolder.messageComposerViewState.value.interactionAvailability,
                 currentTimeInMillisFlow = currentTimeInMillisFlow,
-                onReachedOldestMessage = onReachedOldestMessage,
                 showHistoryLoadingIndicator = showHistoryLoadingIndicator,
-                isFetchingOlderMessages = isFetchingOlderMessages,
-                hasMoreRemoteMessages = hasMoreRemoteMessages,
+                showsEncryptionNotice = showsEncryptionNotice,
                 isBubbleUiEnabled = isBubbleUiEnabled,
                 isWireCellsEnabled = isWireCellsEnabled,
             )

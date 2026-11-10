@@ -127,3 +127,4 @@ allure-results/
 allure-results.tar
 AGENTS.md
 CLAUDE.md
+/.agents/

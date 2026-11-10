@@ -53,7 +53,7 @@ class FileSharingTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4339")
+    @TestCaseId("TC-12471")
     @Category("regression", "RC", "fileSharing")
     @Test
     fun givenTeamMember_whenReceivingAndDownloadingImage_thenImageIsSavedToDownloads() {
@@ -103,17 +103,13 @@ class FileSharingTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4340")
+    @TestCaseId("TC-12472")
     @Category("regression", "RC", "fileSharing")
     @Test
     fun givenTeamMember_whenReceivingTxtFile_thenICanDownloadIt() {
         var downloadedTextFileName = ""
 
         givenTeamMemberIsPreparedForFileSharing()
-
-        step("And TeamOwner adds new device Device1 with label Device1") {
-            testServiceHelper.addDevice("user1Name", null, "Device1")
-        }
 
         loginAsTeamMemberAndOpenFileSharingConversation()
 
@@ -159,17 +155,13 @@ class FileSharingTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4341")
+    @TestCaseId("TC-12473")
     @Category("regression", "RC", "fileSharing")
     @Test
     fun givenTeamMember_whenReceivingVideo_thenICanDownloadIt() {
         var downloadedVideoFileName = ""
 
         givenTeamMemberIsPreparedForFileSharing()
-
-        step("And TeamOwner adds new device Device1 with label Device1") {
-            testServiceHelper.addDevice("user1Name", null, "Device1")
-        }
 
         loginAsTeamMemberAndOpenFileSharingConversation()
 
@@ -215,15 +207,11 @@ class FileSharingTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4342")
+    @TestCaseId("TC-12474")
     @Category("regression", "RC", "fileSharing")
     @Test
     fun givenTeamMember_whenSendingImageInGroupConversation_thenImageIsSent() {
         givenTeamMemberIsPreparedForFileSharing()
-
-        step("And TeamOwner adds new device Device1 with label Device1") {
-            testServiceHelper.addDevice("user1Name", null, "Device1")
-        }
 
         loginAsTeamMemberAndOpenFileSharingConversation()
 
@@ -266,15 +254,11 @@ class FileSharingTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4343")
-    @Category("regression", "RC", "smoke", "fileSharing", "smokeSchwarz", "smokeSTACKIT")
+    @TestCaseId("TC-12475")
+    @Category("regression", "RC", "fdroid", "fileSharing")
     @Test
     fun givenTeamMember_whenSendingFileInGroupConversation_thenFileIsSent() {
         givenTeamMemberIsPreparedForFileSharing()
-
-        step("And TeamOwner adds new device Device1 with label Device1") {
-            testServiceHelper.addDevice("user1Name", null, "Device1")
-        }
 
         loginAsTeamMemberAndOpenFileSharingConversation()
 
@@ -314,6 +298,7 @@ class FileSharingTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "FileSharing", backendClient)
         }
 
         step("And TeamOwner adds Member1 to team FileSharing with role Member") {
@@ -328,12 +313,19 @@ class FileSharingTests : BaseUiTest() {
             )
         }
 
-        step("And TeamOwner has group conversation SendFilesHere with Member1 in team FileSharing") {
-            backendSetupHelper.userHasGroupConversationInTeam(
-                "user1Name",
-                "SendFilesHere",
-                "user2Name",
-                "FileSharing"
+        step("And MLS devices are registered for all participants") {
+            testServiceHelper.apply {
+                addDevice("user1Name", null, "Device1")
+                addDevice("user2Name", null, "Device1")
+            }
+        }
+
+        step("And TeamOwner creates MLS group conversation SendFilesHere with Member1 in team FileSharing") {
+            testServiceHelper.userCreatesMLSGroupConversation(
+                ownerAlias = "user1Name",
+                participantAliases = "user2Name",
+                conversationName = "SendFilesHere",
+                deviceName = "Device1"
             )
         }
 

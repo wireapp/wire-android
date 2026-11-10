@@ -4,7 +4,7 @@ set -euo pipefail
 # Validation and selector utilities used by qa-android-ui-tests workflow.
 
 usage() {
-  echo "Usage: $0 {validate-run-mode|validate-upgrade-inputs|validate-rerun-inputs|resolve-selector-from-tags|print-resolved-values}" >&2
+  echo "Usage: $0 {validate-run-mode|validate-upgrade-inputs|validate-emulator-inputs|validate-rerun-inputs|resolve-selector-from-tags|print-resolved-values}" >&2
   exit 2
 }
 
@@ -17,6 +17,17 @@ validate_upgrade_inputs() {
   # oldBuildNumber is optional for upgrade runs. When empty, APK selection uses
   # the previous APK as the old version and the selected appBuildNumber as new.
   :
+}
+
+validate_emulator_inputs() {
+  if [[ "${IS_UPGRADE:-false}" == "true" || "${RESOLVED_CATEGORY:-}" == "upgrade" ]]; then
+    echo "ERROR: Emulator critical-flow runs exclude upgrade tests."
+    exit 1
+  fi
+  if [[ "${TARGET_DEVICE_GROUP:-}" != "criticalFlow" ]]; then
+    echo "ERROR: Emulator runs require the criticalFlow device group."
+    exit 1
+  fi
 }
 
 validate_run_mode() {
@@ -36,14 +47,12 @@ validate_run_mode() {
       resolved_mode="normal"
       ;;
     "Deflake failed tests")
-      if [[ ! "${source_run_id}" =~ ^[0-9]+$ ]]; then
+      if [[ -z "${source_run_id}" && "${ALLOW_LATEST_SOURCE_RUN:-false}" == "true" ]]; then
+        : # The source-run validator resolves the latest completed run.
+      elif [[ ! "${source_run_id}" =~ ^[0-9]+$ ]]; then
         echo "ERROR: Deflake mode requires a numeric sourceRunId. Copy the 'manual deflake id' from the previous run summary."
         exit 1
       fi
-      case "${DEFLAKE_RETRY_SETTINGS:-Use original run settings}" in
-        "Use original run settings"|"Use settings entered below") ;;
-        *) echo "ERROR: Invalid deflakeRetrySettings."; exit 1 ;;
-      esac
       resolved_mode="deflake"
       ;;
     *) echo "ERROR: runMode must be 'Normal tests' or 'Deflake failed tests'."; exit 1 ;;
@@ -54,14 +63,12 @@ validate_run_mode() {
 }
 
 validate_rerun_inputs() {
-  local enabled="${RERUN_FAILED_ENABLED:-true}"
-  local count="${RERUN_FAILED_COUNT:-1}"
-  local count_num=0
-
-  if [[ ! "${enabled}" =~ ^(true|false)$ ]]; then
-    echo "ERROR: rerunFailedEnabled must be true or false."
-    exit 1
+  local default_count=1
+  if [[ "${RUN_MODE:-Normal tests}" == "Deflake failed tests" ]]; then
+    default_count=0
   fi
+  local count="${RERUN_FAILED_COUNT:-${default_count}}"
+  local count_num=0
 
   if [[ ! "${count}" =~ ^[0-9]+$ ]]; then
     echo "ERROR: rerunFailedCount must be a whole number >= 0."
@@ -74,6 +81,16 @@ validate_rerun_inputs() {
     echo "ERROR: rerunFailedCount must be <= 3."
     exit 1
   fi
+
+  : "${GITHUB_OUTPUT:?GITHUB_OUTPUT not set}"
+  {
+    echo "rerunFailedCount=${count_num}"
+    if (( count_num > 0 )); then
+      echo "rerunFailedEnabled=true"
+    else
+      echo "rerunFailedEnabled=false"
+    fi
+  } >> "${GITHUB_OUTPUT}"
 }
 
 resolve_selector_from_tags() {
@@ -128,6 +145,9 @@ print_resolved_values() {
 }
 
 case "${1:-}" in
+  validate-emulator-inputs)
+    validate_emulator_inputs
+    ;;
   validate-run-mode)
     validate_run_mode
     ;;

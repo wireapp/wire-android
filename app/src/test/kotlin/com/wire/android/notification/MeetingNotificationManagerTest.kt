@@ -32,7 +32,7 @@ import com.wire.kalium.logic.data.notification.LocalNotificationMessageAuthor
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import kotlinx.datetime.Instant
+import kotlin.time.Instant
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith

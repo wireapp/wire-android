@@ -36,7 +36,7 @@ import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.data.user.SelfUser
 import com.wire.kalium.logic.data.user.User
 import com.wire.kalium.logic.data.user.UserId
-import kotlinx.datetime.Instant
+import kotlin.time.Instant
 import java.util.Locale
 import dev.zacsweers.metro.Inject
 import kotlin.time.Duration.Companion.milliseconds
@@ -70,7 +70,6 @@ class SystemMessageContentMapper @Inject constructor(
         is MessageContent.FederationStopped -> mapFederationMessage(content)
         is MessageContent.ConversationProtocolChanged -> mapConversationProtocolChanged(content)
         is MessageContent.ConversationProtocolChangedDuringACall -> mapConversationProtocolChangedDuringACall()
-        is MessageContent.ConversationStartedUnverifiedWarning -> mapConversationCreatedUnverifiedWarning()
         is MessageContent.LegalHold -> mapLegalHoldMessage(content, message.senderUserId, members)
         is MessageContent.NewConversationWithCellMessage -> UIMessageContent.SystemMessage.NewConversationWithCellStarted
         is MessageContent.NewConversationWithCellSelfDeleteDisabledMessage ->
@@ -114,10 +113,6 @@ class SystemMessageContentMapper @Inject constructor(
             isAuthorSelfUser = sender is SelfUser,
             date.formatFullDateShortTime().uppercase(Locale.getDefault())
         )
-    }
-
-    private fun mapConversationCreatedUnverifiedWarning(): UIMessageContent.SystemMessage {
-        return UIMessageContent.SystemMessage.ConversationMessageCreatedUnverifiedWarning
     }
 
     private fun mapConversationTimerChanged(

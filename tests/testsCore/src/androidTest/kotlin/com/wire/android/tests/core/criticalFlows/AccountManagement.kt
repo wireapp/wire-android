@@ -47,7 +47,7 @@ class AccountManagement : BaseUiTest() {
     }
 
         @Suppress("LongMethod", "CyclomaticComplexMethod")
-        @TestCaseId("TC-8610")
+        @TestCaseId("TC-12697")
         @Category("criticalFlow")
         @Test
         fun givenMember_whenEnablingLoggingAndAppLockAndChangingEmailAndResettingPassword_thenAllSettingsUpdateSuccessfully() {
@@ -127,6 +127,7 @@ class AccountManagement : BaseUiTest() {
             step("Assert conversation name and open Settings from conversation menu entry") {
                 pages.conversationListPage.apply {
                     assertGroupConversationVisible("MyTeam")
+                    waitUntilWireServiceNotificationDisappears()
                     clickConversationsMenuEntry()
                     clickSettingsButtonOnMenuEntry()
                 }

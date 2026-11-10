@@ -47,8 +47,8 @@ class CallParticipantListTests : BaseCallUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-10873", "TC-10892")
-    @Category("regression", "callParticipant", "RC", "smoke", "TEMP")
+    @TestCaseId("TC-12732", "TC-12745")
+    @Category("regression", "callParticipant", "RC")
     @Test
     fun givenIAmInOneOnOneCall_whenIExpandParticipantSheet_thenParticipantListAndCallControlsAreVisible() {
         givenTeamOwnerMemberAndOneOnOneConversationArePrepared()
@@ -116,18 +116,18 @@ class CallParticipantListTests : BaseCallUiTest() {
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
     @TestCaseId(
-        "TC-10877",
-        "TC-10872",
-        "TC-10879",
-        "TC-10880",
-        "TC-10874",
-        "TC-10886",
-        "TC-10881",
-        "TC-10883",
-        "TC-10884",
-        "TC-10887"
+        "TC-12734",
+        "TC-12731",
+        "TC-12736",
+        "TC-12737",
+        "TC-12733",
+        "TC-12741",
+        "TC-12738",
+        "TC-12739",
+        "TC-12740",
+        "TC-12742"
     )
-    @Category("regression", "callParticipant", "RC", "smoke", "TEMP")
+    @Category("regression", "callParticipant", "RC")
     @Test
     fun givenIAmInGroupCall_whenIExpandParticipantSheet_thenParticipantCountOrderAndMediaStatesAreVisible() {
         givenTeamOwnerMembersAndGroupConversationArePrepared()
@@ -276,8 +276,8 @@ class CallParticipantListTests : BaseCallUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-10878", "TC-10888", "TC-10889")
-    @Category("regression", "callParticipant", "RC", "smoke", "TEMP")
+    @TestCaseId("TC-12735", "TC-12743", "TC-12744")
+    @Category("regression", "callParticipant", "RC")
     @Test
     fun givenParticipantSheetIsOpen_whenGuestIsPresentAndParticipantJoinsLeavesOrIsTapped_thenListUpdatesWithoutAction() {
         step("Given team owner is prepared via backend") {
@@ -289,6 +289,7 @@ class CallParticipantListTests : BaseCallUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "WeLikeCalls", backendClient)
             teamOwner = clientUserManager.findUserBy(
                 "user1Name",
                 ClientUserManager.FindBy.NAME_ALIAS
@@ -338,12 +339,20 @@ class CallParticipantListTests : BaseCallUiTest() {
             }
         }
 
-        step("And TeamOwner has group conversation ParticipantGuest with Member1 and guest") {
-            backendSetupHelper.userHasGroupConversationInTeam(
-                "user1Name",
-                "ParticipantGuest",
-                "user2Name,user4Name",
-                "WeLikeCalls"
+        step("And MLS devices are registered for all participants") {
+            testServiceHelper.apply {
+                addDevice("user1Name", null, "Device1")
+                addDevice("user2Name", null, "Device1")
+                addDevice("user4Name", null, "Device1")
+            }
+        }
+
+        step("And TeamOwner has MLS group conversation ParticipantGuest with Member1 and guest") {
+            testServiceHelper.userCreatesMLSGroupConversation(
+                ownerAlias = "user1Name",
+                participantAliases = "user2Name,user4Name",
+                conversationName = "ParticipantGuest",
+                deviceName = "Device1"
             )
         }
 
@@ -483,6 +492,7 @@ class CallParticipantListTests : BaseCallUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "WeLikeCalls", backendClient)
             teamOwner = clientUserManager.findUserBy(
                 "user1Name",
                 ClientUserManager.FindBy.NAME_ALIAS
@@ -522,6 +532,7 @@ class CallParticipantListTests : BaseCallUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "WeLikeCalls", backendClient)
             teamOwner = clientUserManager.findUserBy(
                 "user1Name",
                 ClientUserManager.FindBy.NAME_ALIAS
@@ -557,12 +568,20 @@ class CallParticipantListTests : BaseCallUiTest() {
             }
         }
 
-        step("And TeamOwner has group conversation GroupCall with Member1 and Member2") {
-            backendSetupHelper.userHasGroupConversationInTeam(
-                "user1Name",
-                "GroupCall",
-                "user2Name,user3Name",
-                "WeLikeCalls"
+        step("And MLS devices are registered for all participants") {
+            testServiceHelper.apply {
+                addDevice("user1Name", null, "Device1")
+                addDevice("user2Name", null, "Device1")
+                addDevice("user3Name", null, "Device1")
+            }
+        }
+
+        step("And TeamOwner has MLS group conversation GroupCall with Member1 and Member2") {
+            testServiceHelper.userCreatesMLSGroupConversation(
+                ownerAlias = "user1Name",
+                participantAliases = "user2Name,user3Name",
+                conversationName = "GroupCall",
+                deviceName = "Device1"
             )
         }
     }

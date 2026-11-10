@@ -27,6 +27,8 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import uiautomatorutils.KeyboardUtils.closeKeyboardIfOpened
+import uiautomatorutils.UiSelectorParams
+import uiautomatorutils.UiWaitUtils
 import user.utils.ClientUser
 
 @RunWith(AndroidJUnit4::class)
@@ -42,8 +44,8 @@ class EditMessageTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4330", "TC-4331", "TC-4332", "TC-4333")
-    @Category("regression", "RC", "editMessage", "smoke",)
+    @TestCaseId("TC-12462", "TC-12463", "TC-12464", "TC-12465")
+    @Category("regression", "RC", "editMessage", "fdroid")
     @Test
     fun givenOneOnOneConversation_whenIEditSentMessageAndReceiveEditedMessage_thenEditsAndTimestampsAreDisplayed() {
         step("Given There is a team owner TeamOwner with team Messaging") {
@@ -55,6 +57,7 @@ class EditMessageTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "Messaging", backendClient)
         }
 
         step("And User TeamOwner adds user Member1 to team Messaging with role Member") {
@@ -148,6 +151,7 @@ class EditMessageTests : BaseUiTest() {
 
         step("When I long tap message Hello! and tap Edit") {
             pages.conversationViewPage.apply {
+                UiWaitUtils.waitElement(UiSelectorParams(text = "Hello!"))
                 longPressOnMessage("Hello!")
                 tapEditMessageOption()
             }
@@ -227,8 +231,8 @@ class EditMessageTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4334", "TC-4335", "TC-4336", "TC-4337")
-    @Category("regression", "RC", "editMessage", "smoke")
+    @TestCaseId("TC-12466", "TC-12467", "TC-12468", "TC-12469")
+    @Category("regression", "RC", "editMessage", "fdroid")
     @Test
     fun givenGroupConversation_whenIEditSentMessageAndReceiveEditedMessage_thenEditsAndTimestampsAreDisplayed() {
         prepareGroupConversationAndLogin()
@@ -336,7 +340,7 @@ class EditMessageTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4338")
+    @TestCaseId("TC-12470")
     @Category("regression", "RC", "editMessage", "WPB-3525")
     @Test
     fun givenGroupConversationWithManyMessages_whenIScrollAwayAndBack_thenEditOptionRemainsVisible() {
@@ -383,7 +387,7 @@ class EditMessageTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-8151")
+    @TestCaseId("TC-12680")
     @Category("regression", "RC", "editMessage", "WPB-10773")
     @Test
     fun givenMemberMessageInGroupConversation_whenMemberEditsItMultipleTimes_thenEveryEditIsReceived() {
@@ -452,6 +456,7 @@ class EditMessageTests : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "Messaging", backendClient)
         }
 
         step("And User TeamOwner adds user Member1 to team Messaging with role Member") {
@@ -466,17 +471,20 @@ class EditMessageTests : BaseUiTest() {
             )
         }
 
-        step("And User TeamOwner has group conversation EditMe with Member1 in team Messaging") {
-            backendSetupHelper.userHasGroupConversationInTeam(
-                "user1Name",
-                "EditMe",
-                "user2Name",
-                "Messaging"
-            )
+        step("And MLS devices are registered for all participants") {
+            testServiceHelper.apply {
+                addDevice("user1Name", null, "Device1")
+                addDevice("user2Name", null, "Device1")
+            }
         }
 
-        step("And User Member1 adds a new device Device1 with label Device1") {
-            testServiceHelper.addDevice("user2Name", null, "Device1")
+        step("And User TeamOwner creates MLS group conversation EditMe with Member1 in team Messaging") {
+            testServiceHelper.userCreatesMLSGroupConversation(
+                ownerAlias = "user1Name",
+                participantAliases = "user2Name",
+                conversationName = "EditMe",
+                deviceName = "Device1"
+            )
         }
 
         step("And User TeamOwner is me") {

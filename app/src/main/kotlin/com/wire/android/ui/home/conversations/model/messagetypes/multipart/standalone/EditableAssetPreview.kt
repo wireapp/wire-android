@@ -46,6 +46,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.core.graphics.drawable.toBitmap
@@ -53,6 +54,7 @@ import coil3.asDrawable
 import coil3.compose.AsyncImagePainter
 import coil3.compose.SubcomposeAsyncImage
 import coil3.compose.SubcomposeAsyncImageContent
+import coil3.request.ImageRequest
 import com.wire.android.ui.common.applyIf
 import com.wire.android.ui.common.attachmentdraft.ui.FileHeaderView
 import com.wire.android.ui.common.colorsScheme
@@ -139,12 +141,12 @@ internal fun EditableAssetPreview(
             contentAlignment = Alignment.Center
         ) {
 
-            item.previewUrl?.let {
+            item.previewUrl?.let { previewUrl ->
 
                 var drawable by remember { mutableStateOf<Drawable?>(null) }
 
                 SubcomposeAsyncImage(
-                    model = item.previewUrl,
+                    model = editablePreviewRequest(item.uuid, item.contentHash, previewUrl),
                     contentDescription = null,
                     modifier = Modifier
                         .fillMaxSize()
@@ -198,6 +200,29 @@ internal fun EditableAssetPreview(
                     trackColor = Color.Transparent,
                 )
             }
+        }
+    }
+}
+
+/**
+ * The preview URL is pre-signed and changes every time the asset is refreshed, which happens
+ * whenever the message scrolls back into view. Caching by URL therefore missed every time and the
+ * preview flashed empty while it was downloaded again. The content hash only changes when the
+ * document does, so keying on it reuses the cached preview until there is a new one to show.
+ */
+@Composable
+private fun editablePreviewRequest(uuid: String, contentHash: String?, previewUrl: String): Any {
+    val context = LocalContext.current
+    return remember(uuid, contentHash, previewUrl) {
+        if (contentHash == null) {
+            previewUrl
+        } else {
+            val cacheKey = "editable_preview_${uuid}_$contentHash"
+            ImageRequest.Builder(context)
+                .data(previewUrl)
+                .memoryCacheKey(cacheKey)
+                .diskCacheKey(cacheKey)
+                .build()
         }
     }
 }

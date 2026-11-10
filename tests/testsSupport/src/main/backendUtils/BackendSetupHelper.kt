@@ -438,14 +438,15 @@ class BackendSetupHelper(
     fun userHasChannelConversationInTeam(
         chatOwnerNameAlias: String,
         chatName: String? = null,
-        teamName: String
+        teamName: String,
+        cellsEnabled: Boolean = false
     ) {
         val chatOwner = toClientUser(chatOwnerNameAlias)
         val backend = backendFor(chatOwner)
 
         runBlocking {
             val dstTeam = backend.getTeamByName(chatOwner, teamName)
-            backend.createChannelTeamConversation(chatOwner, chatName, dstTeam)
+            backend.createChannelTeamConversation(chatOwner, chatName, dstTeam, cellsEnabled)
         }
     }
 

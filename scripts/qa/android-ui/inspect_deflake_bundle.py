@@ -89,6 +89,12 @@ for field, expected_value in expected_fields.items():
             f"ERROR: Deflake metadata field '{field}' does not match the selected GitHub Actions run."
         )
 
+if env("EXCLUDE_UPGRADE_TESTS") == "true":
+    if metadata.get("is_upgrade", False) or metadata.get("selector_value") == "upgrade":
+        raise SystemExit("ERROR: Emulator critical-flow deflake excludes upgrade tests.")
+    if metadata.get("android_device_group") != "criticalFlow":
+        raise SystemExit("ERROR: Emulator deflake requires the criticalFlow source device group.")
+
 # Never silently switch a rerun to today's repository default. Old bundles
 # need an explicit URL because their original service cannot be reconstructed.
 try:
@@ -149,7 +155,6 @@ write_output("resolvedBuildNumber", str(metadata.get("resolved_build_number", ""
 write_output("newApkName", str(metadata.get("new_apk_name", "")))
 write_output("isUpgrade", str(metadata.get("is_upgrade", False)).lower())
 write_output("oldBuildNumber", str(metadata.get("old_build_number", "")))
-write_output("enforceAppInstall", str(metadata.get("enforce_app_install", False)).lower())
 write_output("androidDeviceId", str(metadata.get("android_device_id", "")))
 write_output("androidDeviceGroup", str(metadata.get("android_device_group", "")))
 write_output("rerunFailedEnabled", str(metadata.get("rerun_failed_enabled", False)).lower())

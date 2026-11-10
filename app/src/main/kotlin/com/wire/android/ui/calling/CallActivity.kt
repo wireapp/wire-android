@@ -213,6 +213,7 @@ abstract class CallActivity : BaseActivity() {
                         Column(modifier = Modifier.semantics { testTagsAsResourceId = true }) {
                             WireTopAppBar(
                                 commonTopAppBarState = commonTopAppBarViewModel.state,
+                                onRetrySyncClick = commonTopAppBarViewModel::retrySync,
                                 animateContentSize = false,
                             )
                             Box(modifier = Modifier.consumeWindowInsets(WindowInsets.statusBars)) {

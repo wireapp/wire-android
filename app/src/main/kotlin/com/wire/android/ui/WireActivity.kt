@@ -334,7 +334,6 @@ class WireActivity : BaseActivity() {
             isEmptyWelcomeStartDestination = {
                 runtime.navigator.routes.firstOrNull() is NewWelcomeEmptyStartRoute
             },
-            handleNonDeepLinkIntent = { viewModel.handleIntentsThatAreNotDeepLinks(it) },
             handleDeepLink = {
                 viewModel.handleDeepLink(
                     intent = it,

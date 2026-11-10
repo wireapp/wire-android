@@ -60,8 +60,8 @@ class UpgradeVersion : BaseUiTest() {
      * CI installs the old APK before instrumentation starts because Android blocks in-test downgrades.
      */
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-8607")
-    @Category("regression", "upgrade")
+    @TestCaseId("TC-12694")
+    @Category("regression", "RC", "upgrade")
     @Test
     fun givenTeamUserWithConversationHistory_whenUpdatingFromPreviousWireVersion_thenHistoryIsPreserved() {
         step("There is a team owner with a team named UpgradeTeam") {
@@ -73,6 +73,7 @@ class UpgradeVersion : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "UpgradeTeam", backendClient)
         }
 
         step("Team owner adds members to the team with role Member") {
@@ -87,21 +88,24 @@ class UpgradeVersion : BaseUiTest() {
             )
         }
 
-        step("Team owner has a group conversation with members in the team") {
-            backendSetupHelper.userHasGroupConversationInTeam(
-                "user1Name",
-                "UpgradeVersion",
-                "user2Name,user3Name",
-                "UpgradeTeam"
-            )
-        }
-
         step("Member 1 has a 1:1 conversation with Member 2 in the team") {
             backendSetupHelper.userHas1on1ConversationInTeam(
                 "user2Name",
                 "user3Name",
                 "UpgradeTeam"
             )
+        }
+
+        step("Team owner has a group conversation with members in the team") {
+            testServiceHelper.apply {
+                addDevice("user1Name", null, "Device1")
+                userCreatesMLSGroupConversation(
+                    ownerAlias = "user1Name",
+                    participantAliases = "user2Name,user3Name",
+                    conversationName = "UpgradeVersion",
+                    deviceName = "Device1"
+                )
+            }
         }
 
         step("Member 1 is me") {
@@ -166,7 +170,6 @@ class UpgradeVersion : BaseUiTest() {
 
         step("And Member 2 sends message to group conversation UpgradeVersion") {
             testServiceHelper.apply {
-                addDevice("user3Name", null, "Device1")
                 userSendMessageToConversation(
                     "user3Name",
                     "Hello!",
@@ -277,7 +280,7 @@ class UpgradeVersion : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4565")
+    @TestCaseId("TC-12643")
     @Category("regression", "RC", "upgrade")
     @Test
     fun givenTeamUserWithMessageHistory_whenUpgradingWire_thenConversationHistoryIsPreserved() {
@@ -290,6 +293,7 @@ class UpgradeVersion : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "Upgrade", backendClient)
         }
 
         step("Team owner adds Member 1 and Member 2 to the team") {
@@ -301,15 +305,6 @@ class UpgradeVersion : BaseUiTest() {
                 backendClient,
                 context,
                 true
-            )
-        }
-
-        step("Team owner has group conversation HappyUpgrade with Member 1 and Member 2") {
-            backendSetupHelper.userHasGroupConversationInTeam(
-                "user1Name",
-                "HappyUpgrade",
-                "user2Name,user3Name",
-                "Upgrade"
             )
         }
 
@@ -334,6 +329,15 @@ class UpgradeVersion : BaseUiTest() {
                 addDevice("user3Name", null, "Device1")
                 addDevice("user1Name", null, "Device1")
             }
+        }
+
+        step("Team owner has group conversation HappyUpgrade with Member 1 and Member 2") {
+            testServiceHelper.userCreatesMLSGroupConversation(
+                ownerAlias = "user1Name",
+                participantAliases = "user2Name,user3Name",
+                conversationName = "HappyUpgrade",
+                deviceName = "Device1"
+            )
         }
 
         step("Member 1 is me") {
@@ -498,7 +502,7 @@ class UpgradeVersion : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4571")
+    @TestCaseId("TC-12649")
     @Category("regression", "RC", "upgrade")
     @Test
     fun givenPersonalUserWithMessageHistory_whenUpgradingWire_thenConversationHistoryIsPreserved() {
@@ -575,7 +579,7 @@ class UpgradeVersion : BaseUiTest() {
         }
 
         step("Contact 1 sends image testing.jpg") {
-            testServiceHelper.contactSendsLocalImageConversation(
+            testServiceHelper.contactSendsLocalImageMessagePersonalMLSConversation(
                 context,
                 "testing.jpg",
                 "user2Name",
@@ -681,7 +685,7 @@ class UpgradeVersion : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4566")
+    @TestCaseId("TC-12644")
     @Category("regression", "RC", "upgrade")
     @Test
     fun givenTeamUserWithSharedAssets_whenUpgradingWire_thenAssetsArePreserved() {
@@ -694,6 +698,7 @@ class UpgradeVersion : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "Upgrade", backendClient)
         }
 
         step("Team owner adds Member 1 and Member 2 to the team") {
@@ -721,15 +726,6 @@ class UpgradeVersion : BaseUiTest() {
             member2 = clientUserManager.findUserBy("user3Name", ClientUserManager.FindBy.NAME_ALIAS)
         }
 
-        step("Team owner has group conversation HappyUpgrade with Member 1 and Member 2") {
-            backendSetupHelper.userHasGroupConversationInTeam(
-                "user1Name",
-                "HappyUpgrade",
-                "user2Name,user3Name",
-                "Upgrade"
-            )
-        }
-
         step("Member 1 has a 1:1 conversation with Member 2") {
             backendSetupHelper.userHas1on1ConversationInTeam(
                 "user2Name",
@@ -743,6 +739,15 @@ class UpgradeVersion : BaseUiTest() {
                 "user2Name",
                 "user1Name",
                 "Upgrade"
+            )
+        }
+
+        step("Team owner has group conversation HappyUpgrade with Member 1 and Member 2") {
+            testServiceHelper.userCreatesMLSGroupConversation(
+                ownerAlias = "user1Name",
+                participantAliases = "user2Name,user3Name",
+                conversationName = "HappyUpgrade",
+                deviceName = "Device1"
             )
         }
 
@@ -840,6 +845,7 @@ class UpgradeVersion : BaseUiTest() {
             pages.conversationListPage.clickGroupConversation("HappyUpgrade")
             pages.conversationViewPage.apply {
                 assertImageIsVisible()
+                scrollToLatestFile("qa_random.txt")
                 assertFileWithNameIsVisible("testing.mp4")
                 assertFileWithNameIsVisible("qa_random.txt")
             }
@@ -847,7 +853,7 @@ class UpgradeVersion : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4567")
+    @TestCaseId("TC-12645")
     @Category("regression", "RC", "upgrade")
     @Test
     fun givenTeamUserLeftGroup_whenUpgradingWire_thenHistoryRemainsVisibleAndNewMessagesAreNotReceived() {
@@ -860,6 +866,7 @@ class UpgradeVersion : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "Upgrade", backendClient)
         }
 
         step("Team owner adds Member 1 and Member 2 to the team") {
@@ -887,15 +894,6 @@ class UpgradeVersion : BaseUiTest() {
             member2 = clientUserManager.findUserBy("user3Name", ClientUserManager.FindBy.NAME_ALIAS)
         }
 
-        step("Team owner has group conversation HappyUpgrade with Member 1 and Member 2") {
-            backendSetupHelper.userHasGroupConversationInTeam(
-                "user1Name",
-                "HappyUpgrade",
-                "user2Name,user3Name",
-                "Upgrade"
-            )
-        }
-
         step("Member 1 has a 1:1 conversation with Member 2") {
             backendSetupHelper.userHas1on1ConversationInTeam(
                 "user2Name",
@@ -909,6 +907,15 @@ class UpgradeVersion : BaseUiTest() {
                 "user2Name",
                 "user1Name",
                 "Upgrade"
+            )
+        }
+
+        step("Team owner has group conversation HappyUpgrade with Member 1 and Member 2") {
+            testServiceHelper.userCreatesMLSGroupConversation(
+                ownerAlias = "user1Name",
+                participantAliases = "user2Name,user3Name",
+                conversationName = "HappyUpgrade",
+                deviceName = "Device1"
             )
         }
 
@@ -1039,7 +1046,7 @@ class UpgradeVersion : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4568")
+    @TestCaseId("TC-12646")
     @Category("regression", "RC", "upgrade")
     @Test
     fun givenTeamUserClearedGroupContent_whenUpgradingWire_thenClearedContentDoesNotReturn() {
@@ -1052,6 +1059,7 @@ class UpgradeVersion : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "Upgrade", backendClient)
         }
 
         step("Team owner adds Member 1 and Member 2 to the team") {
@@ -1079,15 +1087,6 @@ class UpgradeVersion : BaseUiTest() {
             member2 = clientUserManager.findUserBy("user3Name", ClientUserManager.FindBy.NAME_ALIAS)
         }
 
-        step("Team owner has group conversation HappyUpgrade with Member 1 and Member 2") {
-            backendSetupHelper.userHasGroupConversationInTeam(
-                "user1Name",
-                "HappyUpgrade",
-                "user2Name,user3Name",
-                "Upgrade"
-            )
-        }
-
         step("Member 1 has a 1:1 conversation with Member 2") {
             backendSetupHelper.userHas1on1ConversationInTeam(
                 "user2Name",
@@ -1101,6 +1100,15 @@ class UpgradeVersion : BaseUiTest() {
                 "user2Name",
                 "user1Name",
                 "Upgrade"
+            )
+        }
+
+        step("Team owner has group conversation HappyUpgrade with Member 1 and Member 2") {
+            testServiceHelper.userCreatesMLSGroupConversation(
+                ownerAlias = "user1Name",
+                participantAliases = "user2Name,user3Name",
+                conversationName = "HappyUpgrade",
+                deviceName = "Device1"
             )
         }
 
@@ -1244,7 +1252,7 @@ class UpgradeVersion : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4569")
+    @TestCaseId("TC-12647")
     @Category("regression", "RC", "upgrade")
     @Test
     fun givenConversationWithRemovedTeamMember_whenUpgradingWire_thenDeletedStatusIsPreserved() {
@@ -1257,6 +1265,7 @@ class UpgradeVersion : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "Upgrade", backendClient)
         }
 
         step("Team owner adds Member 1 and Member 2 to the team") {
@@ -1374,7 +1383,7 @@ class UpgradeVersion : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4570")
+    @TestCaseId("TC-12648")
     @Category("regression", "RC", "upgrade")
     @Test
     fun givenDeletedGroupConversation_whenUpgradingWire_thenConversationRemainsDeleted() {
@@ -1387,6 +1396,7 @@ class UpgradeVersion : BaseUiTest() {
                 backendClient,
                 context
             )
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "Upgrade", backendClient)
         }
 
         step("Team owner adds Member 1 and Member 2 to the team") {
@@ -1414,15 +1424,6 @@ class UpgradeVersion : BaseUiTest() {
             }
         }
 
-        step("Team owner has group conversation HappyUpgrade with Member 1 and Member 2") {
-            backendSetupHelper.userHasGroupConversationInTeam(
-                "user1Name",
-                "HappyUpgrade",
-                "user2Name,user3Name",
-                "Upgrade"
-            )
-        }
-
         step("Member 1 has a 1:1 conversation with Member 2") {
             backendSetupHelper.userHas1on1ConversationInTeam(
                 "user2Name",
@@ -1436,6 +1437,15 @@ class UpgradeVersion : BaseUiTest() {
                 "user2Name",
                 "user1Name",
                 "Upgrade"
+            )
+        }
+
+        step("Team owner has group conversation HappyUpgrade with Member 1 and Member 2") {
+            testServiceHelper.userCreatesMLSGroupConversation(
+                ownerAlias = "user1Name",
+                participantAliases = "user2Name,user3Name",
+                conversationName = "HappyUpgrade",
+                deviceName = "Device1"
             )
         }
 

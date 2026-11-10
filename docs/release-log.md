@@ -63,7 +63,7 @@ To write the record by hand from the QA step environment, run `make release-log/
 
 The reporter reads the QA record of the run and checks it against the GitHub run: repository, run ID, attempt, and workflow. It does not require the tests commit to equal the run commit. It ignores artifacts of other attempts. It treats the record as data and drops a report link that is not on the repository's GitHub Pages site.
 
-It then looks for the production build that made the tested APK. It lists the production runs from the 90 days before the regression and reads each attempt's build record. It needs exactly one build with the same APK file name and SHA-256, and a version label that fits the build. Zero matches, several matches, an expired or invalid record, and a listing that cannot finish are all gaps. The word `latest` and the tests commit never identify the APK.
+It then looks for the production build that made the tested APK. It lists the production runs from the 90 days before the regression and reads each attempt's build record. It needs exactly one build with the same APK file name and SHA-256. The digest proves the bytes are the same, so the version label never refuses a match; the label can differ from the release tag and its build number is not the version code. Zero matches, several matches, an expired or invalid record, and a listing that cannot finish are all gaps. The word `latest` and the tests commit never identify the APK.
 
 A regression that matches no build is still reported. It goes to the page for the APK's version label. When the APK has no readable label, it goes to one shared page for unmatched regressions. The `gaps` field then says the regression is not attached to a build page, and the entry has no `buildRunUrl`.
 

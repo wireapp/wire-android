@@ -393,22 +393,13 @@ def _label_parts(label):
     return match.groups() if match else None
 
 
-def _version_compatible(label, build):
-    """A label that names another version or build number is not evidence for this build."""
-    if label is None:
-        return True
-    parts = _label_parts(label)
-    if parts is None or parts[0] != contract.release_version(build["tag"]):
-        return False
-    return parts[1] is None or int(parts[1]) == build["version_code"]
-
-
 def match_production_build(qa, manifests, unverified=()):
     """Find the one production build that produced the tested APK.
 
     `manifests` holds verified build records. `unverified` lists the reasons the enumeration of production
     builds is incomplete. The result has the matched `origin` and `release_version`, or a `gap` that says why
-    there is no match. The requested `latest` and the tests commit never identify the APK.
+    there is no match. The digest and file name identify the APK. The version label is display only and never
+    vetoes a match. The requested `latest` and the tests commit never identify the APK.
     """
     result = {"origin": None, "release_version": None, "gap": None}
     apk = qa.get("apk") if isinstance(qa, dict) else None
@@ -422,11 +413,9 @@ def match_production_build(qa, manifests, unverified=()):
             and build.get("flavor") == "Prod"
             and any(item.get("filename") == apk["filename"] and item.get("sha256") == apk["sha256"]
                     for item in build.get("apks", []))]
-    matches = [build for build in same if _version_compatible(apk["resolved_version_label"], build)]
+    matches = same
     if len(matches) > 1:
         result["gap"] = "more than one production build has this APK digest and file name"
-    elif same and not matches:
-        result["gap"] = "the tested APK version label disagrees with the production build"
     elif not matches:
         result["gap"] = ("no production build from the preceding %d days has this APK digest and file name"
                          % ORIGIN_WINDOW_DAYS)

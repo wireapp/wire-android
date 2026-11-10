@@ -1388,20 +1388,49 @@ class MatchProductionBuildTest(unittest.TestCase):
         context = fixture("context")
         self.assertIsNone(self.match(manifests=[context])["origin"])
 
-    def test_version_metadata_must_be_compatible(self):
-        cases = [("4.38.0", True), ("4.38.0-71402", True), (None, True), ("4.38.0-71999", False),
-                 ("4.37.0", False), ("4.38.0-beta.2", False), ("latest", False), ("", False)]
-        for label, ok in cases:
+    def real(self, name, label, tag, version_name, version_code, sha=APK_SHA):
+        apk = {"filename": name, "sha256": sha, "resolved_version_label": label}
+        build = prod_build(tag=tag, version_name=version_name, version_code=version_code,
+                           apks=[{"filename": name, "sha256": sha}])
+        return apk, build
+
+    def test_a_real_label_and_version_code_do_not_veto_a_digest_match(self):
+        name = "com.wire.android-v4.38.0-50841-prod-compatrelease.apk"
+        apk, build = self.real(name, "4.38.0-50841", "v4.38.0", "4.38.0", 100250841)
+        result = self.match(qa=qa_record(apk=apk), manifests=[build])
+        self.assertEqual((result["release_version"], result["gap"]), ("4.38.0", None))
+
+    def test_a_label_that_names_another_version_than_the_tag_still_matches(self):
+        name = "com.wire.android-v4.36.0-43922-prod-compatrelease.apk"
+        apk, build = self.real(name, "4.36.0-43922", "v4.36.2", "4.36.0", 100243922)
+        result = self.match(qa=qa_record(apk=apk), manifests=[build])
+        self.assertEqual((result["release_version"], result["gap"]), ("4.36.2", None))
+
+    def test_any_label_cannot_refuse_a_digest_and_file_name_match(self):
+        for label in [None, "latest", "", "4.37.0", "4.38.0-beta.2", "4.38.0-71999"]:
             with self.subTest(label=label):
                 qa = qa_record(apk=dict(qa_record()["apk"], resolved_version_label=label))
-                result = self.match(qa=qa)
-                self.assertEqual(result["origin"] is not None, ok)
-                if not ok:
-                    self.assertIn("version", result["gap"])
+                self.assertEqual(self.match(qa=qa)["release_version"], "4.38.0")
 
-    def test_a_requested_latest_never_identifies_the_apk(self):
-        qa = qa_record(apk=dict(qa_record()["apk"], resolved_version_label="latest"))
-        self.assertIsNone(self.match(qa=qa)["origin"])
+    def test_the_same_name_with_another_digest_is_a_gap(self):
+        name = "com.wire.android-v4.38.0-50841-prod-compatrelease.apk"
+        apk, build = self.real(name, "4.38.0-50841", "v4.38.0", "4.38.0", 100250841, sha="ee" * 32)
+        build["apks"] = [{"filename": name, "sha256": APK_SHA}]
+        result = self.match(qa=qa_record(apk=apk), manifests=[build])
+        self.assertIsNone(result["origin"])
+        self.assertIn("no production build", result["gap"])
+
+    def test_the_same_digest_with_another_name_is_a_gap(self):
+        apk, build = self.real("com.wire.android-v4.38.0-50841-prod-compatrelease.apk", "4.38.0-50841",
+                               "v4.38.0", "4.38.0", 100250841)
+        build["apks"] = [{"filename": "com.wire.android-v4.38.0-50842-prod-compatrelease.apk", "sha256": APK_SHA}]
+        self.assertIsNone(self.match(qa=qa_record(apk=apk), manifests=[build])["origin"])
+
+    def test_an_unmatched_digest_gets_the_gap_text_and_is_not_a_skip(self):
+        other = qa_record(apk=dict(qa_record()["apk"], sha256="ee" * 32))
+        result = self.match(qa=other)
+        self.assertIsNone(result["origin"])
+        self.assertIn("no production build from the preceding", result["gap"])
 
     def test_a_missing_record_or_apk_cannot_match(self):
         self.assertIsNone(self.match(qa=qa_record(apk=None))["origin"])

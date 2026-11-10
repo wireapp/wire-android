@@ -1182,6 +1182,7 @@ Ez a beállítás az összes beszélgetésre érvényes ezen az eszközön.</str
     <string name="cancel_login_button_label">Mégsem</string>
     <string name="cancel_login_dialog_description">Ha mégsem lép be, kijelentkezve marad.</string>
     <string name="cancel_login_dialog_title">Biztos benne, hogy mégsem lép be?</string>
+    <!-- Restart App dialog -->
     <!-- Analytics Usage dialog -->
     <string name="analytics_usage_dialog_title">Hozzájárulás a felhasználási adatok megosztásához</string>
     <string name="analytics_usage_dialog_text">Segítse a Wire fejlesztését felhasználási adatai álnéven történő megosztásával. Az adatállomány az Ön személyes adataival nincs összekapcsolva, és a Wire Group-on kívüli harmadik féllel sem kerül megosztásra. Tartalmazza például az egyes funkciók használatának gyakoriságát, az alkalmazás verzióját, az eszköz típusát és operációs rendszerét. Az adatok legkésőbb 365 nap után törlésre kerülnek.\n\nTovábbi részletek az Adatvédelmi Szabályzatban. Hozzájárulását bármikor visszavonhatja.</string>

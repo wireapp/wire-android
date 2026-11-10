@@ -46,6 +46,7 @@ import com.wire.android.feature.analytics.model.AnalyticsEvent
 import com.wire.android.feature.analytics.model.AnalyticsSettings
 import com.wire.android.navigation.runtime.WireNavigationDiagnostics
 import com.wire.android.notification.DriveUploadNotificationManager
+import com.wire.android.services.OfflineDownloadServiceLauncher
 import com.wire.android.util.AppNameUtil
 import com.wire.android.util.CurrentScreenManager
 import com.wire.android.util.DataDogLogger
@@ -122,6 +123,9 @@ class WireApplication : BaseApp() {
     lateinit var driveUploadNotificationManager: Lazy<DriveUploadNotificationManager>
 
     @Inject
+    lateinit var offlineDownloadServiceLauncher: Lazy<OfflineDownloadServiceLauncher>
+
+    @Inject
     lateinit var workManager: WorkManager
 
     override val workManagerConfiguration: Configuration
@@ -131,6 +135,18 @@ class WireApplication : BaseApp() {
             .build()
 
     override fun onCreate() {
+        // The :restart helper only replaces the main process. Avoid initializing DI, sync, and databases there.
+        val processName = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            getProcessName()
+        } else {
+            (getSystemService(ACTIVITY_SERVICE) as android.app.ActivityManager).runningAppProcesses
+                ?.firstOrNull { it.pid == android.os.Process.myPid() }
+                ?.processName
+        }
+        if (processName == "$packageName:restart") {
+            super.onCreate()
+            return
+        }
         val startupAt = SystemClock.elapsedRealtime()
         traceStartup("application.onCreate.begin")
         appGraph.inject(this)
@@ -169,6 +185,11 @@ class WireApplication : BaseApp() {
             launch {
                 traceStartup("deferred.driveUploadNotification.observe.start")
                 driveUploadNotificationManager.value.observeAndNotify()
+            }
+
+            launch {
+                traceStartup("deferred.offlineDownloadService.observe.start")
+                offlineDownloadServiceLauncher.value.observe()
             }
 
             launch {

@@ -48,6 +48,10 @@ class ReporterWorkflowTest(unittest.TestCase):
             with self.subTest(trigger=trigger):
                 self.assertNotRegex(self.text.split("jobs:")[0], r"(?m)^  " + trigger)
 
+    def test_it_also_runs_when_the_production_workflow_completes(self):
+        listed = re.search(r"workflows: \[(.*)\]", self.text).group(1)
+        self.assertEqual(re.findall(r'"([^"]+)"', listed), ["Beta release", "Production"])
+
     def test_every_listed_workflow_name_exists(self):
         listed = re.search(r"workflows: \[(.*)\]", self.text).group(1)
         names = {path.read_text().split("\n", 1)[0].replace("name:", "").strip().strip('"')

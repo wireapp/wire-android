@@ -3,7 +3,7 @@ run-name: "Release log run ${{ github.event.workflow_run.id || inputs.run_id }}"
 
 on:
   workflow_run:
-    workflows: ["Beta release"]
+    workflows: ["Beta release", "Production"]
     types: [completed]
   workflow_dispatch:
     inputs:

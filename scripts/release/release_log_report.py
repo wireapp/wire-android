@@ -24,12 +24,17 @@ ARCHIVE_LIMIT = 5 * 1024 * 1024
 RESPONSE_LIMIT = 10 * 1024 * 1024
 API_TIMEOUT = 30
 
-WORKFLOW_KINDS = {".github/workflows/build-beta.yml": "beta"}
-BUILD_FLAVORS = {"beta": "Beta"}
-ELIGIBLE_EVENTS = {"beta": ("push",)}
+WORKFLOW_KINDS = {".github/workflows/build-beta.yml": "beta", ".github/workflows/build-production.yml": "production"}
+BUILD_FLAVORS = {"beta": "Beta", "production": "Prod"}
+ELIGIBLE_EVENTS = {"beta": ("push",), "production": ("release",)}
+# The reusable build workflow that owns each kind's build and deployment jobs, and the flavor its
+# deployment groups must name. A workflow that calls the build twice, like Production, also runs
+# an F-Droid pipeline whose jobs have the same names.
+PIPELINES = {"beta": ("build", None), "production": ("build-production", "Prod")}
 
-_RELEASE_JOB = re.compile(r"Validate |Build [A-Za-z0-9]+-[A-Za-z0-9]+|[Dd]eploy|Publish ")
-_UNSAFE_NAME = re.compile(r"[^A-Za-z0-9 ._()\[\]:,-]")
+_RELEASE_JOB = re.compile(r"Validate |validate-release$|Build [A-Za-z0-9]+-[A-Za-z0-9]+|[Dd]eploy|Publish ")
+_AGGREGATE_JOB = "deployment-summary"
+_UNSAFE_NAME = re.compile(r"[^A-Za-z0-9 ._()\[\]:,/+-]")
 _BUILD_JOB = re.compile(r"Build [A-Za-z0-9]+-[A-Za-z0-9]+")
 CONTEXT_JOB = "Export release log context"
 
@@ -130,8 +135,19 @@ def _paginate(api, path, key):
     raise CollectionError("GitHub results were not fully enumerated")
 
 
-def _leaf(name):
-    return name.rsplit(" / ", 1)[-1] if isinstance(name, str) else ""
+def _release_leaf(kind, name):
+    """Return the job's own name when it belongs to this kind's release, else None."""
+    if not isinstance(name, str):
+        return None
+    parts = name.split(" / ")
+    if len(parts) == 1:
+        return name
+    pipeline, flavor = PIPELINES[kind]
+    if parts[0] != pipeline:
+        return None
+    if len(parts) == 3 and flavor and not parts[1].startswith("deploy (%s," % flavor):
+        return None
+    return parts[-1]
 
 
 def _validate_run(run, repository, run_id, run_attempt):
@@ -163,12 +179,14 @@ def _is_release_run(run, kind):
     return True
 
 
-def _release_jobs(jobs):
+def _release_jobs(jobs, kind):
     entries = []
     for entry in jobs:
         if not isinstance(entry, dict) or not isinstance(entry.get("name"), str):
             continue
-        leaf = _leaf(entry["name"])
+        leaf = _release_leaf(kind, entry["name"])
+        if leaf is None or leaf == _AGGREGATE_JOB:
+            continue
         name = " ".join(_UNSAFE_NAME.sub("", leaf).split())
         if name and _RELEASE_JOB.match(leaf):
             conclusion = entry.get("conclusion")
@@ -288,8 +306,8 @@ def collect_event(repository, run_id, run_attempt, api=None):
 def _assemble(api, repository, run, path, kind, all_jobs, artifacts):
     run_id, attempt, conclusion = run["id"], run["run_attempt"], run["conclusion"]
     flavor = BUILD_FLAVORS[kind]
-    jobs = _release_jobs(all_jobs)
-    leaves = [_leaf(entry.get("name")) for entry in all_jobs if isinstance(entry, dict)]
+    jobs = _release_jobs(all_jobs, kind)
+    leaves = [_release_leaf(kind, entry.get("name")) or "" for entry in all_jobs if isinstance(entry, dict)]
     gaps, incomplete = [], False
 
     context, reason = _load_export(api, artifacts, "release-log-context-%d-%d" % (run_id, attempt),

@@ -57,7 +57,7 @@ class ConferenceCallingRestrictionTests : BaseCallUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4277", "TC-4285", "TC-4276", "TC-4280")
+    @TestCaseId("TC-12411", "TC-12418", "TC-12410", "TC-12414")
     @Category("regression", "RC", "conferenceRestrictions")
     @Test
     fun givenIAmATeamMemberOfNonPayingTeam_whenIInitiateConferenceCall_thenISeeUpgradeInfoDialog() {
@@ -234,7 +234,7 @@ class ConferenceCallingRestrictionTests : BaseCallUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4281", "TC-4283", "TC-4284", "TC-4288")
+    @TestCaseId("TC-12415", "TC-12416", "TC-12417", "TC-12421")
     @Category("regression", "RC", "conferenceRestrictions")
     @Test
     fun givenIAmATeamAdminOfNonPayingTeam_whenIInitiateConferenceCall_thenISeeUpgradeInfoDialog() {
@@ -462,7 +462,7 @@ class ConferenceCallingRestrictionTests : BaseCallUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4278", "TC-4279")
+    @TestCaseId("TC-12412", "TC-12413")
     @Category("regression", "RC", "conferenceRestrictions")
     @Test
     fun givenIAmAPersonalUserOutsidePayingTeam_whenIInitiateConferenceCall_thenISeeFeatureUnavailableAlert() {
@@ -599,7 +599,7 @@ class ConferenceCallingRestrictionTests : BaseCallUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4286", "TC-4289")
+    @TestCaseId("TC-12419", "TC-12422")
     @Category("regression", "RC", "conferenceRestrictions")
     @Test
     fun givenIAmAPersonalGuestOutsidePayingTeam_whenIJoinAndInitiateConferenceCall_thenICanJoinButCannotInitiate() {
@@ -825,7 +825,7 @@ class ConferenceCallingRestrictionTests : BaseCallUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4287")
+    @TestCaseId("TC-12420")
     @Category("regression", "RC", "conferenceRestrictions")
     @Test
     fun givenIAmPersonalUserOutsidePayingTeam_whenIJoinConferenceThroughGuestLink_thenICanJoinButCannotInitiate() {
@@ -1056,7 +1056,7 @@ class ConferenceCallingRestrictionTests : BaseCallUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4290", "TC-4291")
+    @TestCaseId("TC-12423", "TC-12424")
     @Category("regression", "RC", "conferenceRestrictions")
     @Test
     fun givenIAmTeamMemberOfNonPayingTeam_whenIInitiateCallWithOneParticipant_thenAudioAndVideoCallCanBeCompleted() {
@@ -1202,7 +1202,7 @@ class ConferenceCallingRestrictionTests : BaseCallUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4292")
+    @TestCaseId("TC-12425")
     @Category("regression", "RC", "conferenceRestrictions")
     @Test
     fun givenIAmTeamOwnerOfNonPayingTeam_whenIInitiateGroupCall_thenUpgradeToEnterpriseAlertIsDisplayed() {
@@ -1317,7 +1317,7 @@ class ConferenceCallingRestrictionTests : BaseCallUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4293")
+    @TestCaseId("TC-12426")
     @Category("regression", "RC", "conferenceRestrictions")
     @Test
     fun givenIAmNonPayingTeamMember_whenIInitiateAudioOrVideoCallInGroupWithOneParticipant_thenFeatureUnavailableAlertIsDisplayed() {
@@ -1429,7 +1429,7 @@ class ConferenceCallingRestrictionTests : BaseCallUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4294")
+    @TestCaseId("TC-12427")
     @Category("regression", "RC", "conferenceRestrictions")
     @Test
     fun givenIAmPersonalUser_whenIInitiateAudioOrVideoCallInGroupWithOneParticipant_thenFeatureUnavailableAlertIsDisplayed() {

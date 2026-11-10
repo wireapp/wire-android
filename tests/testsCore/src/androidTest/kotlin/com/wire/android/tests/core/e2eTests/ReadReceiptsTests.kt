@@ -45,7 +45,7 @@ class ReadReceiptsTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4488")
+    @TestCaseId("TC-12571")
     @Category("regression", "RC", "readReceipts")
     @Test
     fun givenOneOnOneConversation_whenMemberReadsMyMessage_thenISeeTheirReadReceiptInMessageDetails() {
@@ -141,7 +141,7 @@ class ReadReceiptsTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4489")
+    @TestCaseId("TC-12572")
     @Category("regression", "RC", "readReceipts")
     @Test
     fun givenOneOnOneConversation_whenIReadAMessage_thenSenderSeesMyReadReceipt() {
@@ -298,7 +298,7 @@ class ReadReceiptsTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4492")
+    @TestCaseId("TC-12575")
     @Category("regression", "RC", "readReceipts")
     @Test
     fun givenReadReceiptsAreTurnedOff_whenIReadAMessage_thenSenderDoesNotSeeMyReadReceipt() {
@@ -489,7 +489,7 @@ class ReadReceiptsTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4490")
+    @TestCaseId("TC-12573")
     @Category("regression", "RC", "readReceipts")
     @Test
     fun givenGroupConversation_whenMembersReadMyMessage_thenISeeTheirReadReceiptsInMessageDetails() {
@@ -610,7 +610,7 @@ class ReadReceiptsTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4491")
+    @TestCaseId("TC-12574")
     @Category("regression", "RC", "readReceipts")
     @Test
     fun givenGroupConversation_whenIReadAMessage_thenSenderSeesMyReadReceiptAlongsideOtherMembers() {

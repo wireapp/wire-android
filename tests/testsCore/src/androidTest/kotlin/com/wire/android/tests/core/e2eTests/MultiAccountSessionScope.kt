@@ -46,7 +46,7 @@ class MultiAccountSessionScope : BaseUiTest() {
         device = UiAutomatorSetup.start(UiAutomatorSetup.APP_ALPHA)
     }
 
-    @TestCaseId("TC-11259")
+    @TestCaseId("TC-12761")
     @Category("regression", "RC", "multiAccountSessionScope")
     @Test
     fun givenLoggedInAccount_whenSecondAccountHitsTooManyDevicesAndLoginIsCancelled_thenPreviousSessionIsRestored() {
@@ -85,7 +85,7 @@ class MultiAccountSessionScope : BaseUiTest() {
         }
     }
 
-    @TestCaseId("TC-11260")
+    @TestCaseId("TC-12762")
     @Category("regression", "RC", "multiAccountSessionScope")
     @Test
     fun givenTwoLoggedInAccounts_whenSwitchingFromProfile_thenConversationListUsesSelectedSession() {
@@ -121,7 +121,7 @@ class MultiAccountSessionScope : BaseUiTest() {
         }
     }
 
-    @TestCaseId("TC-11261")
+    @TestCaseId("TC-12763")
     @Category("regression", "RC", "multiAccountSessionScope")
     @Test
     fun givenSingleLoggedInAccount_whenCurrentClientIsRemovedAndUserLogsInAgain_thenMlsSessionIsRestored() {
@@ -208,7 +208,7 @@ class MultiAccountSessionScope : BaseUiTest() {
         }
     }
 
-    @TestCaseId("TC-11262")
+    @TestCaseId("TC-12764")
     @Category("regression", "RC", "multiAccountSessionScope")
     @Test
     fun givenTwoLoggedInAccounts_whenCurrentClientIsRemovedRemotely_thenNextSessionIsRestored() {
@@ -238,7 +238,7 @@ class MultiAccountSessionScope : BaseUiTest() {
         }
     }
 
-    @TestCaseId("TC-11263")
+    @TestCaseId("TC-12765")
     @Category("regression", "RC", "multiAccountSessionScope")
     @Test
     fun givenTwoLoggedInAccounts_whenLoggingOutCurrentAccount_thenNextSessionIsRestored() {
@@ -270,7 +270,7 @@ class MultiAccountSessionScope : BaseUiTest() {
         }
     }
 
-    @TestCaseId("TC-11264")
+    @TestCaseId("TC-12766")
     @Category("regression", "RC", "multiAccountSessionScope")
     @Test
     fun givenNoLoggedInAccount_whenLoginHitsTooManyDevicesAndIsCancelled_thenLoginScreenOpens() {
@@ -293,7 +293,7 @@ class MultiAccountSessionScope : BaseUiTest() {
         }
     }
 
-    @TestCaseId("TC-11265", "TC-4322")
+    @TestCaseId("TC-12767", "TC-12454")
     @Category("regression", "RC", "multiAccountSessionScope")
     @Test
     fun givenNoLoggedInAccount_whenRemovingDeviceFromTooManyDevices_thenLoginCompletes() {

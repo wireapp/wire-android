@@ -105,3 +105,14 @@ allure serve allure-results/allure-results
 - Failed tests with screenshot
 - Tags (TestCaseId, Category, feature:value)
 - Only executed tests (no noise)
+
+## Testiny reporting
+
+`@TestCaseId` values refer to **Wire-Prism (project 17)**. The original Android
+IDs are retained in Testiny's `OLD_ID` field; local filters use the new Prism IDs.
+
+Local reporting is off unless configured. To enable it, supply
+`testinyProjectName=Wire-Prism`, `testinyRunName` and `testinyApiKey` as
+instrumentation arguments. Use a key authorized for Wire-Prism and a separate
+validation run when checking the integration. Keep credentials out of committed
+files and terminal output.

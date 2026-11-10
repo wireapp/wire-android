@@ -1777,6 +1777,7 @@ class CellViewModelTest {
             )
         }
 
+        @Suppress("LongMethod")
         fun arrange(): Pair<Arrangement, CellViewModel> {
 
             every { fileHelper.getExternalFilesDir() } returns createTempDirectory("cells-view-model-test").toFile()

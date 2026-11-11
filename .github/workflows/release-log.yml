@@ -1,0 +1,72 @@
+name: "Release log"
+run-name: "Release log run ${{ github.event.workflow_run.id || inputs.run_id }}"
+
+on:
+  workflow_run:
+    workflows: ["Beta release"]
+    types: [completed]
+  workflow_dispatch:
+    inputs:
+      run_id:
+        description: "ID of the completed workflow run to report"
+        required: true
+        type: string
+      run_attempt:
+        description: "Attempt number of that run"
+        required: false
+        default: "1"
+        type: string
+      dry_run:
+        description: "Build the entry and the preview, but send nothing"
+        required: false
+        default: false
+        type: boolean
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: release-log-${{ github.event.workflow_run.id || inputs.run_id }}-${{ github.event.workflow_run.run_attempt || inputs.run_attempt }}
+  cancel-in-progress: false
+
+jobs:
+  report:
+    name: Report to the release log
+    if: github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: release-log
+    steps:
+      - name: Checkout
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
+        with:
+          persist-credentials: false
+
+      - name: Collect release evidence
+        id: collect
+        continue-on-error: true
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          RUN_ID: ${{ github.event.workflow_run.id || inputs.run_id }}
+          RUN_ATTEMPT: ${{ github.event.workflow_run.run_attempt || inputs.run_attempt }}
+        run: |
+          set -euo pipefail
+          [[ "$RUN_ID" =~ ^[1-9][0-9]*$ && "$RUN_ATTEMPT" =~ ^[1-9][0-9]*$ ]] || { echo "Invalid run ID or attempt"; exit 1; }
+          mkdir -p release-log
+          make release-log/collect run_id="$RUN_ID" run_attempt="$RUN_ATTEMPT" output=release-log/payload.json
+
+      - name: Publish to the release log
+        if: always() && hashFiles('release-log/payload.json') != ''
+        env:
+          RELEASE_LOG_WEBHOOK_URL: ${{ secrets.RELEASE_LOG_WEBHOOK_URL }}
+          RELEASE_LOG_WEBHOOK_TOKEN: ${{ secrets.RELEASE_LOG_WEBHOOK_TOKEN }}
+          RELEASE_LOG_PUBLICATION_ENABLED: ${{ vars.RELEASE_LOG_PUBLICATION_ENABLED }}
+          DRY_RUN: ${{ inputs.dry_run && '1' || '' }}
+        run: make release-log/publish payload=release-log/payload.json summary="$GITHUB_STEP_SUMMARY" dry_run="$DRY_RUN"
+
+      - name: Fail when the evidence is incomplete
+        if: steps.collect.outcome == 'failure'
+        run: |
+          echo "The evidence was incomplete or could not be collected. Read the collect step."
+          exit 1

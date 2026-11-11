@@ -257,6 +257,13 @@ def _command(arguments):
                                _env(environ, "ALLURE_REPORT_URL") or None)
     if record is None:
         print("Release log: not a production regression, no record written")
+        skip_output = _env(environ, "RELEASE_LOG_SKIP_OUTPUT")
+        if skip_output:
+            marker = contract.skip_marker(context["repository"],
+                                          contract.parse_positive(str(context["run_id"]), "run_id"),
+                                          contract.parse_positive(str(context["run_attempt"]), "run_attempt"))
+            Path(skip_output).parent.mkdir(parents=True, exist_ok=True)
+            contract.write_json(skip_output, marker)
         return 0
     output.parent.mkdir(parents=True, exist_ok=True)
     contract.write_json(output, record)

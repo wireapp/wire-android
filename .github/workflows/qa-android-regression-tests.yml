@@ -1188,6 +1188,7 @@ jobs:
         env:
           RELEASE_LOG_OUTPUT: ${{ runner.temp }}/release-log-qa/evidence.json
           RELEASE_LOG_RUN_MODE: deflake
+          RELEASE_LOG_SKIP_OUTPUT: ${{ runner.temp }}/release-log-qa-skip/skip.json
           DEFLAKE_BUNDLE_ROOT: ${{ runner.temp }}/deflake-input
           DEFLAKE_BUNDLE_DIR: ${{ runner.temp }}/deflake-input-next
           RERUN_FAILED_COUNT: ${{ needs.validate-and-resolve-inputs.outputs.resolvedRerunFailedCount }}
@@ -1207,6 +1208,17 @@ jobs:
         with:
           name: release-log-qa-${{ github.run_id }}-${{ github.run_attempt }}
           path: ${{ runner.temp }}/release-log-qa/evidence.json
+          retention-days: 90
+          if-no-files-found: ignore
+
+      # A deflake of a run of another flavor is not a production regression. The export step writes the marker.
+      - name: Upload release log skip marker
+        if: ${{ !cancelled() }}
+        continue-on-error: true
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: release-log-qa-skip-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/release-log-qa-skip/skip.json
           retention-days: 90
           if-no-files-found: ignore
 

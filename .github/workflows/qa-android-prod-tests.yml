@@ -91,10 +91,11 @@ permissions:
   contents: read
 
 jobs:
-  # A run of another flavor is not a production regression. This job marks it early, so a cancelled run or a
-  # failure before the in-job export is not mistaken for a lost production record.
+  # A normal run of another flavor is not a production regression. This job marks it early, so a cancelled run or a
+  # failure before the in-job export is not mistaken for a lost production record. A deflake reuses the flavor of
+  # its source run, so its own export step writes the marker instead.
   release-log-skip-marker:
-    if: inputs.flavor != 'production'
+    if: inputs.runMode != 'Deflake failed tests' && inputs.flavor != 'production'
     runs-on: ubuntu-latest
     timeout-minutes: 5
     continue-on-error: true

@@ -19,6 +19,7 @@ from test_release_log_workflow import run_bodies
 QA = ".github/workflows/qa-android-regression-tests.yml"
 EXPORT_STEP = "Export release log QA record"
 UPLOAD_STEP = "Upload release log QA record"
+SKIP_UPLOAD_STEP = "Upload release log skip marker"
 SUMMARIZE = "Summarize merged Allure results"
 CLEANUP = "Cleanup (remove secrets + build outputs)"
 SUMMARY_OUTPUTS = ["passed", "failed", "skipped", "missing", "selected", "total"]
@@ -94,11 +95,26 @@ class QaExportStepsTest(unittest.TestCase):
                 self.assertIn("retention-days: 90", block)
                 self.assertIn("if-no-files-found: ignore", block)
 
-    def test_the_execution_jobs_write_no_skip_marker(self):
-        for name, _, job in self.jobs():
-            with self.subTest(job=name):
-                self.assertNotIn("release-log-qa-skip", job)
-                self.assertNotIn("skip.json", job)
+    def test_the_normal_job_writes_no_skip_marker(self):
+        normal = job_block(self.text, "run-android-ui-tests")
+        self.assertNotIn("release-log-qa-skip", normal)
+        self.assertNotIn("skip.json", normal)
+        self.assertNotIn("RELEASE_LOG_SKIP_OUTPUT", normal)
+
+    def test_the_deflake_job_writes_and_uploads_the_marker_for_a_bundle_of_another_flavor(self):
+        deflake = job_block(self.text, "run-manual-deflake")
+        export = step_block(deflake, EXPORT_STEP)
+        self.assertIn("RELEASE_LOG_SKIP_OUTPUT: ${{ runner.temp }}/release-log-qa-skip/skip.json", export)
+        block = step_block(deflake, SKIP_UPLOAD_STEP)
+        self.assertIn(UPLOAD, block)
+        self.assertIn("name: release-log-qa-skip-${{ github.run_id }}-${{ github.run_attempt }}", block)
+        self.assertIn("path: ${{ runner.temp }}/release-log-qa-skip/skip.json", block)
+        self.assertIn("retention-days: 90", block)
+        self.assertIn("if-no-files-found: ignore", block)
+        self.assertIn("continue-on-error: true", block)
+        self.assertIn("if: ${{ !cancelled() }}", block)
+        order = [step_index(deflake, step) for step in (EXPORT_STEP, SKIP_UPLOAD_STEP, CLEANUP)]
+        self.assertEqual(order, sorted(order))
 
     def test_the_new_steps_use_no_secrets_and_no_expressions_in_shell(self):
         for name, _, job in self.jobs():
@@ -159,8 +175,8 @@ class EarlySkipMarkerJobTest(unittest.TestCase):
         self.assertIn("permissions:\n      contents: read", self.job)
         self.assertNotIn("secrets.", self.job)
 
-    def test_the_job_runs_only_for_a_flavor_other_than_production(self):
-        self.assertIn("if: inputs.flavor != 'production'", self.job)
+    def test_the_job_runs_only_for_a_normal_run_of_a_flavor_other_than_production(self):
+        self.assertIn("if: inputs.runMode != 'Deflake failed tests' && inputs.flavor != 'production'", self.job)
         self.assertIn("flavor:", self.text.split("jobs:")[0])
 
     def test_the_job_writes_the_marker_with_the_make_target_and_uploads_it_for_90_days(self):
@@ -196,17 +212,38 @@ class EarlySkipMarkerJobTest(unittest.TestCase):
 class ArtifactNamesAreUniquePerRunTest(unittest.TestCase):
     """upload-artifact fails on a second upload of one name inside a run."""
 
-    def test_no_release_log_artifact_name_can_be_uploaded_twice_in_one_run(self):
+    def uploads(self, run_mode, flavor):
+        """The release log artifact names one run uploads, from the job conditions and the execution job it calls."""
         prod = workflow(PROD)
         qa = workflow("qa-android-regression-tests.yml")
-        prod_names = [name for job in job_names(prod) for name in artifact_names(job_block(prod, job))]
-        shared = [name for job in job_names(qa) if job not in EXECUTION_JOBS for name in artifact_names(job_block(qa, job))]
-        for execution in EXECUTION_JOBS:
-            names = prod_names + shared + artifact_names(job_block(qa, execution))
-            with self.subTest(execution=execution):
+        names = []
+        for job in job_names(prod):
+            condition = re.search(r"^    if: (.+)$", job_block(prod, job), re.MULTILINE)
+            expression = condition.group(1) if condition else "True"
+            expression = expression.replace("inputs.runMode", repr(run_mode)).replace("inputs.flavor", repr(flavor))
+            if eval(expression.replace("&&", " and ")):
+                names += artifact_names(job_block(prod, job))
+        execution = "run-manual-deflake" if run_mode == "Deflake failed tests" else "run-android-ui-tests"
+        names += artifact_names(job_block(qa, execution))
+        names += [name for job in job_names(qa) if job not in EXECUTION_JOBS for name in artifact_names(job_block(qa, job))]
+        return names
+
+    def test_the_execution_jobs_run_for_the_modes_this_test_assumes(self):
+        qa = workflow("qa-android-regression-tests.yml")
+        self.assertIn("resolvedRunMode == 'deflake'", job_block(qa, "run-manual-deflake").split("steps:")[0])
+        self.assertIn("resolvedRunMode == 'normal'", job_block(qa, "run-android-ui-tests").split("steps:")[0])
+
+    def test_no_release_log_artifact_name_can_be_uploaded_twice_in_one_run(self):
+        skip = "release-log-qa-skip-${{ github.run_id }}-${{ github.run_attempt }}"
+        record = "release-log-qa-${{ github.run_id }}-${{ github.run_attempt }}"
+        cases = [("Normal tests", "production", [record]), ("Normal tests", "fdroid", [skip, record]),
+                 ("Deflake failed tests", "production", [record, skip]),
+                 ("Deflake failed tests", "fdroid", [record, skip])]
+        for run_mode, flavor, expected in cases:
+            with self.subTest(run_mode=run_mode, flavor=flavor):
+                names = self.uploads(run_mode, flavor)
                 self.assertEqual(len(names), len(set(names)), names)
-        self.assertEqual(len(prod_names), len(set(prod_names)))
-        self.assertIn("release-log-qa-skip-${{ github.run_id }}-${{ github.run_attempt }}", prod_names)
+                self.assertEqual(sorted(set(names) & set(expected)), sorted(set(expected)))
 
     def test_each_execution_job_uploads_each_name_once(self):
         qa = workflow("qa-android-regression-tests.yml")

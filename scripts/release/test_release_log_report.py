@@ -1106,7 +1106,7 @@ class RegressionApi:
     def __init__(self):
         self.runs, self.jobs, self.artifacts, self.zips = {}, {}, {}, {}
         self.production, self.calls, self.listing_params = [], [], []
-        self.listing_error = None
+        self.listing_error, self.jobs_error = None, None
         self.default_branch = "develop"
 
     def add_run(self, run, jobs=None):
@@ -1155,6 +1155,8 @@ class RegressionApi:
                 key = (run_id, int(parts[3]))
                 if key in self.runs:
                     if len(parts) == 5 and parts[4] == "jobs":
+                        if self.jobs_error and run_id == 1400:
+                            raise self.jobs_error
                         return self.page(self.jobs[key], "jobs", params)
                     if len(parts) == 4:
                         return self.runs[key]
@@ -1609,6 +1611,49 @@ class ProductionEnumerationTest(unittest.TestCase):
         with patch.object(report, "PER_PAGE", 2):
             payload = collect_regression(api)
         self.assertEqual(payload["evidence"]["origin"]["run_id"], 1400)
+
+    def attempt_two_world(self, attempt_two_jobs):
+        api = reg_world(production=False)
+        api.production.append(prod_run(attempt=2))
+        api.add_run(prod_run(attempt=1), [])
+        api.add_run(prod_run(attempt=2), attempt_two_jobs)
+        api.add_artifact(1400, "release-log-build-Prod-1400-1", prod_build(1400, 1))
+        return api
+
+    def test_a_successful_build_without_a_record_leaves_the_attribution_unverified(self):
+        api = self.attempt_two_world([job("build-production / Build Prod-Compatrelease")])
+        payload = collect_regression(api)
+        self.assertIsNone(payload["evidence"]["origin"])
+        self.assertIn("a production build record is missing", " ".join(payload["evidence"]["gaps"]))
+        self.assertIn(UNMATCHED_TEXT, " ".join(payload["evidence"]["gaps"]))
+
+    def test_a_missing_record_of_a_build_that_did_not_succeed_or_did_not_run_is_allowed(self):
+        for jobs in ([job("build-production / Build Prod-Compatrelease", "failure")],
+                     [job("build-production / Build Prod-Compatrelease", "cancelled")],
+                     [job("build-production / Build Prod-Compatrelease", "skipped")],
+                     [job("build-production / deploy (s3)")],
+                     [job("other-pipeline / Build Prod-Compatrelease")], []):
+            with self.subTest(jobs=jobs):
+                payload = collect_regression(self.attempt_two_world(jobs))
+                self.assertEqual(payload["evidence"]["gaps"], [])
+                self.assertEqual(payload["evidence"]["origin"]["run_attempt"], 1)
+
+    def test_an_unreadable_jobs_listing_leaves_the_attribution_unverified(self):
+        api = self.attempt_two_world([])
+        api.jobs_error = report.ApiError("GitHub is unreachable")
+        payload = collect_regression(api)
+        self.assertIsNone(payload["evidence"]["origin"])
+        self.assertIn("could not be fully enumerated", " ".join(payload["evidence"]["gaps"]))
+
+    def test_jobs_are_listed_only_for_attempts_without_a_record(self):
+        api = reg_world()
+        collect_regression(api)
+        self.assertEqual([call for call in api.calls if call.startswith("/repos/%s/actions/runs/1400" % REPO)
+                          and call.endswith("/jobs")], [])
+        api = self.attempt_two_world([])
+        collect_regression(api)
+        self.assertEqual([call for call in api.calls if call.startswith("/repos/%s/actions/runs/1400" % REPO)
+                          and call.endswith("/jobs")], ["/repos/%s/actions/runs/1400/attempts/2/jobs" % REPO])
 
     def test_production_runs_of_other_workflows_or_repositories_are_ignored(self):
         api = reg_world(production=False)

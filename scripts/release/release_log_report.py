@@ -444,6 +444,16 @@ def _check_origin_run(run, repository, run_id, attempt):
         raise CollectionError("The production run does not match the request")
 
 
+def _build_succeeded(api, base, attempt, problem):
+    try:
+        jobs = _paginate(api, "%s/attempts/%d/jobs" % (base, attempt), "jobs")
+    except (ApiError, CollectionError):
+        problem(_UNVERIFIED_LISTING)
+        return False
+    return any(entry["conclusion"] == "success" and _BUILD_JOB.match(entry["name"])
+               for entry in _release_jobs(jobs, "production"))
+
+
 def _production_manifests(api, repository, qa_run):
     """Return the verified production build records of the preceding days and why the list may be incomplete."""
     created = _parse_time(qa_run.get("created_at"))
@@ -482,6 +492,8 @@ def _production_manifests(api, repository, qa_run):
         for attempt in range(1, listed["run_attempt"] + 1):
             name = "release-log-build-Prod-%d-%d" % (listed["id"], attempt)
             if name not in names:
+                if _build_succeeded(api, base, attempt, problem):
+                    problem("a production build record is missing")
                 continue
             try:
                 run = api.get("%s/attempts/%d" % (base, attempt))

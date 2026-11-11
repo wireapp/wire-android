@@ -48,6 +48,10 @@ class ReporterWorkflowTest(unittest.TestCase):
             with self.subTest(trigger=trigger):
                 self.assertNotRegex(self.text.split("jobs:")[0], r"(?m)^  " + trigger)
 
+    def test_it_also_runs_when_the_production_workflow_completes(self):
+        listed = re.search(r"workflows: \[(.*)\]", self.text).group(1)
+        self.assertEqual(re.findall(r'"([^"]+)"', listed), ["Beta release", "Production"])
+
     def test_every_listed_workflow_name_exists(self):
         listed = re.search(r"workflows: \[(.*)\]", self.text).group(1)
         names = {path.read_text().split("\n", 1)[0].replace("name:", "").strip().strip('"')
@@ -115,6 +119,22 @@ class ReporterWorkflowTest(unittest.TestCase):
     def test_only_default_branch_code_gets_the_secrets(self):
         header = self.job.split("steps:")[0]
         self.assertIn("if: github.ref == format('refs/heads/{0}', github.event.repository.default_branch)", header)
+
+
+class PrereleaseSkipTest(unittest.TestCase):
+    def setUp(self):
+        text = (WORKFLOWS / "release-log.yml").read_text()
+        self.condition = re.search(r"(?m)^    if: (.*)$", job_block(text, "report")).group(1)
+
+    def test_production_runs_of_prerelease_tags_are_skipped(self):
+        self.assertRegex(
+            self.condition,
+            r"&& !\(github\.event\.workflow_run\.name == 'Production' "
+            r"&& contains\(github\.event\.workflow_run\.head_branch, '-'\)\)")
+
+    def test_the_default_branch_guard_stays(self):
+        self.assertIn("github.ref == format('refs/heads/{0}', github.event.repository.default_branch)",
+                      self.condition)
 
 
 class MakeEntrypointTest(unittest.TestCase):

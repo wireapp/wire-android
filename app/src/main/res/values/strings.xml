@@ -1257,6 +1257,7 @@
     <!--Settings -->
     <string name="settings_general_label">General</string>
     <string name="settings_account_settings_label">Account Settings</string>
+    <string name="settings_multi_factor_authentication_label">Two-factor Authentication</string>
     <string name="settings_devices_label">Devices</string>
     <string name="settings_backups_label">Backups</string>
     <string name="settings_others_label">OTHERS</string>

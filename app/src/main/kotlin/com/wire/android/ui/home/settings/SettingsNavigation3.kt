@@ -84,6 +84,19 @@ data class PrivacySettingsRoute(
 }
 
 @Serializable
+data class MultiFactorAuthenticationRoute(
+    override val sessionId: WireSessionId,
+    override val entryId: WireNavEntryId = WireNavEntryId.random(),
+) : SessionRoute {
+    override val routeId: String
+        get() = ROUTE_ID
+
+    companion object {
+        const val ROUTE_ID = "app/multi_factor_authentication_screen"
+    }
+}
+
+@Serializable
 data class CustomizationSettingsRoute(
     override val sessionId: WireSessionId,
     override val entryId: WireNavEntryId = WireNavEntryId.random(),

@@ -48,6 +48,9 @@ class SettingsNavigation3Test {
             PrivacySettingsRoute(sessionId, WireNavEntryId("privacy-settings-entry")),
         )
         assertSerializationRoundTrip(
+            MultiFactorAuthenticationRoute(sessionId, WireNavEntryId("multi-factor-authentication-entry")),
+        )
+        assertSerializationRoundTrip(
             CustomizationSettingsRoute(sessionId, WireNavEntryId("customization-settings-entry")),
         )
         assertSerializationRoundTrip(
@@ -99,6 +102,7 @@ class SettingsNavigation3Test {
             AppSettingsRoute(sessionId) to "app/app_settings_screen",
             NetworkSettingsRoute(sessionId) to "app/network_settings_screen",
             PrivacySettingsRoute(sessionId) to "app/privacy_settings_config_screen",
+            MultiFactorAuthenticationRoute(sessionId) to "app/multi_factor_authentication_screen",
             CustomizationSettingsRoute(sessionId) to "app/customization_screen",
             LicensesSettingsRoute(sessionId) to "app/licenses_screen",
             DependenciesSettingsRoute(sessionId) to "app/dependencies_screen",
@@ -126,6 +130,7 @@ class SettingsNavigation3Test {
             SettingsItem.AboutApp to AboutThisAppRoute(sessionId, entryId),
             SettingsItem.NetworkSettings to NetworkSettingsRoute(sessionId, entryId),
             SettingsItem.PrivacySettings to PrivacySettingsRoute(sessionId, entryId),
+            SettingsItem.MultiFactorAuthentication to MultiFactorAuthenticationRoute(sessionId, entryId),
             SettingsItem.Customization to CustomizationSettingsRoute(sessionId, entryId),
             SettingsItem.Licenses to LicensesSettingsRoute(sessionId, entryId),
             SettingsItem.Dependencies to DependenciesSettingsRoute(sessionId, entryId),
@@ -150,6 +155,7 @@ class SettingsNavigation3Test {
             SettingsItem.AboutApp,
             SettingsItem.NetworkSettings,
             SettingsItem.PrivacySettings,
+            SettingsItem.MultiFactorAuthentication,
             SettingsItem.Customization,
             SettingsItem.Licenses,
             SettingsItem.Dependencies,

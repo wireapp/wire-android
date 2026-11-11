@@ -107,7 +107,7 @@ Rerun the remaining failures from a previous run:
 6. Start the run.
 
 The manual deflake ID is the GitHub Actions run ID. It appears when the source
-run exports the `android-ui-test-deflake-input` artifact.
+run prepares its private deflake input bundle.
 
 Deflake reuses the source APKs, flavor, selector, upgrade settings, device
 selection and test-source revision. It runs only the remaining failures and
@@ -116,7 +116,7 @@ the saved source revision supplies `testsCore` and `testsSupport` sources.
 
 A normal or earlier deflake run can be the source, provided it belongs to the
 same workflow on the repository's default branch and completed with success
-or failure. If its artifact is unavailable or there are no remaining failures,
+or failure. If its private bundle is unavailable or there are no remaining failures,
 the workflow stops; it does not silently select an older run. Cancelled and
 timed-out source runs are rejected.
 
@@ -131,9 +131,9 @@ The devices must be able to reach it.
 
 - Normal CI runs use the GitHub Actions variable `TEST_SERVICE_URL`, unless
   `testServiceUrl` is supplied.
-- Deflake uses the source artifact's URL, unless explicitly overridden.
-  Legacy artifacts without a URL require an explicit override.
-- The URL is recorded in the run summary and deflake artifact. It must be an
+- Deflake uses the source bundle's URL, unless explicitly overridden.
+  Legacy bundles without a URL require an explicit override.
+- The URL is recorded in the private deflake bundle. It must be an
   HTTP(S) origin with an optional port; credentials, path prefixes, queries
   and fragments are rejected.
 - Selecting a URL does not deploy or update the test service.
@@ -151,7 +151,7 @@ commands and local Allure reports.
 
 ## Devices and runner setup
 
-Device groups are configured in the repository variable
+Device groups are configured in the Actions secret
 `ANDROID_DEVICE_GROUPS_JSON`. Group names must match its keys exactly,
 and a serial cannot belong to multiple groups.
 
@@ -165,7 +165,7 @@ when `androidDeviceGroup=criticalFlow`:
 
 - AVDs: `critical-flow-1` through `critical-flow-4`.
 - Serials: `emulator-5554`, `emulator-5556`, `emulator-5558`, `emulator-5560`.
-- These four serials must be the `criticalFlow` entries in the group variable.
+- These four serials must be the `criticalFlow` entries in the group secret.
 - CI validates, starts, checks, collects diagnostics from and stops the pool.
   Required runner resources and AVD settings are checked by
   [emulator_pool.py](emulator_pool.py); the workflow does not provision AVDs.
@@ -186,28 +186,60 @@ security boundary.
 
 ## Reports and failure visibility
 
-Each suite publishes its own Allure history on GitHub Pages and sends a report
-link to the QA Wire conversation. Find the link in the workflow summary or
-Wire notification. Normal and deflake runs share the suite's reports page,
-but each run has its own report.
+Each suite transfers original Allure results, screenshots, instrumentation logs,
+emulator diagnostics and deflake inputs to the internal
+[`wireapp/android-e2etest-reports`](https://github.com/wireapp/android-e2etest-reports)
+repository. Its reporting workflow generates the full Allure site through Private
+GitHub Pages. The public Android run and existing Wire notification contain the
+private report link and counts. Instrumentation output is saved to files instead
+of streamed to the public console; diagnostic and deflake artifacts are no longer
+uploaded to the public repository.
 
-Automatic attempts are merged using the latest outcome per logical test.
-A test that later passes is reported as passed and labelled
-`passed_on_rerun=true`. Summaries distinguish initial failures, recovered tests
-and remaining failures. Deflake also reports skipped or missing results;
-missing selected results are not counted as passes.
+Automatic retries remain grouped by logical test. The private report retains all
+attempts and attachments; the existing sanitized local merge is used only for the
+public counts and notification. Raw device serials are retained in the private
+report. Logs are downloadable from its **Execution logs and device information**
+link, compressed as `.gz` files.
 
-Published reports are sanitized: screenshots and other attachments, failure
-messages, stack traces and test parameters are removed, and physical device
-serials are anonymized. A sanitized report alone cannot explain a CI-only
-failure. Keep GitHub Pages access as restricted as the repository supports.
+The private site contains only the most recently published run across all suites.
+Each successful publication replaces the site, so previous report URLs stop
+working. The original private input branches remain available for deflake.
+
+Manual deflake reads its validated source run's `reports/<run-id>-<attempt>` branch
+in the reporting repository. Only runs that successfully transferred a private
+bundle can be used with this path. Older public deflake artifacts are not copied
+or republished by this change; run a new normal suite after rollout to establish
+a private deflake source. Previous public reports, logs and artifacts are not
+removed or rewritten automatically.
+
+### Rollout configuration
+
+1. Merge the reporting repository's publishing workflow first.
+2. In that repository, keep Pages visibility **Private**, and change the Pages
+   publishing source to **GitHub Actions**. Keep the `github-pages` environment
+   restricted to `main`.
+3. Keep `ANDROID_BOB_GH_TOKEN` available to the Android execution jobs. The
+   existing `BOT_LOGIN` and `BOT_ID` repository variables identify Git commits.
+4. Copy the current `ANDROID_DEVICE_GROUPS_JSON` variable value into an Actions
+   secret of the same name, preferably in the existing `android-e2e` environment.
+   The workflow now reads the secret so the full device list is masked in step
+   headers, then registers each selected device ID for subsequent log masking.
+5. Ensure the office runner has `git` and GitHub CLI (`gh`). Setup checks these
+   before running tests. Then merge the Android integration and run one suite.
+
+Publication fails rather than sending evidence to a public Pages site. A failed
+receiver leaves its incoming evidence on the private reporting branch and exposes
+only the receiver's private Actions link in the public run. No runtime
+`secrets.json`, APKs or runner workspace are included in the handoff.
 
 ## Maintainer references
 
 - [validation.sh](validation.sh): input, retry and selector validation.
 - [execution_setup.sh](execution_setup.sh): runner, APK, device and secret setup.
 - [run_ui_tests.sh](run_ui_tests.sh): sharding, instrumentation and retries.
-- [reporting.sh](reporting.sh): Allure publication, deflake bundles and cleanup.
+- [reporting.sh](reporting.sh): sanitized summaries, deflake bundles and cleanup.
+- [handoff_private_report.sh](handoff_private_report.sh) and
+  [prepare_private_report.py](prepare_private_report.py): private evidence transfer.
 - [prepare_testiny_run.py](prepare_testiny_run.py): prepare Prod's shared Testiny run.
 - [validate_source_run.py](validate_source_run.py) and
   [inspect_deflake_bundle.py](inspect_deflake_bundle.py): validate a deflake source.

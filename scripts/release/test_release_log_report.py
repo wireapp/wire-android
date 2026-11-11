@@ -306,6 +306,190 @@ class CollectFailuresTest(unittest.TestCase):
         self.assertEqual(collect(api)["evidence"]["jobs"], [])
 
 
+PROD_PATH = ".github/workflows/build-production.yml"
+PROD_TAG = "v4.38.0"
+PROD_REFS = {PROD_TAG: {"object": {"type": "commit", "sha": SHA}}}
+PROD_GROUP = "deploy (Prod, Compatrelease, public, both, true, s3, google-play, com.wire, production, 0.1, inPr..."
+FDROID_GROUP = "deploy (Fdroid, Compatrelease, public, apk, false, s3)"
+GITHUB_RELEASE = "deploy (github-release, app/build/outputs/version.txt)"
+
+
+def production_run(**changes):
+    values = {"path": PROD_PATH, "head_branch": PROD_TAG, "event": "release"}
+    values.update(changes)
+    return run_metadata(**values)
+
+
+def production_jobs(prod="success", store="success", fdroid="success", validate="success"):
+    pipeline = "build-production / "
+    return [
+        job("validate-release", validate),
+        job(pipeline + "Workflow security analysis"), job(pipeline + "Upload event file"),
+        job("build-fdroid / Upload event file"), job("build-fdroid / Lint"),
+        job(pipeline + "Lint"), job(pipeline + "Unit Tests / coverage"),
+        job("build-fdroid / Build Fdroid-Compatrelease", fdroid),
+        job(pipeline + "Build Prod-Compatrelease", prod),
+        job("Export release log context"),
+        job(pipeline + PROD_GROUP + " / deploy (s3)", prod),
+        job(pipeline + PROD_GROUP + " / " + GITHUB_RELEASE, prod),
+        job(pipeline + PROD_GROUP + " / deploy (google-play, com.wire, production, 0.1, inProgress)", store),
+        job("build-fdroid / " + FDROID_GROUP + " / deploy (s3)", fdroid),
+        job(pipeline + PROD_GROUP + " / deployment-summary", prod),
+        job("build-fdroid / " + FDROID_GROUP + " / deployment-summary", fdroid),
+    ]
+
+
+def production_artifacts(attempt=1):
+    return [("release-log-context-1001-%d" % attempt,
+             evidence_zip(context_record(run_attempt=attempt, workflow_path=PROD_PATH, tag=PROD_TAG,
+                                         event_name="release"))),
+            ("release-log-build-Prod-1001-%d" % attempt,
+             evidence_zip(dict(fixture("build_prod"), run_id=1001, run_attempt=attempt)))]
+
+
+class CollectProductionTest(unittest.TestCase):
+    def test_a_production_run_reports_its_own_jobs_and_build(self):
+        payload = collect(FakeApi(run=production_run(), jobs=production_jobs(), artifacts=production_artifacts()))
+        contract.validate_payload(payload)
+        self.assertEqual((payload["kind"], payload["release_version"], payload["event_id"]),
+                         ("production", "4.38.0", "production:wireapp/wire-android:1001:1"))
+        evidence = payload["evidence"]
+        self.assertEqual(evidence["gaps"], [])
+        self.assertEqual(evidence["build"]["flavor"], "Prod")
+        self.assertEqual(evidence["source"]["workflow_path"], PROD_PATH)
+        self.assertEqual([entry["name"] for entry in evidence["jobs"]], [
+            "validate-release", "Build Prod-Compatrelease", "deploy (s3)", "deploy (github-release, app/build/outputs/version.txt)",
+            "deploy (google-play, com.wire, production, 0.1, inProgress)"])
+        fields = contract.build_fields(payload)
+        self.assertEqual((fields["kind"], fields["result"]), ("Production", "passed"))
+
+    def test_fdroid_jobs_and_the_aggregate_summary_are_not_evidence(self):
+        names = [entry["name"] for entry in collect(
+            FakeApi(run=production_run(), jobs=production_jobs(), artifacts=production_artifacts()))["evidence"]["jobs"]]
+        self.assertEqual(names.count("deploy (s3)"), 1)
+        self.assertNotIn("deployment-summary", names)
+        self.assertFalse([name for name in names if "Fdroid" in name])
+
+    def test_a_failed_fdroid_job_does_not_change_the_production_deployment_results(self):
+        payload = collect(FakeApi(run=production_run(conclusion="failure"), jobs=production_jobs(fdroid="failure"),
+                                  artifacts=production_artifacts()))
+        results = {entry["name"]: entry["conclusion"] for entry in payload["evidence"]["jobs"]}
+        self.assertEqual(set(results.values()), {"success"})
+
+    def test_each_deployment_target_keeps_its_own_result(self):
+        payload = collect(FakeApi(run=production_run(conclusion="failure"), jobs=production_jobs(store="failure"),
+                                  artifacts=production_artifacts()))
+        results = {entry["name"]: entry["conclusion"] for entry in payload["evidence"]["jobs"]}
+        self.assertEqual(results["deploy (google-play, com.wire, production, 0.1, inProgress)"], "failure")
+        self.assertEqual(results["deploy (s3)"], "success")
+        self.assertIn("google-play", contract.build_fields(payload)["deploy"])
+        self.assertIn("deploy (s3): success", contract.build_fields(payload)["deploy"])
+
+    def test_the_version_file_target_name_keeps_its_path(self):
+        payload = collect(FakeApi(run=production_run(), jobs=production_jobs(), artifacts=production_artifacts()))
+        deploy = contract.build_fields(payload)["deploy"]
+        self.assertIn("deploy (github-release, app/build/outputs/version.txt): success", deploy)
+
+    def test_a_failed_validation_is_reported_with_the_original_tag(self):
+        jobs = [job("validate-release", "failure"), job("build-production / Build Prod-Compatrelease", "skipped"),
+                job("Export release log context")]
+        api = FakeApi(run=production_run(conclusion="failure"), jobs=jobs, artifacts=production_artifacts()[:1])
+        payload = collect(api)
+        self.assertEqual(payload["evidence"]["source"]["tag"], PROD_TAG)
+        self.assertEqual(payload["evidence"]["jobs"][0], {"name": "validate-release", "conclusion": "failure"})
+        self.assertEqual(contract.build_fields(payload)["result"], "failed")
+
+    def test_a_failed_production_build_exports_context_and_reports_failed(self):
+        jobs = production_jobs(prod="failure")
+        api = FakeApi(run=production_run(conclusion="failure"), jobs=jobs, artifacts=production_artifacts()[:1])
+        payload = collect(api)
+        self.assertIsNone(payload["evidence"]["build"])
+        self.assertEqual(payload["evidence"]["gaps"], ["No build record: the build produced no APK"])
+        self.assertEqual(payload["evidence"]["source"]["tag"], PROD_TAG)
+
+    def test_the_fdroid_build_alone_does_not_explain_a_missing_prod_record(self):
+        jobs = [job("build-production / Build Prod-Compatrelease", "success"),
+                job("build-fdroid / Build Fdroid-Compatrelease", "failure")]
+        with self.assertRaises(report.CollectionError) as caught:
+            collect(FakeApi(run=production_run(), jobs=jobs, artifacts=production_artifacts()[:1]))
+        self.assertEqual(caught.exception.partial["evidence"]["gaps"], ["Build evidence export is missing"])
+
+    def test_a_deployment_only_rerun_reports_its_attempt_without_relabeling_the_build(self):
+        jobs = [job("build-production / " + PROD_GROUP + " / deploy (google-play, com.wire, production, 0.1, inProgress)"),
+                job("build-fdroid / " + FDROID_GROUP + " / deploy (s3)")]
+        api = FakeApi(run=production_run(run_attempt=2), jobs=jobs, artifacts=production_artifacts(1),
+                      refs=PROD_REFS)
+        payload = collect(api, attempt=2)
+        self.assertEqual((payload["event_id"], payload["evidence"]["source"]["run_attempt"]),
+                         ("production:wireapp/wire-android:1001:2", 2))
+        self.assertIsNone(payload["evidence"]["build"])
+        self.assertEqual([entry["name"] for entry in payload["evidence"]["jobs"]],
+                         ["deploy (google-play, com.wire, production, 0.1, inProgress)"])
+        self.assertIn("Build did not run in this attempt; its evidence belongs to an earlier attempt",
+                      payload["evidence"]["gaps"])
+
+    def test_a_release_run_without_exports_takes_its_tag_from_the_verified_release_tag(self):
+        api = FakeApi(run=production_run(conclusion="cancelled"), jobs=[job("validate-release", "cancelled")],
+                      artifacts=[], refs=PROD_REFS)
+        self.assertEqual(collect(api)["evidence"]["source"]["tag"], PROD_TAG)
+
+    def test_a_release_run_cannot_claim_an_unverified_tag(self):
+        api = FakeApi(run=production_run(conclusion="cancelled"), jobs=[], artifacts=[],
+                      refs={PROD_TAG: {"object": {"type": "commit", "sha": OTHER_SHA}}})
+        with self.assertRaises(report.CollectionError):
+            collect(api)
+
+    def test_other_workflows_run_by_a_release_stay_ineligible(self):
+        with self.assertRaises(report.CollectionError):
+            collect(FakeApi(run=production_run(path=".github/workflows/build-fdroid.yml")))
+
+    def test_a_beta_record_cannot_stand_in_for_the_production_build(self):
+        artifacts = [production_artifacts()[0], ("release-log-build-Prod-1001-1", evidence_zip(build_record()))]
+        with self.assertRaises(report.CollectionError) as caught:
+            collect(FakeApi(run=production_run(), jobs=production_jobs(), artifacts=artifacts))
+        self.assertIn("Build evidence export is invalid", caught.exception.partial["evidence"]["gaps"])
+
+
+class CollectProductionEligibilityTest(unittest.TestCase):
+    def test_a_manual_run_from_a_branch_named_like_a_tag_publishes_nothing(self):
+        tag = "v4.99.0"
+        run = production_run(event="workflow_dispatch", head_branch=tag, path=PROD_PATH + "@refs/heads/" + tag)
+        forged = [("release-log-context-1001-1", evidence_zip(context_record(
+                      workflow_path=PROD_PATH, tag=tag, event_name="release"))),
+                  production_artifacts()[1]]
+        api = FakeApi(run=run, jobs=production_jobs(), artifacts=forged,
+                      refs={tag: {"object": {"type": "commit", "sha": SHA}}})
+        self.assertIsNone(collect(api))
+        self.assertEqual([call for call in api.calls if "/artifacts" in call or "/git/" in call], [])
+
+    def test_a_release_of_a_pre_release_tag_is_not_a_release_run(self):
+        tag = "v4.33.0-rc.2"
+        api = FakeApi(run=production_run(head_branch=tag), jobs=production_jobs(), artifacts=production_artifacts(),
+                      refs={tag: {"object": {"type": "commit", "sha": SHA}}})
+        self.assertIsNone(collect(api))
+        self.assertEqual([call for call in api.calls if "/artifacts" in call or "/git/" in call], [])
+
+    def test_a_release_run_whose_tag_moved_is_a_visible_error(self):
+        api = FakeApi(run=production_run(conclusion="cancelled"), jobs=[], artifacts=[],
+                      refs={PROD_TAG: {"object": {"type": "commit", "sha": OTHER_SHA}}})
+        with self.assertRaisesRegex(report.CollectionError, "version cannot be established"):
+            collect(api)
+
+    def test_a_manual_run_is_skipped_even_when_the_branch_is_a_valid_tag_name_and_all_jobs_ran(self):
+        run = production_run(event="workflow_dispatch", head_branch=PROD_TAG)
+        self.assertIsNone(collect(FakeApi(run=run, jobs=production_jobs(), artifacts=production_artifacts())))
+
+    def test_the_fdroid_deploy_group_inside_the_production_pipeline_is_not_evidence(self):
+        pipeline = "build-production / "
+        jobs = [job(pipeline + "Build Prod-Compatrelease"),
+                job(pipeline + PROD_GROUP + " / deploy (s3)"),
+                job(pipeline + FDROID_GROUP + " / deploy (s3)", "failure"),
+                job(pipeline + FDROID_GROUP + " / deployment-summary", "failure")]
+        payload = collect(FakeApi(run=production_run(), jobs=jobs, artifacts=production_artifacts()))
+        self.assertEqual([(entry["name"], entry["conclusion"]) for entry in payload["evidence"]["jobs"]],
+                         [("Build Prod-Compatrelease", "success"), ("deploy (s3)", "success")])
+
+
 class CollectEligibilityTest(unittest.TestCase):
     def test_other_workflows_are_not_eligible(self):
         for path in [".github/workflows/build-develop-push.yml", ".github/workflows/qa-android-beta-tests.yml",
@@ -381,7 +565,7 @@ class CollectForgeryTest(unittest.TestCase):
         hostile = "Deploy x: success\n{{trigger.body}} <b>@here</b> [a](http://e) {code}; Deploy: success"
         api = FakeApi(artifacts=good_artifacts(), jobs=[job("build / " + hostile)])
         name = collect(api)["evidence"]["jobs"][0]["name"]
-        for banned in ["\n", "{", "}", "<", ">", "@", ";", "/"]:
+        for banned in ["\n", "{", "}", "<", ">", "@", ";"]:
             self.assertNotIn(banned, name)
         self.assertTrue(name.startswith("Deploy x: success"))
 

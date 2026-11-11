@@ -238,6 +238,27 @@ class CommandLineTest(unittest.TestCase):
             self.assertEqual((manifest["version_name"], manifest["flavor"]), ("4.38.0-beta.2", "Beta"))
             contract.validate_record(manifest)
 
+    def test_the_build_command_exports_the_prod_apks_for_a_release_event(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / "event.json").write_text(json.dumps(RELEASE_EVENT))
+            outputs = root / "outputs"
+            (outputs / "apk" / "prod" / "compatrelease").mkdir(parents=True)
+            (outputs / "apk" / "prod" / "compatrelease" / "wire-prod-compatrelease.apk").write_bytes(b"signed")
+            (outputs / "version.txt").write_text(VERSION_FILE.replace("4.38.0-beta.2", "4.38.0"))
+            argv = ["build", "--event", str(root / "event.json"), "--outputs-dir", str(outputs),
+                    "--flavor", "Prod", "--variant", "Compatrelease", "--output", str(root / "build.json")]
+            env = {"GITHUB_REPOSITORY": PROD_RUN["repository"], "GITHUB_RUN_ID": PROD_RUN["run_id"],
+                   "GITHUB_RUN_ATTEMPT": "2", "GITHUB_WORKFLOW_REF": PROD_RUN["workflow_ref"], "GITHUB_SHA": SHA,
+                   "GITHUB_EVENT_NAME": "release", "GITHUB_REF_TYPE": "tag", "GITHUB_REF_NAME": "v4.38.0"}
+            with patch.object(export, "checked_out_sha", return_value=SHA):
+                code, _, _ = self.run_main(argv, env)
+            self.assertEqual(code, 0)
+            manifest = json.loads((root / "build.json").read_text())
+            self.assertEqual((manifest["flavor"], manifest["tag"], manifest["run_attempt"], manifest["version_name"]),
+                             ("Prod", "v4.38.0", 2, "4.38.0"))
+            self.assertEqual(manifest["apks"][0]["sha256"], hashlib.sha256(b"signed").hexdigest())
+
     def test_the_build_command_ignores_files_that_are_not_apks(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
@@ -444,7 +465,69 @@ class UnifiedWorkflowStructureTest(unittest.TestCase):
 
     def test_only_the_release_callers_ask_for_the_export(self):
         callers = {path.name for path in WORKFLOWS.glob("*.yml") if "export-release-log" in path.read_text()}
-        self.assertLessEqual(callers, {"build-unified.yml", "build-beta.yml"})
+        self.assertLessEqual(callers, {"build-unified.yml", "build-beta.yml", "build-production.yml"})
+
+
+PRODUCTION = ".github/workflows/build-production.yml"
+
+
+class ProductionWorkflowStructureTest(unittest.TestCase):
+    def setUp(self):
+        self.text = workflow("build-production.yml")
+        self.context_job = job_block(self.text, "release-log-context")
+
+    def test_the_context_job_is_independent_and_nonblocking(self):
+        header = self.context_job.split("steps:")[0]
+        self.assertIn("continue-on-error: true", header)
+        self.assertNotIn("needs:", self.context_job)
+        self.assertIn("github.event_name == 'release'", header)
+        self.assertIn("!contains(github.event.release.tag_name, '-')", header)
+        self.assertIn("contents: read", self.context_job)
+        self.assertNotIn("secrets.", self.context_job)
+
+    def test_the_context_job_keeps_the_name_the_reporter_looks_for(self):
+        self.assertIn("name: Export release log context", self.context_job.split("steps:")[0])
+
+    def test_no_job_waits_for_the_context_job(self):
+        for name in ["validate-release", "build-production", "build-fdroid"]:
+            with self.subTest(job=name):
+                self.assertNotIn("release-log-context", job_block(self.text, name))
+
+    def test_the_context_job_exports_one_retained_evidence_file(self):
+        self.assertIn("make release-log/context", self.context_job)
+        self.assertIn('event="$GITHUB_EVENT_PATH"', self.context_job)
+        checkout = step_block(self.context_job, "Checkout tagged commit")
+        self.assertIn("persist-credentials: false", checkout)
+        upload = step_block(self.context_job, "Upload release context")
+        self.assertIn(UPLOAD, upload)
+        self.assertIn("name: release-log-context-${{ github.run_id }}-${{ github.run_attempt }}", upload)
+        self.assertIn("path: release-log/evidence.json", upload)
+        self.assertIn("retention-days: 90", upload)
+        for name in ["Export release context", "Upload release context"]:
+            self.assertIn("continue-on-error: true", step_block(self.context_job, name))
+
+    def test_only_the_prod_entry_asks_for_the_build_export(self):
+        production = job_block(self.text, "build-production")
+        self.assertIn('"export-release-log": true', production)
+        self.assertNotIn("export-release-log: true", production)
+        self.assertNotIn("export-release-log", job_block(self.text, "build-fdroid"))
+        self.assertEqual(self.text.count("export-release-log"), 1)
+
+    def test_the_export_input_is_a_matrix_key_not_a_workflow_input(self):
+        self.assertNotIn("inputs.export-release-log", workflow("build-unified.yml"))
+
+    def test_release_behavior_is_untouched(self):
+        self.assertRegex(self.text, r"(?m)^on:\n  release:\n    types: \[ published \]\n")
+        self.assertIn("if: ${{ !contains(github.event.release.tag_name, '-') }}", job_block(self.text, "validate-release"))
+        for name in ["build-production", "build-fdroid"]:
+            block = job_block(self.text, name)
+            self.assertIn("needs: validate-release", block)
+            self.assertIn("enable-deployment: true", block)
+            self.assertIn("secrets: inherit", block)
+        order = ["s3", "google-play", "github-release"]
+        positions = [job_block(self.text, "build-production").index('"type": "%s"' % kind) for kind in order]
+        self.assertEqual(positions, sorted(positions))
+        self.assertIn('"additional-files": "app/build/outputs/version.txt"', self.text)
 
 
 class MakeTargetTest(unittest.TestCase):

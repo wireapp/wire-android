@@ -57,7 +57,7 @@
     },
     "origin": null,
     "gaps": [
-      "Tested APK matched no release build"
+      "Tested APK matched no release build: this regression is not attached to a build page"
     ]
   }
 }

@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "kind": "regression",
+  "repository": "wireapp/wire-android",
+  "run_id": 1600,
+  "run_attempt": 1,
+  "workflow_path": ".github/workflows/qa-android-prod-tests.yml",
+  "test_source_sha": "0123456789abcdef0123456789abcdef01234567",
+  "flavor": "production",
+  "suite": "rc",
+  "selector": "@RC",
+  "mode": "deflake",
+  "source_qa_run_id": 1520,
+  "source_qa_run_attempt": 1,
+  "apk": {
+    "filename": "wire-prod-compatrelease.apk",
+    "sha256": "d7330f18d7330f18d7330f18d7330f18d7330f18d7330f18d7330f18d7330f18",
+    "resolved_version_label": "4.38.0"
+  },
+  "is_upgrade": false,
+  "old_apk": null,
+  "retry_count": 0,
+  "results": {
+    "passed": 6,
+    "failed": 0,
+    "skipped": 0,
+    "missing": 0,
+    "selected": 6,
+    "total": 6,
+    "passed_on_rerun": 0
+  },
+  "report_url": "https://example.com/allure/1600",
+  "next_deflake_bundle_sha256": null,
+  "source_deflake_bundle_sha256": "11aa22bb11aa22bb11aa22bb11aa22bb11aa22bb11aa22bb11aa22bb11aa22bb"
+}

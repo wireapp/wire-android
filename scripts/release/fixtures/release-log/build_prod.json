@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "kind": "build",
+  "repository": "wireapp/wire-android",
+  "run_id": 1400,
+  "run_attempt": 1,
+  "workflow_path": ".github/workflows/build-production.yml",
+  "tag": "v4.38.0",
+  "sha": "7be41d0c3f2a9c1e5d6b8a4f0123456789abcdef",
+  "flavor": "Prod",
+  "version_name": "4.38.0",
+  "version_code": 71402,
+  "apks": [
+    {
+      "filename": "wire-prod-compatrelease.apk",
+      "sha256": "d7330f18d7330f18d7330f18d7330f18d7330f18d7330f18d7330f18d7330f18"
+    }
+  ]
+}

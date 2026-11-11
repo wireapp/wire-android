@@ -6,13 +6,15 @@ The release log lists each Android build and regression run for a release on one
 
 ## How it works
 
-1. The Beta release workflow exports two small files, `evidence.json`, as artifacts. One holds the release context. The other holds the digest of each signed APK. Both are kept for 90 days.
+1. The Beta release and Production workflows each export two small files, `evidence.json`, as artifacts. One holds the release context. The other holds the digest of each signed APK. Both are kept for 90 days. A separate job exports the context, so a failed build still leaves it.
 2. When the workflow ends, even if it failed or was cancelled, the `Release log` workflow starts. It runs `develop` code only.
 3. It reads the run metadata and the two files from GitHub, and checks them against each other.
 4. It sends one HTTPS POST with flat text fields to a Confluence automation webhook.
 5. A Confluence automation rule appends the entry to the page for that release version, and creates the page for the first entry.
 
-Production and regression runs join the log in later changes.
+Production runs are logged the same way. The report lists only the Prod pipeline: `validate-release`, the Prod build, and one row for each deployment target (`s3`, `google-play`, `github-release`). It leaves out the F-Droid pipeline and the `deployment-summary` job, because a summary is not proof of any one target. F-Droid and other flavors export no evidence and get no entry. A rerun that only deploys reports its own attempt and jobs, and says the build evidence belongs to an earlier attempt.
+
+Regression runs join the log in a later change.
 
 ## What an entry holds
 
@@ -33,7 +35,7 @@ A missing result is a gap and never a pass. A run whose evidence file is missing
 
 ## Manual and branch runs of a release workflow are skipped
 
-Only a run that a tag push started is a release run. The reporter checks the event and the run's `head_branch`. A manual run, or a run from a branch, is not reported, even if the branch is named like a tag. This stops a user with write access from forging an entry with a modified workflow. A skipped run writes no payload, logs `Release log: run <id> is not a release run, nothing to report`, and ends green.
+Only a run that a tag push started (Beta) or a `release` event started (Production) is a release run. The reporter checks the event and the run's `head_branch`. A manual run, or a run from a branch, is not reported, even if the branch is named like a tag. This stops a user with write access from forging an entry with a modified workflow. A skipped run writes no payload, logs `Release log: run <id> is not a release run, nothing to report`, and ends green.
 
 ## The Confluence side
 
@@ -70,7 +72,7 @@ make release-log/publish payload=payload.json summary=/dev/stdout dry_run=1
 | Symptom | Meaning and action |
 | --- | --- |
 | The reporter run fails and the summary shows a `partial` entry | A successful build had no export. The entry was sent with the gap stated. Read the collect step. |
-| The reporter run fails with "version cannot be established" | The run came from a tag push, but it has no valid release context and its tag no longer points at the run's commit. Nothing was sent, and a rerun repeats the result. Add the entry to the page by hand. |
+| The reporter run fails with "version cannot be established" | The run came from a tag push or a release, but it has no valid release context and its tag no longer points at the run's commit. Nothing was sent, and a rerun repeats the result. Add the entry to the page by hand. |
 | The reporter run fails with an HTTP status | Confluence did not accept the request. Check the rule's audit log, then run the workflow again by hand. A replay can add a duplicate entry. |
 | The reporter succeeds and the page has no entry | HTTP success means Confluence accepted the request. Read the rule's audit log. |
 | A page starts with a later build | The first entry never arrived, so the rule created the page for the first event it received. A hand run of the earlier build appends below it. |

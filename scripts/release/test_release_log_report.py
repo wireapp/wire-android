@@ -1662,8 +1662,8 @@ class ProductionEnumerationTest(unittest.TestCase):
         self.assertIsNone(collect_regression(api)["evidence"]["origin"])
 
 
-def skip_zip(**changes):
-    marker = contract.skip_marker(REPO, 1520, 1)
+def skip_zip(attempt=1, **changes):
+    marker = contract.skip_marker(REPO, 1520, attempt)
     marker.update(changes)
     return zip_of({"skip.json": json.dumps(marker)})
 
@@ -1713,6 +1713,42 @@ class SkippedRegressionTest(unittest.TestCase):
                               ("release-log-qa-skip-1520-1", b"not a zip")]:
             with self.subTest(name=name), self.assertRaises(report.CollectionError):
                 collect_regression(skip_world(name, content))
+
+    def rerun_world(self, marker_attempt=1, expired=False, content=None, record=False):
+        api = RegressionApi()
+        api.add_run(qa_run(attempt=2), qa_jobs())
+        api.add_artifact(1520, "release-log-qa-skip-1520-%d" % marker_attempt,
+                         skip_zip(marker_attempt) if content is None else content, expired=expired)
+        if record:
+            api.add_artifact(1520, "release-log-qa-1520-2", qa_record(attempt=2))
+            api.add_production()
+        return api
+
+    def test_a_marker_of_an_earlier_attempt_skips_a_later_attempt_of_the_same_run(self):
+        self.assertIsNone(collect_regression(self.rerun_world(), attempt=2))
+
+    def test_a_marker_of_a_later_attempt_is_not_accepted(self):
+        api = RegressionApi()
+        api.add_run(qa_run(attempt=1), qa_jobs())
+        api.add_artifact(1520, "release-log-qa-skip-1520-2", skip_zip(2))
+        with self.assertRaises(report.CollectionError):
+            collect_regression(api, attempt=1)
+
+    def test_an_earlier_marker_must_be_valid_unexpired_and_for_its_own_attempt(self):
+        for world in (self.rerun_world(expired=True), self.rerun_world(content=skip_zip(2)),
+                      self.rerun_world(content=skip_zip(run_id=1999)), self.rerun_world(content=b"not a zip")):
+            with self.assertRaises(report.CollectionError):
+                collect_regression(world, attempt=2)
+
+    def test_two_markers_of_one_earlier_attempt_are_not_accepted(self):
+        api = self.rerun_world()
+        api.add_artifact(1520, "release-log-qa-skip-1520-1", skip_zip())
+        with self.assertRaises(report.CollectionError):
+            collect_regression(api, attempt=2)
+
+    def test_a_record_wins_over_a_marker_of_an_earlier_attempt(self):
+        payload = collect_regression(self.rerun_world(record=True), attempt=2)
+        self.assertEqual(payload["kind"], "regression")
 
     def test_two_markers_for_one_run_are_not_a_skip(self):
         api = skip_world()

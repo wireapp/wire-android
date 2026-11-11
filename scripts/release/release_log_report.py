@@ -600,7 +600,11 @@ def _attribute(api, repository, run, qa, gaps, default_branch):
 
 
 def _is_skipped(api, artifacts, repository, run_id, attempt):
-    """True when the exporter marked this exact run and attempt as not a production regression."""
+    """True when the exporter marked this run, in this attempt or an earlier one, as not a production regression."""
+    return any(_has_marker(api, artifacts, repository, run_id, number) for number in range(1, attempt + 1))
+
+
+def _has_marker(api, artifacts, repository, run_id, attempt):
     name = "release-log-qa-skip-%d-%d" % (run_id, attempt)
     matches = [artifact for artifact in artifacts if isinstance(artifact, dict) and artifact.get("name") == name]
     if len(matches) != 1 or matches[0].get("expired") or not isinstance(matches[0].get("archive_download_url"), str):

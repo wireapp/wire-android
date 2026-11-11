@@ -316,6 +316,7 @@ cleanup_workspace() {
   rm -rf "${RUNNER_TEMP}/deflake-input-next" || true
 
   rm -rf "${RUNNER_TEMP}/instrumentation-logs" || true
+  rm -f "${RUNNER_TEMP}/private-report-watch.log" || true
   rm -rf "${RUNNER_TEMP}/retry-state" || true
   git clean -ffdx -e .gradle -e .kotlin
 }

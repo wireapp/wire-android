@@ -92,7 +92,7 @@ MAX_PULL_ATTEMPTS="$((10#${ALLURE_PULL_MAX_ATTEMPTS}))"
 PULL_BASE_DELAY_SEC="$((10#${ALLURE_PULL_BASE_DELAY_SEC}))"
 INLINE_PART_MAX_CHARS="$((10#${RERUN_INLINE_PART_MAX_CHARS}))"
 
-LOG_DIR="${RUNNER_TEMP}/instrumentation-logs"
+LOG_DIR="${RUNNER_TEMP}/instrumentation-logs/$(basename "${ALLURE_RESULTS_ROOT}")"
 STATE_DIR="${RETRY_STATE_DIR:-${RUNNER_TEMP}/retry-state}"
 mkdir -p "${LOG_DIR}" "${STATE_DIR}" "${ALLURE_RESULTS_ROOT}"
 
@@ -558,9 +558,8 @@ run_attempt_on_devices() {
       # Android instrumentation can return non-zero for normal test failures.
       # Keep that separate from real infra failures so retries can still proceed.
       set +e
-      ${adb_cmd} shell am instrument -w -r "${args[@]}" "${instrumentation}" 2>&1 \
-        | sed -u "s/^/[${serial}] /" | tee "${log_file}"
-      local rc=${PIPESTATUS[0]}
+      ${adb_cmd} shell am instrument -w -r "${args[@]}" "${instrumentation}" > "${log_file}" 2>&1
+      local rc=$?
       set -e
 
       # Keep normal test failures separate from infra failures so retries can still be resolved from Allure.

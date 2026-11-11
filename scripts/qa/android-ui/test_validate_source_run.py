@@ -50,6 +50,11 @@ class ValidateSourceRunTest(unittest.TestCase):
         self.assertEqual("12345", outputs["sourceRunId"])
         self.assertEqual("a" * 40, outputs["sourceHeadSha"])
 
+    def test_retains_source_run_attempt_for_private_deflake_inputs(self) -> None:
+        self.metadata["run_attempt"] = 3
+        outputs = validate_run_metadata(self.metadata, "wireapp/wire-android", "develop")
+        self.assertEqual("3", outputs["sourceRunAttempt"])
+
     def test_blank_id_selects_latest_completed_run_of_requesting_workflow(self) -> None:
         for filename in (
             "qa-android-regression-tests.yml", "qa-android-fdroid-tests.yml",

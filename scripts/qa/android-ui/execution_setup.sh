@@ -9,6 +9,8 @@ usage() {
 }
 
 ensure_required_tools() {
+  command -v git >/dev/null 2>&1 || { echo "ERROR: git is required for private reporting"; exit 1; }
+  command -v gh >/dev/null 2>&1 || { echo "ERROR: GitHub CLI (gh) is required for private reporting"; exit 1; }
   command -v adb >/dev/null 2>&1 || { echo "ERROR: adb not found"; exit 1; }
   command -v python3 >/dev/null 2>&1 || { echo "ERROR: python3 not found on this runner"; exit 1; }
 

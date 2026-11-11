@@ -120,9 +120,11 @@ fun AllFilesScreen(
                     targetState = topBarState,
                     // The default transition, without clipping: the offline toggle pulses beyond the header's bounds.
                     transitionSpec = {
-                        (fadeIn(animationSpec = tween(durationMillis = 220, delayMillis = 90)) togetherWith
-                                fadeOut(animationSpec = tween(durationMillis = 90)))
-                            .using(SizeTransform(clip = false))
+                        (
+                                fadeIn(animationSpec = tween(durationMillis = 220, delayMillis = 90)) togetherWith fadeOut(
+                                    animationSpec = tween(durationMillis = 90)
+                                )
+                                ).using(SizeTransform(clip = false))
                     },
                     label = "all_files_top_bar",
                 ) { state ->

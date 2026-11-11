@@ -166,12 +166,15 @@ internal fun CellNodeUi.File.withSessionState(
 
 internal fun CellNodeUi.File.localFileAvailable() = localPath != null
 internal fun CellNodeUi.File.canOpenWithUrl() = contentUrl != null && assetType in listOf(IMAGE, VIDEO, AUDIO, PDF)
+
 /**
  * Downloading for offline use, waiting for its turn to, or paused until the connection is back.
  * Either way, a tap or "Cancel download" stops it.
  */
 internal fun CellNodeUi.isOfflineDownloadPending() =
-    downloadProgress != null || (this as? CellNodeUi.File)?.let { it.isDownloadQueued || it.pausedDownloadProgress != null } == true
+    downloadProgress != null || (this as? CellNodeUi.File)?.let {
+        it.isDownloadQueued || it.pausedDownloadProgress != null
+    } == true
 
 /** How far the paused offline download of this file got, null unless paused. */
 internal val CellNodeUi.pausedDownloadProgress: Float? get() = (this as? CellNodeUi.File)?.pausedDownloadProgress

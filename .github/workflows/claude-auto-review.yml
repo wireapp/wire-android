@@ -82,29 +82,30 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 1
 
+      - name: Build prompt
+        id: prompt
+        env:
+          TIER: ${{ needs.classify.outputs.tier }}
+          REASONS: ${{ needs.classify.outputs.reasons }}
+          REPO: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          CODE_DIR: .
+          DELIVERY: ${{ vars.CLAUDE_AUTO_REVIEW == 'on' && 'inline' || 'summary' }}
+        run: |
+          delimiter="EOF_$(openssl rand -hex 8)"
+          {
+            echo "text<<$delimiter"
+            .github/review/build-prompt.sh
+            echo "$delimiter"
+          } >> "$GITHUB_OUTPUT"
+
       - name: Run Claude review
         uses: anthropics/claude-code-action@9cdae7f0d995e3ba7c33f226087fdf82a59cd520 # v1
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           use_sticky_comment: ${{ vars.CLAUDE_AUTO_REVIEW == 'on' }}
           display_report: true
-          prompt: |
-            REPO: ${{ github.repository }}
-            PR NUMBER: ${{ github.event.pull_request.number }}
-
-            Review this pull request. Read the diff with `gh pr diff`.
-            Follow the repository's AGENTS.md for conventions.
-
-            A classifier gave this PR review tier ${{ needs.classify.outputs.tier }}
-            (1 is light, 2 is deep) for these reasons:
-            ${{ needs.classify.outputs.reasons }}
-
-            ${{ needs.classify.outputs.tier == '2' && 'Deep review. Read the changed files and the code that calls any changed public declaration. Check the reasons above first. Check correctness, cancellation handling around suspend calls, resource release, test coverage and compatibility with API 24.' || 'Light review. Read the diff and look for bugs, missing tests and violations of AGENTS.md. Do not read beyond the changed files unless a finding needs it.' }}
-
-            Report only findings you verified in the code. Skip style comments.
-            Your final message is the summary. Begin it with "Review tier: ${{ needs.classify.outputs.tier == '2' && 'deep' || 'light' }}"
-            and the reasons above. Then list the findings, most severe first, or say that you found none.
-            ${{ vars.CLAUDE_AUTO_REVIEW == 'on' && 'Post each finding on its line with the inline comment tool.' || 'Do not post comments. Write the findings in your final message only.' }}
+          prompt: ${{ steps.prompt.outputs.text }}
           claude_args: |
             --max-turns ${{ needs.classify.outputs.tier == '2' && '25' || '10' }}
-            --allowed-tools "${{ vars.CLAUDE_AUTO_REVIEW == 'on' && 'Read,Grep,Glob,Bash(gh pr diff:*),Bash(gh pr view:*),mcp__github_inline_comment__create_inline_comment' || 'Read,Grep,Glob,Bash(gh pr diff:*),Bash(gh pr view:*)' }}"
+            --allowed-tools "Read,Grep,Glob,Bash(gh pr diff:*),Bash(gh pr view:*)${{ needs.classify.outputs.tier == '2' && ',Task' || '' }}${{ vars.CLAUDE_AUTO_REVIEW == 'on' && ',mcp__github_inline_comment__create_inline_comment' || '' }}"

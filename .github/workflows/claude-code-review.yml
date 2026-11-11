@@ -46,6 +46,16 @@ jobs:
             echo "pr_number=${{ github.event.pull_request.number }}" >> $GITHUB_OUTPUT
           fi
 
+      - name: Checkout pull request code
+        # The prompt files come from the base checkout above. The PR code goes into pr/,
+        # so a pull request cannot change the prompt that reviews it.
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: refs/pull/${{ steps.pr-info.outputs.pr_number }}/head
+          path: pr
+          fetch-depth: 1
+          persist-credentials: false
+
       - name: Post initial comment
         id: initial-comment
         env:
@@ -60,34 +70,30 @@ jobs:
             --jq '.id')
           echo "comment_id=$COMMENT_ID" >> $GITHUB_OUTPUT
 
+      - name: Build prompt
+        id: prompt
+        env:
+          TIER: "2" # A manual request gets the deep review
+          REASONS: "- requested with @claude review"
+          REPO: ${{ github.repository }}
+          PR_NUMBER: ${{ steps.pr-info.outputs.pr_number }}
+          CODE_DIR: pr
+          DELIVERY: comment:${{ steps.initial-comment.outputs.comment_id }}
+        run: |
+          delimiter="EOF_$(openssl rand -hex 8)"
+          {
+            echo "text<<$delimiter"
+            .github/review/build-prompt.sh
+            echo "$delimiter"
+          } >> "$GITHUB_OUTPUT"
+
       - name: Run Claude Code Review
         id: claude-review
-        uses: anthropics/claude-code-action@4fa93a88de49bbef68b10eb15aabedf28ca0e1ed # v1
+        uses: anthropics/claude-code-action@9cdae7f0d995e3ba7c33f226087fdf82a59cd520 # v1
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
-          prompt: |
-            REPO: ${{ github.repository }}
-            PR NUMBER: ${{ steps.pr-info.outputs.pr_number }}
-            INITIAL COMMENT ID: ${{ steps.initial-comment.outputs.comment_id }}
-
-            I've already posted a comment (ID: ${{ steps.initial-comment.outputs.comment_id }}) letting everyone know the review is in progress.
-
-            Please review this pull request and provide feedback on:
-            - Code quality and best practices
-            - Potential bugs or issues
-            - Performance considerations
-            - Security concerns
-            - Test coverage
-
-            Use the repository's CLAUDE.md for guidance on style and conventions. Be constructive and helpful in your feedback.
-
-            IMPORTANT: Instead of creating a NEW comment, UPDATE the existing comment (ID: ${{ steps.initial-comment.outputs.comment_id }}) with your review results.
-
-            Use this command to update the comment:
-            gh api repos/${{ github.repository }}/issues/comments/${{ steps.initial-comment.outputs.comment_id }} \
-              -X PATCH \
-              -f body="<your review content here>"
+          prompt: ${{ steps.prompt.outputs.text }}
 
           # See https://github.com/anthropics/claude-code-action/blob/main/docs/usage.md
           # or https://docs.claude.com/en/docs/claude-code/sdk#command-line for available options
-          claude_args: '--allowed-tools "Bash(gh api:*),Bash(gh issue view:*),Bash(gh search:*),Bash(gh issue list:*),Bash(gh pr comment:*),Bash(gh pr diff:*),Bash(gh pr view:*),Bash(gh pr list:*)"'
+          claude_args: '--max-turns 25 --allowed-tools "Read,Grep,Glob,Task,Bash(gh api:*),Bash(gh issue view:*),Bash(gh search:*),Bash(gh issue list:*),Bash(gh pr comment:*),Bash(gh pr diff:*),Bash(gh pr view:*),Bash(gh pr list:*)"'

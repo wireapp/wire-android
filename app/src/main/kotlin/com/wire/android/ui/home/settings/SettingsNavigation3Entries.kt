@@ -25,6 +25,7 @@ import com.wire.android.navigation.navigation3.WireEntryProviderInstaller
 import com.wire.android.navigation.navigation3.WireNavigation3ResultType
 import com.wire.android.navigation.navigation3.WireNavigation3Runtime
 import com.wire.android.navigation.navigation3.wireEntry
+import com.wire.android.navigation.navigation3.wireViewModelStoreOwner
 import com.wire.android.ui.home.settings.about.dependencies.DependenciesScreen
 import com.wire.android.ui.home.settings.about.licenses.LicensesScreen
 import com.wire.android.ui.home.settings.appearance.CustomizationScreen
@@ -36,6 +37,7 @@ import com.wire.android.ui.home.settings.privacy.PrivacySettingsConfigScreen
 import com.wire.navigation.SessionRoute
 import com.wire.navigation.WireNavigationCommand
 import com.wire.navigation.WireSessionId
+import com.wire.navigation.WireViewModelOwner
 
 /**
  * Destinations outside the settings batch.
@@ -113,8 +115,13 @@ internal fun settingsNavigation3Entries(
     wireEntry<PrivacySettingsRoute> {
         PrivacySettingsConfigScreen(onBackPressed = runtime.backOrExit(actions))
     }
-    wireEntry<MultiFactorAuthenticationRoute> {
-        MultiFactorAuthenticationScreen(onBackPressed = runtime.backOrExit(actions))
+    wireEntry<MultiFactorAuthenticationRoute> { route ->
+        MultiFactorAuthenticationScreen(
+            onBackPressed = runtime.backOrExit(actions),
+            viewModel = settingsViewModel(
+                viewModelStoreOwner = wireViewModelStoreOwner(WireViewModelOwner.Flow(route.flowId)),
+            ),
+        )
     }
     wireEntry<CustomizationSettingsRoute> {
         CustomizationScreen(onBackPressed = runtime.backOrExit(actions))

@@ -96,6 +96,16 @@ class SettingsNavigation3Test {
     }
 
     @Test
+    fun givenMfaRoutes_whenCreatingAndRestoringFlows_thenEachVisitOwnsAnIndependentCache() {
+        val first = MultiFactorAuthenticationRoute(sessionId)
+        val second = MultiFactorAuthenticationRoute(sessionId)
+
+        assertNotEquals(first.flowId, second.flowId)
+        val restored = Json.decodeFromString<MultiFactorAuthenticationRoute>(Json.encodeToString(first))
+        assertEquals(first.flowId, restored.flowId)
+    }
+
+    @Test
     fun givenSettingsRoutes_whenReadingRouteIds_thenLegacyAnalyticsBaseRoutesArePreserved() {
         val expectations = mapOf(
             SettingsRoute(sessionId) to "app/settings_screen",

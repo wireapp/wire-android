@@ -1258,6 +1258,18 @@
     <string name="settings_general_label">General</string>
     <string name="settings_account_settings_label">Account Settings</string>
     <string name="settings_multi_factor_authentication_label">Two-factor Authentication</string>
+    <string name="multi_factor_authentication_description">Ask for a code from your authenticator app when you log in with email and password.</string>
+    <string name="multi_factor_authentication_set_up">Set up</string>
+    <string name="multi_factor_authentication_turn_off">Turn off</string>
+    <string name="multi_factor_authentication_authenticator_apps">Authenticator apps</string>
+    <plurals name="multi_factor_authentication_authenticator_apps_count">
+        <item quantity="one">%d app</item>
+        <item quantity="other">%d apps</item>
+    </plurals>
+    <string name="multi_factor_authentication_recovery_codes">Recovery codes</string>
+    <string name="multi_factor_authentication_recovery_codes_remaining">%1$d of %2$d left</string>
+    <string name="multi_factor_authentication_load_error">Unable to load two-factor authentication settings. Please try again.</string>
+    <string name="multi_factor_authentication_flow_placeholder">This flow is not available yet.</string>
     <string name="settings_devices_label">Devices</string>
     <string name="settings_backups_label">Backups</string>
     <string name="settings_others_label">OTHERS</string>

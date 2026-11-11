@@ -9,7 +9,9 @@ Usage:
     classify.py --diff <unified.diff> [--author <login>] [--kalium-repo <path>]
 
 The script prints one JSON object with `tier`, `score` and `reasons`.
-It reads no network or repository state, so the result depends only on its inputs.
+The result depends only on the diff, the author and, for a Kalium bump, the Kalium
+checkout that `--kalium-repo` names. The script does not use the network itself, but a
+blobless checkout fetches file contents on demand.
 """
 
 import argparse
@@ -27,6 +29,8 @@ BOT_AUTHORS = {
 }
 
 # Modules whose public declarations other modules depend on.
+CI_PREFIXES = (".github/workflows/", ".github/review/")
+
 SHARED_PREFIXES = ("core/", "features/", "kalium/")
 
 TEST_SEGMENTS = (
@@ -44,9 +48,11 @@ HARD_TRIGGERS = (
     ("di", re.compile(r"(^|/)di/")),
     ("navigation", re.compile(r"(^|/)(navigation|navigation-kmp)/")),
     ("database", re.compile(r"\.sqm?$|(^|/)db_?migrations?/")),
+    # Workflows and review prompts control secrets, permissions and what the reviewer sees.
+    ("ci", re.compile(r"^\.github/(workflows|review)/")),
 )
 
-DOC_PATTERNS = (
+SKIP_PATTERNS = (
     re.compile(r"\.md$"),
     re.compile(r"^docs/"),
     re.compile(r"^\.scratch/"),
@@ -70,11 +76,29 @@ BUILD_PATTERNS = (
 
 # A declaration line that other code can see. `override`, `private`,
 # `internal` and `protected` members are not part of the outer surface.
+# Only top-level lines (no indent) and member lines (one indent level of four spaces
+# or one tab) count, so locals inside function bodies are ignored. A `val` or `var`
+# at member depth also matches locals of top-level functions, so it counts only with
+# an explicit type, which locals rarely have.
 DECLARATION = re.compile(
-    r"^[+-]\s*(?!.*\b(private|internal|protected|override)\b)"
-    r"(public\s+)?(abstract\s+|open\s+|sealed\s+|data\s+|enum\s+|value\s+|inline\s+|suspend\s+|fun\s+)*"
-    r"(interface|class|object|fun|val|var|typealias)\b"
+    r"^[+-](?P<indent>| {1,4}|\t)"
+    r"(?!\s)(?!.*\b(private|internal|protected|override)\b)"
+    r"(@\w+(\([^)]*\))?\s+)*"
+    r"(public\s+)?(abstract\s+|open\s+|sealed\s+|data\s+|enum\s+|value\s+|inline\s+|suspend\s+|fun\s+"
+    r"|expect\s+|actual\s+|const\s+|operator\s+|infix\s+|annotation\s+|lateinit\s+|external\s+|tailrec\s+)*"
+    r"(?P<kind>interface|class|object|fun|val|var|typealias)\b(?P<rest>.*)"
 )
+TYPED_PROPERTY = re.compile(r"^\s+[\w.<>?]+\s*:")
+
+
+def is_declaration(line):
+    match = DECLARATION.match(line)
+    if not match:
+        return False
+    if match.group("kind") in ("val", "var") and match.group("indent"):
+        return bool(TYPED_PROPERTY.match(match.group("rest")))
+    return True
+
 
 # Kalium keeps ABI dumps for `logic` only. Other modules use the text heuristic.
 KALIUM_API_DUMPS = re.compile(r"^logic/api/.+\.api$")
@@ -86,6 +110,11 @@ SHA = re.compile(r"^[0-9a-f]{7,40}$")
 TIER_2_SCORE = 3
 DISPERSION_MODULES = 3
 LARGE_PRODUCTION_DIFF = 150
+
+
+# `--- a/x`, `+++ b/x` and the `/dev/null` forms. A removed line whose text starts
+# with "-- " (a SQL comment, a Markdown rule) is content and must be counted.
+FILE_HEADER = re.compile(r"^(--- (a/|/dev/null)|\+\+\+ (b/|/dev/null))")
 
 
 def parse_diff(text):
@@ -101,7 +130,7 @@ def parse_diff(text):
             continue
         if current is None:
             continue
-        if line.startswith("+++ ") or line.startswith("--- "):
+        if FILE_HEADER.match(line):
             continue
         if line.startswith("+"):
             current["added"] += 1
@@ -154,6 +183,17 @@ def inspect_kalium(repo, old, new):
     }
 
 
+def surface_score(added, removed, where):
+    """Return (score, reason) for public declarations added or removed."""
+    if removed:
+        return 3, f"{removed} public declaration(s) removed or changed {where}"
+    if added >= 5:
+        return 2, f"{added} public declarations added {where}"
+    if added:
+        return 1, f"{added} public declaration(s) added {where}"
+    return 0, None
+
+
 def kalium_findings(kalium):
     """Return (hard_reasons, score, reasons) for an inspected Kalium bump."""
     if kalium["unavailable"]:
@@ -170,16 +210,10 @@ def kalium_findings(kalium):
     if kalium["api_added"]:
         score += 1
         reasons.append(f"kalium ABI dump: {kalium['api_added']} line(s) added")
-    added, removed = public_surface_changes(kalium["heuristic_files"])
-    if removed:
-        score += 3
-        reasons.append(f"kalium: {removed} public declaration(s) removed or changed outside logic")
-    elif added >= 5:
-        score += 2
-        reasons.append(f"kalium: {added} public declarations added outside logic")
-    elif added:
-        score += 1
-        reasons.append(f"kalium: {added} public declaration(s) added outside logic")
+    surface, reason = surface_score(*public_surface_changes(kalium["heuristic_files"]), "outside logic")
+    if reason:
+        score += surface
+        reasons.append("kalium: " + reason)
     return [], score, reasons
 
 
@@ -187,8 +221,10 @@ def is_test(path):
     return any(segment in "/" + path for segment in TEST_SEGMENTS)
 
 
-def is_doc(path):
-    return any(pattern.search(path) for pattern in DOC_PATTERNS)
+def is_skippable(path):
+    if path.startswith(CI_PREFIXES):
+        return False
+    return any(pattern.search(path) for pattern in SKIP_PATTERNS)
 
 
 def module_of(path):
@@ -207,7 +243,7 @@ def public_surface_changes(files):
         if not path.startswith(SHARED_PREFIXES):
             continue
         for line in info["lines"]:
-            if DECLARATION.match(line):
+            if is_declaration(line):
                 if line.startswith("+"):
                     added += 1
                 else:
@@ -223,12 +259,12 @@ def classify(files, author="", kalium=None):
         return {"tier": 0, "score": 0, "reasons": [f"bot author {author}"]}
     if not paths:
         return {"tier": 0, "score": 0, "reasons": ["empty diff"]}
-    if all(is_doc(p) for p in paths):
+    if all(is_skippable(p) for p in paths):
         return {"tier": 0, "score": 0, "reasons": ["docs, strings, changelog or generated files only"]}
     if all(is_test(p) for p in paths):
         return {"tier": 0, "score": 0, "reasons": ["tests only"]}
 
-    candidates = [p for p in paths if not is_test(p) and not is_doc(p)]
+    candidates = [p for p in paths if not is_test(p) and not is_skippable(p)]
     for name, pattern in HARD_TRIGGERS:
         if name == "kalium-pointer" and kalium is not None:
             continue
@@ -244,22 +280,16 @@ def classify(files, author="", kalium=None):
     else:
         soft_reasons = []
     if reasons:
-        return {"tier": 2, "score": 99, "reasons": reasons}
+        return {"tier": 2, "score": score, "reasons": reasons}
     reasons = soft_reasons
 
     production = [p for p in paths if p.endswith((".kt", ".java")) and not is_test(p)]
     tests = [p for p in paths if is_test(p)]
 
-    added, removed = public_surface_changes(files)
-    if removed:
-        score += 3
-        reasons.append(f"{removed} public declaration(s) removed or changed in a shared module")
-    elif added >= 5:
-        score += 2
-        reasons.append(f"{added} public declarations added in a shared module")
-    elif added:
-        score += 1
-        reasons.append(f"{added} public declaration(s) added in a shared module")
+    surface, reason = surface_score(*public_surface_changes(files), "in a shared module")
+    if reason:
+        score += surface
+        reasons.append(reason)
 
     if production and not tests:
         score += 1

@@ -1,0 +1,23 @@
+name: Review Tier Tests
+
+on:
+  pull_request:
+    paths:
+      - "scripts/review-tier/**"
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+
+      - name: Run classifier tests
+        working-directory: scripts/review-tier
+        run: python3 -m unittest

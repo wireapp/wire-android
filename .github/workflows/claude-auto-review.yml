@@ -40,6 +40,7 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 0 # The classifier diffs against the merge base
+          persist-credentials: false
 
       - name: Classify
         id: classify
@@ -81,7 +82,11 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 1
+          persist-credentials: false
 
+      # Only pull requests from this repository reach this job, so the prompt comes from
+      # the PR head. That lets an author test a prompt change on the PR that makes it.
+      # REASONS holds file paths from the PR for the same reason.
       - name: Build prompt
         id: prompt
         env:
@@ -104,6 +109,8 @@ jobs:
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           use_sticky_comment: ${{ vars.CLAUDE_AUTO_REVIEW == 'on' }}
+          # The prompt does not set `confirmed`, so post inline comments as written.
+          classify_inline_comments: false
           display_report: true
           prompt: ${{ steps.prompt.outputs.text }}
           claude_args: |

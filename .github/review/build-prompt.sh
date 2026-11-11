@@ -6,14 +6,16 @@
 #   REASONS   why the classifier chose the tier, one line per reason
 #   REPO      owner/name
 #   PR_NUMBER pull request number
-#   CODE_DIR  directory that holds the PR code, relative to the working directory
+#   CODE_DIR  directory that holds the PR code, relative to the working directory.
+#             Empty when the PR code is not checked out. Then Claude reads the diff only.
 #   DELIVERY  "inline"        post inline comments, the final message is the summary
 #             "summary"       post nothing, the final message holds the review
 #             "comment:<id>"  update the existing PR comment with this id
 set -euo pipefail
 
 here=$(cd "$(dirname "$0")" && pwd)
-: "${TIER:?}" "${REPO:?}" "${PR_NUMBER:?}" "${CODE_DIR:?}" "${DELIVERY:?}"
+: "${TIER:?}" "${REPO:?}" "${PR_NUMBER:?}" "${DELIVERY:?}"
+code_dir=${CODE_DIR:-}
 reasons=${REASONS:-"none given"}
 
 cat "$here/common.md"
@@ -26,13 +28,19 @@ else
   label=deep
 fi
 
+if [ -n "$code_dir" ]; then
+  code_line="The PR code is in the directory \"$code_dir\". Open files there. Scope every Grep and Glob to that directory."
+else
+  code_line="The PR code is not checked out. Read it with gh pr diff and gh pr view. Say under \"Not verified:\" what you could not open."
+fi
+
 cat <<EOF
 
 ## Context
 
 Repository: $REPO
 Pull request: #$PR_NUMBER
-The PR code is in the directory "$CODE_DIR". Open files there.
+$code_line
 
 Review tier: $label. The classifier gave these reasons:
 $reasons
@@ -44,7 +52,8 @@ case "$DELIVERY" in
     cat <<EOF
 ## Delivery
 
-Post each finding on its line with the inline comment tool.
+Before you post, read the existing review comments with "gh pr view $PR_NUMBER --comments". Skip a finding that a comment already reports.
+Post each remaining finding on its line with the inline comment tool.
 Your final message is the summary comment. Begin it with "Review tier: $label" and the reasons above. Then list the findings, most severe first.
 EOF
     ;;

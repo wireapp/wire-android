@@ -62,6 +62,44 @@ class ClassifyTest(unittest.TestCase):
         )
         self.assertEqual(1, tier(text)["tier"])
 
+    def test_changed_local_variable_is_not_surface(self):
+        text = diff("features/cells/src/main/kotlin/A.kt", "-        val x = 1", "+        val x = 2") + diff(
+            "features/cells/src/test/kotlin/ATest.kt", "+x"
+        )
+        self.assertEqual(1, tier(text)["tier"])
+
+    def test_untyped_local_of_top_level_function_is_not_surface(self):
+        text = diff("features/cells/src/main/kotlin/A.kt", "-    val x = 1", "+    val x = 2") + diff(
+            "features/cells/src/test/kotlin/ATest.kt", "+x"
+        )
+        self.assertEqual(1, tier(text)["tier"])
+
+    def test_typed_member_property_is_surface(self):
+        text = diff("features/cells/src/main/kotlin/A.kt", "-    val x: Int = 1", "+    val x: Long = 1")
+        self.assertEqual(2, tier(text)["tier"])
+
+    def test_modifiers_and_annotations_are_surface(self):
+        for line in (
+            "-expect fun platform(): String",
+            "-actual class Platform",
+            "-const val LIMIT: Int = 3",
+            "-operator fun plus(other: A): A",
+            "-annotation class Marker",
+            "-@Composable fun Screen()",
+        ):
+            text = diff("core/ui-common/src/main/kotlin/A.kt", line)
+            self.assertEqual(2, tier(text)["tier"], line)
+
+    def test_workflow_change_is_deep(self):
+        self.assertEqual(2, tier(diff(".github/workflows/a.yml", "+x"))["tier"])
+
+    def test_review_prompt_change_is_deep(self):
+        self.assertEqual(2, tier(diff(".github/review/deep.md", "+x"))["tier"])
+
+    def test_removed_line_starting_with_dashes_is_counted(self):
+        files = classify.parse_diff(diff("docs/a.md", "--- rule"))
+        self.assertEqual(1, files["docs/a.md"]["removed"])
+
     def test_small_change_with_tests_is_light(self):
         text = diff("app/src/main/kotlin/A.kt", "+x") + diff("app/src/test/kotlin/ATest.kt", "+x")
         self.assertEqual(1, tier(text)["tier"])

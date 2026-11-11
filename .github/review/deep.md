@@ -18,4 +18,5 @@ Do each check that matches a reason listed below.
 - A persistence file (`.sq`, `.sqm`, migrations): confirm a migration exists, and that logout and data cleanup cover every new table or file.
 - A Kalium changelog fragment of type `changed`: read the fragment. Confirm the app handles the behavior change.
 - A Gradle file, version catalog or ADR: confirm the change matches the decision in `docs/adr/` and does not widen a module dependency.
+- A workflow or a file in `.github/review/`: confirm the permissions are the narrowest that work, untrusted text (PR title, branch name, file paths, comment bodies) never reaches a shell or an expression unquoted, and secrets and tokens are not readable by tools that take PR-controlled input.
 - The Kalium bump cannot be inspected: say so under `Not verified:`.

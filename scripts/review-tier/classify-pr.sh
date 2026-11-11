@@ -14,7 +14,8 @@ head=$2
 author=$3
 
 here=$(cd "$(dirname "$0")" && pwd)
-work=${RUNNER_TEMP:-$(mktemp -d)}
+work=$(mktemp -d "${RUNNER_TEMP:-${TMPDIR:-/tmp}}/review-tier.XXXXXX")
+trap 'rm -rf "$work"' EXIT
 diff_file="$work/pr.diff"
 
 git diff --full-index "$base...$head" > "$diff_file"
@@ -26,9 +27,9 @@ if [ -n "$pointer" ]; then
   if [ -n "${KALIUM_REPO:-}" ]; then
     kalium_args=(--kalium-repo "$KALIUM_REPO")
   else
-    url=$(git config -f .gitmodules submodule.kalium.url)
+    url=$(git config -f .gitmodules submodule.kalium.url || true)
     kalium_dir="$work/kalium"
-    if git clone --quiet --filter=blob:none --no-checkout "$url" "$kalium_dir" \
+    if [ -n "$url" ] && git clone --quiet --filter=blob:none --no-checkout "$url" "$kalium_dir" \
       && git -C "$kalium_dir" fetch --quiet origin "$old" "$new"; then
       kalium_args=(--kalium-repo "$kalium_dir")
     fi

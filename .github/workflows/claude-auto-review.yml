@@ -1,0 +1,110 @@
+name: Claude Auto Review
+
+# Classifies every pull request into a review tier (0 skip, 1 light, 2 deep)
+# and starts a Claude review that matches the tier.
+#
+# The review job runs only when the repository variable CLAUDE_AUTO_REVIEW is set:
+#   shadow  Claude reviews and the result goes to the job summary. It posts nothing on the PR.
+#   on      Claude posts inline comments and one summary comment.
+# Any other value, or no value, runs the classifier only.
+#
+# The review is advisory. Do not add it to the required checks.
+# `@claude review` in a comment still starts a manual review (claude-code-review.yml).
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+    branches: [develop]
+
+concurrency:
+  group: claude-auto-review-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  classify:
+    # Skip drafts and fork PRs. Fork PRs have no access to secrets.
+    if: |
+      github.event.pull_request.draft == false &&
+      github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    outputs:
+      tier: ${{ steps.classify.outputs.tier }}
+      reasons: ${{ steps.classify.outputs.reasons }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0 # The classifier diffs against the merge base
+
+      - name: Classify
+        id: classify
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          PR_AUTHOR: ${{ github.event.pull_request.user.login }}
+        run: |
+          result=$(scripts/review-tier/classify-pr.sh "$BASE_SHA" "$HEAD_SHA" "$PR_AUTHOR")
+          tier=$(jq -r '.tier' <<<"$result")
+          reasons=$(jq -r '.reasons | map("- " + .) | join("\n")' <<<"$result")
+          delimiter="EOF_$(openssl rand -hex 8)"
+          {
+            echo "tier=$tier"
+            echo "reasons<<$delimiter"
+            echo "$reasons"
+            echo "$delimiter"
+          } >> "$GITHUB_OUTPUT"
+          {
+            echo "### Review tier: $tier"
+            echo "$reasons"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  review:
+    needs: classify
+    if: |
+      needs.classify.outputs.tier != '0' &&
+      (vars.CLAUDE_AUTO_REVIEW == 'shadow' || vars.CLAUDE_AUTO_REVIEW == 'on')
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      pull-requests: write
+      issues: write
+      id-token: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 1
+
+      - name: Run Claude review
+        uses: anthropics/claude-code-action@9cdae7f0d995e3ba7c33f226087fdf82a59cd520 # v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          use_sticky_comment: ${{ vars.CLAUDE_AUTO_REVIEW == 'on' }}
+          display_report: true
+          prompt: |
+            REPO: ${{ github.repository }}
+            PR NUMBER: ${{ github.event.pull_request.number }}
+
+            Review this pull request. Read the diff with `gh pr diff`.
+            Follow the repository's AGENTS.md for conventions.
+
+            A classifier gave this PR review tier ${{ needs.classify.outputs.tier }}
+            (1 is light, 2 is deep) for these reasons:
+            ${{ needs.classify.outputs.reasons }}
+
+            ${{ needs.classify.outputs.tier == '2' && 'Deep review. Read the changed files and the code that calls any changed public declaration. Check the reasons above first. Check correctness, cancellation handling around suspend calls, resource release, test coverage and compatibility with API 24.' || 'Light review. Read the diff and look for bugs, missing tests and violations of AGENTS.md. Do not read beyond the changed files unless a finding needs it.' }}
+
+            Report only findings you verified in the code. Skip style comments.
+            Your final message is the summary. Begin it with "Review tier: ${{ needs.classify.outputs.tier == '2' && 'deep' || 'light' }}"
+            and the reasons above. Then list the findings, most severe first, or say that you found none.
+            ${{ vars.CLAUDE_AUTO_REVIEW == 'on' && 'Post each finding on its line with the inline comment tool.' || 'Do not post comments. Write the findings in your final message only.' }}
+          claude_args: |
+            --max-turns ${{ needs.classify.outputs.tier == '2' && '25' || '10' }}
+            --allowed-tools "${{ vars.CLAUDE_AUTO_REVIEW == 'on' && 'Read,Grep,Glob,Bash(gh pr diff:*),Bash(gh pr view:*),mcp__github_inline_comment__create_inline_comment' || 'Read,Grep,Glob,Bash(gh pr diff:*),Bash(gh pr view:*)' }}"

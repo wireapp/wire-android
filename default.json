@@ -44,7 +44,8 @@
             "drive_offline_enabled": true,
             "drive_bulk_restore_enabled": true,
             "meetings_guests_links_enabled": true,
-            "everyone_mention_enabled": true
+            "everyone_mention_enabled": true,
+            "multi_factor_authentication_enabled": true
         },
         "beta": {
             "application_id": "com.wire.android.internal",
@@ -168,5 +169,6 @@
     "drive_offline_enabled": false,
     "drive_bulk_restore_enabled": false,
     "meetings_guests_links_enabled": false,
-    "everyone_mention_enabled": false
+    "everyone_mention_enabled": false,
+    "multi_factor_authentication_enabled": false
 }

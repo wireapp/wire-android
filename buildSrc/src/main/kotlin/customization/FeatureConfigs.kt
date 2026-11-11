@@ -178,4 +178,6 @@ enum class FeatureConfigs(val value: String, val configType: ConfigType) {
      * Disabled by default until all clients support receiving it.
      */
     EVERYONE_MENTION_ENABLED("everyone_mention_enabled", ConfigType.BOOLEAN),
+
+    MULTI_FACTOR_AUTHENTICATION_ENABLED("multi_factor_authentication_enabled", ConfigType.BOOLEAN),
 }

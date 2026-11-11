@@ -87,6 +87,7 @@ data class PrivacySettingsRoute(
 data class MultiFactorAuthenticationRoute(
     override val sessionId: WireSessionId,
     override val entryId: WireNavEntryId = WireNavEntryId.random(),
+    override val flowId: String = "multi-factor-authentication:${entryId.value}",
 ) : SessionRoute {
     override val routeId: String
         get() = ROUTE_ID

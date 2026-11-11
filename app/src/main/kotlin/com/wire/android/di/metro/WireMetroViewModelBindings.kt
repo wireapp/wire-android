@@ -48,6 +48,7 @@ import com.wire.android.ui.home.settings.account.handle.ChangeHandleViewModel
 import com.wire.android.ui.home.settings.appearance.CustomizationViewModel
 import com.wire.android.ui.home.settings.appsettings.networkSettings.NetworkSettingsViewModel
 import com.wire.android.ui.home.settings.backup.BackupAndRestoreViewModel
+import com.wire.android.ui.home.settings.multifactorauthentication.MultiFactorAuthenticationViewModel
 import com.wire.android.ui.home.settings.privacy.PrivacySettingsViewModel
 import com.wire.android.ui.initialsync.InitialSyncViewModel
 import com.wire.android.ui.joinConversation.JoinConversationViaCodeViewModel
@@ -265,6 +266,11 @@ object WireMetroViewModelBindings {
     @IntoMap
     @ViewModelKey(PrivacySettingsViewModel::class)
     fun privacySettingsViewModel(viewModel: PrivacySettingsViewModel): ViewModel = viewModel
+
+    @Provides
+    @IntoMap
+    @ViewModelKey(MultiFactorAuthenticationViewModel::class)
+    fun multiFactorAuthenticationViewModel(viewModel: MultiFactorAuthenticationViewModel): ViewModel = viewModel
 
     @Provides
     @IntoMap

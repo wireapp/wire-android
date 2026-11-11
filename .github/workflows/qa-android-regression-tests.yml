@@ -721,6 +721,40 @@ jobs:
           MERGED_DIR: ${{ runner.temp }}/allure-results-merged
         run: make qa-ui-report cmd=summarize-allure-results
 
+      # Evidence for the release log. Nonblocking: it runs after failed tests and never gates the run.
+      - name: Export release log QA record
+        if: ${{ !cancelled() }}
+        continue-on-error: true
+        env:
+          RELEASE_LOG_OUTPUT: ${{ runner.temp }}/release-log-qa/evidence.json
+          MERGED_DIR: ${{ runner.temp }}/allure-results-merged
+          RELEASE_LOG_RUN_MODE: full
+          FLAVOR_INPUT: ${{ needs.validate-and-resolve-inputs.outputs.resolvedFlavor }}
+          TAGS_INPUT: ${{ needs.validate-and-resolve-inputs.outputs.resolvedTags }}
+          RESOLVED_CATEGORY: ${{ needs.validate-and-resolve-inputs.outputs.resolvedCategory }}
+          RESOLVED_TESTCASE_ID: ${{ needs.validate-and-resolve-inputs.outputs.resolvedTestCaseId }}
+          IS_UPGRADE: ${{ needs.validate-and-resolve-inputs.outputs.resolvedIsUpgrade }}
+          RERUN_FAILED_COUNT: ${{ needs.validate-and-resolve-inputs.outputs.resolvedRerunFailedCount }}
+          DEFLAKE_BUNDLE_DIR: ${{ runner.temp }}/deflake-input
+          TESTS_PASSED: ${{ steps.summarize_allure_results.outputs.passed }}
+          TESTS_FAILED: ${{ steps.summarize_allure_results.outputs.failed }}
+          TESTS_SKIPPED: ${{ steps.summarize_allure_results.outputs.skipped }}
+          TESTS_MISSING: ${{ steps.summarize_allure_results.outputs.missing }}
+          TESTS_SELECTED: ${{ steps.summarize_allure_results.outputs.selected }}
+          TESTS_TOTAL: ${{ steps.summarize_allure_results.outputs.total }}
+          ALLURE_REPORT_URL: ${{ steps.publish_allure_report.outputs.allure_report_url }}
+        run: make qa-ui-report cmd=export-qa-release-log
+
+      - name: Upload release log QA record
+        if: ${{ !cancelled() }}
+        continue-on-error: true
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: release-log-qa-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/release-log-qa/evidence.json
+          retention-days: 90
+          if-no-files-found: ignore
+
       - name: Build Wire notification body
         id: build_wire_notification
         if: always()
@@ -1147,6 +1181,48 @@ jobs:
           MERGED_DIR: ${{ runner.temp }}/allure-results-merged
           DEFLAKE_FAILED_TESTS_FILE: ${{ steps.validate_deflake_input.outputs.failedTestsFile }}
         run: make qa-ui-report cmd=summarize-allure-results
+
+      # Evidence for the release log. Nonblocking: it runs after failed tests and never gates the run.
+      - name: Export release log QA record
+        if: ${{ !cancelled() }}
+        continue-on-error: true
+        env:
+          RELEASE_LOG_OUTPUT: ${{ runner.temp }}/release-log-qa/evidence.json
+          MERGED_DIR: ${{ runner.temp }}/allure-results-merged
+          RELEASE_LOG_RUN_MODE: deflake
+          RELEASE_LOG_SKIP_OUTPUT: ${{ runner.temp }}/release-log-qa-skip/skip.json
+          DEFLAKE_BUNDLE_ROOT: ${{ runner.temp }}/deflake-input
+          DEFLAKE_BUNDLE_DIR: ${{ runner.temp }}/deflake-input-next
+          RERUN_FAILED_COUNT: ${{ needs.validate-and-resolve-inputs.outputs.resolvedRerunFailedCount }}
+          TESTS_PASSED: ${{ steps.summarize_allure_results.outputs.passed }}
+          TESTS_FAILED: ${{ steps.summarize_allure_results.outputs.failed }}
+          TESTS_SKIPPED: ${{ steps.summarize_allure_results.outputs.skipped }}
+          TESTS_MISSING: ${{ steps.summarize_allure_results.outputs.missing }}
+          TESTS_SELECTED: ${{ steps.summarize_allure_results.outputs.selected }}
+          TESTS_TOTAL: ${{ steps.summarize_allure_results.outputs.total }}
+          ALLURE_REPORT_URL: ${{ steps.publish_allure_report.outputs.allure_report_url }}
+        run: make qa-ui-report cmd=export-qa-release-log
+
+      - name: Upload release log QA record
+        if: ${{ !cancelled() }}
+        continue-on-error: true
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: release-log-qa-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/release-log-qa/evidence.json
+          retention-days: 90
+          if-no-files-found: ignore
+
+      # A deflake of a run of another flavor is not a production regression. The export step writes the marker.
+      - name: Upload release log skip marker
+        if: ${{ !cancelled() }}
+        continue-on-error: true
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: release-log-qa-skip-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/release-log-qa-skip/skip.json
+          retention-days: 90
+          if-no-files-found: ignore
 
       - name: Build Wire notification body
         id: build_wire_notification

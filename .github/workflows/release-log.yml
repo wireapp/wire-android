@@ -3,7 +3,7 @@ run-name: "Release log run ${{ github.event.workflow_run.id || inputs.run_id }}"
 
 on:
   workflow_run:
-    workflows: ["Beta release", "Production"]
+    workflows: ["Beta release", "Production", "QA Android Prod Regression RC"]
     types: [completed]
   workflow_dispatch:
     inputs:
@@ -33,7 +33,7 @@ concurrency:
 jobs:
   report:
     name: Report to the release log
-    if: github.ref == format('refs/heads/{0}', github.event.repository.default_branch) && !(github.event.workflow_run.name == 'Production' && contains(github.event.workflow_run.head_branch, '-'))
+    if: github.ref == format('refs/heads/{0}', github.event.repository.default_branch) && !(github.event.workflow_run.name == 'Production' && contains(github.event.workflow_run.head_branch, '-')) && !(github.event.workflow_run.name == 'QA Android Prod Regression RC' && github.event.workflow_run.event == 'schedule')
     runs-on: ubuntu-latest
     timeout-minutes: 15
     environment: release-log

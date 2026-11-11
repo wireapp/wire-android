@@ -144,17 +144,37 @@ class ValidateRecordTest(unittest.TestCase):
         self.assertEqual(results["total"], sum(results[key] for key in ("passed", "failed", "skipped", "missing")))
         contract.validate_record(record)
 
+    def test_the_rerun_count_cannot_exceed_the_passed_count(self):
+        self.assertRejected("regression", lambda r: r["results"].update(passed_on_rerun=r["results"]["passed"] + 1))
+        self.assertRejected("regression", lambda r: r["results"].update(passed_on_rerun=9999))
+        record = load("regression")
+        record["results"]["passed_on_rerun"] = record["results"]["passed"]
+        contract.validate_record(record)
+        record["results"]["passed"] = None
+        record["results"]["total"] = None
+        contract.validate_record(record)
+
     def test_unavailable_counts_are_allowed_and_stay_null(self):
         record = load("regression")
         record["results"] = {key: None for key in record["results"]}
         contract.validate_record(record)
 
 
+class SkipMarkerTest(unittest.TestCase):
+    def test_the_marker_names_the_run_and_attempt_and_carries_no_evidence(self):
+        self.assertEqual(contract.skip_marker("wireapp/wire-android", 1520, 2),
+                         {"schema_version": 1, "kind": "skip", "repository": "wireapp/wire-android",
+                          "run_id": 1520, "run_attempt": 2})
+
+
 PAYLOADS = ["payload_beta", "payload_failed_build", "payload_regression", "payload_deflake", "payload_unmatched"]
 FIELD_NAMES = {"releaseVersion", "kind", "result", "runUrl", "commit", "apkName", "apkSha256", "buildRunUrl",
-               "deploy", "tests", "gaps"}
+               "deploy", "tests", "gaps", "eventId"}
 BETA_APK = "5c2091ab" * 8
 PROD_APK = "d7330f18" * 8
+
+
+UNMATCHED_GAP = "Tested APK matched no release build: this regression is not attached to a build page"
 
 
 def run_url(run):
@@ -217,7 +237,8 @@ class BuildFieldsTest(unittest.TestCase):
             "commit": "7be41d0", "apkName": "wire-beta-release.apk", "apkSha256": BETA_APK,
             "buildRunUrl": "",
             "deploy": "Validate beta tag: success; Build Beta-Release: success; Publish beta prerelease: success",
-            "tests": "Regression: not required", "gaps": "none"})
+            "tests": "Regression: not required", "gaps": "none",
+            "eventId": "beta:wireapp/wire-android:1001:1"})
 
     def test_a_failed_build_without_an_apk_reports_its_gap(self):
         fields = contract.build_fields(load("payload_failed_build"))
@@ -236,8 +257,8 @@ class BuildFieldsTest(unittest.TestCase):
         self.assertEqual((fields["apkName"], fields["apkSha256"]), ("wire-prod-compatrelease.apk", PROD_APK))
         self.assertEqual(fields["buildRunUrl"], run_url(1400))
         self.assertEqual(fields["deploy"], "")
-        self.assertEqual(fields["tests"], "412 passed, 6 failed, 3 skipped, 0 missing; selector @RC; "
-                                          "report https://example.com/allure/1520")
+        self.assertEqual(fields["tests"], "412 passed, 6 failed, 3 skipped, 0 missing, 2 passed on rerun; "
+                                          "selector @RC; report https://example.com/allure/1520")
         self.assertEqual(fields["gaps"], "none")
 
     def test_deflake_never_claims_a_full_regression(self):
@@ -254,7 +275,7 @@ class BuildFieldsTest(unittest.TestCase):
         fields = contract.build_fields(payload)
         self.assertEqual(fields["releaseVersion"], "unmatched")
         self.assertEqual((fields["result"], fields["buildRunUrl"]), ("partial", ""))
-        self.assertEqual(fields["gaps"], "Tested APK matched no release build")
+        self.assertEqual(fields["gaps"], UNMATCHED_GAP)
 
     def test_cancelled_runs_report_cancelled(self):
         payload = load("payload_regression")
@@ -272,7 +293,7 @@ class BuildFieldsTest(unittest.TestCase):
 
     def test_missing_or_empty_results_are_incomplete_never_a_pass(self):
         for change in [dict(passed=None, failed=None, skipped=None, missing=None, selected=None, total=None),
-                       dict(passed=0, failed=0, skipped=0, missing=0, selected=0, total=0)]:
+                       dict(passed=0, failed=0, skipped=0, missing=0, selected=0, total=0, passed_on_rerun=0)]:
             with self.subTest(change=change):
                 payload = load("payload_regression")
                 payload["evidence"]["qa"]["results"].update(change)
@@ -472,6 +493,86 @@ class LoadJsonTest(unittest.TestCase):
 
     def test_valid_documents_load(self):
         self.assertEqual(contract.load_json('{"a": [1, null]}'), {"a": [1, None]})
+
+
+class RegressionCountsTest(unittest.TestCase):
+    def fields(self, **results):
+        payload = load("payload_regression")
+        payload["evidence"]["qa"]["results"].update(results)
+        return contract.build_fields(payload)
+
+    def test_more_selected_than_counted_tests_is_a_validation_error(self):
+        for name in ["regression", "regression_deflake"]:
+            with self.subTest(name=name):
+                record = load(name)
+                record["results"].update(selected=1000, total=record["results"]["total"])
+                with self.assertRaises(ValueError):
+                    contract.validate_record(record)
+        record = load("regression")
+        record["results"].update(passed=1, failed=0, skipped=0, missing=0, selected=1000, total=1)
+        with self.assertRaises(ValueError):
+            contract.validate_record(record)
+
+    def test_fewer_selected_than_counted_tests_stays_valid(self):
+        record = load("regression")
+        record["results"].update(selected=400)
+        contract.validate_record(record)
+
+    def test_a_run_that_executed_nothing_is_never_a_pass(self):
+        fields = self.fields(passed=0, failed=0, skipped=421, missing=0, selected=421, total=421,
+                           passed_on_rerun=0)
+        self.assertEqual(fields["result"], "partial")
+        self.assertIn("No tests were executed", fields["gaps"])
+        self.assertIn("0 passed, 0 failed, 421 skipped, 0 missing", fields["tests"])
+
+    def test_a_run_with_only_missing_results_is_never_a_pass(self):
+        fields = self.fields(passed=0, failed=0, skipped=0, missing=5, selected=5, total=5,
+                           passed_on_rerun=0)
+        self.assertEqual(fields["result"], "partial")
+        self.assertIn("No tests were executed", fields["gaps"])
+
+    def test_a_flaky_pass_shows_the_rerun_count(self):
+        self.assertIn("2 passed on rerun", self.fields()["tests"])
+        self.assertNotIn("on rerun", self.fields(passed_on_rerun=0)["tests"])
+        self.assertNotIn("on rerun", self.fields(passed_on_rerun=None)["tests"])
+
+    def test_the_rerun_count_stays_inside_the_allowlist(self):
+        self.assertLessEqual(set(self.fields(passed_on_rerun=7)["tests"]), ALLOWED_TEXT | {";", ":", "="})
+
+
+class EventIdFieldTest(unittest.TestCase):
+    def test_every_entry_carries_the_event_identity(self):
+        for name in PAYLOADS:
+            with self.subTest(name=name):
+                payload = load(name)
+                self.assertEqual(contract.build_fields(payload)["eventId"], payload["event_id"])
+
+    def test_the_event_id_cannot_carry_markup(self):
+        payload = load("payload_regression")
+        value = contract.build_fields(payload)["eventId"]
+        for banned in ["::", "<", ">", "{{", "`", "\n"]:
+            self.assertNotIn(banned, value)
+
+
+class HostileRegressionTextTest(unittest.TestCase):
+    def test_apk_names_and_selectors_from_the_qa_record_cannot_forge_text(self):
+        for hostile in HOSTILE_TEXT + ["x, y", "a::b", "`code`", "{{webhook.body}}"]:
+            with self.subTest(hostile=hostile):
+                payload = load("payload_regression")
+                qa = payload["evidence"]["qa"]
+                qa["apk"]["filename"] = hostile.replace("/", "") + ".apk"
+                qa["old_apk"]["filename"] = hostile.replace("/", "") + ".apk"
+                qa["selector"] = hostile
+                qa["suite"] = hostile
+                fields = contract.build_fields(payload)
+                self.assertEqual(fields["apkName"].count(","), 0)
+                self.assertLessEqual(set(fields["apkName"]), ALLOWED_TEXT)
+                self.assertEqual(fields["tests"].count("selector "), 1)
+                self.assertEqual(fields["tests"].count(";"), 2)
+                self.assertEqual(fields["gaps"], "none")
+                for value in fields.values():
+                    for banned in ["::", "<", ">", "{{", "`"]:
+                        self.assertNotIn(banned, value)
 
 
 class ReviewFindingsTest(unittest.TestCase):

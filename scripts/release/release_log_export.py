@@ -160,6 +160,14 @@ def _build_command(arguments):
     return build_manifest(context, outputs / "version.txt", apks)
 
 
+def _qa_skip_command(arguments):
+    repository = os.environ.get("GITHUB_REPOSITORY")
+    if not repository:
+        raise ValueError("GITHUB_REPOSITORY is not set")
+    return contract.skip_marker(repository, contract.parse_positive(os.environ.get("GITHUB_RUN_ID", ""), "run_id"),
+                                contract.parse_positive(os.environ.get("GITHUB_RUN_ATTEMPT", ""), "run_attempt"))
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(description="Export release log evidence records.")
     commands = parser.add_subparsers(dest="command", required=True)
@@ -174,9 +182,13 @@ def main(argv=None):
     build.add_argument("--outputs-dir", default="app/build/outputs")
     build.add_argument("--output", required=True)
     build.set_defaults(run=_build_command)
+    skip = commands.add_parser("qa-skip", help="Write the marker of a QA run that is not a production regression")
+    skip.add_argument("--output", required=True)
+    skip.set_defaults(run=_qa_skip_command)
     arguments = parser.parse_args(argv)
     try:
         record = arguments.run(arguments)
+        Path(arguments.output).parent.mkdir(parents=True, exist_ok=True)
         contract.write_json(arguments.output, record)
     except (OSError, ValueError) as error:
         print("Release log export failed: " + str(error), file=sys.stderr)

@@ -800,6 +800,7 @@ private fun ConversationScreenContent(
                         onAttachmentClick = onAttachmentClick,
                         onAttachmentMenuClick = onAttachmentMenuClick,
                         showHistoryLoadingIndicator = conversationInfoViewState.showHistoryLoadingIndicator,
+                        showsEncryptionNotice = conversationInfoViewState.showsEncryptionNotice,
                         isBubbleUiEnabled = IS_BUBBLE_UI_ENABLED,
                         isWireCellsEnabled = isWireCellsEnabled,
                         initialLoading = conversationInfoViewState.initialLoadingState != InitialLoadingState.LOADED,

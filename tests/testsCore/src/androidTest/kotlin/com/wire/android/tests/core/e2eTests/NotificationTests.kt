@@ -49,7 +49,7 @@ class NotificationTests : BaseCallUiTest() {
     // 1:1 notifications
 
     @Suppress("LongMethod")
-    @TestCaseId("TC-4461", "TC-4467")
+    @TestCaseId("TC-12544", "TC-12550")
     @Category("regression", "RC", "notifications")
     @Test
     fun givenOneOnOneConversation_whenIReceiveMessageInForeground_thenNotificationAppearsAndClearsAfterReading() {
@@ -136,7 +136,7 @@ class NotificationTests : BaseCallUiTest() {
     }
 
     @Suppress("LongMethod")
-    @TestCaseId("TC-4463", "TC-4468")
+    @TestCaseId("TC-12546", "TC-12551")
     @Category("regression", "RC", "notifications")
     @Test
     fun givenOneOnOneConversation_whenAppIsInBackgroundAndIReceiveMessage_thenNotificationIsDisplayedAndTappingItOpensConversation() {
@@ -227,7 +227,7 @@ class NotificationTests : BaseCallUiTest() {
     }
 
     @Suppress("LongMethod")
-    @TestCaseId("TC-4465")
+    @TestCaseId("TC-12548")
     @Category("regression", "RC", "notifications")
     @Test
     fun givenOneOnOneConversation_whenAppIsTerminatedAndIReceiveMessage_thenNotificationIsDisplayed() {
@@ -319,7 +319,7 @@ class NotificationTests : BaseCallUiTest() {
     // Runs only on Graphene OS phone
     // This test is needed for Akamaya, who is using devices without playservices
     @Suppress("LongMethod")
-    @TestCaseId("TC-4466")
+    @TestCaseId("TC-12549")
     @Category("fdroid")
     @Test
     fun givenWebSocketOnlyDevice_whenAppIsTerminatedAndIReceiveMessage_thenNotificationIsDisplayed() {
@@ -448,7 +448,7 @@ class NotificationTests : BaseCallUiTest() {
     // Group notifications
 
     @Suppress("LongMethod")
-    @TestCaseId("TC-4462", "TC-4470")
+    @TestCaseId("TC-12545", "TC-12553")
     @Category("regression", "RC", "notifications")
     @Test
     fun givenGroupConversation_whenIReceiveMessageInForeground_thenNotificationAppearsAndClearsAfterReading() {
@@ -545,7 +545,7 @@ class NotificationTests : BaseCallUiTest() {
     }
 
     @Suppress("LongMethod")
-    @TestCaseId("TC-4464", "TC-4469")
+    @TestCaseId("TC-12547", "TC-12552")
     @Category("regression", "RC", "notifications")
     @Test
     fun givenGroupConversation_whenAppIsInBackgroundAndIReceiveMessage_thenNotificationIsDisplayedAndTappingItOpensConversation() {
@@ -646,7 +646,7 @@ class NotificationTests : BaseCallUiTest() {
     }
 
     @Suppress("LongMethod")
-    @TestCaseId("TC-4460")
+    @TestCaseId("TC-12543")
     @Category("regression", "RC", "notifications", "connect")
     @Test
     fun givenPersonalUser_whenIReceiveConnectionRequest_thenNotificationIsDisplayed() {
@@ -691,7 +691,7 @@ class NotificationTests : BaseCallUiTest() {
     }
 
     @Suppress("LongMethod")
-    @TestCaseId("TC-4471")
+    @TestCaseId("TC-12554")
     @Category("regression", "RC", "notifications", "mentions")
     @Test
     fun givenGroupConversation_whenIAmMentioned_thenMentionNotificationIsDisplayed() {
@@ -770,7 +770,7 @@ class NotificationTests : BaseCallUiTest() {
     }
 
     @Suppress("LongMethod")
-    @TestCaseId("TC-4078")
+    @TestCaseId("TC-12354")
     @Category("regression", "RC", "notification", "calling")
     @Test
     fun givenOneOnOneConversation_whenMemberCallsMeInBackground_thenIncomingCallNotificationIsDisplayed() {
@@ -840,7 +840,7 @@ class NotificationTests : BaseCallUiTest() {
     }
 
     @Suppress("LongMethod")
-    @TestCaseId("TC-4079")
+    @TestCaseId("TC-12355")
     @Category("regression", "RC", "notifications", "calling")
     @Test
     fun givenGroupConversation_whenIDeclineIncomingCall_thenMissedCallNotificationIsDisplayed() {
@@ -948,7 +948,7 @@ class NotificationTests : BaseCallUiTest() {
     }
 
     @Suppress("LongMethod")
-    @TestCaseId("TC-4080")
+    @TestCaseId("TC-12356")
     @Category("regression", "RC", "notifications", "calling")
     @Test
     fun givenGroupConversation_whenIAcceptCallAndMinimiseWire_thenOngoingCallNotificationIsDisplayed() {
@@ -1046,7 +1046,7 @@ class NotificationTests : BaseCallUiTest() {
     // Status notifications: 1:1 conversations
 
     @Suppress("LongMethod")
-    @TestCaseId("TC-4552")
+    @TestCaseId("TC-12630")
     @Category("regression", "RC", "notifications")
     @Test
     fun givenMyStatusIsSetToAvailable_whenIReceiveOneOnOneMessage_thenNotificationIsDisplayedUntilRead() {
@@ -1156,7 +1156,7 @@ class NotificationTests : BaseCallUiTest() {
     }
 
     @Suppress("LongMethod")
-    @TestCaseId("TC-4553")
+    @TestCaseId("TC-12631")
     @Category("regression", "RC", "notifications")
     @Test
     fun givenMyStatusIsSetToBusy_whenIReceiveOneOnOneMessage_thenNotificationIsNotDisplayed() {
@@ -1262,7 +1262,7 @@ class NotificationTests : BaseCallUiTest() {
     }
 
     @Suppress("LongMethod")
-    @TestCaseId("TC-4554")
+    @TestCaseId("TC-12632")
     @Category("regression", "RC", "notifications")
     @Test
     fun givenMyStatusIsSetToAway_whenIReceiveOneOnOneMessage_thenNotificationIsNotDisplayed() {
@@ -1370,7 +1370,7 @@ class NotificationTests : BaseCallUiTest() {
     // Status notifications: group conversations
 
     @Suppress("LongMethod")
-    @TestCaseId("TC-4555")
+    @TestCaseId("TC-12633")
     @Category("regression", "RC", "notifications")
     @Test
     fun givenMyStatusIsSetToAvailable_whenIReceiveGroupMessage_thenNotificationIsDisplayedUntilRead() {
@@ -1493,7 +1493,7 @@ class NotificationTests : BaseCallUiTest() {
     }
 
     @Suppress("LongMethod")
-    @TestCaseId("TC-4556")
+    @TestCaseId("TC-12634")
     @Category("regression", "RC", "notifications")
     @Test
     fun givenMyStatusIsSetToBusy_whenIReceiveGroupMessage_thenNotificationIsNotDisplayed() {
@@ -1608,7 +1608,7 @@ class NotificationTests : BaseCallUiTest() {
     }
 
     @Suppress("LongMethod")
-    @TestCaseId("TC-4557")
+    @TestCaseId("TC-12635")
     @Category("regression", "RC", "notifications")
     @Test
     fun givenMyStatusIsSetToAway_whenIReceiveGroupMessage_thenNotificationIsNotDisplayed() {

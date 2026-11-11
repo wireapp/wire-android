@@ -32,12 +32,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.wire.android.feature.cells.R
-import com.wire.android.feature.cells.ui.CellBulkAction
 import com.wire.android.feature.cells.ui.CellBulkActionsBar
 import com.wire.android.feature.cells.ui.CellFilesNavArgs
 import com.wire.android.feature.cells.ui.CellScreenContent
@@ -49,13 +49,13 @@ import com.wire.android.feature.cells.ui.common.Breadcrumbs
 import com.wire.android.feature.cells.ui.dialog.BulkDeleteDialogs
 import com.wire.android.feature.cells.ui.dialog.BulkRestoreDialogs
 import com.wire.android.feature.cells.ui.dialog.EmptyRecycleBinDialogs
+import com.wire.android.feature.cells.ui.recycleBinBulkActions
 import com.wire.android.feature.cells.ui.toIntent
 import com.wire.android.ui.common.button.WireSecondaryIconButton
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
-import kotlinx.collections.immutable.persistentListOf
 import com.wire.android.ui.common.R as commonR
 
 @Composable
@@ -168,7 +168,7 @@ internal fun RecycleBinRouteScreen(
             exit = slideOutVertically { it } + fadeOut(),
         ) {
             CellBulkActionsBar(
-                actions = persistentListOf(CellBulkAction.Restore, CellBulkAction.DeletePermanently),
+                actions = remember { recycleBinBulkActions(cellViewModel.bulkRestoreEnabled) },
                 onActionClick = { action -> cellViewModel.sendIntent(action.toIntent()) },
             )
         }
@@ -195,14 +195,6 @@ internal fun RecycleBinRouteScreen(
             dialog = dialog,
             onConfirm = { cellViewModel.sendIntent(CellViewIntent.OnEmptyRecycleBinConfirmed) },
             onDismiss = { cellViewModel.sendIntent(CellViewIntent.OnEmptyRecycleBinDialogDismissed) },
-        )
-    }
-
-    bulkRestoreDialog?.let { dialog ->
-        BulkRestoreDialogs(
-            dialog = dialog,
-            onConfirm = { cellViewModel.sendIntent(CellViewIntent.OnBulkRestoreConfirmed) },
-            onDismiss = { cellViewModel.sendIntent(CellViewIntent.OnBulkRestoreDialogDismissed) },
         )
     }
 }

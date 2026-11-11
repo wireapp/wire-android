@@ -449,6 +449,7 @@
     <string name="delete_message_for_yourself_dialog_title">Delete this Message for yourself?</string>
     <string name="delete_message_for_yourself_dialog_message">If you delete the message for yourself, it will only be visible to other participants.\n\nA deleted message can not be restored.</string>
     <string name="deleted_message_text">Deleted message</string>
+    <string name="unsupported_message_text">This message can\'t be shown in this version.</string>
     <string name="deleted_message_options_closed">The options have been closed as this message is no longer available.</string>
     <string name="deleted_conversation_options_closed">The options have been closed as this conversation is no longer available.</string>
     <!-- Replies/Quotes to other messages -->
@@ -1109,6 +1110,24 @@
     </plurals>
     <string name="notification_drive_upload_action_cancel_all">Cancel all</string>
     <string name="notification_drive_upload_action_retry">Retry</string>
+    <string name="notification_offline_download_preparing_title">Saving files for offline use…</string>
+    <plurals name="notification_offline_download_title">
+        <item quantity="one">Saving %1$d file for offline use</item>
+        <item quantity="other">Saving %1$d files for offline use</item>
+    </plurals>
+    <string name="notification_offline_download_progress_text">%1$d of %2$d saved</string>
+    <string name="notification_offline_download_action_cancel">Cancel</string>
+    <string name="notification_offline_download_complete_title">Saved for offline use</string>
+    <plurals name="notification_offline_download_complete_text">
+        <item quantity="one">%1$d file saved for offline use</item>
+        <item quantity="other">%1$d files saved for offline use</item>
+    </plurals>
+    <string name="notification_offline_download_partial_title">%1$d of %2$d files saved for offline use</string>
+    <plurals name="notification_offline_download_failed_text">
+        <item quantity="one">%1$d file couldn\'t be saved</item>
+        <item quantity="other">%1$d files couldn\'t be saved</item>
+    </plurals>
+    <string name="notification_offline_download_no_storage_title">Not enough storage</string>
     <!-- Calling-->
     <string name="calling_constant_bit_rate_indication">Constant Bit Rate</string>
     <string name="calling_button_label_microphone">Microphone</string>
@@ -1462,6 +1481,7 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="cancel_login_button_label">Cancel</string>
     <string name="cancel_login_dialog_description">If you cancel now, you will be logged out.</string>
     <string name="cancel_login_dialog_title">Are you sure you want to cancel?</string>
+    <!-- Restart App dialog -->
     <!-- Analytics Usage dialog -->
     <string name="analytics_usage_dialog_title">Consent to share user data</string>
     <string name="analytics_usage_dialog_text">Help to improve Wire by sharing your usage data via a pseudonymous ID. The data is neither linked to your personal information nor shared with third parties besides Wire Group. It includes, for example, when you use a feature, your app version, device type, or your operating system. This data will be deleted at the latest after 365 days.\n\nFind further details in our Privacy Policy. You can revoke your consent at any time.</string>

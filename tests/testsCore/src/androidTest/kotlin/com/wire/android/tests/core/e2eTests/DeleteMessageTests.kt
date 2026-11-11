@@ -41,7 +41,7 @@ class DeleteMessageTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4316")
+    @TestCaseId("TC-12449")
     @Category("regression", "RC", "conversationView", "deleteMessage")
     @Test
     fun givenOneOnOneConversation_whenIDeleteMyMessageForEveryone_thenMessageIsDeletedForEveryone() {
@@ -123,7 +123,7 @@ class DeleteMessageTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4317")
+    @TestCaseId("TC-12450")
     @Category("regression", "RC", "conversationView", "deleteMessage")
     @Test
     fun givenOneOnOneConversation_whenIDeleteMessagesForMyself_thenMessagesAreDeletedOnlyForMe() {
@@ -226,7 +226,7 @@ class DeleteMessageTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4318")
+    @TestCaseId("TC-12451")
     @Category("regression", "RC", "groups", "deleteMessage")
     @Test
     fun givenGroupConversation_whenIDeleteMyMessageForEveryone_thenMessageIsDeletedForEveryone() {
@@ -299,7 +299,7 @@ class DeleteMessageTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4319")
+    @TestCaseId("TC-12452")
     @Category("regression", "RC", "groups", "deleteMessage")
     @Test
     fun givenGroupConversation_whenIDeleteMessagesForMyself_thenMessagesAreDeletedOnlyForMe() {

@@ -57,7 +57,7 @@ class LoginTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-8684", "TC-8685", "TC-4439")
+    @TestCaseId("TC-12353", "TC-12712", "TC-12523")
     @Category("regression", "RC", "login")
     @Test
     fun givenPersonalUser_whenLoggingInWithValidCredentials_thenLoginIsSuccessful() {
@@ -118,7 +118,7 @@ class LoginTests : BaseUiTest() {
         }
     }
 
-    @TestCaseId("TC-8686")
+    @TestCaseId("TC-12713")
     @Category("regression", "RC", "login")
     @Test
     fun givenPersonalUser_whenSubmittingInvalidEmail_thenLoginDoesNotProceed() {
@@ -142,7 +142,7 @@ class LoginTests : BaseUiTest() {
         }
     }
 
-    @TestCaseId("TC-8687")
+    @TestCaseId("TC-12714")
     @Category("regression", "RC", "login")
     @Test
     fun givenPersonalUser_whenLoggingInWithValidEmailAndWrongPassword_thenLoginDoesNotProceed() {
@@ -183,7 +183,7 @@ class LoginTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-8689")
+    @TestCaseId("TC-12715")
     @Category("regression", "RC", "login", "sessionExpiration")
     @Test
     fun givenTeamMemberDeviceWasRemoved_whenLoggingInAgain_thenLoginIsSuccessful() {
@@ -268,7 +268,7 @@ class LoginTests : BaseUiTest() {
     }
 
     @Suppress("LongMethod")
-    @TestCaseId("TC-8690")
+    @TestCaseId("TC-12716")
     @Category("regression", "RC", "login")
     @Test
     fun givenTeamMemberOnPasswordScreen_whenTappingForgotPasswordLink_thenAccountRecoveryWebpageIsOpened() {
@@ -301,7 +301,7 @@ class LoginTests : BaseUiTest() {
     }
 
     @Suppress("LongMethod")
-    @TestCaseId("TC-8691")
+    @TestCaseId("TC-12717")
     @Category("regression", "RC", "login")
     @Test
     fun givenPersonalUserOnFederatedBackend_whenLoggingInUsingDeeplink_thenLoginIsSuccessful() {
@@ -355,7 +355,7 @@ class LoginTests : BaseUiTest() {
     }
 
     @Suppress("LongMethod")
-    @TestCaseId("TC-8713", "TC-8712")
+    @TestCaseId("TC-12725", "TC-12724")
     @Category("regression", "RC", "login", "SSO")
     @Test
     fun givenKeycloakSsoUser_whenLoggingInWithSsoCode_thenLoginIsSuccessful() {

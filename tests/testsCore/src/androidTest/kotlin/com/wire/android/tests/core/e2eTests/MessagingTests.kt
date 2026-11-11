@@ -50,7 +50,7 @@ class MessagingTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4450")
+    @TestCaseId("TC-12533")
     @Category("regression", "RC", "messaging", "fdroid")
     @Test
     fun givenOneOnOneConversationWithTeamMember_whenIExchangeMessages_thenMessagesAreSentAndReceived() {
@@ -159,7 +159,7 @@ class MessagingTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4452")
+    @TestCaseId("TC-12535")
     @Category("regression", "RC", "messaging")
     @Test
     fun givenOneOnOneConversationWithTeamMember_whenIExchangeVeryLongMessage_thenMessagesAreSentAndReceived() {
@@ -268,7 +268,7 @@ class MessagingTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4451")
+    @TestCaseId("TC-12534")
     @Category("regression", "RC", "messaging")
     @Test
     fun givenGroupConversationWithTeamMember_whenIExchangeVeryLongMessage_thenMessagesAreSentAndReceived() {
@@ -381,7 +381,7 @@ class MessagingTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4453")
+    @TestCaseId("TC-12536")
     @Category("regression", "RC", "messaging")
     @Test
     fun givenGroupConversation_whenISendMessageLongerThan8000Characters_thenMessageIsNotSent() {
@@ -497,7 +497,7 @@ class MessagingTests : BaseUiTest() {
 
     // Removed regression tag because "Pending messages" feature is enabled in alpha builds
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4454", "TC-4456")
+    @TestCaseId("TC-12537", "TC-12539")
     @Category("RC", "messaging")
     @Test
     fun givenMessageWasNotSentDueToNetworkIssues_whenIRetryAfterNetworkIsRestored_thenMessageIsSent() {
@@ -659,7 +659,7 @@ class MessagingTests : BaseUiTest() {
 
     // Removed regression tag because "Pending messages" feature is enabled in alpha builds
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4455")
+    @TestCaseId("TC-12538")
     @Category("RC", "messaging")
     @Test
     fun givenMessageWasNotSentDueToNetworkIssues_whenICancelResending_thenMessageIsRemoved() {

@@ -15,7 +15,7 @@ from zoneinfo import ZoneInfo
 
 
 API_URL = "https://app.testiny.io/api/v1"
-PROJECT_ID = 8  # Wire Android; matches TestinyApi.kt.
+PROJECT_ID = 17  # Wire-Prism; matches TestinyApi.kt.
 
 
 def resolve_name(override: str, build: str, run_number: str, now: datetime | None = None) -> str:

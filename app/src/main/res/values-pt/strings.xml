@@ -1128,6 +1128,7 @@ Por favor, use o gerenciamento de equipe (%1$s) neste backend.</string>
     <string name="cancel_login_button_label">Cancelar</string>
     <string name="cancel_login_dialog_description">Se você cancelar agora, será desconectado.</string>
     <string name="cancel_login_dialog_title">Tem certeza de que deseja cancelar?</string>
+    <!-- Restart App dialog -->
     <!-- Analytics Usage dialog -->
     <string name="analytics_usage_dialog_title">Consentimento para compartilhar dados de usuário</string>
     <string name="analytics_usage_dialog_text">Ajude a melhorar o Wire compartilhando seus dados de uso através de um ID pseudônimo. Os dados não estão vinculados às suas informações pessoais nem compartilhados com terceiros além do Wire Group. Ele inclui, por exemplo, quando você usa um recurso, a sua versão do aplicativo, o tipo de dispositivo ou o seu sistema operacional. Esses dados serão excluídos, o mais tardar, após 365 dias.\n\nEncontre mais detalhes na nossa Política de Privacidade. Você pode revogar seu consentimento a qualquer momento.</string>

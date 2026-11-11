@@ -43,7 +43,7 @@ class NewMemberMessaging : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-8605")
+    @TestCaseId("TC-12692")
     @Category("criticalFlow")
     @Test
     fun givenUserJoinsNewTeam_whenMessagingAndMentionedInGroup_thenReceivesMessagesAndMentions() {

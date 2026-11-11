@@ -24,6 +24,8 @@ data class CellFilesNavArgs(
     val breadcrumbs: Array<String>? = null,
     val parentFolderUuid: String? = null,
     val isSearchByDefaultActive: Boolean? = false,
+    /** Opens the folder listing only its files saved for offline use, see [CellViewModel.isOfflineOnly]. */
+    val isOfflineOnly: Boolean = false,
 ) {
 
     override fun hashCode(): Int {

@@ -115,7 +115,7 @@ internal fun BulkSelectionHint(
 
 // Static on purpose: the demo next to it already draws the eye.
 @Composable
-private fun NewFeatureBadge() {
+internal fun NewFeatureBadge() {
     Text(
         text = stringResource(R.string.cells_new_feature_badge),
         style = typography().badge01,
@@ -287,7 +287,7 @@ private fun phase(t: Float, start: Float, end: Float): Float = ((t - start) / (e
 
 /** False when the user turned system animations off (developer options or accessibility "remove animations"). */
 @Composable
-private fun rememberAnimationsEnabled(): Boolean {
+internal fun rememberAnimationsEnabled(): Boolean {
     val contentResolver = LocalContext.current.contentResolver
     return remember(contentResolver) {
         Settings.Global.getFloat(contentResolver, Settings.Global.ANIMATOR_DURATION_SCALE, 1f) > 0f

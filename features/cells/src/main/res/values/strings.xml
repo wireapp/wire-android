@@ -439,5 +439,11 @@
         <item quantity="one">%1$d file saved for offline use</item>
         <item quantity="other">%1$d files saved for offline use</item>
     </plurals>
-    <string name="cells_bulk_action_remove_offline">Remove offline</string>
+    <string name="cells_offline_files_label">Offline files</string>
+    <string name="cells_show_offline_files_content_description">Show offline files only</string>
+    <string name="cells_show_all_files_content_description">Show all files</string>
+    <string name="cells_offline_toggle_hint_title">See your offline files</string>
+    <string name="cells_offline_toggle_hint_message">Tap here to show only the files saved on this device, even when you\'re online. Tap again to see all files.</string>
+    <string name="cells_offline_only_empty_title">No files available offline</string>
+    <string name="cells_offline_only_empty_message">Files you make available offline show up here, so you can open them without an internet connection.</string>
 </resources>

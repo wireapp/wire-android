@@ -330,6 +330,16 @@ def collect_event(repository, run_id, run_attempt, api=None):
         raise CollectionError("GitHub request failed: " + str(error)) from None
 
 
+def _finish(payload, incomplete):
+    try:
+        contract.validate_payload(payload)
+    except ValueError:
+        raise CollectionError("The collected evidence is invalid") from None
+    if incomplete and payload["evidence"]["conclusion"] == "success":
+        raise CollectionError("Evidence is incomplete", partial=payload)
+    return payload
+
+
 def _assemble(api, repository, run, path, kind, all_jobs, artifacts):
     run_id, attempt, conclusion = run["id"], run["run_attempt"], run["conclusion"]
     flavor = BUILD_FLAVORS[kind]
@@ -372,13 +382,7 @@ def _assemble(api, repository, run, path, kind, all_jobs, artifacts):
             "conclusion": conclusion, "jobs": jobs, "build": build, "qa": None, "origin": None, "gaps": gaps,
         },
     }
-    try:
-        contract.validate_payload(payload)
-    except ValueError:
-        raise CollectionError("The collected evidence is invalid") from None
-    if incomplete and conclusion == "success":
-        raise CollectionError("Evidence is incomplete", partial=payload)
-    return payload
+    return _finish(payload, incomplete)
 
 
 _LABEL = re.compile(r"((?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*))(?:-([1-9][0-9]*))?")
@@ -414,11 +418,10 @@ def match_production_build(qa, manifests, unverified=()):
     if unverified:
         result["gap"] = "production build enumeration is incomplete (%s)" % ", ".join(unverified)
         return result
-    same = [build for build in manifests if isinstance(build, dict) and build.get("kind") == "build"
-            and build.get("flavor") == "Prod"
-            and any(item.get("filename") == apk["filename"] and item.get("sha256") == apk["sha256"]
-                    for item in build.get("apks", []))]
-    matches = same
+    matches = [build for build in manifests if isinstance(build, dict) and build.get("kind") == "build"
+               and build.get("flavor") == "Prod"
+               and any(item.get("filename") == apk["filename"] and item.get("sha256") == apk["sha256"]
+                       for item in build.get("apks", []))]
     if len(matches) > 1:
         result["gap"] = "more than one production build has this APK digest and file name"
     elif not matches:
@@ -433,13 +436,11 @@ def match_production_build(qa, manifests, unverified=()):
 
 
 def _check_origin_run(run, repository, run_id, attempt):
-    full_name = run.get("repository", {}).get("full_name") if isinstance(run, dict) and isinstance(
-        run.get("repository"), dict) else None
-    raw = run.get("path") if isinstance(run, dict) else None
-    if (not isinstance(run, dict) or not _is_release_run(run, "production") or run.get("id") != run_id
-            or run.get("run_attempt") != attempt
-            or full_name != repository or not isinstance(raw, str) or raw.split("@", 1)[0] != PROD_BUILD_PATH
-            or not isinstance(run.get("head_sha"), str) or not contract.SHA.fullmatch(run["head_sha"])):
+    try:
+        path, kind = _validate_run(run, repository, run_id, attempt)
+    except CollectionError:
+        raise CollectionError("The production run does not match the request") from None
+    if path != PROD_BUILD_PATH or not _is_release_run(run, kind):
         raise CollectionError("The production run does not match the request")
 
 
@@ -628,13 +629,7 @@ def _assemble_regression(api, repository, run, path, all_jobs, artifacts, defaul
             "conclusion": conclusion, "jobs": jobs, "build": None, "qa": qa, "origin": origin, "gaps": gaps,
         },
     }
-    try:
-        contract.validate_payload(payload)
-    except ValueError:
-        raise CollectionError("The collected evidence is invalid") from None
-    if incomplete and conclusion == "success":
-        raise CollectionError("Evidence is incomplete", partial=payload)
-    return payload
+    return _finish(payload, incomplete)
 
 
 PUBLISH_TIMEOUT = 20

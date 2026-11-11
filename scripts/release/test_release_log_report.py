@@ -1551,6 +1551,13 @@ class ProductionEnumerationTest(unittest.TestCase):
         self.assertIsNone(payload["evidence"]["origin"])
         self.assertIn(UNMATCHED_TEXT, " ".join(payload["evidence"]["gaps"]))
 
+    def test_a_production_run_with_an_unknown_conclusion_leaves_the_attribution_unverified(self):
+        api = reg_world(production=False)
+        api.add_production(run=prod_run(conclusion="mystery"))
+        payload = collect_regression(api)
+        self.assertIsNone(payload["evidence"]["origin"])
+        self.assertIn("production builds could not be fully enumerated", " ".join(payload["evidence"]["gaps"]))
+
     def test_a_regression_without_a_start_time_gets_the_unverified_window_gap(self):
         for created in (None, "", "yesterday"):
             with self.subTest(created=created):

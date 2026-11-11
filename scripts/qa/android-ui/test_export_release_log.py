@@ -270,6 +270,22 @@ class ReadBundleTest(unittest.TestCase):
             self.assertIsNone(export.directory_fingerprint(Path(root)))
 
 
+def result_file(directory, name, status="passed", recovered=False):
+    labels = [{"name": "testClass", "value": "A"}]
+    if recovered:
+        labels.append({"name": "passed_on_rerun", "value": "true"})
+    Path(directory, name + "-result.json").write_text(json.dumps({"status": status, "labels": labels}))
+
+
+def merged_results(root, recovered=2):
+    merged = Path(root) / "merged"
+    merged.mkdir(exist_ok=True)
+    for index in range(recovered):
+        result_file(merged, "recovered-%d" % index, recovered=True)
+    result_file(merged, "plain")
+    return merged
+
+
 def environment(root, **changes):
     values = {
         "GITHUB_REPOSITORY": REPOSITORY, "GITHUB_RUN_ID": "1520", "GITHUB_RUN_ATTEMPT": "1",
@@ -280,7 +296,8 @@ def environment(root, **changes):
         "NEW_APK_NAME": "Wire-production-v4.38.0-71389.apk", "REAL_BUILD_NUMBER": "4.38.0-71389",
         "OLD_APK_PATH": str(Path(root) / "Wire.old.apk"), "OLD_APK_NAME": "Wire-production-v4.37.0-71000.apk",
         "OLD_BUILD_NUMBER": "4.37.0-71000", "TESTS_PASSED": "412", "TESTS_FAILED": "6", "TESTS_SKIPPED": "3",
-        "TESTS_MISSING": "0", "TESTS_SELECTED": "421", "TESTS_TOTAL": "421", "PASSED_ON_RERUN_COUNT": "2",
+        "TESTS_MISSING": "0", "TESTS_SELECTED": "421", "TESTS_TOTAL": "421",
+        "MERGED_DIR": str(merged_results(root)),
         "ALLURE_REPORT_URL": "https://example.github.io/wire-android/qa-prod-tests/run/",
     }
     values.update(changes)
@@ -314,25 +331,47 @@ class EnvironmentTest(TemporaryFiles):
 
     def test_blank_or_invalid_counts_are_null_and_never_zero(self):
         results = export.results_from_env(self.env(TESTS_PASSED="", TESTS_FAILED="x", TESTS_SKIPPED="-1",
-                                                   TESTS_MISSING="1.5", PASSED_ON_RERUN_COUNT=""))
+                                                   TESTS_MISSING="1.5", MERGED_DIR=""))
         self.assertEqual(results, {"passed": None, "failed": None, "skipped": None, "missing": None,
                                    "selected": 421, "total": 421, "passed_on_rerun": None})
 
-    def test_retry_recovery_comes_from_retry_state_not_the_summarizer(self):
+    def test_the_recovered_count_is_the_tests_the_merge_marked_as_passed_on_rerun(self):
+        self.assertEqual(export.results_from_env(self.env())["passed_on_rerun"], 2)
+
+    def test_a_test_that_failed_first_and_was_skipped_on_retry_is_not_counted(self):
+        merged = merged_results(self.root)
+        result_file(merged, "skipped-on-retry", status="skipped")
+        result_file(merged, "skipped-but-marked", status="skipped", recovered=True)
+        self.assertEqual(export.results_from_env(self.env())["passed_on_rerun"], 2)
+
+    def test_only_an_explicit_true_label_on_a_passed_result_counts(self):
+        merged = merged_results(self.root)
+        (merged / "odd-result.json").write_text(json.dumps(
+            {"status": "passed", "labels": [{"name": "passed_on_rerun", "value": "false"}, "x"]}))
+        self.assertEqual(export.results_from_env(self.env())["passed_on_rerun"], 2)
+
+    def test_the_retry_state_files_and_the_derived_count_are_not_evidence(self):
         state = self.root / "retry"
         state.mkdir()
-        (state / "first-attempt-failed.txt").write_text("A#one\nB#two\nC#three\n")
-        (state / "attempt-1-failed.txt").write_text("C#three\n")
-        env = self.env(PASSED_ON_RERUN_COUNT="", RETRY_STATE_DIR=str(state),
-                       FIRST_FAILED_TESTS_FILE=str(state / "first-attempt-failed.txt"),
-                       FINAL_FAILED_TESTS_FILE=str(state / "attempt-1-failed.txt"))
-        self.assertEqual(export.results_from_env(env)["passed_on_rerun"], 2)
-        env["PASSED_ON_RERUN_COUNT"] = "2"
-        self.assertEqual(export.results_from_env(env)["passed_on_rerun"], 2)
-
-    def test_without_retry_state_the_recovery_count_is_unknown(self):
-        env = self.env(PASSED_ON_RERUN_COUNT="")
+        (state / "first.txt").write_text("A#one\nB#two\nC#three\n")
+        (state / "final.txt").write_text("")
+        env = self.env(MERGED_DIR="", PASSED_ON_RERUN_COUNT="3", FIRST_FAILED_TESTS_FILE=str(state / "first.txt"),
+                       FINAL_FAILED_TESTS_FILE=str(state / "final.txt"))
         self.assertIsNone(export.results_from_env(env)["passed_on_rerun"])
+
+    def test_without_merged_results_the_recovery_count_is_unknown(self):
+        empty = self.root / "empty"
+        empty.mkdir()
+        for value in ("", str(self.root / "absent"), str(empty)):
+            with self.subTest(merged=value):
+                self.assertIsNone(export.results_from_env(self.env(MERGED_DIR=value))["passed_on_rerun"])
+
+    def test_an_unreadable_merged_result_makes_the_recovery_count_unknown(self):
+        merged = merged_results(self.root)
+        (merged / "broken-result.json").write_text("{")
+        self.assertIsNone(export.results_from_env(self.env())["passed_on_rerun"])
+        (merged / "broken-result.json").write_text("[]")
+        self.assertIsNone(export.results_from_env(self.env())["passed_on_rerun"])
 
     def test_a_deflake_takes_its_scope_and_source_from_the_consumed_bundle(self):
         bundle = self.root / "consumed"

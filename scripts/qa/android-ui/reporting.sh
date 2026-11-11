@@ -125,7 +125,7 @@ export_qa_release_log() {
   : "${RELEASE_LOG_OUTPUT:?RELEASE_LOG_OUTPUT not set}"
 
   # Evidence only. The Python exporter writes nothing for runs that are not
-  # production regressions, and never reads or changes test results.
+  # production regressions, and never changes test results.
   python3 scripts/qa/android-ui/export_release_log.py --output "${RELEASE_LOG_OUTPUT}"
 }
 

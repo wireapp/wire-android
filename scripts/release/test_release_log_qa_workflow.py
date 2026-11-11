@@ -65,6 +65,11 @@ class QaExportStepsTest(unittest.TestCase):
                 self.assertIn("steps.publish_allure_report.outputs.allure_report_url", block)
                 self.assertIn("id: summarize_allure_results", step_block(job, SUMMARIZE))
 
+    def test_the_export_reads_the_merged_results_for_the_rerun_count(self):
+        for name, _, job in self.jobs():
+            with self.subTest(job=name):
+                self.assertIn("MERGED_DIR: ${{ runner.temp }}/allure-results-merged\n", step_block(job, EXPORT_STEP))
+
     def test_the_export_takes_the_run_mode_flavor_scope_and_retry_count_from_the_resolved_inputs(self):
         normal = step_block(job_block(self.text, "run-android-ui-tests"), EXPORT_STEP)
         self.assertIn("RELEASE_LOG_RUN_MODE: full", normal)

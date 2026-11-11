@@ -19,6 +19,7 @@ import release_log_export as release_export  # noqa: E402
 PROD_WORKFLOW = ".github/workflows/qa-android-prod-tests.yml"
 PRODUCTION_FLAVOR = "production"
 LIST_LIMIT = 1024 * 1024
+RECOVERED_LABEL = "passed_on_rerun"
 
 
 def bundle_fingerprint(metadata, failed_test_ids):
@@ -219,24 +220,30 @@ def context_from_env(environ):
     return context
 
 
-def _lines(path):
-    try:
-        text = Path(path).read_text(encoding="utf-8")
-    except (OSError, UnicodeDecodeError):
-        return None
-    return len([line for line in text.splitlines() if line.strip()])
+def _recovered(data):
+    labels = data.get("labels")
+    return isinstance(labels, list) and any(
+        isinstance(label, dict) and label.get("name") == RECOVERED_LABEL and label.get("value") == "true"
+        for label in labels)
 
 
 def _passed_on_rerun(environ):
-    """Count tests that failed first and passed later, from the retry state files."""
-    first_file = _env(environ, "FIRST_FAILED_TESTS_FILE")
-    if first_file:
-        first = _lines(first_file)
-        final_file = _env(environ, "FINAL_FAILED_TESTS_FILE")
-        final = _lines(final_file) if final_file else 0
-        if first is not None and final is not None:
-            return max(first - final, 0)
-    return _count(_env(environ, "PASSED_ON_RERUN_COUNT"))
+    """Count the merged results marked as failed first and passed later, or None when that is not recorded."""
+    directory = _env(environ, "MERGED_DIR")
+    if not directory or not Path(directory).is_dir():
+        return None
+    count, seen = 0, 0
+    for path in sorted(Path(directory).glob("*-result.json")):
+        try:
+            data = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            return None
+        if not isinstance(data, dict):
+            return None
+        seen += 1
+        if data.get("status") == "passed" and _recovered(data):
+            count += 1
+    return count if seen else None
 
 
 def results_from_env(environ):

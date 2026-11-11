@@ -727,6 +727,7 @@ jobs:
         continue-on-error: true
         env:
           RELEASE_LOG_OUTPUT: ${{ runner.temp }}/release-log-qa/evidence.json
+          MERGED_DIR: ${{ runner.temp }}/allure-results-merged
           RELEASE_LOG_RUN_MODE: full
           FLAVOR_INPUT: ${{ needs.validate-and-resolve-inputs.outputs.resolvedFlavor }}
           TAGS_INPUT: ${{ needs.validate-and-resolve-inputs.outputs.resolvedTags }}
@@ -1187,6 +1188,7 @@ jobs:
         continue-on-error: true
         env:
           RELEASE_LOG_OUTPUT: ${{ runner.temp }}/release-log-qa/evidence.json
+          MERGED_DIR: ${{ runner.temp }}/allure-results-merged
           RELEASE_LOG_RUN_MODE: deflake
           RELEASE_LOG_SKIP_OUTPUT: ${{ runner.temp }}/release-log-qa-skip/skip.json
           DEFLAKE_BUNDLE_ROOT: ${{ runner.temp }}/deflake-input

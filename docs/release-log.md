@@ -55,7 +55,7 @@ The record holds:
 - The tests commit. For a deflake run, this is the restored test revision.
 - A fingerprint of the deflake bundle this run wrote, and for a deflake run, the fingerprint of the bundle it used.
 
-Test counts follow `total = passed + failed + skipped + missing`. A deflake run also needs `selected = total`. Counts that contradict each other are dropped and the entry shows no results. The recovered count, `passed on rerun`, comes from the retry state files and not from the Allure summary. A missing result, a run that executed no test, and an empty full run are gaps and never a pass.
+Test counts follow `total = passed + failed + skipped + missing`. A deflake run also needs `selected = total`. Counts that contradict each other are dropped and the entry shows no results. The recovered count, `passed on rerun`, comes from the merged results and not from the Allure summary. It counts only a test that failed in the first attempt and has a `passed` result in the last, as the merge step marks it. A test that was skipped or missing on the retry does not count. When the merged results are missing or unreadable, the count is unavailable and the entry omits it. A missing result, a run that executed no test, and an empty full run are gaps and never a pass.
 
 Normal runs of the production workflow use two retries. A deflake run uses no retries unless the dispatch sets a count from 0 to 3. A test pins both defaults.
 

@@ -37,6 +37,7 @@ internal fun SettingsItem.toNavigation3Route(
     SettingsItem.AboutApp -> AboutThisAppRoute(sessionId, entryId)
     SettingsItem.NetworkSettings -> NetworkSettingsRoute(sessionId, entryId)
     SettingsItem.PrivacySettings -> PrivacySettingsRoute(sessionId, entryId)
+    SettingsItem.MultiFactorAuthentication -> MultiFactorAuthenticationRoute(sessionId, entryId)
     SettingsItem.Customization -> CustomizationSettingsRoute(sessionId, entryId)
     SettingsItem.Licenses -> LicensesSettingsRoute(sessionId, entryId)
     SettingsItem.Dependencies -> DependenciesSettingsRoute(sessionId, entryId)

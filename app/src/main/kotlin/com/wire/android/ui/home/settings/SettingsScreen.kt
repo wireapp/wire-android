@@ -122,6 +122,9 @@ fun SettingsScreenContent(
                     if (BackUpSettings) {
                         add(SettingsItem.BackupAndRestore)
                     }
+                    if (BuildConfig.MULTI_FACTOR_AUTHENTICATION_ENABLED) {
+                        add(SettingsItem.MultiFactorAuthentication)
+                    }
                 },
                 trailingText = { settingsItem ->
                     if (settingsItem is SettingsItem.YourAccount) {

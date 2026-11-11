@@ -31,6 +31,7 @@ import com.wire.android.ui.home.settings.appearance.CustomizationScreen
 import com.wire.android.ui.home.settings.appsettings.AppSettingsScreen
 import com.wire.android.ui.home.settings.appsettings.networkSettings.NetworkSettingsScreen
 import com.wire.android.ui.home.settings.backup.BackupAndRestoreScreen
+import com.wire.android.ui.home.settings.multifactorauthentication.MultiFactorAuthenticationScreen
 import com.wire.android.ui.home.settings.privacy.PrivacySettingsConfigScreen
 import com.wire.navigation.SessionRoute
 import com.wire.navigation.WireNavigationCommand
@@ -112,6 +113,9 @@ internal fun settingsNavigation3Entries(
     wireEntry<PrivacySettingsRoute> {
         PrivacySettingsConfigScreen(onBackPressed = runtime.backOrExit(actions))
     }
+    wireEntry<MultiFactorAuthenticationRoute> {
+        MultiFactorAuthenticationScreen(onBackPressed = runtime.backOrExit(actions))
+    }
     wireEntry<CustomizationSettingsRoute> {
         CustomizationScreen(onBackPressed = runtime.backOrExit(actions))
     }
@@ -182,6 +186,7 @@ internal fun SettingsItem.DirectionItem.toNavigation3Target(
                 SettingsItem.Customization,
                 SettingsItem.NetworkSettings,
                 SettingsItem.PrivacySettings,
+                SettingsItem.MultiFactorAuthentication,
                 SettingsItem.Licenses,
                 SettingsItem.Dependencies,
                 SettingsItem.BackupAndRestore,

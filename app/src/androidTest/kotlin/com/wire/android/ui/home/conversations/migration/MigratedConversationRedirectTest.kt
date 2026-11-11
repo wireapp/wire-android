@@ -40,7 +40,10 @@ class MigratedConversationRedirectTest {
         var recompositions by mutableIntStateOf(0)
         composeTestRule.setContent {
             val current = recompositions
-            MigratedConversationRedirect(TARGET) { replaced += it; current }
+            MigratedConversationRedirect(TARGET) {
+                replaced += it
+                current
+            }
         }
 
         repeat(RECOMPOSITIONS) {
@@ -56,7 +59,10 @@ class MigratedConversationRedirectTest {
         var recompositions by mutableIntStateOf(0)
         composeTestRule.setContent {
             val current = recompositions
-            MigratedConversationRedirect(null) { replaced += it; current }
+            MigratedConversationRedirect(null) {
+                replaced += it
+                current
+            }
         }
 
         repeat(RECOMPOSITIONS) {

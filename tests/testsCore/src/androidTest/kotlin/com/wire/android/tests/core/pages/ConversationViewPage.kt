@@ -18,6 +18,7 @@
 package com.wire.android.tests.core.pages
 
 import android.graphics.Bitmap
+import android.graphics.Color
 import android.graphics.Rect
 import android.view.KeyEvent
 import androidx.test.platform.app.InstrumentationRegistry
@@ -28,6 +29,7 @@ import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.UiObject2
 import androidx.test.uiautomator.UiScrollable
 import androidx.test.uiautomator.UiSelector
+import com.google.zxing.ReaderException
 import junit.framework.TestCase.assertFalse
 import org.junit.Assert
 import uiautomatorutils.UiSelectorParams
@@ -425,6 +427,46 @@ data class ConversationViewPage(private val device: UiDevice) {
         return this
     }
 
+    fun tapReadyTextFileMessageIfShown(displayName: String): ConversationViewPage {
+        var readyRow: UiObject2? = null
+        val openedOrReady = UiWaitUtils.retryUntilTimeout(UiWaitUtils.DEFAULT_TIMEOUT) {
+            // Conversation downloads expose this label for the completed download's Ready icon.
+            readyRow = device.findObject(
+                By.clickable(true).hasDescendant(By.text(displayName)).hasDescendant(By.desc("Offline available"))
+            )
+            readyRow != null || device.currentPackageName == "com.android.chrome" ||
+                device.hasObject(By.textStartsWith("Open with"))
+        }
+        assertTrue("File '$displayName' did not open or offer Ready to open", openedOrReady)
+        readyRow?.click()
+        return this
+    }
+
+    fun assertVideoFilenameAndTypeVisible(fileName: String): ConversationViewPage {
+        UiWaitUtils.waitElement(UiSelectorParams(text = fileName.substringBeforeLast('.')))
+        UiWaitUtils.waitElement(UiSelectorParams(textContains = "MP4 ("))
+        return this
+    }
+
+    fun assertTxtMessageTypeVisible(fileName: String): ConversationViewPage {
+        val file = UiWaitUtils.waitElement(UiSelectorParams(text = fileName))
+        assertTrue("TXT header is missing for '$fileName'", file.parent.findObject(By.textStartsWith("TXT (")) != null)
+        return this
+    }
+
+    fun assertOfflineActionsAbsentFromMessageMenu(): ConversationViewPage {
+        UiWaitUtils.waitElement(UiSelectorParams(text = "Message Details"), timeout = UiWaitUtils.SHORT_WAIT)
+        listOf("Make available offline", "Remove offline access").forEach { action ->
+            assertFalse("'$action' is visible in the Conversation message menu", device.hasObject(By.text(action)))
+        }
+        return this
+    }
+
+    fun dismissMessageMenu(): ConversationViewPage {
+        device.pressBack()
+        return this
+    }
+
     fun assertBottomSheetButtonsVisible_ReactionsDetailsReplyDownloadShareOpenDelete(): ConversationViewPage {
         val expectedButtons = listOf(
             "REACTIONS",
@@ -674,6 +716,33 @@ data class ConversationViewPage(private val device: UiDevice) {
         return this
     }
 
+    // TODO: Replace this scoped Play-icon check when the Cells video control has an accessibility label.
+    @Suppress("MagicNumber")
+    fun openCellsVideoMessage(fileName: String): ConversationViewPage {
+        UiWaitUtils.waitElement(fileWithName(fileName))
+        val radius = (13 * InstrumentationRegistry.getInstrumentation().targetContext.resources.displayMetrics.density).toInt()
+        val ready = UiWaitUtils.retryUntilTimeout(UiWaitUtils.LONG_TIMEOUT) {
+            val name = findElementOrNull(fileWithName(fileName)) ?: return@retryUntilTimeout false
+            val preview = name.parent.children.last().visibleBounds
+            val screenshot = requireNotNull(InstrumentationRegistry.getInstrumentation().uiAutomation.takeScreenshot())
+            try {
+                val x = preview.centerX()
+                val y = preview.centerY()
+                screenshot.getPixel(x, y) == Color.BLACK &&
+                    listOf(-radius to 0, radius to 0, 0 to -radius, 0 to radius).all { (dx, dy) ->
+                        screenshot.getPixel(x + dx, y + dy) == Color.WHITE
+                    }
+            } finally {
+                screenshot.recycle()
+            }
+        }
+        Assert.assertTrue("Play is not visible on the video message '$fileName'", ready)
+        val video = device.findObject(By.clickable(true).hasDescendant(By.text(fileName)))
+            ?: throw AssertionError("Video message '$fileName' is not clickable")
+        video.click()
+        return this
+    }
+
     fun tapToPlayVideoFile(fileName: String): ConversationViewPage {
         val fileNameElement = UiWaitUtils.waitElement(fileWithName(fileName))
         val videoPreview = fileNameElement.parent.children.firstOrNull {
@@ -729,11 +798,53 @@ data class ConversationViewPage(private val device: UiDevice) {
         return this
     }
 
+    // TODO: Use an accessibility locator when Cells image attachments expose one.
+    fun tapQrImageAttachment(expectedValue: String): ConversationViewPage {
+        val messages = UiWaitUtils.waitElement(conversationMessages)
+        val image = messages.findObjects(By.clickable(true))
+            .sortedBy { it.visibleBounds.width() * it.visibleBounds.height() }
+            .firstOrNull {
+                val bounds = it.visibleBounds
+                !bounds.isEmpty && qrCodeInScreenArea(bounds) == expectedValue
+            } ?: throw AssertionError("A clickable image attachment containing QR '$expectedValue' was not found")
+        image.click()
+        return this
+    }
+
+    fun tapScrollToEndOfConversationButton(): ConversationViewPage {
+        UiWaitUtils.waitElement(
+            UiSelectorParams(description = "Scroll to end of conversation"),
+            timeout = UiWaitUtils.SHORT_WAIT
+        ).click()
+        return this
+    }
+
+    @Suppress("MagicNumber")
+    fun scrollUntilOlderQrImageVisible(expectedValue: String): ConversationViewPage {
+        val visible = UiWaitUtils.retryUntilTimeout(UiWaitUtils.LONG_TIMEOUT) {
+            val input = findElementOrNull(typeMessageField)?.visibleBounds ?: return@retryUntilTimeout false
+            val messages = findElementOrNull(conversationMessages) ?: return@retryUntilTimeout false
+            if (qrCodeInScreenArea(Rect(0, 0, device.displayWidth, input.top)) == expectedValue) {
+                true
+            } else {
+                // Scroll the first image above the composer when the security notice occupies the top of history.
+                val atStart = device.hasObject(By.textContains("Communication in Wire is always secured."))
+                messages.scroll(if (atStart) Direction.DOWN else Direction.UP, 0.3f)
+                false
+            }
+        }
+        Assert.assertTrue("The older image thumbnail does not show QR content '$expectedValue'", visible)
+        return this
+    }
+
     private fun qrCodeInScreenArea(bounds: Rect): String? {
         val screenshot = requireNotNull(InstrumentationRegistry.getInstrumentation().uiAutomation.takeScreenshot())
         val area = Bitmap.createBitmap(screenshot, bounds.left, bounds.top, bounds.width(), bounds.height())
         return try {
             decodeQRCode(area)
+        } catch (_: ReaderException) {
+            // A partially rendered QR image is not readable yet; the caller keeps polling.
+            null
         } finally {
             area.recycle()
             screenshot.recycle()

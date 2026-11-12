@@ -713,7 +713,7 @@ class WireDrivePermissionsTests : BaseUiTest() {
             "Then GuestMember's ViewerFolder three-dot menu in Shared Drive allows Open but hides Add or Remove Tags, " +
                 "Share via Link, Move to folder, Rename and Delete"
         ) {
-            pages.wireDrivePage.assertViewerFolderMenuActionsInSharedDrive()
+            pages.wireDrivePage.assertFolderMenuAllowsOnlyOpenInSharedDrive()
         }
 
         step("And GuestMember opens ViewerFolder, sees that it is empty, and returns to Shared Drive") {
@@ -1380,7 +1380,7 @@ class WireDrivePermissionsTests : BaseUiTest() {
             }
         }
         step("And the Viewer PDF preview has no editing or external sharing controls") {
-            pages.pdfViewerPage.assertViewerPdfHasNoEditOrShareControls()
+            pages.pdfViewerPage.assertPdfHasNoEditOrShareControls()
             pages.commonAppPage.assertWireAppIsInForeground()
         }
         step("When Guest returns to Shared Drive and opens the document three-dot menu") {

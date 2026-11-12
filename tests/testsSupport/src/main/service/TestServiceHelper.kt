@@ -515,6 +515,17 @@ class TestServiceHelper(
         return backend.getConversationByName(owner, convoName)
     }
 
+    // Group creation can finish while its Shared Drive is still being provisioned.
+    fun waitForSharedDriveReady(ownerAlias: String, conversationName: String) {
+        val owner = toClientUser(ownerAlias)
+        var state: String? = null
+        val ready = UiWaitUtils.retryUntilTimeout(UiWaitUtils.VERY_LONG_TIMEOUT) {
+            state = toConvoObj(owner, conversationName).cellsState
+            state == "ready"
+        }
+        check(ready) { "Shared Drive for '$conversationName' is not ready; cells_state=$state" }
+    }
+
     fun addDevice(
         ownerAlias: String,
         verificationCode: String? = null,

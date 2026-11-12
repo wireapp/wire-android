@@ -524,6 +524,7 @@ jobs:
       # Run attempt 0, pull results immediately, then rerun only the still-failing tests.
       - name: Run UI tests (auto-rerun failed tests)
         env:
+          TEST_SERVICE_URL: ${{ steps.resolve_test_service.outputs.testServiceUrl }}
           RESOLVED_TESTCASE_ID: ${{ needs.validate-and-resolve-inputs.outputs.resolvedTestCaseId }}
           RESOLVED_CATEGORY: ${{ needs.validate-and-resolve-inputs.outputs.resolvedCategory }}
           IS_UPGRADE: ${{ needs.validate-and-resolve-inputs.outputs.resolvedIsUpgrade }}
@@ -995,6 +996,7 @@ jobs:
       # existing rerun logic handle any failures that remain in this run.
       - name: Run failed tests from deflake artifact
         env:
+          TEST_SERVICE_URL: ${{ steps.validate_deflake_input.outputs.testServiceUrl }}
           INITIAL_FAILED_TESTS_FILE: ${{ steps.validate_deflake_input.outputs.failedTestsFile }}
           RESOLVED_TESTCASE_ID: ${{ steps.validate_deflake_input.outputs.selectorType == 'testCaseId' && steps.validate_deflake_input.outputs.selectorValue || '' }}
           RESOLVED_CATEGORY: ${{ steps.validate_deflake_input.outputs.selectorType == 'category' && steps.validate_deflake_input.outputs.selectorValue || '' }}

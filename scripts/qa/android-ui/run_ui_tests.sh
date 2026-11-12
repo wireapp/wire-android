@@ -418,6 +418,34 @@ pull_allure_results_for_attempt() {
   done
 }
 
+# Checks whether this attempt needs TC-12261's offline test-service connection.
+# Handles explicit test IDs, category/full runs and per-device retry lists.
+# Skips connection setup when the selection excludes this test.
+offline_pdf_test_selected() {
+  local attempt="$1"
+  local serial="$2"
+  case "${EXCLUDE_CATEGORY:-}" in
+    regression|RC|wireDrive|wireDriveDownloadsAndOffline) return 1 ;;
+  esac
+  if ! attempt_uses_selector_mode "${attempt}"; then
+    grep -Fq '#givenMemberHasSavedPdfOffline_whenTeamOwnerUpdatesTheSameOnlinePdf_thenMemberStillReadsOriginalContentWithoutEditingWhileOffline' \
+      "$(rerun_list_file_for_device "${attempt}" "${serial}")"
+    return $?
+  fi
+  if [[ -n "${RESOLVED_TESTCASE_ID:-}" ]]; then
+    [[ "${RESOLVED_TESTCASE_ID}" == "TC-12261" ]]
+    return $?
+  fi
+  local category
+  for category in "${RESOLVED_CATEGORY:-}" "${REQUIRED_CATEGORY:-}"; do
+    case "${category}" in
+      ""|regression|RC|wireDrive|wireDriveDownloadsAndOffline) ;;
+      *) return 1 ;;
+    esac
+  done
+  return 0
+}
+
 run_attempt_on_devices() {
   local attempt="$1"
   local num_shards="$2"
@@ -551,6 +579,42 @@ run_attempt_on_devices() {
       if [[ "${IS_UPGRADE:-}" == "true" ]]; then
         args+=(-e newApkPath "${NEW_APK_DEVICE_PATH}")
         args+=(-e oldApkPath "${OLD_APK_DEVICE_PATH:-/data/local/tmp/Wire.old.apk}")
+      fi
+
+      # For TC-12261, connect the phone to test-service through ADB while Wi-Fi and
+      # mobile data are disabled. Start a runner-side relay, forward the phone's
+      # loopback port to it, and pass that URL to the test.
+      # Clean up this attempt's forwarding rule and relay on success or failure.
+      if offline_pdf_test_selected "${attempt}" "${serial}"; then
+        : "${TEST_SERVICE_URL:?Test Service URL is required for the offline PDF update}"
+        local relay_pid=""
+        local reverse_created=false
+        # Removes this attempt's reverse rule and stops its relay when the attempt exits.
+        cleanup_offline_test_service() {
+          if [[ "${reverse_created}" == "true" ]]; then
+            adb -s "${serial}" reverse --remove tcp:18082 || true
+          fi
+          if [[ -n "${relay_pid}" ]]; then
+            kill "${relay_pid}" 2>/dev/null || true
+            wait "${relay_pid}" 2>/dev/null || true
+          fi
+        }
+        trap cleanup_offline_test_service EXIT
+        local port_file="${STATE_DIR}/offline-service-${attempt}-${serial}.port"
+        : > "${port_file}"
+        python3 scripts/qa/android-ui/offline_test_service.py "${TEST_SERVICE_URL}" "${port_file}" \
+          > "${LOG_DIR}/offline-service-${attempt}-${serial}.log" 2>&1 &
+        relay_pid=$!
+        local probe
+        for probe in {1..50}; do
+          [[ -s "${port_file}" ]] && break
+          kill -0 "${relay_pid}" 2>/dev/null || { echo "ERROR: Offline test-service relay failed to start."; exit 1; }
+          sleep 0.1
+        done
+        [[ -s "${port_file}" ]] || { echo "ERROR: Offline test-service relay did not start within 5 seconds."; exit 1; }
+        adb -s "${serial}" reverse --no-rebind tcp:18082 "tcp:$(cat "${port_file}")"
+        reverse_created=true
+        args+=(-e offlineTestServiceUrl "http://127.0.0.1:18082")
       fi
 
       local log_file="${LOG_DIR}/attempt-${attempt}-instrument-${serial}.log"

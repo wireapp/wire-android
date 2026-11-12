@@ -222,7 +222,23 @@ _VERSION = re.compile(r"(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)")
 _PAYLOAD = ("schema_version", "release_version", "event_id", "kind", "evidence")
 _EVIDENCE = ("source", "conclusion", "jobs", "build", "qa", "origin", "gaps")
 _SOURCE = ("repository", "run_id", "run_attempt", "workflow_path", "url", "tag", "sha")
-_ORIGIN = ("run_id", "run_attempt", "url")
+_ORIGIN = ("run_id", "run_attempt", "sha", "url")
+_GAP = ("code", "detail")
+
+EVIDENCE_MISSING = "Evidence missing"
+TESTS_INCOMPLETE = "Tests incomplete"
+NOT_ATTACHED = "Not attached to a build"
+DEFLAKE_NOT_VERIFIED = "Deflake not verified"
+EARLIER_ATTEMPT = "Earlier attempt"
+GAP_CODES = (EVIDENCE_MISSING, TESTS_INCOMPLETE, NOT_ATTACHED, DEFLAKE_NOT_VERIFIED, EARLIER_ATTEMPT)
+_ATTENTION = (EVIDENCE_MISSING, TESTS_INCOMPLETE, DEFLAKE_NOT_VERIFIED)
+
+
+def gap(code, detail):
+    """A code from GAP_CODES shows on the page. A null code is a note that only the job summary shows."""
+    if code is not None and code not in GAP_CODES:
+        raise ValueError("Unknown gap code")
+    return {"code": code, "detail": detail}
 
 
 def run_url(repository, run_id, run_attempt):
@@ -243,6 +259,19 @@ def _source(source):
         release_version(source["tag"])
     if source["sha"] is not None:
         _pattern(source["sha"], SHA, "source.sha")
+
+
+def _gaps(gaps):
+    if not isinstance(gaps, list):
+        raise ValueError("gaps must be a list")
+    for entry in gaps:
+        if not isinstance(entry, dict):
+            raise ValueError("gap entries must be objects")
+        _exact_keys(entry, _GAP, "gap")
+        if entry["code"] is not None and (not isinstance(entry["code"], str) or entry["code"] not in GAP_CODES):
+            raise ValueError("gap.code must be a known code or null")
+        if not isinstance(entry["detail"], str) or not entry["detail"].strip():
+            raise ValueError("gap.detail must be nonempty text")
 
 
 def _jobs(jobs):
@@ -292,9 +321,7 @@ def validate_payload(payload):
     if evidence["conclusion"] not in CONCLUSIONS:
         raise ValueError("conclusion is unknown")
     _jobs(evidence["jobs"])
-    gaps = evidence["gaps"]
-    if not isinstance(gaps, list) or not all(isinstance(gap, str) and gap.strip() for gap in gaps):
-        raise ValueError("gaps must be a list of nonempty text")
+    _gaps(evidence["gaps"])
     build, qa, origin = evidence["build"], evidence["qa"], evidence["origin"]
     tags = []
     if kind == "regression":
@@ -308,6 +335,7 @@ def validate_payload(payload):
             _exact_keys(origin, _ORIGIN, "origin")
             _positive_int(origin["run_id"], "origin.run_id")
             _positive_int(origin["run_attempt"], "origin.run_attempt")
+            _pattern(origin["sha"], SHA, "origin.sha")
             if origin["url"] != run_url(source["repository"], origin["run_id"], origin["run_attempt"]):
                 raise ValueError("origin.url must be the GitHub URL of the origin run")
     else:
@@ -363,22 +391,22 @@ def _tests(kind, qa, conclusion):
     if qa is None:
         if conclusion != "success":
             return "", []
-        return "results unavailable", ["Regression evidence is missing"]
+        return "results unavailable", [gap(EVIDENCE_MISSING, "Regression evidence is missing")]
     gaps = []
     results = qa["results"]
     counts = [results[key] for key in ("passed", "failed", "skipped", "missing")]
     if None in counts or not results["total"]:
         parts = ["results unavailable"]
-        gaps.append("Test results are missing or empty")
+        gaps.append(gap(TESTS_INCOMPLETE, "Test results are missing or empty"))
     else:
         text = "%d passed, %d failed, %d skipped, %d missing" % tuple(counts)
         if results["passed_on_rerun"]:
             text += ", %d passed on rerun" % results["passed_on_rerun"]
         parts = [text]
         if results["missing"]:
-            gaps.append("Selected tests are missing results")
+            gaps.append(gap(TESTS_INCOMPLETE, "Selected tests are missing results"))
         if not results["passed"] + results["failed"]:
-            gaps.append("No tests were executed")
+            gaps.append(gap(TESTS_INCOMPLETE, "No tests were executed"))
     parts.append("selector " + _plain(qa["selector"]))
     if qa["report_url"]:
         parts.append("report " + _link(qa["report_url"]))
@@ -395,7 +423,7 @@ def _result(conclusion, qa, gaps):
         return "failed"
     if qa is not None and qa["results"]["failed"]:
         return "failed"
-    if conclusion != "success" or gaps:
+    if conclusion != "success" or any(entry["code"] in _ATTENTION for entry in gaps):
         return "partial"
     return "passed"
 
@@ -405,11 +433,12 @@ def build_fields(payload):
     evidence = payload["evidence"]
     source, build, qa, origin = evidence["source"], evidence["build"], evidence["qa"], evidence["origin"]
     kind = payload["kind"]
-    tests, added_gaps = _tests(kind, qa, evidence["conclusion"])
-    gaps = list(evidence["gaps"]) + added_gaps
+    tests, gaps = _tests(kind, qa, evidence["conclusion"])
+    gaps = evidence["gaps"] + gaps
+    codes = list(dict.fromkeys(entry["code"] for entry in gaps if entry["code"]))
     if kind == "regression":
         apks = [qa["apk"]] if qa is not None and qa["apk"] else []
-        commit = "test " + qa["test_source_sha"][:7] if qa is not None else ""
+        commit = origin["sha"][:7] if origin else ""
         deploy = ""
     else:
         apks = build["apks"] if build is not None else []
@@ -427,10 +456,18 @@ def build_fields(payload):
         "buildRunUrl": _link(origin["url"]) if origin else "",
         "deploy": deploy,
         "tests": tests,
-        "gaps": "; ".join(_sentence(gap) for gap in gaps) if gaps else "none",
+        "gaps": "; ".join(codes) if codes else "none",
         "eventId": payload["event_id"],
     }
     return {name: _clean(value) for name, value in fields.items()}
+
+
+def detail_lines(payload):
+    """The markdown bullets that explain each gap. The page shows only the codes."""
+    validate_payload(payload)
+    evidence = payload["evidence"]
+    gaps = evidence["gaps"] + _tests(payload["kind"], evidence["qa"], evidence["conclusion"])[1]
+    return ["- %s: %s" % (entry["code"] or "note", _clean(_sentence(entry["detail"]))) for entry in gaps]
 
 
 def _no_duplicates(pairs):

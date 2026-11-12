@@ -280,18 +280,19 @@ def _load_export(api, artifacts, name, kind, run, path, flavor=None):
 
 
 def _context_gap(reason, attempt, context_job_ran):
-    """Return the gap text and whether it makes the evidence incomplete."""
+    """Return the gap and whether it makes the evidence incomplete."""
     if reason is Export.MISSING and attempt > 1 and not context_job_ran:
-        return "Release context belongs to an earlier attempt", False
-    return "Release context export " + reason.value, True
+        return contract.gap(contract.EARLIER_ATTEMPT, "Release context belongs to an earlier attempt"), False
+    return contract.gap(contract.EVIDENCE_MISSING, "Release context export " + reason.value), True
 
 
 def _build_gap(reason, attempt, build_ran, build_jobs):
     if reason is Export.MISSING and attempt > 1 and not build_ran:
-        return "Build did not run in this attempt; its evidence belongs to an earlier attempt", False
+        detail = "Build did not run in this attempt, so its evidence belongs to an earlier attempt"
+        return contract.gap(contract.EARLIER_ATTEMPT, detail), False
     if reason is Export.MISSING and build_jobs and not any(job["conclusion"] == "success" for job in build_jobs):
-        return "No build record: the build produced no APK", False
-    return "Build evidence export " + reason.value, True
+        return contract.gap(None, "No build record: the build produced no APK"), False
+    return contract.gap(contract.EVIDENCE_MISSING, "Build evidence export " + reason.value), True
 
 
 def _verified_tag(api, run, repository):
@@ -387,7 +388,6 @@ def _assemble(api, repository, run, path, kind, all_jobs, artifacts):
 
 _LABEL = re.compile(r"((?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*))(?:-([1-9][0-9]*))?")
 _UNVERIFIED_LISTING = "production builds could not be fully enumerated"
-NOT_ATTACHED = "this regression is not attached to a build page"
 
 
 def _parse_time(value):
@@ -413,23 +413,23 @@ def match_production_build(qa, manifests, unverified=()):
     result = {"origin": None, "release_version": None, "gap": None}
     apk = qa.get("apk") if isinstance(qa, dict) else None
     if apk is None:
-        result["gap"] = "the tested APK was not recorded"
+        result["gap"] = "The tested APK was not recorded"
         return result
     if unverified:
-        result["gap"] = "production build enumeration is incomplete (%s)" % ", ".join(unverified)
+        result["gap"] = "Production build enumeration is incomplete: " + ", ".join(unverified)
         return result
     matches = [build for build in manifests if isinstance(build, dict) and build.get("kind") == "build"
                and build.get("flavor") == "Prod"
                and any(item.get("filename") == apk["filename"] and item.get("sha256") == apk["sha256"]
                        for item in build.get("apks", []))]
     if len(matches) > 1:
-        result["gap"] = "more than one production build has this APK digest and file name"
+        result["gap"] = "More than one production build has this APK digest and file name"
     elif not matches:
-        result["gap"] = ("no production build from the preceding %d days has this APK digest and file name"
+        result["gap"] = ("No production build from the preceding %d days has this APK digest and file name"
                          % ORIGIN_WINDOW_DAYS)
     else:
         build = matches[0]
-        result["origin"] = {"run_id": build["run_id"], "run_attempt": build["run_attempt"],
+        result["origin"] = {"run_id": build["run_id"], "run_attempt": build["run_attempt"], "sha": build["sha"],
                             "url": contract.run_url(build["repository"], build["run_id"], build["run_attempt"])}
         result["release_version"] = contract.release_version(build["tag"])
     return result
@@ -562,8 +562,8 @@ def _verify_ancestry(api, repository, qa, default_branch):
 
 def _qa_gap(reason, attempt, qa_ran):
     if reason is Export.MISSING and attempt > 1 and not qa_ran:
-        return "Regression evidence belongs to an earlier attempt", False
-    return "Regression evidence export " + reason.value, True
+        return contract.gap(contract.EARLIER_ATTEMPT, "Regression evidence belongs to an earlier attempt"), False
+    return contract.gap(contract.EVIDENCE_MISSING, "Regression evidence export " + reason.value), True
 
 
 def _pages_prefix(repository):
@@ -582,12 +582,12 @@ def _attribute(api, repository, run, qa, gaps, default_branch):
     """Return the production origin and the release version of a regression, and add the gaps."""
     reason, origin, version = None, None, None
     if qa is None:
-        reason = "there is no regression record"
+        reason = "There is no regression record"
     else:
         failure = _verify_ancestry(api, repository, qa, default_branch) if qa["mode"] == "deflake" else None
         if failure:
-            gaps.append("Deflake source is not verified (%s)" % failure)
-            reason = "the deflake source is not verified"
+            gaps.append(contract.gap(contract.DEFLAKE_NOT_VERIFIED, "Deflake source is not verified: " + failure))
+            reason = "The deflake source is not verified"
         elif qa["apk"] is not None:
             manifests, problems = _production_manifests(api, repository, run)
             match = match_production_build(qa, manifests, problems)
@@ -595,7 +595,7 @@ def _attribute(api, repository, run, qa, gaps, default_branch):
         else:
             reason = match_production_build(qa, [])["gap"]
     if reason:
-        gaps.append("Tested APK matched no release build (%s): %s" % (reason, NOT_ATTACHED))
+        gaps.append(contract.gap(contract.NOT_ATTACHED, reason))
     return origin, _regression_version(version, qa)
 
 
@@ -632,7 +632,7 @@ def _assemble_regression(api, repository, run, path, all_jobs, artifacts, defaul
         incomplete |= failed
     if qa is not None and qa["report_url"] and not qa["report_url"].startswith(_pages_prefix(repository)):
         qa = dict(qa, report_url=None)
-        gaps.append("Report link is not on the repository pages site")
+        gaps.append(contract.gap(None, "Report link is not on the repository pages site"))
     origin, version = _attribute(api, repository, run, qa, gaps, default_branch)
     payload = {
         "schema_version": contract.SCHEMA_VERSION,

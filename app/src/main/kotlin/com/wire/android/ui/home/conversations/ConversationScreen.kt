@@ -81,6 +81,7 @@ import com.wire.android.ui.home.conversations.messages.ConversationMessagesViewM
 import com.wire.android.ui.home.conversations.messages.ConversationMessagesViewState
 import com.wire.android.ui.home.conversations.messages.draft.MessageDraftViewModel
 import com.wire.android.ui.home.conversations.migration.ConversationMigrationViewModel
+import com.wire.android.ui.home.conversations.migration.MigratedConversationRedirect
 import com.wire.android.ui.home.conversations.model.ExpirationStatus
 import com.wire.android.ui.home.conversations.model.MessageSenderId
 import com.wire.android.ui.home.conversations.model.UIMessage
@@ -322,9 +323,10 @@ internal fun ConversationScreenRouteContent(
             }
     }
 
-    conversationMigrationViewModel.migratedConversationId?.let { migratedConversationId ->
-        navigation.replaceConversation(migratedConversationId)
-    }
+    MigratedConversationRedirect(
+        migratedConversationId = conversationMigrationViewModel.migratedConversationId,
+        replaceConversation = navigation::replaceConversation,
+    )
 
     when (showDialog.value) {
         ConversationScreenDialogType.PING_CONFIRMATION -> {

@@ -51,7 +51,7 @@ class BackupTest : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4243")
+    @TestCaseId("TC-12378")
     @Category("regression", "RC", "backup")
     @Test
     fun givenTeamOwnerCreatesBackupWithoutPassword_whenLoggingBackInAndRestoringBackup_thenMessagesAreImported() {
@@ -283,7 +283,7 @@ class BackupTest : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4244")
+    @TestCaseId("TC-12379")
     @Category("regression", "RC", "backup")
     @Test
     fun givenIWantToCreateABackupWithPassword_whenIImportIt_thenMessagesAreRestored() {
@@ -533,7 +533,7 @@ class BackupTest : BaseUiTest() {
      * CI installs the old APK before instrumentation starts because Android blocks in-test downgrades.
      */
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4245")
+    @TestCaseId("TC-12380")
     @Category("regression", "RC", "backup", "upgrade")
     @Test
     fun givenIWantToImportABackupCreatedOnPreviousVersion_whenIImportIt_thenMessagesAreRestored() {

@@ -88,6 +88,11 @@ remain unsuccessful. A count of `2` means one initial execution and up to two
 additional attempts. Allure `failed`, `broken` and `unknown` results are
 included in the failed-test list.
 
+Testiny reporting uses **Wire-Prism (project 17)**. Test selectors use the
+Prism TC IDs from the test annotations. The runtime `TESTINY_API_KEY_ANDROID`
+1Password entry must contain a key authorized for Wire-Prism. New normal runs
+and their manual deflake reruns report to this same project.
+
 ## Manual deflake
 
 Rerun the remaining failures from a previous run:

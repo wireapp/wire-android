@@ -42,7 +42,7 @@ class RepliesTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4495")
+    @TestCaseId("TC-12578")
     @Category("regression", "RC", "replies")
     @Test
     fun givenGroupConversation_whenIReplyToReceivedMessage_thenReplyQuotesTheOriginalMessage() {
@@ -143,7 +143,7 @@ class RepliesTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4496", "TC-4497")
+    @TestCaseId("TC-12579", "TC-12580")
     @Category("regression", "RC", "replies")
     @Test
     fun givenGroupConversation_whenIReceiveReplyToMyMessageAndReplyBack_thenBothRepliesQuoteTheCorrectMessages() {
@@ -253,7 +253,7 @@ class RepliesTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4498")
+    @TestCaseId("TC-12581")
     @Category("regression", "RC", "replies")
     @Test
     fun givenOneOnOneConversation_whenIReplyToReceivedMessage_thenISeeMyReplyInConversation() {
@@ -347,7 +347,7 @@ class RepliesTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4499")
+    @TestCaseId("TC-12582")
     @Category("regression", "RC", "replies")
     @Test
     fun givenOneOnOneConversation_whenTeamOwnerRepliesToMyMessage_thenISeeReplyToMyOwnMessage() {
@@ -429,7 +429,7 @@ class RepliesTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4500")
+    @TestCaseId("TC-12583")
     @Category("regression", "RC", "replies")
     @Test
     fun givenOneOnOneConversation_whenIReplyToAReply_thenISeeMyReplyInConversation() {
@@ -531,7 +531,7 @@ class RepliesTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4501")
+    @TestCaseId("TC-12584")
     @Category("regression", "RC", "replies", "WPB-3525")
     @Test
     fun givenGroupConversationWithManyMessages_whenIReplyAfterScrolling_thenISeeMyReplyToTheCorrectMessage() {

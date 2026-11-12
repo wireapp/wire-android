@@ -100,6 +100,7 @@ import com.wire.android.ui.home.conversations.MessageOptionsDismissal
 import com.wire.android.ui.home.conversations.info.ConversationDetailsData
 import com.wire.android.ui.home.conversations.messages.item.AdminlessGroupDeleteReminderItem
 import com.wire.android.ui.home.conversations.messages.item.AssetLocalPathArgs
+import com.wire.android.ui.home.conversations.messages.item.ConversationEncryptionNoticeItem
 import com.wire.android.ui.home.conversations.messages.item.MessageClickActions
 import com.wire.android.ui.home.conversations.messages.item.MessageContainerItem
 import com.wire.android.ui.home.conversations.messages.item.SwipeableMessageConfiguration
@@ -149,6 +150,7 @@ internal fun ConversationMessageList(
     onMessageOptionsDismissalHandled: (MessageOptionsDismissal) -> Boolean = { true },
     currentTimeInMillisFlow: Flow<Long> = flow { },
     showHistoryLoadingIndicator: Boolean = false,
+    showsEncryptionNotice: Boolean = false,
     isBubbleUiEnabled: Boolean = false,
     isWireCellsEnabled: Boolean = false,
 ) {
@@ -157,6 +159,11 @@ internal fun ConversationMessageList(
     val currentTime by currentTimeInMillisFlow.collectAsState(initial = System.currentTimeMillis())
     val isPrependLoading = lazyPagingMessages.loadState.prepend is LoadState.Loading
     val isPrependCompleted = lazyPagingMessages.loadState.prepend.endOfPaginationReached
+    // Messages are newest first, so appending loads older ones.
+    val isOldestLoaded = lazyPagingMessages.loadState.append.endOfPaginationReached
+
+    // The encryption notice and the history indicator sit after the last message index.
+    fun firstVisibleMessageIndex() = lazyListState.firstVisibleItemIndex.takeIf { it < lazyPagingMessages.itemCount }
 
     LaunchedEffect(lazyPagingMessages.itemCount) {
         if (lazyPagingMessages.itemCount > prevItemCount.value && selectedMessageId == null) {
@@ -173,7 +180,7 @@ internal fun ConversationMessageList(
 
     LaunchedEffect(lazyListState.isScrollInProgress) {
         if (!lazyListState.isScrollInProgress && lazyPagingMessages.itemCount > 0) {
-            val lastVisibleMessage = lazyPagingMessages[lazyListState.firstVisibleItemIndex] ?: return@LaunchedEffect
+            val lastVisibleMessage = firstVisibleMessageIndex()?.let { lazyPagingMessages[it] } ?: return@LaunchedEffect
             updateLastReadMessage(lastVisibleMessage, lastUnreadMessageInstant, onUpdateConversationReadDate)
         }
     }
@@ -183,7 +190,7 @@ internal fun ConversationMessageList(
             (!readLastMessageAtStartTriggered.value || (!lazyListState.canScrollBackward && !lazyListState.canScrollForward)) &&
             lazyPagingMessages.itemSnapshotList.items.isNotEmpty()
         ) {
-            val lastVisibleMessage = lazyPagingMessages[lazyListState.firstVisibleItemIndex] ?: return@LaunchedEffect
+            val lastVisibleMessage = firstVisibleMessageIndex()?.let { lazyPagingMessages[it] } ?: return@LaunchedEffect
             if (!readLastMessageAtStartTriggered.value) {
                 readLastMessageAtStartTriggered.value = true
             }
@@ -309,8 +316,10 @@ internal fun ConversationMessageList(
                     if (event.type != KeyEventType.KeyDown) return@onPreviewKeyEvent false
                     when {
                         isMessageListFocused && (event.key == Key.Enter || event.key == Key.NumPadEnter) -> {
-                            messageNavigationTargetIndex = lazyListState.firstVisibleItemIndex
-                            requestMessageFocus()
+                            firstVisibleMessageIndex()?.let {
+                                messageNavigationTargetIndex = it
+                                requestMessageFocus()
+                            }
                             true
                         }
                         isMessageNavigationActive && event.key == Key.DirectionUp ->
@@ -464,7 +473,6 @@ internal fun ConversationMessageList(
                             isSelectedMessage = message.header.messageId == selectedMessageId,
                             failureInteractionAvailable = interactionAvailability == InteractionAvailability.ENABLED,
                             isBubbleUiEnabled = isBubbleUiEnabled,
-                            isWireCellsEnabled = isWireCellsEnabled,
                         )
                     }
 
@@ -512,6 +520,12 @@ internal fun ConversationMessageList(
                                 )
                             }
                         }
+                    }
+                }
+                // Emitted last, so the reversed list shows it above the oldest message.
+                if (showsEncryptionNotice && isOldestLoaded) {
+                    item(key = "encryption_notice", contentType = "encryption_notice") {
+                        ConversationEncryptionNoticeItem(isWireCellsEnabled = isWireCellsEnabled)
                     }
                 }
             }

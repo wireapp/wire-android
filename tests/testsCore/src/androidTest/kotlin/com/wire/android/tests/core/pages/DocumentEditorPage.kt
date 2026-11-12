@@ -18,23 +18,25 @@
 package com.wire.android.tests.core.pages
 
 import android.graphics.Bitmap
+import android.graphics.Rect
 import android.view.KeyEvent
 import androidx.test.uiautomator.UiDevice
 import uiautomatorutils.UiSelectorParams
 import uiautomatorutils.UiWaitUtils
 
 data class DocumentEditorPage(private val device: UiDevice) {
-    fun captureDocumentScreenshot(): Bitmap {
-        UiWaitUtils.waitElement(UiSelectorParams(text = "Online Editor"), timeout = UiWaitUtils.VERY_LONG_TIMEOUT)
-        val document = UiWaitUtils.waitElement(UiSelectorParams(resourceId = "document-canvas"), timeout = UiWaitUtils.SHORT_TIMEOUT)
-        return captureRenderedDocumentScreenshot(document)
-    }
+    fun captureDocumentScreenshot(): Bitmap = captureRenderedDocumentScreenshot(documentTextBounds())
 
     fun assertDocumentMatchesScreenshot(expected: Bitmap): DocumentEditorPage {
+        assertRenderedDocumentMatchesScreenshot(documentTextBounds(), expected)
+        return this
+    }
+
+    private fun documentTextBounds(): Rect {
         UiWaitUtils.waitElement(UiSelectorParams(text = "Online Editor"), timeout = UiWaitUtils.VERY_LONG_TIMEOUT)
         val document = UiWaitUtils.waitElement(UiSelectorParams(resourceId = "document-canvas"), timeout = UiWaitUtils.SHORT_TIMEOUT)
-        assertRenderedDocumentMatchesScreenshot(document, expected)
-        return this
+        // The fixture text is at the top of the page, above the floating Edit button.
+        return document.visibleBounds.apply { bottom = centerY() }
     }
 
     fun replaceDocumentText(text: String): DocumentEditorPage {

@@ -47,7 +47,7 @@ class CallParticipantListTests : BaseCallUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-10873", "TC-10892")
+    @TestCaseId("TC-12732", "TC-12745")
     @Category("regression", "callParticipant", "RC")
     @Test
     fun givenIAmInOneOnOneCall_whenIExpandParticipantSheet_thenParticipantListAndCallControlsAreVisible() {
@@ -116,16 +116,16 @@ class CallParticipantListTests : BaseCallUiTest() {
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
     @TestCaseId(
-        "TC-10877",
-        "TC-10872",
-        "TC-10879",
-        "TC-10880",
-        "TC-10874",
-        "TC-10886",
-        "TC-10881",
-        "TC-10883",
-        "TC-10884",
-        "TC-10887"
+        "TC-12734",
+        "TC-12731",
+        "TC-12736",
+        "TC-12737",
+        "TC-12733",
+        "TC-12741",
+        "TC-12738",
+        "TC-12739",
+        "TC-12740",
+        "TC-12742"
     )
     @Category("regression", "callParticipant", "RC")
     @Test
@@ -276,7 +276,7 @@ class CallParticipantListTests : BaseCallUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-10878", "TC-10888", "TC-10889")
+    @TestCaseId("TC-12735", "TC-12743", "TC-12744")
     @Category("regression", "callParticipant", "RC")
     @Test
     fun givenParticipantSheetIsOpen_whenGuestIsPresentAndParticipantJoinsLeavesOrIsTapped_thenListUpdatesWithoutAction() {

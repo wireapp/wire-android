@@ -43,7 +43,7 @@ class FilterTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-8642", "TC-8652", "TC-8645")
+    @TestCaseId("TC-12699", "TC-12708", "TC-12702")
     @Category("regression", "filter", "RC")
     @Test
     fun givenIHaveCreatedFavorite_whenILogOutWithClearDataAndLogInAgain_thenFavoriteIsVisibleAndCanBeRemoved() {
@@ -248,7 +248,7 @@ class FilterTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-8643", "TC-8644", "TC-8646", "TC-8666")
+    @TestCaseId("TC-12700", "TC-12701", "TC-12703", "TC-12711")
     @Category("regression", "filter", "RC")
     @Test
     fun givenIHaveCreatedConversationFolder_whenILogOutWithClearDataAndLogInAgain_thenFolderIsVisibleAndConversationsCanBeManaged() {
@@ -460,7 +460,7 @@ class FilterTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-8651", "TC-8650")
+    @TestCaseId("TC-12707", "TC-12706")
     @Category("regression", "filter", "RC")
     @Test
     fun givenOneToOneConversation_whenIMoveItToFolderFromUserProfile_thenConversationIsVisibleInFavoritesAndFolder() {
@@ -649,7 +649,7 @@ class FilterTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-8654", "TC-8655")
+    @TestCaseId("TC-12709", "TC-12710")
     @Category("regression", "filter", "RC")
     @Test
     fun givenGroupAndOneToOneConversations_whenIFilterByType_thenOnlyMatchingConversationsAreVisible() {
@@ -707,7 +707,7 @@ class FilterTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-8647")
+    @TestCaseId("TC-12704")
     @Category("regression", "filter", "RC")
     @Test
     fun givenArchivedOneToOneConversation_whenIOpenUserProfileOptions_thenMoveToFolderButtonIsNotVisible() {
@@ -778,7 +778,7 @@ class FilterTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-8648")
+    @TestCaseId("TC-12705")
     @Category("regression", "filter", "RC")
     @Test
     fun givenConversationInFolder_whenIArchiveAndUnarchiveIt_thenConversationReturnsToSameFolder() {

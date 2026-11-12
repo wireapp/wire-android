@@ -26,6 +26,7 @@ import com.wire.android.ui.home.conversations.call.JoinOrStartCallViewActions
 import com.wire.android.ui.home.conversations.details.participants.model.ConversationParticipantsData
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase
 import com.wire.kalium.logic.data.conversation.Conversation
+import com.wire.kalium.logic.data.id.MeetingId
 import com.wire.kalium.logic.data.sync.SyncState
 import com.wire.kalium.logic.data.user.type.UserType
 import com.wire.kalium.logic.data.user.type.UserTypeInfo
@@ -43,8 +44,8 @@ import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
-import io.mockk.mockk
 import io.mockk.impl.annotations.MockK
+import io.mockk.mockk
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -66,10 +67,14 @@ class MeetingsCallViewModelTest {
             .arrange()
 
         viewModel.callManager.actions.test {
-            viewModel.startCallIfPossible(TestConversation.ID)
+            val createdMeetingId = MeetingId("created-meeting", "wire.test")
+            viewModel.startCallIfPossible(TestConversation.ID, createdMeetingId)
             advanceUntilIdle()
 
-            assertEquals(JoinOrStartCallViewActions.InitiatedCall(TestConversation.ID, TestUser.SELF_USER_ID), awaitItem())
+            assertEquals(
+                JoinOrStartCallViewActions.InitiatedCall(TestConversation.ID, TestUser.SELF_USER_ID, createdMeetingId),
+                awaitItem()
+            )
             assertFalse(viewModel.notEstablishedDialogState.isVisible)
             coVerify(exactly = 1) { arrangement.ensureMeetingIsMLSEstablished(TestConversation.ID) }
             coVerify(exactly = 1) { arrangement.isConferenceCallingEnabled(TestConversation.ID, Conversation.Type.Group.Meeting) }

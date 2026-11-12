@@ -11,6 +11,7 @@ package com.wire.android.ui.calling
 
 import android.content.Intent
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.id.MeetingId
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.user.UserId
 
@@ -20,6 +21,7 @@ data class CallActivityRequest(
     val conversationId: ConversationId,
     val screen: CallActivityScreen,
     val shouldAnswerCall: Boolean,
+    val createdMeetingId: MeetingId? = null,
 )
 
 sealed interface CallActivityScreen {
@@ -44,6 +46,7 @@ internal fun Intent.toCallActivityRequest(
 ): CallActivityRequest? {
     val userId = getStringExtra(CallActivity.EXTRA_USER_ID)
     val conversationId = getStringExtra(CallActivity.EXTRA_CONVERSATION_ID)
+    val createdMeetingId = getStringExtra(CallActivity.EXTRA_CREATED_MEETING_ID)
     val screen = when (destination) {
         CallActivityDestination.STARTING -> getStringExtra(CallActivity.EXTRA_SCREEN_TYPE)
             ?.let(StartingCallScreenType::byName)
@@ -61,6 +64,7 @@ internal fun Intent.toCallActivityRequest(
                 conversationId = qualifiedIdMapper.fromStringToQualifiedID(conversationId),
                 screen = screen,
                 shouldAnswerCall = getBooleanExtra(CallActivity.EXTRA_SHOULD_ANSWER_CALL, false),
+                createdMeetingId = createdMeetingId?.let { qualifiedIdMapper.fromStringToQualifiedID(it) },
             )
         }.getOrNull()
     }

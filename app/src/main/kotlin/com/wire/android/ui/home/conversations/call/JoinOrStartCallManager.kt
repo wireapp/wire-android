@@ -28,6 +28,7 @@ import com.wire.android.ui.common.ActionsManagerImpl
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.id.MeetingId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.sync.SyncState
 import com.wire.kalium.logic.data.user.UserId
@@ -131,43 +132,63 @@ class JoinOrStartCallManager(
     }
 
     @PackagePrivate
-    internal fun initiateCall(conversationId: ConversationId) {
+    internal fun initiateCall(conversationId: ConversationId, createdMeetingId: MeetingId? = null) {
         scope.launch {
-            initiateCallInternal(conversationId)
+            initiateCallInternal(conversationId, createdMeetingId)
         }
     }
 
-    private suspend fun initiateCallInternal(conversationId: ConversationId) {
+    private suspend fun initiateCallInternal(conversationId: ConversationId, createdMeetingId: MeetingId? = null) {
         establishedCallConversationId?.let {
             endCall(it)
         }
-        sendAction(JoinOrStartCallViewActions.InitiatedCall(conversationId, currentAccount))
+        sendAction(JoinOrStartCallViewActions.InitiatedCall(conversationId, currentAccount, createdMeetingId))
     }
 
     fun startCallIfPossible(
         conversationId: ConversationId,
         conversationType: Conversation.Type,
         shouldCheckParticipantCount: Boolean = true,
+        createdMeetingId: MeetingId? = null,
     ) = scope.launch {
         startCallOrShowDialog(
             conversationId = conversationId,
             conversationType = conversationType,
-            shouldCheckParticipantCount = shouldCheckParticipantCount
+            shouldCheckParticipantCount = shouldCheckParticipantCount,
+            createdMeetingId = createdMeetingId,
         )
     }
 
     @PackagePrivate
-    internal fun startCallAfterDegradedVerification(conversationId: ConversationId, conversationType: Conversation.Type) {
+    internal fun startCallAfterDegradedVerification(
+        conversationId: ConversationId,
+        conversationType: Conversation.Type,
+        createdMeetingId: MeetingId? = null,
+    ) {
         scope.launch {
             onApplyConversationDegradation(conversationId)
-            startCallOrShowDialog(conversationId = conversationId, conversationType = conversationType, shouldCheckParticipantCount = true)
+            startCallOrShowDialog(
+                conversationId = conversationId,
+                conversationType = conversationType,
+                shouldCheckParticipantCount = true,
+                createdMeetingId = createdMeetingId,
+            )
         }
     }
 
     @PackagePrivate
-    internal fun startCallAfterConfirmingParticipantsCount(conversationId: ConversationId, conversationType: Conversation.Type) {
+    internal fun startCallAfterConfirmingParticipantsCount(
+        conversationId: ConversationId,
+        conversationType: Conversation.Type,
+        createdMeetingId: MeetingId? = null,
+    ) {
         scope.launch {
-            startCallIfPossible(conversationId = conversationId, conversationType = conversationType, shouldCheckParticipantCount = false)
+            startCallIfPossible(
+                conversationId = conversationId,
+                conversationType = conversationType,
+                shouldCheckParticipantCount = false,
+                createdMeetingId = createdMeetingId,
+            )
         }
     }
 
@@ -175,33 +196,35 @@ class JoinOrStartCallManager(
         conversationId: ConversationId,
         conversationType: Conversation.Type,
         shouldCheckParticipantCount: Boolean = true,
+        createdMeetingId: MeetingId? = null,
     ) {
         val participantsCount = if (shouldCheckParticipantCount) participantsCountForConversation(conversationId) else null
         when {
             !hasStableConnectivity() -> JoinOrStartCallScreenDialogType.NoConnectivity
             participantsCount != null && participantsCount > MAX_GROUP_SIZE_FOR_CALL_WITHOUT_ALERT ->
-                JoinOrStartCallScreenDialogType.CallConfirmation(conversationId, participantsCount, conversationType)
+                JoinOrStartCallScreenDialogType.CallConfirmation(conversationId, participantsCount, conversationType, createdMeetingId)
             shouldInformAboutVerification(conversationId) ->
-                JoinOrStartCallScreenDialogType.VerificationDegraded(conversationId, conversationType)
-            else -> dialogTypeForCallAvailability(conversationId, conversationType)
+                JoinOrStartCallScreenDialogType.VerificationDegraded(conversationId, conversationType, createdMeetingId)
+            else -> dialogTypeForCallAvailability(conversationId, conversationType, createdMeetingId)
         }.also(::updateDialogType)
     }
 
     private suspend fun dialogTypeForCallAvailability(
         conversationId: ConversationId,
         conversationType: Conversation.Type,
+        createdMeetingId: MeetingId?,
     ) = when (isConferenceCallingEnabled(conversationId, conversationType)) {
         ConferenceCallingResult.Enabled -> {
-            initiateCallInternal(conversationId)
+            initiateCallInternal(conversationId, createdMeetingId)
             JoinOrStartCallScreenDialogType.None
         }
 
         ConferenceCallingResult.Disabled.Established -> {
-            sendAction(JoinOrStartCallViewActions.JoinedCall(conversationId, currentAccount))
+            sendAction(JoinOrStartCallViewActions.JoinedCall(conversationId, currentAccount, createdMeetingId))
             JoinOrStartCallScreenDialogType.None
         }
 
-        ConferenceCallingResult.Disabled.OngoingCall -> JoinOrStartCallScreenDialogType.OngoingActiveCall(conversationId)
+        ConferenceCallingResult.Disabled.OngoingCall -> JoinOrStartCallScreenDialogType.OngoingActiveCall(conversationId, createdMeetingId)
         ConferenceCallingResult.Disabled.Unavailable -> when {
             selfTeamRole.value.isInternal() -> JoinOrStartCallScreenDialogType.CallingFeatureUnavailable.TeamMember
             selfTeamRole.value.isTeamAdmin() -> JoinOrStartCallScreenDialogType.CallingFeatureUnavailable.TeamAdmin

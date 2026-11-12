@@ -19,7 +19,7 @@ import com.wire.android.feature.meetings.ui.create.NewMeetingParticipantsRouteCo
 import com.wire.android.feature.meetings.ui.create.NewMeetingState
 import com.wire.android.feature.meetings.ui.create.NewMeetingViewActions
 import com.wire.android.feature.meetings.ui.create.NewMeetingViewModel
-import com.wire.android.feature.meetings.ui.options.ShareMeetingWithGuestsScreen
+import com.wire.android.feature.meetings.ui.link.MeetingLinkScreen
 import com.wire.android.navigation.navigation3.WireEntryPresentation
 import com.wire.android.navigation.navigation3.WireEntryProviderInstaller
 import com.wire.android.navigation.navigation3.WireNavigation3ResultType
@@ -71,9 +71,10 @@ fun meetingsNavigation3Entries(
     wireEntry<NewMeetingParticipantsRoute>(presentation = WireEntryPresentation.PopUp) {
         NewMeetingParticipantsNavigation3Entry(it, runtime, actions)
     }
-    wireEntry<ShareMeetingWithGuestsRoute>(presentation = WireEntryPresentation.PopUp) { route ->
-        ShareMeetingWithGuestsScreen(
-            occurrenceId = route.occurrenceId,
+    wireEntry<MeetingLinkRoute>(presentation = WireEntryPresentation.PopUp) { route ->
+        MeetingLinkScreen(
+            meetingId = route.meetingId,
+            mode = route.mode,
             onBack = { if (!runtime.navigator.goBack()) actions.exitMeetingFlow() },
         )
     }
@@ -125,7 +126,7 @@ private fun NewMeetingDetailsNavigation3Entry(
             is NewMeetingViewActions.Success ->
                 if (!runtime.completeCurrentAndPop(
                         resultType = NewMeetingNavigation3ResultType,
-                        result = WireNavResult.Value(NewMeetingResult(action.conversationIdToStartACall))
+                        result = WireNavResult.Value(action.result)
                     )
                 ) {
                     navigateBack()

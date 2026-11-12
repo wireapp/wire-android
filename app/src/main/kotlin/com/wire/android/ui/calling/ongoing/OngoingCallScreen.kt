@@ -22,12 +22,14 @@ package com.wire.android.ui.calling.ongoing
 
 import android.view.View
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -42,8 +44,8 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.BottomSheetScaffoldState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -68,6 +70,7 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalLocale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
@@ -84,13 +87,13 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.wire.android.BuildConfig
 import com.wire.android.R
-import com.wire.android.ui.common.R as commonR
+import com.wire.android.feature.meetings.model.MeetingLink
+import com.wire.android.feature.meetings.ui.link.MeetingInvitationCard
+import com.wire.android.navigation.style.TransitionAnimationType
 import com.wire.android.ui.LocalActivity
 import com.wire.android.ui.calling.common.ObserveRotation
 import com.wire.android.ui.calling.common.SharedCallingViewActions
 import com.wire.android.ui.calling.common.SharedCallingViewModel
-import com.wire.android.ui.calling.ongoingCallViewModel
-import com.wire.android.ui.calling.sharedCallingViewModel
 import com.wire.android.ui.calling.controlbuttons.CameraButton
 import com.wire.android.ui.calling.controlbuttons.HangUpOngoingButton
 import com.wire.android.ui.calling.controlbuttons.InCallReactionsButton
@@ -114,6 +117,8 @@ import com.wire.android.ui.calling.ongoing.participantslist.ParticipantList
 import com.wire.android.ui.calling.ongoing.participantsview.VerticalCallingPager
 import com.wire.android.ui.calling.ongoing.toast.InCallToast
 import com.wire.android.ui.calling.ongoing.toast.InCallToastPanel
+import com.wire.android.ui.calling.ongoingCallViewModel
+import com.wire.android.ui.calling.sharedCallingViewModel
 import com.wire.android.ui.common.ConversationVerificationIcons
 import com.wire.android.ui.common.HandleActions
 import com.wire.android.ui.common.banner.PreviewSecurityClassificationBannerState
@@ -145,6 +150,7 @@ import com.wire.android.util.ui.PreviewMultipleThemesForSquare
 import com.wire.kalium.logic.data.call.CallStatus
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.id.MeetingId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
@@ -153,13 +159,14 @@ import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toPersistentList
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import androidx.compose.ui.platform.LocalLocale
+import com.wire.android.ui.common.R as commonR
 
 @Suppress("ParameterWrapping", "CyclomaticComplexMethod")
 @Composable
 fun OngoingCallScreen(
     conversationId: ConversationId,
-    ongoingCallViewModel: OngoingCallViewModel = ongoingCallViewModel(conversationId),
+    createdMeetingId: MeetingId? = null,
+    ongoingCallViewModel: OngoingCallViewModel = ongoingCallViewModel(conversationId, createdMeetingId),
     sharedCallingViewModel: SharedCallingViewModel = sharedCallingViewModel(conversationId)
 ) {
     val scope = rememberCoroutineScope()
@@ -256,6 +263,8 @@ fun OngoingCallScreen(
         othersVideosDisabled = ongoingCallViewModel.state.othersVideosDisabled,
         toasts = ongoingCallViewModel.toasts.values.toSet(),
         onToastClick = ongoingCallViewModel::dismissToast,
+        meetingInvitation = ongoingCallViewModel.state.meetingLink,
+        onDismissMeetingInvitation = ongoingCallViewModel::dismissMeetingInvitation,
     )
     ObserveRotation(sharedCallingViewModel::setUIRotation)
 
@@ -369,6 +378,8 @@ private fun OngoingCallContent(
     othersVideosDisabled: Boolean,
     toasts: Set<InCallToast>,
     onToastClick: (toastKey: InCallToast.Key) -> Unit,
+    meetingInvitation: MeetingLink? = null,
+    onDismissMeetingInvitation: () -> Unit = {},
     inCallReactionsEnabled: Boolean = BuildConfig.CALL_REACTIONS_ENABLED,
     initialShowInCallReactionsPanel: Boolean = false, // for preview purposes
 ) {
@@ -596,6 +607,19 @@ private fun OngoingCallContent(
                     onMoreClick = { emojiPickerState.show(Unit) },
                 )
             }
+            AnimatedContent(
+                targetState = meetingInvitation,
+                transitionSpec = {
+                    TransitionAnimationType.POP_UP.enterTransition.togetherWith(TransitionAnimationType.POP_UP.exitTransition)
+                },
+                modifier = Modifier
+                    .align(Alignment.TopCenter)
+                    .padding(dimensions().spacing16x)
+            ) { meetingLink ->
+                meetingLink?.let {
+                    MeetingInvitationCard(meetingLink = meetingLink, onClose = onDismissMeetingInvitation)
+                }
+            }
             EmojiPickerBottomSheet(
                 sheetState = emojiPickerState,
                 onEmojiSelected = { emoji, _ ->
@@ -730,6 +754,7 @@ fun PreviewOngoingCallContent(
     inCallReactionsPanelVisible: Boolean = false,
     toasts: Set<InCallToast> = emptySet(),
     sheetValue: SheetValue = SheetValue.PartiallyExpanded,
+    meetingInvitation: MeetingLink? = null,
 ) {
     OngoingCallContent(
         callState = CallState(
@@ -768,6 +793,7 @@ fun PreviewOngoingCallContent(
         othersVideosDisabled = true,
         toasts = toasts,
         onToastClick = {},
+        meetingInvitation = meetingInvitation,
     )
 }
 

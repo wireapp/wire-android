@@ -95,6 +95,7 @@ abstract class CallActivity : BaseActivity() {
         const val EXTRA_CONVERSATION_ID = "conversation_id"
         const val EXTRA_USER_ID = "user_id"
         const val EXTRA_SCREEN_TYPE = "screen_type"
+        const val EXTRA_CREATED_MEETING_ID = "created_meeting_id"
         const val EXTRA_SHOULD_ANSWER_CALL = "should_answer_call"
         const val TAG = "CallActivity"
     }

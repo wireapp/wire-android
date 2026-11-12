@@ -62,6 +62,7 @@ fun MultiFactorAuthenticationScreen(
     viewModel: MultiFactorAuthenticationViewModel,
     onSetUp: () -> Unit,
     onManageRecoveryCodes: (RecoveryCodesStatus) -> Unit,
+    onTurnOff: () -> Unit,
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val snackbarHostState = LocalSnackbarHostState.current
@@ -74,6 +75,7 @@ fun MultiFactorAuthenticationScreen(
         onAction = { action ->
             when (action) {
                 MultiFactorAuthenticationAction.SetUp -> onSetUp()
+                MultiFactorAuthenticationAction.TurnOff -> onTurnOff()
                 MultiFactorAuthenticationAction.ManageRecoveryCodes -> {
                     val loaded = state as? MultiFactorAuthenticationOverviewState.Loaded
                     (loaded?.overview as? MultiFactorAuthenticationOverview.Enabled)?.let {

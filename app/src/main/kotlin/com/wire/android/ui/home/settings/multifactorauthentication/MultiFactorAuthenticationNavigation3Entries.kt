@@ -54,6 +54,11 @@ internal val MultiFactorAuthenticationRecoveryCodesResultType = WireNavigation3R
     serializer = MultiFactorAuthenticationRecoveryCodesResult.serializer(),
 )
 
+internal val MultiFactorAuthenticationTurnOffResultType = WireNavigation3ResultType(
+    contract = MultiFactorAuthenticationTurnOffResultContract,
+    serializer = MultiFactorAuthenticationTurnOffResult.serializer(),
+)
+
 internal fun multiFactorAuthenticationNavigation3Entries(
     runtime: WireNavigation3Runtime,
     onExit: () -> Unit,
@@ -66,6 +71,9 @@ internal fun multiFactorAuthenticationNavigation3Entries(
     }
     wireEntry<MultiFactorAuthenticationRecoveryCodesRoute> { route ->
         MultiFactorAuthenticationRecoveryCodesEntry(runtime, route, onExit)
+    }
+    wireEntry<MultiFactorAuthenticationTurnOffRoute> { route ->
+        MultiFactorAuthenticationTurnOffEntry(runtime, route, onExit)
     }
 }
 
@@ -80,9 +88,11 @@ private fun MultiFactorAuthenticationOverviewEntry(
     )
     var setupRequestId by rememberSaveable(route.entryId.value) { mutableStateOf<String?>(null) }
     var recoveryCodesRequestId by rememberSaveable(route.entryId.value, "recovery-codes") { mutableStateOf<String?>(null) }
+    var turnOffRequestId by rememberSaveable(route.entryId.value, "turn-off") { mutableStateOf<String?>(null) }
     val currentEntryId = runtime.navigator.currentRoute?.entryId
     val snackbarHostState = LocalSnackbarHostState.current
     val successMessage = stringResource(R.string.multi_factor_authentication_setup_success)
+    val turnOffSuccessMessage = stringResource(R.string.multi_factor_authentication_turn_off_success)
     val coroutineScope = rememberCoroutineScope()
     LaunchedEffect(setupRequestId, currentEntryId) {
         if (currentEntryId != route.entryId) return@LaunchedEffect
@@ -109,6 +119,16 @@ private fun MultiFactorAuthenticationOverviewEntry(
             null -> Unit
         }
     }
+    ConsumeMultiFactorAuthenticationTurnOffResult(
+        runtime = runtime,
+        route = route,
+        requestIdValue = turnOffRequestId,
+        onConsumed = { turnOffRequestId = null },
+        onSuccess = {
+            viewModel.onTurnOffCompleted()
+            coroutineScope.launch { snackbarHostState.showSnackbar(turnOffSuccessMessage) }
+        },
+    )
     MultiFactorAuthenticationScreen(
         onBackPressed = { if (!runtime.navigator.goBack()) onExit() },
         viewModel = viewModel,
@@ -122,6 +142,12 @@ private fun MultiFactorAuthenticationOverviewEntry(
             recoveryCodesRequestId = runtime.navigateForResult(
                 MultiFactorAuthenticationRecoveryCodesRoute(route.sessionId, status.remaining, status.total),
                 MultiFactorAuthenticationRecoveryCodesResultType,
+            )?.value
+        },
+        onTurnOff = {
+            turnOffRequestId = runtime.navigateForResult(
+                MultiFactorAuthenticationTurnOffRoute(route.sessionId),
+                MultiFactorAuthenticationTurnOffResultType,
             )?.value
         },
     )

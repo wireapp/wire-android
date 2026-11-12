@@ -51,6 +51,7 @@ import com.wire.android.ui.home.settings.backup.BackupAndRestoreViewModel
 import com.wire.android.ui.home.settings.multifactorauthentication.MultiFactorAuthenticationViewModel
 import com.wire.android.ui.home.settings.multifactorauthentication.MultiFactorAuthenticationSetupViewModel
 import com.wire.android.ui.home.settings.multifactorauthentication.MultiFactorAuthenticationRecoveryCodesViewModel
+import com.wire.android.ui.home.settings.multifactorauthentication.MultiFactorAuthenticationTurnOffViewModel
 import com.wire.android.ui.home.settings.privacy.PrivacySettingsViewModel
 import com.wire.android.ui.initialsync.InitialSyncViewModel
 import com.wire.android.ui.joinConversation.JoinConversationViaCodeViewModel
@@ -283,6 +284,11 @@ object WireMetroViewModelBindings {
     @IntoMap
     @ViewModelKey(MultiFactorAuthenticationRecoveryCodesViewModel::class)
     fun multiFactorAuthenticationRecoveryCodesViewModel(viewModel: MultiFactorAuthenticationRecoveryCodesViewModel): ViewModel = viewModel
+
+    @Provides
+    @IntoMap
+    @ViewModelKey(MultiFactorAuthenticationTurnOffViewModel::class)
+    fun multiFactorAuthenticationTurnOffViewModel(viewModel: MultiFactorAuthenticationTurnOffViewModel): ViewModel = viewModel
 
     @Provides
     @IntoMap

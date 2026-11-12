@@ -1261,6 +1261,11 @@
     <string name="multi_factor_authentication_description">Ask for a code from your authenticator app when you log in with email and password.</string>
     <string name="multi_factor_authentication_set_up">Set up</string>
     <string name="multi_factor_authentication_turn_off">Turn off</string>
+    <string name="multi_factor_authentication_turn_off_title">Turn off 2FA</string>
+    <string name="multi_factor_authentication_turn_off_heading">Turn off two-factor authentication?</string>
+    <string name="multi_factor_authentication_turn_off_description">You\'ll only need your password to log in. Confirm with your password and a code from your authenticator app.</string>
+    <string name="multi_factor_authentication_turn_off_demo">Prototype: enter any non-empty password and use 284913 to continue. Your credentials are not checked by a server.</string>
+    <string name="multi_factor_authentication_turn_off_success">Two-factor authentication is off</string>
     <string name="multi_factor_authentication_authenticator_apps">Authenticator apps</string>
     <plurals name="multi_factor_authentication_authenticator_apps_count">
         <item quantity="one">%d app</item>

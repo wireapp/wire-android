@@ -183,7 +183,7 @@ class DrawingCanvasViewModel : ViewModel() {
                 bitmap.compress(Bitmap.CompressFormat.JPEG, QUALITY, fileOutputStream)
                 fileOutputStream.flush()
             }
-            Log.d("DrawingCanvasViewModel", "Image written to: $uri")
+}
         }
     }
 

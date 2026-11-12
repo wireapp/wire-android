@@ -18,9 +18,15 @@ import java.util.Locale
 import kotlin.math.abs
 import kotlin.time.Duration.Companion.seconds
 
-/** Restores wall clock using elapsed real time, even if the test moved the clock across midnight. */
+/** Restores wall clock using elapsed real time and enables automatic time after testing. */
 @Suppress("TooManyFunctions")
 class DeviceSettingsHelper(private val device: UiDevice) : AutoCloseable {
+    init {
+        // Recover from a previous test run in case it was interrupted before cleanup.
+        shell("settings put global auto_time 1")
+        shell("settings put global auto_time_zone 1")
+    }
+
     private val originalTime = System.currentTimeMillis()
     private val originalElapsed = SystemClock.elapsedRealtime()
     private val originalZone = shell("getprop persist.sys.timezone")

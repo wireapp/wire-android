@@ -50,6 +50,7 @@ class KaliumConfigsModule {
             developmentApiEnabled = BuildConfig.DEVELOPMENT_API_ENABLED,
             ignoreSSLCertificatesForUnboundCalls = BuildConfig.IGNORE_SSL_CERTIFICATES,
             encryptProteusStorage = true,
+            useTinkEncryptedPreferences = BuildConfig.USE_TINK_ENCRYPTED_PREFERENCES,
             guestRoomLink = BuildConfig.ENABLE_GUEST_ROOM_LINK,
             selfDeletingMessages = BuildConfig.SELF_DELETING_MESSAGES,
             wipeOnCookieInvalid = BuildConfig.WIPE_ON_COOKIE_INVALID,

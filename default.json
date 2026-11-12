@@ -44,7 +44,8 @@
             "drive_offline_enabled": true,
             "drive_bulk_restore_enabled": true,
             "meetings_guests_links_enabled": true,
-            "everyone_mention_enabled": true
+            "everyone_mention_enabled": true,
+            "use_tink_encrypted_preferences": false
         },
         "beta": {
             "application_id": "com.wire.android.internal",
@@ -76,7 +77,8 @@
             "pending_messages": true,
             "link_preview_enabled": true,
             "drive_offline_enabled": true,
-            "everyone_mention_enabled": true
+            "everyone_mention_enabled": true,
+            "use_tink_encrypted_preferences": true
         },
         "fdroid": {
             "application_id": "com.wire",
@@ -102,6 +104,7 @@
     "file_restriction_list": "3gpp, aac, amr, avi, bmp, css, csv, dib, doc, docx, eml, flac, gif, html, ico, jfif, jpeg, jpg, jpg-large, key, m4a, m4v, md, midi, mkv, mov, mp3, mp4, mpeg, mpeg3, mpg, msg, ods, odt, ogg, pdf, pjp, pjpeg, png, pps, ppt, pptx, psd, pst, rtf, sql, svg, tex, tiff, txt, vcf, vid, wav, webm, webp, wmv, xls, xlsx, xml",
     "force_constant_bitrate_calls": false,
     "should_force_encrypt_db": false,
+    "use_tink_encrypted_preferences": false,
     "ignore_ssl_certificates": false,
     "lower_keypackage_limit": false,
     "self_deleting_messages": true,

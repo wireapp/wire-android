@@ -1068,6 +1068,44 @@ class CommandLineTest(unittest.TestCase):
         for banned in ["::", "<script", "</script"]:
             self.assertNotIn(banned, text)
 
+    def summary_of(self, payload):
+        with tempfile.TemporaryDirectory() as directory:
+            summary = Path(directory) / "summary.md"
+            code, _, _ = self.run_main(["publish", "--payload", str(self.payload_file(directory, payload)),
+                                        "--summary", str(summary), "--dry-run"])
+            self.assertEqual(code, 0)
+            return summary.read_text()
+
+    def test_the_summary_lists_each_gap_detail_after_the_fields(self):
+        payload = fixture("payload_unmatched")
+        payload["evidence"]["gaps"].append(contract.gap(None, "Report link is not on the repository pages site"))
+        text = self.summary_of(payload)
+        head, details_section = text.split("### Details\n\n")
+        self.assertTrue(head.startswith("### Release log entry\n\n````json\n"))
+        self.assertTrue(head.rstrip().endswith("````"))
+        self.assertEqual(details_section.splitlines(), [
+            "- Not attached to a build: No production build from the preceding 90 days has this APK digest and file name",
+            "- note: Report link is not on the repository pages site"])
+
+    def test_the_summary_has_no_details_section_without_gaps(self):
+        passing = fixture("payload_beta")
+        self.assertNotIn("### Details", self.summary_of(passing))
+
+    def test_summary_details_include_the_gaps_the_contract_adds(self):
+        payload = fixture("payload_regression")
+        payload["evidence"]["qa"]["results"].update(passed=0, failed=0, skipped=421, missing=0, passed_on_rerun=0)
+        self.assertIn("- Tests incomplete: No tests were executed", self.summary_of(payload))
+
+    def test_hostile_detail_text_cannot_add_markup_or_break_the_fence(self):
+        payload = fixture("payload_failed_build")
+        payload["evidence"]["gaps"] = [contract.gap(None, "```\n# injected\n::error::x <script>alert(1)</script> [a](b)")]
+        text = self.summary_of(payload)
+        details_section = text.split("### Details\n\n")[1]
+        self.assertEqual(len(details_section.splitlines()), 1)
+        for banned in ["```", "::", "<", ">", "[", "]"]:
+            self.assertNotIn(banned, details_section)
+        self.assertEqual(text.count("````"), 2)
+
 
 PROD_TESTS_PATH = ".github/workflows/qa-android-prod-tests.yml"
 PROD_BUILD_PATH = ".github/workflows/build-production.yml"

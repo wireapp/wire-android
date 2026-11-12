@@ -727,10 +727,14 @@ def _collect_command(arguments):
 
 
 def _publish_command(arguments):
-    fields = contract.build_fields(contract.read_json(arguments.payload))
+    payload = contract.read_json(arguments.payload)
+    fields = contract.build_fields(payload)
     if arguments.summary:
+        lines = contract.detail_lines(payload)
         with open(arguments.summary, "a", encoding="utf-8") as handle:
             handle.write("### Release log entry\n\n````json\n" + contract.dump_json(fields) + "````\n")
+            if lines:
+                handle.write("\n### Details\n\n" + "\n".join(lines) + "\n")
     publish(fields, os.environ.get("RELEASE_LOG_PUBLICATION_ENABLED") == "true",
             os.environ.get("RELEASE_LOG_WEBHOOK_URL", ""), os.environ.get("RELEASE_LOG_WEBHOOK_TOKEN", ""),
             dry_run=arguments.dry_run)

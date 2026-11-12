@@ -41,6 +41,7 @@ class WireNavigation3ContributionsTest {
                 "settings.account-update",
                 "settings.multi-factor-authentication-setup",
                 "settings.multi-factor-authentication-recovery-codes",
+                "settings.multi-factor-authentication-turn-off",
                 "user-profile.avatar-picker",
                 "user-profile.connection-request-ignored",
                 "conversation.completion",
@@ -105,7 +106,7 @@ class WireNavigation3ContributionsTest {
         }
 
         assertEquals(WireNavigation3Contributions.EXPECTED_ROUTE_REGISTRATION_COUNT, registrationCount)
-        assertEquals(113, registrationCount)
+        assertEquals(114, registrationCount)
     }
 
     @Test

@@ -42,6 +42,7 @@ class MultiFactorAuthenticationViewModel(
     private val refreshOverview: RefreshMultiFactorAuthenticationOverviewUseCase,
     private val completeSetup: CompleteMultiFactorAuthenticationSetupUseCase,
     private val updateRecoveryCodes: UpdateMultiFactorAuthenticationRecoveryCodesStatusUseCase,
+    private val completeTurnOff: CompleteMultiFactorAuthenticationTurnOffUseCase,
 ) : ViewModel() {
     // Construct the use cases from the same unscoped store so the flow owns exactly one cache.
     @Inject
@@ -50,6 +51,7 @@ class MultiFactorAuthenticationViewModel(
         RefreshMultiFactorAuthenticationOverviewUseCase(store),
         CompleteMultiFactorAuthenticationSetupUseCase(store),
         UpdateMultiFactorAuthenticationRecoveryCodesStatusUseCase(store),
+        CompleteMultiFactorAuthenticationTurnOffUseCase(store),
     )
 
     val state = observeOverview().map { storeState ->
@@ -79,5 +81,9 @@ class MultiFactorAuthenticationViewModel(
 
     fun onRecoveryCodesGenerated(result: MultiFactorAuthenticationRecoveryCodesResult) {
         viewModelScope.launch { updateRecoveryCodes(result) }
+    }
+
+    fun onTurnOffCompleted() {
+        viewModelScope.launch { completeTurnOff() }
     }
 }

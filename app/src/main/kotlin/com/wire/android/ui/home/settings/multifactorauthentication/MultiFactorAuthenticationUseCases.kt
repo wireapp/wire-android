@@ -39,3 +39,7 @@ class CompleteMultiFactorAuthenticationSetupUseCase(private val store: MultiFact
 class UpdateMultiFactorAuthenticationRecoveryCodesStatusUseCase(private val store: MultiFactorAuthenticationStore) {
     suspend operator fun invoke(result: MultiFactorAuthenticationRecoveryCodesResult) = store.updateRecoveryCodesStatus(result)
 }
+
+class CompleteMultiFactorAuthenticationTurnOffUseCase(private val store: MultiFactorAuthenticationStore) {
+    suspend operator fun invoke() = store.completeTurnOff()
+}

@@ -33,6 +33,7 @@ import com.wire.android.ui.home.settings.appsettings.networkSettings.NetworkSett
 import com.wire.android.ui.home.settings.backup.BackupAndRestoreScreen
 import com.wire.android.ui.home.settings.multifactorauthentication.MultiFactorAuthenticationSetupResultType
 import com.wire.android.ui.home.settings.multifactorauthentication.MultiFactorAuthenticationRecoveryCodesResultType
+import com.wire.android.ui.home.settings.multifactorauthentication.MultiFactorAuthenticationTurnOffResultType
 import com.wire.android.ui.home.settings.multifactorauthentication.multiFactorAuthenticationNavigation3Entries
 import com.wire.android.ui.home.settings.privacy.PrivacySettingsConfigScreen
 import com.wire.navigation.SessionRoute
@@ -87,6 +88,7 @@ internal object SettingsNavigation3Contribution {
             SettingsAccountUpdateNavigation3ResultType,
             MultiFactorAuthenticationSetupResultType,
             MultiFactorAuthenticationRecoveryCodesResultType,
+            MultiFactorAuthenticationTurnOffResultType,
         )
 
     fun entryProviderInstallers(

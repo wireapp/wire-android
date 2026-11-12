@@ -48,7 +48,7 @@ class MultiFactorAuthenticationStore(
     private val _state = MutableStateFlow(MultiFactorAuthenticationStoreState())
     val state = _state.asStateFlow()
     private val refreshMutex = Mutex()
-    private var completedDummyOverview: MultiFactorAuthenticationOverview.Enabled? = null
+    private var dummyOverviewOverride: MultiFactorAuthenticationOverview? = null
 
     @Suppress("TooGenericExceptionCaught")
     suspend fun refresh() {
@@ -57,7 +57,7 @@ class MultiFactorAuthenticationStore(
         try {
             _state.update { it.copy(isRefreshing = true, failure = null) }
             val overview = loadOverview()
-            _state.value = MultiFactorAuthenticationStoreState(overview = completedDummyOverview ?: overview)
+            _state.value = MultiFactorAuthenticationStoreState(overview = dummyOverviewOverride ?: overview)
         } catch (cancelled: CancellationException) {
             throw cancelled
         } catch (failure: Exception) {
@@ -80,15 +80,20 @@ class MultiFactorAuthenticationStore(
             ),
             recoveryCodesStatus = RecoveryCodesStatus(result.recoveryCodesCount, result.recoveryCodesCount),
         )
-        completedDummyOverview = overview
+        dummyOverviewOverride = overview
         _state.value = MultiFactorAuthenticationStoreState(overview = overview)
     }
 
     suspend fun updateRecoveryCodesStatus(result: MultiFactorAuthenticationRecoveryCodesResult) = refreshMutex.withLock {
         val overview = _state.value.overview as? MultiFactorAuthenticationOverview.Enabled ?: return@withLock
         val updated = overview.copy(recoveryCodesStatus = RecoveryCodesStatus(result.generatedCount, result.generatedCount))
-        completedDummyOverview = updated
+        dummyOverviewOverride = updated
         _state.value = MultiFactorAuthenticationStoreState(overview = updated)
+    }
+
+    suspend fun completeTurnOff() = refreshMutex.withLock {
+        dummyOverviewOverride = MultiFactorAuthenticationOverview.Disabled
+        _state.value = MultiFactorAuthenticationStoreState(overview = MultiFactorAuthenticationOverview.Disabled)
     }
 }
 

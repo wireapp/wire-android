@@ -173,6 +173,39 @@ class MultiFactorAuthenticationViewModelTest {
         assertEquals(updated, viewModel.state.value)
     }
 
+    @Test
+    fun `turning off clears the enabled overview and an enabled remote snapshot cannot restore it`() = runTest {
+        val viewModel = createViewModel(MultiFactorAuthenticationStore { enabled })
+        runCurrent()
+        viewModel.onTurnOffCompleted()
+        runCurrent()
+
+        val disabled = MultiFactorAuthenticationOverviewState.Loaded(MultiFactorAuthenticationOverview.Disabled)
+        assertEquals(disabled, viewModel.state.value)
+        viewModel.refresh()
+        runCurrent()
+        assertEquals(disabled, viewModel.state.value)
+    }
+
+    @Test
+    fun `setup after turning off creates a fresh enabled overview without the old authenticator`() = runTest {
+        val viewModel = createViewModel(MultiFactorAuthenticationStore { enabled })
+        runCurrent()
+        viewModel.onTurnOffCompleted()
+        runCurrent()
+        viewModel.onSetupCompleted(MultiFactorAuthenticationSetupResult("replacement", "New phone", 10))
+        runCurrent()
+
+        val updated = (viewModel.state.value as MultiFactorAuthenticationOverviewState.Loaded)
+            .overview as MultiFactorAuthenticationOverview.Enabled
+        assertEquals("replacement", updated.authenticatorApps.single().id)
+        assertEquals("New phone", updated.authenticatorApps.single().name)
+        assertEquals(RecoveryCodesStatus(10, 10), updated.recoveryCodesStatus)
+        viewModel.refresh()
+        runCurrent()
+        assertEquals(updated, (viewModel.state.value as MultiFactorAuthenticationOverviewState.Loaded).overview)
+    }
+
     private fun createViewModel(store: MultiFactorAuthenticationStore): MultiFactorAuthenticationViewModel =
         ViewModelProvider.create(
             owner,

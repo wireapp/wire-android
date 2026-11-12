@@ -166,7 +166,7 @@ class DrawingCanvasViewModel : ViewModel() {
                     } catch (e: IOException) {
                         // The provided uri can point to a file whose directory no longer exists (e.g. the shared cache
                         // was cleared on logout or by the system), so fall back to a fresh temp file in the cache.
-                        Log.w("DrawingCanvasViewModel", "Failed to write sketch, falling back to a temp file", e)
+    appLogger.w("DrawingCanvasViewModel: Failed to write sketch; using a temporary file")
                         savedSketchUri = null.orTempUri(context)
                         context.writeBitmap(bitmap, savedSketchUri)
                     }

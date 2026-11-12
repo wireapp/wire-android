@@ -11,12 +11,24 @@
 package com.wire.android.navigation.runtime
 
 import java.io.File
+import io.mockk.mockk
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 
 class WireNavigation3ContributionsTest {
+
+    @Test
+    fun givenProductionContributions_whenCreatingCatalog_thenStartupInstallerValidationPasses() {
+        val catalog = WireNavigation3Contributions.create(
+            runtime = mockk(relaxed = true),
+            actions = mockk(relaxed = true),
+            authenticationRouter = mockk(relaxed = true),
+        )
+
+        assertEquals(WireNavigation3Contributions.EXPECTED_INSTALLER_COUNT, catalog.entryProviderInstallers.size)
+    }
 
     @Test
     fun givenAllMigratedContributions_whenCollectingResultTypes_thenContractIdsAreUniqueAndComplete() {
@@ -27,6 +39,7 @@ class WireNavigation3ContributionsTest {
             listOf(
                 "new-conversation.channel-history.custom",
                 "settings.account-update",
+                "settings.multi-factor-authentication-setup",
                 "user-profile.avatar-picker",
                 "user-profile.connection-request-ignored",
                 "conversation.completion",
@@ -75,7 +88,7 @@ class WireNavigation3ContributionsTest {
             }
         }
         assertEquals(positions.sorted(), positions)
-        assertTrue(source.contains("EXPECTED_INSTALLER_COUNT: Int = 19"))
+        assertTrue(source.contains("EXPECTED_INSTALLER_COUNT: Int = 20"))
     }
 
     @Test
@@ -91,7 +104,7 @@ class WireNavigation3ContributionsTest {
         }
 
         assertEquals(WireNavigation3Contributions.EXPECTED_ROUTE_REGISTRATION_COUNT, registrationCount)
-        assertEquals(110, registrationCount)
+        assertEquals(112, registrationCount)
     }
 
     @Test
@@ -139,6 +152,7 @@ class WireNavigation3ContributionsTest {
             "ui/home/newconversation/channelhistory/ChannelHistoryNavigation3Entries.kt",
             "ui/home/settings/SettingsNavigation3Entries.kt",
             "ui/home/settings/SettingsAccountNavigation3Entries.kt",
+            "ui/home/settings/multifactorauthentication/MultiFactorAuthenticationNavigation3Entries.kt",
             "ui/settings/devices/DeviceE2EINavigation3Entries.kt",
             "ui/userprofile/UserProfileNavigation3Entries.kt",
             "ui/userprofile/teammigration/TeamMigrationNavigation3Entries.kt",

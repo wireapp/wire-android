@@ -60,6 +60,7 @@ import kotlinx.datetime.LocalDate
 fun MultiFactorAuthenticationScreen(
     onBackPressed: () -> Unit,
     viewModel: MultiFactorAuthenticationViewModel,
+    onSetUp: () -> Unit,
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val snackbarHostState = LocalSnackbarHostState.current
@@ -69,8 +70,12 @@ fun MultiFactorAuthenticationScreen(
         state = state,
         onBackPressed = onBackPressed,
         onRetry = viewModel::refresh,
-        onAction = {
-            coroutineScope.launch { snackbarHostState.showSnackbar(placeholderMessage) }
+        onAction = { action ->
+            if (action == MultiFactorAuthenticationAction.SetUp) {
+                onSetUp()
+            } else {
+                coroutineScope.launch { snackbarHostState.showSnackbar(placeholderMessage) }
+            }
         },
     )
 }

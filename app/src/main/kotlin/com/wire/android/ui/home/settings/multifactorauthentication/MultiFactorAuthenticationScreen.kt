@@ -61,6 +61,7 @@ fun MultiFactorAuthenticationScreen(
     onBackPressed: () -> Unit,
     viewModel: MultiFactorAuthenticationViewModel,
     onSetUp: () -> Unit,
+    onManageRecoveryCodes: (RecoveryCodesStatus) -> Unit,
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val snackbarHostState = LocalSnackbarHostState.current
@@ -71,10 +72,15 @@ fun MultiFactorAuthenticationScreen(
         onBackPressed = onBackPressed,
         onRetry = viewModel::refresh,
         onAction = { action ->
-            if (action == MultiFactorAuthenticationAction.SetUp) {
-                onSetUp()
-            } else {
-                coroutineScope.launch { snackbarHostState.showSnackbar(placeholderMessage) }
+            when (action) {
+                MultiFactorAuthenticationAction.SetUp -> onSetUp()
+                MultiFactorAuthenticationAction.ManageRecoveryCodes -> {
+                    val loaded = state as? MultiFactorAuthenticationOverviewState.Loaded
+                    (loaded?.overview as? MultiFactorAuthenticationOverview.Enabled)?.let {
+                        onManageRecoveryCodes(it.recoveryCodesStatus)
+                    }
+                }
+                else -> coroutineScope.launch { snackbarHostState.showSnackbar(placeholderMessage) }
             }
         },
     )

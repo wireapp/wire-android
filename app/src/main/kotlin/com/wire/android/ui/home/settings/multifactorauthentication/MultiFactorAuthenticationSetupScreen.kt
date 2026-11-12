@@ -23,10 +23,6 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
-import androidx.activity.compose.BackHandler
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -57,7 +53,6 @@ import androidx.core.net.toUri
 import com.lightspark.composeqr.DotShape
 import com.lightspark.composeqr.QrCodeView
 import com.wire.android.R
-import com.wire.android.ui.common.WireLabelledCheckbox
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.button.WireSecondaryButton
@@ -68,14 +63,12 @@ import com.wire.android.ui.common.textfield.WirePasswordTextField
 import com.wire.android.ui.common.textfield.WireTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
+import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.PreviewMultipleThemes
-import java.io.IOException
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 @Composable
 internal fun MultiFactorAuthenticationSetupScreen(
@@ -89,24 +82,14 @@ internal fun MultiFactorAuthenticationSetupScreen(
     val coroutineScope = rememberCoroutineScope()
     val snackbar = LocalSnackbarHostState.current
     val copied = stringResource(R.string.multi_factor_authentication_copied)
-    val saved = stringResource(R.string.multi_factor_authentication_codes_downloaded)
-    val saveError = stringResource(R.string.multi_factor_authentication_codes_download_error)
     val noAuthenticator = stringResource(R.string.multi_factor_authentication_no_authenticator)
     val authenticatorName = stringResource(R.string.multi_factor_authentication_default_app_name)
-    val download = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("text/plain")) { uri ->
-        if (uri != null && state.recoveryCodes.isNotEmpty()) {
-            coroutineScope.launch {
-                val success = writeRecoveryCodes(context, uri, state.recoveryCodes)
-                snackbar.showSnackbar(if (success) saved else saveError)
-            }
-        }
-    }
+    val recoveryCodeActions = rememberRecoveryCodeActions(state.recoveryCodes)
     val copy: (String) -> Unit = { text ->
         val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
         clipboard.setPrimaryClip(ClipData.newPlainText("", text))
         coroutineScope.launch { snackbar.showSnackbar(copied) }
     }
-    BackHandler(onBack = onBack)
     MultiFactorAuthenticationSetupContent(
         step = step,
         state = state,
@@ -134,8 +117,8 @@ internal fun MultiFactorAuthenticationSetupScreen(
         },
         onManualKey = { onNext(MultiFactorAuthenticationSetupStep.MANUAL_KEY) },
         onCopyKey = { state.enrollment?.setupKey?.let(copy) },
-        onCopyCodes = { copy(state.recoveryCodes.joinToString("\n")) },
-        onDownloadCodes = { download.launch("wire-recovery-codes.txt") },
+        onCopyCodes = recoveryCodeActions.copy,
+        onDownloadCodes = recoveryCodeActions.download,
         onCodesSaved = viewModel::setRecoveryCodesSaved,
     )
 }
@@ -155,11 +138,14 @@ internal fun MultiFactorAuthenticationSetupContent(
     onDownloadCodes: () -> Unit,
     onCodesSaved: (Boolean) -> Unit,
 ) {
+    val canGoBack = state.canNavigateBackFrom(step)
+    RecoveryCodesBackHandler(canGoBack, onBack)
     WireScaffold(
         topBar = {
             WireCenterAlignedTopAppBar(
                 title = stringResource(R.string.multi_factor_authentication_setup_title),
                 onNavigationPressed = onBack,
+                navigationIconType = if (canGoBack) NavigationIconType.Back() else null,
                 elevation = dimensions().spacing0x,
             )
         },
@@ -206,23 +192,13 @@ internal fun MultiFactorAuthenticationSetupContent(
                     }
                 }
                 MultiFactorAuthenticationSetupStep.VERIFY_CODE -> VerificationCodeInput(code, state.isBusy)
-                MultiFactorAuthenticationSetupStep.RECOVERY_CODES -> {
-                    Text(
-                        text = state.recoveryCodes.joinToString("\n"),
-                        style = MaterialTheme.wireTypography.body01,
-                        fontFamily = FontFamily.Monospace,
-                    )
-                    WireSecondaryButton(text = stringResource(R.string.multi_factor_authentication_copy_codes), onClick = onCopyCodes)
-                    WireSecondaryButton(
-                        text = stringResource(R.string.multi_factor_authentication_download_codes),
-                        onClick = onDownloadCodes,
-                    )
-                    WireLabelledCheckbox(
-                        label = stringResource(R.string.multi_factor_authentication_codes_saved),
-                        checked = state.recoveryCodesSaved,
-                        onCheckClicked = onCodesSaved,
-                    )
-                }
+                MultiFactorAuthenticationSetupStep.RECOVERY_CODES -> MultiFactorAuthenticationRecoveryCodesContent(
+                    codes = state.recoveryCodes,
+                    saved = state.recoveryCodesSaved,
+                    onSavedChange = onCodesSaved,
+                    onCopy = onCopyCodes,
+                    onDownload = onDownloadCodes,
+                )
             }
             state.error?.let { error ->
                 Text(
@@ -313,18 +289,6 @@ private fun VerificationCodeInput(code: TextFieldState, isBusy: Boolean) {
 @Composable
 private fun SetupDescription(text: String) {
     Text(text, style = MaterialTheme.wireTypography.body01, color = MaterialTheme.wireColorScheme.secondaryText)
-}
-
-private suspend fun writeRecoveryCodes(context: Context, uri: Uri, codes: List<String>): Boolean = withContext(Dispatchers.IO) {
-    try {
-        val stream = context.contentResolver.openOutputStream(uri) ?: return@withContext false
-        stream.bufferedWriter().use { it.write(codes.joinToString("\n")) }
-        true
-    } catch (_: IOException) {
-        false
-    } catch (_: SecurityException) {
-        false
-    }
 }
 
 @PreviewMultipleThemes

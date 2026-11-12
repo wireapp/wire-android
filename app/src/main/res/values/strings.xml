@@ -1295,6 +1295,13 @@
     <string name="multi_factor_authentication_copy_codes">Copy recovery codes</string>
     <string name="multi_factor_authentication_download_codes">Download recovery codes</string>
     <string name="multi_factor_authentication_codes_saved">I have saved my recovery codes</string>
+    <string name="multi_factor_authentication_recovery_password_description">Enter your password to generate new recovery codes.</string>
+    <string name="multi_factor_authentication_recovery_codes_shown_once">For your security, codes are shown only once, when you create them.</string>
+    <string name="multi_factor_authentication_generate_codes">Generate new codes</string>
+    <string name="multi_factor_authentication_generate_codes_confirmation_title">Generate new codes?</string>
+    <string name="multi_factor_authentication_generate_codes_confirmation_description">Your current codes will stop working straight away.</string>
+    <string name="multi_factor_authentication_generate">Generate</string>
+    <string name="multi_factor_authentication_new_codes_generated">New codes generated. Your old codes no longer work.</string>
     <string name="multi_factor_authentication_finish_setup">Finish setup</string>
     <string name="multi_factor_authentication_password_required">Enter your password to continue.</string>
     <string name="multi_factor_authentication_invalid_code">Invalid code. Try again.</string>

@@ -157,6 +157,22 @@ class MultiFactorAuthenticationViewModelTest {
         assertEquals(completed, viewModel.state.value)
     }
 
+    @Test
+    fun `regenerating codes resets the count without changing authenticators and survives a refresh`() = runTest {
+        val original = enabled.copy(recoveryCodesStatus = RecoveryCodesStatus(3, 10))
+        val viewModel = createViewModel(MultiFactorAuthenticationStore { original })
+        runCurrent()
+
+        viewModel.onRecoveryCodesGenerated(MultiFactorAuthenticationRecoveryCodesResult(10))
+        runCurrent()
+
+        val updated = viewModel.state.value as MultiFactorAuthenticationOverviewState.Loaded
+        assertEquals(original.copy(recoveryCodesStatus = RecoveryCodesStatus(10, 10)), updated.overview)
+        viewModel.refresh()
+        runCurrent()
+        assertEquals(updated, viewModel.state.value)
+    }
+
     private fun createViewModel(store: MultiFactorAuthenticationStore): MultiFactorAuthenticationViewModel =
         ViewModelProvider.create(
             owner,

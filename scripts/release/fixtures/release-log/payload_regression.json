@@ -58,6 +58,7 @@
     "origin": {
       "run_id": 1400,
       "run_attempt": 1,
+      "sha": "9f3c2a1b9f3c2a1b9f3c2a1b9f3c2a1b9f3c2a1b",
       "url": "https://github.com/wireapp/wire-android/actions/runs/1400/attempts/1"
     },
     "gaps": []

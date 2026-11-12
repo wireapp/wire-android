@@ -1118,6 +1118,9 @@ def prod_build(run_id=1400, attempt=1, **changes):
     return record
 
 
+EXPORTER_JOBS = [job("Export release log context"), job("build-production / Build Prod-Compatrelease")]
+
+
 def qa_jobs(conclusion="success"):
     return [job("run-tests / Validate + resolve run inputs"), job("run-tests / Run QA Android Prod Regression RC",
                                                                   conclusion)]
@@ -1440,10 +1443,29 @@ class MatchProductionBuildTest(unittest.TestCase):
         self.assertIsNone(result["origin"])
         self.assertIn("More than one", result["gap"])
 
-    def test_incomplete_or_expired_enumeration_is_a_gap_even_with_one_match(self):
+    def test_exactly_one_match_attaches_even_when_other_builds_could_not_be_read(self):
         result = self.match(unverified=["a production build record has expired"])
+        self.assertEqual(result["origin"]["run_id"], 1400)
+        self.assertEqual((result["release_version"], result["gap"]), ("4.38.0", None))
+        self.assertIn("could not be fully checked", result["note"])
+        self.assertIn("expired", result["note"])
+
+    def test_a_clean_enumeration_leaves_no_note(self):
+        self.assertIsNone(self.match()["note"])
+
+    def test_zero_matches_say_when_the_enumeration_was_incomplete(self):
+        complete = self.match(manifests=[])
+        self.assertNotIn("enumerated", complete["gap"])
+        incomplete = self.match(manifests=[], unverified=["a production build record is missing"])
+        self.assertIsNone(incomplete["origin"])
+        self.assertIn("production builds could not be fully enumerated", incomplete["gap"])
+        self.assertIn("a production build record is missing", incomplete["gap"])
+
+    def test_two_matches_never_attach_even_when_the_enumeration_was_incomplete(self):
+        result = self.match(manifests=[prod_build(1400, 1), prod_build(1450, 1)],
+                            unverified=["a production build record has expired"])
         self.assertIsNone(result["origin"])
-        self.assertIn("expired", result["gap"])
+        self.assertIn("More than one", result["gap"])
 
     def test_the_digest_and_the_file_name_must_both_match(self):
         other_name = qa_record(apk=dict(qa_record()["apk"], filename="renamed.apk"))
@@ -1645,12 +1667,57 @@ class ProductionEnumerationTest(unittest.TestCase):
         api.add_artifact(1400, "release-log-build-Prod-1400-1", prod_build(1400, 1))
         return api
 
-    def test_a_successful_build_without_a_record_leaves_the_attribution_unverified(self):
-        api = self.attempt_two_world([job("build-production / Build Prod-Compatrelease")])
+    def test_a_missing_record_of_a_run_with_the_exporter_is_only_a_note_when_another_build_matches(self):
+        api = self.attempt_two_world(EXPORTER_JOBS)
+        payload = collect_regression(api)
+        self.assertEqual(payload["evidence"]["origin"]["run_attempt"], 1)
+        self.assertEqual(codes(payload), [None])
+        self.assertIn("a production build record is missing", details(payload))
+        self.assertEqual(contract.build_fields(payload)["gaps"], "none")
+
+    def test_a_missing_record_of_a_run_with_the_exporter_that_is_the_only_candidate_is_not_attached(self):
+        api = reg_world(production=False)
+        api.production.append(prod_run())
+        api.add_run(prod_run(), EXPORTER_JOBS)
         payload = collect_regression(api)
         self.assertIsNone(payload["evidence"]["origin"])
+        self.assertEqual(codes(payload), [contract.NOT_ATTACHED])
         self.assertIn("a production build record is missing", details(payload))
-        self.assertIn(contract.NOT_ATTACHED, codes(payload))
+
+    def test_a_run_without_the_exporter_job_is_ignored_even_when_its_build_succeeded(self):
+        for jobs in ([job("build-production / Build Prod-Compatrelease")],
+                     [job("validate-release"), job("build-production / Build Prod-Compatrelease"),
+                      job("build-production / deploy (s3)")],
+                     [job("other / Export release log context"), job("build-production / Build Prod-Compatrelease")]):
+            with self.subTest(jobs=[entry["name"] for entry in jobs]):
+                api = self.attempt_two_world(jobs)
+                payload = collect_regression(api)
+                self.assertEqual(payload["evidence"]["origin"]["run_attempt"], 1)
+                self.assertEqual(payload["evidence"]["gaps"], [])
+
+    def test_only_builds_that_predate_the_exporter_read_not_attached_without_an_enumeration_gap(self):
+        api = reg_world(production=False, created_at="2026-11-11T09:00:00Z")
+        legacy = [(43037838971, "2026-11-02T10:00:00Z", "v4.38.1"), (42021641940, "2026-10-12T10:00:00Z", "v4.38.0")]
+        legacy += [(41000000000 + index, "2026-09-%02dT10:00:00Z" % (index + 1), "v4.37.%d" % index)
+                   for index in range(17)]
+        for run_id, created, tag in legacy:
+            run = prod_run(run_id, created=created, head_branch=tag)
+            api.production.append(run)
+            api.add_run(run, [job("validate-release"), job("build-production / Build Prod-Compatrelease"),
+                              job("build-production / deploy (s3)"), job("build-production / deploy (google-play)")])
+        self.assertEqual(len(legacy), 19)
+        passing = {"passed": 421, "failed": 0, "skipped": 0, "missing": 0, "selected": 421, "total": 421,
+                   "passed_on_rerun": 0}
+        api.artifacts.clear()
+        api.add_artifact(1520, "release-log-qa-1520-1", qa_record(results=passing))
+        payload = collect_regression(api)
+        fields = contract.build_fields(payload)
+        self.assertEqual(codes(payload), [contract.NOT_ATTACHED])
+        self.assertNotIn("enumerat", details(payload))
+        self.assertEqual((fields["result"], fields["gaps"], fields["commit"], fields["buildRunUrl"]),
+                         ("passed", "Not attached to a build", "", ""))
+        for text in fields.values():
+            self.assertNotIn("enumerat", text)
 
     def test_a_missing_record_of_a_build_that_did_not_succeed_or_did_not_run_is_allowed(self):
         for jobs in ([job("build-production / Build Prod-Compatrelease", "failure")],
@@ -1663,12 +1730,13 @@ class ProductionEnumerationTest(unittest.TestCase):
                 self.assertEqual(payload["evidence"]["gaps"], [])
                 self.assertEqual(payload["evidence"]["origin"]["run_attempt"], 1)
 
-    def test_an_unreadable_jobs_listing_leaves_the_attribution_unverified(self):
+    def test_an_unreadable_jobs_listing_is_a_note_and_still_attaches_the_single_match(self):
         api = self.attempt_two_world([])
         api.jobs_error = report.ApiError("GitHub is unreachable")
         payload = collect_regression(api)
-        self.assertIsNone(payload["evidence"]["origin"])
-        self.assertIn("could not be fully enumerated", details(payload))
+        self.assertEqual(payload["evidence"]["origin"]["run_attempt"], 1)
+        self.assertEqual(codes(payload), [None])
+        self.assertIn("could not be fully", details(payload))
 
     def test_jobs_are_listed_only_for_attempts_without_a_record(self):
         api = reg_world()

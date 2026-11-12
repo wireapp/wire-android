@@ -25,19 +25,18 @@ import com.wire.android.navigation.navigation3.WireEntryProviderInstaller
 import com.wire.android.navigation.navigation3.WireNavigation3ResultType
 import com.wire.android.navigation.navigation3.WireNavigation3Runtime
 import com.wire.android.navigation.navigation3.wireEntry
-import com.wire.android.navigation.navigation3.wireViewModelStoreOwner
 import com.wire.android.ui.home.settings.about.dependencies.DependenciesScreen
 import com.wire.android.ui.home.settings.about.licenses.LicensesScreen
 import com.wire.android.ui.home.settings.appearance.CustomizationScreen
 import com.wire.android.ui.home.settings.appsettings.AppSettingsScreen
 import com.wire.android.ui.home.settings.appsettings.networkSettings.NetworkSettingsScreen
 import com.wire.android.ui.home.settings.backup.BackupAndRestoreScreen
-import com.wire.android.ui.home.settings.multifactorauthentication.MultiFactorAuthenticationScreen
+import com.wire.android.ui.home.settings.multifactorauthentication.MultiFactorAuthenticationSetupResultType
+import com.wire.android.ui.home.settings.multifactorauthentication.multiFactorAuthenticationNavigation3Entries
 import com.wire.android.ui.home.settings.privacy.PrivacySettingsConfigScreen
 import com.wire.navigation.SessionRoute
 import com.wire.navigation.WireNavigationCommand
 import com.wire.navigation.WireSessionId
-import com.wire.navigation.WireViewModelOwner
 
 /**
  * Destinations outside the settings batch.
@@ -83,7 +82,7 @@ internal interface SettingsNavigation3Actions {
  */
 internal object SettingsNavigation3Contribution {
     val resultTypes: List<WireNavigation3ResultType<*>> =
-        listOf(SettingsAccountUpdateNavigation3ResultType)
+        listOf(SettingsAccountUpdateNavigation3ResultType, MultiFactorAuthenticationSetupResultType)
 
     fun entryProviderInstallers(
         runtime: WireNavigation3Runtime,
@@ -92,6 +91,7 @@ internal object SettingsNavigation3Contribution {
         listOf(
             settingsNavigation3Entries(runtime, actions),
             settingsAccountNavigation3Entries(runtime, actions),
+            multiFactorAuthenticationNavigation3Entries(runtime, actions::exitSettings),
         )
 }
 
@@ -114,14 +114,6 @@ internal fun settingsNavigation3Entries(
     }
     wireEntry<PrivacySettingsRoute> {
         PrivacySettingsConfigScreen(onBackPressed = runtime.backOrExit(actions))
-    }
-    wireEntry<MultiFactorAuthenticationRoute> { route ->
-        MultiFactorAuthenticationScreen(
-            onBackPressed = runtime.backOrExit(actions),
-            viewModel = settingsViewModel(
-                viewModelStoreOwner = wireViewModelStoreOwner(WireViewModelOwner.Flow(route.flowId)),
-            ),
-        )
     }
     wireEntry<CustomizationSettingsRoute> {
         CustomizationScreen(onBackPressed = runtime.backOrExit(actions))

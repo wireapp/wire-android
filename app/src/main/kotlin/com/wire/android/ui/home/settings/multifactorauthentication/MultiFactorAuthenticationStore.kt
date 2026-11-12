@@ -25,6 +25,12 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
+import kotlin.time.Clock
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
+
+private const val DUMMY_LOADING_DELAY_MILLIS = 500L
 
 data class MultiFactorAuthenticationStoreState(
     val overview: MultiFactorAuthenticationOverview? = null,
@@ -42,6 +48,7 @@ class MultiFactorAuthenticationStore(
     private val _state = MutableStateFlow(MultiFactorAuthenticationStoreState())
     val state = _state.asStateFlow()
     private val refreshMutex = Mutex()
+    private var completedDummyOverview: MultiFactorAuthenticationOverview.Enabled? = null
 
     @Suppress("TooGenericExceptionCaught")
     suspend fun refresh() {
@@ -50,7 +57,7 @@ class MultiFactorAuthenticationStore(
         try {
             _state.update { it.copy(isRefreshing = true, failure = null) }
             val overview = loadOverview()
-            _state.value = MultiFactorAuthenticationStoreState(overview = overview)
+            _state.value = MultiFactorAuthenticationStoreState(overview = completedDummyOverview ?: overview)
         } catch (cancelled: CancellationException) {
             throw cancelled
         } catch (failure: Exception) {
@@ -60,11 +67,27 @@ class MultiFactorAuthenticationStore(
             refreshMutex.unlock()
         }
     }
+
+    suspend fun completeSetup(result: MultiFactorAuthenticationSetupResult) = refreshMutex.withLock {
+        // Keep local prototype changes authoritative until the MFA area is closed.
+        val overview = MultiFactorAuthenticationOverview.Enabled(
+            authenticatorApps = listOf(
+                AuthenticatorApp(
+                    id = result.authenticatorId,
+                    name = result.authenticatorName,
+                    addedOn = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date,
+                )
+            ),
+            recoveryCodesStatus = RecoveryCodesStatus(result.recoveryCodesCount, result.recoveryCodesCount),
+        )
+        completedDummyOverview = overview
+        _state.value = MultiFactorAuthenticationStoreState(overview = overview)
+    }
 }
 
 class DummyMultiFactorAuthenticationLoader @Inject constructor() {
     suspend operator fun invoke(): MultiFactorAuthenticationOverview {
-        delay(500)
+        delay(DUMMY_LOADING_DELAY_MILLIS)
         return MultiFactorAuthenticationOverview.Disabled
     }
 }

@@ -31,3 +31,7 @@ class RefreshMultiFactorAuthenticationOverviewUseCase(
 ) {
     suspend operator fun invoke() = store.refresh()
 }
+
+class CompleteMultiFactorAuthenticationSetupUseCase(private val store: MultiFactorAuthenticationStore) {
+    suspend operator fun invoke(result: MultiFactorAuthenticationSetupResult) = store.completeSetup(result)
+}

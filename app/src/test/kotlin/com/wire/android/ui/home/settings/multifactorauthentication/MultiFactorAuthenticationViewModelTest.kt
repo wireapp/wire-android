@@ -140,6 +140,23 @@ class MultiFactorAuthenticationViewModelTest {
         assertNull(store.state.value.overview)
     }
 
+    @Test
+    fun `completed setup updates the observed overview and a dummy refresh keeps it enabled`() = runTest {
+        val store = MultiFactorAuthenticationStore { MultiFactorAuthenticationOverview.Disabled }
+        val viewModel = createViewModel(store)
+        viewModel.onSetupCompleted(MultiFactorAuthenticationSetupResult("new-app", "Android phone", 10))
+        runCurrent()
+
+        val completed = viewModel.state.value as MultiFactorAuthenticationOverviewState.Loaded
+        val overview = completed.overview as MultiFactorAuthenticationOverview.Enabled
+        assertEquals("new-app", overview.authenticatorApps.single().id)
+        assertEquals(RecoveryCodesStatus(10, 10), overview.recoveryCodesStatus)
+
+        viewModel.refresh()
+        runCurrent()
+        assertEquals(completed, viewModel.state.value)
+    }
+
     private fun createViewModel(store: MultiFactorAuthenticationStore): MultiFactorAuthenticationViewModel =
         ViewModelProvider.create(
             owner,

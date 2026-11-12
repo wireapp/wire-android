@@ -32,6 +32,7 @@ import com.wire.android.ui.home.settings.appsettings.AppSettingsScreen
 import com.wire.android.ui.home.settings.appsettings.networkSettings.NetworkSettingsScreen
 import com.wire.android.ui.home.settings.backup.BackupAndRestoreScreen
 import com.wire.android.ui.home.settings.multifactorauthentication.MultiFactorAuthenticationSetupResultType
+import com.wire.android.ui.home.settings.multifactorauthentication.MultiFactorAuthenticationRecoveryCodesResultType
 import com.wire.android.ui.home.settings.multifactorauthentication.multiFactorAuthenticationNavigation3Entries
 import com.wire.android.ui.home.settings.privacy.PrivacySettingsConfigScreen
 import com.wire.navigation.SessionRoute
@@ -82,7 +83,11 @@ internal interface SettingsNavigation3Actions {
  */
 internal object SettingsNavigation3Contribution {
     val resultTypes: List<WireNavigation3ResultType<*>> =
-        listOf(SettingsAccountUpdateNavigation3ResultType, MultiFactorAuthenticationSetupResultType)
+        listOf(
+            SettingsAccountUpdateNavigation3ResultType,
+            MultiFactorAuthenticationSetupResultType,
+            MultiFactorAuthenticationRecoveryCodesResultType,
+        )
 
     fun entryProviderInstallers(
         runtime: WireNavigation3Runtime,

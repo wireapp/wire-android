@@ -40,7 +40,10 @@ data class MultiFactorAuthenticationSetupState(
     val error: MultiFactorAuthenticationSetupError? = null,
     val nextStep: MultiFactorAuthenticationSetupStep? = null,
     val completion: MultiFactorAuthenticationSetupResult? = null,
-)
+) {
+    fun canNavigateBackFrom(step: MultiFactorAuthenticationSetupStep): Boolean =
+        step != MultiFactorAuthenticationSetupStep.RECOVERY_CODES || recoveryCodesSaved
+}
 
 class MultiFactorAuthenticationSetupViewModel @Inject constructor(
     private val startSetup: StartMultiFactorAuthenticationSetupUseCase,

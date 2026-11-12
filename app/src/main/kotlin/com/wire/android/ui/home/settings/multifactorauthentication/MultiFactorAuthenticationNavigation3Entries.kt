@@ -49,6 +49,11 @@ internal val MultiFactorAuthenticationSetupResultType = WireNavigation3ResultTyp
     serializer = MultiFactorAuthenticationSetupResult.serializer(),
 )
 
+internal val MultiFactorAuthenticationRecoveryCodesResultType = WireNavigation3ResultType(
+    contract = MultiFactorAuthenticationRecoveryCodesResultContract,
+    serializer = MultiFactorAuthenticationRecoveryCodesResult.serializer(),
+)
+
 internal fun multiFactorAuthenticationNavigation3Entries(
     runtime: WireNavigation3Runtime,
     onExit: () -> Unit,
@@ -58,6 +63,9 @@ internal fun multiFactorAuthenticationNavigation3Entries(
     }
     wireEntry<MultiFactorAuthenticationSetupRoute> { route ->
         MultiFactorAuthenticationSetupEntry(runtime, route, onExit)
+    }
+    wireEntry<MultiFactorAuthenticationRecoveryCodesRoute> { route ->
+        MultiFactorAuthenticationRecoveryCodesEntry(runtime, route, onExit)
     }
 }
 
@@ -71,6 +79,7 @@ private fun MultiFactorAuthenticationOverviewEntry(
         viewModelStoreOwner = wireViewModelStoreOwner(WireViewModelOwner.Flow(route.flowId)),
     )
     var setupRequestId by rememberSaveable(route.entryId.value) { mutableStateOf<String?>(null) }
+    var recoveryCodesRequestId by rememberSaveable(route.entryId.value, "recovery-codes") { mutableStateOf<String?>(null) }
     val currentEntryId = runtime.navigator.currentRoute?.entryId
     val snackbarHostState = LocalSnackbarHostState.current
     val successMessage = stringResource(R.string.multi_factor_authentication_setup_success)
@@ -88,6 +97,18 @@ private fun MultiFactorAuthenticationOverviewEntry(
             null -> Unit
         }
     }
+    LaunchedEffect(recoveryCodesRequestId, currentEntryId) {
+        if (currentEntryId != route.entryId) return@LaunchedEffect
+        val requestId = recoveryCodesRequestId?.let(::WireNavResultRequestId) ?: return@LaunchedEffect
+        when (val result = runtime.consumeResult(requestId, MultiFactorAuthenticationRecoveryCodesResultType)) {
+            is WireNavResult.Value -> {
+                recoveryCodesRequestId = null
+                viewModel.onRecoveryCodesGenerated(result.value)
+            }
+            WireNavResult.Canceled -> recoveryCodesRequestId = null
+            null -> Unit
+        }
+    }
     MultiFactorAuthenticationScreen(
         onBackPressed = { if (!runtime.navigator.goBack()) onExit() },
         viewModel = viewModel,
@@ -95,6 +116,12 @@ private fun MultiFactorAuthenticationOverviewEntry(
             setupRequestId = runtime.navigateForResult(
                 MultiFactorAuthenticationSetupRoute(route.sessionId),
                 MultiFactorAuthenticationSetupResultType,
+            )?.value
+        },
+        onManageRecoveryCodes = { status ->
+            recoveryCodesRequestId = runtime.navigateForResult(
+                MultiFactorAuthenticationRecoveryCodesRoute(route.sessionId, status.remaining, status.total),
+                MultiFactorAuthenticationRecoveryCodesResultType,
             )?.value
         },
     )
@@ -140,8 +167,10 @@ private fun MultiFactorAuthenticationSetupEntry(
         state = state,
         viewModel = viewModel,
         onBack = {
-            viewModel.cancelPendingOperation()
-            if (!runtime.navigator.goBack()) onExit()
+            if (viewModel.state.value.canNavigateBackFrom(route.step)) {
+                viewModel.cancelPendingOperation()
+                if (!runtime.navigator.goBack()) onExit()
+            }
         },
         onNext = ::next,
     )

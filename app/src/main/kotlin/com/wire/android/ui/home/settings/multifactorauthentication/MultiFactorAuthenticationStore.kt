@@ -83,6 +83,13 @@ class MultiFactorAuthenticationStore(
         completedDummyOverview = overview
         _state.value = MultiFactorAuthenticationStoreState(overview = overview)
     }
+
+    suspend fun updateRecoveryCodesStatus(result: MultiFactorAuthenticationRecoveryCodesResult) = refreshMutex.withLock {
+        val overview = _state.value.overview as? MultiFactorAuthenticationOverview.Enabled ?: return@withLock
+        val updated = overview.copy(recoveryCodesStatus = RecoveryCodesStatus(result.generatedCount, result.generatedCount))
+        completedDummyOverview = updated
+        _state.value = MultiFactorAuthenticationStoreState(overview = updated)
+    }
 }
 
 class DummyMultiFactorAuthenticationLoader @Inject constructor() {

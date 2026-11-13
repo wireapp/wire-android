@@ -17,6 +17,8 @@
  */
 package com.wire.android.ui.home.settings.privacy
 
+import app.cash.turbine.test
+import com.wire.android.R
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.datastore.UserDataStore
@@ -24,6 +26,8 @@ import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.ui.analytics.AnalyticsConfiguration
 import com.wire.android.framework.TestUser
 import com.wire.android.util.newServerConfig
+import com.wire.android.util.ui.UIText
+import com.wire.kalium.common.error.NetworkFailure
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.feature.user.SelfServerConfigUseCase
 import com.wire.kalium.logic.feature.user.linkPreviews.ObserveLinkPreviewsEnabledUseCase
@@ -114,6 +118,72 @@ class PrivacySettingsViewModelTest {
             true,
             viewModel.state.isAnalyticsUsageEnabled
         )
+    }
+
+    @Test
+    fun `given read receipts update fails, when toggling, then error message is emitted and state is reverted`() = runTest {
+        val (arrangement, viewModel) = Arrangement().withEnabledAnonymousUsageData().arrange()
+        coEvery { arrangement.persistReadReceiptsStatusConfig.invoke(false) } returns
+                ReadReceiptStatusConfigResult.Failure(NetworkFailure.NoNetworkConnection(null))
+
+        viewModel.errorMessage.test {
+            viewModel.setReadReceiptsState(false)
+
+            assertEquals(UIText.StringResource(R.string.error_no_network_message), awaitItem())
+            assertEquals(true, viewModel.state.areReadReceiptsEnabled)
+        }
+    }
+
+    @Test
+    fun `given typing indicator update fails, when toggling, then error message is emitted and state is reverted`() = runTest {
+        val (arrangement, viewModel) = Arrangement().withEnabledAnonymousUsageData().arrange()
+        coEvery { arrangement.persistTypingIndicatorStatusConfig.invoke(false) } returns
+                TypingIndicatorConfigResult.Failure(NetworkFailure.NoNetworkConnection(null))
+
+        viewModel.errorMessage.test {
+            viewModel.setTypingIndicatorState(false)
+
+            assertEquals(UIText.StringResource(R.string.error_no_network_message), awaitItem())
+            assertEquals(true, viewModel.state.isTypingIndicatorEnabled)
+        }
+    }
+
+    @Test
+    fun `given link previews update fails, when toggling, then error message is emitted and state is reverted`() = runTest {
+        val (arrangement, viewModel) = Arrangement().withEnabledAnonymousUsageData().arrange()
+        coEvery { arrangement.persistLinkPreviewsStatusConfig.invoke(true) } returns
+                LinkPreviewsConfigResult.Failure(NetworkFailure.NoNetworkConnection(null))
+
+        viewModel.errorMessage.test {
+            viewModel.setLinkPreviewsState(true)
+
+            assertEquals(UIText.StringResource(R.string.error_no_network_message), awaitItem())
+            assertEquals(false, viewModel.state.areLinkPreviewsEnabled)
+        }
+    }
+
+    @Test
+    fun `given screenshot censoring update fails, when toggling, then error message is emitted`() = runTest {
+        val (arrangement, viewModel) = Arrangement().withEnabledAnonymousUsageData().arrange()
+        coEvery { arrangement.persistScreenshotCensoringConfig.invoke(false) } returns
+                PersistScreenshotCensoringConfigResult.Failure(NetworkFailure.NoNetworkConnection(null))
+
+        viewModel.errorMessage.test {
+            viewModel.setScreenshotCensoringConfig(false)
+
+            assertEquals(UIText.StringResource(R.string.error_no_network_message), awaitItem())
+        }
+    }
+
+    @Test
+    fun `given read receipts update succeeds, when toggling, then no error message is emitted`() = runTest {
+        val (_, viewModel) = Arrangement().withEnabledAnonymousUsageData().arrange()
+
+        viewModel.errorMessage.test {
+            viewModel.setReadReceiptsState(true)
+
+            expectNoEvents()
+        }
     }
 
     private class Arrangement {

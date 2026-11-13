@@ -21,11 +21,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.di.CurrentAccount
 import com.wire.android.ui.analytics.AnalyticsConfiguration
 import com.wire.android.util.dispatchers.DispatcherProvider
+import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.feature.user.SelfServerConfigUseCase
@@ -42,6 +44,8 @@ import com.wire.kalium.logic.feature.user.screenshotCensoring.PersistScreenshotC
 import com.wire.kalium.logic.feature.user.typingIndicator.ObserveTypingIndicatorEnabledUseCase
 import com.wire.kalium.logic.feature.user.typingIndicator.PersistTypingIndicatorStatusConfigUseCase
 import com.wire.kalium.logic.feature.user.typingIndicator.TypingIndicatorConfigResult
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -66,6 +70,10 @@ class PrivacySettingsViewModel @Inject constructor(
 
     var state by mutableStateOf(PrivacySettingsState())
         private set
+
+    private val _errorMessage = MutableSharedFlow<UIText>()
+    val errorMessage = _errorMessage.asSharedFlow()
+
     init {
         viewModelScope.launch {
             val shouldShowAnalyticsUsage = shouldShowAnalyticsUsage()
@@ -105,12 +113,18 @@ class PrivacySettingsViewModel @Inject constructor(
         }
         return isAnalyticsConfigurationEnabled && isValidBackend
     }
+
+    private suspend fun emitUpdateError() {
+        _errorMessage.emit(UIText.StringResource(R.string.error_no_network_message))
+    }
+
     fun setReadReceiptsState(isEnabled: Boolean) {
         viewModelScope.launch {
             state =
                 when (withContext(dispatchers.io()) { persistReadReceiptsStatusConfig(isEnabled) }) {
                     is ReadReceiptStatusConfigResult.Failure -> {
                         appLogger.e("Something went wrong while updating read receipts config")
+                        emitUpdateError()
                         state.copy(areReadReceiptsEnabled = !isEnabled)
                     }
                     is ReadReceiptStatusConfigResult.Success -> {
@@ -126,6 +140,7 @@ class PrivacySettingsViewModel @Inject constructor(
                 when (withContext(dispatchers.io()) { persistTypingIndicatorStatusConfig(isEnabled) }) {
                     is TypingIndicatorConfigResult.Failure -> {
                         appLogger.e("Something went wrong while updating typing indicator config")
+                        emitUpdateError()
                         state.copy(isTypingIndicatorEnabled = !isEnabled)
                     }
                     is TypingIndicatorConfigResult.Success -> {
@@ -142,6 +157,7 @@ class PrivacySettingsViewModel @Inject constructor(
                 when (withContext(dispatchers.io()) { persistLinkPreviewsStatusConfig(isEnabled) }) {
                     is LinkPreviewsConfigResult.Failure -> {
                         appLogger.e("Something went wrong while updating link previews config")
+                        emitUpdateError()
                         state.copy(areLinkPreviewsEnabled = !isEnabled)
                     }
                     is LinkPreviewsConfigResult.Success -> {
@@ -154,9 +170,10 @@ class PrivacySettingsViewModel @Inject constructor(
 
     fun setScreenshotCensoringConfig(isEnabled: Boolean) {
         viewModelScope.launch {
-            when (persistScreenshotCensoringConfig(isEnabled)) {
+            when (withContext(dispatchers.io()) { persistScreenshotCensoringConfig(isEnabled) }) {
                 is PersistScreenshotCensoringConfigResult.Failure -> {
                     appLogger.e("Something went wrong while updating screenshot censoring config")
+                    emitUpdateError()
                 }
                 is PersistScreenshotCensoringConfigResult.Success -> {
                     appLogger.d("Screenshot censoring config changed")

@@ -1195,6 +1195,7 @@
     <string name="cancel_login_button_label">අවලංගු</string>
     <string name="cancel_login_dialog_description">දැන් අවලංගු කළහොත්, ඔබට නික්මවනු ඇත.</string>
     <string name="cancel_login_dialog_title">ඔබට අවලංගු කිරීමට වුවමනාද?</string>
+    <!-- Restart App dialog -->
     <!-- Analytics Usage dialog -->
     <string name="analytics_usage_dialog_title">පරිශීලක දත්ත බෙදා ගැනීමට කැමැත්ත</string>
     <string name="analytics_usage_dialog_text">ව්‍යාජ නාමයක් සහිත හැඳුනුම්පතක් හරහා ඔබේ භාවිත දත්ත බෙදා ගැනීමෙන් Wire වැඩිදියුණු කිරීමට උදව් කරන්න. Wire Group හැරුණු විට දත්ත ඔබේ පුද්ගලික තොරතුරු සමඟ සම්බන්ධ නොවේ හෝ තෙවන පාර්ශවයන් සමඟ බෙදා නොගනී. උදාහරණයක් ලෙස, ඔබ විශේෂාංගයක් භාවිතා කරන විට, ඔබේ යෙදුම් අනුවාදය, උපාංග වර්ගය හෝ ඔබේ මෙහෙයුම් පද්ධතිය එයට ඇතුළත් වේ. දින 365 කට පසු මෙම දත්ත නවතම අවස්ථාවේදී මකා දැමෙනු ඇත.\n\nඅපගේ රහස්‍යතා ප්‍රතිපත්තියේ වැඩිදුර විස්තර සොයා ගන්න. ඔබට ඕනෑම වේලාවක ඔබේ කැමැත්ත අවලංගු කළ හැකිය.</string>

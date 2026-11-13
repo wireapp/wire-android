@@ -10,13 +10,15 @@
 package com.wire.android.tests.core.pages
 
 import android.graphics.Rect
-import android.os.SystemClock
+import android.os.Build
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.Configurator
 import androidx.test.uiautomator.Direction
 import androidx.test.uiautomator.StaleObjectException
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.UiObject2
+import androidx.test.uiautomator.Until
+import com.wire.android.tests.support.UiAutomatorSetup
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -39,7 +41,10 @@ class MeetingsPage(private val device: UiDevice) {
     private val mainMenuButton = UiSelectorParams(description = "Main navigation")
     private val germanMainMenuButton = UiSelectorParams(description = "Hauptnavigation")
     private val meetingsHeading = UiSelectorParams(text = "Meetings")
+    private val meetingInviteNotification = By.text(Regex(".*(ML-.*|invited (you )?to a meeting|zu einem Meeting).*").toPattern())
+        .pkg("com.android.systemui")
     private val remindersDialogTitle = UiSelectorParams(text = "Enable precise meeting reminders")
+    private val samsungSoftwareUpdatePrompt = By.pkg("com.wssyncmldm").textStartsWith("Update ready to install")
     private val cancelButton = UiSelectorParams(text = "Cancel")
     private val germanCancelButton = UiSelectorParams(text = "Abbrechen")
     private val emptyTitle = UiSelectorParams(text = "No upcoming meetings yet", timeout = 30.seconds)
@@ -54,28 +59,20 @@ class MeetingsPage(private val device: UiDevice) {
         textMatches = "^(ML-.*|(Today|Tomorrow|Yesterday|Heute|Morgen|Gestern) \\(.*\\)|" +
             "(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday|Montag|Dienstag|Mittwoch|Donnerstag|Freitag|Samstag|Sonntag), .*)$"
     )
-    private fun meetingTitle(title: String) = UiSelectorParams(text = title)
+    private fun meetingTitle(title: String) = By.text(title).pkg(UiAutomatorSetup.appPackage)
     private fun dateHeader(text: String) = UiSelectorParams(text = text)
 
-    fun open(locale: Locale = Locale.US) {
+    fun open(locale: Locale = Locale.getDefault()) {
         val navigationButton = if (locale.language == "de") germanMainMenuButton else mainMenuButton
-        var lastNavigationClick = 0L
-        assertTrue(
-            "Meetings navigation entry did not become available",
-            UiWaitUtils.retryUntilTimeout(30.seconds) {
-                if (UiWaitUtils.clickWhenClickable(meetingsHeading, timeout = UiWaitUtils.POLLING_DEFAULT)) {
-                    true
-                } else {
-                    val now = SystemClock.uptimeMillis()
-                    if (now - lastNavigationClick >= 1.seconds.inWholeMilliseconds &&
-                        UiWaitUtils.clickWhenClickable(navigationButton, timeout = UiWaitUtils.POLLING_DEFAULT)
-                    ) {
-                        lastNavigationClick = now
-                    }
-                    false
-                }
-            }
+        UiWaitUtils.waitElement(navigationButton, timeout = 30.seconds)
+        // An invitation can arrive just after its meeting is created.
+        device.wait(Until.hasObject(meetingInviteNotification), UiWaitUtils.STABLE_TIMEOUT.inWholeMilliseconds)
+        UiWaitUtils.waitUntilGoneOrThrow(
+            meetingInviteNotification,
+            errorMessage = "Meeting invite notification is still covering the navigation button"
         )
+        assertTrue("Main navigation button is not clickable", UiWaitUtils.clickWhenClickable(navigationButton, timeout = 30.seconds))
+        UiWaitUtils.waitElement(meetingsHeading, timeout = 30.seconds).click()
         // The app asks for exact-alarm access the first time this screen opens.
         if (UiWaitUtils.retryUntilTimeout(5.seconds) { device.hasObject(remindersDialogTitle.toBySelector()) }) {
             UiWaitUtils.waitElement(if (locale.language == "de") germanCancelButton else cancelButton).click()
@@ -94,48 +91,70 @@ class MeetingsPage(private val device: UiDevice) {
         assertFalse("Empty list contains meeting cards", device.hasObject(moreMenuButton.toBySelector()))
     }
 
+    fun dismissSamsungSoftwareUpdatePromptIfShown() {
+        if (!Build.MANUFACTURER.equals("samsung", ignoreCase = true)) return
+        // Changing the clock can bring Samsung's pending update screen to the foreground.
+        if (device.wait(Until.hasObject(samsungSoftwareUpdatePrompt), UiWaitUtils.SHORT_TIMEOUT.inWholeMilliseconds)) {
+            device.executeShellCommand("input keyevent KEYCODE_BACK")
+            UiWaitUtils.waitUntilGoneOrThrow(
+                samsungSoftwareUpdatePrompt,
+                timeout = UiWaitUtils.SHORT_TIMEOUT,
+                errorMessage = "Samsung software update screen did not close"
+            )
+        }
+    }
+
     fun assertMeeting(
         meeting: Meeting,
         zone: ZoneId,
-        locale: Locale = Locale.US,
+        locale: Locale = Locale.getDefault(),
         participantCount: Int? = null,
     ) {
-        assertTrue(
-            "Meeting '${meeting.title}' did not display its latest information",
-            UiWaitUtils.retryUntilTimeout(30.seconds) {
-                try {
-                    val titles = device.findObjects(meetingTitle(meeting.title).toBySelector())
-                    titles.size == 1 && rowTexts(titles.single()).contains(timeRange(meeting, zone, locale))
-                } catch (_: StaleObjectException) {
-                    false
-                }
+        val expectedTime = timeRange(meeting, zone, locale)
+        var title: VisibleEntry? = null
+        val meetingVisible = UiWaitUtils.retryUntilTimeout(30.seconds) {
+            try {
+                val node = device.findObjects(meetingTitle(meeting.title)).singleOrNull()
+                    ?: return@retryUntilTimeout false
+                val entry = VisibleEntry(node.text, node.visibleBounds)
+                if (expectedTime !in rowTexts(entry)) return@retryUntilTimeout false
+                title = entry
+                true
+            } catch (_: StaleObjectException) {
+                false
             }
-        )
-        val title = visibleEntries().single { it.text == meeting.title }
-        assertCardDetails(title, meeting, zone, locale, participantCount)
+        }
+        if (!meetingVisible) {
+            throw AssertionError(
+                "Meeting '${meeting.title}' did not display its latest information: " +
+                    "expected '$expectedTime' for $locale; actual ${currentRowTexts(meeting.title)}"
+            )
+        }
+        assertCardDetails(requireNotNull(title), meeting, zone, locale, participantCount)
     }
 
     fun assertGone(title: String, timeout: Duration = 30.seconds) {
         UiWaitUtils.waitUntilGoneOrThrow(
-            meetingTitle(title).toBySelector(),
+            meetingTitle(title),
             timeout = timeout,
             errorMessage = "Stale meeting '$title' is still displayed"
         )
     }
 
     fun assertNotVisible(title: String) {
-        assertFalse("Meeting '$title' should require scrolling", device.hasObject(meetingTitle(title).toBySelector()))
+        assertFalse("Meeting '$title' should require scrolling", device.hasObject(meetingTitle(title)))
     }
 
     fun assertNoCountdown(title: String) {
-        val node = UiWaitUtils.waitElement(meetingTitle(title))
+        val node = device.wait(Until.findObject(meetingTitle(title)), UiWaitUtils.DEFAULT_TIMEOUT.inWholeMilliseconds)
+            ?: throw AssertionError("Meeting '$title' is not visible")
         assertFalse("Unexpected starting-soon countdown for $title", rowTexts(node).any { it.startsWith("Starting in ") })
     }
 
-    fun assertHasCountdown(title: String) {
+    fun assertHasCountdown(title: String, timeout: Duration = 10.seconds) {
         assertTrue(
             "Expected a starting-soon countdown for $title",
-            UiWaitUtils.retryUntilTimeout(10.seconds) {
+            UiWaitUtils.retryUntilTimeout(timeout) {
                 currentRowTexts(title)?.any { it.startsWith("Starting in ") } == true
             }
         )
@@ -167,7 +186,7 @@ class MeetingsPage(private val device: UiDevice) {
                 } == true
             }
         )
-        assertEquals("Duplicate live meeting", 1, device.findObjects(meetingTitle(title).toBySelector()).size)
+        assertEquals("Duplicate live meeting", 1, device.findObjects(meetingTitle(title)).size)
     }
 
     /**
@@ -178,7 +197,7 @@ class MeetingsPage(private val device: UiDevice) {
         meetings: List<Meeting>,
         zone: ZoneId,
         today: LocalDate,
-        locale: Locale = Locale.US,
+        locale: Locale = Locale.getDefault(),
         participants: Map<String, Int> = emptyMap(),
     ) {
         require(meetings.isNotEmpty() && meetings.map { it.title }.distinct().size == meetings.size)
@@ -244,7 +263,7 @@ class MeetingsPage(private val device: UiDevice) {
         throw AssertionError("Could not return to the beginning of the Meetings list")
     }
 
-    fun assertHeader(meeting: Meeting, zone: ZoneId, today: LocalDate, locale: Locale = Locale.US) {
+    fun assertHeader(meeting: Meeting, zone: ZoneId, today: LocalDate, locale: Locale = Locale.getDefault()) {
         val expected = header(meeting.start.atZone(zone).toLocalDate(), today, locale)
         assertTrue(
             "Expected header '$expected'; visible entries: ${visibleEntries().map { it.text }}",
@@ -271,7 +290,7 @@ class MeetingsPage(private val device: UiDevice) {
     }
 
     private fun currentRowTexts(title: String): List<String>? = try {
-        device.findObject(meetingTitle(title).toBySelector())?.let { rowTexts(it) }
+        device.findObject(meetingTitle(title))?.let { rowTexts(it) }
     } catch (_: StaleObjectException) {
         null
     }
@@ -284,7 +303,7 @@ class MeetingsPage(private val device: UiDevice) {
         val top = title.visibleBounds.top
         val bottom = visibleEntries().filter { it.visibleBounds.top > top }.minOfOrNull { it.visibleBounds.top }
             ?: device.displayHeight
-        return device.findObjects(selector.toBySelector()).filter {
+        return device.findObjects(selector.toBySelector().pkg(UiAutomatorSetup.appPackage)).filter {
             it.visibleBounds.top >= top && it.visibleBounds.bottom <= bottom
         }
     }
@@ -292,7 +311,7 @@ class MeetingsPage(private val device: UiDevice) {
     private data class VisibleEntry(val text: String, val visibleBounds: Rect)
 
     private fun visibleEntries(): List<VisibleEntry> = readFreshNodes {
-        device.findObjects(listEntry.toBySelector())
+        device.findObjects(listEntry.toBySelector().pkg(UiAutomatorSetup.appPackage))
             .map { VisibleEntry(it.text, it.visibleBounds) }
             .filter { !it.visibleBounds.isEmpty }
             .sortedBy { it.visibleBounds.top }
@@ -377,7 +396,12 @@ class MeetingsPage(private val device: UiDevice) {
     }
 
     private fun timeRange(meeting: Meeting, zone: ZoneId, locale: Locale): String {
-        val format = DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT).withLocale(locale).withZone(zone)
+        // The localized formatter returns a malformed en-DE time pattern on Android 12.
+        val format = if (locale.toLanguageTag() == "en-DE") {
+            DateTimeFormatter.ofPattern("HH:mm", locale)
+        } else {
+            DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT).withLocale(locale)
+        }.withZone(zone)
         return "${format.format(meeting.start)} - ${format.format(meeting.end)}"
     }
 

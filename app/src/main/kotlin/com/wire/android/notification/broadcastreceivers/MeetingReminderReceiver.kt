@@ -4,7 +4,6 @@ import android.app.AlarmManager
 import android.content.Context
 import android.content.Intent
 import android.os.Build
-import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.di.NoSession
 import com.wire.android.di.metro.wireApplicationGraph
 import com.wire.android.notification.MeetingReminderScheduler
@@ -21,9 +20,6 @@ class MeetingReminderReceiver : CoroutineReceiver() {
     @NoSession
     lateinit var qualifiedIdMapper: QualifiedIdMapper
 
-    @Inject
-    lateinit var globalDataStore: GlobalDataStore
-
     override fun onReceive(context: Context, intent: Intent?) {
         context.wireApplicationGraph.inject(this)
         super.onReceive(context, intent)
@@ -35,7 +31,6 @@ class MeetingReminderReceiver : CoroutineReceiver() {
             AlarmManager.ACTION_SCHEDULE_EXACT_ALARM_PERMISSION_STATE_CHANGED -> {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                     val alarmManager = context.getSystemService(AlarmManager::class.java)
-                    globalDataStore.setExactAlarmAccessDialogSeen(false)
                     if (alarmManager.canScheduleExactAlarms()) scheduler.restore()
                 }
             }

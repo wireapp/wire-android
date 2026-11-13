@@ -139,4 +139,7 @@
     <string name="new_meeting_confirm_password_input_label">Confirm password</string>
     <string name="new_meeting_confirm_password_input_placeholder">Re-enter password</string>
     <string name="new_meeting_password_mismatch_error">Passwords do not match</string>
+    <string name="meeting_reminders_card_title">Meeting reminders</string>
+    <string name="meeting_reminders_card_description">To join meetings on time, allow reminders for Wire in your system settings on your device.</string>
+    <string name="meeting_reminders_card_settings">Open Device Settings</string>
 </resources>

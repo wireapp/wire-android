@@ -25,8 +25,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.text.input.InputTransformation
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
@@ -40,7 +38,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.lightspark.composeqr.DotShape
 import com.lightspark.composeqr.QrCodeView
@@ -174,7 +171,11 @@ internal fun MultiFactorAuthenticationSetupContent(
                         WireSecondaryButton(text = stringResource(R.string.multi_factor_authentication_copy_key), onClick = onCopyKey)
                     }
                 }
-                MultiFactorAuthenticationSetupStep.VERIFY_CODE -> VerificationCodeInput(code, state.isBusy)
+                MultiFactorAuthenticationSetupStep.VERIFY_CODE -> VerificationCodeInput(
+                    code = code,
+                    isBusy = state.isBusy,
+                    isInvalid = state.error == MultiFactorAuthenticationSetupError.INVALID_CODE,
+                )
                 MultiFactorAuthenticationSetupStep.RECOVERY_CODES -> MultiFactorAuthenticationRecoveryCodesContent(
                     codes = state.recoveryCodes,
                     saved = state.recoveryCodesSaved,
@@ -286,16 +287,8 @@ private fun SetupError(error: MultiFactorAuthenticationSetupError) {
 }
 
 @Composable
-private fun VerificationCodeInput(code: TextFieldState, isBusy: Boolean) {
-    WireTextField(
-        textState = code,
-        labelText = stringResource(R.string.multi_factor_authentication_code_label),
-        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-        inputTransformation = InputTransformation {
-            if (length > AUTHENTICATION_CODE_LENGTH || asCharSequence().any { it !in '0'..'9' }) revertAllChanges()
-        },
-        state = if (isBusy) WireTextFieldState.Disabled else WireTextFieldState.Default,
-    )
+private fun VerificationCodeInput(code: TextFieldState, isBusy: Boolean, isInvalid: Boolean) {
+    MultiFactorAuthenticationCodeInput(code = code, isBusy = isBusy, isInvalid = isInvalid)
     SetupDescription(stringResource(R.string.multi_factor_authentication_demo_code))
 }
 

@@ -69,6 +69,7 @@ internal fun MultiFactorAuthenticationRemoveAuthenticatorAppEntry(
         isBusy = state.isBusy || state.isValidated,
         actionAvailable = canRemove,
         errorText = error,
+        isCodeInvalid = state.error == RemoveAuthenticatorAppError.INVALID_CODE,
         onBack = {
             if (!viewModel.state.value.isValidated) {
                 viewModel.cancel()

@@ -171,7 +171,7 @@ class NewMeetingViewModelImpl @AssistedInject constructor(
                     }
                 }
                 state = state.copy(
-                    isGuestLinkSharingEnabled = meetingType == NewMeetingType.Schedule
+                    isGuestLinkSharingEnabled = meetingType !is NewMeetingType.Edit
                             && meetingsGuestsLinksEnabled
                             && isMeetingsEnabledUseCase.isGuestLinkSharingEnabled(),
                     initialLoading = InitialLoadingState.Loaded,
@@ -208,13 +208,11 @@ class NewMeetingViewModelImpl @AssistedInject constructor(
         state = state.copy(
             invalidPassword = false,
             passwordsDoNotMatch = false,
-            continueButtonEnabled = titleTextState.text.trim().isNotEmpty() &&
-                    state.titleError == null && state.startTimeError == null && state.endTimeError == null && !state.isSubmitting
-        )
+        ).withValidatedContinueButton()
     }
 
     override fun onGenerateRandomPassword() {
-        if (type == NewMeetingType.Schedule && state.isGuestLinkSharingEnabled) {
+        if (type !is NewMeetingType.Edit && state.isGuestLinkSharingEnabled) {
             val password = generatePassword()
             passwordTextState.setTextAndPlaceCursorAtEnd(password)
             confirmPasswordTextState.setTextAndPlaceCursorAtEnd(password)
@@ -223,7 +221,7 @@ class NewMeetingViewModelImpl @AssistedInject constructor(
 
     private val optionalPassword: String?
         get() = passwordTextState.text.toString().takeIf {
-            type == NewMeetingType.Schedule && state.isGuestLinkSharingEnabled && it.isNotEmpty()
+            type !is NewMeetingType.Edit && state.isGuestLinkSharingEnabled && it.isNotEmpty()
         }
 
     private fun validateOptionalPassword(): Boolean {
@@ -234,8 +232,7 @@ class NewMeetingViewModelImpl @AssistedInject constructor(
         state = state.copy(
             invalidPassword = invalidPassword,
             passwordsDoNotMatch = passwordsDoNotMatch,
-            continueButtonEnabled = state.continueButtonEnabled && passwordValid,
-        )
+        ).withValidatedContinueButton()
         return passwordValid
     }
 
@@ -309,11 +306,7 @@ class NewMeetingViewModelImpl @AssistedInject constructor(
         }
         state = state.copy(
             titleError = titleError,
-            continueButtonEnabled = titleTextState.text.trim().isNotEmpty() &&
-                    titleError == null &&
-                    state.startTimeError == null &&
-                    state.endTimeError == null && !state.hasPasswordError
-        )
+        ).withValidatedContinueButton()
         return titleError == null
     }
 
@@ -331,13 +324,14 @@ class NewMeetingViewModelImpl @AssistedInject constructor(
         state = state.copy(
             startTimeError = startTimeError,
             endTimeError = endTimeError,
-            continueButtonEnabled = titleTextState.text.trim().isNotEmpty() &&
-                    state.titleError == null &&
-                    startTimeError == null &&
-                    endTimeError == null && !state.hasPasswordError
-        )
+        ).withValidatedContinueButton()
         return startTimeError == null && endTimeError == null
     }
+
+    private fun NewMeetingState.withValidatedContinueButton(): NewMeetingState = copy(
+        continueButtonEnabled = titleTextState.text.trim().isNotEmpty() && titleError == null &&
+                startTimeError == null && endTimeError == null && !hasPasswordError && !isSubmitting
+    )
 
     override fun submitCreation() {
         viewModelScope.launch {
@@ -355,7 +349,7 @@ class NewMeetingViewModelImpl @AssistedInject constructor(
             }
             val passwordValid = validateOptionalPassword()
             if (titleValid && startAndEndTimeValid && passwordValid) {
-                state = state.copy(isSubmitting = true, continueButtonEnabled = false)
+                state = state.copy(isSubmitting = true).withValidatedContinueButton()
                 val creationResult = createNewMeeting(
                     createMeeting = CreateMeeting(
                         title = titleTextState.text.trim().toString(),
@@ -368,7 +362,7 @@ class NewMeetingViewModelImpl @AssistedInject constructor(
                         otherParticipants = state.confirmedContacts.map { UserId(it.id, it.domain) }
                     )
                 )
-                state = state.copy(isSubmitting = false, continueButtonEnabled = true)
+                state = state.copy(isSubmitting = false).withValidatedContinueButton()
                 when (creationResult) {
                     is CreateNewMeetingUseCase.Result.Success -> sendAction(
                         NewMeetingViewActions.Success(
@@ -388,7 +382,7 @@ class NewMeetingViewModelImpl @AssistedInject constructor(
             val titleValid = validateTitle()
             val startAndEndTimeValid = validateStartAndEndTime()
             if (titleValid && startAndEndTimeValid && !state.isSubmitting) {
-                state = state.copy(isSubmitting = true, continueButtonEnabled = false)
+                state = state.copy(isSubmitting = true).withValidatedContinueButton()
                 val updateResult = updateMeeting(
                     meetingId = meetingType.id,
                     updateMeeting = UpdateMeeting(
@@ -401,7 +395,7 @@ class NewMeetingViewModelImpl @AssistedInject constructor(
                         otherParticipants = state.confirmedContacts.map { UserId(it.id, it.domain) }
                     )
                 )
-                state = state.copy(isSubmitting = false, continueButtonEnabled = true)
+                state = state.copy(isSubmitting = false).withValidatedContinueButton()
                 when (updateResult) {
                     is UpdateMeetingUseCase.Result.Success -> sendAction(NewMeetingViewActions.Success())
                     is UpdateMeetingUseCase.Result.Failure -> state = state.copy(
@@ -419,9 +413,9 @@ class NewMeetingViewModelImpl @AssistedInject constructor(
 
     override fun retryUpdateConversationName(conversationId: ConversationId) {
         viewModelScope.launch {
-            state = state.copy(isSubmitting = true, continueButtonEnabled = false)
+            state = state.copy(isSubmitting = true).withValidatedContinueButton()
             renameConversationUseCase(conversationId = conversationId, conversationName = titleTextState.text.trim().toString()).let {
-                state = state.copy(isSubmitting = false, continueButtonEnabled = true)
+                state = state.copy(isSubmitting = false).withValidatedContinueButton()
                 when (it) {
                     is RenamingResult.Failure ->
                         state = state.copy(submitError = NewMeetingState.SubmitError.UpdateConversationNameFailure(conversationId))

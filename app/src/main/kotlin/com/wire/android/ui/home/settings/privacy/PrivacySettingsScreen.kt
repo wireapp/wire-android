@@ -18,12 +18,15 @@
 
 package com.wire.android.ui.home.settings.privacy
 
+import android.widget.Toast
 import com.wire.android.BuildConfig
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import com.wire.android.ui.home.settings.privacySettingsViewModel
 import com.wire.android.R
@@ -43,6 +46,14 @@ fun PrivacySettingsConfigScreen(
     onBackPressed: () -> Unit,
     viewModel: PrivacySettingsViewModel = privacySettingsViewModel()
 ) {
+    val context = LocalContext.current
+
+    LaunchedEffect(Unit) {
+        viewModel.errorMessage.collect {
+            Toast.makeText(context, it.asString(context.resources), Toast.LENGTH_SHORT).show()
+        }
+    }
+
     with(viewModel) {
         PrivacySettingsScreenContent(
             isAnonymousUsageDataEnabled = state.isAnalyticsUsageEnabled,

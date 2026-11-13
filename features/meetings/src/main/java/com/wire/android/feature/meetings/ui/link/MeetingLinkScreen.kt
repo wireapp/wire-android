@@ -116,7 +116,7 @@ internal fun MeetingLinkContent(
                     horizontalArrangement = Arrangement.spacedBy(dimensions().spacing16x),
                 ) {
                     WireSecondaryButton(
-                        text = stringResource(CommonR.string.label_cancel),
+                        text = stringResource(CommonR.string.label_close),
                         onClick = onDismiss,
                         modifier = Modifier.weight(1f),
                     )

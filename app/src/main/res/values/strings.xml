@@ -1265,7 +1265,6 @@
     <string name="multi_factor_authentication_turn_off_title">Turn off 2FA</string>
     <string name="multi_factor_authentication_turn_off_heading">Turn off two-factor authentication?</string>
     <string name="multi_factor_authentication_turn_off_description">You\'ll only need your password to log in. Confirm with your password and a code from your authenticator app.</string>
-    <string name="multi_factor_authentication_turn_off_demo">Prototype: enter any non-empty password and use 284913 to continue. Your credentials are not checked by a server.</string>
     <string name="multi_factor_authentication_turn_off_success">Two-factor authentication is off</string>
     <string name="multi_factor_authentication_authenticator_apps">Authenticator apps</string>
     <string name="multi_factor_authentication_authenticator_apps_description">Any of these apps can give you a code to log in. Before you change phones, add the new one, then remove the old one.</string>
@@ -1302,11 +1301,10 @@
     <string name="multi_factor_authentication_load_error">Unable to load two-factor authentication settings. Please try again.</string>
     <string name="multi_factor_authentication_flow_placeholder">This flow is not available yet.</string>
     <string name="multi_factor_authentication_setup_title">Set up 2FA</string>
-    <string name="multi_factor_authentication_default_app_name">Android phone</string>
+    <string name="multi_factor_authentication_default_app_name">Authenticator app</string>
     <string name="multi_factor_authentication_setup_step">Step %1$d of %2$d</string>
     <string name="multi_factor_authentication_confirm_password_title">Confirm it\'s you</string>
     <string name="multi_factor_authentication_confirm_password_description">Enter your password to set up two-factor authentication.</string>
-    <string name="multi_factor_authentication_demo_password">Prototype: enter any non-empty password. Your password is not checked.</string>
     <string name="multi_factor_authentication_link_title">Add Wire to your authenticator app</string>
     <string name="multi_factor_authentication_link_description">Use an authenticator app on this phone, or scan the QR code from another device.</string>
     <string name="multi_factor_authentication_open_authenticator">Open authenticator app</string>
@@ -1319,7 +1317,6 @@
     <string name="multi_factor_authentication_code_title">Enter the 6-digit code</string>
     <string name="multi_factor_authentication_code_description">Enter the code your authenticator app shows for Wire. Codes refresh every 30 seconds.</string>
     <string name="multi_factor_authentication_code_label">Authentication code</string>
-    <string name="multi_factor_authentication_demo_code">Prototype: use 284913 to continue. Codes from an authenticator app are not checked.</string>
     <string name="multi_factor_authentication_verify">Verify</string>
     <string name="multi_factor_authentication_codes_title">Save your recovery codes</string>
     <string name="multi_factor_authentication_codes_description">If you lose your authenticator app, use a recovery code to log in. Each code works once.</string>

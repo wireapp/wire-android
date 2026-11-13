@@ -145,7 +145,6 @@ internal fun MultiFactorAuthenticationSetupContent(
                         textState = password,
                         state = if (state.isBusy) WireTextFieldState.Disabled else WireTextFieldState.Default,
                     )
-                    SetupDescription(stringResource(R.string.multi_factor_authentication_demo_password))
                 }
                 MultiFactorAuthenticationSetupStep.LINK_AUTHENTICATOR -> {
                     WireSecondaryButton(
@@ -171,7 +170,7 @@ internal fun MultiFactorAuthenticationSetupContent(
                         WireSecondaryButton(text = stringResource(R.string.multi_factor_authentication_copy_key), onClick = onCopyKey)
                     }
                 }
-                MultiFactorAuthenticationSetupStep.VERIFY_CODE -> VerificationCodeInput(
+                MultiFactorAuthenticationSetupStep.VERIFY_CODE -> MultiFactorAuthenticationCodeInput(
                     code = code,
                     isBusy = state.isBusy,
                     isInvalid = state.error == MultiFactorAuthenticationSetupError.INVALID_CODE,
@@ -284,12 +283,6 @@ private fun SetupError(error: MultiFactorAuthenticationSetupError) {
         color = MaterialTheme.wireColorScheme.error,
         style = MaterialTheme.wireTypography.body01,
     )
-}
-
-@Composable
-private fun VerificationCodeInput(code: TextFieldState, isBusy: Boolean, isInvalid: Boolean) {
-    MultiFactorAuthenticationCodeInput(code = code, isBusy = isBusy, isInvalid = isInvalid)
-    SetupDescription(stringResource(R.string.multi_factor_authentication_demo_code))
 }
 
 @Composable

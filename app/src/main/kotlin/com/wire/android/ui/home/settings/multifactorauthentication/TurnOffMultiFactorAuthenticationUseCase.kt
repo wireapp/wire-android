@@ -28,6 +28,6 @@ class TurnOffMultiFactorAuthenticationUseCase @Inject constructor() {
     suspend operator fun invoke(password: String, code: String): Boolean {
         require(password.isNotBlank())
         delay(DUMMY_TURN_OFF_DELAY_MILLIS)
-        return code == "284913"
+        return code == DUMMY_TOTP_CODE
     }
 }

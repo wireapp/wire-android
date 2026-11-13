@@ -64,7 +64,7 @@ class MultiFactorAuthenticationSetupViewModelTest {
         assertEquals(MultiFactorAuthenticationSetupStep.LINK_AUTHENTICATOR, viewModel.state.value.nextStep)
         viewModel.navigationHandled()
 
-        viewModel.code.setTextAndPlaceCursorAtEnd("284913")
+        viewModel.code.setTextAndPlaceCursorAtEnd("111111")
         viewModel.verifyAuthenticationCode()
         advanceUntilIdle()
         assertEquals(MultiFactorAuthenticationSetupStep.RECOVERY_CODES, viewModel.state.value.nextStep)
@@ -109,7 +109,7 @@ class MultiFactorAuthenticationSetupViewModelTest {
         assertNull(viewModel.state.value.nextStep)
         assertTrue(viewModel.state.value.recoveryCodes.isEmpty())
 
-        viewModel.code.setTextAndPlaceCursorAtEnd("284913")
+        viewModel.code.setTextAndPlaceCursorAtEnd("111111")
         viewModel.verifyAuthenticationCode()
         advanceUntilIdle()
         assertNull(viewModel.state.value.error)
@@ -124,7 +124,7 @@ class MultiFactorAuthenticationSetupViewModelTest {
         viewModel.confirmPassword()
         advanceUntilIdle()
         viewModel.navigationHandled()
-        viewModel.code.setTextAndPlaceCursorAtEnd("284913")
+        viewModel.code.setTextAndPlaceCursorAtEnd("111111")
         viewModel.verifyAuthenticationCode()
         advanceUntilIdle()
         val original = viewModel.state.value
@@ -134,7 +134,7 @@ class MultiFactorAuthenticationSetupViewModelTest {
         viewModel.confirmPassword()
         advanceUntilIdle()
         viewModel.navigationHandled()
-        viewModel.code.setTextAndPlaceCursorAtEnd("284913")
+        viewModel.code.setTextAndPlaceCursorAtEnd("111111")
         viewModel.verifyAuthenticationCode()
         advanceUntilIdle()
 
@@ -172,7 +172,7 @@ class MultiFactorAuthenticationSetupViewModelTest {
         viewModel.confirmPassword()
         advanceUntilIdle()
         assertNotNull(viewModel.state.value.enrollment)
-        viewModel.code.setTextAndPlaceCursorAtEnd("284913")
+        viewModel.code.setTextAndPlaceCursorAtEnd("111111")
         viewModel.verifyAuthenticationCode()
         advanceUntilIdle()
 

@@ -55,7 +55,7 @@ class MultiFactorAuthenticationTurnOffViewModelTest {
     fun `missing password or malformed code never submits the operation`() = runTest {
         val useCase = mockk<TurnOffMultiFactorAuthenticationUseCase>()
         val viewModel = createViewModel(useCase)
-        listOf("" to "284913", "   " to "284913", "password" to "123", "password" to "abcdef").forEach { (password, code) ->
+        listOf("" to "111111", "   " to "111111", "password" to "123", "password" to "abcdef").forEach { (password, code) ->
             viewModel.password.setTextAndPlaceCursorAtEnd(password)
             viewModel.code.setTextAndPlaceCursorAtEnd(code)
             viewModel.turnOff()
@@ -74,12 +74,12 @@ class MultiFactorAuthenticationTurnOffViewModelTest {
         }
         val viewModel = createViewModel(useCase)
         viewModel.password.setTextAndPlaceCursorAtEnd("password")
-        viewModel.code.setTextAndPlaceCursorAtEnd("284913")
+        viewModel.code.setTextAndPlaceCursorAtEnd("111111")
         viewModel.turnOff()
         assertTrue(viewModel.state.value.isBusy)
         assertTrue(viewModel.code.text.isEmpty())
 
-        viewModel.code.setTextAndPlaceCursorAtEnd("284913")
+        viewModel.code.setTextAndPlaceCursorAtEnd("111111")
         viewModel.turnOff()
         advanceUntilIdle()
 
@@ -87,7 +87,7 @@ class MultiFactorAuthenticationTurnOffViewModelTest {
         assertFalse(viewModel.state.value.isBusy)
         assertTrue(viewModel.password.text.isEmpty())
         assertTrue(viewModel.code.text.isEmpty())
-        coVerify(exactly = 1) { useCase("password", "284913") }
+        coVerify(exactly = 1) { useCase("password", "111111") }
     }
 
     @Test
@@ -102,7 +102,7 @@ class MultiFactorAuthenticationTurnOffViewModelTest {
         assertFalse(viewModel.state.value.isCompleted)
         assertEquals("password", viewModel.password.text.toString())
 
-        viewModel.code.setTextAndPlaceCursorAtEnd("284913")
+        viewModel.code.setTextAndPlaceCursorAtEnd("111111")
         viewModel.turnOff()
         advanceUntilIdle()
 
@@ -115,14 +115,14 @@ class MultiFactorAuthenticationTurnOffViewModelTest {
         coEvery { useCase(any(), any()) } throws IOException("Offline")
         val viewModel = createViewModel(useCase)
         viewModel.password.setTextAndPlaceCursorAtEnd("password")
-        viewModel.code.setTextAndPlaceCursorAtEnd("284913")
+        viewModel.code.setTextAndPlaceCursorAtEnd("111111")
         viewModel.turnOff()
         advanceUntilIdle()
 
         assertEquals(MultiFactorAuthenticationTurnOffError.GENERIC, viewModel.state.value.error)
         assertFalse(viewModel.state.value.isCompleted)
         coEvery { useCase(any(), any()) } returns true
-        viewModel.code.setTextAndPlaceCursorAtEnd("284913")
+        viewModel.code.setTextAndPlaceCursorAtEnd("111111")
         viewModel.turnOff()
         advanceUntilIdle()
 
@@ -134,7 +134,7 @@ class MultiFactorAuthenticationTurnOffViewModelTest {
     fun `cancelling an in-flight operation clears input and never completes later`() = runTest {
         val viewModel = createViewModel()
         viewModel.password.setTextAndPlaceCursorAtEnd("password")
-        viewModel.code.setTextAndPlaceCursorAtEnd("284913")
+        viewModel.code.setTextAndPlaceCursorAtEnd("111111")
         viewModel.turnOff()
 
         viewModel.cancel()
@@ -149,7 +149,7 @@ class MultiFactorAuthenticationTurnOffViewModelTest {
     fun `disposing the screen cancels pending work and clears temporary data`() = runTest {
         val viewModel = createViewModel()
         viewModel.password.setTextAndPlaceCursorAtEnd("password")
-        viewModel.code.setTextAndPlaceCursorAtEnd("284913")
+        viewModel.code.setTextAndPlaceCursorAtEnd("111111")
         viewModel.turnOff()
 
         owner.clear()

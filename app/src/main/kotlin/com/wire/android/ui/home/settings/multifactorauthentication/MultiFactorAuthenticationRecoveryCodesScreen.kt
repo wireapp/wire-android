@@ -122,11 +122,6 @@ internal fun MultiFactorAuthenticationRecoveryCodesScreenContent(
                         textState = password,
                         state = if (state.isBusy) WireTextFieldState.Disabled else WireTextFieldState.Default,
                     )
-                    Text(
-                        stringResource(R.string.multi_factor_authentication_demo_password),
-                        style = MaterialTheme.wireTypography.body01,
-                        color = MaterialTheme.wireColorScheme.secondaryText,
-                    )
                 }
                 MultiFactorAuthenticationRecoveryCodesStep.SUMMARY -> {
                     Text(

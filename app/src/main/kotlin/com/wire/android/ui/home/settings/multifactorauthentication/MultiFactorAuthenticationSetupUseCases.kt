@@ -23,6 +23,7 @@ import java.util.UUID
 import kotlinx.coroutines.delay
 
 internal const val AUTHENTICATION_CODE_LENGTH = 6
+internal const val DUMMY_TOTP_CODE = "111111"
 private const val DUMMY_OPERATION_DELAY_MILLIS = 500L
 
 data class MultiFactorAuthenticationEnrollment(
@@ -50,7 +51,7 @@ class StartMultiFactorAuthenticationSetupUseCase @Inject constructor() {
 class VerifyMultiFactorAuthenticationSetupCodeUseCase @Inject constructor() {
     suspend operator fun invoke(code: String): List<String>? {
         delay(DUMMY_OPERATION_DELAY_MILLIS)
-        if (code != "284913") return null
+        if (code != DUMMY_TOTP_CODE) return null
         return listOf(
             "k7qm2-xpd9f-hwtr4", "b3np8-vz6x2-kem5q", "a7tdr-jw9hp-q4c6y", "hnm8v-s3bkf-e5gaw", "z2rh6-uyc9p-mr3zx",
             "t7ldq-4fn2k-w8bpe", "c6vyj-3hm7a-r9xts", "g5kd2-ne8wq-u4pzm", "y3fb7-lc6rv-h2jdk", "s9tx4-mw5ge-a8qnb",

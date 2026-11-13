@@ -66,7 +66,7 @@ class MultiFactorAuthenticationAddAuthenticatorAppViewModelTest {
         viewModel.addApp()
         assertNull(viewModel.state.value.completion)
 
-        viewModel.code.setTextAndPlaceCursorAtEnd("284913")
+        viewModel.code.setTextAndPlaceCursorAtEnd("111111")
         viewModel.verifyAuthenticationCode()
         advanceUntilIdle()
         assertEquals(MultiFactorAuthenticationSetupStep.NAME_APP, viewModel.state.value.nextStep)
@@ -99,7 +99,7 @@ class MultiFactorAuthenticationAddAuthenticatorAppViewModelTest {
         assertEquals(MultiFactorAuthenticationSetupError.INVALID_CODE, viewModel.state.value.error)
         assertFalse(viewModel.state.value.isVerified)
 
-        viewModel.code.setTextAndPlaceCursorAtEnd("284913")
+        viewModel.code.setTextAndPlaceCursorAtEnd("111111")
         viewModel.verifyAuthenticationCode()
         advanceUntilIdle()
         viewModel.name.setTextAndPlaceCursorAtEnd("Backup")

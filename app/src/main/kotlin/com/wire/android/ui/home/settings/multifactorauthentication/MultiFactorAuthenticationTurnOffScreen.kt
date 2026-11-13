@@ -127,11 +127,6 @@ internal fun MultiFactorAuthenticationCredentialsScreen(
             val fieldState = if (isBusy) WireTextFieldState.Disabled else WireTextFieldState.Default
             WirePasswordTextField(textState = password, state = fieldState)
             MultiFactorAuthenticationCodeInput(code = code, isBusy = isBusy, isInvalid = isCodeInvalid)
-            Text(
-                text = stringResource(R.string.multi_factor_authentication_turn_off_demo),
-                style = MaterialTheme.wireTypography.body01,
-                color = MaterialTheme.wireColorScheme.secondaryText,
-            )
             errorText?.let { error ->
                 Text(
                     text = error,

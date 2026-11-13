@@ -27,7 +27,7 @@ private const val DUMMY_APP_OPERATION_DELAY_MILLIS = 500L
 class VerifyAuthenticatorAppCodeUseCase @Inject constructor() {
     suspend operator fun invoke(code: String): Boolean {
         delay(DUMMY_APP_OPERATION_DELAY_MILLIS)
-        return code == "284913"
+        return code == DUMMY_TOTP_CODE
     }
 }
 
@@ -45,7 +45,7 @@ class RemoveAuthenticatorAppUseCase @Inject constructor() {
         require(appId.isNotBlank())
         require(password.isNotBlank())
         delay(DUMMY_APP_OPERATION_DELAY_MILLIS)
-        return code == "284913"
+        return code == DUMMY_TOTP_CODE
     }
 }
 

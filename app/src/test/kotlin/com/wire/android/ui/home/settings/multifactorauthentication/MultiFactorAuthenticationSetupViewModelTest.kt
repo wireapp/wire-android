@@ -80,14 +80,14 @@ class MultiFactorAuthenticationSetupViewModelTest {
     }
 
     @Test
-    fun `initial setup prevents leaving recovery codes until saved and re-locks when unchecked`() = runTest {
+    fun `initial setup blocks back from recovery codes regardless of acknowledgement`() = runTest {
         val viewModel = createViewModel()
         val codesStep = MultiFactorAuthenticationSetupStep.RECOVERY_CODES
         assertFalse(viewModel.state.value.canNavigateBackFrom(codesStep))
         assertTrue(viewModel.state.value.canNavigateBackFrom(MultiFactorAuthenticationSetupStep.CONFIRM_PASSWORD))
 
         viewModel.setRecoveryCodesSaved(true)
-        assertTrue(viewModel.state.value.canNavigateBackFrom(codesStep))
+        assertFalse(viewModel.state.value.canNavigateBackFrom(codesStep))
 
         viewModel.setRecoveryCodesSaved(false)
         assertFalse(viewModel.state.value.canNavigateBackFrom(codesStep))

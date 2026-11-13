@@ -43,3 +43,7 @@ class UpdateMultiFactorAuthenticationRecoveryCodesStatusUseCase(private val stor
 class CompleteMultiFactorAuthenticationTurnOffUseCase(private val store: MultiFactorAuthenticationStore) {
     suspend operator fun invoke() = store.completeTurnOff()
 }
+
+class CompleteAuthenticatorAppRenameUseCase(private val store: MultiFactorAuthenticationStore) {
+    suspend operator fun invoke(result: AuthenticatorAppRenameResult) = store.completeAuthenticatorAppRename(result)
+}

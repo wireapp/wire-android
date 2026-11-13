@@ -86,6 +86,7 @@ import com.wire.android.feature.cells.domain.model.previewSupported
 import com.wire.android.feature.cells.ui.model.CellNodeUi
 import com.wire.android.feature.cells.ui.model.OpenLoadState
 import com.wire.android.feature.cells.ui.model.isOfflineDownloadPending
+import com.wire.android.feature.cells.ui.model.pausedDownloadProgress
 import com.wire.android.feature.cells.ui.search.sort.SortBy
 import com.wire.android.feature.cells.ui.util.PreviewMultipleThemes
 import com.wire.android.ui.common.chip.WireDisplayChipWithOverFlow
@@ -250,6 +251,8 @@ private fun CellItemIcon(cell: CellNodeUi, showReadyState: Boolean, showViewerOn
     val iconState = when {
         cell.isOpenLoading -> CellIconState.Loading(cell.openLoadProgress)
         cell.downloadProgress != null -> CellIconState.Downloading(cell.downloadProgress)
+        // Where it stopped when the connection dropped.
+        cell.pausedDownloadProgress != null -> CellIconState.Downloading(cell.pausedDownloadProgress)
         // An empty ring: the download hasn't started yet.
         cell.isOfflineDownloadPending() -> CellIconState.Downloading(0f)
         showReadyState -> CellIconState.Ready
@@ -280,6 +283,7 @@ private fun CellItemSubtitle(cell: CellNodeUi, showReadyState: Boolean, showConv
     val subtitleState = when {
         cell.openLoadState is OpenLoadState.Loading -> CellSubtitleState.OpenLoading
         cell.openLoadState is OpenLoadState.Error -> CellSubtitleState.OpenError
+        cell.downloadProgress == null && cell.pausedDownloadProgress != null -> CellSubtitleState.DownloadPaused
         cell.downloadProgress == null && cell.isOfflineDownloadPending() -> CellSubtitleState.DownloadQueued
         cell.downloadProgress != null -> CellSubtitleState.Downloading
         showReadyState -> CellSubtitleState.Ready
@@ -302,7 +306,7 @@ private fun CellItemSubtitle(cell: CellNodeUi, showReadyState: Boolean, showConv
 }
 
 /** What the subtitle of a cell shows; changing from one to another is animated by [CellItemSubtitle]. */
-private enum class CellSubtitleState { OpenLoading, OpenError, DownloadQueued, Downloading, Ready, Default }
+private enum class CellSubtitleState { OpenLoading, OpenError, DownloadPaused, DownloadQueued, Downloading, Ready, Default }
 
 @Composable
 private fun CellItemSubtitleContent(
@@ -329,6 +333,16 @@ private fun CellItemSubtitleContent(
             color = colorsScheme().error,
             maxLines = 1,
         )
+
+        CellSubtitleState.DownloadPaused ->
+            Text(
+                text = stringResource(R.string.tap_to_cancel_paused_download),
+                textAlign = TextAlign.Left,
+                overflow = TextOverflow.Ellipsis,
+                style = typography().label04,
+                color = colorsScheme().secondaryText,
+                maxLines = 1,
+            )
 
         CellSubtitleState.DownloadQueued ->
             Text(

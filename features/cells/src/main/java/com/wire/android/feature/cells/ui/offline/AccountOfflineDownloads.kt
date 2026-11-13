@@ -26,7 +26,12 @@ import com.wire.android.feature.cells.ui.OfflineFileDownloadController
 import com.wire.android.feature.cells.ui.QueuedOfflineDownload
 import com.wire.android.feature.cells.ui.downloadProgressOf
 import com.wire.android.feature.cells.ui.model.CellNodeUi
+import com.wire.kalium.network.NetworkState
+import com.wire.kalium.network.NetworkStateObserver
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -36,6 +41,7 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.update
 import java.util.concurrent.atomic.AtomicLong
+import kotlinx.coroutines.launch
 
 /**
  * The offline downloads of one account. Lives in [OfflineDownloadManager], not in a screen, so downloads keep going
@@ -48,6 +54,7 @@ internal class AccountOfflineDownloads(
     private val scope: CoroutineScope,
     private val controller: OfflineFileDownloadController,
     private val pathCache: CellFileLocalPathCache,
+    private val networkStateObserver: NetworkStateObserver,
 ) {
     private val nextRequestId = AtomicLong()
 
@@ -60,16 +67,60 @@ internal class AccountOfflineDownloads(
                 download.onSaved(localPath)
             },
             onError = { error ->
-                if (error == CellError.NO_SPACE_LEFT) onRanOutOfStorage()
+                when (error) {
+                    // Not settled for its request: it resumes once back online.
+                    CellError.NO_NETWORK -> onConnectionLost(download)
+                    CellError.NO_SPACE_LEFT -> onRanOutOfStorage()
+                    else -> Unit
+                }
                 onSettled()
-                download.onFailed(error)
+                if (error != CellError.NO_NETWORK) download.onFailed(error)
             },
             onCancel = {
                 onSettled()
                 download.onCancelled()
             },
+            initialProgress = pathCache.offlineDownloadStates.value.paused[download.file.uuid],
         )
     }
+
+    private var retryJob: Job? = null
+
+    init {
+        // Nothing starts while offline, and what paused starts again once back online.
+        scope.launch {
+            networkStateObserver.observeNetworkState().collect { state ->
+                val isOnline = state is NetworkState.ConnectedWithInternet
+                queue.setOnline(isOnline)
+                // Their requests would otherwise only fail once they time out, holding their slots until then.
+                if (!isOnline) controller.pauseAll()
+            }
+        }
+    }
+
+    /**
+     * Parks [download] until the connection is back, which the network state observed in `init` resumes right away.
+     *
+     * The network state may report a connection though, leaving no change to wait for: the connection came back before
+     * the request failed, or the state hasn't caught up with the loss yet. The paused downloads are then tried again
+     * shortly, and pause again if still offline.
+     */
+    private fun onConnectionLost(download: QueuedOfflineDownload) {
+        queue.setOnline(false)
+        queue.requeuePaused(download)
+        retryJob?.cancel()
+        retryJob = scope.launch {
+            if (isConnected()) {
+                delay(RETRY_PAUSED_WHEN_CONNECTED_AFTER)
+            } else {
+                networkStateObserver.delayUntilConnectedWithInternetAgain(RETRY_PAUSED_AFTER)
+            }
+            queue.setOnline(isConnected())
+        }
+    }
+
+    private fun isConnected(): Boolean =
+        networkStateObserver.observeNetworkState().value is NetworkState.ConnectedWithInternet
 
     // The files still waiting would fail the same way. A function: the queue can't refer to itself while being created.
     private fun onRanOutOfStorage() {
@@ -144,6 +195,8 @@ internal class AccountOfflineDownloads(
 
     private companion object {
         const val EVENTS_BUFFER = 64
+        val RETRY_PAUSED_AFTER = 30.seconds
+        val RETRY_PAUSED_WHEN_CONNECTED_AFTER = 3.seconds
     }
 }
 
@@ -185,15 +238,18 @@ internal data class OfflineDownloadBatch(
             val knownSize = size?.coerceAtLeast(0L) ?: 0L
             when (outcomes[uuid]) {
                 Outcome.SAVED -> knownSize
-                null -> ((states.progresses.downloadProgressOf(uuid) ?: 0f) * knownSize).toLong()
+                null -> ((states.progresses.downloadProgressOf(uuid) ?: states.paused[uuid] ?: 0f) * knownSize).toLong()
                 else -> 0L
             }
         }
+        val pending = counted.keys.filter { it !in outcomes }
         return OfflineDownloadSummary(
             totalCount = counted.size,
             savedCount = outcomes.count { it.value == Outcome.SAVED },
             failedCount = outcomes.count { it.value == Outcome.FAILED },
-            pendingCount = counted.keys.count { it !in outcomes },
+            pendingCount = pending.size,
+            downloadingCount = pending.count { it in states.progresses },
+            pausedCount = pending.count { it in states.paused },
             totalBytes = counted.values.sumOf { it?.coerceAtLeast(0L) ?: 0L },
             downloadedBytes = downloadedBytes,
             ranOutOfStorage = ranOutOfStorage,

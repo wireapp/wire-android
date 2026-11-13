@@ -22,6 +22,8 @@ package com.wire.android.feature.cells.ui.offline
  * Cancelled files are not counted.
  *
  * @param pendingCount files still downloading or waiting for their turn.
+ * @param downloadingCount among [pendingCount], the files downloading right now.
+ * @param pausedCount among [pendingCount], the files whose download the lost connection interrupted.
  * @param totalBytes the summed size of the files whose size is known, 0 when none is.
  * @param ranOutOfStorage a download failed because the device was full.
  */
@@ -30,17 +32,24 @@ data class OfflineDownloadSummary(
     val savedCount: Int = 0,
     val failedCount: Int = 0,
     val pendingCount: Int = 0,
+    val downloadingCount: Int = 0,
+    val pausedCount: Int = 0,
     val totalBytes: Long = 0,
     val downloadedBytes: Long = 0,
     val ranOutOfStorage: Boolean = false,
 ) {
     val isActive: Boolean get() = pendingCount > 0
 
+    /** Nothing can move until the connection is back. */
+    val isWaitingForNetwork: Boolean get() = pausedCount > 0 && downloadingCount == 0
+
     operator fun plus(other: OfflineDownloadSummary) = OfflineDownloadSummary(
         totalCount = totalCount + other.totalCount,
         savedCount = savedCount + other.savedCount,
         failedCount = failedCount + other.failedCount,
         pendingCount = pendingCount + other.pendingCount,
+        downloadingCount = downloadingCount + other.downloadingCount,
+        pausedCount = pausedCount + other.pausedCount,
         totalBytes = totalBytes + other.totalBytes,
         downloadedBytes = downloadedBytes + other.downloadedBytes,
         ranOutOfStorage = ranOutOfStorage || other.ranOutOfStorage,

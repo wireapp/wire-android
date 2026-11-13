@@ -32,20 +32,26 @@ import com.wire.android.ui.common.error.CoreFailureErrorDialog
 import com.wire.kalium.common.error.NetworkFailure
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.id.MeetingId
 
 sealed interface JoinOrStartCallScreenDialogType {
     data class JoinAnyway(val conversationId: ConversationId) : JoinOrStartCallScreenDialogType
     data class VerificationDegraded(
         val conversationId: ConversationId,
-        val conversationType: Conversation.Type
+        val conversationType: Conversation.Type,
+        val createdMeetingId: MeetingId? = null,
     ) : JoinOrStartCallScreenDialogType
 
-    data class OngoingActiveCall(val conversationId: ConversationId) : JoinOrStartCallScreenDialogType
+    data class OngoingActiveCall(
+        val conversationId: ConversationId,
+        val createdMeetingId: MeetingId? = null,
+    ) : JoinOrStartCallScreenDialogType
     data object NoConnectivity : JoinOrStartCallScreenDialogType
     data class CallConfirmation(
         val conversationId: ConversationId,
         val participantsCount: Int,
-        val conversationType: Conversation.Type
+        val conversationType: Conversation.Type,
+        val createdMeetingId: MeetingId? = null,
     ) : JoinOrStartCallScreenDialogType
 
     sealed interface CallingFeatureUnavailable : JoinOrStartCallScreenDialogType {
@@ -66,7 +72,7 @@ fun JoinOrStartCallManager.HandleJoinOrStartCallScreenDialogs() = when (val dial
 
     is JoinOrStartCallScreenDialogType.OngoingActiveCall -> OngoingActiveCallDialog(
         onInitiateCallAnyway = {
-            initiateCall(dialogType.conversationId)
+            initiateCall(conversationId = dialogType.conversationId, createdMeetingId = dialogType.createdMeetingId)
         },
         onDialogDismiss = ::dismissDialog
     )
@@ -78,7 +84,13 @@ fun JoinOrStartCallManager.HandleJoinOrStartCallScreenDialogs() = when (val dial
 
     is JoinOrStartCallScreenDialogType.CallConfirmation -> ConfirmStartCallDialog(
         participantsCount = dialogType.participantsCount,
-        onConfirm = { startCallAfterConfirmingParticipantsCount(dialogType.conversationId, dialogType.conversationType) },
+        onConfirm = {
+            startCallAfterConfirmingParticipantsCount(
+                conversationId = dialogType.conversationId,
+                conversationType = dialogType.conversationType,
+                createdMeetingId = dialogType.createdMeetingId,
+            )
+        },
         onDialogDismiss = ::dismissDialog
     )
 
@@ -94,7 +106,13 @@ fun JoinOrStartCallManager.HandleJoinOrStartCallScreenDialogs() = when (val dial
     )
 
     is JoinOrStartCallScreenDialogType.VerificationDegraded -> SureAboutCallingInDegradedConversationDialog(
-        callAnyway = { startCallAfterDegradedVerification(dialogType.conversationId, dialogType.conversationType) },
+        callAnyway = {
+            startCallAfterDegradedVerification(
+                conversationId = dialogType.conversationId,
+                conversationType = dialogType.conversationType,
+                createdMeetingId = dialogType.createdMeetingId,
+            )
+        },
         onDialogDismiss = ::dismissDialog
     )
 

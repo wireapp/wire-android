@@ -58,7 +58,7 @@ import com.wire.android.ui.common.R as UICommonR
 fun MeetingOptionsModalSheetLayout(
     sheetState: WireModalSheetState<String>,
     editMeeting: (meetingId: MeetingId) -> Unit = {},
-    shareWithGuests: (occurrenceId: String) -> Unit = {},
+    openMeetingLink: (meetingId: MeetingId) -> Unit = {},
     startCall: (conversationId: ConversationId) -> Unit = {},
     joinCall: (conversationId: ConversationId) -> Unit = {},
     returnToCall: (conversationId: ConversationId) -> Unit = {},
@@ -100,8 +100,8 @@ fun MeetingOptionsModalSheetLayout(
                             )
                         }
                     },
-                    onShareWithGuests = {
-                        sheetState.hide { shareWithGuests(occurrenceId) }
+                    onOpenMeetingLink = {
+                        sheetState.hide { openMeetingLink(state.meetingId) }
                     },
                     onEditMeeting = {
                         sheetState.hide {
@@ -161,7 +161,7 @@ fun MeetingOptionsModalSheetLayout(
 private fun MeetingOptionsModalContent(
     meetingState: MeetingOptionsMenuState.Meeting,
     onCreateConversation: () -> Unit = {},
-    onShareWithGuests: () -> Unit = {},
+    onOpenMeetingLink: () -> Unit = {},
     onEditMeeting: () -> Unit = {},
     onDeleteMeetingForMe: () -> Unit = {},
     onDeleteMeetingForEveryone: () -> Unit = {},
@@ -228,7 +228,7 @@ private fun MeetingOptionsModalContent(
                             tint = colorsScheme().onSurface,
                         )
                     },
-                    onItemClick = onShareWithGuests,
+                    onItemClick = onOpenMeetingLink,
                 )
             }
             addIf(meetingState.deleteOption == MeetingOptionsMenuState.Meeting.DeleteOption.ForMe) {

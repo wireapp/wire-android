@@ -27,6 +27,7 @@ import androidx.lifecycle.viewModelScope
 import com.wire.android.di.metro.WireAssistedViewModelBinding
 import com.wire.android.feature.meetings.mapper.toRepeatingInterval
 import com.wire.android.feature.meetings.model.MeetingItem
+import com.wire.android.feature.meetings.ui.NewMeetingResult
 import com.wire.android.feature.meetings.ui.MeetingsManualViewModelFactoryGroup
 import com.wire.android.feature.meetings.ui.create.NewMeetingState.Companion.initialState
 import com.wire.android.feature.meetings.ui.create.NewMeetingState.InitialLoadingState
@@ -372,7 +373,10 @@ class NewMeetingViewModelImpl @AssistedInject constructor(
                 when (creationResult) {
                     is CreateNewMeetingUseCase.Result.Success -> sendAction(
                         NewMeetingViewActions.Success(
-                            conversationIdToStartACall = creationResult.conversationId.takeIf { type == NewMeetingType.MeetNow }
+                            result = when (type) {
+                                NewMeetingType.MeetNow -> NewMeetingResult.MeetNow(creationResult.meetingId, creationResult.conversationId)
+                                else -> NewMeetingResult.Scheduled(creationResult.meetingId)
+                            },
                         )
                     )
 
@@ -403,7 +407,7 @@ class NewMeetingViewModelImpl @AssistedInject constructor(
                 )
                 state = state.copy(isSubmitting = false, continueButtonEnabled = true)
                 when (updateResult) {
-                    is UpdateMeetingUseCase.Result.Success -> sendAction(NewMeetingViewActions.Success())
+                    is UpdateMeetingUseCase.Result.Success -> sendAction(NewMeetingViewActions.Success(NewMeetingResult.Updated))
                     is UpdateMeetingUseCase.Result.Failure -> state = state.copy(
                         submitError = when (updateResult) {
                             is UpdateMeetingUseCase.Result.Failure.UpdateConversationNameFailure ->
@@ -426,7 +430,7 @@ class NewMeetingViewModelImpl @AssistedInject constructor(
                     is RenamingResult.Failure ->
                         state = state.copy(submitError = NewMeetingState.SubmitError.UpdateConversationNameFailure(conversationId))
 
-                    RenamingResult.Success -> sendAction(NewMeetingViewActions.Success())
+                    RenamingResult.Success -> sendAction(NewMeetingViewActions.Success(NewMeetingResult.Updated))
                 }
             }
         }
@@ -532,5 +536,5 @@ data class NewMeetingState(
 }
 
 sealed interface NewMeetingViewActions {
-    data class Success(val conversationIdToStartACall: ConversationId? = null) : NewMeetingViewActions
+    data class Success(val result: NewMeetingResult) : NewMeetingViewActions
 }

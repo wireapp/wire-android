@@ -112,4 +112,6 @@ data class MeetingItem(
     enum class SelfRole { Creator, Member }
 }
 
+data class MeetingLink(val url: String?, val hasPassword: Boolean = false)
+
 private const val GROUPLESS_AVATARS_LIMIT = 5

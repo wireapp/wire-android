@@ -64,7 +64,7 @@ fun AllMeetingsScreen(
     joinCall: (conversationId: ConversationId) -> Unit = {},
     returnToCall: (conversationId: ConversationId) -> Unit = {},
     editMeeting: (meetingId: MeetingId) -> Unit = {},
-    shareWithGuests: (occurrenceId: String) -> Unit = {},
+    openMeetingLink: (meetingId: MeetingId) -> Unit = {},
 ) {
     Column(
         modifier = Modifier.fillMaxSize()
@@ -115,7 +115,7 @@ fun AllMeetingsScreen(
         MeetingOptionsModalSheetLayout(
             sheetState = meetingOptionsSheetState,
             editMeeting = editMeeting,
-            shareWithGuests = shareWithGuests,
+            openMeetingLink = openMeetingLink,
             startCall = startCall,
             joinCall = joinCall,
             returnToCall = returnToCall,

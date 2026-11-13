@@ -28,12 +28,14 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
 import com.wire.android.navigation.style.TransitionAnimationType
 import com.wire.android.ui.calling.CallActivity.Companion.EXTRA_CONVERSATION_ID
+import com.wire.android.ui.calling.CallActivity.Companion.EXTRA_CREATED_MEETING_ID
 import com.wire.android.ui.calling.CallActivity.Companion.EXTRA_SCREEN_TYPE
 import com.wire.android.ui.calling.CallActivity.Companion.EXTRA_SHOULD_ANSWER_CALL
 import com.wire.android.ui.calling.CallActivity.Companion.EXTRA_USER_ID
 import com.wire.android.ui.calling.incoming.IncomingCallScreen
 import com.wire.android.ui.calling.ongoing.getOngoingCallIntent
 import com.wire.android.ui.calling.outgoing.OutgoingCallScreen
+import com.wire.kalium.logic.data.id.MeetingId
 
 /**
  * Activity that handles starting call screens, Incoming and Outgoing
@@ -68,6 +70,7 @@ class StartingCallActivity : CallActivity() {
                             this@StartingCallActivity,
                             request.conversationId.toString(),
                             request.userId.toString(),
+                            createdMeetingId = request.createdMeetingId,
                         ).run {
                             this@StartingCallActivity.startActivity(this)
                         }
@@ -114,11 +117,13 @@ fun getOutgoingCallIntent(
     context: Context,
     conversationId: String,
     userId: String,
+    createdMeetingId: MeetingId? = null,
 ) = Intent(context, StartingCallActivity::class.java).apply {
     addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
     putExtra(EXTRA_USER_ID, userId)
     putExtra(EXTRA_CONVERSATION_ID, conversationId)
     putExtra(EXTRA_SCREEN_TYPE, StartingCallScreenType.Outgoing.name)
+    putExtra(EXTRA_CREATED_MEETING_ID, createdMeetingId?.toString())
 }
 
 fun getIncomingCallIntent(

@@ -21,7 +21,16 @@ import com.wire.navigation.WireSessionId
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class NewMeetingResult(val conversationIdToStartACall: ConversationId? = null)
+sealed interface NewMeetingResult {
+    @Serializable
+    data class Scheduled(val meetingId: MeetingId) : NewMeetingResult
+
+    @Serializable
+    data class MeetNow(val meetingId: MeetingId, val conversationId: ConversationId) : NewMeetingResult
+
+    @Serializable
+    data object Updated : NewMeetingResult
+}
 
 val NewMeetingResultContract = WireNavResultContract<NewMeetingResult>(
     WireNavResultContractId("meetings.new-meeting")
@@ -114,10 +123,14 @@ internal fun NewMeetingRouteType.toLegacyType(meetingId: MeetingId? = null): New
 }
 
 @Serializable
-data class ShareMeetingWithGuestsRoute(
+data class MeetingLinkRoute(
     override val sessionId: WireSessionId,
-    val occurrenceId: String,
+    val meetingId: MeetingId,
+    val mode: MeetingLinkMode,
     override val entryId: WireNavEntryId = WireNavEntryId.random(),
 ) : SessionRoute {
-    override val routeId: String = "meetings/share_with_guests"
+    override val routeId: String = "meetings/link"
 }
+
+@Serializable
+enum class MeetingLinkMode { AfterCreation, Existing }

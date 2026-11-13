@@ -28,6 +28,7 @@ import com.wire.kalium.logic.feature.meeting.EnsureMeetingIsMLSEstablishedUseCas
 import com.wire.kalium.logic.feature.meeting.GetNextUnfinishedMeetingOccurrenceUseCase
 import com.wire.kalium.logic.feature.meeting.GetPaginatedMeetingOccurrencesUseCase
 import com.wire.kalium.logic.feature.meeting.MeetingScope
+import com.wire.kalium.logic.feature.meeting.ObserveMeetingUseCase
 import com.wire.kalium.logic.feature.meeting.ObserveMeetingOccurrenceUseCase
 import com.wire.kalium.logic.feature.meeting.SyncMeetingsUseCase
 import dev.zacsweers.metro.BindingContainer
@@ -45,6 +46,9 @@ class MeetingModule {
     @Provides
     fun provideGetPaginatedMeetingOccurrencesUseCase(meetingScope: MeetingScope): GetPaginatedMeetingOccurrencesUseCase =
         meetingScope.getPaginatedMeetingOccurrenceDetails
+
+    @Provides
+    fun provideObserveMeetingUseCase(meetingScope: MeetingScope): ObserveMeetingUseCase = meetingScope.observeMeeting
 
     @Provides
     fun provideObserveMeetingOccurrenceDetailsUseCase(meetingScope: MeetingScope): ObserveMeetingOccurrenceUseCase =

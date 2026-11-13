@@ -20,8 +20,10 @@ package com.wire.android.feature.meetings.model
 import kotlin.time.Instant
 
 sealed interface MeetingHeader : MeetingListItem {
-    data class Day(val time: Instant) : MeetingHeader
-    data class DayAndHour(val time: Instant) : MeetingHeader
+    data class Day(val time: Instant, val relativeDay: RelativeDay) : MeetingHeader
+    data class DayAndHour(val time: Instant, val relativeDay: RelativeDay) : MeetingHeader
     data class Hour(val time: Instant) : MeetingHeader
     data object Ongoing : MeetingHeader
+
+    enum class RelativeDay { Today, Tomorrow, Yesterday, Other }
 }

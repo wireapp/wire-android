@@ -85,6 +85,7 @@ data class MeetingItem(
         data class Scheduled(
             override val startTime: Instant, // scheduled start time
             override val endTime: Instant, // scheduled end time
+            val remainingDuration: Duration,
         ) : Status
 
         data class Ongoing(

@@ -60,6 +60,10 @@ import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.DateTimeUnit
+import kotlinx.datetime.plus
+import kotlinx.datetime.minus
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.atTime
@@ -83,7 +87,11 @@ class MeetingListViewModelPreview(type: MeetingsTabItem) : MeetingListViewModel 
     private val meetingMocksProvider = MeetingMocksProvider(currentTimeProvider)
     override val meetings: Flow<PagingData<MeetingListItem>> = MutableStateFlow(
         meetingMocksProvider.getItems(type)
-            .toPagingDataWithLoadState(false).insertHeaders(type, currentTimeZoneProvider())
+            .toPagingDataWithLoadState(false).insertHeaders(
+                type = type,
+                timeZone = currentTimeZoneProvider(),
+                today = currentTimeProvider().toLocalDateTime(currentTimeZoneProvider()).date
+            )
     )
 }
 
@@ -176,21 +184,23 @@ class MeetingListViewModelImpl @AssistedInject constructor(
                     selfUserId = selfUserId
                 )
             }
-            .insertHeaders(type = type, timeZone = currentTimeZone)
+            .insertHeaders(type = type, timeZone = currentTimeZone, today = currentTime.toLocalDateTime(currentTimeZone).date)
     }.shareIn(scope = viewModelScope, started = SharingStarted.WhileSubscribed(), replay = 1)
 }
 
 /** Generates a header between two MeetingItems if needed. The list is assumed to be sorted by start time. */
-@Suppress("CyclomaticComplexMethod")
+@Suppress("CyclomaticComplexMethod", "LongParameterList")
 private fun generateHeader(
     before: MeetingItem?,
     after: MeetingItem?,
     timeZone: TimeZone,
+    today: LocalDate,
     ongoingEnabled: Boolean = false,
     hoursEnabled: Boolean = false,
 ): MeetingHeader? {
     val beforeLocalTime = before?.status?.startTime?.toLocalDateTime(timeZone)
     val afterLocalTime = after?.status?.startTime?.toLocalDateTime(timeZone)
+    val relativeDay = afterLocalTime?.date?.relativeTo(today) ?: MeetingHeader.RelativeDay.Other
     val beforeStatusOngoing = before?.status is MeetingItem.Status.Ongoing
     val afterStatusOngoing = after?.status is MeetingItem.Status.Ongoing
     return when {
@@ -199,14 +209,14 @@ private fun generateHeader(
 
         // If the previous meeting is ongoing in "Ongoing" section and the next one is not, start new "Day" section, add "Hour" if enabled.
         ongoingEnabled && afterLocalTime != null && beforeStatusOngoing && !afterStatusOngoing -> when {
-            hoursEnabled -> MeetingHeader.DayAndHour(time = afterLocalTime.headerDayHourTime(timeZone))
-            else -> MeetingHeader.Day(time = afterLocalTime.headerDayHourTime(timeZone))
+            hoursEnabled -> MeetingHeader.DayAndHour(time = afterLocalTime.headerDayHourTime(timeZone), relativeDay = relativeDay)
+            else -> MeetingHeader.Day(time = afterLocalTime.headerDayHourTime(timeZone), relativeDay = relativeDay)
         }
 
         // If the next meeting is on a different day than the previous one, start a new "Day" section, add "Hour" if enabled.
         afterLocalTime != null && beforeLocalTime?.date != afterLocalTime.date -> when {
-            hoursEnabled -> MeetingHeader.DayAndHour(time = afterLocalTime.headerDayHourTime(timeZone))
-            else -> MeetingHeader.Day(time = afterLocalTime.headerDayHourTime(timeZone))
+            hoursEnabled -> MeetingHeader.DayAndHour(time = afterLocalTime.headerDayHourTime(timeZone), relativeDay = relativeDay)
+            else -> MeetingHeader.Day(time = afterLocalTime.headerDayHourTime(timeZone), relativeDay = relativeDay)
         }
 
         // If the next meeting is on the same day but a different hour than the previous one, add an "Hour" header if enabled.
@@ -233,12 +243,23 @@ private fun List<MeetingItem>.toPagingDataWithLoadState(appendLoading: Boolean):
     )
 
 /** Extension function to insert headers into a PagingData stream of MeetingItems based on the given type. */
-private fun PagingData<MeetingItem>.insertHeaders(type: MeetingsTabItem, timeZone: TimeZone): PagingData<MeetingListItem> =
+private fun PagingData<MeetingItem>.insertHeaders(
+    type: MeetingsTabItem,
+    timeZone: TimeZone,
+    today: LocalDate,
+): PagingData<MeetingListItem> =
     insertSeparators { before, after ->
         when (type) {
-            MeetingsTabItem.NEXT -> generateHeader(before = before, after = after, timeZone = timeZone)
+            MeetingsTabItem.NEXT -> generateHeader(before = before, after = after, timeZone = timeZone, today = today)
             MeetingsTabItem.PAST -> null // No headers for past meetings
         }
     }
 
 enum class MeetingListLoadingState { INITIAL_LOADING, INITIAL_SYNCING, READY, REFRESHING }
+
+private fun LocalDate.relativeTo(today: LocalDate): MeetingHeader.RelativeDay = when (this) {
+    today -> MeetingHeader.RelativeDay.Today
+    today.plus(1, DateTimeUnit.DAY) -> MeetingHeader.RelativeDay.Tomorrow
+    today.minus(1, DateTimeUnit.DAY) -> MeetingHeader.RelativeDay.Yesterday
+    else -> MeetingHeader.RelativeDay.Other
+}

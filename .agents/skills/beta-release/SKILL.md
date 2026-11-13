@@ -31,12 +31,13 @@ $beta help
 | `announce <ver> <n>` | read-only | 4 |
 | `cut <ver> <android-sha> <kalium-sha>` | **outward** | 1d |
 | `recut <ver> <new-a> <new-k> <old-a> <old-k>` | **outward, destructive** | 1d re-cut |
-| `tag <ver> <n> <tip-sha>` | **outward**, signed tag | 2 |
+| `tag <ver> <n> <tip-sha>` | **outward**, tag (signed if signing works) | 2 |
 | `tag-kalium <ver> <n>` or `<ver> prod` | **outward** | 1b, 2 |
 | `worktree <ver> <topic>` | local, dry run first | worktree flow |
+| `cleanup <ver> <topic>` | local, dry run first | worktree flow |
 | `checks <ver>` | local, slow | worktree flow |
 
-An outward command, and `worktree`, checks every guard, prints `PLAN: ...` and stops. It writes only when `--yes` is the **last** argument. So: run it without `--yes`, show the user the plan, wait for an explicit yes, then repeat it with `--yes`. A refusal (`error: ...`) means a guard failed. Report it. Do not look for a way around it.
+An outward command, `worktree` and `cleanup` check every guard, prints `PLAN: ...` and stops. It writes only when `--yes` is the **last** argument. So: run it without `--yes`, show the user the plan, wait for an explicit yes, then repeat it with `--yes`. A refusal (`error: ...`) means a guard failed. Report it. Do not look for a way around it.
 
 ## Rules
 
@@ -44,8 +45,8 @@ An outward command, and `worktree`, checks every guard, prints `PLAN: ...` and s
 - Never move, delete or re-push a published beta tag. Never rerun a published release. Existing tags and old branches stay as they are. Do not sign, replace or delete them.
 - Never push to `develop` or a release-cycle branch directly. The version bump goes through a PR.
 - Draft the Jira and chat messages in the conversation. Post nothing under the user's account.
-- Push tags with the driver's own git credentials. The `refs/tags/v*` ruleset blocks `GITHUB_TOKEN`, so the push must come from the driver's account. Never ask for, print or store a token.
-- Sign every commit (`git commit -S`) and every beta tag (`beta.sh tag` runs `git tag -s` and verifies the signature before it pushes). If signing fails (key or agent unavailable), stop and tell the user. Never use `--no-gpg-sign`, push an unsigned beta tag or change the signing config.
+- Push tags with the driver's own git credentials. Never ask for, print or store a token.
+- Signing is best effort. Try `git commit -S` for commits. `beta.sh tag` tries to sign the tag. If signing is not set up or fails, continue unsigned (`git commit --no-gpg-sign`) and tell the user. Do not change the signing configuration. Do not stop the release over a signature.
 - Put every message you draft for the user to post (Jira, chat, announcement) in a fenced block, with the real version and tag filled in, so they can copy it.
 - Every beta needs its Kalium tag. Neither workflow creates it.
 
@@ -97,8 +98,8 @@ Any change to a cycle branch needs local checks first. That covers a Kalium poin
 3. Inside the worktree, run `$beta checks <ver>` in the background (use the absolute path of `beta.sh`). It compiles the app and its tests, runs the unit tests and `detektAll` in one Gradle invocation, online. Do not start a second Gradle build in the same worktree.
 4. Read the output. It prints the exit code, compile errors, failures, tasks that reused an earlier result and the test count. A compile failure means the tests never ran, and a green `detektAll` then proves little. `detektAll` covers `:app` only. Report the exit code, each task's result and any failures. Do not fix unrelated failures. Say what you could not run.
    - A removed Kalium type shows up as `e: ... Unresolved reference`. Find the commit with `git -C kalium log --oneline -S<symbol> <old>..<new>`. Then either bump to its parent (after checking the old pin is an ancestor) or ask the user to bring in the matching app change. Do not patch the app on a cycle branch without asking.
-5. **Land it:** after the checks are green, commit on the scratch branch with `git commit -S` and show the diff. With approval, push the scratch branch and open a PR **into `release/cycle-<cycle>`**. Merge the PR before releasing, then re-read the tip in step 2.
-6. **Clean up:** `git worktree remove ../wire-android-beta-<cycle>` once the PR merges. Delete the scratch branch only after the user agrees.
+5. **Land it:** after the checks are green, commit on the scratch branch (signed when possible, see Rules) and show the diff. With approval, push the scratch branch and open a PR **into `release/cycle-<cycle>`**. Merge the PR before releasing, then re-read the tip in step 2.
+6. **Clean up:** when the checks are green and the user moves on (the PR is merged, or the user drops the change), run `cleanup <ver> <topic>`, show the plan, then repeat with `--yes`. It removes the worktree and the scratch branch, locally only. It refuses if the worktree has uncommitted changes, or if the branch has commits that no remote branch contains and no merged PR has. Do not clean up while the user still waits on a review or a re-run.
 
 Do not split the checks across subagents or a second Gradle run. Gradle already runs independent tasks in parallel, and a second build in the same worktree waits on the first one's locks. A fresh-context subagent is worth using for an independent read of the diff (the pin range, the `!` commits, the cherry-picks) while the build runs.
 
@@ -108,7 +109,7 @@ Do not split the checks across subagents or a second Gradle run. Gradle already 
 
 **Confirm** the branch, `tip`, tag `vX.Y.Z-beta.N` and `kalium_pin` with the user. Then tag.
 
-**Tag.** `tag <ver> <n> <tip>` guards that the branch did not move, `versionName` matches, the tag is free and `<n>` is the next number. Run it, show the plan, then repeat with `--yes`. It pushes with the driver's credentials. A "creations being restricted" notice from the remote is the ruleset bypass warning, not a failure. A tag left behind by a failed push is reused if it is annotated and points at the tip.
+**Tag.** `tag <ver> <n> <tip>` guards that the branch did not move, `versionName` matches, the tag is free and `<n>` is the next number. Run it, show the plan, then repeat with `--yes`. It pushes with the driver's credentials. It signs the tag when signing works. Otherwise it says so and creates the tag unsigned. A "creations being restricted" notice from the remote is the ruleset bypass warning, not a failure. A tag left behind by a failed push is reused if it is annotated and points at the tip.
 
 **Tag Kalium.** Push the Android tag first, because the Kalium tag follows the commit it pins. Run `tag-kalium <ver> <n>`, then repeat with `--yes` after approval. It creates `android-v<ver>-beta<n>` at the Kalium commit that the Android tag pins, through the API, and checks the result.
 
@@ -133,7 +134,7 @@ A retry may get a new version code. That is expected.
 
 ## 3. Bump the version on develop
 
-Get the next version name from the Release calendar. Ask the user to confirm it was agreed at the Android standup. Then, after approval, branch `chore/bump-version-<next>` from `develop`, change `versionName` in `AndroidCoordinates.kt`, commit with `git commit -S`, and open a PR into `develop`. Do this once per cycle, after the first beta, not after every beta.
+Get the next version name from the Release calendar. Ask the user to confirm it was agreed at the Android standup. Then, after approval, branch `chore/bump-version-<next>` from `develop`, change `versionName` in `AndroidCoordinates.kt`, commit (signed when possible, see Rules), and open a PR into `develop`. Do this once per cycle, after the first beta, not after every beta.
 
 ## 4. Changelog and announce
 
@@ -146,7 +147,7 @@ Get the next version name from the Release calendar. Ask the user to confirm it 
 - List anything behind a feature flag in a separate "Check before posting" list. A later commit can hide a feature that an earlier commit added.
 - Write plain sentences about what the user sees, not commit subjects.
 
-**Proofread.** The user proofreads. Say which entries you inferred from a commit subject alone, so they know where to look.
+**Proofread.** The draft is a helper. The user proofreads it and decides what goes in the post. Say which entries you inferred from a commit subject alone, so they know where to look.
 
 **Announce.** Run `announce <ver> <n>`. It prints the message for the Releases and deployments group between `copy from here` and `copy to here` markers: the version, both tags, the release link and a `Changes:` placeholder. Show the message in the chat in a fenced block with the proofread changelog in place of the placeholder. The user posts it.
 

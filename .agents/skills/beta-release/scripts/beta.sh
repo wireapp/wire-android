@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Beta release helper for wire-android. One entry point, one subcommand per step. Run `beta.sh help`.
 #
-# Commands that write (cut, recut, tag, tag-kalium, worktree) check every guard, print their plan and stop.
+# Commands that write (cut, recut, tag, tag-kalium, worktree, cleanup) check every guard, print their plan and stop.
 # They write to GitHub only when --yes is the LAST argument. Get the user's approval first.
 set -euo pipefail
 
@@ -22,10 +22,11 @@ beta.sh <command> [args]            read-only
 beta.sh <command> [args] [--yes]    outward-facing: dry run unless --yes is the last argument
   cut <ver> <android-sha> <kalium-sha>
   recut <ver> <new-android-sha> <new-kalium-sha> <old-android-tip> <old-kalium-tip>
-  tag <ver> <n> <tip-sha>           signed annotated tag v<ver>-beta.<n>, pushed with your own credentials
+  tag <ver> <n> <tip-sha>           annotated tag v<ver>-beta.<n> (signed if your signing works), pushed with your own credentials
   tag-kalium <ver> <n>              android-v<ver>-beta<n>; needs the Android tag pushed first
   tag-kalium <ver> prod             production tag android-v<ver>, only to repair the previous release
   worktree <ver> <topic>            local only: isolated worktree on chore/beta-<cycle>-<topic>
+  cleanup <ver> <topic>             local only: remove that worktree and branch once nothing in them is unsaved
 beta.sh <command> [args]            local
   checks <ver>                      compile, unit tests and detekt in the worktree (slow, run in background)
 EOF
@@ -40,7 +41,9 @@ root() { cd "$(git rev-parse --show-toplevel)"; }
 version_at() { git show "$1:$VERSION_FILE" | sed -nE 's/.*versionName = "([^"]+)".*/\1/p'; }
 
 # Kalium commit pinned by a remote wire-android ref. Reads the remote, never a stale local tag.
-pinned_kalium() { git fetch -q origin "$1"; git ls-tree FETCH_HEAD kalium | awk '{print $3}'; }
+# "|| return 1" makes a failed fetch stop here. Without it the function relies on git emptying FETCH_HEAD, because
+# set -e does not reach into a function that runs inside $( ).
+pinned_kalium() { git fetch -q origin "$1" || return 1; git ls-tree FETCH_HEAD kalium | awk '{print $3}'; }
 
 # Refuse when a ref exists. Call it as a plain statement. "[[ -z $(git ls-remote ...) ]]" would pass when ls-remote
 # fails, so a network or auth error would look like "no such ref". The assignment below stops on failure instead.
@@ -203,6 +206,18 @@ cmd_recut() {
   echo "If the second command failed, the pins disagree. Fix it before anything else, then run: beta.sh verify $ver"
 }
 
+# Say whether the tag is signed and whether the signature verifies. Never blocks the release.
+report_signature() {
+  local obj
+  obj=$(git cat-file tag "$1")   # capture first: "git cat-file | grep -q" fails under pipefail (SIGPIPE)
+  if grep -qE 'BEGIN (PGP|SSH) SIGNATURE' <<<"$obj"; then
+    if git tag -v "$1" >/dev/null 2>&1; then echo "tag $1 is signed and the signature verifies"
+    else echo "note: tag $1 is signed, but this machine cannot verify the signature. Pushing anyway."; fi
+  else
+    echo "note: tag $1 is unsigned"
+  fi
+}
+
 cmd_tag() {
   local ver=${1:-} n=${2:-} expected=${3:-} cycle tag tip peeled last
   need_ver "$ver"; need_num "$n"; need_sha "$expected"
@@ -218,11 +233,15 @@ cmd_tag() {
     [[ $(git cat-file -t "refs/tags/$tag") == tag ]] || die "local tag $tag is lightweight. Inspect it. Do not delete it blindly."
     [[ $(git rev-parse "$tag^{commit}") == "$tip" ]] || die "local tag $tag points elsewhere. Inspect it. Do not delete it blindly."
   fi
-  confirm "create signed annotated tag $tag at $tip, then push it to origin with your git credentials; this starts the Beta release build"
-  git show-ref --verify --quiet "refs/tags/$tag" \
-    || git tag -s "$tag" "$tip" -m "Beta $ver, build $n" \
-    || die "signing the tag failed. Fix the signing setup. Never push an unsigned beta tag."
-  git tag -v "$tag" >/dev/null 2>&1 || die "tag $tag has no valid signature. Not pushing."
+  confirm "create annotated tag $tag at $tip (signed if your git signing works, otherwise unsigned), then push it to origin with your git credentials; this starts the Beta release build"
+  if ! git show-ref --verify --quiet "refs/tags/$tag"; then
+    # Signing is best effort. The -c overrides stop "git tag -a" from trying to sign again when tag.gpgSign is on.
+    git tag -s "$tag" "$tip" -m "Beta $ver, build $n" || {
+      echo "note: could not sign the tag. Creating it unsigned."
+      git -c tag.gpgSign=false -c tag.forceSignAnnotated=false tag -a "$tag" "$tip" -m "Beta $ver, build $n"
+    }
+  fi
+  report_signature "$tag"
   # A "creations being restricted" notice from the remote is the ruleset bypass warning. It is not a failure.
   git push origin "refs/tags/$tag"
   peeled=$(git ls-remote origin "refs/tags/$tag^{}" | awk '{print $1}')
@@ -265,11 +284,35 @@ cmd_worktree() {
   ! git show-ref --verify --quiet "refs/heads/$branch" || die "local branch $branch already exists"
   confirm "create worktree $wt on new local branch $branch from origin/release/cycle-$cycle, with the kalium submodule (local only, nothing is pushed)"
   git fetch -q origin "release/cycle-$cycle"
-  git worktree add "$wt" -b "$branch" "origin/release/cycle-$cycle"
+  git worktree add --no-track "$wt" -b "$branch" "origin/release/cycle-$cycle"   # no upstream: a bare "git push" must never reach the cycle branch
   cd "$wt"
   git submodule update --init --reference "$main/kalium" kalium
   if [[ -f $main/local.properties ]]; then cp "$main/local.properties" .; fi
   echo "worktree: $wt"
+}
+
+# Local only. Removes the scratch worktree and its branch once nothing in them is unsaved. Never touches the remote.
+cmd_cleanup() {
+  local ver=${1:-} topic=${2:-} cycle main wt branch wts unpushed merged
+  need_ver "$ver"; [[ $topic =~ ^[a-z0-9-]+$ ]] || die "topic must be lowercase letters, digits and dashes"
+  cycle=$(cycle_of "$ver"); root; main=$PWD
+  wt=$(cd "$main/.." && pwd -P)/wire-android-beta-$cycle; branch="chore/beta-$cycle-$topic"
+  [[ -d $wt ]] || die "$wt does not exist"
+  wts=$(git worktree list --porcelain)
+  grep -Fxq "worktree $wt" <<<"$wts" || die "$wt is not a worktree of this repository"
+  [[ $(git -C "$wt" branch --show-current) == "$branch" ]] || die "$wt is not on $branch"
+  [[ -z $(git -C "$wt" status --porcelain) ]] || die "uncommitted changes in $wt. Commit or discard them yourself first."
+  unpushed=$(git rev-list --count "$branch" --not --remotes)
+  if [[ $unpushed != 0 ]]; then   # a squash-merged PR leaves commits that no remote branch contains
+    merged=$(gh pr list -R "$ANDROID_REPO" --head "$branch" --state merged --json number --jq length)
+    [[ $merged -gt 0 ]] || die "$unpushed commits on $branch are on no remote branch, and no merged PR has them. Push them or open a PR first."
+  fi
+  confirm "remove worktree $wt (with its kalium checkout and build output) and delete local branch $branch. The remote is untouched."
+  # --force: git refuses to remove a worktree with a submodule checked out. The guards above already proved nothing is unsaved.
+  git worktree remove --force "$wt"
+  git branch -D "$branch"
+  git worktree prune
+  echo "ok removed $wt and $branch"
 }
 
 # Raw material for the changelog: commits between the previous production release and this beta, app and Kalium.
@@ -301,7 +344,7 @@ cmd_announce() {
   echo "Tag: $tag (${tip:0:9})"
   echo "Kalium: $ktag (${ksha:0:9})"
   echo "Release: https://github.com/$ANDROID_REPO/releases/tag/$tag"
-  echo "Changes: <paste the changelog from the release-notes owner>"
+  echo "Changes: <paste the changelog you drafted and proofread>"
   echo "----- copy to here -----"
 }
 
@@ -330,7 +373,7 @@ yes=0
 if [[ ${!#:-} == --yes ]]; then yes=1; set -- "${@:1:$#-1}"; fi
 cmd=${1:-help}; [[ $# -eq 0 ]] || shift
 case $cmd in
-  check|plan|verify|validate|changelog|announce|cut|recut|tag|tag-kalium|worktree|checks) "cmd_${cmd//-/_}" "$@" ;;
+  check|plan|verify|validate|changelog|announce|cut|recut|tag|tag-kalium|worktree|cleanup|checks) "cmd_${cmd//-/_}" "$@" ;;
   help|-h|--help) usage ;;
   *) usage >&2; exit 1 ;;
 esac

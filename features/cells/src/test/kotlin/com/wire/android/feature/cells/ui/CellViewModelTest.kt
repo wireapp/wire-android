@@ -1071,6 +1071,18 @@ class CellViewModelTest {
         coVerify(exactly = 1) { arrangement.userDataStore.setBulkSelectionHintDismissed() }
     }
 
+    @Test
+    fun `given All Files when an item is long clicked then it is selected`() = runTest {
+        // No conversation id: All Files.
+        val (_, viewModel) = Arrangement().arrange()
+        val file = testFiles[0].toUiModel()
+
+        selectNodes(viewModel, listOf(file))
+
+        assertTrue(viewModel.isBulkSelectionEnabled.value)
+        assertEquals(setOf(file.uuid), viewModel.selectedNodes.value.keys)
+    }
+
     private fun TestScope.selectNodes(viewModel: CellViewModel, nodes: List<CellNodeUi>) {
         advanceUntilIdle() // Lets the viewer access check enable bulk selection.
         viewModel.sendIntent(CellViewIntent.OnItemLongClick(nodes.first()))

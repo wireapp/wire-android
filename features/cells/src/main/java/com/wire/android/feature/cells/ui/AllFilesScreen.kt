@@ -17,8 +17,18 @@
  */
 package com.wire.android.feature.cells.ui
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.text.input.rememberTextFieldState
@@ -26,18 +36,27 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.wire.android.feature.cells.R
+import com.wire.android.feature.cells.ui.common.BulkSelectionHint
 import com.wire.android.feature.cells.ui.common.OfflineBanner
+import com.wire.android.feature.cells.ui.dialog.BulkOfflineDialogs
 import com.wire.android.feature.cells.ui.search.DriveSearchScreenType
 import com.wire.android.feature.cells.ui.search.sort.SortRowWithMenu
 import com.wire.android.feature.cells.ui.search.sort.toNavArg
+import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.scaffold.WireScaffold
+import com.wire.android.ui.common.topappbar.NavigationIconType
+import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.topappbar.search.SearchTopBar
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.toPersistentList
 
-@Suppress("CyclomaticComplexMethod")
+@Suppress("CyclomaticComplexMethod", "LongMethod")
 @Composable
 fun AllFilesScreen(
     navigationActions: AllFilesNavigationActions,
@@ -51,25 +70,64 @@ fun AllFilesScreen(
 
     val sortingCriteria by viewModel.sortingCriteria.collectAsState()
 
+    val selectedNodes by viewModel.selectedNodes.collectAsState()
+    val isSelectionMode = selectedNodes.isNotEmpty()
+    val bulkOfflineDialog by viewModel.bulkOfflineDialog.collectAsState()
+    val canMakeSelectionAvailableOffline by viewModel.canMakeSelectionAvailableOffline.collectAsState()
+    val canRemoveSelectionOfflineAccess by viewModel.canRemoveSelectionOfflineAccess.collectAsState()
+    val showBulkSelectionHint by viewModel.showBulkSelectionHint.collectAsState()
+    val bulkActions = remember(canMakeSelectionAvailableOffline, canRemoveSelectionOfflineAccess) {
+        allFilesBulkActions(
+            canMakeAvailableOffline = canMakeSelectionAvailableOffline,
+            canRemoveOfflineAccess = canRemoveSelectionOfflineAccess,
+        )
+    }
+
+    BackHandler(enabled = isSelectionMode) {
+        viewModel.sendIntent(CellViewIntent.OnClearSelection)
+    }
+
+    bulkOfflineDialog?.let { dialog ->
+        BulkOfflineDialogs(
+            dialog = dialog,
+            onConfirm = { viewModel.sendIntent(CellViewIntent.OnBulkOfflineConfirmed) },
+            onDismiss = { viewModel.sendIntent(CellViewIntent.OnBulkOfflineDialogDismissed) },
+        )
+    }
+
     val lazyListState = rememberLazyListState()
     LaunchedEffect(sortingCriteria) {
         lazyListState.animateScrollToItem(0)
+    }
+
+    val topBarState = when {
+        !isOnline -> AllFilesTopBarState.Offline
+        isSelectionMode -> AllFilesTopBarState.Selection
+        else -> AllFilesTopBarState.Browsing
     }
 
     WireScaffold(
         modifier = modifier,
         topBar = {
             Column {
-                AnimatedContent(isOnline) {
-                    if (it) {
-                        Column {
+                AnimatedContent(topBarState) { state ->
+                    when (state) {
+                        AllFilesTopBarState.Browsing -> Column {
                             SearchTopBar(
                                 modifier = Modifier,
                                 isSearchActive = false,
                                 searchBarHint = stringResource(R.string.search_label),
                                 searchQueryTextState = rememberTextFieldState(),
                                 onTap = { navigationActions.openSearch(sortingCriteria.toNavArg()) },
-                                )
+                            )
+                            // Only shown while browsing; with fewer than two items there is nothing to select several of.
+                            AnimatedVisibility(
+                                visible = showBulkSelectionHint && pagingListItems.itemCount >= 2,
+                                enter = expandVertically(expandFrom = Alignment.Top) + fadeIn(),
+                                exit = shrinkVertically(shrinkTowards = Alignment.Top) + fadeOut(),
+                            ) {
+                                BulkSelectionHint(onDismiss = viewModel::onBulkSelectionHintDismissed)
+                            }
                             SortRowWithMenu(
                                 sortingCriteria = sortingCriteria,
                                 screenType = DriveSearchScreenType.DRIVE,
@@ -77,40 +135,90 @@ fun AllFilesScreen(
                                 onOrderClicked = { viewModel.setSorting(it) },
                             )
                         }
-                    } else {
-                        OfflineBanner()
+
+                        // The home top bar above stays as is: the selection gets its own bar, which also clears it.
+                        AllFilesTopBarState.Selection -> WireCenterAlignedTopAppBar(
+                            onNavigationPressed = { viewModel.sendIntent(CellViewIntent.OnClearSelection) },
+                            titleContent = {
+                                // At least one: while this bar animates out the selection is already empty, and the
+                                // count must not roll back to a title of its own.
+                                SelectionAwareTitle(
+                                    title = "",
+                                    selectedCount = selectedNodes.size.coerceAtLeast(1),
+                                )
+                            },
+                            navigationIconType = NavigationIconType.Close(R.string.cells_bulk_selection_cancel_content_description),
+                            elevation = dimensions().spacing0x,
+                        )
+
+                        AllFilesTopBarState.Offline -> OfflineBanner()
                     }
                 }
             }
         },
     ) { innerPadding ->
-        CellScreenContent(
-            modifier = Modifier.padding(innerPadding),
-            actionsFlow = viewModel.actions,
-            pagingListItems = pagingListItems,
-            sendIntent = { viewModel.sendIntent(it) },
-            openFolder = { _, _, _ -> },
-            menuState = viewModel.menu,
-            isAllFiles = true,
-            isOffline = !isOnline,
-            isRestoreInProgress = viewModel.isRestoreInProgress.collectAsState().value,
-            isDeleteInProgress = viewModel.isDeleteInProgress.collectAsState().value,
-            isRecycleBin = viewModel.isRecycleBin(),
-            isSearchResult = false,
-            showPublicLinkScreen = navigationActions.showPublicLink,
-            showMoveToFolderScreen = { _, _, _ -> },
-            showBulkMoveToFolderScreen = { _, _ -> },
-            showRenameScreen = {},
-            showAddRemoveTagsScreen = navigationActions.showAddRemoveTags,
-            isRefreshing = viewModel.isPullToRefresh.collectAsState(),
-            onRefresh = { viewModel.onPullToRefresh() },
-            showImageViewer = navigationActions.showImageViewer,
-            showVideoViewer = navigationActions.showVideoPlayer,
-            showAudioPlayer = navigationActions.showAudioPlayer,
-            showPdfViewer = navigationActions.showPdfViewer,
-            fileReadyFlow = viewModel.fileReadyFlow,
-            showViewerOnlyIcon = viewModel.drivePermissionsEnabled,
-            sortBy = sortingCriteria.by,
-        )
+        Box(
+            modifier = Modifier
+                .padding(innerPadding)
+                .fillMaxSize()
+        ) {
+            CellScreenContent(
+                modifier = Modifier.fillMaxSize(),
+                actionsFlow = viewModel.actions,
+                pagingListItems = pagingListItems,
+                sendIntent = { viewModel.sendIntent(it) },
+                openFolder = { _, _, _ -> },
+                menuState = viewModel.menu,
+                isAllFiles = true,
+                isOffline = !isOnline,
+                isRestoreInProgress = viewModel.isRestoreInProgress.collectAsState().value,
+                isDeleteInProgress = viewModel.isDeleteInProgress.collectAsState().value,
+                isRecycleBin = viewModel.isRecycleBin(),
+                isSearchResult = false,
+                showPublicLinkScreen = navigationActions.showPublicLink,
+                showMoveToFolderScreen = { _, _, _ -> },
+                showBulkMoveToFolderScreen = { _, _ -> },
+                showRenameScreen = {},
+                showAddRemoveTagsScreen = navigationActions.showAddRemoveTags,
+                isRefreshing = viewModel.isPullToRefresh.collectAsState(),
+                onRefresh = { viewModel.onPullToRefresh() },
+                showImageViewer = navigationActions.showImageViewer,
+                showVideoViewer = navigationActions.showVideoPlayer,
+                showAudioPlayer = navigationActions.showAudioPlayer,
+                showPdfViewer = navigationActions.showPdfViewer,
+                fileReadyFlow = viewModel.fileReadyFlow,
+                showViewerOnlyIcon = viewModel.drivePermissionsEnabled,
+                sortBy = sortingCriteria.by,
+                selectedNodeIds = selectedNodes.keys,
+                isSelectionEnabled = viewModel.isBulkSelectionEnabled.collectAsState().value,
+            )
+            // Drawn over the list rather than as the scaffold's bottom bar, so showing or hiding it doesn't resize the list.
+            // Hidden while the selection holds nothing the offline actions apply to.
+            AnimatedVisibility(
+                visible = isSelectionMode && bulkActions.isNotEmpty(),
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(bottom = dimensions().spacing16x),
+                enter = slideInVertically { height -> height } + fadeIn(),
+                exit = slideOutVertically { height -> height } + fadeOut(),
+            ) {
+                CellBulkActionsBar(
+                    actions = bulkActions,
+                    onActionClick = { action -> viewModel.sendIntent(action.toIntent()) },
+                )
+            }
+        }
     }
 }
+
+private enum class AllFilesTopBarState { Browsing, Selection, Offline }
+
+// All Files spans conversations and has no folder of its own, so only the offline actions apply here.
+private fun allFilesBulkActions(
+    canMakeAvailableOffline: Boolean,
+    canRemoveOfflineAccess: Boolean,
+): ImmutableList<CellBulkAction> =
+    listOfNotNull(
+        CellBulkAction.MakeAvailableOffline.takeIf { canMakeAvailableOffline },
+        CellBulkAction.RemoveOfflineAccess.takeIf { canRemoveOfflineAccess },
+    ).toPersistentList()

@@ -1740,7 +1740,7 @@ public fun com.wire.android.ui.calling.ongoing.OngoingCallActivity.Content(reque
     - request: UNKNOWN (interface or non-final class; concrete implementation unknown)
 
 @Composable
-private fun com.wire.android.ui.calling.ongoing.OngoingCallContent(callState: com.wire.android.ui.calling.model.CallState, inCallReactionsState: com.wire.android.ui.calling.ongoing.incallreactions.InCallReactionsState, scaffoldState: androidx.compose.material3.BottomSheetScaffoldState, toggleSpeaker: kotlin.Function0<kotlin.Unit>, toggleMute: kotlin.Function0<kotlin.Unit>, hangUpCall: kotlin.Function0<kotlin.Unit>, toggleVideo: kotlin.Function0<kotlin.Unit>, flipCamera: kotlin.Function0<kotlin.Unit>, setVideoPreview: kotlin.Function1<@[ParameterName(name = \, clearVideoPreview: kotlin.Function0<kotlin.Unit>, onCollapse: kotlin.Function0<kotlin.Unit>, onOpenCallDetails: kotlin.Function0<kotlin.Unit>, onCameraPermissionPermanentlyDenied: kotlin.Function0<kotlin.Unit>, onReactionClick: kotlin.Function1<kotlin.String, kotlin.Unit>, requestVideoStreams: kotlin.Function1<@[ParameterName(name = \, onSelectedParticipant: kotlin.Function1<@[ParameterName(name = \, selectedParticipantForFullScreen: com.wire.android.ui.calling.ongoing.fullscreen.SelectedParticipant?, participants: kotlinx.collections.immutable.PersistentList<com.wire.android.ui.calling.model.UICallParticipant>, recentReactions: kotlin.collections.Map<com.wire.kalium.logic.data.id.QualifiedID, kotlin.String>, callQuality: com.wire.android.ui.calling.ongoing.details.CallQualityState.Quality, othersVideosDisabled: kotlin.Boolean, toasts: kotlin.collections.Set<com.wire.android.ui.calling.ongoing.toast.InCallToast>, onToastClick: kotlin.Function1<@[ParameterName(name = \, inCallReactionsEnabled: kotlin.Boolean, initialShowInCallReactionsPanel: kotlin.Boolean): kotlin.Unit
+private fun com.wire.android.ui.calling.ongoing.OngoingCallContent(callState: com.wire.android.ui.calling.model.CallState, inCallReactionsState: com.wire.android.ui.calling.ongoing.incallreactions.InCallReactionsState, scaffoldState: androidx.compose.material3.BottomSheetScaffoldState, toggleSpeaker: kotlin.Function0<kotlin.Unit>, toggleMute: kotlin.Function0<kotlin.Unit>, hangUpCall: kotlin.Function0<kotlin.Unit>, toggleVideo: kotlin.Function0<kotlin.Unit>, flipCamera: kotlin.Function0<kotlin.Unit>, setVideoPreview: kotlin.Function1<@[ParameterName(name = \, clearVideoPreview: kotlin.Function0<kotlin.Unit>, onCollapse: kotlin.Function0<kotlin.Unit>, onOpenCallDetails: kotlin.Function0<kotlin.Unit>, onCameraPermissionPermanentlyDenied: kotlin.Function0<kotlin.Unit>, onReactionClick: kotlin.Function1<kotlin.String, kotlin.Unit>, requestVideoStreams: kotlin.Function1<@[ParameterName(name = \, onSelectedParticipant: kotlin.Function1<@[ParameterName(name = \, selectedParticipantForFullScreen: com.wire.android.ui.calling.ongoing.fullscreen.SelectedParticipant?, participants: kotlinx.collections.immutable.PersistentList<com.wire.android.ui.calling.model.UICallParticipant>, recentReactions: kotlin.collections.Map<com.wire.kalium.logic.data.id.QualifiedID, kotlin.String>, callQuality: com.wire.android.ui.calling.ongoing.details.CallQualityState.Quality, othersVideosDisabled: kotlin.Boolean, toasts: kotlin.collections.Set<com.wire.android.ui.calling.ongoing.toast.InCallToast>, onToastClick: kotlin.Function1<@[ParameterName(name = \, meetingInvitation: com.wire.android.feature.meetings.model.MeetingLink?, onDismissMeetingInvitation: kotlin.Function0<kotlin.Unit>, inCallReactionsEnabled: kotlin.Boolean, initialShowInCallReactionsPanel: kotlin.Boolean): kotlin.Unit
   skippable: true
   restartable: true
   params:
@@ -1767,15 +1767,18 @@ private fun com.wire.android.ui.calling.ongoing.OngoingCallContent(callState: co
     - othersVideosDisabled: STABLE (primitive type)
     - toasts: RUNTIME (requires runtime check)
     - onToastClick: STABLE (function type)
+    - meetingInvitation: STABLE (class with no mutable properties)
+    - onDismissMeetingInvitation: STABLE (function type)
     - inCallReactionsEnabled: STABLE (primitive type)
     - initialShowInCallReactionsPanel: STABLE (primitive type)
 
 @Composable
-public fun com.wire.android.ui.calling.ongoing.OngoingCallScreen(conversationId: com.wire.kalium.logic.data.id.QualifiedID, ongoingCallViewModel: com.wire.android.ui.calling.ongoing.OngoingCallViewModel, sharedCallingViewModel: com.wire.android.ui.calling.common.SharedCallingViewModel): kotlin.Unit
+public fun com.wire.android.ui.calling.ongoing.OngoingCallScreen(conversationId: com.wire.kalium.logic.data.id.QualifiedID, createdMeetingId: com.wire.kalium.logic.data.id.QualifiedID?, ongoingCallViewModel: com.wire.android.ui.calling.ongoing.OngoingCallViewModel, sharedCallingViewModel: com.wire.android.ui.calling.common.SharedCallingViewModel): kotlin.Unit
   skippable: true
   restartable: true
   params:
     - conversationId: STABLE (stability configuration file type)
+    - createdMeetingId: STABLE (stability configuration file type)
     - ongoingCallViewModel: UNSTABLE (has mutable properties or unstable members)
     - sharedCallingViewModel: UNSTABLE (has mutable properties or unstable members)
 
@@ -1795,7 +1798,7 @@ private fun com.wire.android.ui.calling.ongoing.OngoingCallTopBar(conversationNa
     - modifier: STABLE (marked @Stable or @Immutable)
 
 @Composable
-public fun com.wire.android.ui.calling.ongoing.PreviewOngoingCallContent(participants: kotlinx.collections.immutable.PersistentList<com.wire.android.ui.calling.model.UICallParticipant>, inCallReactionsPanelVisible: kotlin.Boolean, toasts: kotlin.collections.Set<com.wire.android.ui.calling.ongoing.toast.InCallToast>, sheetValue: androidx.compose.material3.SheetValue): kotlin.Unit
+public fun com.wire.android.ui.calling.ongoing.PreviewOngoingCallContent(participants: kotlinx.collections.immutable.PersistentList<com.wire.android.ui.calling.model.UICallParticipant>, inCallReactionsPanelVisible: kotlin.Boolean, toasts: kotlin.collections.Set<com.wire.android.ui.calling.ongoing.toast.InCallToast>, sheetValue: androidx.compose.material3.SheetValue, meetingInvitation: com.wire.android.feature.meetings.model.MeetingLink?): kotlin.Unit
   skippable: true
   restartable: true
   params:
@@ -1803,6 +1806,7 @@ public fun com.wire.android.ui.calling.ongoing.PreviewOngoingCallContent(partici
     - inCallReactionsPanelVisible: STABLE (primitive type)
     - toasts: RUNTIME (requires runtime check)
     - sheetValue: STABLE (class with no mutable properties)
+    - meetingInvitation: STABLE (class with no mutable properties)
 
 @Composable
 public fun com.wire.android.ui.calling.ongoing.details.CallDetailsBottomSheet(sheetState: com.wire.android.ui.common.bottomsheet.WireModalSheetState<com.wire.android.ui.calling.ongoing.details.CallDetailsSheetState>, callQualityState: com.wire.android.ui.calling.ongoing.details.CallQualityState, othersVideosDisabled: kotlin.Boolean, setOthersVideosDisabled: kotlin.Function1<@[ParameterName(name = \): kotlin.Unit
@@ -2288,11 +2292,12 @@ private fun com.wire.android.ui.calling.ongoing.toast.styledText(stringResId: ko
     - formatArgs: STABLE (String is immutable)
 
 @Composable
-public fun com.wire.android.ui.calling.ongoingCallViewModel(conversationId: com.wire.kalium.logic.data.id.QualifiedID): com.wire.android.ui.calling.ongoing.OngoingCallViewModel
+public fun com.wire.android.ui.calling.ongoingCallViewModel(conversationId: com.wire.kalium.logic.data.id.QualifiedID, createdMeetingId: com.wire.kalium.logic.data.id.QualifiedID?): com.wire.android.ui.calling.ongoing.OngoingCallViewModel
   skippable: false
   restartable: false
   params:
     - conversationId: STABLE (stability configuration file type)
+    - createdMeetingId: STABLE (stability configuration file type)
 
 @Composable
 private fun com.wire.android.ui.calling.outgoing.OutgoingCallContent(callState: com.wire.android.ui.calling.model.CallState, toggleMute: kotlin.Function0<kotlin.Unit>, toggleSpeaker: kotlin.Function0<kotlin.Unit>, toggleVideo: kotlin.Function0<kotlin.Unit>, onHangUpCall: kotlin.Function0<kotlin.Unit>, onVideoPreviewCreated: kotlin.Function1<@[ParameterName(name = \, onSelfClearVideoPreview: kotlin.Function0<kotlin.Unit>, onCameraPermissionPermanentlyDenied: kotlin.Function0<kotlin.Unit>, onMinimiseScreen: kotlin.Function0<kotlin.Unit>): kotlin.Unit
@@ -6636,6 +6641,13 @@ private fun com.wire.android.ui.home.conversations.messages.item.MessageStatusLa
     - messageStatus: STABLE (marked @Stable or @Immutable)
 
 @Composable
+internal fun com.wire.android.ui.home.conversations.messages.item.MessageUnsupportedContent(modifier: androidx.compose.ui.Modifier): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - modifier: STABLE (marked @Stable or @Immutable)
+
+@Composable
 private fun com.wire.android.ui.home.conversations.messages.item.MultiUserDeliveryFailure(partialDeliveryFailureContent: com.wire.android.ui.home.conversations.model.DeliveryStatusContent.PartialDelivery, messageStyle: com.wire.android.ui.home.conversations.messages.item.MessageStyle, resources: android.content.res.Resources): kotlin.Unit
   skippable: true
   restartable: true
@@ -6943,6 +6955,14 @@ private fun com.wire.android.ui.home.conversations.messages.preview.PreviewMulti
   params:
     - text: STABLE (class with no mutable properties)
     - message: STABLE (class with no mutable properties)
+
+@Composable
+internal fun com.wire.android.ui.home.conversations.migration.MigratedConversationRedirect(migratedConversationId: com.wire.kalium.logic.data.id.QualifiedID?, replaceConversation: kotlin.Function1<com.wire.kalium.logic.data.id.QualifiedID, kotlin.Unit>): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - migratedConversationId: STABLE (stability configuration file type)
+    - replaceConversation: STABLE (function type)
 
 @Composable
 public fun com.wire.android.ui.home.conversations.model.MediaAssetImage(asset: com.wire.android.model.ImageAsset.Remote?, size: androidx.compose.ui.unit.DpSize, transferStatus: com.wire.kalium.logic.data.asset.AssetTransferStatus?, messageStyle: com.wire.android.ui.home.conversations.messages.item.MessageStyle, onImageClick: com.wire.android.model.Clickable, modifier: androidx.compose.ui.Modifier, assetPath: okio.Path?): kotlin.Unit

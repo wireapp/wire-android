@@ -341,11 +341,18 @@ def _finish(payload, incomplete):
     return payload
 
 
+def _has_export_evidence(artifacts, run_id):
+    pattern = re.compile(r"release-log-(context|build-[A-Za-z]+)-%d-[0-9]+" % run_id)
+    return any(isinstance(artifact, dict) and pattern.fullmatch(str(artifact.get("name"))) for artifact in artifacts)
+
+
 def _assemble(api, repository, run, path, kind, all_jobs, artifacts):
     run_id, attempt, conclusion = run["id"], run["run_attempt"], run["conclusion"]
     flavor = BUILD_FLAVORS[kind]
     jobs = _release_jobs(all_jobs, kind)
     leaves = [_release_leaf(kind, entry.get("name")) or "" for entry in all_jobs if isinstance(entry, dict)]
+    if CONTEXT_JOB not in leaves and not _has_export_evidence(artifacts, run_id):
+        return None
     gaps, incomplete = [], False
 
     context, reason = _load_export(api, artifacts, "release-log-context-%d-%d" % (run_id, attempt),
@@ -720,7 +727,7 @@ def _collect_command(arguments):
             contract.write_json(arguments.output, error.partial)
         return 1
     if payload is None:
-        print("Release log: run %d is not a release run, nothing to report" % int(arguments.run_id))
+        print("Release log: run %d has nothing to report" % int(arguments.run_id))
         return 0
     contract.write_json(arguments.output, payload)
     return 0

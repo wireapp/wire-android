@@ -283,9 +283,6 @@ class CellViewModel @AssistedInject constructor(
     internal val selectedNodes: StateFlow<Map<String, CellNodeUi>> = bulkSelection.selectedNodes
     internal val isBulkSelectionEnabled: StateFlow<Boolean> = bulkSelection.isEnabled
 
-    /** Whether the bulk actions bar offers the offline actions (make available / remove offline access). */
-    val bulkOfflineActionsEnabled: Boolean = offlineFilesEnabled && driveOfflineEnabled
-
     /** At least one selected file can be saved for offline use, see [canBeMadeAvailableOffline]. */
     internal val canMakeSelectionAvailableOffline: StateFlow<Boolean> = selectedNodes
         .map { nodes ->

@@ -263,8 +263,9 @@ internal fun ConversationFilesScreenContent(
             offlineActionsEnabled = bulkOfflineActionsEnabled,
             canMakeAvailableOffline = canMakeSelectionAvailableOffline,
             canRemoveOfflineAccess = canRemoveSelectionOfflineAccess,
-            restoreEnabled = bulkRestoreEnabled,
             isRecycleBin = isRecycleBin,
+            isOfflineOnly = isOfflineOnly,
+            restoreEnabled = bulkRestoreEnabled,
         )
     }
     val fabToBulkActionsKey = "$FAB_TO_BULK_ACTIONS_KEY-$currentNodeUuid"
@@ -637,6 +638,7 @@ private fun pillCornerRadius(): Dp = dimensions().spacing32x
 // This screen also shows the folders inside the recycle bin, where only the recycle bin actions apply.
 // The offline listing only holds what is saved on the device, its folders being no nodes of their own: only the
 // offline actions apply there.
+@Suppress("LongParameterList")
 private fun bulkActions(
     offlineActionsEnabled: Boolean,
     canMakeAvailableOffline: Boolean,

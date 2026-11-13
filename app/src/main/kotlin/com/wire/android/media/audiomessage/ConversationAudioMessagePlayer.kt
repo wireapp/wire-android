@@ -21,6 +21,7 @@ import android.content.Context
 import android.media.MediaPlayer
 import android.media.MediaPlayer.SEEK_CLOSEST_SYNC
 import android.net.Uri
+import com.wire.android.appLogger
 import com.wire.android.di.ApplicationScope
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.services.ServicesManager
@@ -62,6 +63,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
+import java.io.IOException
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.SingleIn
@@ -301,29 +303,13 @@ class ConversationAudioMessagePlayer
                 val isFetchedAudioCurrentlyQueuedToPlay = MessageIdWrapper(conversationId, messageId) == currentAudioMessageId
 
                 if (isFetchedAudioCurrentlyQueuedToPlay) {
-                    audioMediaPlayer.setDataSource(context, Uri.parse(result.decodedAssetPath.toString()))
-                    audioMediaPlayer.prepare()
-
-                    if (position != null) audioMediaPlayer.seekTo(position)
-
-                    audioFocusHelper.request()
-                    audioMediaPlayer.start()
-
-                    setSpeed(_audioSpeed.value)
-
-                    audioMessageStateUpdate.emit(
-                        AudioMediaPlayerStateUpdate.AudioMediaPlayingStateUpdate(
-                            conversationId,
-                            messageId,
-                            AudioMediaPlayingState.Playing
-                        )
-                    )
-
-                    servicesManager.value.startPlayingAudioMessageService()
-
-                    audioMessageStateUpdate.emit(
-                        AudioMediaPlayerStateUpdate.TotalTimeUpdate(conversationId, messageId, audioMediaPlayer.duration)
-                    )
+                    try {
+                        startPlayback(conversationId, messageId, result.decodedAssetPath.toString(), position)
+                    } catch (e: IllegalStateException) {
+                        onPlaybackStartFailed(conversationId, messageId, e)
+                    } catch (e: IOException) {
+                        onPlaybackStartFailed(conversationId, messageId, e)
+                    }
                 }
             }
 
@@ -337,6 +323,41 @@ class ConversationAudioMessagePlayer
                 )
             }
         }
+    }
+
+    private suspend fun startPlayback(conversationId: ConversationId, messageId: String, assetPath: String, position: Int?) {
+        // the player may not be idle here (e.g. a previous stop was skipped while fetching, or another play request
+        // for the same message finished first), and setDataSource throws unless the player is idle, so always reset first
+        audioMediaPlayer.reset()
+        audioMediaPlayer.setDataSource(context, Uri.parse(assetPath))
+        audioMediaPlayer.prepare()
+
+        if (position != null) audioMediaPlayer.seekTo(position)
+
+        audioFocusHelper.request()
+        audioMediaPlayer.start()
+
+        setSpeed(_audioSpeed.value)
+
+        audioMessageStateUpdate.emit(
+            AudioMediaPlayerStateUpdate.AudioMediaPlayingStateUpdate(conversationId, messageId, AudioMediaPlayingState.Playing)
+        )
+
+        servicesManager.value.startPlayingAudioMessageService()
+
+        audioMessageStateUpdate.emit(
+            AudioMediaPlayerStateUpdate.TotalTimeUpdate(conversationId, messageId, audioMediaPlayer.duration)
+        )
+    }
+
+    private suspend fun onPlaybackStartFailed(conversationId: ConversationId, messageId: String, error: Exception) {
+        appLogger.e("ConversationAudioMessagePlayer: failed to start playback: ${error.message}")
+        audioMediaPlayer.reset()
+        audioFocusHelper.abandon()
+        audioMessageStateUpdate.emit(
+            AudioMediaPlayerStateUpdate.AudioMediaPlayingStateUpdate(conversationId, messageId, AudioMediaPlayingState.Failed)
+        )
+        if (currentAudioMessageId == MessageIdWrapper(conversationId, messageId)) currentAudioMessageId = null
     }
 
     // stops the playback when the currently played message gets deleted, no matter if locally, remotely or by self-deletion

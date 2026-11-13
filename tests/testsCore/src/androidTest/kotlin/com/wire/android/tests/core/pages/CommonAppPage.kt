@@ -18,6 +18,7 @@
 package com.wire.android.tests.core.pages
 
 import android.content.Intent
+import android.net.ConnectivityManager
 import android.net.Uri
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.By
@@ -220,6 +221,43 @@ data class CommonAppPage(private val device: UiDevice) {
         return this
     }
 
+    fun forceStopWireApp(): CommonAppPage {
+        device.executeShellCommand("am force-stop ${UiAutomatorSetup.appPackage}")
+        return this
+    }
+
+    fun disableMobileData(): CommonAppPage {
+        device.executeShellCommand("svc data disable")
+        return this
+    }
+
+    fun enableMobileData(): CommonAppPage {
+        device.executeShellCommand("svc data enable")
+        return this
+    }
+
+    fun assertDeviceHasNoNetworkConnection(): CommonAppPage {
+        val connectivity = InstrumentationRegistry.getInstrumentation().targetContext
+            .getSystemService(ConnectivityManager::class.java)
+        // Radio shutdown is asynchronous on real devices.
+        val disconnected = UiWaitUtils.retryUntilTimeout(UiWaitUtils.SHORT_TIMEOUT) {
+            connectivity.activeNetwork == null
+        }
+        assertTrue("The device still has an active network connection", disconnected)
+        return this
+    }
+
+    fun assertDeviceHasNetworkConnection(): CommonAppPage {
+        val connectivity = InstrumentationRegistry.getInstrumentation().targetContext
+            .getSystemService(ConnectivityManager::class.java)
+        // A phone can need another Wi-Fi association attempt after the radio is enabled.
+        val connected = UiWaitUtils.retryUntilTimeout(UiWaitUtils.VERY_LONG_TIMEOUT) {
+            connectivity.activeNetwork != null
+        }
+        assertTrue("The device has no active network connection", connected)
+        return this
+    }
+
     fun assertWireAppIsInForeground(): CommonAppPage {
         val wireAppIsInForeground = UiWaitUtils.retryUntilTimeout(
             timeout = UiWaitUtils.SHORT_WAIT,
@@ -313,6 +351,21 @@ data class CommonAppPage(private val device: UiDevice) {
 
     fun enableWifi(): CommonAppPage {
         device.executeShellCommand("svc wifi enable")
+        return this
+    }
+
+    /**
+     * Requests a scan after enabling the radio so saved networks can reconnect promptly.
+     * MIUI can otherwise defer its automatic scan for over 30 seconds.
+     * Connection readiness remains a separate assertion.
+     */
+    fun enableWifiAndScanForNetworks(): CommonAppPage {
+        enableWifi()
+        val enabled = UiWaitUtils.retryUntilTimeout(UiWaitUtils.SHORT_TIMEOUT) {
+            device.executeShellCommand("cmd wifi status").startsWith("Wifi is enabled")
+        }
+        assertTrue("The Wi-Fi radio did not enable", enabled)
+        device.executeShellCommand("cmd wifi start-scan")
         return this
     }
 

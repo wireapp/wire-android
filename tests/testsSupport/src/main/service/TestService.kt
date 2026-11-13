@@ -74,8 +74,8 @@ class TestService(private val baseUri: String, private val testName: String) {
     private val userAliases = ConcurrentHashMap<String, MutableMap<String, String>>()
 
     // region HTTP connection logic
-    private fun buildRequest(path: String, requestType: String): HttpURLConnection {
-        val url = URL("$baseUri/$path")
+    private fun buildRequest(path: String, requestType: String, requestBaseUri: String = baseUri): HttpURLConnection {
+        val url = URL("$requestBaseUri/$path")
         val c = url.openConnection() as HttpURLConnection
         c.requestMethod = requestType // PUT, POST, DELETE, GET
         c.doOutput = true
@@ -537,6 +537,53 @@ class TestService(private val baseUri: String, private val testName: String) {
             put("invalidHash", params.invalidHash)
         }
         sendHttpRequest(connection, requestBody)
+    }
+
+    // Finds the existing PDF's attachment metadata so the test can reuse its UUID and version.
+    fun getDriveFileAttachment(
+        owner: ClientUser,
+        deviceName: String,
+        convoId: String,
+        convoDomain: String,
+        fileName: String
+    ): JSONObject {
+        val messages = getMessages(owner, deviceName, convoId, convoDomain)
+        val matchingFiles = mutableListOf<JSONObject>()
+        for (messageIndex in 0 until messages.length()) {
+            val attachments = messages.getJSONObject(messageIndex)
+                .optJSONObject("content")?.optJSONArray("attachments") ?: continue
+            for (attachmentIndex in 0 until attachments.length()) {
+                val attachment = attachments.getJSONObject(attachmentIndex)
+                if (attachment.optString("assetPath").substringAfterLast('/') == fileName) {
+                    matchingFiles += attachment
+                }
+            }
+        }
+        return matchingFiles.singleOrNull()
+            ?: throw AssertionError("Expected one Drive attachment named '$fileName', found ${matchingFiles.size}")
+    }
+
+    // Replaces the existing Drive file through the acting user's authenticated test-service instance.
+    // serviceUrl allows the offline update request to use the ADB reverse connection.
+    @Suppress("LongParameterList")
+    fun replaceDriveFileContent(
+        owner: ClientUser,
+        deviceName: String,
+        convoId: String,
+        convoDomain: String,
+        fileUuid: String,
+        data: ByteArray,
+        serviceUrl: String = baseUri
+    ): JSONObject {
+        val instanceId = getInstanceId(owner, deviceName)
+        val connection = buildRequest("api/v1/instance/$instanceId/drive/file/content", "POST", serviceUrl)
+        val requestBody = JSONObject().apply {
+            put("conversationId", convoId)
+            put("conversationDomain", convoDomain)
+            put("fileUuid", fileUuid)
+            put("data", Base64.encodeToString(data, Base64.NO_WRAP))
+        }
+        return JSONObject(sendHttpRequest(connection, requestBody))
     }
 
     @Suppress("LongParameterList")

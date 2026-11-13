@@ -95,6 +95,20 @@ class MultiFactorAuthenticationStore(
         dummyOverviewOverride = MultiFactorAuthenticationOverview.Disabled
         _state.value = MultiFactorAuthenticationStoreState(overview = MultiFactorAuthenticationOverview.Disabled)
     }
+
+    suspend fun completeAuthenticatorAppRename(result: AuthenticatorAppRenameResult) = refreshMutex.withLock {
+        val overview = _state.value.overview as? MultiFactorAuthenticationOverview.Enabled ?: return@withLock
+        if (overview.authenticatorApps.none { it.id == result.appId }) return@withLock
+        val trimmedName = result.name.trim()
+        require(trimmedName.isNotEmpty())
+        val updated = overview.copy(
+            authenticatorApps = overview.authenticatorApps.map { app ->
+                if (app.id == result.appId) app.copy(name = trimmedName) else app
+            },
+        )
+        dummyOverviewOverride = updated
+        _state.value = MultiFactorAuthenticationStoreState(overview = updated)
+    }
 }
 
 class DummyMultiFactorAuthenticationLoader @Inject constructor() {

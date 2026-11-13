@@ -31,7 +31,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.pluralStringResource
@@ -45,7 +44,6 @@ import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.progress.CenteredCircularProgressBarIndicator
 import com.wire.android.ui.common.scaffold.WireScaffold
-import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.home.conversations.details.options.ArrowType
 import com.wire.android.ui.home.conversations.details.options.GroupConversationOptionsItem
@@ -53,7 +51,6 @@ import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.PreviewMultipleThemes
-import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDate
 
 @Composable
@@ -63,11 +60,9 @@ fun MultiFactorAuthenticationScreen(
     onSetUp: () -> Unit,
     onManageRecoveryCodes: (RecoveryCodesStatus) -> Unit,
     onTurnOff: () -> Unit,
+    onManageAuthenticatorApps: () -> Unit,
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
-    val snackbarHostState = LocalSnackbarHostState.current
-    val coroutineScope = rememberCoroutineScope()
-    val placeholderMessage = stringResource(R.string.multi_factor_authentication_flow_placeholder)
     MultiFactorAuthenticationScreenContent(
         state = state,
         onBackPressed = onBackPressed,
@@ -76,13 +71,13 @@ fun MultiFactorAuthenticationScreen(
             when (action) {
                 MultiFactorAuthenticationAction.SetUp -> onSetUp()
                 MultiFactorAuthenticationAction.TurnOff -> onTurnOff()
+                MultiFactorAuthenticationAction.ManageAuthenticatorApps -> onManageAuthenticatorApps()
                 MultiFactorAuthenticationAction.ManageRecoveryCodes -> {
                     val loaded = state as? MultiFactorAuthenticationOverviewState.Loaded
                     (loaded?.overview as? MultiFactorAuthenticationOverview.Enabled)?.let {
                         onManageRecoveryCodes(it.recoveryCodesStatus)
                     }
                 }
-                else -> coroutineScope.launch { snackbarHostState.showSnackbar(placeholderMessage) }
             }
         },
     )

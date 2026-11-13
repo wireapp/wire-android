@@ -206,6 +206,42 @@ class MultiFactorAuthenticationViewModelTest {
         assertEquals(updated, (viewModel.state.value as MultiFactorAuthenticationOverviewState.Loaded).overview)
     }
 
+    @Test
+    fun `renaming updates the shared snapshot by id and preserves other account data across refreshes`() = runTest {
+        val other = enabled.authenticatorApps.single().copy(id = "backup", name = "Backup")
+        val original = enabled.copy(authenticatorApps = enabled.authenticatorApps + other)
+        val viewModel = createViewModel(MultiFactorAuthenticationStore { original })
+        runCurrent()
+        val app = enabled.authenticatorApps.single()
+
+        viewModel.onAuthenticatorAppRenamed(AuthenticatorAppRenameResult(app.id, "New name"))
+        runCurrent()
+
+        val expected = original.copy(authenticatorApps = listOf(app.copy(name = "New name"), other))
+        assertEquals(expected, (viewModel.state.value as MultiFactorAuthenticationOverviewState.Loaded).overview)
+        viewModel.refresh()
+        runCurrent()
+        assertEquals(expected, (viewModel.state.value as MultiFactorAuthenticationOverviewState.Loaded).overview)
+    }
+
+    @Test
+    fun `stale rename results neither add missing apps nor restore MFA after turning off`() = runTest {
+        val viewModel = createViewModel(MultiFactorAuthenticationStore { enabled })
+        runCurrent()
+        viewModel.onAuthenticatorAppRenamed(AuthenticatorAppRenameResult("missing", "New name"))
+        runCurrent()
+        assertEquals(enabled, (viewModel.state.value as MultiFactorAuthenticationOverviewState.Loaded).overview)
+
+        viewModel.onTurnOffCompleted()
+        runCurrent()
+        viewModel.onAuthenticatorAppRenamed(AuthenticatorAppRenameResult(enabled.authenticatorApps.single().id, "New name"))
+        runCurrent()
+        assertEquals(
+            MultiFactorAuthenticationOverview.Disabled,
+            (viewModel.state.value as MultiFactorAuthenticationOverviewState.Loaded).overview,
+        )
+    }
+
     private fun createViewModel(store: MultiFactorAuthenticationStore): MultiFactorAuthenticationViewModel =
         ViewModelProvider.create(
             owner,

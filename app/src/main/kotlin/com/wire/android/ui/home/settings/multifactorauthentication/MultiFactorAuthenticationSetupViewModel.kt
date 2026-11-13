@@ -42,7 +42,7 @@ data class MultiFactorAuthenticationSetupState(
     val completion: MultiFactorAuthenticationSetupResult? = null,
 ) {
     fun canNavigateBackFrom(step: MultiFactorAuthenticationSetupStep): Boolean =
-        step != MultiFactorAuthenticationSetupStep.RECOVERY_CODES || recoveryCodesSaved
+        step != MultiFactorAuthenticationSetupStep.RECOVERY_CODES
 }
 
 class MultiFactorAuthenticationSetupViewModel @Inject constructor(

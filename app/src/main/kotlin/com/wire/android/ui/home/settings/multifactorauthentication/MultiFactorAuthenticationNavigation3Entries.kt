@@ -75,6 +75,12 @@ internal fun multiFactorAuthenticationNavigation3Entries(
     wireEntry<MultiFactorAuthenticationTurnOffRoute> { route ->
         MultiFactorAuthenticationTurnOffEntry(runtime, route, onExit)
     }
+    wireEntry<MultiFactorAuthenticationAuthenticatorAppsRoute> { route ->
+        MultiFactorAuthenticationAuthenticatorAppsEntry(runtime, route, onExit)
+    }
+    wireEntry<MultiFactorAuthenticationEditAuthenticatorAppRoute> { route ->
+        MultiFactorAuthenticationEditAuthenticatorAppEntry(runtime, route, onExit)
+    }
 }
 
 @Composable
@@ -149,6 +155,11 @@ private fun MultiFactorAuthenticationOverviewEntry(
                 MultiFactorAuthenticationTurnOffRoute(route.sessionId),
                 MultiFactorAuthenticationTurnOffResultType,
             )?.value
+        },
+        onManageAuthenticatorApps = {
+            runtime.navigator.navigate(
+                WireNavigationCommand(MultiFactorAuthenticationAuthenticatorAppsRoute(route.sessionId, route.flowId))
+            )
         },
     )
 }

@@ -311,7 +311,7 @@ private fun SearchAllPeopleOrContactsScreen(
     nextFocusRequester: FocusRequester? = null,
 ) {
 
-    LifecycleResumeEffect(searchUserViewModel) {
+    LifecycleResumeEffect(conversationId, onlySelfTeamAndDomain) {
         searchUserViewModel.onForeground()
         onPauseOrDispose { searchUserViewModel.onBackground() }
     }

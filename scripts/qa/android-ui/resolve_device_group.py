@@ -30,7 +30,7 @@ def validate_group_name(group_name: str, source: str) -> str:
 def parse_groups(raw_json: str) -> dict[str, list[str]]:
     if not raw_json.strip():
         raise DeviceGroupError(
-            "ANDROID_DEVICE_GROUPS_JSON is empty. Configure it as a GitHub repository variable."
+            "ANDROID_DEVICE_GROUPS_JSON is empty. Configure it as a GitHub Actions secret."
         )
 
     try:

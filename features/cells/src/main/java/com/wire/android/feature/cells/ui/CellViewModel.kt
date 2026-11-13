@@ -155,6 +155,7 @@ class CellViewModel @AssistedInject constructor(
     @Named("driveDirectUploadEnabled") val driveDirectUploadEnabled: Boolean,
     @Named("driveBulkActionsEnabled") private val driveBulkActionsEnabled: Boolean,
     @Named("driveOfflineEnabled") private val driveOfflineEnabled: Boolean,
+    @Named("driveBulkRestoreEnabled") internal val bulkRestoreEnabled: Boolean,
 ) : ActionsViewModel<CellViewAction>() {
 
     @AssistedFactory
@@ -281,6 +282,9 @@ class CellViewModel @AssistedInject constructor(
     )
     internal val selectedNodes: StateFlow<Map<String, CellNodeUi>> = bulkSelection.selectedNodes
     internal val isBulkSelectionEnabled: StateFlow<Boolean> = bulkSelection.isEnabled
+
+    /** Whether the bulk actions bar offers the offline actions (make available / remove offline access). */
+    val bulkOfflineActionsEnabled: Boolean = offlineFilesEnabled && driveOfflineEnabled
 
     /** At least one selected file can be saved for offline use, see [canBeMadeAvailableOffline]. */
     internal val canMakeSelectionAvailableOffline: StateFlow<Boolean> = selectedNodes

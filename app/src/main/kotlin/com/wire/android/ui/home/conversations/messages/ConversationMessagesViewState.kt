@@ -38,8 +38,16 @@ data class ConversationMessagesViewState(
     val playingAudioMessage: PlayingAudioMessage = PlayingAudioMessage.None,
     val assetStatuses: PersistentMap<String, MessageAssetStatus> = persistentMapOf(),
     val searchedMessageId: String? = null,
+    val replyHighlightRequest: ReplyHighlightRequest? = null,
     val isNetworkAvailable: Boolean = false,
 )
+
+/**
+ * Transient request to highlight the original message after navigating from a reply.
+ * [token] is unique per reply tap, so repeated taps on the same reply restart the effect
+ * and stale callbacks can be told apart from the current request.
+ */
+data class ReplyHighlightRequest(val messageId: String, val token: Long)
 
 sealed class DownloadedAssetDialogVisibilityState {
     data object Hidden : DownloadedAssetDialogVisibilityState()

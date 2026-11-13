@@ -101,7 +101,6 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.permission.rememberChooseMultipleFilesFlow
 import com.wire.kalium.cells.domain.CellUploadItem
 import kotlinx.collections.immutable.ImmutableList
-import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toPersistentList
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -187,6 +186,7 @@ internal fun ConversationFilesRouteScreen(
         onOfflineOnlyChange = viewModel::setOfflineOnly,
         showOfflineToggleHint = viewModel.showOfflineToggleHint.collectAsState().value,
         onOfflineToggleHintDismiss = viewModel::onOfflineToggleHintDismissed,
+        bulkRestoreEnabled = viewModel.bulkRestoreEnabled,
     )
 
     LaunchedEffect(Unit) {
@@ -247,6 +247,7 @@ internal fun ConversationFilesScreenContent(
     onOfflineOnlyChange: (Boolean) -> Unit = {},
     showOfflineToggleHint: Boolean = false,
     onOfflineToggleHintDismiss: () -> Unit = {},
+    bulkRestoreEnabled: Boolean = false,
 ) {
     val sharedScope = LocalSharedTransitionScope.current
     val isSelectionMode = selectedNodes.isNotEmpty()
@@ -254,15 +255,16 @@ internal fun ConversationFilesScreenContent(
         bulkOfflineActionsEnabled,
         canMakeSelectionAvailableOffline,
         canRemoveSelectionOfflineAccess,
+        bulkRestoreEnabled,
         isRecycleBin,
-        isOfflineOnly,
+        selectedNodes,
     ) {
         bulkActions(
             offlineActionsEnabled = bulkOfflineActionsEnabled,
             canMakeAvailableOffline = canMakeSelectionAvailableOffline,
             canRemoveOfflineAccess = canRemoveSelectionOfflineAccess,
+            restoreEnabled = bulkRestoreEnabled,
             isRecycleBin = isRecycleBin,
-            isOfflineOnly = isOfflineOnly,
         )
     }
     val fabToBulkActionsKey = "$FAB_TO_BULK_ACTIONS_KEY-$currentNodeUuid"
@@ -641,12 +643,10 @@ private fun bulkActions(
     canRemoveOfflineAccess: Boolean,
     isRecycleBin: Boolean,
     isOfflineOnly: Boolean,
+    restoreEnabled: Boolean,
 ): ImmutableList<CellBulkAction> =
     if (isRecycleBin) {
-        persistentListOf(
-            CellBulkAction.Restore,
-            CellBulkAction.DeletePermanently,
-        )
+        recycleBinBulkActions(restoreEnabled)
     } else {
         listOfNotNull(
             CellBulkAction.Move.takeUnless { isOfflineOnly },
@@ -659,6 +659,13 @@ private fun bulkActions(
             },
         ).toPersistentList()
     }
+
+// Restore is behind a feature flag, see FeatureConfigs.DRIVE_BULK_RESTORE_ENABLED.
+internal fun recycleBinBulkActions(restoreEnabled: Boolean): ImmutableList<CellBulkAction> =
+    listOfNotNull(
+        CellBulkAction.Restore.takeIf { restoreEnabled },
+        CellBulkAction.DeletePermanently,
+    ).toPersistentList()
 
 /**
  * Rolls the title up when the selection count grows and down when it shrinks, so entering selection mode

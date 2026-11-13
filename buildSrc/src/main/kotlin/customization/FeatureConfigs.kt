@@ -171,6 +171,8 @@ enum class FeatureConfigs(val value: String, val configType: ConfigType) {
 
     DRIVE_OFFLINE_ENABLED("drive_offline_enabled", ConfigType.BOOLEAN),
 
+    DRIVE_BULK_RESTORE_ENABLED("drive_bulk_restore_enabled", ConfigType.BOOLEAN),
+
     /**
      * Controls whether the @all (everyone) mention is offered in the composer mention suggestions.
      * Disabled by default until all clients support receiving it.

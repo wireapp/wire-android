@@ -282,6 +282,13 @@ private fun com.wire.android.feature.meetings.ui.list.MeetingOngoingAttendingRow
     - returnToCall: STABLE (function type)
 
 @Composable
+internal fun com.wire.android.feature.meetings.ui.list.MeetingRemindersCard(modifier: androidx.compose.ui.Modifier): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - modifier: STABLE (marked @Stable or @Immutable)
+
+@Composable
 private fun com.wire.android.feature.meetings.ui.list.MeetingStartingInPrimaryBodyText(startTime: kotlin.time.Instant): kotlin.Unit
   skippable: true
   restartable: true

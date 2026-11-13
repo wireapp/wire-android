@@ -1995,9 +1995,6 @@
     <string name="notification_meeting_cancel">%1$s отменил(а) эту встречу</string>
     <string name="notification_meeting_cancel_short">Встреча отменена</string>
     <string name="notification_meeting_starting_at">Начало в %1$s</string>
-    <string name="meeting_reminder_exact_alarm_title">Включить точные напоминания о встрече</string>
-    <string name="meeting_reminder_exact_alarm_description">Включите уведомления и напоминания для Wire в настройках устройства, чтобы вовремя получать напоминания о собраниях.</string>
-    <string name="meeting_reminder_exact_alarm_settings">Открыть настройки</string>
     <plurals name="startup_account_limit_title">
         <item quantity="one">Удалить аккаунт</item>
         <item quantity="few">Удалить %1$d аккаунта</item>

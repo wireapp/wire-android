@@ -53,7 +53,8 @@ fun RegularMessageItem(
     failureInteractionAvailable: Boolean = true,
     useSmallBottomPadding: Boolean = false,
     selfDeletionTimerState: SelfDeletionTimerHelper.SelfDeletionTimerState = SelfDeletionTimerHelper.SelfDeletionTimerState.NotExpirable,
-    isBubbleUiEnabled: Boolean = false
+    isBubbleUiEnabled: Boolean = false,
+    replyHighlightIntensity: () -> Float = { 0f },
 ): Unit = with(message) {
     val messageStyle = when {
         !isBubbleUiEnabled -> MessageStyle.NORMAL
@@ -158,6 +159,7 @@ fun RegularMessageItem(
 
             MessageBubbleItem(
                 message = message,
+                replyHighlightIntensity = replyHighlightIntensity,
                 source = source,
                 messageStatus = header.messageStatus,
                 showAuthor = showAuthor,

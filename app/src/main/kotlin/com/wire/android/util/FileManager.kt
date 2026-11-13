@@ -22,34 +22,48 @@ import android.content.ContentResolver
 import android.content.Context
 import android.net.Uri
 import com.wire.android.appLogger
+import com.wire.android.di.ApplicationContext
 import com.wire.android.ui.home.conversations.model.AssetBundle
 import com.wire.android.util.dispatchers.DefaultDispatcherProvider
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.asset.AttachmentType
-import com.wire.android.di.ApplicationContext
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.SingleIn
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.withContext
 import okio.Path
 import okio.Path.Companion.toPath
 import java.io.File
 import java.io.IOException
 import java.util.UUID
-import dev.zacsweers.metro.Inject
-import dev.zacsweers.metro.AppScope
-import dev.zacsweers.metro.SingleIn
 
 @SingleIn(AppScope::class)
 @Suppress("TooManyFunctions")
 class FileManager @Inject constructor(@ApplicationContext private val context: Context) {
+    /**
+     * Saves the asset to the public Downloads folder.
+     * MediaStore can reject the insert (e.g. IllegalStateException from MediaProvider), so failures are reported via [onError].
+     */
+    @Suppress("TooGenericExceptionCaught", "LongParameterList")
     suspend fun saveToExternalStorage(
         assetName: String,
         assetDataPath: Path,
         assetDataSize: Long,
         dispatcher: DispatcherProvider = DefaultDispatcherProvider(),
+        onError: suspend () -> Unit,
         onFileSaved: suspend (String?) -> Unit
     ): Unit = withContext(dispatcher.io()) {
-        saveFileToDownloadsFolder(assetName, assetDataPath, assetDataSize, context)
-            ?.let { context.getFileName(it) }
-            .also { onFileSaved(it) }
+        val savedFileUri = try {
+            saveFileToDownloadsFolder(assetName, assetDataPath, assetDataSize, context)
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            appLogger.e("There was an error while saving the file to the Downloads folder", e)
+            onError()
+            return@withContext
+        }
+        onFileSaved(savedFileUri?.let { context.getFileName(it) })
     }
 
     suspend fun saveToExternalMediaStorage(

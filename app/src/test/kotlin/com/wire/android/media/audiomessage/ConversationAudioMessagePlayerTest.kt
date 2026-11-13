@@ -20,6 +20,7 @@ package com.wire.android.media.audiomessage
 import android.content.Context
 import android.media.MediaPlayer
 import android.media.PlaybackParams
+import android.net.Uri
 import app.cash.turbine.TurbineTestContext
 import app.cash.turbine.test
 import com.wire.android.config.TestDispatcherProvider
@@ -632,7 +633,7 @@ class ConversationAudioMessagePlayerTest {
         arrangement.withMessageDeletedForEveryone(audioMessageId)
 
         with(arrangement) {
-            verify(exactly = 1) { mediaPlayer.reset() }
+            verify(exactly = 2) { mediaPlayer.reset() } // once before playing, once when stopping
             verify(exactly = 1) { servicesManager.stopPlayingAudioMessageService() }
             verify(exactly = 1) { audioFocusHelper.abandon() }
         }
@@ -652,7 +653,7 @@ class ConversationAudioMessagePlayerTest {
         arrangement.withMessageObserveResult(audioMessageId, ObserveMessageByIdUseCase.Result.Failure(StorageFailure.DataNotFound))
 
         with(arrangement) {
-            verify(exactly = 1) { mediaPlayer.reset() }
+            verify(exactly = 2) { mediaPlayer.reset() } // once before playing, once when stopping
             verify(exactly = 1) { servicesManager.stopPlayingAudioMessageService() }
         }
     }
@@ -674,7 +675,7 @@ class ConversationAudioMessagePlayerTest {
         )
 
         with(arrangement) {
-            verify(exactly = 0) { mediaPlayer.reset() }
+            verify(exactly = 1) { mediaPlayer.reset() } // only before playing
             verify(exactly = 0) { servicesManager.stopPlayingAudioMessageService() }
         }
     }
@@ -695,8 +696,45 @@ class ConversationAudioMessagePlayerTest {
         arrangement.withMessageDeletedForEveryone(firstAudioMessageId)
 
         with(arrangement) {
-            verify(exactly = 1) { mediaPlayer.reset() } // only when switching from the first to the second message
+            // before playing each message and when switching from the first to the second one, not on the deletion
+            verify(exactly = 3) { mediaPlayer.reset() }
             verify(exactly = 0) { servicesManager.stopPlayingAudioMessageService() }
+        }
+    }
+
+    @Test
+    fun givenMediaPlayerThrowsOnSetDataSource_whenPlayingAudio_thenEmitFailedStateInsteadOfCrashing() = runTest(dispatcher) {
+        val audioMessageId = "some-dummy-message-id"
+        val conversationId = ConversationId("some-dummy-value", "some.dummy.domain")
+        val messageIdWrapper = MessageIdWrapper(conversationId, audioMessageId)
+        val (arrangement, conversationAudioMessagePlayer) = Arrangement(tempDir)
+            .withSuccessfulAssetFetch()
+            .withCurrentSession()
+            .withMediaPlayerThrowingOnSetDataSource(IllegalStateException())
+            .arrange()
+
+        conversationAudioMessagePlayer.observableAudioMessagesState.test {
+            // skip first emit from onStart
+            awaitItem()
+            conversationAudioMessagePlayer.playAudio(conversationId, audioMessageId)
+
+            awaitAndAssertStateUpdate { state ->
+                assert(state[messageIdWrapper]!!.audioMediaPlayingState is AudioMediaPlayingState.Fetching)
+            }
+            awaitAndAssertStateUpdate { state ->
+                assert(state[messageIdWrapper]!!.audioMediaPlayingState is AudioMediaPlayingState.SuccessfulFetching)
+            }
+            awaitAndAssertStateUpdate { state ->
+                assert(state[messageIdWrapper]!!.audioMediaPlayingState is AudioMediaPlayingState.Failed)
+            }
+
+            cancelAndIgnoreRemainingEvents()
+        }
+
+        with(arrangement) {
+            verify(exactly = 0) { mediaPlayer.start() }
+            verify(exactly = 0) { servicesManager.startPlayingAudioMessageService() }
+            verify(exactly = 1) { audioFocusHelper.abandon() }
         }
     }
 
@@ -810,6 +848,10 @@ class Arrangement(private val tempDir: File) {
         } returns CompletableDeferred(
             MessageAssetResult.Failure(NetworkFailure.NoNetworkConnection(null), false)
         )
+    }
+
+    fun withMediaPlayerThrowingOnSetDataSource(error: Throwable) = apply {
+        every { mediaPlayer.setDataSource(any<Context>(), any<Uri>()) } throws error
     }
 
     fun withMediaPlayerPlaying() = apply {

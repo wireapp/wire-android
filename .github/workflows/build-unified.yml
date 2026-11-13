@@ -424,6 +424,26 @@ jobs:
         if: matrix.generate-version-file == true
         run: mv app/version.txt app/build/outputs/
 
+      - name: Export release log build evidence
+        id: release_log_export
+        if: matrix.export-release-log == true
+        continue-on-error: true
+        env:
+          FLAVOR: ${{ matrix.flavor }}
+          VARIANT: ${{ matrix.variant }}
+        run: |
+          mkdir -p release-log
+          make release-log/build event="$GITHUB_EVENT_PATH" flavor="$FLAVOR" variant="$VARIANT" output=release-log/evidence.json
+
+      - name: Upload release log build evidence
+        if: steps.release_log_export.outcome == 'success'
+        continue-on-error: true
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: release-log-build-${{ matrix.flavor }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: release-log/evidence.json
+          retention-days: 90
+
       - name: Upload build artifacts
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:

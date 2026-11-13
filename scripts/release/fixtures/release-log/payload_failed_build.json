@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "release_version": "4.38.0",
+  "event_id": "production:wireapp/wire-android:1400:1",
+  "kind": "production",
+  "evidence": {
+    "source": {
+      "repository": "wireapp/wire-android",
+      "run_id": 1400,
+      "run_attempt": 1,
+      "workflow_path": ".github/workflows/build-production.yml",
+      "url": "https://github.com/wireapp/wire-android/actions/runs/1400/attempts/1",
+      "tag": "v4.38.0",
+      "sha": "7be41d0c3f2a9c1e5d6b8a4f0123456789abcdef"
+    },
+    "conclusion": "failure",
+    "jobs": [
+      {
+        "name": "Build Prod-Compatrelease",
+        "conclusion": "failure"
+      }
+    ],
+    "build": null,
+    "qa": null,
+    "origin": null,
+    "gaps": [
+      {
+        "code": null,
+        "detail": "No build record: the build produced no APK"
+      }
+    ]
+  }
+}

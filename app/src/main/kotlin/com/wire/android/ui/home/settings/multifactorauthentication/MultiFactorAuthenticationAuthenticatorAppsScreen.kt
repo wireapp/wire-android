@@ -55,8 +55,6 @@ import java.time.format.FormatStyle
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.toJavaLocalDate
 
-internal const val MAX_AUTHENTICATOR_APPS = 5
-
 @Composable
 internal fun MultiFactorAuthenticationAuthenticatorAppsScreen(
     state: MultiFactorAuthenticationOverviewState,

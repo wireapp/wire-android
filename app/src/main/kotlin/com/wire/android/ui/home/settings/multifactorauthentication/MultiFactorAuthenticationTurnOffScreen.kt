@@ -57,22 +57,58 @@ internal fun MultiFactorAuthenticationTurnOffScreen(
     onBack: () -> Unit,
     onTurnOff: () -> Unit,
 ) {
+    MultiFactorAuthenticationCredentialsScreen(
+        title = stringResource(R.string.multi_factor_authentication_turn_off_title),
+        heading = stringResource(R.string.multi_factor_authentication_turn_off_heading),
+        description = stringResource(R.string.multi_factor_authentication_turn_off_description),
+        confirmLabel = stringResource(R.string.multi_factor_authentication_turn_off),
+        password = password,
+        code = code,
+        isBusy = state.isBusy,
+        actionAvailable = !state.isCompleted,
+        errorText = state.error?.let {
+            stringResource(
+                when (it) {
+                    MultiFactorAuthenticationTurnOffError.INVALID_CODE -> R.string.multi_factor_authentication_invalid_code
+                    MultiFactorAuthenticationTurnOffError.GENERIC -> R.string.multi_factor_authentication_setup_error
+                }
+            )
+        },
+        onBack = onBack,
+        onConfirm = onTurnOff,
+    )
+}
+
+@Composable
+internal fun MultiFactorAuthenticationCredentialsScreen(
+    title: String,
+    heading: String,
+    description: String,
+    confirmLabel: String,
+    password: TextFieldState,
+    code: TextFieldState,
+    isBusy: Boolean,
+    actionAvailable: Boolean,
+    errorText: String?,
+    onBack: () -> Unit,
+    onConfirm: () -> Unit,
+) {
     BackHandler(onBack = onBack)
     WireScaffold(
         topBar = {
             WireCenterAlignedTopAppBar(
-                title = stringResource(R.string.multi_factor_authentication_turn_off_title),
+                title = title,
                 onNavigationPressed = onBack,
                 elevation = dimensions().spacing0x,
             )
         },
         bottomBar = {
-            val enabled = !state.isBusy && !state.isCompleted && canSubmitMultiFactorAuthenticationTurnOff(password.text, code.text)
+            val enabled = !isBusy && actionAvailable && canSubmitMultiFactorAuthenticationCredentials(password.text, code.text)
             WirePrimaryButton(
-                text = stringResource(R.string.multi_factor_authentication_turn_off),
-                onClick = onTurnOff,
+                text = confirmLabel,
+                onClick = onConfirm,
                 state = if (enabled) WireButtonState.Error else WireButtonState.Disabled,
-                loading = state.isBusy,
+                loading = isBusy,
                 modifier = Modifier.padding(dimensions().spacing16x),
             )
         }
@@ -83,14 +119,14 @@ internal fun MultiFactorAuthenticationTurnOffScreen(
             verticalArrangement = Arrangement.spacedBy(dimensions().spacing16x),
         ) {
             Text(
-                text = stringResource(R.string.multi_factor_authentication_turn_off_heading),
+                text = heading,
                 style = MaterialTheme.wireTypography.title01,
             )
             Text(
-                text = stringResource(R.string.multi_factor_authentication_turn_off_description),
+                text = description,
                 style = MaterialTheme.wireTypography.body01,
             )
-            val fieldState = if (state.isBusy) WireTextFieldState.Disabled else WireTextFieldState.Default
+            val fieldState = if (isBusy) WireTextFieldState.Disabled else WireTextFieldState.Default
             WirePasswordTextField(textState = password, state = fieldState)
             WireTextField(
                 textState = code,
@@ -106,14 +142,9 @@ internal fun MultiFactorAuthenticationTurnOffScreen(
                 style = MaterialTheme.wireTypography.body01,
                 color = MaterialTheme.wireColorScheme.secondaryText,
             )
-            state.error?.let { error ->
+            errorText?.let { error ->
                 Text(
-                    text = stringResource(
-                        when (error) {
-                            MultiFactorAuthenticationTurnOffError.INVALID_CODE -> R.string.multi_factor_authentication_invalid_code
-                            MultiFactorAuthenticationTurnOffError.GENERIC -> R.string.multi_factor_authentication_setup_error
-                        }
-                    ),
+                    text = error,
                     style = MaterialTheme.wireTypography.body01,
                     color = MaterialTheme.wireColorScheme.error,
                 )

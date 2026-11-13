@@ -53,6 +53,8 @@ import com.wire.android.ui.home.settings.multifactorauthentication.MultiFactorAu
 import com.wire.android.ui.home.settings.multifactorauthentication.MultiFactorAuthenticationRecoveryCodesViewModel
 import com.wire.android.ui.home.settings.multifactorauthentication.MultiFactorAuthenticationTurnOffViewModel
 import com.wire.android.ui.home.settings.multifactorauthentication.MultiFactorAuthenticationEditAuthenticatorAppViewModel
+import com.wire.android.ui.home.settings.multifactorauthentication.MultiFactorAuthenticationAddAuthenticatorAppViewModel
+import com.wire.android.ui.home.settings.multifactorauthentication.MultiFactorAuthenticationRemoveAuthenticatorAppViewModel
 import com.wire.android.ui.home.settings.privacy.PrivacySettingsViewModel
 import com.wire.android.ui.initialsync.InitialSyncViewModel
 import com.wire.android.ui.joinConversation.JoinConversationViaCodeViewModel
@@ -295,6 +297,16 @@ object WireMetroViewModelBindings {
     @IntoMap
     @ViewModelKey(MultiFactorAuthenticationEditAuthenticatorAppViewModel::class)
     fun editAuthenticatorAppViewModel(viewModel: MultiFactorAuthenticationEditAuthenticatorAppViewModel): ViewModel = viewModel
+
+    @Provides
+    @IntoMap
+    @ViewModelKey(MultiFactorAuthenticationAddAuthenticatorAppViewModel::class)
+    fun addAuthenticatorAppViewModel(viewModel: MultiFactorAuthenticationAddAuthenticatorAppViewModel): ViewModel = viewModel
+
+    @Provides
+    @IntoMap
+    @ViewModelKey(MultiFactorAuthenticationRemoveAuthenticatorAppViewModel::class)
+    fun removeAuthenticatorAppViewModel(viewModel: MultiFactorAuthenticationRemoveAuthenticatorAppViewModel): ViewModel = viewModel
 
     @Provides
     @IntoMap

@@ -36,11 +36,17 @@ import com.wire.android.ui.home.settings.settingsViewModel
 import com.wire.navigation.WireNavResult
 import com.wire.navigation.WireNavResultRequestId
 import com.wire.navigation.WireViewModelOwner
+import com.wire.navigation.WireNavigationCommand
 import kotlinx.coroutines.launch
 
 internal val AuthenticatorAppRenameResultType = WireNavigation3ResultType(
     contract = AuthenticatorAppRenameResultContract,
     serializer = AuthenticatorAppRenameResult.serializer(),
+)
+
+internal val AuthenticatorAppAddedResultType = WireNavigation3ResultType(
+    contract = AuthenticatorAppAddedResultContract,
+    serializer = AuthenticatorAppAddedResult.serializer(),
 )
 
 @Composable
@@ -54,11 +60,11 @@ internal fun MultiFactorAuthenticationAuthenticatorAppsEntry(
     )
     val state by viewModel.state.collectAsStateWithLifecycle()
     var renameRequestId by rememberSaveable(route.entryId.value) { mutableStateOf<String?>(null) }
+    var addRequestId by rememberSaveable(route.entryId.value, "add-app") { mutableStateOf<String?>(null) }
     val currentEntryId = runtime.navigator.currentRoute?.entryId
     val snackbar = LocalSnackbarHostState.current
     val scope = rememberCoroutineScope()
     val renamedMessage = stringResource(R.string.multi_factor_authentication_app_renamed)
-    val placeholderMessage = stringResource(R.string.multi_factor_authentication_flow_placeholder)
     LaunchedEffect(renameRequestId, currentEntryId) {
         if (currentEntryId != route.entryId) return@LaunchedEffect
         val requestId = renameRequestId?.let(::WireNavResultRequestId) ?: return@LaunchedEffect
@@ -72,6 +78,7 @@ internal fun MultiFactorAuthenticationAuthenticatorAppsEntry(
             null -> Unit
         }
     }
+    ConsumeAddedAuthenticatorResult(runtime, route, addRequestId, viewModel) { addRequestId = null }
     MultiFactorAuthenticationAuthenticatorAppsScreen(
         state = state,
         onBack = { if (!runtime.navigator.goBack()) onExit() },
@@ -82,8 +89,51 @@ internal fun MultiFactorAuthenticationAuthenticatorAppsEntry(
                 AuthenticatorAppRenameResultType,
             )?.value
         },
-        onAdd = { scope.launch { snackbar.showSnackbar(placeholderMessage) } },
+        onAdd = {
+            val loaded = viewModel.state.value as? MultiFactorAuthenticationOverviewState.Loaded
+            val overview = loaded?.overview as? MultiFactorAuthenticationOverview.Enabled
+            if (overview != null && overview.authenticatorApps.size < MAX_AUTHENTICATOR_APPS) {
+                addRequestId = runtime.navigateForResult(
+                    MultiFactorAuthenticationAddAuthenticatorAppRoute(route.sessionId),
+                    AuthenticatorAppAddedResultType,
+                )?.value
+            }
+        },
     )
+}
+
+@Composable
+private fun ConsumeAddedAuthenticatorResult(
+    runtime: WireNavigation3Runtime,
+    route: MultiFactorAuthenticationAuthenticatorAppsRoute,
+    requestIdValue: String?,
+    viewModel: MultiFactorAuthenticationViewModel,
+    onConsumed: () -> Unit,
+) {
+    val currentEntryId = runtime.navigator.currentRoute?.entryId
+    val snackbar = LocalSnackbarHostState.current
+    val scope = rememberCoroutineScope()
+    val addedMessage = stringResource(R.string.multi_factor_authentication_app_added)
+    val limitMessage = stringResource(R.string.multi_factor_authentication_authenticator_apps_limit, MAX_AUTHENTICATOR_APPS)
+    val addFailureMessage = stringResource(R.string.multi_factor_authentication_add_app_error)
+    LaunchedEffect(requestIdValue, currentEntryId) {
+        if (currentEntryId != route.entryId) return@LaunchedEffect
+        val requestId = requestIdValue?.let(::WireNavResultRequestId) ?: return@LaunchedEffect
+        when (val result = runtime.consumeResult(requestId, AuthenticatorAppAddedResultType)) {
+            is WireNavResult.Value -> {
+                val outcome = viewModel.onAuthenticatorAppAdded(result.value).await()
+                onConsumed()
+                val message = when (outcome) {
+                    AuthenticatorAppMutationResult.SUCCESS -> addedMessage
+                    AuthenticatorAppMutationResult.LIMIT_REACHED -> limitMessage
+                    else -> addFailureMessage
+                }
+                scope.launch { snackbar.showSnackbar(message) }
+            }
+            WireNavResult.Canceled -> onConsumed()
+            null -> Unit
+        }
+    }
 }
 
 @Composable
@@ -102,9 +152,6 @@ internal fun MultiFactorAuthenticationEditAuthenticatorAppEntry(
     val overview = loaded?.overview as? MultiFactorAuthenticationOverview.Enabled
     val app = overview?.authenticatorApps?.find { it.id == route.appId }
     val currentEntryId = runtime.navigator.currentRoute?.entryId
-    val scope = rememberCoroutineScope()
-    val snackbar = LocalSnackbarHostState.current
-    val placeholderMessage = stringResource(R.string.multi_factor_authentication_flow_placeholder)
     fun finish(result: AuthenticatorAppRenameResult) {
         if (runtime.navigator.currentRoute?.entryId != route.entryId) return
         if (!runtime.completeCurrentAndPop(AuthenticatorAppRenameResultType, WireNavResult.Value(result))) {
@@ -131,6 +178,12 @@ internal fun MultiFactorAuthenticationEditAuthenticatorAppEntry(
         },
         onRetry = areaViewModel::refresh,
         onSave = editViewModel::save,
-        onRemove = { scope.launch { snackbar.showSnackbar(placeholderMessage) } },
+        onRemove = {
+            if (overview != null && overview.authenticatorApps.size > 1) {
+                runtime.navigator.navigate(
+                    WireNavigationCommand(MultiFactorAuthenticationRemoveAuthenticatorAppRoute(route.sessionId, route.flowId, route.appId))
+                )
+            }
+        },
     )
 }

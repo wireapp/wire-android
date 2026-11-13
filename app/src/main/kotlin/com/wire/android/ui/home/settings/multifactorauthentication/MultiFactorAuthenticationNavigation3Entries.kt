@@ -81,6 +81,12 @@ internal fun multiFactorAuthenticationNavigation3Entries(
     wireEntry<MultiFactorAuthenticationEditAuthenticatorAppRoute> { route ->
         MultiFactorAuthenticationEditAuthenticatorAppEntry(runtime, route, onExit)
     }
+    wireEntry<MultiFactorAuthenticationAddAuthenticatorAppRoute> { route ->
+        MultiFactorAuthenticationAddAuthenticatorAppEntry(runtime, route, onExit)
+    }
+    wireEntry<MultiFactorAuthenticationRemoveAuthenticatorAppRoute> { route ->
+        MultiFactorAuthenticationRemoveAuthenticatorAppEntry(runtime, route, onExit)
+    }
 }
 
 @Composable

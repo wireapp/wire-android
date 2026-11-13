@@ -1269,6 +1269,13 @@
     <string name="multi_factor_authentication_authenticator_apps">Authenticator apps</string>
     <string name="multi_factor_authentication_authenticator_apps_description">Any of these apps can give you a code to log in. Before you change phones, add the new one, then remove the old one.</string>
     <string name="multi_factor_authentication_add_authenticator_app">Add authenticator app</string>
+    <string name="multi_factor_authentication_add_app">Add app</string>
+    <string name="multi_factor_authentication_link_another_title">Add Wire to another authenticator app</string>
+    <string name="multi_factor_authentication_add_app_password_description">Enter your password to add an authenticator app.</string>
+    <string name="multi_factor_authentication_name_app_title">Name this app</string>
+    <string name="multi_factor_authentication_app_name_placeholder">e.g. Backup phone</string>
+    <string name="multi_factor_authentication_app_added">Authenticator app added</string>
+    <string name="multi_factor_authentication_add_app_error">Unable to add this authenticator app. Please try again.</string>
     <string name="multi_factor_authentication_authenticator_added_on">Added %1$s</string>
     <string name="multi_factor_authentication_edit_app_action">Edit</string>
     <string name="multi_factor_authentication_edit_app_title">Edit app</string>
@@ -1280,6 +1287,9 @@
     <string name="multi_factor_authentication_no_authenticator_apps">No authenticator apps are available.</string>
     <string name="multi_factor_authentication_authenticator_app_unavailable">This authenticator app is no longer available.</string>
     <string name="multi_factor_authentication_remove_app">Remove this app</string>
+    <string name="multi_factor_authentication_remove_app_title">Remove app</string>
+    <string name="multi_factor_authentication_remove_app_heading">Remove %1$s?</string>
+    <string name="multi_factor_authentication_remove_app_description">You won\'t be able to use it to log in. Confirm with your password and a code from any of your authenticator apps.</string>
     <string name="multi_factor_authentication_app_renamed">Authenticator app renamed</string>
     <string name="multi_factor_authentication_rename_app_error">Unable to rename this authenticator app. Please try again.</string>
     <plurals name="multi_factor_authentication_authenticator_apps_count">

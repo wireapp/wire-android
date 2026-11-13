@@ -1139,6 +1139,7 @@
     </plurals>
     <string name="notification_drive_upload_action_cancel_all">Отменить все</string>
     <string name="notification_drive_upload_action_retry">Повторить</string>
+    <string name="notification_offline_download_preparing_title">Сохранение файлов для использования оффлайн…</string>
     <!-- Calling-->
     <string name="calling_constant_bit_rate_indication">Постоянный битрейт</string>
     <string name="calling_button_label_microphone">Микрофон</string>

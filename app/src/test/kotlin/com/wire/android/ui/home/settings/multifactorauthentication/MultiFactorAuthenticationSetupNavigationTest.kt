@@ -37,7 +37,8 @@ class MultiFactorAuthenticationSetupNavigationTest {
     @Test
     fun `each step keeps the setup owner and survives route restoration`() {
         val root = MultiFactorAuthenticationSetupRoute(session)
-        MultiFactorAuthenticationSetupStep.entries.forEach { step ->
+        val steps = MultiFactorAuthenticationSetupStep.entries.filterNot { it == MultiFactorAuthenticationSetupStep.NAME_APP }
+        steps.forEach { step ->
             val route = root.copy(step = step, entryId = WireNavEntryId.random())
             assertEquals(root.flowId, route.flowId)
             assertEquals(route, Json.decodeFromString<MultiFactorAuthenticationSetupRoute>(Json.encodeToString(route)))

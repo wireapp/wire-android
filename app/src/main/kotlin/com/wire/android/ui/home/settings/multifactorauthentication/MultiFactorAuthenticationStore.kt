@@ -109,6 +109,34 @@ class MultiFactorAuthenticationStore(
         dummyOverviewOverride = updated
         _state.value = MultiFactorAuthenticationStoreState(overview = updated)
     }
+
+    suspend fun addAuthenticatorApp(result: AuthenticatorAppAddedResult): AuthenticatorAppMutationResult = refreshMutex.withLock {
+        val overview = _state.value.overview as? MultiFactorAuthenticationOverview.Enabled
+            ?: return@withLock AuthenticatorAppMutationResult.MFA_DISABLED
+        if (overview.authenticatorApps.any { it.id == result.appId }) return@withLock AuthenticatorAppMutationResult.SUCCESS
+        if (overview.authenticatorApps.size >= MAX_AUTHENTICATOR_APPS) return@withLock AuthenticatorAppMutationResult.LIMIT_REACHED
+        require(result.name.isNotBlank())
+        val app = AuthenticatorApp(
+            id = result.appId,
+            name = result.name.trim(),
+            addedOn = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date,
+        )
+        val updated = overview.copy(authenticatorApps = overview.authenticatorApps + app)
+        dummyOverviewOverride = updated
+        _state.value = MultiFactorAuthenticationStoreState(overview = updated)
+        AuthenticatorAppMutationResult.SUCCESS
+    }
+
+    suspend fun removeAuthenticatorApp(appId: String): AuthenticatorAppMutationResult = refreshMutex.withLock {
+        val overview = _state.value.overview as? MultiFactorAuthenticationOverview.Enabled
+            ?: return@withLock AuthenticatorAppMutationResult.MFA_DISABLED
+        if (overview.authenticatorApps.none { it.id == appId }) return@withLock AuthenticatorAppMutationResult.NOT_FOUND
+        if (overview.authenticatorApps.size <= 1) return@withLock AuthenticatorAppMutationResult.LAST_APP
+        val updated = overview.copy(authenticatorApps = overview.authenticatorApps.filterNot { it.id == appId })
+        dummyOverviewOverride = updated
+        _state.value = MultiFactorAuthenticationStoreState(overview = updated)
+        AuthenticatorAppMutationResult.SUCCESS
+    }
 }
 
 class DummyMultiFactorAuthenticationLoader @Inject constructor() {

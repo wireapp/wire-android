@@ -53,7 +53,7 @@ class MultiFactorAuthenticationTurnOffViewModel @Inject constructor(
         if (current.isBusy || current.isCompleted) return
         val enteredPassword = password.text.toString()
         val enteredCode = code.text.toString()
-        if (!canSubmitMultiFactorAuthenticationTurnOff(enteredPassword, enteredCode)) return
+        if (!canSubmitMultiFactorAuthenticationCredentials(enteredPassword, enteredCode)) return
         code.clearText()
         _state.value = MultiFactorAuthenticationTurnOffState(isBusy = true)
         operationJob = viewModelScope.launch {
@@ -89,5 +89,5 @@ class MultiFactorAuthenticationTurnOffViewModel @Inject constructor(
     }
 }
 
-internal fun canSubmitMultiFactorAuthenticationTurnOff(password: CharSequence, code: CharSequence): Boolean =
+internal fun canSubmitMultiFactorAuthenticationCredentials(password: CharSequence, code: CharSequence): Boolean =
     password.isNotBlank() && code.length == AUTHENTICATION_CODE_LENGTH && code.all { it in '0'..'9' }

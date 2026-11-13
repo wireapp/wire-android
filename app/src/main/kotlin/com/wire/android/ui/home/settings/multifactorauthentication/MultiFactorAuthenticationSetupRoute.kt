@@ -32,6 +32,7 @@ enum class MultiFactorAuthenticationSetupStep {
     MANUAL_KEY,
     VERIFY_CODE,
     RECOVERY_CODES,
+    NAME_APP,
 }
 
 /** Only navigation identity is saved; enrollment secrets stay in the flow ViewModel. */
@@ -44,6 +45,10 @@ data class MultiFactorAuthenticationSetupRoute(
 ) : SessionRoute {
     override val routeId: String
         get() = "app/multi_factor_authentication_setup/${step.name.lowercase()}"
+
+    init {
+        require(step != MultiFactorAuthenticationSetupStep.NAME_APP)
+    }
 }
 
 @Serializable

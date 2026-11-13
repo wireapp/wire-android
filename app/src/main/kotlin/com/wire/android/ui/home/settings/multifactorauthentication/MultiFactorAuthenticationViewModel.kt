@@ -21,6 +21,7 @@ package com.wire.android.ui.home.settings.multifactorauthentication
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dev.zacsweers.metro.Inject
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
@@ -37,24 +38,18 @@ sealed interface MultiFactorAuthenticationOverviewState {
     ) : MultiFactorAuthenticationOverviewState
 }
 
-class MultiFactorAuthenticationViewModel(
-    observeOverview: ObserveMultiFactorAuthenticationOverviewUseCase,
-    private val refreshOverview: RefreshMultiFactorAuthenticationOverviewUseCase,
-    private val completeSetup: CompleteMultiFactorAuthenticationSetupUseCase,
-    private val updateRecoveryCodes: UpdateMultiFactorAuthenticationRecoveryCodesStatusUseCase,
-    private val completeTurnOff: CompleteMultiFactorAuthenticationTurnOffUseCase,
-    private val completeAuthenticatorRename: CompleteAuthenticatorAppRenameUseCase,
+class MultiFactorAuthenticationViewModel @Inject constructor(
+    store: MultiFactorAuthenticationStore,
 ) : ViewModel() {
     // Construct the use cases from the same unscoped store so the flow owns exactly one cache.
-    @Inject
-    constructor(store: MultiFactorAuthenticationStore) : this(
-        ObserveMultiFactorAuthenticationOverviewUseCase(store),
-        RefreshMultiFactorAuthenticationOverviewUseCase(store),
-        CompleteMultiFactorAuthenticationSetupUseCase(store),
-        UpdateMultiFactorAuthenticationRecoveryCodesStatusUseCase(store),
-        CompleteMultiFactorAuthenticationTurnOffUseCase(store),
-        CompleteAuthenticatorAppRenameUseCase(store),
-    )
+    private val observeOverview = ObserveMultiFactorAuthenticationOverviewUseCase(store)
+    private val refreshOverview = RefreshMultiFactorAuthenticationOverviewUseCase(store)
+    private val completeSetup = CompleteMultiFactorAuthenticationSetupUseCase(store)
+    private val updateRecoveryCodes = UpdateMultiFactorAuthenticationRecoveryCodesStatusUseCase(store)
+    private val completeTurnOff = CompleteMultiFactorAuthenticationTurnOffUseCase(store)
+    private val completeAuthenticatorRename = CompleteAuthenticatorAppRenameUseCase(store)
+    private val completeAuthenticatorAddition = CompleteAuthenticatorAppAdditionUseCase(store)
+    private val completeAuthenticatorRemoval = CompleteAuthenticatorAppRemovalUseCase(store)
 
     val state = observeOverview().map { storeState ->
         val overview = storeState.overview
@@ -91,5 +86,13 @@ class MultiFactorAuthenticationViewModel(
 
     fun onAuthenticatorAppRenamed(result: AuthenticatorAppRenameResult) {
         viewModelScope.launch { completeAuthenticatorRename(result) }
+    }
+
+    fun onAuthenticatorAppAdded(result: AuthenticatorAppAddedResult) = viewModelScope.async {
+        completeAuthenticatorAddition(result)
+    }
+
+    fun removeAuthenticatorApp(appId: String) = viewModelScope.async {
+        completeAuthenticatorRemoval(appId)
     }
 }

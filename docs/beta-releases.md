@@ -26,7 +26,7 @@ gh workflow run release-beta.yml --ref release/cycle-4.37 -f beta-number=3
 ```
 
 The action creates an annotated tag and explicitly starts **Beta release** at
-that tag. It uses `GITHUB_TOKEN` and needs no personal access token.
+that tag.
 
 ## Release by pushing a tag
 

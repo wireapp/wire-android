@@ -268,7 +268,7 @@ class ConversationMessagesViewModelArrangement {
             AttachmentType.fromMimeTypeString(assetMimeType)
         )
         viewModel.showOnAssetDownloadedDialog(assetBundle, messageId)
-        coEvery { fileManager.saveToExternalStorage(any(), any(), any(), any(), any()) }.answers {
+        coEvery { fileManager.saveToExternalStorage(any(), any(), any(), any(), any(), any()) }.answers {
             viewModel.hideOnAssetDownloadedDialog()
         }
     }

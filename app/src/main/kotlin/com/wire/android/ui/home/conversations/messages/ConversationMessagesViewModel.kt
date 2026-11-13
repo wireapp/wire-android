@@ -402,7 +402,15 @@ class ConversationMessagesViewModel @AssistedInject constructor(
     private fun onSaveFile(assetName: String, assetDataPath: Path, assetSize: Long, messageId: String) {
         viewModelScope.launch {
             withContext(dispatchers.io()) {
-                fileManager.saveToExternalStorage(assetName, assetDataPath, assetSize) { savedFileName: String? ->
+                fileManager.saveToExternalStorage(
+                    assetName = assetName,
+                    assetDataPath = assetDataPath,
+                    assetDataSize = assetSize,
+                    onError = {
+                        onSnackbarMessage(ConversationSnackbarMessages.ErrorDownloadingAsset)
+                        hideOnAssetDownloadedDialog()
+                    }
+                ) { savedFileName: String? ->
                     updateAssetMessageDownloadStatus(AssetTransferStatus.SAVED_EXTERNALLY, conversationId, messageId)
                     onFileSavedToExternalStorage(savedFileName)
                     hideOnAssetDownloadedDialog()

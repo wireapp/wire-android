@@ -94,6 +94,20 @@ class CellFileLocalPathCache @Inject constructor() {
     internal fun clearDownloadProgress(uuid: String) =
         updateOfflineDownloadStates { it.copy(progresses = it.progresses - uuid) }
 
+    /**
+     * Turns the running download of [uuid] into a paused one, keeping how far it got: one state update, so the file
+     * never shows up as idle in between.
+     */
+    internal fun pauseDownload(uuid: String) = updateOfflineDownloadStates {
+        it.copy(
+            progresses = it.progresses - uuid,
+            paused = it.paused + (uuid to (it.progresses[uuid] ?: 0f)),
+        )
+    }
+
+    internal fun clearDownloadsPaused(uuids: Collection<String>) =
+        updateOfflineDownloadStates { it.copy(paused = it.paused - uuids.toSet()) }
+
     internal fun setDownloadsQueued(uuids: Collection<String>) =
         updateOfflineDownloadStates { it.copy(queued = it.queued + uuids) }
 
@@ -118,8 +132,10 @@ internal fun Map<String, Float?>.downloadProgressOf(uuid: String): Float? =
 /**
  * @param progresses per-uuid offline download progress, a null value while the progress isn't known yet.
  * @param queued files waiting for their turn in a bulk "make available offline" queue.
+ * @param paused files whose download the lost connection interrupted, with how far it got; they resume once back online.
  */
 internal data class OfflineDownloadStates(
     val progresses: Map<String, Float?> = emptyMap(),
     val queued: Set<String> = emptySet(),
+    val paused: Map<String, Float> = emptyMap(),
 )

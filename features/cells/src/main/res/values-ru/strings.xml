@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Wire
   ~ Copyright (C) 2025 Wire Swiss GmbH
   ~
@@ -433,5 +432,4 @@
     </plurals>
     <string name="cells_bulk_offline_confirmation_button">Скачать</string>
     <string name="cells_bulk_offline_not_enough_storage_title">Недостаточно места</string>
-    <string name="cells_bulk_action_remove_offline">Удалить оффлайн</string>
 </resources>

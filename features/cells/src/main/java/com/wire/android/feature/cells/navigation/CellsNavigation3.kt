@@ -25,6 +25,7 @@ data class CellsFilesArguments(
     val breadcrumbs: List<String> = emptyList(),
     val parentFolderUuid: String? = null,
     val isSearchByDefaultActive: Boolean = false,
+    val isOfflineOnly: Boolean = false,
 )
 
 @Serializable

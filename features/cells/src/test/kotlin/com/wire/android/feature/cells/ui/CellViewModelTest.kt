@@ -1229,6 +1229,171 @@ class CellViewModelTest {
     }
 
     @Test
+    fun `GIVEN All Files online WHEN showing offline files only THEN the saved files are listed`() = runTest {
+        // No conversation id: All Files.
+        val (_, viewModel) = Arrangement()
+            .withOfflineFiles(listOf(offlineFileInSubFolder))
+            .arrange()
+
+        viewModel.setOfflineOnly(true)
+
+        assertTrue(viewModel.isOfflineOnly.value)
+        val pagingData = viewModel.nodesFlow.first()
+        with(flowOf(pagingData).asSnapshot()) {
+            assertEquals(1, size)
+            assertTrue(first() is CellNodeUi.File)
+            assertTrue(first().isAvailableOffline)
+        }
+    }
+
+    @Test
+    fun `GIVEN the shared drive online WHEN showing offline files only THEN the folders of the saved files are listed`() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withConversationId("conversationId")
+            .withOfflineFiles(listOf(offlineFileInSubFolder))
+            .arrange()
+
+        viewModel.setOfflineOnly(true)
+
+        assertTrue(viewModel.isOfflineOnly.value)
+        val pagingData = viewModel.nodesFlow.first()
+        with(flowOf(pagingData).asSnapshot()) {
+            assertEquals(1, size)
+            assertTrue(first() is CellNodeUi.Folder)
+            assertEquals("conversationId/reports", first().remotePath)
+        }
+    }
+
+    @Test
+    fun `GIVEN a folder opened from the offline listing WHEN it is shown THEN it lists offline files only`() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withConversationId("conversationId/reports")
+            .withOfflineOnlyNavArg()
+            .arrange()
+
+        assertTrue(viewModel.isOfflineOnly.value)
+    }
+
+    @Test
+    fun `GIVEN nothing saved for offline use WHEN in All Files THEN the offline toggle is hidden`() = runTest {
+        val (_, viewModel) = Arrangement().arrange()
+        advanceUntilIdle()
+
+        assertFalse(viewModel.showOfflineOnlyToggle.value)
+    }
+
+    @Test
+    fun `GIVEN a file saved for offline use WHEN in All Files THEN the offline toggle is shown`() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withOfflineFiles(listOf(offlineFileInSubFolder))
+            .arrange()
+        advanceUntilIdle()
+
+        assertTrue(viewModel.showOfflineOnlyToggle.value)
+    }
+
+    @Test
+    fun `GIVEN only files of another conversation saved WHEN in the shared drive THEN the offline toggle is hidden`() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withConversationId("otherConversationId")
+            .withOfflineFiles(listOf(offlineFileInSubFolder))
+            .arrange()
+        advanceUntilIdle()
+
+        assertFalse(viewModel.showOfflineOnlyToggle.value)
+    }
+
+    @Test
+    fun `GIVEN the offline listing shown WHEN nothing is saved anymore THEN the offline toggle stays to go back`() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withConversationId("conversationId/reports")
+            .withOfflineOnlyNavArg()
+            .arrange()
+        advanceUntilIdle()
+
+        assertTrue(viewModel.showOfflineOnlyToggle.value)
+    }
+
+    @Test
+    fun `GIVEN a file saved for offline use WHEN the bulk selection tip is gone THEN the offline toggle tip is shown`() = runTest {
+        val (arrangement, viewModel) = Arrangement()
+            .withOfflineFiles(listOf(offlineFileInSubFolder))
+            .arrange()
+        arrangement.bulkSelectionHintDismissed.value = true
+        advanceUntilIdle()
+
+        assertTrue(viewModel.showOfflineToggleHint.value)
+    }
+
+    @Test
+    fun `GIVEN the bulk selection tip shown WHEN the offline toggle is shown THEN its tip waits`() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withOfflineFiles(listOf(offlineFileInSubFolder))
+            .arrange()
+        advanceUntilIdle()
+
+        assertTrue(viewModel.showBulkSelectionHint.value)
+        assertFalse(viewModel.showOfflineToggleHint.value)
+    }
+
+    @Test
+    fun `GIVEN nothing saved for offline use WHEN in All Files THEN the offline toggle tip is not shown`() = runTest {
+        val (arrangement, viewModel) = Arrangement().arrange()
+        arrangement.bulkSelectionHintDismissed.value = true
+        advanceUntilIdle()
+
+        assertFalse(viewModel.showOfflineToggleHint.value)
+    }
+
+    @Test
+    fun `GIVEN the offline toggle tip shown WHEN the toggle is used THEN the tip is dismissed for good`() = runTest {
+        val (arrangement, viewModel) = Arrangement()
+            .withOfflineFiles(listOf(offlineFileInSubFolder))
+            .arrange()
+        arrangement.bulkSelectionHintDismissed.value = true
+        advanceUntilIdle()
+
+        viewModel.setOfflineOnly(true)
+        advanceUntilIdle()
+
+        coVerify(exactly = 1) { arrangement.userDataStore.setOfflineToggleHintDismissed() }
+    }
+
+    @Test
+    fun `GIVEN the offline toggle tip shown WHEN dismissed THEN it is remembered`() = runTest {
+        val (arrangement, viewModel) = Arrangement()
+            .withOfflineFiles(listOf(offlineFileInSubFolder))
+            .arrange()
+
+        viewModel.onOfflineToggleHintDismissed()
+        advanceUntilIdle()
+
+        coVerify(exactly = 1) { arrangement.userDataStore.setOfflineToggleHintDismissed() }
+    }
+
+    @Test
+    fun `GIVEN the recycle bin WHEN showing offline files only THEN it is ignored`() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withConversationId("conversationId")
+            .withRecycleBin()
+            .arrange()
+
+        viewModel.setOfflineOnly(true)
+
+        assertFalse(viewModel.isOfflineOnly.value)
+    }
+
+    @Test
+    fun `GIVEN a selection in All Files WHEN switching to offline files only THEN the selection is cleared`() = runTest {
+        val (_, viewModel) = Arrangement().arrange()
+        selectNodes(viewModel, listOf(testFiles[0].toUiModel()))
+
+        viewModel.setOfflineOnly(true)
+
+        assertTrue(viewModel.selectedNodes.value.isEmpty())
+    }
+
+    @Test
     fun `GIVEN offline file saved in a subfolder WHEN browsing the conversation offline THEN the folder is listed`() = runTest {
         val (_, viewModel) = Arrangement()
             .withConversationId("conversationId")
@@ -1553,6 +1718,7 @@ class CellViewModelTest {
         private var searchNavArgs: SearchNavArgs? = null
         private var isRecycleBin: Boolean = false
         private var parentFolderUuid: String? = null
+        private var isOfflineOnly: Boolean = false
 
         @MockK
         lateinit var getCellFilesPagedUseCase: GetPaginatedFilesFlowUseCase
@@ -1640,6 +1806,7 @@ class CellViewModelTest {
 
         val uploadsFlow = MutableStateFlow<List<CellUploadItem>>(emptyList())
         val bulkSelectionHintDismissed = MutableStateFlow(false)
+        val offlineToggleHintDismissed = MutableStateFlow(false)
 
         init {
 
@@ -1658,6 +1825,7 @@ class CellViewModelTest {
                 CellNodeAvailability.Unknown(NetworkFailure.NoNetworkConnection(null))
             every { userDataStore.isViewerAccessBannerDismissed(any()) } returns flowOf(false)
             every { userDataStore.isBulkSelectionHintDismissed() } returns bulkSelectionHintDismissed
+            every { userDataStore.isOfflineToggleHintDismissed() } returns offlineToggleHintDismissed
             every { qualifiedIdMapper.fromStringToQualifiedID(any()) } returns ConversationId("conversationId", "domain")
             coEvery { uploadFilePreparer.prepare(any(), any()) } returns null
             coEvery { uploadFilePreparer.fileName(any()) } returns "file"
@@ -1758,6 +1926,10 @@ class CellViewModelTest {
             isRecycleBin = true
         }
 
+        fun withOfflineOnlyNavArg() = apply {
+            isOfflineOnly = true
+        }
+
         /** Browsing a folder inside the recycle bin, i.e. the content of a deleted folder. */
         fun withParentFolder(uuid: String) = apply {
             parentFolderUuid = uuid
@@ -1826,7 +1998,10 @@ class CellViewModelTest {
 
             return this to CellViewModel(
                 navArgs = CellFilesNavArgs(
-                    conversationId = conversationId, isRecycleBin = isRecycleBin, parentFolderUuid = parentFolderUuid
+                    conversationId = conversationId,
+                    isRecycleBin = isRecycleBin,
+                    parentFolderUuid = parentFolderUuid,
+                    isOfflineOnly = isOfflineOnly,
                 ),
                 searchNavArgs = searchNavArgs,
                 getCellFilesPaged = getCellFilesPagedUseCase,

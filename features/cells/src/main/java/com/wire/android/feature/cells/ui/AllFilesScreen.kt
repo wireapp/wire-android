@@ -20,12 +20,15 @@ package com.wire.android.feature.cells.ui
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.SizeTransform
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -43,10 +46,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.wire.android.feature.cells.R
 import com.wire.android.feature.cells.ui.common.BulkSelectionHint
+import com.wire.android.feature.cells.ui.common.OfflineAwareSortRow
 import com.wire.android.feature.cells.ui.common.OfflineBanner
 import com.wire.android.feature.cells.ui.dialog.BulkOfflineDialogs
 import com.wire.android.feature.cells.ui.search.DriveSearchScreenType
-import com.wire.android.feature.cells.ui.search.sort.SortRowWithMenu
 import com.wire.android.feature.cells.ui.search.sort.toNavArg
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.scaffold.WireScaffold
@@ -76,6 +79,9 @@ fun AllFilesScreen(
     val canMakeSelectionAvailableOffline by viewModel.canMakeSelectionAvailableOffline.collectAsState()
     val canRemoveSelectionOfflineAccess by viewModel.canRemoveSelectionOfflineAccess.collectAsState()
     val showBulkSelectionHint by viewModel.showBulkSelectionHint.collectAsState()
+    val isOfflineOnly by viewModel.isOfflineOnly.collectAsState()
+    val showOfflineOnlyToggle by viewModel.showOfflineOnlyToggle.collectAsState()
+    val showOfflineToggleHint by viewModel.showOfflineToggleHint.collectAsState()
     val bulkActions = remember(canMakeSelectionAvailableOffline, canRemoveSelectionOfflineAccess) {
         allFilesBulkActions(
             canMakeAvailableOffline = canMakeSelectionAvailableOffline,
@@ -110,7 +116,18 @@ fun AllFilesScreen(
         modifier = modifier,
         topBar = {
             Column {
-                AnimatedContent(topBarState) { state ->
+                AnimatedContent(
+                    targetState = topBarState,
+                    // The default transition, without clipping: the offline toggle pulses beyond the header's bounds.
+                    transitionSpec = {
+                        (
+                                fadeIn(animationSpec = tween(durationMillis = 220, delayMillis = 90)) togetherWith fadeOut(
+                                    animationSpec = tween(durationMillis = 90)
+                                )
+                                ).using(SizeTransform(clip = false))
+                    },
+                    label = "all_files_top_bar",
+                ) { state ->
                     when (state) {
                         AllFilesTopBarState.Browsing -> Column {
                             SearchTopBar(
@@ -128,11 +145,16 @@ fun AllFilesScreen(
                             ) {
                                 BulkSelectionHint(onDismiss = viewModel::onBulkSelectionHintDismissed)
                             }
-                            SortRowWithMenu(
+                            OfflineAwareSortRow(
                                 sortingCriteria = sortingCriteria,
                                 screenType = DriveSearchScreenType.DRIVE,
+                                isOfflineOnly = isOfflineOnly,
+                                showOfflineToggle = showOfflineOnlyToggle,
                                 onSortByClicked = { viewModel.setSortBy(it) },
                                 onOrderClicked = { viewModel.setSorting(it) },
+                                onOfflineOnlyChange = viewModel::setOfflineOnly,
+                                showOfflineToggleHint = showOfflineToggleHint,
+                                onOfflineToggleHintDismiss = viewModel::onOfflineToggleHintDismissed,
                             )
                         }
 
@@ -191,6 +213,8 @@ fun AllFilesScreen(
                 sortBy = sortingCriteria.by,
                 selectedNodeIds = selectedNodes.keys,
                 isSelectionEnabled = viewModel.isBulkSelectionEnabled.collectAsState().value,
+                isOfflineOnly = isOfflineOnly && isOnline,
+                isPullToRefreshEnabled = !isOfflineOnly,
             )
             // Drawn over the list rather than as the scaffold's bottom bar, so showing or hiding it doesn't resize the list.
             // Hidden while the selection holds nothing the offline actions apply to.

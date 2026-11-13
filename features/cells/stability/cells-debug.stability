@@ -127,7 +127,7 @@ internal fun com.wire.android.feature.cells.ui.CellListItem(cell: com.wire.andro
     - isSelected: STABLE (primitive type)
 
 @Composable
-internal fun com.wire.android.feature.cells.ui.CellScreenContent(actionsFlow: kotlinx.coroutines.flow.Flow<com.wire.android.feature.cells.ui.CellViewAction>, pagingListItems: androidx.paging.compose.LazyPagingItems<com.wire.android.feature.cells.ui.model.CellNodeUi>, sendIntent: kotlin.Function1<com.wire.android.feature.cells.ui.CellViewIntent, kotlin.Unit>, openFolder: kotlin.Function3<kotlin.String, kotlin.String, kotlin.String?, kotlin.Unit>, menuState: kotlinx.coroutines.flow.Flow<com.wire.android.feature.cells.ui.MenuOptions?>, showPublicLinkScreen: kotlin.Function1<com.wire.android.feature.cells.ui.publiclink.PublicLinkScreenData, kotlin.Unit>, showRenameScreen: kotlin.Function1<com.wire.android.feature.cells.ui.model.CellNodeUi, kotlin.Unit>, showMoveToFolderScreen: kotlin.Function3<kotlin.String, kotlin.String, kotlin.String, kotlin.Unit>, showBulkMoveToFolderScreen: kotlin.Function2<kotlin.String, kotlin.collections.List<com.wire.android.feature.cells.ui.movetofolder.NodeToMove>, kotlin.Unit>, showAddRemoveTagsScreen: kotlin.Function1<com.wire.android.feature.cells.ui.model.CellNodeUi, kotlin.Unit>, isRefreshing: androidx.compose.runtime.State<kotlin.Boolean>, onRefresh: kotlin.Function0<kotlin.Unit>, isRestoreInProgress: kotlin.Boolean, isDeleteInProgress: kotlin.Boolean, modifier: androidx.compose.ui.Modifier, showViewerOnlyIcon: kotlin.Boolean, isRecycleBin: kotlin.Boolean, isAllFiles: kotlin.Boolean, isSearchResult: kotlin.Boolean, isOffline: kotlin.Boolean, isPullToRefreshEnabled: kotlin.Boolean, lazyListState: androidx.compose.foundation.lazy.LazyListState, retryEditNodeError: kotlin.Function1<kotlin.String, kotlin.Unit>, showVersionHistoryScreen: kotlin.Function2<kotlin.String, kotlin.String, kotlin.Unit>, showImageViewer: kotlin.Function1<com.wire.android.feature.cells.ui.model.CellNodeUi.File, kotlin.Unit>, showVideoViewer: kotlin.Function1<com.wire.android.feature.cells.ui.model.CellNodeUi.File, kotlin.Unit>, showAudioPlayer: kotlin.Function1<com.wire.android.feature.cells.ui.model.CellNodeUi.File, kotlin.Unit>, showPdfViewer: kotlin.Function1<com.wire.android.feature.cells.ui.model.CellNodeUi.File, kotlin.Unit>, showUploadStatusBottomSheet: kotlin.Function0<kotlin.Unit>, fileReadyFlow: kotlinx.coroutines.flow.Flow<com.wire.android.feature.cells.ui.model.CellNodeUi.File>?, sortBy: com.wire.android.feature.cells.ui.search.sort.SortBy, selectedNodeIds: kotlin.collections.Set<kotlin.String>, isSelectionEnabled: kotlin.Boolean): kotlin.Unit
+internal fun com.wire.android.feature.cells.ui.CellScreenContent(actionsFlow: kotlinx.coroutines.flow.Flow<com.wire.android.feature.cells.ui.CellViewAction>, pagingListItems: androidx.paging.compose.LazyPagingItems<com.wire.android.feature.cells.ui.model.CellNodeUi>, sendIntent: kotlin.Function1<com.wire.android.feature.cells.ui.CellViewIntent, kotlin.Unit>, openFolder: kotlin.Function3<kotlin.String, kotlin.String, kotlin.String?, kotlin.Unit>, menuState: kotlinx.coroutines.flow.Flow<com.wire.android.feature.cells.ui.MenuOptions?>, showPublicLinkScreen: kotlin.Function1<com.wire.android.feature.cells.ui.publiclink.PublicLinkScreenData, kotlin.Unit>, showRenameScreen: kotlin.Function1<com.wire.android.feature.cells.ui.model.CellNodeUi, kotlin.Unit>, showMoveToFolderScreen: kotlin.Function3<kotlin.String, kotlin.String, kotlin.String, kotlin.Unit>, showBulkMoveToFolderScreen: kotlin.Function2<kotlin.String, kotlin.collections.List<com.wire.android.feature.cells.ui.movetofolder.NodeToMove>, kotlin.Unit>, showAddRemoveTagsScreen: kotlin.Function1<com.wire.android.feature.cells.ui.model.CellNodeUi, kotlin.Unit>, isRefreshing: androidx.compose.runtime.State<kotlin.Boolean>, onRefresh: kotlin.Function0<kotlin.Unit>, isRestoreInProgress: kotlin.Boolean, isDeleteInProgress: kotlin.Boolean, modifier: androidx.compose.ui.Modifier, showViewerOnlyIcon: kotlin.Boolean, isRecycleBin: kotlin.Boolean, isAllFiles: kotlin.Boolean, isSearchResult: kotlin.Boolean, isOffline: kotlin.Boolean, isPullToRefreshEnabled: kotlin.Boolean, lazyListState: androidx.compose.foundation.lazy.LazyListState, retryEditNodeError: kotlin.Function1<kotlin.String, kotlin.Unit>, showVersionHistoryScreen: kotlin.Function2<kotlin.String, kotlin.String, kotlin.Unit>, showImageViewer: kotlin.Function1<com.wire.android.feature.cells.ui.model.CellNodeUi.File, kotlin.Unit>, showVideoViewer: kotlin.Function1<com.wire.android.feature.cells.ui.model.CellNodeUi.File, kotlin.Unit>, showAudioPlayer: kotlin.Function1<com.wire.android.feature.cells.ui.model.CellNodeUi.File, kotlin.Unit>, showPdfViewer: kotlin.Function1<com.wire.android.feature.cells.ui.model.CellNodeUi.File, kotlin.Unit>, showUploadStatusBottomSheet: kotlin.Function0<kotlin.Unit>, fileReadyFlow: kotlinx.coroutines.flow.Flow<com.wire.android.feature.cells.ui.model.CellNodeUi.File>?, sortBy: com.wire.android.feature.cells.ui.search.sort.SortBy, selectedNodeIds: kotlin.collections.Set<kotlin.String>, isSelectionEnabled: kotlin.Boolean, isOfflineOnly: kotlin.Boolean): kotlin.Unit
   skippable: true
   restartable: true
   params:
@@ -164,6 +164,7 @@ internal fun com.wire.android.feature.cells.ui.CellScreenContent(actionsFlow: ko
     - sortBy: STABLE (class with no mutable properties)
     - selectedNodeIds: RUNTIME (requires runtime check)
     - isSelectionEnabled: STABLE (primitive type)
+    - isOfflineOnly: STABLE (primitive type)
 
 @Composable
 private fun com.wire.android.feature.cells.ui.CircularSelectionIndicator(isSelected: kotlin.Boolean, modifier: androidx.compose.ui.Modifier): kotlin.Unit
@@ -201,7 +202,7 @@ internal fun com.wire.android.feature.cells.ui.ConversationFilesRouteScreen(navi
     - viewModel: UNSTABLE (has mutable properties or unstable members)
 
 @Composable
-internal fun com.wire.android.feature.cells.ui.ConversationFilesScreenContent(animatedVisibilityScope: androidx.compose.animation.AnimatedVisibilityScope, navigation: com.wire.android.feature.cells.ui.CellsFilesNavigation, currentNodeUuid: kotlin.String?, isSearchResult: kotlin.Boolean, actions: kotlinx.coroutines.flow.Flow<com.wire.android.feature.cells.ui.CellViewAction>, pagingListItems: androidx.paging.compose.LazyPagingItems<com.wire.android.feature.cells.ui.model.CellNodeUi>, menu: kotlinx.coroutines.flow.SharedFlow<com.wire.android.feature.cells.ui.MenuOptions>, sendIntent: kotlin.Function1<com.wire.android.feature.cells.ui.CellViewIntent, kotlin.Unit>, isRefreshing: androidx.compose.runtime.State<kotlin.Boolean>, onRefresh: kotlin.Function0<kotlin.Unit>, retryEditNodeError: kotlin.Function1<kotlin.String, kotlin.Unit>, modifier: androidx.compose.ui.Modifier, isDeleteInProgress: kotlin.Boolean, screenTitle: kotlin.String?, isRecycleBin: kotlin.Boolean, isRestoreInProgress: kotlin.Boolean, isOnline: kotlin.Boolean, breadcrumbs: kotlin.Array<kotlin.String>?, fileReadyFlow: kotlinx.coroutines.flow.Flow<com.wire.android.feature.cells.ui.model.CellNodeUi.File>, sortingCriteria: com.wire.android.feature.cells.ui.search.sort.SortingCriteria, onSortByClicked: kotlin.Function1<com.wire.android.feature.cells.ui.search.sort.SortBy, kotlin.Unit>, onSortOrderClicked: kotlin.Function1<com.wire.android.feature.cells.ui.search.sort.SortingCriteria, kotlin.Unit>, showViewerAccessBanner: kotlin.Boolean, isSelfUserViewerOnly: kotlin.Boolean, driveDirectUploadEnabled: kotlin.Boolean, onViewerAccessBannerCloseClick: kotlin.Function0<kotlin.Unit>, showBulkSelectionHint: kotlin.Boolean, onBulkSelectionHintDismiss: kotlin.Function0<kotlin.Unit>, uploads: kotlin.collections.List<com.wire.kalium.cells.domain.CellUploadItem>, onCancelUpload: kotlin.Function1<kotlin.String, kotlin.Unit>, onCancelAllUploads: kotlin.Function0<kotlin.Unit>, onRetryUpload: kotlin.Function1<kotlin.String, kotlin.Unit>, onRetryAllFailedUploads: kotlin.Function0<kotlin.Unit>, onDismissUpload: kotlin.Function1<kotlin.String, kotlin.Unit>, onDismissAllUploads: kotlin.Function0<kotlin.Unit>, uploadConfirmation: com.wire.android.feature.cells.ui.UploadConfirmation?, onConfirmUpload: kotlin.Function0<kotlin.Unit>, onCancelUploadConfirmation: kotlin.Function0<kotlin.Unit>, selectedNodes: kotlin.collections.Map<kotlin.String, com.wire.android.feature.cells.ui.model.CellNodeUi>, isBulkSelectionEnabled: kotlin.Boolean, bulkDeleteDialog: com.wire.android.feature.cells.ui.dialog.BulkDeleteDialog?, bulkOfflineActionsEnabled: kotlin.Boolean, bulkOfflineDialog: com.wire.android.feature.cells.ui.dialog.BulkOfflineDialog?, canMakeSelectionAvailableOffline: kotlin.Boolean, canRemoveSelectionOfflineAccess: kotlin.Boolean, bulkRestoreEnabled: kotlin.Boolean): kotlin.Unit
+internal fun com.wire.android.feature.cells.ui.ConversationFilesScreenContent(animatedVisibilityScope: androidx.compose.animation.AnimatedVisibilityScope, navigation: com.wire.android.feature.cells.ui.CellsFilesNavigation, currentNodeUuid: kotlin.String?, isSearchResult: kotlin.Boolean, actions: kotlinx.coroutines.flow.Flow<com.wire.android.feature.cells.ui.CellViewAction>, pagingListItems: androidx.paging.compose.LazyPagingItems<com.wire.android.feature.cells.ui.model.CellNodeUi>, menu: kotlinx.coroutines.flow.SharedFlow<com.wire.android.feature.cells.ui.MenuOptions>, sendIntent: kotlin.Function1<com.wire.android.feature.cells.ui.CellViewIntent, kotlin.Unit>, isRefreshing: androidx.compose.runtime.State<kotlin.Boolean>, onRefresh: kotlin.Function0<kotlin.Unit>, retryEditNodeError: kotlin.Function1<kotlin.String, kotlin.Unit>, modifier: androidx.compose.ui.Modifier, isDeleteInProgress: kotlin.Boolean, screenTitle: kotlin.String?, isRecycleBin: kotlin.Boolean, isRestoreInProgress: kotlin.Boolean, isOnline: kotlin.Boolean, breadcrumbs: kotlin.Array<kotlin.String>?, fileReadyFlow: kotlinx.coroutines.flow.Flow<com.wire.android.feature.cells.ui.model.CellNodeUi.File>, sortingCriteria: com.wire.android.feature.cells.ui.search.sort.SortingCriteria, onSortByClicked: kotlin.Function1<com.wire.android.feature.cells.ui.search.sort.SortBy, kotlin.Unit>, onSortOrderClicked: kotlin.Function1<com.wire.android.feature.cells.ui.search.sort.SortingCriteria, kotlin.Unit>, showViewerAccessBanner: kotlin.Boolean, isSelfUserViewerOnly: kotlin.Boolean, driveDirectUploadEnabled: kotlin.Boolean, onViewerAccessBannerCloseClick: kotlin.Function0<kotlin.Unit>, showBulkSelectionHint: kotlin.Boolean, onBulkSelectionHintDismiss: kotlin.Function0<kotlin.Unit>, uploads: kotlin.collections.List<com.wire.kalium.cells.domain.CellUploadItem>, onCancelUpload: kotlin.Function1<kotlin.String, kotlin.Unit>, onCancelAllUploads: kotlin.Function0<kotlin.Unit>, onRetryUpload: kotlin.Function1<kotlin.String, kotlin.Unit>, onRetryAllFailedUploads: kotlin.Function0<kotlin.Unit>, onDismissUpload: kotlin.Function1<kotlin.String, kotlin.Unit>, onDismissAllUploads: kotlin.Function0<kotlin.Unit>, uploadConfirmation: com.wire.android.feature.cells.ui.UploadConfirmation?, onConfirmUpload: kotlin.Function0<kotlin.Unit>, onCancelUploadConfirmation: kotlin.Function0<kotlin.Unit>, selectedNodes: kotlin.collections.Map<kotlin.String, com.wire.android.feature.cells.ui.model.CellNodeUi>, isBulkSelectionEnabled: kotlin.Boolean, bulkDeleteDialog: com.wire.android.feature.cells.ui.dialog.BulkDeleteDialog?, bulkOfflineActionsEnabled: kotlin.Boolean, bulkOfflineDialog: com.wire.android.feature.cells.ui.dialog.BulkOfflineDialog?, canMakeSelectionAvailableOffline: kotlin.Boolean, canRemoveSelectionOfflineAccess: kotlin.Boolean, isOfflineOnly: kotlin.Boolean, showOfflineOnlyToggle: kotlin.Boolean, onOfflineOnlyChange: kotlin.Function1<kotlin.Boolean, kotlin.Unit>, showOfflineToggleHint: kotlin.Boolean, onOfflineToggleHintDismiss: kotlin.Function0<kotlin.Unit>, bulkRestoreEnabled: kotlin.Boolean): kotlin.Unit
   skippable: true
   restartable: true
   params:
@@ -250,6 +251,11 @@ internal fun com.wire.android.feature.cells.ui.ConversationFilesScreenContent(an
     - bulkOfflineDialog: UNKNOWN (interface or non-final class; concrete implementation unknown)
     - canMakeSelectionAvailableOffline: STABLE (primitive type)
     - canRemoveSelectionOfflineAccess: STABLE (primitive type)
+    - isOfflineOnly: STABLE (primitive type)
+    - showOfflineOnlyToggle: STABLE (primitive type)
+    - onOfflineOnlyChange: STABLE (function type)
+    - showOfflineToggleHint: STABLE (primitive type)
+    - onOfflineToggleHintDismiss: STABLE (function type)
     - bulkRestoreEnabled: STABLE (primitive type)
 
 @Composable
@@ -260,7 +266,7 @@ internal fun com.wire.android.feature.cells.ui.DownloadingIconPreview(progress: 
     - progress: STABLE (class with no mutable properties)
 
 @Composable
-private fun com.wire.android.feature.cells.ui.EmptyScreen(modifier: androidx.compose.ui.Modifier, isSearchResult: kotlin.Boolean, isAllFiles: kotlin.Boolean, isRecycleBin: kotlin.Boolean): kotlin.Unit
+private fun com.wire.android.feature.cells.ui.EmptyScreen(modifier: androidx.compose.ui.Modifier, isSearchResult: kotlin.Boolean, isAllFiles: kotlin.Boolean, isRecycleBin: kotlin.Boolean, isOfflineOnly: kotlin.Boolean): kotlin.Unit
   skippable: true
   restartable: true
   params:
@@ -268,6 +274,7 @@ private fun com.wire.android.feature.cells.ui.EmptyScreen(modifier: androidx.com
     - isSearchResult: STABLE (primitive type)
     - isAllFiles: STABLE (primitive type)
     - isRecycleBin: STABLE (primitive type)
+    - isOfflineOnly: STABLE (primitive type)
 
 @Composable
 private fun com.wire.android.feature.cells.ui.ErrorFooter(onRetry: kotlin.Function0<kotlin.Unit>): kotlin.Unit
@@ -403,10 +410,26 @@ public fun com.wire.android.feature.cells.ui.common.LoadingScreen(modifier: andr
     - modifier: STABLE (marked @Stable or @Immutable)
 
 @Composable
-private fun com.wire.android.feature.cells.ui.common.NewFeatureBadge(): kotlin.Unit
+internal fun com.wire.android.feature.cells.ui.common.NewFeatureBadge(): kotlin.Unit
   skippable: true
   restartable: true
   params:
+
+@Composable
+internal fun com.wire.android.feature.cells.ui.common.OfflineAwareSortRow(sortingCriteria: com.wire.android.feature.cells.ui.search.sort.SortingCriteria, screenType: com.wire.android.feature.cells.ui.search.DriveSearchScreenType, isOfflineOnly: kotlin.Boolean, showOfflineToggle: kotlin.Boolean, onSortByClicked: kotlin.Function1<com.wire.android.feature.cells.ui.search.sort.SortBy, kotlin.Unit>, onOrderClicked: kotlin.Function1<com.wire.android.feature.cells.ui.search.sort.SortingCriteria, kotlin.Unit>, onOfflineOnlyChange: kotlin.Function1<kotlin.Boolean, kotlin.Unit>, modifier: androidx.compose.ui.Modifier, showOfflineToggleHint: kotlin.Boolean, onOfflineToggleHintDismiss: kotlin.Function0<kotlin.Unit>): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - sortingCriteria: UNKNOWN (interface or non-final class; concrete implementation unknown)
+    - screenType: STABLE (class with no mutable properties)
+    - isOfflineOnly: STABLE (primitive type)
+    - showOfflineToggle: STABLE (primitive type)
+    - onSortByClicked: STABLE (function type)
+    - onOrderClicked: STABLE (function type)
+    - onOfflineOnlyChange: STABLE (function type)
+    - modifier: STABLE (marked @Stable or @Immutable)
+    - showOfflineToggleHint: STABLE (primitive type)
+    - onOfflineToggleHintDismiss: STABLE (function type)
 
 @Composable
 internal fun com.wire.android.feature.cells.ui.common.OfflineBanner(modifier: androidx.compose.ui.Modifier): kotlin.Unit
@@ -414,6 +437,32 @@ internal fun com.wire.android.feature.cells.ui.common.OfflineBanner(modifier: an
   restartable: true
   params:
     - modifier: STABLE (marked @Stable or @Immutable)
+
+@Composable
+private fun com.wire.android.feature.cells.ui.common.OfflineToggleHintBox(showHint: kotlin.Boolean, onHintDismiss: kotlin.Function0<kotlin.Unit>, modifier: androidx.compose.ui.Modifier, content: @[Composable] androidx.compose.runtime.internal.ComposableFunction0<kotlin.Unit>): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - showHint: STABLE (primitive type)
+    - onHintDismiss: STABLE (function type)
+    - modifier: STABLE (marked @Stable or @Immutable)
+    - content: STABLE (composable function type)
+
+@Composable
+private fun com.wire.android.feature.cells.ui.common.OfflineToggleHintContent(onDismiss: kotlin.Function0<kotlin.Unit>): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - onDismiss: STABLE (function type)
+
+@Composable
+private fun com.wire.android.feature.cells.ui.common.PulsingHalo(isPulsing: kotlin.Boolean, modifier: androidx.compose.ui.Modifier, content: @[Composable] androidx.compose.runtime.internal.ComposableFunction0<kotlin.Unit>): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - isPulsing: STABLE (primitive type)
+    - modifier: STABLE (marked @Stable or @Immutable)
+    - content: STABLE (composable function type)
 
 @Composable
 private fun com.wire.android.feature.cells.ui.common.RecycleBinItem(color: androidx.compose.ui.graphics.Color?, onBreadcrumbsFolderClick: kotlin.Function0<kotlin.Unit>): kotlin.Unit
@@ -439,7 +488,7 @@ internal fun com.wire.android.feature.cells.ui.common.WireCellErrorDialog(title:
     - onResult: STABLE (function type)
 
 @Composable
-private fun com.wire.android.feature.cells.ui.common.rememberAnimationsEnabled(): kotlin.Boolean
+internal fun com.wire.android.feature.cells.ui.common.rememberAnimationsEnabled(): kotlin.Boolean
   skippable: false
   restartable: false
   params:

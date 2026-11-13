@@ -520,6 +520,12 @@ public fun com.wire.android.ui.common.animation.ShakeAnimation(modifier: android
     - animateContent: STABLE (composable function type)
 
 @Composable
+public fun com.wire.android.ui.common.animation.rememberAnimationsEnabled(): kotlin.Boolean
+  skippable: false
+  restartable: false
+  params:
+
+@Composable
 private fun com.wire.android.ui.common.avatar.AvailableDot(modifier: androidx.compose.ui.Modifier, size: androidx.compose.ui.unit.Dp, borderWidth: androidx.compose.ui.unit.Dp, borderColor: androidx.compose.ui.graphics.Color): kotlin.Unit
   skippable: true
   restartable: true

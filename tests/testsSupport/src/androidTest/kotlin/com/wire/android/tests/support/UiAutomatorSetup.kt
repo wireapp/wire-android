@@ -35,6 +35,8 @@ import org.hamcrest.MatcherAssert.assertThat
 import uiautomatorutils.PermissionUtils.grantRuntimePermsForApp
 import uiautomatorutils.PermissionUtils.grantStoragePermissionsIfSupported
 import uiautomatorutils.UiWaitUtils
+import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
 
 const val TIMEOUT_IN_MILLISECONDS = 20_000L
 
@@ -146,7 +148,7 @@ object UiAutomatorSetup {
 
         val device = getDevice()
         device.executeShellCommand("pm uninstall $packageName")
-        val output = device.executeShellCommand("pm install -r -g $oldApkPath").trim()
+        val output = installWireApk(oldApkPath, packageName, "-r -g").trim()
         check(output.contains("Success")) { "Failed to install old Wire APK '$oldApkPath': $output" }
     }
 
@@ -157,7 +159,7 @@ object UiAutomatorSetup {
         reportUpgradeLog("Installed Wire before upgrade: $versionBeforeUpgrade")
         reportUpgradeLog("Upgrading Wire using APK: $apkPath")
 
-        val output = device.executeShellCommand("pm install -r -d -g $apkPath").trim()
+        val output = installWireApk(apkPath, appPackage, "-r -d -g").trim()
         val versionAfterUpgrade = getInstalledWireVersion()
         reportUpgradeLog("Installed Wire after upgrade: $versionAfterUpgrade")
         if (versionAfterUpgrade.versionCode <= versionBeforeUpgrade.versionCode) {
@@ -170,6 +172,52 @@ object UiAutomatorSetup {
 
         startApp()
         waitAppStart(device)
+    }
+
+    // MIUI may request USB approval during both old-APK setup and the in-test upgrade.
+    // Track its install session so failures cancel only this installation, before another test starts.
+    private fun installWireApk(apkPath: String, packageName: String, options: String): String {
+        val device = getDevice()
+        if (!Build.MANUFACTURER.equals("Xiaomi", ignoreCase = true)) {
+            return device.executeShellCommand("pm install $options $apkPath")
+        }
+        val label = when (packageName) {
+            APP_ALPHA -> "Wire Alpha"
+            APP_BETA -> "Wire Beta"
+            APP_PROD -> "Wire"
+            else -> packageName
+        }
+        val created = device.executeShellCommand("pm install-create $options")
+        val sessionId = Regex("Success: created install session \\[(\\d+)]").find(created)?.groupValues?.get(1)
+            ?: error("Could not create the Wire install session: $created")
+        val executor = Executors.newSingleThreadExecutor()
+        var installed = false
+        try {
+            val written = device.executeShellCommand("pm install-write $sessionId base.apk $apkPath")
+            check(written.contains("Success")) { "Could not write Wire APK '$apkPath': $written" }
+            // Keep this UIAutomator session available to approve MIUI while commit waits.
+            val installation = executor.submit<String> { device.executeShellCommand("pm install-commit $sessionId") }
+            UiWaitUtils.retryUntilTimeout(UiWaitUtils.LONG_TIMEOUT) {
+                if (installation.isDone) {
+                    true
+                } else if (device.hasObject(By.text("Install via USB")) && device.hasObject(By.text(label))) {
+                    val install = device.findObject(By.text("Install").enabled(true))
+                    install?.click()
+                    install != null
+                } else {
+                    false
+                }
+            }
+            val result = installation.get(UiWaitUtils.VERY_LONG_TIMEOUT.inWholeMilliseconds, TimeUnit.MILLISECONDS)
+            installed = result.trim() == "Success"
+            return result
+        } finally {
+            try {
+                if (!installed) device.executeShellCommand("pm install-abandon $sessionId")
+            } finally {
+                executor.shutdownNow()
+            }
+        }
     }
 
     private fun reportUpgradeLog(message: String) {

@@ -17,6 +17,7 @@
  */
 package com.wire.android.tests.core.pages
 
+import android.os.Build
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
 import org.junit.Assert.assertEquals
@@ -91,14 +92,25 @@ data class ChromePage(private val device: UiDevice) {
         val chromeAddressBar = UiSelectorParams(resourceId = "com.android.chrome:id/url_bar")
         val justOnce = UiSelectorParams(text = "Just once")
         val chromeScreens = listOf(chromeAddressBar, noThanksLocator)
-        val chrome = UiWaitUtils.waitAnyVisible(
-            selectors = chromeScreens + listOf(
-                UiSelectorParams(text = "Chrome"),
-                UiSelectorParams(text = "Open with Chrome"),
-                justOnce
-            ),
+        val chromeChoices = chromeScreens + listOf(
+            UiSelectorParams(text = "Chrome"),
+            UiSelectorParams(text = "Open with Chrome"),
+            justOnce
+        )
+        val choices = if (Build.MANUFACTURER.equals("Xiaomi", ignoreCase = true)) {
+            chromeChoices + UiSelectorParams(text = "More")
+        } else {
+            chromeChoices
+        }
+        var chrome = UiWaitUtils.waitAnyVisible(
+            selectors = choices,
             timeout = UiWaitUtils.VERY_LONG_TIMEOUT
         ) ?: throw AssertionError("Chrome is not open or shown in the Open with dialog")
+        // MIUI initially hides Chrome behind More in its Open with dialog.
+        if (chrome.text == "More") {
+            chrome.click()
+            chrome = UiWaitUtils.waitElement(UiSelectorParams(text = "Chrome"), timeout = UiWaitUtils.STABLE_TIMEOUT)
+        }
         if (device.currentPackageName == "com.android.chrome") return this
         if (chrome.text == "Just once") {
             chrome.click()

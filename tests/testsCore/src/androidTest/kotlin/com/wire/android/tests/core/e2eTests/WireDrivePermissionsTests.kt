@@ -949,7 +949,7 @@ class WireDrivePermissionsTests : BaseUiTest() {
         step("Then Guest sees the Viewer access banner and the HTML file") {
             pages.wireDrivePage.apply {
                 assertViewerAccessBannerVisible("Viewer access: you can’t upload or edit files.")
-                assertFileVisibleOnce(sharedHtml)
+                assertFileVisibleOnce(sharedHtml, timeout = UiWaitUtils.MEDIUM_TIMEOUT)
             }
         }
 
@@ -987,7 +987,7 @@ class WireDrivePermissionsTests : BaseUiTest() {
         step("Then Member1 sees Shared Drive's New button, no Viewer access banner and the same HTML file") {
             pages.wireDrivePage.apply {
                 assertSharedDriveVisibleWithoutViewerBanner()
-                assertFileVisibleOnce(sharedHtml)
+                assertFileVisibleOnce(sharedHtml, timeout = UiWaitUtils.MEDIUM_TIMEOUT)
             }
         }
 

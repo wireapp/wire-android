@@ -42,7 +42,6 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertTrue
-import org.junit.Assume.assumeFalse
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -1189,25 +1188,12 @@ class WireDriveDownloadsAndOfflineTests : BaseUiTest() {
         }
     }
 
-    /**
-     * Skipped on the Xiaomi test phone (f212e5d2) running MIUI 13 on Android 11.
-     * MIUI's share sheet launches PDF Test Receiver under Android's system identity,
-     * so Android rejects the temporary read permission for Wire's PDF.
-     * The receiver opens, but cannot read the file to verify its contents.
-     */
     @Suppress("LongMethod")
     @TestCaseId("TC-12254")
     @Category("regression", "RC", "wireDrive", "wireDriveDownloadsAndOffline")
     @Test
     fun givenMemberDownloadedPdfFromConversation_whenSharingItFromSharedDrive_thenReceivingAppReadsOriginalFilenameAndContent() {
-        step("Given the device is eligible for the Shared Drive PDF sharing test") {
-            assumeFalse(
-                "Skipped on Xiaomi f212e5d2 because MIUI's share sheet fails to grant read access to the PDF.",
-                device.executeShellCommand("getprop ro.boot.serialno").trim() == "f212e5d2"
-            )
-        }
-
-        step("And TeamOwner creates team ShareDownloadedPdf") {
+        step("Given TeamOwner creates team ShareDownloadedPdf") {
             backendSetupHelper.createTeamOwnerByAlias(
                 "user1Name",
                 "ShareDownloadedPdf",
@@ -1934,25 +1920,12 @@ class WireDriveDownloadsAndOfflineTests : BaseUiTest() {
         }
     }
 
-    /**
-     * Skipped on the Xiaomi test phone (f212e5d2) running MIUI 13 on Android 11.
-     * MIUI's Open with dialog launches Chrome under Android's system identity,
-     * so Android rejects the temporary read permission for Wire's TXT attachment.
-     * Wire stays on screen and reports that Chrome cannot access the requested resource.
-     */
     @Suppress("LongMethod")
     @TestCaseId("TC-12262")
     @Category("regression", "RC", "wireDrive", "wireDriveDownloadsAndOffline")
     @Test
     fun givenConversationContainsNamedVideoAudioAndTextFiles_whenMemberOpensEachAndReturns_thenFilenamesAndFileTypesRemainCorrect() {
-        step("Given the device is eligible for the TXT attachment test in Chrome") {
-            assumeFalse(
-                "Skipped on Xiaomi f212e5d2 because MIUI's Open with dialog fails to grant Chrome read access to the TXT file.",
-                device.executeShellCommand("getprop ro.boot.serialno").trim() == "f212e5d2"
-            )
-        }
-
-        step("And TeamOwner creates team FileTypePreviews") {
+        step("Given TeamOwner creates team FileTypePreviews") {
             backendSetupHelper.createTeamOwnerByAlias(
                 "user1Name",
                 "FileTypePreviews",
@@ -2084,7 +2057,7 @@ class WireDriveDownloadsAndOfflineTests : BaseUiTest() {
         step("When Member1 opens Shared Drive through FileTypePreviews Conversation details and opens the TXT file's three-dot menu") {
             pages.conversationViewPage.clickOnGroupConversationDetails("FileTypePreviews")
             pages.groupConversationDetailsPage.tapSharedDriveButton()
-            pages.wireDrivePage.assertFileVisibleOnce(textFile, timeout = UiWaitUtils.SHORT_TIMEOUT)
+            pages.wireDrivePage.assertFileVisibleOnce(textFile, timeout = UiWaitUtils.LONG_TIMEOUT)
             pages.wireDrivePage.tapFileMenu(textFile)
         }
         step("Then the TXT file's actions bottom sheet shows the correct filename") {

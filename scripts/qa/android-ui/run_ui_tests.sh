@@ -252,7 +252,8 @@ install_app_before_attempt_if_needed() {
     adb -s "${serial}" uninstall "${APP_ID}" >/dev/null 2>&1 || true
     if [[ "${apk_path}" == /data/local/tmp/* ]]; then
       local output
-      output="$(adb -s "${serial}" shell pm install -r -g "${apk_path}" 2>&1 | tr -d '\r' || true)"
+      output="$(python3 scripts/qa/android-ui/install_apk_xiaomi.py "${serial}" "${APP_ID}" \
+        shell pm install -r -g "${apk_path}" 2>&1 | tr -d '\r' || true)"
       if [[ "${output}" != *"Success"* ]]; then
         echo "ERROR: Failed to install app APK on ${serial} from ${apk_path}. Output: ${output:-<empty>}"
         exit 1
@@ -262,7 +263,7 @@ install_app_before_attempt_if_needed() {
         echo "ERROR: APP_APK_BEFORE_ATTEMPT does not exist or is empty: ${apk_path}"
         exit 1
       fi
-      adb -s "${serial}" install -r "${apk_path}" >/dev/null
+      python3 scripts/qa/android-ui/install_apk_xiaomi.py "${serial}" "${APP_ID}" install -r "${apk_path}" >/dev/null
     fi
   done
 }
@@ -464,7 +465,7 @@ run_attempt_on_devices() {
 
       local adb_cmd="adb -s ${serial}"
       ${adb_cmd} wait-for-device
-      ${adb_cmd} install -r -t "${TEST_APK_PATH}" >/dev/null
+      python3 scripts/qa/android-ui/install_apk_xiaomi.py "${serial}" "${TEST_APP_ID}" install -r -t "${TEST_APK_PATH}" >/dev/null
 
       local pkgs
       pkgs="$(${adb_cmd} shell pm list packages 2>/dev/null | tr -d '\r' || true)"

@@ -20,6 +20,7 @@ package com.wire.android.tests.core.pages
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.Rect
+import android.os.Build
 import android.view.KeyEvent
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.By
@@ -737,8 +738,13 @@ data class ConversationViewPage(private val device: UiDevice) {
             }
         }
         Assert.assertTrue("Play is not visible on the video message '$fileName'", ready)
-        val video = device.findObject(By.clickable(true).hasDescendant(By.text(fileName)))
-            ?: throw AssertionError("Video message '$fileName' is not clickable")
+        // MIUI's filename/header increases the card bounds; tap the preview centre where Play is drawn.
+        val video = if (Build.MANUFACTURER.equals("Xiaomi", ignoreCase = true)) {
+            UiWaitUtils.waitElement(fileWithName(fileName)).parent.children.last()
+        } else {
+            device.findObject(By.clickable(true).hasDescendant(By.text(fileName)))
+                ?: throw AssertionError("Video message '$fileName' is not clickable")
+        }
         video.click()
         return this
     }

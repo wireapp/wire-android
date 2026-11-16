@@ -32,10 +32,13 @@ import uiautomatorutils.UiWaitUtils
 data class PdfShareReceiverPage(private val device: UiDevice) {
     fun selectFromShareSheet() {
         // Sharing can load the PDF before Android displays its share targets.
-        UiWaitUtils.waitElement(
-            UiSelectorParams(resourceId = "android:id/chooser_header"),
+        UiWaitUtils.waitAnyVisible(
+            selectors = listOf(
+                UiSelectorParams(resourceId = "android:id/chooser_header"),
+                UiSelectorParams(resourceId = "miui:id/alertTitle", text = "Share")
+            ),
             timeout = UiWaitUtils.LONG_TIMEOUT
-        )
+        ) ?: throw AssertionError("Android's PDF share sheet is not visible")
         val receiver = By.text("PDF Test Receiver")
         val visible = UiWaitUtils.retryUntilTimeout(UiWaitUtils.SHORT_TIMEOUT) {
             if (!device.hasObject(receiver)) {
@@ -45,7 +48,13 @@ data class PdfShareReceiverPage(private val device: UiDevice) {
                     val more = samsungApps.findObject(By.text("More"))
                     if (more != null) more.click() else samsungApps.scroll(Direction.RIGHT, 1f)
                 } else {
-                    device.findObject(By.scrollable(true))?.scroll(Direction.DOWN, 1f)
+                    val miuiApps = device.findObject(By.res("android.miui:id/screen_view"))
+                    if (miuiApps != null) {
+                        // MIUI puts additional share targets on the next horizontal page.
+                        miuiApps.swipe(Direction.LEFT, 1f)
+                    } else {
+                        device.findObject(By.scrollable(true))?.scroll(Direction.DOWN, 1f)
+                    }
                 }
             }
             device.hasObject(receiver)

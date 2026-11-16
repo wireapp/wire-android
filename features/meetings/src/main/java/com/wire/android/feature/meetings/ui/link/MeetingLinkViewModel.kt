@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.feature.meetings.ui.options
+package com.wire.android.feature.meetings.ui.link
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -23,46 +23,50 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.di.metro.WireAssistedViewModelBinding
+import com.wire.android.feature.meetings.model.MeetingLink
+import com.wire.android.di.CurrentAccount
+import com.wire.kalium.logic.data.id.MeetingId
+import com.wire.kalium.logic.data.user.UserId
 import com.wire.android.feature.meetings.ui.MeetingsManualViewModelFactoryGroup
-import com.wire.kalium.logic.data.meeting.MeetingOccurrence
-import com.wire.kalium.logic.feature.meeting.ObserveMeetingOccurrenceUseCase
+import com.wire.kalium.logic.feature.meeting.ObserveMeetingUseCase
 import dev.zacsweers.metro.Assisted
 import dev.zacsweers.metro.AssistedFactory
 import dev.zacsweers.metro.AssistedInject
 import kotlinx.coroutines.launch
 
-interface ShareMeetingWithGuestsViewModel {
-    val state: ShareMeetingWithGuestsState
+interface MeetingLinkViewModel {
+    val state: MeetingLinkState
 }
 
 @WireAssistedViewModelBinding(MeetingsManualViewModelFactoryGroup::class)
-class ShareMeetingWithGuestsViewModelImpl @AssistedInject constructor(
-    @Assisted occurrenceId: String,
-    observeMeetingOccurrence: ObserveMeetingOccurrenceUseCase,
-) : ViewModel(), ShareMeetingWithGuestsViewModel {
+class MeetingLinkViewModelImpl @AssistedInject constructor(
+    @Assisted meetingId: MeetingId,
+    observeMeeting: ObserveMeetingUseCase,
+    @CurrentAccount selfUserId: UserId,
+) : ViewModel(), MeetingLinkViewModel {
     @AssistedFactory
     interface Factory {
-        fun create(occurrenceId: String): ShareMeetingWithGuestsViewModelImpl
+        fun create(meetingId: MeetingId): MeetingLinkViewModelImpl
     }
 
-    override var state: ShareMeetingWithGuestsState by mutableStateOf(ShareMeetingWithGuestsState.Loading)
+    override var state: MeetingLinkState by mutableStateOf(MeetingLinkState.Loading)
         private set
 
     init {
         viewModelScope.launch {
-            observeMeetingOccurrence.invoke(occurrenceId).collect { occurrence ->
-                state = if (occurrence == null || occurrence.selfRole != MeetingOccurrence.SelfRole.Creator) {
-                    ShareMeetingWithGuestsState.NotAvailable
+            observeMeeting(meetingId).collect { meeting ->
+                state = if (meeting == null || meeting.creatorId != selfUserId) {
+                    MeetingLinkState.NotAvailable
                 } else {
-                    ShareMeetingWithGuestsState.Ready(occurrence.meeting.link, occurrence.meeting.hasPassword)
+                    MeetingLinkState.Ready(MeetingLink(meeting.link, meeting.hasPassword))
                 }
             }
         }
     }
 }
 
-sealed interface ShareMeetingWithGuestsState {
-    data object Loading : ShareMeetingWithGuestsState
-    data object NotAvailable : ShareMeetingWithGuestsState
-    data class Ready(val link: String?, val hasPassword: Boolean) : ShareMeetingWithGuestsState
+sealed interface MeetingLinkState {
+    data object Loading : MeetingLinkState
+    data object NotAvailable : MeetingLinkState
+    data class Ready(val meetingLink: MeetingLink) : MeetingLinkState
 }

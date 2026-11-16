@@ -11,13 +11,16 @@ package com.wire.android.ui.calling
 
 import android.app.Application
 import android.content.Intent
+import androidx.test.core.app.ApplicationProvider
+import com.wire.android.ui.calling.ongoing.getOngoingCallIntent
+import com.wire.kalium.logic.data.id.MeetingId
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.robolectric.annotation.Config
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
 @Config(application = Application::class)
@@ -62,6 +65,34 @@ class CallActivityRoutingTest {
 
         requireNotNull(request)
         assertEquals(CallActivityScreen.Ongoing, request.screen)
+        assertNull(request.createdMeetingId)
+    }
+
+    @Test
+    fun givenMeetingInvitation_whenMovingFromOutgoingToOngoing_thenCreatedMeetingIdIsPreserved() {
+        val context = ApplicationProvider.getApplicationContext<Application>()
+        val invitation = MeetingId("created-meeting", "wire.test")
+        val outgoing = requireNotNull(
+            getOutgoingCallIntent(context, CONVERSATION_ID, USER_ID, invitation)
+                .toCallActivityRequest(CallActivityDestination.STARTING, mapper)
+        )
+        val ongoing = requireNotNull(
+            getOngoingCallIntent(
+                context,
+                outgoing.conversationId.toString(),
+                outgoing.userId.toString(),
+                createdMeetingId = outgoing.createdMeetingId,
+            ).toCallActivityRequest(CallActivityDestination.ONGOING, mapper)
+        )
+
+        assertEquals(invitation, outgoing.createdMeetingId)
+        assertEquals(invitation, ongoing.createdMeetingId)
+    }
+
+    @Test
+    fun givenBlankCreatedMeetingId_whenParsed_thenRequestIsRejected() {
+        val intent = baseIntent().putExtra(CallActivity.EXTRA_CREATED_MEETING_ID, " ")
+        assertNull(intent.toCallActivityRequest(CallActivityDestination.ONGOING, mapper))
     }
 
     private fun baseIntent() = Intent()

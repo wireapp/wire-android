@@ -55,7 +55,7 @@ class SelfDeletingMessagesTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4517", "TC-4523")
+    @TestCaseId("TC-12599", "TC-12605")
     @Category("regression", "RC", "selfDeletingMessages", "fdroid")
     @Test
     fun givenGroupConversation_whenISendTenSecondSelfDeletingMessage_thenMessageExpires() {
@@ -197,7 +197,7 @@ class SelfDeletingMessagesTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4524")
+    @TestCaseId("TC-12606")
     @Category("regression", "selfDeletingMessages")
     @Test
     fun givenGroupConversation_whenISendOneMinuteSelfDeletingMessage_thenMessageExpires() {
@@ -325,7 +325,7 @@ class SelfDeletingMessagesTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4518")
+    @TestCaseId("TC-12600")
     @Category("regression", "RC", "selfDeletingMessages")
     @Test
     fun givenGroupConversation_whenIReceiveSelfDeletingMessage_thenMessageExpires() {
@@ -430,7 +430,7 @@ class SelfDeletingMessagesTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4519")
+    @TestCaseId("TC-12601")
     @Category("regression", "RC", "selfDeletingMessages")
     @Test
     fun givenOneOnOneConversation_whenISendTenSecondSelfDeletingMessage_thenMessageExpires() {
@@ -558,7 +558,7 @@ class SelfDeletingMessagesTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4520")
+    @TestCaseId("TC-12602")
     @Category("regression", "RC", "selfDeletingMessages")
     @Test
     fun givenOneOnOneConversation_whenIReceiveSelfDeletingMessage_thenMessageExpires() {
@@ -660,7 +660,7 @@ class SelfDeletingMessagesTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4525")
+    @TestCaseId("TC-12607")
     @Category("regression", "RC", "selfDeletingMessages", "fileSharing")
     @Test
     fun givenGroupConversation_whenISendTenSecondSelfDeletingImage_thenImageExpires() {
@@ -794,7 +794,7 @@ class SelfDeletingMessagesTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4527")
+    @TestCaseId("TC-12609")
     @Category("regression", "RC", "selfDeletingMessages", "fileSharing")
     @Test
     fun givenGroupConversation_whenISendTenSecondSelfDeletingFile_thenFileExpires() {
@@ -915,7 +915,7 @@ class SelfDeletingMessagesTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4526", "TC-4522")
+    @TestCaseId("TC-12608", "TC-12604")
     @Category("regression", "RC", "selfDeletingMessages", "fileSharing")
     @Test
     fun givenGroupConversation_whenIReceiveTenSecondSelfDeletingImage_thenImageExpires() {
@@ -1017,7 +1017,7 @@ class SelfDeletingMessagesTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4531")
+    @TestCaseId("TC-12613")
     @Category("regression", "selfDeletingMessages", "fileSharing", "WPB-439")
     @Test
     fun givenSelfDeletingImage_whenIOpenItsContextMenu_thenOnlyAllowedOptionsAreDisplayed() {
@@ -1180,7 +1180,7 @@ class SelfDeletingMessagesTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4529", "TC-4521")
+    @TestCaseId("TC-12611", "TC-12603")
     @Category("regression", "RC", "selfDeletingMessages")
     @Test
     fun givenGroupConversation_whenISetSelfDeletingTimer_thenExchangedMessagesExpire() {
@@ -1302,7 +1302,7 @@ class SelfDeletingMessagesTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4530", "TC-4528")
+    @TestCaseId("TC-12612", "TC-12610")
     @Category("regression", "RC", "selfDeletingMessages", "WPB-286", "WPB-10854")
     @Test
     fun givenGroupConversation_whenISetSelfDeletingTimer_thenSystemMessagesAreDisplayedOnce() {
@@ -1454,7 +1454,7 @@ class SelfDeletingMessagesTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4532")
+    @TestCaseId("TC-12614")
     @Category("regression", "RC", "selfDeletingMessages")
     @Test
     fun givenEnforcedSelfDeletingTimer_whenITryToChangeIt_thenTimerOptionsAreNotDisplayed() {

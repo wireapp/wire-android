@@ -27,15 +27,22 @@ import androidx.paging.filter
 import androidx.paging.map
 import com.wire.android.datastore.UserDataStore
 import com.wire.android.feature.cells.domain.model.AttachmentFileType
+import com.wire.android.feature.cells.ui.dialog.BulkDeleteDialog
+import com.wire.android.feature.cells.ui.dialog.BulkOfflineDialog
+import com.wire.android.feature.cells.ui.dialog.BulkRestoreDialog
+import com.wire.android.feature.cells.ui.dialog.EmptyRecycleBinDialog
 import com.wire.android.feature.cells.ui.edit.OnlineEditor
 import com.wire.android.feature.cells.ui.model.CellNodeUi
 import com.wire.android.feature.cells.ui.model.NodeBottomSheetAction
 import com.wire.android.feature.cells.ui.model.NodeMenuItem
 import com.wire.android.feature.cells.ui.model.OpenLoadState
 import com.wire.android.feature.cells.ui.model.canOpenWithUrl
+import com.wire.android.feature.cells.ui.model.isOfflineDownloadPending
 import com.wire.android.feature.cells.ui.model.localFileAvailable
 import com.wire.android.feature.cells.ui.model.pdfRenditionUrl
 import com.wire.android.feature.cells.ui.model.toUiModel
+import com.wire.android.feature.cells.ui.offline.OfflineDownloadEvent
+import com.wire.android.feature.cells.ui.offline.SessionOfflineDownloads
 import com.wire.android.feature.cells.ui.search.DriveSearchScreenType
 import com.wire.android.feature.cells.ui.search.SearchNavArgs
 import com.wire.android.feature.cells.ui.search.defaultCriteriaFor
@@ -51,7 +58,12 @@ import com.wire.kalium.cells.data.SortingSpec
 import com.wire.kalium.cells.domain.CellUploadCoordinator
 import com.wire.kalium.cells.domain.CellUploadState
 import com.wire.kalium.cells.domain.model.Node
+import com.wire.kalium.cells.domain.model.NodeToDelete
+import com.wire.kalium.cells.domain.usecase.CellNodeAvailability
+import com.wire.kalium.cells.domain.usecase.CheckCellNodeAvailabilityUseCase
 import com.wire.kalium.cells.domain.usecase.DeleteCellAssetUseCase
+import com.wire.kalium.cells.domain.usecase.DeleteCellAssetsUseCase
+import com.wire.kalium.cells.domain.usecase.EmptyRecycleBinUseCase
 import com.wire.kalium.cells.domain.usecase.GetConversationNameUseCase
 import com.wire.kalium.cells.domain.usecase.GetEditorUrlUseCase
 import com.wire.kalium.cells.domain.usecase.GetPaginatedFilesFlowUseCase
@@ -59,9 +71,11 @@ import com.wire.kalium.cells.domain.usecase.GetUserNameUseCase
 import com.wire.kalium.cells.domain.usecase.GetWireCellConfigurationUseCase
 import com.wire.kalium.cells.domain.usecase.IsAtLeastOneCellAvailableUseCase
 import com.wire.kalium.cells.domain.usecase.RestoreNodeFromRecycleBinUseCase
+import com.wire.kalium.cells.domain.usecase.RestoreNodesFromRecycleBinUseCase
 import com.wire.kalium.cells.domain.usecase.offline.DeleteOfflineFileUseCase
 import com.wire.kalium.cells.domain.usecase.offline.GetOfflineFileUseCase
 import com.wire.kalium.cells.domain.usecase.offline.ObserveOfflineFilesUseCase
+import com.wire.kalium.common.error.NetworkFailure
 import com.wire.kalium.common.functional.fold
 import com.wire.kalium.common.functional.onFailure
 import com.wire.kalium.common.functional.onSuccess
@@ -75,6 +89,7 @@ import dev.zacsweers.metro.Assisted
 import dev.zacsweers.metro.AssistedFactory
 import dev.zacsweers.metro.AssistedInject
 import dev.zacsweers.metro.Named
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -94,18 +109,23 @@ import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.withContext
 import okio.Path.Companion.toPath
 import java.io.File
 import kotlin.time.Duration.Companion.milliseconds
 
-@Suppress("TooManyFunctions", "LongParameterList")
+@Suppress("TooManyFunctions", "LongParameterList", "LargeClass")
 class CellViewModel @AssistedInject constructor(
     @Assisted private val navArgs: CellFilesNavArgs,
     @Assisted private val searchNavArgs: SearchNavArgs?,
     private val getCellFilesPaged: GetPaginatedFilesFlowUseCase,
     private val deleteCellAsset: DeleteCellAssetUseCase,
+    private val deleteCellAssets: DeleteCellAssetsUseCase,
     private val restoreNodeFromRecycleBinUseCase: RestoreNodeFromRecycleBinUseCase,
+    private val restoreNodesFromRecycleBin: RestoreNodesFromRecycleBinUseCase,
+    private val emptyRecycleBinUseCase: EmptyRecycleBinUseCase,
+    private val checkCellNodeAvailability: CheckCellNodeAvailabilityUseCase,
     private val isCellAvailable: IsAtLeastOneCellAvailableUseCase,
     private val fileHelper: FileHelper,
     private val getEditorUrl: GetEditorUrlUseCase,
@@ -115,7 +135,7 @@ class CellViewModel @AssistedInject constructor(
     private val getWireCellsConfig: GetWireCellConfigurationUseCase,
     private val sharedPathCache: CellFileLocalPathCache,
     private val openFileDownloadController: OpenFileDownloadController,
-    private val offlineFileDownloadController: OfflineFileDownloadController,
+    private val offlineDownloads: SessionOfflineDownloads,
     private val observeOfflineFiles: ObserveOfflineFilesUseCase,
     private val deleteOfflineFile: DeleteOfflineFileUseCase,
     private val getOfflineFile: GetOfflineFileUseCase,
@@ -127,12 +147,15 @@ class CellViewModel @AssistedInject constructor(
     private val qualifiedIdMapper: QualifiedIdMapper,
     private val uploadFilePreparer: DriveUploadFilePreparer,
     private val uploadCoordinator: CellUploadCoordinator,
+    private val nodeChangeEvents: CellNodeChangeEvents,
     /** When disabled, all offline-files UI (save actions, offline banner, offline browsing) is hidden. */
     @Named("offlineFilesEnabled") val offlineFilesEnabled: Boolean,
     @Named("inAppImageViewerEnabled") private val inAppImageViewerEnabled: Boolean,
     @Named("drivePermissionsEnabled") val drivePermissionsEnabled: Boolean,
     @Named("driveDirectUploadEnabled") val driveDirectUploadEnabled: Boolean,
     @Named("driveBulkActionsEnabled") private val driveBulkActionsEnabled: Boolean,
+    @Named("driveOfflineEnabled") private val driveOfflineEnabled: Boolean,
+    @Named("driveBulkRestoreEnabled") internal val bulkRestoreEnabled: Boolean,
 ) : ActionsViewModel<CellViewAction>() {
 
     @AssistedFactory
@@ -150,9 +173,35 @@ class CellViewModel @AssistedInject constructor(
     private val _isDeleteInProgress = MutableStateFlow(false)
     val isDeleteInProgress = _isDeleteInProgress.asStateFlow()
 
+    // Kept in the state, not sent as actions, so the dialogs survive configuration changes.
+    private val _bulkOfflineDialog = MutableStateFlow<BulkOfflineDialog?>(null)
+    internal val bulkOfflineDialog: StateFlow<BulkOfflineDialog?> = _bulkOfflineDialog.asStateFlow()
+
+    /**
+     * The offline download requests made from this screen, by id, and whether each was a bulk one. Downloads run in the
+     * background for the whole app: only this screen reports how its own requests went, and only while it's around.
+     */
+    private val offlineRequests = mutableMapOf<Long, Boolean>()
+
+    init {
+        viewModelScope.launch { offlineDownloads.events.collect(::onOfflineDownloadEvent) }
+    }
+
+    private val _bulkDeleteDialog = MutableStateFlow<BulkDeleteDialog?>(null)
+    internal val bulkDeleteDialog: StateFlow<BulkDeleteDialog?> = _bulkDeleteDialog.asStateFlow()
+
+    private val _bulkRestoreDialog = MutableStateFlow<BulkRestoreDialog?>(null)
+    internal val bulkRestoreDialog: StateFlow<BulkRestoreDialog?> = _bulkRestoreDialog.asStateFlow()
+
+    private val _emptyRecycleBinDialog = MutableStateFlow<EmptyRecycleBinDialog?>(null)
+    internal val emptyRecycleBinDialog: StateFlow<EmptyRecycleBinDialog?> = _emptyRecycleBinDialog.asStateFlow()
+
     internal val fileReadyFlow: Flow<CellNodeUi.File> = sharedPathCache.fileReadyEvents
 
     private val removedItemsFlow: MutableStateFlow<List<String>> = MutableStateFlow(emptyList())
+
+    // Availability checks running before files are opened, by uuid.
+    private val availabilityChecks = mutableMapOf<String, Job>()
 
     // Used to navigate to the root of the recycle bin after restoring a parent folder.
     private val _navigateToRecycleBinRoot = MutableStateFlow(false)
@@ -218,9 +267,15 @@ class CellViewModel @AssistedInject constructor(
         initialValue = false,
     )
 
-    // Bulk selection is only offered in a shared drive; search results, the recycle bin and All Files keep the single-item flow.
+    /** Whether the bulk actions bar offers the offline actions (make available / remove offline access). */
+    // Declared before bulkSelection, which reads it while being initialized.
+    val bulkOfflineActionsEnabled: Boolean = offlineFilesEnabled && driveOfflineEnabled
+
+    // Bulk selection is offered in a shared drive and the recycle bin, and in All Files where only the offline actions
+    // apply, so there only when those are enabled. Search results keep the single-item flow.
     private val bulkSelection = CellBulkSelection(
-        isSupported = driveBulkActionsEnabled && searchNavArgs == null && isConversationFiles(),
+        isSupported = driveBulkActionsEnabled && searchNavArgs == null &&
+                (isConversationFiles() || isRecycleBin() || (isAllFiles() && bulkOfflineActionsEnabled)),
         isOnline = isOnline,
         isSelfUserViewerOnly = isSelfUserViewerOnly,
         scope = viewModelScope,
@@ -228,11 +283,48 @@ class CellViewModel @AssistedInject constructor(
     internal val selectedNodes: StateFlow<Map<String, CellNodeUi>> = bulkSelection.selectedNodes
     internal val isBulkSelectionEnabled: StateFlow<Boolean> = bulkSelection.isEnabled
 
+    /** At least one selected file can be saved for offline use, see [canBeMadeAvailableOffline]. */
+    internal val canMakeSelectionAvailableOffline: StateFlow<Boolean> = selectedNodes
+        .map { nodes ->
+            bulkOfflineActionsEnabled && nodes.values.any {
+                it is CellNodeUi.File && it.canBeMadeAvailableOffline()
+            }
+        }.stateIn(viewModelScope, SharingStarted.Eagerly, false)
+
+    /** At least one selected file is already saved for offline use. */
+    internal val canRemoveSelectionOfflineAccess: StateFlow<Boolean> = selectedNodes
+        .map { nodes -> bulkOfflineActionsEnabled && nodes.values.any { it is CellNodeUi.File && it.isAvailableOffline } }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, false)
+
+    /** Emptying the recycle bin is offered at its root only, behind the bulk actions flag, while online and for editors. */
+    internal val canEmptyRecycleBin: StateFlow<Boolean> = combine(isOnline, isSelfUserViewerOnly) { online, viewerOnly ->
+        driveBulkActionsEnabled && isRecycleBinRoot() && online && !viewerOnly
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.Eagerly,
+        initialValue = false,
+    )
+
+    /** The bulk selection tip, shown wherever selection is available until dismissed or the gesture is first used. */
+    internal val showBulkSelectionHint: StateFlow<Boolean> = combine(
+        bulkSelection.isEnabled,
+        userDataStore.isBulkSelectionHintDismissed(),
+    ) { enabled, dismissed ->
+        enabled && !dismissed
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.Eagerly,
+        initialValue = false,
+    )
+
     init {
         loadWireCellConfig()
         checkCellAvailabilityAndRefresh()
         checkViewerAccess()
         refreshOnUploadsCompletedInThisFolder()
+        refreshOnNodesMovedFromOrIntoThisFolder()
+        refreshOnNodesRestoredInThisConversation()
+        dismissBulkSelectionHintOnceSelectionIsUsed()
     }
 
     /**
@@ -254,10 +346,42 @@ class CellViewModel @AssistedInject constructor(
         }
     }
 
+    private fun refreshOnNodesMovedFromOrIntoThisFolder() {
+        val folderPath = currentNodeUuid()?.trim('/') ?: return
+        viewModelScope.launch {
+            nodeChangeEvents.changedFolderPaths.collect { paths -> if (paths.any { it.trim('/') == folderPath }) refreshNodes() }
+        }
+    }
+
+    private fun refreshOnNodesRestoredInThisConversation() {
+        if (isRecycleBin()) return
+        viewModelScope.launch {
+            nodeChangeEvents.restoredInConversations.collect { conversationId ->
+                if (rootConversationId == null || rootConversationId == conversationId) refreshNodes()
+            }
+        }
+    }
+
+    private fun notifyNodesRestored() {
+        rootConversationId?.let { nodeChangeEvents.onNodesRestored(it) }
+    }
+
     private fun checkViewerAccess() = viewModelScope.launch {
         if (!drivePermissionsEnabled) return@launch
         val conversationId = rootConversationId?.takeIf { isConversationFiles() } ?: return@launch
         _isSelfUserViewerOnly.value = !isSelfUserViewerOnConversation(qualifiedIdMapper.fromStringToQualifiedID(conversationId))
+    }
+
+    internal fun onBulkSelectionHintDismissed() {
+        viewModelScope.launch { userDataStore.setBulkSelectionHintDismissed() }
+    }
+
+    // Entering selection mode means the gesture was found: the tip isn't needed anymore.
+    private fun dismissBulkSelectionHintOnceSelectionIsUsed() = viewModelScope.launch {
+        // Only while the tip is shown: no need to store anything for users who already dismissed it.
+        showBulkSelectionHint.first { it }
+        bulkSelection.selectedNodes.first { it.isNotEmpty() }
+        userDataStore.setBulkSelectionHintDismissed()
     }
 
     internal fun onViewerAccessBannerDismissed() {
@@ -299,8 +423,8 @@ class CellViewModel @AssistedInject constructor(
                     removedItemsFlow,
                     sharedPathCache.openLoadStates,
                     observeOfflineFiles(),
-                    offlineFileDownloadController.downloadProgresses,
-                ) { pagingData, removedItems, openLoadStates, offlineFiles, downloadProgresses ->
+                    offlineDownloads.states,
+                ) { pagingData, removedItems, openLoadStates, offlineFiles, downloadStates ->
                     val offlineUuids = offlineFiles.map { it.id }.toSet()
                     var emittedRefreshDone = false
 
@@ -322,8 +446,10 @@ class CellViewModel @AssistedInject constructor(
                                 is Node.Folder -> node.toUiModel()
                                 is Node.File -> node.toUiModel(
                                     openLoadState = openLoadState,
-                                    downloadProgress = downloadProgresses[node.uuid],
+                                    downloadProgress = downloadStates.progresses.downloadProgressOf(node.uuid),
                                     isAvailableOffline = node.uuid in offlineUuids,
+                                    isDownloadQueued = node.uuid in downloadStates.queued,
+                                    pausedDownloadProgress = downloadStates.paused[node.uuid],
                                 )
                             }
                         }
@@ -340,8 +466,8 @@ class CellViewModel @AssistedInject constructor(
         combine(
             observeOfflineFiles(),
             sharedPathCache.openLoadStates,
-            offlineFileDownloadController.downloadProgresses,
-        ) { offlineFiles, openLoadStates, downloadProgresses ->
+            offlineDownloads.states,
+        ) { offlineFiles, openLoadStates, downloadStates ->
             val entries = buildOfflineListing(
                 currentPath = navArgs.conversationId,
                 offlineFiles = offlineFiles,
@@ -354,7 +480,7 @@ class CellViewModel @AssistedInject constructor(
                             conversationName = entry.info.conversationId?.let { getConversationName(it) },
                             userName = entry.info.owner.ifEmpty { null }?.let { getUserName(it) },
                             openLoadState = openLoadStates[entry.info.id],
-                            downloadProgress = downloadProgresses[entry.info.id],
+                            downloadProgress = downloadStates.progresses.downloadProgressOf(entry.info.id),
                         )
                     }
                 },
@@ -366,18 +492,78 @@ class CellViewModel @AssistedInject constructor(
             )
         }
 
-    internal val nodesFlow = combine(cellAvailableFlow, isOnline) { cellAvailable, online ->
-        cellAvailable to online
-    }.flatMapLatest { (cellAvailable, online) ->
+    /**
+     * Whether All Files and the shared drive offer to list only the files saved for offline use, see [isOfflineOnly].
+     * Not in search results nor in the recycle bin.
+     */
+    internal val offlineOnlyFilterEnabled: Boolean
+        get() = offlineFilesEnabled && searchNavArgs == null && (isAllFiles() || isConversationFiles())
+
+    private val _isOfflineOnly = MutableStateFlow(offlineOnlyFilterEnabled && navArgs.isOfflineOnly)
+
+    /**
+     * Lists just the files saved for offline use, like when there is no connection, without having to go offline.
+     * While offline the offline listing shows regardless.
+     */
+    internal val isOfflineOnly: StateFlow<Boolean> = _isOfflineOnly.asStateFlow()
+
+    /**
+     * Whether to offer switching to the offline listing: only when something here is saved for offline use, see
+     * [buildOfflineListing]. Kept while the offline listing is shown, so that removing the last saved file there
+     * doesn't take away the way back.
+     */
+    internal val showOfflineOnlyToggle: StateFlow<Boolean> = if (offlineOnlyFilterEnabled) {
+        combine(
+            observeOfflineFiles().map { files -> buildOfflineListing(navArgs.conversationId, files).isNotEmpty() },
+            isOfflineOnly,
+        ) { hasOfflineFiles, offlineOnly -> hasOfflineFiles || offlineOnly }
+            .stateIn(viewModelScope, SharingStarted.Eagerly, _isOfflineOnly.value)
+    } else {
+        MutableStateFlow(false).asStateFlow()
+    }
+
+    internal val nodesFlow = combine(cellAvailableFlow, isOnline, isOfflineOnly) { cellAvailable, online, offlineOnly ->
+        Triple(cellAvailable, online, offlineOnly)
+    }.flatMapLatest { (cellAvailable, online, offlineOnly) ->
         when {
             !cellAvailable -> flowOf(emptyData)
-            offlineFilesEnabled && !online -> offlineNodesFlow
+            offlineFilesEnabled && (!online || offlineOnly) -> offlineNodesFlow
             else -> sharedNodesFlow
         }
     }
 
+    /**
+     * The tip pointing at the offline toggle, shown along with it until dismissed or the toggle is first used.
+     * Waits for the bulk selection tip to be gone, so that only one tip shows at a time.
+     */
+    internal val showOfflineToggleHint: StateFlow<Boolean> = combine(
+        showOfflineOnlyToggle,
+        showBulkSelectionHint,
+        userDataStore.isOfflineToggleHintDismissed(),
+    ) { toggleShown, bulkSelectionHintShown, dismissed ->
+        toggleShown && !bulkSelectionHintShown && !dismissed
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.Eagerly,
+        initialValue = false,
+    )
+
+    internal fun onOfflineToggleHintDismissed() {
+        viewModelScope.launch { userDataStore.setOfflineToggleHintDismissed() }
+    }
+
+    internal fun setOfflineOnly(offlineOnly: Boolean) {
+        if (!offlineOnlyFilterEnabled || _isOfflineOnly.value == offlineOnly) return
+        // Once the toggle is found, the tip has nothing left to tell.
+        if (showOfflineToggleHint.value) onOfflineToggleHintDismissed()
+        // The selection was made in the other listing.
+        bulkSelection.clear()
+        _isOfflineOnly.value = offlineOnly
+    }
+
     fun onPullToRefresh() {
-        if (!isOnline.value) return
+        // The offline listing follows the local database on its own: there is nothing to refresh.
+        if (!isOnline.value || _isOfflineOnly.value) return
         _isPullToRefresh.value = true
         refreshNodes()
     }
@@ -400,10 +586,27 @@ class CellViewModel @AssistedInject constructor(
             }
 
             is CellViewIntent.OnItemLongClick -> bulkSelection.onLongClick(intent.cellNode)
+            is CellViewIntent.OnDragSelection -> bulkSelection.onDragSelection(intent.nodes)
+            is CellViewIntent.OnDragSelectionEnd -> bulkSelection.onDragSelectionEnd()
             is CellViewIntent.OnClearSelection -> bulkSelection.clear()
-            is CellViewIntent.OnMoveSelectedNodesClick,
-            is CellViewIntent.OnDeleteSelectedNodesClick,
-            is CellViewIntent.OnMakeSelectedNodesAvailableOfflineClick -> Unit
+            is CellViewIntent.OnMoveSelectedNodesClick -> moveSelectedNodes()
+            is CellViewIntent.OnDeleteSelectedNodesClick -> showBulkDeleteConfirmation()
+            is CellViewIntent.OnBulkDeleteConfirmed -> deleteSelectedNodes()
+            is CellViewIntent.OnBulkDeleteDialogDismissed -> dismissBulkDeleteDialog()
+            is CellViewIntent.OnRestoreSelectedNodesClick -> showBulkRestoreConfirmation()
+            is CellViewIntent.OnBulkRestoreConfirmed -> restoreSelectedNodes()
+            is CellViewIntent.OnBulkRestoreDialogDismissed -> dismissBulkRestoreDialog()
+            is CellViewIntent.OnEmptyRecycleBinClick -> showEmptyRecycleBinConfirmation()
+            is CellViewIntent.OnEmptyRecycleBinConfirmed -> emptyRecycleBin()
+            is CellViewIntent.OnEmptyRecycleBinDialogDismissed -> dismissEmptyRecycleBinDialog()
+            is CellViewIntent.OnMakeSelectedNodesAvailableOfflineClick -> showBulkOfflineConfirmation()
+            is CellViewIntent.OnBulkOfflineConfirmed -> when (_bulkOfflineDialog.value) {
+                is BulkOfflineDialog.Confirmation -> makeSelectedNodesAvailableOffline()
+                is BulkOfflineDialog.RemoveConfirmation -> removeSelectedNodesOfflineAccess()
+                else -> _bulkOfflineDialog.value = null
+            }
+            is CellViewIntent.OnBulkOfflineDialogDismissed -> _bulkOfflineDialog.value = null
+            is CellViewIntent.OnRemoveSelectedNodesOfflineAccessClick -> showRemoveOfflineConfirmation()
 
             is CellViewIntent.OnItemMenuClick -> onItemMenuClick(intent.cellNode)
             is CellViewIntent.OnMenuItemActionSelected -> onMenuItemAction(intent.node, intent.action)
@@ -472,8 +675,243 @@ class CellViewModel @AssistedInject constructor(
         pendingUploadUris = emptyList()
     }
 
+    private fun moveSelectedNodes() {
+        val folderPath = currentNodeUuid() ?: return
+        val nodes = bulkSelection.toNodesToMove(folderPath)
+        // Selection mode ends as the destination picker opens; the moved nodes leave this folder anyway.
+        bulkSelection.clear()
+        sendAction(ShowBulkMoveToFolderScreen(currentPath = folderPath.substringBefore("/"), nodes = nodes))
+    }
+
+    /**
+     * Asks before saving the selected files for offline use. Folders, files already saved or downloading, and files
+     * the single-item menu wouldn't offer it for are skipped, and the dialog says how many.
+     * When the files clearly won't fit on the device, says so instead of offering to download them.
+     */
+    private fun showBulkOfflineConfirmation() {
+        val selected = bulkSelection.selectedNodes.value.values
+        val files = selected.filterIsInstance<CellNodeUi.File>().filter { it.canBeMadeAvailableOffline() }
+        if (files.isEmpty()) return
+
+        // Files already on the device are saved without being downloaded again.
+        val requiredBytes = files.filterNot { it.localFileAvailable() }.sumOf { it.size ?: 0L }
+        val availableBytes = offlineDownloads.availableStorageBytes()
+        _bulkOfflineDialog.value = if (requiredBytes + STORAGE_SAFETY_MARGIN_BYTES > availableBytes) {
+            BulkOfflineDialog.NotEnoughStorage(requiredBytes = requiredBytes, availableBytes = availableBytes)
+        } else {
+            BulkOfflineDialog.Confirmation(files = files, skippedCount = selected.size - files.size)
+        }
+    }
+
+    /**
+     * Saves the files of the confirmed [BulkOfflineDialog.Confirmation] for offline use. They download in the background,
+     * see [SessionOfflineDownloads], and one message sums it all up once every download settled.
+     */
+    private fun makeSelectedNodesAvailableOffline() {
+        val files = (_bulkOfflineDialog.value as? BulkOfflineDialog.Confirmation)?.files ?: return
+        _bulkOfflineDialog.value = null
+        bulkSelection.clear()
+        startOfflineDownloads(files, isBulk = true)
+    }
+
+    private fun onOfflineDownloadEvent(event: OfflineDownloadEvent) {
+        when (event) {
+            // Lets a tap open the file right away, before the list catches up with its new local path.
+            is OfflineDownloadEvent.FileSaved -> sharedPathCache.recordCompletedPath(event.uuid, event.localPath)
+            is OfflineDownloadEvent.RequestFinished -> {
+                val isBulk = offlineRequests.remove(event.requestId) ?: return
+                onOfflineRequestFinished(event.result, isBulk)
+            }
+        }
+    }
+
+    private fun onOfflineRequestFinished(result: BulkOfflineProgress.Result, isBulk: Boolean) {
+        when (result) {
+            is BulkOfflineProgress.Result.Saved ->
+                sendAction(if (isBulk) ShowOfflineFilesSaved(result.savedCount) else ShowOfflineFileSaved)
+
+            is BulkOfflineProgress.Result.Failed -> sendAction(ShowError(result.error))
+            is BulkOfflineProgress.Result.RanOutOfStorage -> if (isBulk) {
+                _bulkOfflineDialog.value =
+                    BulkOfflineDialog.RanOutOfStorage(savedCount = result.savedCount, totalCount = result.totalCount)
+            } else {
+                sendAction(ShowError(CellError.NO_SPACE_LEFT))
+            }
+        }
+    }
+
+    // Same rule as the single-item menu, see CellFileActionsMenu.
+    private fun CellNodeUi.File.canBeMadeAvailableOffline(): Boolean =
+        !isAvailableOffline && !isOfflineDownloadPending() && featureFlags.collaboraIntegration && !isEditSupported
+
+    /** Cancels an offline download, whether it is running or still waiting for its turn. */
+    private fun cancelOfflineDownload(uuid: String) = offlineDownloads.cancel(uuid)
+
+    /** Asks before removing the offline copy of the selected files; items not saved for offline use are skipped. */
+    private fun showRemoveOfflineConfirmation() {
+        val selected = bulkSelection.selectedNodes.value.values
+        val files = selected.filterIsInstance<CellNodeUi.File>().filter { it.isAvailableOffline }
+        if (files.isEmpty()) return
+        _bulkOfflineDialog.value = BulkOfflineDialog.RemoveConfirmation(files = files, skippedCount = selected.size - files.size)
+    }
+
+    /** Removes the offline copy of the files of the confirmed [BulkOfflineDialog.RemoveConfirmation], then says how many. */
+    private fun removeSelectedNodesOfflineAccess() {
+        val files = (_bulkOfflineDialog.value as? BulkOfflineDialog.RemoveConfirmation)?.files ?: return
+        _bulkOfflineDialog.value = null
+        bulkSelection.clear()
+        viewModelScope.launch {
+            // Local work only, and quick: finish it even if the user leaves the screen meanwhile.
+            withContext(NonCancellable) {
+                files.forEach { deleteOfflineCopy(it) }
+            }
+            sendAction(ShowOfflineAccessRemoved(removedCount = files.size))
+        }
+    }
+
+    private fun showBulkDeleteConfirmation() {
+        val nodes = bulkSelection.selectedNodes.value.values.toList()
+        if (nodes.isEmpty()) return
+        // In the recycle bin, deleting means deleting for good.
+        _bulkDeleteDialog.value = BulkDeleteDialog.Confirmation(nodes, isPermanentDelete = isRecycleBin())
+    }
+
+    /**
+     * Deletes the confirmed nodes in a single request: to the recycle bin, or for good from the recycle bin itself.
+     * There is no rollback: if it fails midway, some of them may still have been deleted, so the list is refreshed and
+     * the selection cleared either way.
+     */
+    private fun deleteSelectedNodes() {
+        val confirmation = _bulkDeleteDialog.value as? BulkDeleteDialog.Confirmation ?: return
+        if (confirmation.isInProgress) return
+        val nodes = confirmation.nodes
+        _bulkDeleteDialog.value = confirmation.copy(isInProgress = true)
+        viewModelScope.launch {
+            val isPermanentDelete = confirmation.isPermanentDelete
+            val result = deleteCellAssets(nodes.map { it.toNodeToDelete() }, permanentDelete = isPermanentDelete)
+            bulkSelection.clear()
+            result
+                .onSuccess {
+                    _bulkDeleteDialog.value = null
+                    nodes.forEach { removeFromListUi(it) }
+                    sendAction(
+                        nodes.singleOrNull()
+                            ?.let { ShowFileDeletedMessage(isFile = it is CellNodeUi.File, permanently = isPermanentDelete) }
+                            ?: ShowNodesDeletedMessage(deletedCount = nodes.size, permanently = isPermanentDelete)
+                    )
+                }
+                .onFailure { failure ->
+                    _bulkDeleteDialog.value = BulkDeleteDialog.Failure(
+                        totalCount = nodes.size,
+                        isNoNetworkConnection = failure is NetworkFailure.NoNetworkConnection,
+                        isPermanentDelete = isPermanentDelete,
+                    )
+                }
+            refreshNodes()
+        }
+    }
+
+    private fun dismissBulkDeleteDialog() {
+        // The confirmation stays up until the request completes.
+        if ((_bulkDeleteDialog.value as? BulkDeleteDialog.Confirmation)?.isInProgress == true) return
+        _bulkDeleteDialog.value = null
+    }
+
+    private fun showEmptyRecycleBinConfirmation() {
+        if (!canEmptyRecycleBin.value) return
+        _emptyRecycleBinDialog.value = EmptyRecycleBinDialog.Confirmation()
+    }
+
+    /**
+     * Permanently deletes everything in the conversation's recycle bin in a single request. There is no rollback: if it
+     * fails midway, some items may still have been deleted, so the list is refreshed either way.
+     */
+    @Suppress("ReturnCount")
+    private fun emptyRecycleBin() {
+        val confirmation = _emptyRecycleBinDialog.value as? EmptyRecycleBinDialog.Confirmation ?: return
+        if (confirmation.isInProgress) return
+        val conversationId = rootConversationId ?: return
+        _emptyRecycleBinDialog.value = confirmation.copy(isInProgress = true)
+        viewModelScope.launch {
+            emptyRecycleBinUseCase(conversationId)
+                .onSuccess {
+                    _emptyRecycleBinDialog.value = null
+                    sendAction(ShowRecycleBinEmptiedMessage)
+                }
+                .onFailure { failure ->
+                    _emptyRecycleBinDialog.value = EmptyRecycleBinDialog.Failure(
+                        isNoNetworkConnection = failure is NetworkFailure.NoNetworkConnection,
+                    )
+                }
+            refreshNodes()
+        }
+    }
+
+    private fun dismissEmptyRecycleBinDialog() {
+        // The confirmation stays up until the request completes.
+        if ((_emptyRecycleBinDialog.value as? EmptyRecycleBinDialog.Confirmation)?.isInProgress == true) return
+        _emptyRecycleBinDialog.value = null
+    }
+
+    private fun showBulkRestoreConfirmation() {
+        val nodes = bulkSelection.selectedNodes.value.values.toList()
+        if (nodes.isEmpty()) return
+        if (navArgs.parentFolderUuid != null) {
+            // Inside a deleted folder, nothing can be restored on its own: like for a single node, it's the folder or nothing.
+            sendAction(ShowRestoreParentFolderDialog(nodes.first()))
+        } else {
+            _bulkRestoreDialog.value = BulkRestoreDialog.Confirmation(nodes)
+        }
+    }
+
+    /**
+     * Restores the confirmed nodes in a single request. There is no rollback: if it fails midway, some of them may still
+     * have been restored, so the list is refreshed and the selection cleared either way.
+     */
+    private fun restoreSelectedNodes() {
+        val confirmation = _bulkRestoreDialog.value as? BulkRestoreDialog.Confirmation ?: return
+        if (confirmation.isInProgress) return
+        val nodes = confirmation.nodes
+        _bulkRestoreDialog.value = confirmation.copy(isInProgress = true)
+        viewModelScope.launch {
+            val result = restoreNodesFromRecycleBin(nodes.map { it.uuid })
+            // Even on failure: without rollback, part of the nodes may have been restored.
+            notifyNodesRestored()
+            bulkSelection.clear()
+            result
+                .onSuccess {
+                    _bulkRestoreDialog.value = null
+                    nodes.forEach { removeFromListUi(it) }
+                    sendAction(ShowNodesRestoredMessage(restoredCount = nodes.size))
+                }
+                .onFailure { failure ->
+                    _bulkRestoreDialog.value = BulkRestoreDialog.Failure(
+                        totalCount = nodes.size,
+                        isNoNetworkConnection = failure is NetworkFailure.NoNetworkConnection,
+                    )
+                }
+            refreshNodes()
+        }
+    }
+
+    private fun dismissBulkRestoreDialog() {
+        // The confirmation stays up until the request completes.
+        if ((_bulkRestoreDialog.value as? BulkRestoreDialog.Confirmation)?.isInProgress == true) return
+        _bulkRestoreDialog.value = null
+    }
+
+    // Deleted by uuid, so it doesn't matter where the node lives, e.g. in the recycle bin rather than the folder browsed.
+    private fun CellNodeUi.toNodeToDelete() = NodeToDelete(
+        uuid = uuid,
+        localPath = (this as? CellNodeUi.File)?.localPath,
+        folderPath = (this as? CellNodeUi.Folder)?.remotePath,
+    )
+
     internal fun currentNodeUuid(): String? = navArgs.conversationId
     internal fun isRecycleBin(): Boolean = navArgs.isRecycleBin ?: false
+
+    /** The recycle bin root is opened with the conversation id alone, its sub folders with their full path. */
+    private fun isRecycleBinRoot(): Boolean = isRecycleBin() && navArgs.conversationId?.contains('/') == false
     private fun isConversationFiles(): Boolean = navArgs.conversationId != null && !isRecycleBin()
     private fun isAllFiles(): Boolean = navArgs.conversationId == null && !isRecycleBin()
 
@@ -483,14 +921,66 @@ class CellViewModel @AssistedInject constructor(
     private fun onFileClick(cellNode: CellNodeUi.File) {
         when {
             cellNode.openLoadState is OpenLoadState.Loading -> cancelOpenDownload(cellNode.uuid)
-            cellNode.downloadProgress != null -> offlineFileDownloadController.cancel(cellNode.uuid, viewModelScope)
+            cellNode.isOfflineDownloadPending() -> cancelOfflineDownload(cellNode.uuid)
             cellNode.isEditableDocument() -> openEditableDocument(cellNode)
             cellNode.openLoadState is OpenLoadState.Ready -> openLocalFile(cellNode)
             cellNode.localFileAvailable() -> openLocalFile(cellNode)
-            cellNode.openLoadState is OpenLoadState.Error -> startOpenDownload(cellNode)
-            cellNode.canOpenWithUrl() -> openFileContentUrl(cellNode)
-            else -> startOpenDownload(cellNode)
+            cellNode.openLoadState is OpenLoadState.Error -> ifAvailable(cellNode, ::startOpenDownload)
+            cellNode.canOpenWithUrl() -> ifAvailable(cellNode, ::openFileContentUrl)
+            else -> ifAvailable(cellNode, ::startOpenDownload)
         }
+    }
+
+    /**
+     * The lists aren't updated when nodes change elsewhere: before opening a node from the server or acting on it, check
+     * it's still there, so a deleted one isn't opened into a viewer that can only fail, or acted on for nothing. A file
+     * then goes on with fresh URLs, as the listed ones may have expired. If it can't be checked, e.g. offline, it goes on
+     * as before.
+     */
+    private fun <T : CellNodeUi> ifAvailable(node: T, action: (T) -> Unit) {
+        if (!isOnline.value) {
+            action(node)
+            return
+        }
+        if (node.uuid in availabilityChecks) return
+        val check = viewModelScope.launch {
+            // Like a download, only show the spinner if the check is slow.
+            val showSpinnerJob = launch {
+                delay(OpenFileDownloadController.SPINNER_THRESHOLD_MS)
+                sharedPathCache.setOpenLoadState(node.uuid, OpenLoadState.Loading())
+            }
+            val availability = checkCellNodeAvailability(node.uuid, inRecycleBin = isRecycleBin())
+            showSpinnerJob.cancel()
+            sharedPathCache.clearOpenLoadState(node.uuid)
+            when (availability) {
+                is CellNodeAvailability.Available -> action(node.updatedWith(availability.node))
+                is CellNodeAvailability.Gone -> onNodeNoLongerAvailable(node)
+                is CellNodeAvailability.Unknown -> action(node)
+            }
+        }
+        availabilityChecks[node.uuid] = check
+        // Only if not replaced meanwhile, by a new tap after this check was cancelled.
+        check.invokeOnCompletion { if (availabilityChecks[node.uuid] === check) availabilityChecks.remove(node.uuid) }
+    }
+
+    // A file copy is still a T: T is either CellNodeUi.File or CellNodeUi itself.
+    @Suppress("UNCHECKED_CAST")
+    private fun <T : CellNodeUi> T.updatedWith(current: Node): T = when {
+        this is CellNodeUi.File && current is Node.File -> copy(
+            contentUrl = current.contentUrl ?: contentUrl,
+            previewUrl = current.previewUrl ?: previewUrl,
+            pdfPreviewUrl = current.pdfPreviewUrl ?: pdfPreviewUrl,
+        ) as T
+
+        else -> this
+    }
+
+    /** Its local data was already cleaned up: take it off the list, which is likely outdated in other ways too. */
+    private fun onNodeNoLongerAvailable(node: CellNodeUi) {
+        sharedPathCache.clearCompletedPath(node.uuid)
+        removeFromListUi(node)
+        sendAction(ShowError(CellError.ITEM_NO_LONGER_AVAILABLE))
+        refreshNodes()
     }
 
     /**
@@ -525,13 +1015,19 @@ class CellViewModel @AssistedInject constructor(
     private fun startOpenDownload(cellNode: CellNodeUi.File) {
         openFileDownloadController.start(
             scope = viewModelScope,
-            cellNode = cellNode.copy(conversationId = cellNode.conversationId ?: navArgs.conversationId),
+            // [navArgs.conversationId] is the path of the folder being browsed, so only its root
+            // segment is the conversation the file belongs to.
+            cellNode = cellNode.copy(conversationId = cellNode.conversationId ?: rootConversationId),
             onOpenFile = ::openLocalFile,
             onError = { sendAction(ShowError(it)) },
         )
     }
 
     internal fun cancelOpenDownload(uuid: String) {
+        availabilityChecks.remove(uuid)?.let { check ->
+            check.cancel()
+            sharedPathCache.clearOpenLoadState(uuid)
+        }
         openFileDownloadController.cancel(uuid, viewModelScope)
     }
 
@@ -657,13 +1153,34 @@ class CellViewModel @AssistedInject constructor(
             isSearching = searchNavArgs?.screenType == DriveSearchScreenType.SHARED_DRIVE ||
                     searchNavArgs?.screenType == DriveSearchScreenType.DRIVE,
             isCollaboraEnabled = isCollaboraEnabled,
-            isOnline = isOnline.value,
+            // The folders of the offline listing only stand for the path of the files saved in them, there is no such
+            // node to act on: they get the menu they'd get offline.
+            isOnline = isOnline.value && !(_isOfflineOnly.value && cellNode is CellNodeUi.Folder),
         )
 
         _menu.emit(MenuOptions(cellNode, menuItems))
     }
 
     private fun onMenuItemAction(node: CellNodeUi, action: NodeBottomSheetAction) {
+        if (action.needsAvailableNode()) {
+            ifAvailable(node) { performMenuItemAction(it, action) }
+        } else {
+            performMenuItemAction(node, action)
+        }
+    }
+
+    /**
+     * Whether the node must still be on the server for [this] to make sense. Opening is checked when it's routed to
+     * [onFileClick]; the others only deal with local data or local work.
+     */
+    private fun NodeBottomSheetAction.needsAvailableNode() = this !in setOf(
+        NodeBottomSheetAction.OPEN,
+        NodeBottomSheetAction.CANCEL_LOADING,
+        NodeBottomSheetAction.CANCEL_DOWNLOAD,
+        NodeBottomSheetAction.REMOVE_OFFLINE_ACCESS,
+    )
+
+    private fun performMenuItemAction(node: CellNodeUi, action: NodeBottomSheetAction) {
         cellFileActionsMenu.onMenuItemAction(
             conversationId = navArgs.conversationId,
             parentFolderUuid = navArgs.parentFolderUuid,
@@ -676,28 +1193,33 @@ class CellViewModel @AssistedInject constructor(
                 is CellFileActionsMenu.Edit -> editNode(result.node.uuid)
                 is CellFileActionsMenu.Share -> shareFile(result.node)
                 is CellFileActionsMenu.CancelLoading -> cancelDownload(result.node.uuid)
-                is CellFileActionsMenu.CancelDownload -> offlineFileDownloadController.cancel(result.node.uuid, viewModelScope)
+                is CellFileActionsMenu.CancelDownload -> cancelOfflineDownload(result.node.uuid)
                 is CellFileActionsMenu.MakeAvailableOffline -> makeAvailableOffline(result.node)
                 is CellFileActionsMenu.RemoveOfflineAccess -> removeOfflineAccess(result.node)
             }
         }
     }
 
-    private fun makeAvailableOffline(node: CellNodeUi.File) {
-        offlineFileDownloadController.start(
-            scope = viewModelScope,
-            cellNode = node.copy(
-                // Nodes listed inside a conversation don't carry their conversation id, and
-                // [navArgs.conversationId] is the path of the folder being browsed, so only its
-                // root segment is the conversation the file belongs to.
-                conversationId = node.conversationId ?: rootConversationId,
-            ),
-            onSuccess = { _ -> sendAction(ShowOfflineFileSaved) },
-            onError = { sendAction(ShowError(it)) },
-        )
+    private fun makeAvailableOffline(node: CellNodeUi.File) = startOfflineDownloads(listOf(node), isBulk = false)
+
+    private fun startOfflineDownloads(files: List<CellNodeUi.File>, isBulk: Boolean) {
+        val requestId = offlineDownloads.download(
+            files.map { file ->
+                file.copy(
+                    // Nodes listed inside a conversation don't carry their conversation id, and
+                    // [navArgs.conversationId] is the path of the folder being browsed, so only its
+                    // root segment is the conversation the file belongs to.
+                    conversationId = file.conversationId ?: rootConversationId,
+                )
+            }
+        ) ?: return
+        offlineRequests[requestId] = isBulk
     }
 
-    private fun removeOfflineAccess(node: CellNodeUi.File) = viewModelScope.launch {
+    private fun removeOfflineAccess(node: CellNodeUi.File) = viewModelScope.launch { deleteOfflineCopy(node) }
+
+    /** Removes the offline record of [node] and its file on the device. */
+    private suspend fun deleteOfflineCopy(node: CellNodeUi.File) {
         val localPath = getOfflineFile(node.uuid)?.localPath
             ?: node.localPath
             ?: sharedPathCache.getCompletedPath(node.uuid)
@@ -753,7 +1275,8 @@ class CellViewModel @AssistedInject constructor(
 
         removeFromListUi(node)
 
-        deleteCellAsset(node.uuid, localPath)
+        // For a folder, its path lets the local copies of the files inside it be cleaned up too.
+        deleteCellAsset(node.uuid, localPath, folderPath = (node as? CellNodeUi.Folder)?.remotePath)
             .onSuccess {
                 _isDeleteInProgress.value = false
                 sendAction(HideDeleteConfirmation)
@@ -781,6 +1304,7 @@ class CellViewModel @AssistedInject constructor(
             restoreNodeFromRecycleBinUseCase(navArgs.parentFolderUuid ?: node.uuid)
                 .onSuccess {
                     _isRestoreInProgress.value = false
+                    notifyNodesRestored()
                     if (navArgs.parentFolderUuid != null) {
                         sendAction(HideRestoreParentFolderDialog)
                         _navigateToRecycleBinRoot.value = true
@@ -829,10 +1353,25 @@ sealed interface CellViewIntent {
     data class OnItemClick(val file: CellNodeUi) : CellViewIntent
     data class OnItemMenuClick(val cellNode: CellNodeUi) : CellViewIntent
     data class OnItemLongClick(val cellNode: CellNodeUi) : CellViewIntent
+
+    /** @param nodes the nodes from the long pressed one to the one under the finger, the long pressed one first. */
+    data class OnDragSelection(val nodes: List<CellNodeUi>) : CellViewIntent
+    data object OnDragSelectionEnd : CellViewIntent
     data object OnClearSelection : CellViewIntent
     data object OnMoveSelectedNodesClick : CellViewIntent
     data object OnDeleteSelectedNodesClick : CellViewIntent
+    data object OnBulkDeleteConfirmed : CellViewIntent
+    data object OnBulkDeleteDialogDismissed : CellViewIntent
+    data object OnRestoreSelectedNodesClick : CellViewIntent
+    data object OnBulkRestoreConfirmed : CellViewIntent
+    data object OnBulkRestoreDialogDismissed : CellViewIntent
+    data object OnEmptyRecycleBinClick : CellViewIntent
+    data object OnEmptyRecycleBinConfirmed : CellViewIntent
+    data object OnEmptyRecycleBinDialogDismissed : CellViewIntent
     data object OnMakeSelectedNodesAvailableOfflineClick : CellViewIntent
+    data object OnBulkOfflineConfirmed : CellViewIntent
+    data object OnBulkOfflineDialogDismissed : CellViewIntent
+    data object OnRemoveSelectedNodesOfflineAccessClick : CellViewIntent
     data class OnMenuItemActionSelected(val node: CellNodeUi, val action: NodeBottomSheetAction) : CellViewIntent
     data class OnNodeDeleteConfirmed(val node: CellNodeUi) : CellViewIntent
     data class OnNodeRestoreConfirmed(val node: CellNodeUi) : CellViewIntent
@@ -855,3 +1394,6 @@ internal fun SearchNavArgs.toCellFilesNavArgs(): CellFilesNavArgs =
     CellFilesNavArgs(conversationId = conversationId)
 
 private const val RESTORE_DELAY_MS = 300L
+
+// Kept free on top of the files to download, so saving them doesn't fill the device up completely.
+private const val STORAGE_SAFETY_MARGIN_BYTES = 50L * 1024 * 1024

@@ -1,6 +1,9 @@
 import android.content.ContentValues
 import android.graphics.Bitmap
 import android.graphics.Color
+import android.graphics.Paint
+import android.graphics.pdf.PdfDocument
+import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
@@ -139,4 +142,96 @@ fun waitForNewDownloadedFileName(
         throw AssertionError("A new '$fileNamePrefix' file was not downloaded within ${timeout.inWholeSeconds} seconds.")
     }
     return requireNotNull(downloadedFile)
+}
+
+/** Creates a valid, identifiable PDF that Android's file picker can discover in Downloads. */
+fun createPdfInDeviceDownloadsFolder(fileName: String, text: String): Uri =
+    createMultipagePdfInDeviceDownloadsFolder(fileName, listOf(text))
+
+// Writes each PDF once and publishes it to Downloads only after all pages have been written.
+@Suppress("ThrowsCount", "TooGenericExceptionCaught")
+private fun writePdfToDeviceDownloads(fileName: String, drawPages: (PdfDocument) -> Unit): Uri {
+    val resolver = InstrumentationRegistry.getInstrumentation().targetContext.contentResolver
+    val uri = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        val values = ContentValues().apply {
+            put(MediaStore.MediaColumns.DISPLAY_NAME, fileName)
+            put(MediaStore.MediaColumns.MIME_TYPE, "application/pdf")
+            put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS)
+            put(MediaStore.MediaColumns.IS_PENDING, 1)
+        }
+        resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, values)
+            ?: throw IOException("Could not create PDF '$fileName' in Downloads")
+    } else {
+        val directory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+        check(directory.exists() || directory.mkdirs()) { "Could not create Downloads directory" }
+        Uri.fromFile(File(directory, fileName))
+    }
+    val document = PdfDocument()
+    return try {
+        drawPages(document)
+        val output = resolver.openOutputStream(uri) ?: throw IOException("Could not open PDF output '$fileName'")
+        output.use(document::writeTo)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            resolver.update(uri, ContentValues().apply { put(MediaStore.MediaColumns.IS_PENDING, 0) }, null, null)
+        }
+        uri
+    } catch (exception: Exception) {
+        deleteDeviceDownload(uri)
+        throw exception
+    } finally {
+        document.close()
+    }
+}
+
+fun deleteDeviceDownload(uri: Uri) {
+    if (uri.scheme == "file") {
+        val path = requireNotNull(uri.path)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            // QR fixtures return file URIs even though their Downloads entries were created through MediaStore.
+            InstrumentationRegistry.getInstrumentation().targetContext.contentResolver.delete(
+                MediaStore.Downloads.EXTERNAL_CONTENT_URI,
+                "${MediaStore.MediaColumns.DATA} = ?",
+                arrayOf(path)
+            )
+        }
+        File(path).delete()
+    } else {
+        InstrumentationRegistry.getInstrumentation().targetContext.contentResolver.delete(uri, null, null)
+    }
+}
+
+/** Creates numbered, identifiable PDF pages using the shared Downloads writer. */
+@Suppress("MagicNumber")
+fun createMultipagePdfInDeviceDownloadsFolder(fileName: String, pageTexts: List<String>): Uri {
+    require(pageTexts.isNotEmpty()) { "A PDF fixture must contain at least one page" }
+    return writePdfToDeviceDownloads(fileName) { document ->
+        pageTexts.forEachIndexed { index, text ->
+            val page = document.startPage(PdfDocument.PageInfo.Builder(300, 400, index + 1).create())
+            page.canvas.drawText(text, 20f, 40f, Paint().apply { textSize = 14f })
+            document.finishPage(page)
+        }
+    }
+}
+
+/** Adds distinct image data to each page so cancellation tests use a real, multi-megabyte PDF. */
+@Suppress("MagicNumber")
+fun createLargePdfInDeviceDownloadsFolder(fileName: String, pageTexts: List<String>): Uri {
+    require(pageTexts.isNotEmpty()) { "A PDF fixture must contain at least one page" }
+    val random = kotlin.random.Random(0)
+    return writePdfToDeviceDownloads(fileName) { document ->
+        pageTexts.forEachIndexed { index, text ->
+            val image = Bitmap.createBitmap(1024, 1024, Bitmap.Config.ARGB_8888)
+            try {
+                val pixels =
+                    IntArray(image.width * image.height) { Color.rgb(random.nextInt(256), random.nextInt(256), random.nextInt(256)) }
+                image.setPixels(pixels, 0, image.width, 0, 0, image.width, image.height)
+                val page = document.startPage(PdfDocument.PageInfo.Builder(300, 400, index + 1).create())
+                page.canvas.drawText(text, 20f, 40f, Paint().apply { textSize = 14f })
+                page.canvas.drawBitmap(image, null, android.graphics.Rect(20, 70, 280, 370), null)
+                document.finishPage(page)
+            } finally {
+                image.recycle()
+            }
+        }
+    }
 }

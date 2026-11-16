@@ -33,6 +33,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
+import com.wire.android.feature.meetings.ui.ShareMeetingWithGuestsRoute
+import com.wire.navigation.WireNavigationCommand
 import com.wire.android.feature.meetings.ui.AllMeetingsScreen
 import com.wire.android.feature.meetings.ui.NewMeetingBottomSheet
 import com.wire.android.navigation.HomeDestination
@@ -41,8 +43,8 @@ import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.dimensions
 import com.wire.android.feature.meetings.ui.create.NewMeetingType
-import com.wire.android.feature.meetings.ui.create.NewMeetingDetailsRoute
-import com.wire.android.feature.meetings.ui.create.NewMeetingNavigation3ResultType
+import com.wire.android.feature.meetings.ui.NewMeetingDetailsRoute
+import com.wire.android.feature.meetings.ui.NewMeetingNavigation3ResultType
 import com.wire.android.navigation.navigation3.WireNavigation3Runtime
 import com.wire.android.ui.calling.meetingsCallViewModel
 import com.wire.android.ui.calling.ongoing.getOngoingCallIntent
@@ -120,6 +122,9 @@ internal fun MeetingsScreen(
                     userId = viewModel.callManager.currentAccount.toString(),
                 )
             )
+        },
+        shareWithGuests = { occurrenceId ->
+            runtime.navigator.navigate(WireNavigationCommand(ShareMeetingWithGuestsRoute(sessionId, occurrenceId)))
         },
         editMeeting = { meetingId ->
             openNewMeeting(NewMeetingType.Edit(meetingId))

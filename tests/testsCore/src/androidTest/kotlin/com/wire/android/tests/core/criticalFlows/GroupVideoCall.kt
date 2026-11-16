@@ -49,7 +49,7 @@ class GroupVideoCall : BaseCallUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-8608")
+    @TestCaseId("TC-12695")
     @Category("criticalFlow")
     @Test
     fun givenGroupCall_whenVideoIsEnabled_thenGroupVideoIsVisible() {

@@ -19,9 +19,14 @@ package util
 
 import android.graphics.Bitmap
 import com.google.zxing.BarcodeFormat
-import com.google.zxing.MultiFormatWriter
-import com.google.zxing.common.BitMatrix
+import com.google.zxing.BinaryBitmap
 import com.google.zxing.EncodeHintType
+import com.google.zxing.MultiFormatWriter
+import com.google.zxing.NotFoundException
+import com.google.zxing.RGBLuminanceSource
+import com.google.zxing.common.BitMatrix
+import com.google.zxing.common.HybridBinarizer
+import com.google.zxing.qrcode.QRCodeReader
 import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel
 import java.util.EnumMap
 
@@ -51,4 +56,16 @@ fun generateQRCode(text: String, size: Int = 512): Bitmap {
     }
 
     return bitmap
+}
+
+fun decodeQRCode(bitmap: Bitmap): String? {
+    val pixels = IntArray(bitmap.width * bitmap.height)
+    bitmap.getPixels(pixels, 0, bitmap.width, 0, 0, bitmap.width, bitmap.height)
+    val source = RGBLuminanceSource(bitmap.width, bitmap.height, pixels)
+    val image = BinaryBitmap(HybridBinarizer(source))
+    return try {
+        QRCodeReader().decode(image).text
+    } catch (_: NotFoundException) {
+        null
+    }
 }

@@ -91,7 +91,7 @@ class WireNavigation3ContributionsTest {
         }
 
         assertEquals(WireNavigation3Contributions.EXPECTED_ROUTE_REGISTRATION_COUNT, registrationCount)
-        assertEquals(109, registrationCount)
+        assertEquals(110, registrationCount)
     }
 
     @Test
@@ -150,7 +150,7 @@ class WireNavigation3ContributionsTest {
             "ui/home/appLock/AppLockNavigation3Entries.kt",
         )
         val featureContributionSources = listOf(
-            "features/meetings/src/main/java/com/wire/android/feature/meetings/ui/create/MeetingsNavigation3Entries.kt",
+            "features/meetings/src/main/java/com/wire/android/feature/meetings/ui/MeetingsNavigation3Entries.kt",
             "features/sketch/src/main/java/com/wire/android/feature/sketch/navigation/SketchNavigation3Entries.kt",
             "features/cells/src/main/java/com/wire/android/feature/cells/navigation/CellsNavigation3Entries.kt",
         )

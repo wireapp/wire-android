@@ -24,6 +24,7 @@ import com.wire.android.assertions.shouldHaveSize
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.util.CurrentScreen
 import com.wire.android.util.CurrentScreenManager
+import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.common.error.NetworkFailure
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.GlobalKaliumScope
@@ -39,10 +40,12 @@ import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveOutgoingCallUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.sync.ObserveSyncStateUseCase
+import com.wire.kalium.logic.sync.SyncExecutor
 import com.wire.kalium.network.NetworkState
 import com.wire.kalium.network.NetworkStateObserver
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
@@ -118,6 +121,71 @@ class CommonTopAppBarViewModelTest {
             val info = state.connectivityState
             info shouldBeInstanceOf ConnectivityUIState.None::class
         }
+
+    @Test
+    fun givenLiveSyncAndNetworkNotValidated_whenGettingState_thenShouldHaveNoneInfo() =
+        runTest {
+            val (_, commonTopAppBarViewModel) = Arrangement()
+                .withCurrentSessionExist()
+                .withoutOngoingCall()
+                .withoutOutgoingCall()
+                .withoutIncomingCall()
+                .withCurrentScreen(CurrentScreen.Home)
+                .withSyncState(SyncState.Live)
+                .withNetworkStateFlow(MutableStateFlow(NetworkState.ConnectedWithoutInternet))
+                .arrange()
+
+            advanceUntilIdle()
+
+            commonTopAppBarViewModel.state.connectivityState shouldBeInstanceOf ConnectivityUIState.None::class
+        }
+
+    @Test
+    fun givenSyncFailedWithNetworkFailure_whenGettingState_thenShouldHaveWaitingConnectionInfo() =
+        runTest {
+            val (_, commonTopAppBarViewModel) = Arrangement()
+                .withCurrentSessionExist()
+                .withoutOngoingCall()
+                .withoutOutgoingCall()
+                .withoutIncomingCall()
+                .withCurrentScreen(CurrentScreen.Home)
+                .withSyncState(SyncState.Failed(NetworkFailure.NoNetworkConnection(null), Duration.ZERO))
+                .arrange()
+
+            advanceUntilIdle()
+
+            commonTopAppBarViewModel.state.connectivityState shouldBeInstanceOf ConnectivityUIState.WaitingConnection::class
+        }
+
+    @Test
+    fun givenSyncFailedWithOtherFailure_whenGettingState_thenShouldHaveConnectingInfo() =
+        runTest {
+            val (_, commonTopAppBarViewModel) = Arrangement()
+                .withCurrentSessionExist()
+                .withoutOngoingCall()
+                .withoutOutgoingCall()
+                .withoutIncomingCall()
+                .withCurrentScreen(CurrentScreen.Home)
+                .withSyncState(SyncState.Failed(CoreFailure.Unknown(null), Duration.ZERO))
+                .arrange()
+
+            advanceUntilIdle()
+
+            commonTopAppBarViewModel.state.connectivityState shouldBeInstanceOf ConnectivityUIState.Connecting::class
+        }
+
+    @Test
+    fun whenRetryingSync_thenShouldAskSyncToRetryNow() = runTest {
+        val (arrangement, commonTopAppBarViewModel) = Arrangement()
+            .withCurrentSessionExist()
+            .withCurrentScreen(CurrentScreen.Home)
+            .arrange()
+
+        commonTopAppBarViewModel.retrySync()
+        advanceUntilIdle()
+
+        coVerify(exactly = 1) { arrangement.syncExecutor.retryNow() }
+    }
 
     @Test
     fun givenAnOngoingCallAndHomeScreenAndConnectivityIssues_whenGettingState_thenShouldHaveActiveCallInfo() =
@@ -277,7 +345,7 @@ class CommonTopAppBarViewModelTest {
             .withCurrentScreen(CurrentScreen.Home)
             .withSyncState(
                 SyncState.Failed(
-                    NetworkFailure.ServerMiscommunication(RuntimeException("refresh failed")),
+                    NetworkFailure.NoNetworkConnection(null),
                     Duration.ZERO
                 )
             )
@@ -397,6 +465,9 @@ class CommonTopAppBarViewModelTest {
         @MockK
         private lateinit var networkStateObserver: NetworkStateObserver
 
+        @MockK
+        lateinit var syncExecutor: SyncExecutor
+
         private var params: CommonTopAppBarParams = CommonTopAppBarParams()
 
         init {
@@ -428,6 +499,13 @@ class CommonTopAppBarViewModelTest {
             every {
                 coreLogic.getGlobalScope()
             } returns globalKaliumScope
+
+            every {
+                coreLogic.sessionScope(any()) {
+                    syncExecutor
+                }
+            } returns syncExecutor
+            coEvery { syncExecutor.retryNow() } returns Unit
 
             every {
                 coreLogic.networkStateObserver

@@ -109,7 +109,27 @@ class MediaGalleryViewModelTest {
         // Then
         coVerify(exactly = 1) {
             arrangement.getImageData.invoke(mockedConversation.conversation.id, dummyMessageId)
-            arrangement.fileManager.saveToExternalStorage(any(), dummyDataPath, mockedImage.size.toLong(), any(), any())
+            arrangement.fileManager.saveToExternalStorage(any(), dummyDataPath, mockedImage.size.toLong(), any(), any(), any())
+        }
+    }
+
+    @Test
+    fun givenSavingToDownloadsFails_whenUserSavesAnImage_thenErrorSnackbarIsShown() = runTest {
+        // Given
+        val mockedConversation = mockedConversationDetails()
+        val dummyDataPath = "dummy-path".toPath()
+        val (_, viewModel) = Arrangement()
+            .withConversationDetails(mockedConversation)
+            .withSuccessfulImageData(dummyDataPath, 1L)
+            .withFailedSaveToExternalStorage()
+            .arrange()
+
+        viewModel.snackbarMessage.test {
+            // When
+            viewModel.saveImageToExternalStorage()
+
+            // Then
+            assertEquals(MediaGallerySnackbarMessages.OnImageDownloadError, awaitItem())
         }
     }
 
@@ -631,6 +651,13 @@ class MediaGalleryViewModelTest {
                 )
             )
             return this
+        }
+
+        fun withFailedSaveToExternalStorage() = apply {
+            coEvery { fileManager.saveToExternalStorage(any(), any(), any(), any(), any(), any()) } coAnswers {
+                @Suppress("UNCHECKED_CAST")
+                (args[4] as suspend () -> Unit).invoke()
+            }
         }
 
         fun withFailedMessageDeleting(): Arrangement {

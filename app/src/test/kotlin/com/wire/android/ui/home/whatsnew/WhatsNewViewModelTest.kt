@@ -29,8 +29,10 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.impl.annotations.MockK
 import io.mockk.mockkStatic
+import io.mockk.unmockkStatic
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -39,6 +41,12 @@ import java.util.Date
 
 @ExtendWith(CoroutineTestExtension::class)
 class WhatsNewViewModelTest {
+
+    @AfterEach
+    fun tearDown() {
+        unmockkStatic(::RssParser)
+        unmockkStatic(Date::toMediumOnlyDateTime)
+    }
 
     @Test
     fun `given url is not blank, when fetching release notes, then execute getRssChannel`() = runTest {

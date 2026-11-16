@@ -38,8 +38,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @Composable
-fun rememberConversationScreenState(
-    editSheetState: WireModalSheetState<String> = rememberWireModalSheetState<String>(),
+internal fun rememberConversationScreenState(
+    messageOptionsState: MessageOptionsState = rememberMessageOptionsState(),
     selfDeletingSheetState: WireModalSheetState<SelfDeletionTimer> = rememberWireModalSheetState<SelfDeletionTimer>(),
     locationSheetState: WireModalSheetState<Unit> = rememberWireModalSheetState(),
     coroutineScope: CoroutineScope = rememberCoroutineScope()
@@ -47,12 +47,12 @@ fun rememberConversationScreenState(
     val context = LocalContext.current
     val clipboardManager = LocalClipboardManager.current
     val snackBarHostState = LocalSnackbarHostState.current
-    return remember {
+    return remember(messageOptionsState) {
         ConversationScreenState(
             context = context,
             clipboardManager = clipboardManager,
             snackBarHostState = snackBarHostState,
-            editSheetState = editSheetState,
+            messageOptionsState = messageOptionsState,
             selfDeletingSheetState = selfDeletingSheetState,
             locationSheetState = locationSheetState,
             coroutineScope = coroutineScope
@@ -61,17 +61,17 @@ fun rememberConversationScreenState(
 }
 
 // todo: pass directly the strings, to avoid passing the context
-class ConversationScreenState(
+internal class ConversationScreenState(
     val context: Context,
     val clipboardManager: ClipboardManager,
     val snackBarHostState: SnackbarHostState,
-    val editSheetState: WireModalSheetState<String>,
+    val messageOptionsState: MessageOptionsState,
     val selfDeletingSheetState: WireModalSheetState<SelfDeletionTimer>,
     val locationSheetState: WireModalSheetState<Unit>,
     val coroutineScope: CoroutineScope
 ) {
     fun showEditContextMenu(message: UIMessage.Regular) {
-        editSheetState.show(message.header.messageId, hideKeyboard = true)
+        messageOptionsState.open(message.header.messageId)
     }
 
     fun copyMessage(text: String) {
@@ -90,5 +90,5 @@ class ConversationScreenState(
     }
 
     val isAnySheetVisible: Boolean
-        get() = editSheetState.isVisible || selfDeletingSheetState.isVisible || locationSheetState.isVisible
+        get() = messageOptionsState.sheetState.isVisible || selfDeletingSheetState.isVisible || locationSheetState.isVisible
 }

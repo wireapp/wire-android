@@ -27,6 +27,7 @@ import com.wire.android.ui.home.conversations.ConversationNavArgs
 import com.wire.android.ui.home.conversations.MessageSharedState
 import com.wire.android.ui.home.conversations.model.AssetBundle
 import com.wire.android.ui.home.conversations.usecase.HandleUriAssetUseCase
+import com.wire.android.util.FileManager
 import com.wire.android.util.ImageUtil
 import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.logic.data.id.ConversationId
@@ -63,6 +64,7 @@ import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
 import okio.Path
 import okio.buffer
+import kotlin.coroutines.cancellation.CancellationException
 
 internal class SendMessageViewModelArrangement {
 
@@ -135,6 +137,9 @@ internal class SendMessageViewModelArrangement {
     private lateinit var handleUriAssetUseCase: HandleUriAssetUseCase
 
     @MockK
+    lateinit var fileManager: FileManager
+
+    @MockK
     lateinit var retryFailedMessageUseCase: RetryFailedMessageUseCase
 
     @MockK
@@ -184,6 +189,7 @@ internal class SendMessageViewModelArrangement {
             dispatchers = TestDispatcherProvider(),
             kaliumFileSystem = fakeKaliumFileSystem,
             handleUriAsset = handleUriAssetUseCase,
+            fileManager = fileManager,
             imageUtil = imageUtil,
             pingRinger = pingRinger,
             sendKnock = sendKnockUseCase,
@@ -283,6 +289,10 @@ internal class SendMessageViewModelArrangement {
 
     fun withHandleUriAsset(result: HandleUriAssetUseCase.Result) = apply {
         coEvery { handleUriAssetUseCase.invoke(any(), any(), any(), any()) } returns result
+    }
+
+    fun withHandleUriAssetCancelled() = apply {
+        coEvery { handleUriAssetUseCase.invoke(any(), any(), any(), any()) } throws CancellationException("cancelled")
     }
 
     fun withInformAboutVerificationBeforeMessagingFlag(flag: Boolean) = apply {

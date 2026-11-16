@@ -41,7 +41,7 @@ class MentionsTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4448", "TC-4449")
+    @TestCaseId("TC-12531", "TC-12532")
     @Category("regression", "RC", "mentions")
     @Test
     fun givenTeamUsersInGroupConversation_whenISendAndReceiveMentions_thenMentionsAreVisible() {

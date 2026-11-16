@@ -30,6 +30,7 @@ internal fun CellsFilesArguments.toScreenArgs() = CellFilesNavArgs(
     breadcrumbs = breadcrumbs.toTypedArray(),
     parentFolderUuid = parentFolderUuid,
     isSearchByDefaultActive = isSearchByDefaultActive,
+    isOfflineOnly = isOfflineOnly,
 )
 
 internal fun CellFilesNavArgs.toNavigation3() = CellsFilesArguments(
@@ -39,6 +40,7 @@ internal fun CellFilesNavArgs.toNavigation3() = CellsFilesArguments(
     breadcrumbs = breadcrumbs?.toList().orEmpty(),
     parentFolderUuid = parentFolderUuid,
     isSearchByDefaultActive = isSearchByDefaultActive ?: false,
+    isOfflineOnly = isOfflineOnly,
 )
 
 internal fun CreateFolderRoute.toScreenArgs() = CreateFolderScreenNavArgs(parentUuid)
@@ -51,7 +53,7 @@ internal fun CreateFileRoute.toScreenArgs() = CreateFileScreenNavArgs(
     },
 )
 internal fun MoveToFolderRoute.toScreenArgs() =
-    MoveToFolderNavArgs(currentPath, nodeToMovePath, uuid, breadcrumbs.toTypedArray())
+    MoveToFolderNavArgs(currentPath, nodesToMove, breadcrumbs.toTypedArray())
 internal fun PublicLinkRoute.toScreenArgs() =
     PublicLinkNavArgs(assetId, fileName, publicLinkId, isFolder)
 internal fun PublicLinkExpirationRoute.toScreenArgs() =

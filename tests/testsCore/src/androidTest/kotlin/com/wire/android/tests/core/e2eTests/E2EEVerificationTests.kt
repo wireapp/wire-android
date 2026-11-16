@@ -43,7 +43,7 @@ class E2EEVerificationTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-8116", "TC-8117", "TC-8119")
+    @TestCaseId("TC-12793", "TC-12794", "TC-12795")
     @Category("regression", "RC", "E2EEVerification")
     @Test
     fun givenOtherUserHasDevices_whenIVerifyThem_thenGroupConversationIsVerifiedAndDegradationAlertsAreDisplayed() {

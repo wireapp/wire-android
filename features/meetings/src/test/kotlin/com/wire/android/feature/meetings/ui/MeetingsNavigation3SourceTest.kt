@@ -8,7 +8,7 @@
  * (at your option) any later version.
  */
 
-package com.wire.android.feature.meetings.ui.create
+package com.wire.android.feature.meetings.ui
 
 import java.io.File
 import org.junit.jupiter.api.Assertions.assertFalse
@@ -60,5 +60,5 @@ internal class MeetingsNavigation3SourceTest {
     }
 
     private fun source(name: String) =
-        File("src/main/java/com/wire/android/feature/meetings/ui/create/$name").readText()
+        File("src/main/java/com/wire/android/feature/meetings/ui/$name").readText()
 }

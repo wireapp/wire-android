@@ -18,6 +18,16 @@
 package com.wire.android.ui.common.bottomsheet
 
 import androidx.compose.runtime.saveable.SaverScope
+import androidx.compose.ui.platform.SoftwareKeyboardController
+import androidx.compose.ui.unit.Density
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.advanceTimeBy
+import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.runCurrent
+import kotlinx.coroutines.test.runTest
+import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertTrue
 import com.wire.android.util.AnyPrimitiveAsStringSerializer
 import io.mockk.mockk
 import kotlinx.serialization.Serializable
@@ -26,6 +36,35 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertInstanceOf
 
 class WireModalSheetStateTest {
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun awaitedOpeningCanBeCancelledDuringKeyboardDelay() = runTest {
+        val keyboard = mockk<SoftwareKeyboardController>(relaxed = true)
+        val state = WireModalSheetState<String>(Density(1f), this, keyboard)
+        val opening = launch { state.showAwaited("message", hideKeyboard = true) }
+        runCurrent()
+        advanceTimeBy(100)
+        assertFalse(state.isVisible)
+        opening.cancel()
+        advanceUntilIdle()
+        assertFalse(state.isVisible)
+        state.showAwaited("message", hideKeyboard = true)
+        assertEquals(WireSheetValue.Expanded("message"), state.currentValue)
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun fireAndForgetOpeningUsesSameAwaitableImplementation() = runTest {
+        val state = WireModalSheetState<String>(Density(1f), this)
+        state.show("message")
+        runCurrent()
+        assertTrue(state.isVisible)
+        with(WireModalSheetState.saver<String>(Density(1f), null, {}, this@runTest)) {
+            val saved = SaverScope { true }.save(state)!!
+            assertEquals(state.currentValue, restore(saved)!!.currentValue)
+        }
+    }
 
     @Suppress("LongParameterList")
     @Serializable

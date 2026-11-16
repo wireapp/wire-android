@@ -40,7 +40,7 @@ class ConversationNotificationsTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4312", "TC-4313", "TC-4307")
+    @TestCaseId("TC-12445", "TC-12446", "TC-12440")
     @Category("regression", "RC", "groups", "conversationNotifications")
     @Test
     fun givenGroupConversation_whenNotificationsAreSetToCallsMentionsAndReplies_thenPushNotificationIsNotReceived() {
@@ -133,7 +133,7 @@ class ConversationNotificationsTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4306")
+    @TestCaseId("TC-12439")
     @Category("regression", "RC", "groups", "conversationNotifications")
     @Test
     fun givenGroupConversation_whenNotificationsAreSetToNothing_thenPushNotificationIsNotReceived() {
@@ -215,7 +215,7 @@ class ConversationNotificationsTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4308", "TC-4309", "TC-4310")
+    @TestCaseId("TC-12441", "TC-12442", "TC-12443")
     @Category("regression", "RC", "conversationNotifications")
     @Test
     fun givenOneOnOneConversation_whenNotificationsAreSetToCallsMentionsAndReplies_thenPushNotificationIsNotReceived() {
@@ -307,7 +307,7 @@ class ConversationNotificationsTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4311")
+    @TestCaseId("TC-12444")
     @Category("regression", "RC", "conversationNotifications")
     @Test
     fun givenOneOnOneConversation_whenNotificationsAreSetToNothing_thenPushNotificationIsNotReceived() {

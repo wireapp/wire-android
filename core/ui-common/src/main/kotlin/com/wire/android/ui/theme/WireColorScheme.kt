@@ -102,8 +102,10 @@ data class WireColorScheme(
     // message bubbles
     val bubblesBackground: Color,
     val selfBubble: BubbleColors,
-    val otherBubble: BubbleColors
+    val otherBubble: BubbleColors,
 
+    // transient highlight, e.g. the original message after navigating from a reply
+    val replyHighlight: Color,
 ) {
     fun toColorScheme(): ColorScheme = ColorScheme(
         primary = primary, onPrimary = onPrimary,
@@ -235,15 +237,18 @@ private val LightWireColorScheme = WireColorScheme(
         secondary = WireColorPalette.LightBlue600,
         onPrimary = Color.White,
         onSecondary = Color.White,
-        primaryOnSecondary = WireColorPalette.LightBlue200
+        primaryOnSecondary = WireColorPalette.LightBlue200,
+        replyHighlight = WireColorPalette.LightBlue100.copy(alpha = 0.32f)
     ),
     otherBubble = BubbleColors(
         primary = WireColorPalette.Gray20,
         secondary = Color.White,
         onPrimary = Color.Black,
         onSecondary = Color.Black,
-        primaryOnSecondary = WireColorPalette.LightBlue500
+        primaryOnSecondary = WireColorPalette.LightBlue500,
+        replyHighlight = WireColorPalette.LightBlue500.copy(alpha = 0.16f)
     ),
+    replyHighlight = WireColorPalette.LightBlue500.copy(alpha = 0.16f),
 )
 
 // Dark WireColorScheme
@@ -348,15 +353,18 @@ private val DarkWireColorScheme = WireColorScheme(
         secondary = WireColorPalette.LightBlue900,
         onPrimary = Color.White,
         onSecondary = Color.White,
-        primaryOnSecondary = WireColorPalette.DarkBlue400
+        primaryOnSecondary = WireColorPalette.DarkBlue400,
+        replyHighlight = WireColorPalette.DarkBlue400.copy(alpha = 0.28f)
     ),
     otherBubble = BubbleColors(
         primary = WireColorPalette.Gray90,
         secondary = WireColorPalette.Gray95,
         onPrimary = Color.White,
         onSecondary = Color.White,
-        primaryOnSecondary = WireColorPalette.DarkBlue500
+        primaryOnSecondary = WireColorPalette.DarkBlue500,
+        replyHighlight = WireColorPalette.DarkBlue500.copy(alpha = 0.24f)
     ),
+    replyHighlight = WireColorPalette.DarkBlue500.copy(alpha = 0.24f),
 )
 
 @PackagePrivate
@@ -370,5 +378,6 @@ data class BubbleColors(
     val secondary: Color,
     val onPrimary: Color,
     val onSecondary: Color,
-    val primaryOnSecondary: Color
+    val primaryOnSecondary: Color,
+    val replyHighlight: Color,
 )

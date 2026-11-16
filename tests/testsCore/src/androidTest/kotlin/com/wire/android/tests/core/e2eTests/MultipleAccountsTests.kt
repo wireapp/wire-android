@@ -47,7 +47,7 @@ class MultipleAccountsTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4457")
+    @TestCaseId("TC-12540")
     @Category("regression", "RC", "login", "multipleAccounts")
     @Test
     fun givenTwoTeamMembers_whenILogInWithBothAccounts_thenBothAccountsAreLoggedInSimultaneously() {
@@ -126,7 +126,7 @@ class MultipleAccountsTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4458")
+    @TestCaseId("TC-12541")
     @Category("regression", "RC", "multipleAccounts")
     @Test
     fun givenTwoLoggedInAccounts_whenISendMessageFromSecondAccount_thenFirstAccountReceivesIt() {
@@ -269,7 +269,7 @@ class MultipleAccountsTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4459")
+    @TestCaseId("TC-12542")
     @Category("regression", "RC", "logout", "multipleAccounts")
     @Test
     fun givenThreeAccountsAreLoggedIn_whenILogOutEachAccount_thenAllAccountsAreLoggedOut() {

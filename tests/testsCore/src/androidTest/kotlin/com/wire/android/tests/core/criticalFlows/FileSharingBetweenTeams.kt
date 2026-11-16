@@ -54,7 +54,7 @@ class FileSharingBetweenTeams : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-8603")
+    @TestCaseId("TC-12690")
     @Category("criticalFlow")
     @Test
     fun givenUserInAnotherTeam_whenFileIsSent_thenRecipientCanReceivePlayAndDownloadIt() {

@@ -13,6 +13,9 @@ from typing import Any
 
 
 ALLOWED_WORKFLOW_FILES = {
+    ".github/workflows/qa-android-prod-tests.yml",
+    ".github/workflows/qa-android-beta-tests.yml",
+    ".github/workflows/qa-android-emulator-critical-flow-tests.yml",
     ".github/workflows/qa-android-regression-tests.yml",
     ".github/workflows/qa-android-fdroid-tests.yml",
 }
@@ -52,6 +55,7 @@ def validate_run_metadata(
 
     return {
         "sourceRunId": run_id,
+        "sourceRunAttempt": str(data.get("run_attempt") or 1),
         "sourceRepository": repository,
         "sourceWorkflowFile": workflow_file,
         "sourceHeadSha": head_sha,

@@ -64,6 +64,7 @@ data class LoginPage(private val device: UiDevice) {
     private val removeDeviceButtonSelector = UiSelectorParams(description = "Remove device")
     private val removeDeviceDialogSelector = UiSelectorParams(text = "Remove the following device?")
     private val removeDevicePasswordSelector = UiSelectorParams(className = "android.widget.EditText")
+    private val removeDeviceInvalidPasswordSelector = UiSelectorParams(text = "Invalid password")
     private val removeButtonSelector = UiSelectorParams(text = "Remove")
 
     fun assertEmailInputPageVisible(): LoginPage {
@@ -386,6 +387,29 @@ data class LoginPage(private val device: UiDevice) {
             timeout = timeout,
             errorMessage = "Remove Device confirmation dialog was not visible."
         )
+        return this
+    }
+
+    fun clickRemoveDeviceButton(deviceName: String): LoginPage {
+        UiWaitUtils.waitElement(UiSelectorParams(text = deviceName))
+        val removeButton = device.findObject(By.res("device_item").hasDescendant(By.text(deviceName)))
+            ?.findObject(By.res("remove device button"))
+            ?: throw AssertionError("Remove device button for '$deviceName' is not visible")
+        removeButton.click()
+        return this
+    }
+
+    fun assertRemoveDeviceDetailsVisible(deviceName: String, deviceId: String): LoginPage {
+        UiWaitUtils.waitElement(
+            UiSelectorParams(
+                textMatches = "${Regex.escape(deviceName)}\\nProteus ID: ${Regex.escape(deviceId)}\\nAdded: \\S.*"
+            )
+        )
+        return this
+    }
+
+    fun assertRemoveDeviceInvalidPasswordVisible(): LoginPage {
+        UiWaitUtils.waitElement(removeDeviceInvalidPasswordSelector)
         return this
     }
 

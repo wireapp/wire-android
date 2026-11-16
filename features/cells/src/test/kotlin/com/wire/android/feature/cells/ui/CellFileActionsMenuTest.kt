@@ -636,6 +636,42 @@ class CellFileActionsMenuTest {
         }
 
     @Test
+    fun `GIVEN drive offline disabled AND offline AND file available offline WHEN building menu THEN emits only OPEN`() =
+        runTest {
+            // WHEN
+            val items = buildMenu(
+                fileNode = fileNode.copy(isAvailableOffline = true),
+                driveOfflineEnabled = false,
+                isConversationFiles = true,
+                isOnline = false,
+            )
+
+            // THEN
+            assertEquals(listOf(NodeBottomSheetAction.OPEN), items)
+        }
+
+    @Test
+    fun `GIVEN drive offline disabled AND file available offline WHEN building allFiles menu THEN hides REMOVE_OFFLINE_ACCESS`() =
+        runTest {
+            // WHEN
+            val items = buildMenu(
+                fileNode = fileNode.copy(isAvailableOffline = true),
+                driveOfflineEnabled = false,
+                isAllFiles = true,
+            )
+
+            // THEN
+            assertEquals(
+                listOf(
+                    NodeBottomSheetAction.OPEN,
+                    NodeBottomSheetAction.SHARE,
+                    NodeBottomSheetAction.PUBLIC_LINK,
+                ),
+                items
+            )
+        }
+
+    @Test
     fun `GIVEN offline files disabled AND offline WHEN building menu THEN falls through to online menu`() =
         runTest {
             // WHEN
@@ -761,12 +797,14 @@ class CellFileActionsMenuTest {
     private fun actionsMenu(
         withCollaboraIntegration: Boolean = false,
         offlineFilesEnabled: Boolean = true,
+        driveOfflineEnabled: Boolean = true,
     ) = CellFileActionsMenu(
         featureFlags = KaliumConfigs(
             collaboraIntegration = withCollaboraIntegration,
         ),
         offlineFilesEnabled = offlineFilesEnabled,
-        drivePermissionsEnabled = true
+        drivePermissionsEnabled = true,
+        driveOfflineEnabled = driveOfflineEnabled,
     )
 
     @Suppress("LongParameterList")
@@ -774,6 +812,7 @@ class CellFileActionsMenuTest {
         fileNode: CellNodeUi = Companion.fileNode,
         withCollaboraIntegration: Boolean = false,
         offlineFilesEnabled: Boolean = true,
+        driveOfflineEnabled: Boolean = true,
         isRecycleBin: Boolean = false,
         isConversationFiles: Boolean = false,
         isAllFiles: Boolean = false,
@@ -785,6 +824,7 @@ class CellFileActionsMenuTest {
             fileNode = fileNode,
             withCollaboraIntegration = withCollaboraIntegration,
             offlineFilesEnabled = offlineFilesEnabled,
+            driveOfflineEnabled = driveOfflineEnabled,
             isRecycleBin = isRecycleBin,
             isConversationFiles = isConversationFiles,
             isAllFiles = isAllFiles,
@@ -798,6 +838,7 @@ class CellFileActionsMenuTest {
         fileNode: CellNodeUi = Companion.fileNode,
         withCollaboraIntegration: Boolean = false,
         offlineFilesEnabled: Boolean = true,
+        driveOfflineEnabled: Boolean = true,
         isRecycleBin: Boolean = false,
         isConversationFiles: Boolean = false,
         isAllFiles: Boolean = false,
@@ -810,7 +851,8 @@ class CellFileActionsMenuTest {
                 collaboraIntegration = withCollaboraIntegration,
             ),
             offlineFilesEnabled = offlineFilesEnabled,
-            drivePermissionsEnabled = true
+            drivePermissionsEnabled = true,
+            driveOfflineEnabled = driveOfflineEnabled,
         ).buildMenu(fileNode, isRecycleBin, isConversationFiles, isAllFiles, isSearching, isCollaboraEnabled, isOnline)
 
     private companion object {

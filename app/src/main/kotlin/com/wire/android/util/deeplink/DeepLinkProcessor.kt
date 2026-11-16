@@ -126,11 +126,13 @@ class DeepLinkProcessor @Inject constructor(
                 return when (val switchStatus = switchAccountIfNeeded(uri, accountInfo)) {
                     SwitchAccountStatus.Switched,
                     SwitchAccountStatus.NoNeeded -> {
+                        // Always resolve the session here, against the same source that validated it, so
+                        // navigation never has to fall back to a UI-side session mirror that may lag behind.
                         val targetSessionId = if (switchStatus == SwitchAccountStatus.Switched) {
                             uri.getQueryParameter(USER_TO_USE_QUERY_PARAM)
                                 ?.toQualifiedID(qualifiedIdMapper)
                         } else {
-                            null
+                            accountInfo.userId
                         }
                         var deepLinkResult = handleNotAuthorizedDeepLinks(uri)
                         if (deepLinkResult == DeepLinkResult.AuthorizationNeeded) {

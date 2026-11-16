@@ -22,6 +22,7 @@ package com.wire.android.ui.home.messagecomposer.state
 
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.platform.SoftwareKeyboardController
@@ -30,6 +31,8 @@ import com.wire.android.assertions.shouldBeEqualTo
 import com.wire.android.assertions.shouldBeInstanceOf
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.SnapshotExtension
+import com.wire.kalium.logic.data.message.mention.MessageMention
+import com.wire.kalium.logic.data.user.UserId
 import io.mockk.MockKAnnotations
 import io.mockk.every
 import io.mockk.mockk
@@ -246,9 +249,36 @@ class MessageCompositionInputStateHolderTest {
         state.inputFocused shouldBeEqualTo false
     }
 
+    @Test
+    fun `identical text enables edits only when mention targets change in messages and captions`() {
+        val everyone = MessageMention(0, 4, null, false)
+        val member = everyone.copy(userId = UserId("member", "example.com"))
+        for (isMultipart in listOf(false, true)) {
+            val (state, arrangement) = Arrangement().withText("@all").arrange()
+            arrangement.mentions.value = listOf(everyone)
+            state.toEdit("@all", isMultipart, listOf(everyone.copy(isSelfMention = true)))
+            state.inputType.shouldBeInstanceOf<InputType.Editing>().isEditButtonEnabled shouldBeEqualTo false
+
+            arrangement.mentions.value = listOf(member)
+            state.inputType.shouldBeInstanceOf<InputType.Editing>().isEditButtonEnabled shouldBeEqualTo true
+            arrangement.mentions.value = emptyList()
+            state.inputType.shouldBeInstanceOf<InputType.Editing>().isEditButtonEnabled shouldBeEqualTo true
+            arrangement.mentions.value = listOf(everyone)
+            state.inputType.shouldBeInstanceOf<InputType.Editing>().isEditButtonEnabled shouldBeEqualTo false
+        }
+    }
+
+    @Test
+    fun `unchanged empty attachment caption keeps edit disabled`() {
+        val (state, _) = Arrangement().withText("").arrange()
+        state.toEdit("", true)
+        state.inputType.shouldBeInstanceOf<InputType.Editing>().isEditButtonEnabled shouldBeEqualTo false
+    }
+
     class Arrangement {
 
         private val textFieldState = TextFieldState()
+        val mentions = mutableStateOf<List<MessageMention>>(emptyList())
 
         val softwareKeyboardController = mockk<SoftwareKeyboardController>()
 
@@ -256,7 +286,13 @@ class MessageCompositionInputStateHolderTest {
         private val focusRequester = mockk<FocusRequester>()
 
         private val state by lazy {
-            MessageCompositionInputStateHolder(textFieldState, softwareKeyboardController, focusManager, focusRequester)
+            MessageCompositionInputStateHolder(
+                messageTextState = textFieldState,
+                keyboardController = softwareKeyboardController,
+                focusManager = focusManager,
+                focusRequester = focusRequester,
+                currentMentions = { mentions.value },
+            )
         }
 
         init {

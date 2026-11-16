@@ -21,6 +21,7 @@ import com.wire.android.feature.cells.ui.model.CellNodeUi
 import com.wire.android.feature.cells.ui.model.NodeBottomSheetAction
 import com.wire.android.feature.cells.ui.model.NodeMenuItem
 import com.wire.android.feature.cells.ui.model.isEditSupported
+import com.wire.android.feature.cells.ui.model.isOfflineDownloadPending
 import com.wire.android.feature.cells.ui.model.localFileAvailable
 import com.wire.kalium.logic.featureFlags.KaliumConfigs
 import dev.zacsweers.metro.Inject
@@ -31,7 +32,8 @@ class CellFileActionsMenu @Inject constructor(
     private val featureFlags: KaliumConfigs,
     @Named("offlineFilesEnabled") private val offlineFilesEnabled: Boolean,
     @Named("drivePermissionsEnabled") val drivePermissionsEnabled: Boolean,
-    ) {
+    @Named("driveOfflineEnabled") private val driveOfflineEnabled: Boolean,
+) {
     internal fun buildMenu(
         cellNode: CellNodeUi,
         isRecycleBin: Boolean,
@@ -48,7 +50,7 @@ class CellFileActionsMenu @Inject constructor(
                 if (canOpenOffline) {
                     add(NodeMenuItem(NodeBottomSheetAction.OPEN))
                 }
-                if (cellNode is CellNodeUi.File && cellNode.isAvailableOffline) {
+                if (driveOfflineEnabled && cellNode is CellNodeUi.File && cellNode.isAvailableOffline) {
                     add(NodeMenuItem(NodeBottomSheetAction.REMOVE_OFFLINE_ACCESS))
                 }
             }
@@ -63,7 +65,7 @@ class CellFileActionsMenu @Inject constructor(
             isConversationFiles -> {
                 val common = commonActions(cellNode, isConversationFiles = true)
                 val isTerminal = cellNode is CellNodeUi.File &&
-                        (cellNode.isOpenLoading || cellNode.downloadProgress != null)
+                        (cellNode.isOpenLoading || cellNode.isOfflineDownloadPending())
                 if (isTerminal) {
                     common
                 } else {
@@ -96,7 +98,7 @@ class CellFileActionsMenu @Inject constructor(
                     return@buildList
                 }
 
-                cellNode.downloadProgress != null -> {
+                cellNode.isOfflineDownloadPending() -> {
                     add(NodeMenuItem(NodeBottomSheetAction.CANCEL_DOWNLOAD))
                     return@buildList
                 }
@@ -112,18 +114,24 @@ class CellFileActionsMenu @Inject constructor(
                     // "Share via link" is shown alongside "Share" in All files / search.
                     // In conversation files it is provided by conversationActions instead.
                     if (!isConversationFiles) {
-                        addRestrictedForViewerOnly(NodeBottomSheetAction.PUBLIC_LINK, cellNode.isViewerOnly, isConversationFiles)
+                        addRestrictedForViewerOnly(NodeBottomSheetAction.PUBLIC_LINK, cellNode.isViewerOnly, false)
                     }
 
                     if (offlineFilesEnabled) {
-                        if (cellNode.isAvailableOffline) {
-                            add(NodeMenuItem(NodeBottomSheetAction.REMOVE_OFFLINE_ACCESS))
-                        } else if (featureFlags.collaboraIntegration && !cellNode.isEditSupported()) {
-                            addRestrictedForViewerOnly(
-                                NodeBottomSheetAction.MAKE_AVAILABLE_OFFLINE,
-                                cellNode.isViewerOnly,
-                                isConversationFiles,
-                            )
+                        when {
+                            cellNode.isAvailableOffline && driveOfflineEnabled -> {
+                                add(NodeMenuItem(NodeBottomSheetAction.REMOVE_OFFLINE_ACCESS))
+                            }
+
+                            !cellNode.isAvailableOffline &&
+                                    featureFlags.collaboraIntegration &&
+                                    !cellNode.isEditSupported() -> {
+                                addRestrictedForViewerOnly(
+                                    NodeBottomSheetAction.MAKE_AVAILABLE_OFFLINE,
+                                    cellNode.isViewerOnly,
+                                    isConversationFiles,
+                                )
+                            }
                         }
                     }
                 }

@@ -44,6 +44,10 @@ data class ConversationInfoViewState(
     val initialLoadingState: InitialLoadingState = InitialLoadingState.LOADING,
 ) {
     val showHistoryLoadingIndicator: Boolean get() = conversationType == Conversation.Type.Group.Channel
+
+    /** 1:1s and groups, channels included, open their history with the end-to-end encryption notice. */
+    val showsEncryptionNotice: Boolean
+        get() = conversationDetailsData is ConversationDetailsData.OneOne || conversationDetailsData is ConversationDetailsData.Group
 }
 
 sealed class ConversationDetailsData(open val conversationProtocol: Conversation.ProtocolInfo?) {

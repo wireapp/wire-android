@@ -47,7 +47,7 @@ class ApplockTest : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-8143")
+    @TestCaseId("TC-12672")
     @Category("regression", "RC", "applock")
     @Test
     fun givenUserEnablesAppLock_whenAppIsBackgroundedForOneMinute_thenAppRequiresUnlockOnReturn() {
@@ -179,7 +179,7 @@ class ApplockTest : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-8144")
+    @TestCaseId("TC-12673")
     @Category("regression", "RC", "applock")
     @Test
     fun givenUserEnablesAppLock_whenWrongPasscodeIsEntered_thenAppStaysLockedUntilCorrectPasscodeIsEntered() {
@@ -339,7 +339,7 @@ class ApplockTest : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-11587")
+    @TestCaseId("TC-12768")
     @Category("regression", "RC", "applock", "security")
     @Tag(key = "feature", value = "appLockColdStart")
     @Test
@@ -431,7 +431,7 @@ class ApplockTest : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-8145", "TC-8146")
+    @TestCaseId("TC-12674", "TC-12675")
     @Category("regression", "RC", "applock")
     @Test
     fun givenTeamAppLockIsEnforced_whenTeamOwnerSetsPasscode_thenAppLockCannotBeChanged() {

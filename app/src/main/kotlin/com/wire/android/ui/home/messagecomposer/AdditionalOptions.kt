@@ -118,6 +118,7 @@ internal fun AdditionalOptionSubMenu(
                 onAudioRecorded = onAudioRecorded,
                 onCloseRecordAudio = onCloseAdditionalAttachment,
                 modifier = modifier,
+                useKeyboardNavigation = useKeyboardNavigation,
             )
         }
     }

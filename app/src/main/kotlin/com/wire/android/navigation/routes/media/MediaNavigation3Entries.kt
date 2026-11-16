@@ -5,6 +5,7 @@
 package com.wire.android.navigation.routes.media
 
 import android.net.Uri
+import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.Composable
 import com.wire.android.navigation.navigation3.WireEntryPresentation
 import com.wire.android.navigation.navigation3.WireEntryProviderInstaller
@@ -149,20 +150,25 @@ internal fun mediaNavigation3Entries(
         )
     }
     wireEntry<AuthenticatedImportMediaRoute>(presentation = WireEntryPresentation.PopUp) { route ->
-        AuthenticatedImportMediaNavigation3Entry(route, actions)
+        AuthenticatedImportMediaNavigation3Entry(route, runtime, actions)
     }
 }
 
 @Composable
 private fun AuthenticatedImportMediaNavigation3Entry(
     route: AuthenticatedImportMediaRoute,
+    runtime: WireNavigation3Runtime,
     actions: MediaNavigation3Actions,
 ) {
+    val navigateBack: () -> Unit = {
+        if (route.finishOnClose || !runtime.navigator.goBack()) actions.finishShare()
+    }
+    BackHandler(enabled = route.finishOnClose, onBack = actions::finishShare)
     when (val state = featureFlagNotificationViewModel().featureFlagState.isFileSharingState) {
-        FeatureFlagState.FileSharingState.Loading -> ImportMediaLoadingContent(actions::finishShare)
+        FeatureFlagState.FileSharingState.Loading -> ImportMediaLoadingContent(navigateBack)
         FeatureFlagState.FileSharingState.NoUser -> ImportMediaLoggedOutContent(
             state,
-            actions::finishShare,
+            navigateBack,
             actions::openAuthentication,
         )
         FeatureFlagState.FileSharingState.DisabledByTeam,
@@ -170,7 +176,7 @@ private fun AuthenticatedImportMediaNavigation3Entry(
         is FeatureFlagState.FileSharingState.AllowSome,
         -> ImportMediaAuthenticatedContent(
             isRestrictedInTeam = state == FeatureFlagState.FileSharingState.DisabledByTeam,
-            navigateBack = actions::finishShare,
+            navigateBack = navigateBack,
             onConversationReady = { conversationId, assets, text ->
                 actions.openConversationFromShare(
                     conversationId.toMediaConversationId(),

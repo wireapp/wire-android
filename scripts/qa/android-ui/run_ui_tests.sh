@@ -92,7 +92,7 @@ MAX_PULL_ATTEMPTS="$((10#${ALLURE_PULL_MAX_ATTEMPTS}))"
 PULL_BASE_DELAY_SEC="$((10#${ALLURE_PULL_BASE_DELAY_SEC}))"
 INLINE_PART_MAX_CHARS="$((10#${RERUN_INLINE_PART_MAX_CHARS}))"
 
-LOG_DIR="${RUNNER_TEMP}/instrumentation-logs"
+LOG_DIR="${RUNNER_TEMP}/instrumentation-logs/$(basename "${ALLURE_RESULTS_ROOT}")"
 STATE_DIR="${RETRY_STATE_DIR:-${RUNNER_TEMP}/retry-state}"
 mkdir -p "${LOG_DIR}" "${STATE_DIR}" "${ALLURE_RESULTS_ROOT}"
 
@@ -252,7 +252,8 @@ install_app_before_attempt_if_needed() {
     adb -s "${serial}" uninstall "${APP_ID}" >/dev/null 2>&1 || true
     if [[ "${apk_path}" == /data/local/tmp/* ]]; then
       local output
-      output="$(adb -s "${serial}" shell pm install -r -g "${apk_path}" 2>&1 | tr -d '\r' || true)"
+      output="$(python3 scripts/qa/android-ui/install_apk_xiaomi.py "${serial}" "${APP_ID}" \
+        shell pm install -r -g "${apk_path}" 2>&1 | tr -d '\r' || true)"
       if [[ "${output}" != *"Success"* ]]; then
         echo "ERROR: Failed to install app APK on ${serial} from ${apk_path}. Output: ${output:-<empty>}"
         exit 1
@@ -262,7 +263,7 @@ install_app_before_attempt_if_needed() {
         echo "ERROR: APP_APK_BEFORE_ATTEMPT does not exist or is empty: ${apk_path}"
         exit 1
       fi
-      adb -s "${serial}" install -r "${apk_path}" >/dev/null
+      python3 scripts/qa/android-ui/install_apk_xiaomi.py "${serial}" "${APP_ID}" install -r "${apk_path}" >/dev/null
     fi
   done
 }
@@ -418,6 +419,34 @@ pull_allure_results_for_attempt() {
   done
 }
 
+# Checks whether this attempt needs TC-12261's offline test-service connection.
+# Handles explicit test IDs, category/full runs and per-device retry lists.
+# Skips connection setup when the selection excludes this test.
+offline_pdf_test_selected() {
+  local attempt="$1"
+  local serial="$2"
+  case "${EXCLUDE_CATEGORY:-}" in
+    regression|RC|wireDrive|wireDriveDownloadsAndOffline) return 1 ;;
+  esac
+  if ! attempt_uses_selector_mode "${attempt}"; then
+    grep -Fq '#givenMemberHasSavedPdfOffline_whenTeamOwnerUpdatesTheSameOnlinePdf_thenMemberStillReadsOriginalContentWithoutEditingWhileOffline' \
+      "$(rerun_list_file_for_device "${attempt}" "${serial}")"
+    return $?
+  fi
+  if [[ -n "${RESOLVED_TESTCASE_ID:-}" ]]; then
+    [[ "${RESOLVED_TESTCASE_ID}" == "TC-12261" ]]
+    return $?
+  fi
+  local category
+  for category in "${RESOLVED_CATEGORY:-}" "${REQUIRED_CATEGORY:-}"; do
+    case "${category}" in
+      ""|regression|RC|wireDrive|wireDriveDownloadsAndOffline) ;;
+      *) return 1 ;;
+    esac
+  done
+  return 0
+}
+
 run_attempt_on_devices() {
   local attempt="$1"
   local num_shards="$2"
@@ -436,7 +465,7 @@ run_attempt_on_devices() {
 
       local adb_cmd="adb -s ${serial}"
       ${adb_cmd} wait-for-device
-      ${adb_cmd} install -r -t "${TEST_APK_PATH}" >/dev/null
+      python3 scripts/qa/android-ui/install_apk_xiaomi.py "${serial}" "${TEST_APP_ID}" install -r -t "${TEST_APK_PATH}" >/dev/null
 
       local pkgs
       pkgs="$(${adb_cmd} shell pm list packages 2>/dev/null | tr -d '\r' || true)"
@@ -504,15 +533,16 @@ run_attempt_on_devices() {
         fi
       fi
 
+      # Exclusions remain active for explicit retry/deflake lists as well.
+      if [[ -n "${EXCLUDE_CATEGORY:-}" ]]; then
+        args+=(-e excludeCategory "${EXCLUDE_CATEGORY}")
+      fi
       if attempt_uses_selector_mode "${attempt}"; then
         if [[ -n "${RESOLVED_TESTCASE_ID:-}" ]]; then
           args+=(-e testCaseId "${RESOLVED_TESTCASE_ID}")
         fi
         if [[ -n "${RESOLVED_CATEGORY:-}" ]]; then
           args+=(-e category "${RESOLVED_CATEGORY}")
-        fi
-        if [[ -n "${EXCLUDE_CATEGORY:-}" ]]; then
-          args+=(-e excludeCategory "${EXCLUDE_CATEGORY}")
         fi
         if [[ -n "${REQUIRED_CATEGORY:-}" ]]; then
           args+=(-e requiredCategory "${REQUIRED_CATEGORY}")
@@ -552,14 +582,49 @@ run_attempt_on_devices() {
         args+=(-e oldApkPath "${OLD_APK_DEVICE_PATH:-/data/local/tmp/Wire.old.apk}")
       fi
 
+      # For TC-12261, connect the phone to test-service through ADB while Wi-Fi and
+      # mobile data are disabled. Start a runner-side relay, forward the phone's
+      # loopback port to it, and pass that URL to the test.
+      # Clean up this attempt's forwarding rule and relay on success or failure.
+      if offline_pdf_test_selected "${attempt}" "${serial}"; then
+        : "${TEST_SERVICE_URL:?Test Service URL is required for the offline PDF update}"
+        local relay_pid=""
+        local reverse_created=false
+        # Removes this attempt's reverse rule and stops its relay when the attempt exits.
+        cleanup_offline_test_service() {
+          if [[ "${reverse_created}" == "true" ]]; then
+            adb -s "${serial}" reverse --remove tcp:18082 || true
+          fi
+          if [[ -n "${relay_pid}" ]]; then
+            kill "${relay_pid}" 2>/dev/null || true
+            wait "${relay_pid}" 2>/dev/null || true
+          fi
+        }
+        trap cleanup_offline_test_service EXIT
+        local port_file="${STATE_DIR}/offline-service-${attempt}-${serial}.port"
+        : > "${port_file}"
+        python3 scripts/qa/android-ui/offline_test_service.py "${TEST_SERVICE_URL}" "${port_file}" \
+          > "${LOG_DIR}/offline-service-${attempt}-${serial}.log" 2>&1 &
+        relay_pid=$!
+        local probe
+        for probe in {1..50}; do
+          [[ -s "${port_file}" ]] && break
+          kill -0 "${relay_pid}" 2>/dev/null || { echo "ERROR: Offline test-service relay failed to start."; exit 1; }
+          sleep 0.1
+        done
+        [[ -s "${port_file}" ]] || { echo "ERROR: Offline test-service relay did not start within 5 seconds."; exit 1; }
+        adb -s "${serial}" reverse --no-rebind tcp:18082 "tcp:$(cat "${port_file}")"
+        reverse_created=true
+        args+=(-e offlineTestServiceUrl "http://127.0.0.1:18082")
+      fi
+
       local log_file="${LOG_DIR}/attempt-${attempt}-instrument-${serial}.log"
 
       # Android instrumentation can return non-zero for normal test failures.
       # Keep that separate from real infra failures so retries can still proceed.
       set +e
-      ${adb_cmd} shell am instrument -w -r "${args[@]}" "${instrumentation}" 2>&1 \
-        | sed -u "s/^/[${serial}] /" | tee "${log_file}"
-      local rc=${PIPESTATUS[0]}
+      ${adb_cmd} shell am instrument -w -r "${args[@]}" "${instrumentation}" > "${log_file}" 2>&1
+      local rc=$?
       set -e
 
       # Keep normal test failures separate from infra failures so retries can still be resolved from Allure.

@@ -17,9 +17,15 @@
  */
 package com.wire.android.tests.core.pages
 
+import android.graphics.Point
+import android.os.Build
+import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.By
-import androidx.test.uiautomator.UiDevice
+import androidx.test.uiautomator.Direction
 import androidx.test.uiautomator.StaleObjectException
+import androidx.test.uiautomator.UiDevice
+import androidx.test.uiautomator.Until
+import com.wire.android.tests.support.UiAutomatorSetup
 import uiautomatorutils.UiSelectorParams
 import uiautomatorutils.UiWaitUtils
 import java.util.regex.Pattern
@@ -34,6 +40,52 @@ data class DocumentsUIPage(private val device: UiDevice) {
     private val androidMediaGrid = UiSelectorParams(className = "android.widget.GridView")
     private val downloadsOption = UiSelectorParams(textContains = "Download")
     private val showRootsButton = UiSelectorParams(description = "Show roots")
+
+    fun openDownloadsInFilesApp(): DocumentsUIPage {
+        device.executeShellCommand(
+            "am start -f 0x10008000 -a android.intent.action.VIEW " +
+                "-d content://com.android.providers.downloads.documents/root/downloads -t vnd.android.document/root"
+        )
+        UiWaitUtils.waitElement(UiSelectorParams(description = "Search"))
+        UiWaitUtils.findElementOrNull(UiSelectorParams(description = "List view"))?.click()
+        return this
+    }
+
+    fun shareFileFromFilesApp(fileName: String): DocumentsUIPage {
+        UiWaitUtils.waitElement(UiSelectorParams(description = "Search")).click()
+        UiWaitUtils.waitElement(
+            UiSelectorParams(resourceId = "com.google.android.documentsui:id/search_src_text")
+        ).text = fileName.substringBeforeLast('.')
+        val file = UiWaitUtils.waitElement(UiSelectorParams(text = fileName))
+        file.longClick()
+        UiWaitUtils.waitElement(UiSelectorParams(resourceId = "com.google.android.documentsui:id/action_menu_share")).click()
+        return this
+    }
+
+    @Suppress("MagicNumber")
+    fun selectWireFromAndroidShareSheet(): DocumentsUIPage {
+        val packageManager = InstrumentationRegistry.getInstrumentation().context.packageManager
+        val application = packageManager.getApplicationInfo(UiAutomatorSetup.appPackage, 0)
+        val appName = packageManager.getApplicationLabel(application).toString()
+        if (UiWaitUtils.findElementOrNull(UiSelectorParams(text = appName)) == null) {
+            val samsungTargetsId = "com.android.intentresolver:id/sem_chooser_recycler_ranked_app"
+            if (Build.MANUFACTURER.equals("samsung", ignoreCase = true)) {
+                // Samsung keeps additional sharing apps behind More in its horizontal list.
+                val targets = UiWaitUtils.waitElement(UiSelectorParams(resourceId = samsungTargetsId))
+                targets.scrollUntil(Direction.RIGHT, Until.findObject(By.text("More")))
+                val more = UiWaitUtils.waitElement(UiSelectorParams(text = "More"))
+                more.parent.findObject(By.res("com.android.intentresolver:id/icon")).click()
+                UiWaitUtils.waitElement(UiSelectorParams(text = "Apps"))
+            } else {
+                val handle = UiWaitUtils.waitElement(UiSelectorParams(resourceId = "android:id/drag"))
+                handle.drag(Point(handle.visibleCenter.x, device.displayHeight / 4))
+                val targets = UiWaitUtils.waitElement(UiSelectorParams(resourceId = "android:id/resolver_list"))
+                targets.scrollUntil(Direction.DOWN, Until.findObject(By.text(appName)))
+            }
+        }
+        UiWaitUtils.waitElement(UiSelectorParams(text = appName)).click()
+        return this
+    }
 
     fun iSeeQrCodeImage(fileName: String = "my-test-qr.png"): DocumentsUIPage {
         val qrCodeImage = UiSelectorParams(text = fileName)

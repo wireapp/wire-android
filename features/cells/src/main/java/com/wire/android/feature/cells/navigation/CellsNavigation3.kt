@@ -5,6 +5,7 @@
 
 package com.wire.android.feature.cells.navigation
 
+import com.wire.android.feature.cells.ui.movetofolder.NodeToMove
 import com.wire.android.feature.cells.ui.search.sort.SortCriteriaNavArg
 import com.wire.navigation.SessionRoute
 import com.wire.navigation.WireNavEntryId
@@ -24,6 +25,7 @@ data class CellsFilesArguments(
     val breadcrumbs: List<String> = emptyList(),
     val parentFolderUuid: String? = null,
     val isSearchByDefaultActive: Boolean = false,
+    val isOfflineOnly: Boolean = false,
 )
 
 @Serializable
@@ -84,8 +86,7 @@ data class CreateFileRoute(
 data class MoveToFolderRoute(
     override val sessionId: WireSessionId,
     val currentPath: String,
-    val nodeToMovePath: String,
-    val uuid: String,
+    val nodesToMove: List<NodeToMove>,
     val breadcrumbs: List<String> = emptyList(),
     override val entryId: WireNavEntryId = WireNavEntryId.random(),
 ) : CellsRoute {

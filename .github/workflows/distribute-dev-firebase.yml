@@ -31,8 +31,8 @@ on:
       DOMAIN_REMOVAL_KEYS_FOR_REPAIR: {required: false}
 
 permissions:
-  actions: read # find and download existing PR build artifacts
-  contents: read # check out workflow tools and branch sources
+  actions: read # find the successful Develop CI run for a PR head
+  contents: read # check out workflow tools, branch sources and PR heads
   pull-requests: read # resolve the selected PR's repository and current revision
 
 concurrency:
@@ -62,7 +62,7 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Download PR APK
+      - name: Resolve PR head
         if: inputs.pull-request != ''
         id: pr
         env:
@@ -76,34 +76,30 @@ jobs:
           sha="$(jq -er '.head.sha' <<< "${pr}")"
           run_id="$(gh api "repos/${GITHUB_REPOSITORY}/actions/workflows/build-develop-pr.yml/runs?event=pull_request&head_sha=${sha}&status=success&per_page=100" \
             --jq "[.workflow_runs[] | select(any(.pull_requests[]; .number == ${PULL_REQUEST}))][0].id // empty")"
-          [[ -n "${run_id}" ]] || { echo "No successful CI build for this PR revision; run PR CI first"; exit 1; }
-          gh run download "${run_id}" --repo "${GITHUB_REPOSITORY}" --name Dev-Debug-artifacts --dir apk-input
-          echo "details=PR #${PULL_REQUEST} | head ${sha} | CI test merge, successful Develop CI | ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${run_id}" >> "${GITHUB_OUTPUT}"
+          [[ -n "${run_id}" ]] || { echo "No successful Develop CI run for this PR head; wait for PR CI to pass, then retry"; exit 1; }
+          echo "sha=${sha}" >> "${GITHUB_OUTPUT}"
+          echo "run-url=${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${run_id}" >> "${GITHUB_OUTPUT}"
 
-      - name: Checkout build branch
-        if: inputs.pull-request == ''
+      - name: Checkout build source
         uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
         with:
-          ref: refs/heads/${{ inputs.source-branch || 'develop' }}
+          ref: ${{ steps.pr.outputs.sha || format('refs/heads/{0}', inputs.source-branch || 'develop') }}
           path: source
           persist-credentials: false
           submodules: recursive
           fetch-depth: 1
 
       - name: Set up Java and Gradle
-        if: inputs.pull-request == ''
         uses: ./.github/actions/setup-java-gradle
 
       - name: Setup shared debug keystore
-        if: inputs.pull-request == ''
         uses: ./.github/actions/setup-keystore
         with:
           keystore-type: debug
         env:
           ENCODED_KEYSTORE_DEBUG: ${{ secrets.ENCODED_KEYSTORE_DEBUG }}
 
-      - name: Build branch APK
-        if: inputs.pull-request == ''
+      - name: Build DevDebug APK
         env:
           ENABLE_SIGNING: "TRUE"
           KEYSTORE_KEY_NAME_DEBUG: ${{ secrets.SIGNING_KEY_ALIAS_DEBUG }}
@@ -119,15 +115,15 @@ jobs:
         env:
           SOURCE_BRANCH: ${{ inputs.source-branch }}
           PULL_REQUEST: ${{ inputs.pull-request }}
-          PR_DETAILS: ${{ steps.pr.outputs.details }}
+          PR_SHA: ${{ steps.pr.outputs.sha }}
+          CI_RUN_URL: ${{ steps.pr.outputs.run-url }}
         run: |
-          search_root=apk-input
-          details="${PR_DETAILS}"
-          if [[ -z "${PULL_REQUEST}" ]]; then
-            search_root=source/app/build/outputs
+          if [[ -n "${PULL_REQUEST}" ]]; then
+            details="PR #${PULL_REQUEST} | head ${PR_SHA} | Develop CI green | ${CI_RUN_URL}"
+          else
             details="Branch ${SOURCE_BRANCH:-develop} | commit $(git -C source rev-parse HEAD) | APK build only | ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
           fi
-          mapfile -t apks < <(find "${search_root}" -type f -path '*/apk/dev/debug/*.apk' -print)
+          mapfile -t apks < <(find source/app/build/outputs -type f -path '*/apk/dev/debug/*.apk' -print)
           (( ${#apks[@]} == 1 )) || { echo "Expected one DevDebug APK, found ${#apks[@]}"; exit 1; }
           mkdir -p distribution-apk
           cp -- "${apks[0]}" distribution-apk/app.apk

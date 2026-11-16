@@ -53,7 +53,7 @@ class FileSharingTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4339")
+    @TestCaseId("TC-12471")
     @Category("regression", "RC", "fileSharing")
     @Test
     fun givenTeamMember_whenReceivingAndDownloadingImage_thenImageIsSavedToDownloads() {
@@ -103,7 +103,7 @@ class FileSharingTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4340")
+    @TestCaseId("TC-12472")
     @Category("regression", "RC", "fileSharing")
     @Test
     fun givenTeamMember_whenReceivingTxtFile_thenICanDownloadIt() {
@@ -155,7 +155,7 @@ class FileSharingTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4341")
+    @TestCaseId("TC-12473")
     @Category("regression", "RC", "fileSharing")
     @Test
     fun givenTeamMember_whenReceivingVideo_thenICanDownloadIt() {
@@ -207,7 +207,7 @@ class FileSharingTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4342")
+    @TestCaseId("TC-12474")
     @Category("regression", "RC", "fileSharing")
     @Test
     fun givenTeamMember_whenSendingImageInGroupConversation_thenImageIsSent() {
@@ -254,7 +254,7 @@ class FileSharingTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4343")
+    @TestCaseId("TC-12475")
     @Category("regression", "RC", "fdroid", "fileSharing")
     @Test
     fun givenTeamMember_whenSendingFileInGroupConversation_thenFileIsSent() {

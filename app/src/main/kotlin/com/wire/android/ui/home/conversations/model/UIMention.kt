@@ -23,20 +23,21 @@ import com.wire.kalium.logic.data.user.UserId
 data class UIMention(
     val start: Int,
     val length: Int,
-    val userId: UserId,
+    val userId: UserId?,
     val handler: String // name that should be displayed in a message
 ) {
+    val isEveryone: Boolean get() = userId == null
+
     fun intoMessageMention() = MessageMention(start, length, userId, false) // We can never send a self mention message
 }
 
-fun MessageMention.toUiMention(originalText: String): UIMention? =
-    if (start + length <= originalText.length && originalText.elementAt(start) == '@') {
-        UIMention(
-            start = start,
-            length = length,
-            userId = userId,
-            handler = originalText.substring(start, start + length)
-        )
-    } else {
-        null
-    }
+fun MessageMention.toUiMention(originalText: String): UIMention? {
+    val hasValidRange = start >= 0 && length > 0 && start <= originalText.length - length
+    if (!hasValidRange || originalText[start] != '@') return null
+    return UIMention(
+        start = start,
+        length = length,
+        userId = userId,
+        handler = originalText.substring(start, start + length)
+    )
+}

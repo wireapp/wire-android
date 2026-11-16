@@ -34,11 +34,13 @@ import androidx.compose.ui.input.key.isShiftPressed
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.type
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.onClick
+import androidx.compose.ui.semantics.role
+import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.model.Contact
 import com.wire.android.ui.common.colorsScheme
@@ -54,18 +56,21 @@ internal fun KeyboardMentionList(
     firstItemFocusRequester: FocusRequester,
     modifier: Modifier = Modifier,
     reverseLayout: Boolean = false,
+    showEveryoneMention: Boolean = false,
+    onEveryoneMentionPicked: () -> Unit = {},
 ) {
+    val entries = if (showEveryoneMention) listOf(null) + membersToMention else membersToMention
     val memberKeys = membersToMention.map { it.id to it.domain }
-    val focusRequesters = remember(memberKeys, firstItemFocusRequester) {
-        listOf(firstItemFocusRequester) + List((membersToMention.size - 1).coerceAtLeast(0)) { FocusRequester() }
+    val focusRequesters = remember(memberKeys, showEveryoneMention, firstItemFocusRequester) {
+        listOf(firstItemFocusRequester) + List((entries.size - 1).coerceAtLeast(0)) { FocusRequester() }
     }
     LazyColumn(
         modifier = modifier.focusGroup(),
         reverseLayout = reverseLayout,
     ) {
         itemsIndexed(
-            items = membersToMention,
-            key = { _, member -> "${member.id}@${member.domain}" },
+            items = entries,
+            key = { _, member -> member?.let { "${it.id}@${it.domain}" } ?: "everyone" },
         ) { index, member ->
             KeyboardMentionItem(
                 member = member,
@@ -73,6 +78,7 @@ internal fun KeyboardMentionList(
                 index = index,
                 focusRequesters = focusRequesters,
                 onMentionPicked = onMentionPicked,
+                onEveryoneMentionPicked = onEveryoneMentionPicked,
                 onDismissRequest = onDismissRequest,
                 reverseLayout = reverseLayout,
             )
@@ -82,15 +88,18 @@ internal fun KeyboardMentionList(
 
 @Composable
 private fun KeyboardMentionItem(
-    member: Contact,
+    member: Contact?,
     searchQuery: String,
     index: Int,
     focusRequesters: List<FocusRequester>,
     onMentionPicked: (Contact) -> Unit,
+    onEveryoneMentionPicked: () -> Unit,
     onDismissRequest: () -> Unit,
     reverseLayout: Boolean,
 ) {
     var isFocused by remember { mutableStateOf(false) }
+    val everyoneDescription = stringResource(R.string.mention_everyone_description)
+    val pickMention = { if (member == null) onEveryoneMentionPicked() else onMentionPicked(member) }
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -102,39 +111,46 @@ private fun KeyboardMentionItem(
                     context = MentionKeyContext(
                         index = index,
                         focusRequesters = focusRequesters,
-                        onMentionPicked = { onMentionPicked(member) },
+                        onMentionPicked = pickMention,
                         onDismissRequest = onDismissRequest,
                         reverseLayout = reverseLayout,
                     ),
                 )
             }
             .clearAndSetSemantics {
-                contentDescription = listOf(member.name, member.label).filter { it.isNotBlank() }.joinToString(", ")
+                contentDescription = member?.let {
+                    listOf(it.name, it.label).filter { part -> part.isNotBlank() }.joinToString(", ")
+                } ?: "@all, $everyoneDescription"
                 role = Role.Button
                 onClick {
-                    onMentionPicked(member)
+                    pickMention()
                     true
                 }
             }
             .focusable(),
         contentAlignment = Alignment.CenterStart,
     ) {
-        MemberItemToMention(
-            avatarData = member.avatarData,
-            name = member.name,
-            label = member.label,
-            membership = member.membership,
-            clickable = Clickable { onMentionPicked(member) },
-            searchQuery = searchQuery,
-            modifier = Modifier
-                .fillMaxWidth()
-                .focusProperties { canFocus = false },
-            backgroundColor = if (isFocused) {
-                MaterialTheme.wireColorScheme.primaryVariant
-            } else {
-                colorsScheme().surface
-            },
-        )
+        val itemModifier = Modifier.fillMaxWidth().focusProperties { canFocus = false }
+        val backgroundColor = if (isFocused) MaterialTheme.wireColorScheme.primaryVariant else colorsScheme().surface
+        if (member == null) {
+            EveryoneItemToMention(
+                searchQuery = searchQuery,
+                clickable = Clickable { pickMention() },
+                modifier = itemModifier,
+                backgroundColor = backgroundColor,
+            )
+        } else {
+            MemberItemToMention(
+                avatarData = member.avatarData,
+                name = member.name,
+                label = member.label,
+                membership = member.membership,
+                clickable = Clickable { pickMention() },
+                searchQuery = searchQuery,
+                modifier = itemModifier,
+                backgroundColor = backgroundColor,
+            )
+        }
     }
 }
 

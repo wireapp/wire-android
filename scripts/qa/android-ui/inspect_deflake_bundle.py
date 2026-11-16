@@ -89,6 +89,12 @@ for field, expected_value in expected_fields.items():
             f"ERROR: Deflake metadata field '{field}' does not match the selected GitHub Actions run."
         )
 
+if env("EXCLUDE_UPGRADE_TESTS") == "true":
+    if metadata.get("is_upgrade", False) or metadata.get("selector_value") == "upgrade":
+        raise SystemExit("ERROR: Emulator critical-flow deflake excludes upgrade tests.")
+    if metadata.get("android_device_group") != "criticalFlow":
+        raise SystemExit("ERROR: Emulator deflake requires the criticalFlow source device group.")
+
 # Never silently switch a rerun to today's repository default. Old bundles
 # need an explicit URL because their original service cannot be reconstructed.
 try:
@@ -115,6 +121,12 @@ if not failed_tests:
 # Deflake updates the source Testiny run. An empty source name keeps reporting
 # disabled, even if a normal-run name was entered in the dispatch form.
 effective_testiny_run_name = str(metadata.get("testiny_run_name", "")).strip()
+
+# Mask the device ID before exposing it as an output to later steps in this job.
+device_id = str(metadata.get("android_device_id", ""))
+if device_id:
+    escaped = device_id.replace("%", "%25").replace("\r", "%0D").replace("\n", "%0A")
+    print(f"::add-mask::{escaped}")
 
 print(f"Deflake bundle directory: {bundle_dir}")
 print(f"Selected workflow name: {metadata['source_workflow_name']}")

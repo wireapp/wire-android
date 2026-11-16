@@ -26,8 +26,22 @@ import java.net.URI
 import java.time.Instant
 import java.time.ZoneId
 
-fun BackendClient.getMeetingByTitleAndStartTime(creator: ClientUser, title: String, start: Instant): Meeting =
-    listMeetings(creator).single { it.title == title && it.start == start }
+fun BackendClient.getMeetingByTitleAndStartTime(creator: ClientUser, title: String, start: Instant): Meeting {
+    val meetings = JSONArray(sendMeetingRequest(creator, "meetings/list", "GET"))
+    val response = (0 until meetings.length()).map { meetings.getJSONObject(it) }.single {
+        it.getString("title") == title && Instant.parse(it.getString("start_time")) == start
+    }
+    return Meeting(
+        id = QualifiedID.fromJSON(response.getJSONObject("qualified_id")),
+        conversationId = QualifiedID.fromJSON(response.getJSONObject("qualified_conversation")),
+        creator = creator,
+        title = response.getString("title"),
+        start = Instant.parse(response.getString("start_time")),
+        end = Instant.parse(response.getString("end_time")),
+        zone = ZoneId.of(response.getString("tzid")),
+        recurring = !response.isNull("recurrence"),
+    )
+}
 
 fun BackendClient.updateMeeting(meeting: Meeting, title: String, start: Instant, end: Instant): Meeting {
     sendMeetingRequest(meeting.creator, meetingPath(meeting), "PUT", meetingBody(title, start, end, meeting.zone, meeting.recurring))

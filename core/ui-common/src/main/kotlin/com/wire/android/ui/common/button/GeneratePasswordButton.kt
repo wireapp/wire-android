@@ -17,11 +17,15 @@
  */
 package com.wire.android.ui.common.button
 
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.widget.Toast
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -57,8 +61,44 @@ fun GeneratePasswordButton(
     )
 }
 
+@Composable
+fun CopyPasswordButton(
+    password: String,
+    modifier: Modifier = Modifier,
+) {
+    val context = LocalContext.current
+    val copiedMessage = stringResource(R.string.password_copied)
+    val label = stringResource(R.string.login_password_label)
+    WireSecondaryButton(
+        modifier = modifier,
+        onClick = {
+            context.getSystemService(ClipboardManager::class.java).setPrimaryClip(ClipData.newPlainText(label, password))
+            Toast.makeText(context, copiedMessage, Toast.LENGTH_SHORT).show()
+        },
+        minSize = DpSize(dimensions().spacing32x, dimensions().spacing16x),
+        state = if (password.isEmpty()) WireButtonState.Disabled else WireButtonState.Default,
+        fillMaxWidth = false,
+        textStyle = MaterialTheme.wireTypography.button03,
+        leadingIcon = {
+            Icon(
+                modifier = Modifier.padding(end = dimensions().corner4x),
+                painter = painterResource(R.drawable.ic_copy),
+                contentDescription = null,
+            )
+        },
+        leadingIconAlignment = IconAlignment.Center,
+        text = stringResource(R.string.copy_password_button_text),
+    )
+}
+
 @Preview
 @Composable
 fun GeneratePasswordButtonPreview() {
     GeneratePasswordButton(onClick = {})
+}
+
+@Preview
+@Composable
+fun CopyPasswordButtonPreview() {
+    CopyPasswordButton(password = "password")
 }

@@ -42,7 +42,7 @@ class LogoutTests : BaseUiTest() {
     }
 
     @Suppress("LongMethod")
-    @TestCaseId("TC-4445")
+    @TestCaseId("TC-12528")
     @Category("regression", "RC", "logout")
     @Test
     fun givenTeamOwner_whenILogInAndLogOut_thenLogoutIsSuccessful() {
@@ -119,7 +119,7 @@ class LogoutTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4447")
+    @TestCaseId("TC-12530")
     @Category("regression", "RC", "logout")
     @Test
     fun givenTeamMemberWithConversation_whenILogOutWithoutClearingDataAndLogInAgain_thenHistoryIsPreserved() {
@@ -200,7 +200,7 @@ class LogoutTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4446")
+    @TestCaseId("TC-12529")
     @Category("regression", "RC", "logout")
     @Test
     fun givenTeamMemberWithConversation_whenILogOutWithClearData_thenConversationHistoryIsRemoved() {

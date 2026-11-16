@@ -34,9 +34,12 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.input.InputTransformation
 import androidx.compose.foundation.text.input.KeyboardActionHandler
 import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.foundation.text.input.maxLength
+import androidx.compose.foundation.text.input.then
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -126,6 +129,7 @@ fun ActiveMessageComposerInput(
     onPlusClick: () -> Unit,
     useKeyboardActivationGate: Boolean,
     modifier: Modifier = Modifier,
+    inputTransformation: InputTransformation? = null,
     onHardwareTab: (isShiftPressed: Boolean) -> Boolean = { false },
     onHardwareEscape: () -> Boolean = { false },
 ) {
@@ -157,6 +161,7 @@ fun ActiveMessageComposerInput(
         InputContent(
             conversationId = conversationId,
             messageTextState = messageTextState,
+            inputTransformation = inputTransformation,
             isTextExpanded = isTextExpanded,
             inputType = inputType,
             focusRequester = focusRequester,
@@ -219,6 +224,7 @@ private fun InputContent(
     onPlusClick: () -> Unit,
     useKeyboardActivationGate: Boolean,
     modifier: Modifier = Modifier,
+    inputTransformation: InputTransformation? = null,
     viewModel: SelfDeletingMessageActionViewModel =
         selfDeletingMessageActionViewModel(
             SelfDeletingMessageActionArgs(conversationId = conversationId)
@@ -226,6 +232,7 @@ private fun InputContent(
 ) {
     ConstraintLayout(modifier = modifier) {
         val (additionalOptionButton, input, actions) = createRefs()
+        val typingIndicator = createRef()
         val buttonsTopBarrier = createTopBarrier(additionalOptionButton, actions)
         Box(
             contentAlignment = Alignment.BottomStart,
@@ -248,6 +255,7 @@ private fun InputContent(
             focusRequester = focusRequester,
             colors = inputType.inputTextColor(isSelfDeleting = viewModel.state().duration != null),
             messageTextState = messageTextState,
+            inputTransformation = inputTransformation,
             placeHolderText = viewModel.state().duration?.let { stringResource(id = R.string.self_deleting_message_label) }
                 ?: inputType.labelText(),
             onFocused = onFocused,
@@ -286,13 +294,6 @@ private fun InputContent(
                     bottom.linkTo(parent.bottom)
                 }
         ) {
-            if (isTextExpanded) {
-                Box(modifier = Modifier.align(Alignment.BottomCenter)) {
-                    UsersTypingIndicatorForConversation(
-                        conversationId = conversationId,
-                    )
-                }
-            }
             // Only show send button when not in editing mode
             if (inputType !is InputType.Editing) {
                 MessageSendActions(
@@ -301,6 +302,23 @@ private fun InputContent(
                     selfDeletionTimer = viewModel.state(),
                     onChangeSelfDeletionClicked = onChangeSelfDeletionClicked,
                     modifier = Modifier.padding(end = dimensions().spacing8x)
+                )
+            }
+        }
+
+        if (isTextExpanded) {
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier.constrainAs(typingIndicator) {
+                    start.linkTo(additionalOptionButton.end)
+                    end.linkTo(actions.start)
+                    top.linkTo(actions.top)
+                    bottom.linkTo(actions.bottom)
+                    width = Dimension.fillToConstraints
+                }
+            ) {
+                UsersTypingIndicatorForConversation(
+                    conversationId = conversationId,
                 )
             }
         }
@@ -323,6 +341,7 @@ internal fun MessageComposerTextInput(
     onHardwareEscape: () -> Boolean,
     useKeyboardActivationGate: Boolean,
     modifier: Modifier = Modifier,
+    inputTransformation: InputTransformation? = null,
     onSelectedLineIndexChanged: (Int) -> Unit = { },
     onLineBottomYCoordinateChanged: (Float) -> Unit = { },
 ) {
@@ -340,7 +359,10 @@ internal fun MessageComposerTextInput(
 
     fun activateInput(initialText: String? = null) {
         initialText?.let { text ->
-            messageTextState.edit { append(text) }
+            messageTextState.edit {
+                append(text)
+                inputTransformation?.let { with(it) { transformInput() } }
+            }
         }
         isInputActive = true
         onFocused()
@@ -376,8 +398,13 @@ internal fun MessageComposerTextInput(
             .applyIf(useKeyboardActivationGate) {
                 focusRequester(focusRequester)
                     .onPreviewKeyEvent { event ->
-                        event.handleInputActivation(isInputActive) { initialText ->
-                            activateInput(initialText)
+                        if (!isInputActive && event.type == KeyEventType.KeyDown && event.key == Key.DirectionDown) {
+                            // Enter the action panel in Tab order instead of selecting the nearest button by position.
+                            focusManager.moveFocus(FocusDirection.Next)
+                        } else {
+                            event.handleInputActivation(isInputActive) { initialText ->
+                                activateInput(initialText)
+                            }
                         }
                     }
                     .onFocusChanged { focusState ->
@@ -409,6 +436,9 @@ internal fun MessageComposerTextInput(
     ) {
         WireTextField(
             textState = messageTextState,
+            inputTransformation = InputTransformation.maxLength(8000).let { maxLength ->
+                inputTransformation?.let { maxLength.then(it) } ?: maxLength
+            },
             colors = colors,
             textStyle = MaterialTheme.wireTypography.body01,
             // Add an extra space so that the cursor is placed one space before "Type a message"

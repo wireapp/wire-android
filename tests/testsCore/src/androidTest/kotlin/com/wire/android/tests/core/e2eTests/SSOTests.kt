@@ -64,8 +64,8 @@ class SSOTests : BaseUiTest() {
     }
 
     @Suppress("LongMethod")
-    @TestCaseId("TC-4547")
-    @Category("regression", "RC", "login", "SSO", "TEMP")
+    @TestCaseId("TC-12626")
+    @Category("regression", "RC", "login", "SSO")
     @Test
     fun givenSsoUserLogsInWithKeycloak_whenCompletingTheSsoFlow_thenUserReachesConversationList() {
         var ssoCode = ""
@@ -159,8 +159,8 @@ class SSOTests : BaseUiTest() {
     }
 
     @Suppress("LongMethod")
-    @TestCaseId("TC-4548")
-    @Category("regression", "RC", "login", "SSO", "TEMP")
+    @TestCaseId("TC-12627")
+    @Category("regression", "RC", "login", "SSO")
     @Test
     fun givenSsoUserEntersInvalidCodeAndCredentials_whenTryingToSignIn_thenTheRelevantErrorsAreShown() {
         var ssoCode = ""
@@ -244,8 +244,8 @@ class SSOTests : BaseUiTest() {
         }
     }
 
-    @TestCaseId("TC-11928")
-    @Category("regression", "login", "SSO", "TEMP")
+    @TestCaseId("TC-12769")
+    @Category("regression", "RC", "login", "SSO")
     @Test
     fun givenClaimedDomain_whenEnteringMatchingEmail_thenAppRedirectsToOnPremisesBackend() {
         val destinationBackend = BackendClient.loadBackend("QA-Federation-A")
@@ -291,8 +291,8 @@ class SSOTests : BaseUiTest() {
     }
 
     @Suppress("LongMethod")
-    @TestCaseId("TC-11929")
-    @Category("regression", "login", "SSO", "TEMP")
+    @TestCaseId("TC-12770")
+    @Category("regression", "RC", "login", "SSO")
     @Test
     fun givenSsoClaimedDomain_whenLoggingInWithClaimedEmail_thenConversationListIsVisible() {
         var ssoCode = ""

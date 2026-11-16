@@ -54,8 +54,8 @@ class SSOProvisioningTests : BaseUiTest() {
     }
 
     @Suppress("LongMethod")
-    @TestCaseId("TC-4550")
-    @Category("regression", "RC", "settings", "SSO", "TEMP")
+    @TestCaseId("TC-12628")
+    @Category("regression", "RC", "settings", "SSO")
     @Test
     fun givenSsoUserLogsInWithKeycloak_whenOpeningAccountDetails_thenResetPasswordButtonIsNotVisible() {
         var ssoCode = ""
@@ -163,8 +163,8 @@ class SSOProvisioningTests : BaseUiTest() {
     }
 
     @Suppress("LongMethod")
-    @TestCaseId("TC-4551")
-    @Category("regression", "RC", "settings", "SSO", "TEMP")
+    @TestCaseId("TC-12629")
+    @Category("regression", "RC", "settings", "SSO")
     @Test
     fun givenScimManagedSsoUserLogsInWithKeycloak_whenOpeningAccountDetails_thenProfileNameCannotBeChanged() {
         var ssoCode = ""

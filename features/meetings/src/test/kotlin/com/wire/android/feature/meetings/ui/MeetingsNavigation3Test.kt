@@ -8,8 +8,9 @@
  * (at your option) any later version.
  */
 
-package com.wire.android.feature.meetings.ui.create
+package com.wire.android.feature.meetings.ui
 
+import com.wire.android.feature.meetings.ui.create.NewMeetingType
 import com.wire.kalium.logic.data.id.MeetingId
 import com.wire.navigation.WireSessionId
 import kotlinx.serialization.json.Json
@@ -62,6 +63,14 @@ internal class MeetingsNavigation3Test {
         )
 
         assertEquals(route, restored)
+    }
+
+    @Test
+    fun `given sharing route, when restored, then session and occurrence identity survive`() {
+        val route = ShareMeetingWithGuestsRoute(Session, "occurrence-id")
+        val restored = Json.decodeFromString<ShareMeetingWithGuestsRoute>(Json.encodeToString(route))
+        assertEquals(route, restored)
+        assertNotEquals(route.entryId, ShareMeetingWithGuestsRoute(Session, "occurrence-id").entryId)
     }
 
     private companion object {

@@ -45,10 +45,10 @@ fun MessageContainerItem(
     shouldDisplayMessageStatus: Boolean = true,
     shouldDisplayFooter: Boolean = true,
     isSelectedMessage: Boolean = false,
+    replyHighlightIntensity: () -> Float = { 0f },
     failureInteractionAvailable: Boolean = true,
     defaultBackgroundColor: Color = colorsScheme().surfaceContainerLow,
     isBubbleUiEnabled: Boolean = false,
-    isWireCellsEnabled: Boolean = false,
 ) {
     val selfDeletionTimerState = rememberSelfDeletionTimer(message.header.messageStatus.expirationStatus)
     if (
@@ -72,12 +72,12 @@ fun MessageContainerItem(
                     selfDeletionTimerState = selfDeletionTimerState,
                     defaultBackgroundColor = defaultBackgroundColor,
                 )
+                    .replyHighlight(color = colorsScheme().replyHighlight, intensity = replyHighlightIntensity)
             }
     ) {
         when (message) {
             is UIMessage.System -> SystemMessageItem(
                 message = message,
-                isWireCellsEnabled = isWireCellsEnabled,
                 onFailedMessageCancelClicked = clickActions.onFailedMessageCancelClicked,
                 onFailedMessageRetryClicked = clickActions.onFailedMessageRetryClicked,
                 failureInteractionAvailable = failureInteractionAvailable,
@@ -96,7 +96,8 @@ fun MessageContainerItem(
                 shouldDisplayFooter = shouldDisplayFooter,
                 selfDeletionTimerState = selfDeletionTimerState,
                 useSmallBottomPadding = useSmallBottomPadding,
-                isBubbleUiEnabled = isBubbleUiEnabled
+                isBubbleUiEnabled = isBubbleUiEnabled,
+                replyHighlightIntensity = replyHighlightIntensity,
             )
         }
     }

@@ -49,7 +49,7 @@ class SearchTests : BaseUiTest() {
     }
 
     @Suppress("LongMethod")
-    @TestCaseId("TC-4505")
+    @TestCaseId("TC-12588")
     @Category("regression", "RC", "search", "fdroid")
     @Test
     fun givenTeamOwnerWithTeamMember_whenISearchByUsername_thenMemberIsDisplayed() {
@@ -99,7 +99,7 @@ class SearchTests : BaseUiTest() {
     }
 
     @Suppress("LongMethod")
-    @TestCaseId("TC-4504")
+    @TestCaseId("TC-12587")
     @Category("regression", "RC", "search")
     @Test
     fun givenTeamOwnerWithTeamMember_whenISearchByEmail_thenMemberIsNotDisplayed() {
@@ -153,7 +153,7 @@ class SearchTests : BaseUiTest() {
     }
 
     @Suppress("LongMethod")
-    @TestCaseId("TC-4503")
+    @TestCaseId("TC-12586")
     @Category("regression", "RC", "search")
     @Test
     fun givenTeamOwnerWithTeamMember_whenISearchByUniqueUsername_thenMemberIsDisplayed() {
@@ -209,7 +209,7 @@ class SearchTests : BaseUiTest() {
     }
 
     @Suppress("LongMethod")
-    @TestCaseId("TC-4502")
+    @TestCaseId("TC-12585")
     @Category("regression", "RC", "search")
     @Test
     fun givenConnectedPersonalUsers_whenISearchForContactByUniqueUsername_thenContactIsDisplayed() {
@@ -254,7 +254,7 @@ class SearchTests : BaseUiTest() {
     }
 
     @Suppress("LongMethod")
-    @TestCaseId("TC-4515")
+    @TestCaseId("TC-12598")
     @Category("regression", "search", "RC", "WPB-3261")
     @Test
     fun givenExistingGroupConversation_whenIOpenNewConversation_thenItsMembersAreSuggested() {
@@ -351,7 +351,7 @@ class SearchTests : BaseUiTest() {
     // For details, see:
     // https://wearezeta.atlassian.net/wiki/spaces/ENGINEERIN/pages/566035910/Searching+for+users
     @Suppress("LongMethod")
-    @TestCaseId("TC-4506")
+    @TestCaseId("TC-12589")
     @Category("regression", "RC", "search")
     @Test
     fun givenAnotherTeamIsSearchableByAllTeams_whenISearchByExactOrPartialHandle_thenUserIsDisplayed() {
@@ -440,7 +440,7 @@ class SearchTests : BaseUiTest() {
     }
 
     @Suppress("LongMethod")
-    @TestCaseId("TC-4507", "TC-4508")
+    @TestCaseId("TC-12590", "TC-12591")
     @Category("regression", "RC", "search")
     @Test
     fun givenAnotherTeamIsSearchableByOwnTeam_whenISearchByNameOrHandle_thenOnlyExactHandleFindsUser() {
@@ -542,7 +542,7 @@ class SearchTests : BaseUiTest() {
     }
 
     @Suppress("LongMethod")
-    @TestCaseId("TC-4509", "TC-4510")
+    @TestCaseId("TC-12592", "TC-12593")
     @Category("regression", "RC", "search")
     @Test
     fun givenMyTeamHidesNamesOutsideTeam_whenISearchAnotherTeam_thenOnlyExactHandleFindsUser() {
@@ -634,7 +634,7 @@ class SearchTests : BaseUiTest() {
     }
 
     @Suppress("LongMethod")
-    @TestCaseId("TC-4511", "TC-4512")
+    @TestCaseId("TC-12594", "TC-12595")
     @Category("regression", "RC", "search")
     @Test
     fun givenMyTeamHidesNamesOutsideTeam_whenISearchPersonalUser_thenOnlyExactHandleFindsUser() {
@@ -722,7 +722,7 @@ class SearchTests : BaseUiTest() {
     }
 
     @Suppress("LongMethod")
-    @TestCaseId("TC-4513", "TC-4514")
+    @TestCaseId("TC-12596", "TC-12597")
     @Category("regression", "RC", "search")
     @Test
     fun givenIAmPersonalUser_whenISearchTeamOwner_thenOnlyExactHandleFindsUser() {

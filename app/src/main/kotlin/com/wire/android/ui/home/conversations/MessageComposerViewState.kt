@@ -18,8 +18,8 @@
 
 package com.wire.android.ui.home.conversations
 
-import com.wire.android.ui.home.messagecomposer.model.MessageBundle
 import com.wire.android.model.Contact
+import com.wire.android.ui.home.messagecomposer.model.MessageBundle
 import com.wire.android.util.EMPTY
 import com.wire.kalium.logic.data.asset.AttachmentType
 import com.wire.kalium.logic.data.conversation.InteractionAvailability
@@ -32,6 +32,7 @@ data class MessageComposerViewState(
     val interactionAvailability: InteractionAvailability = InteractionAvailability.ENABLED,
     val mentionSearchResult: List<Contact> = listOf(),
     val mentionSearchQuery: String = String.EMPTY,
+    val showEveryoneMentionSuggestion: Boolean = false,
     val enterToSend: Boolean = false,
     val isCallOngoing: Boolean = false,
 )

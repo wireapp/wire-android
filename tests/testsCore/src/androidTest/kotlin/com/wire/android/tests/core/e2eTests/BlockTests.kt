@@ -50,7 +50,7 @@ class BlockTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4249", "TC-4246")
+    @TestCaseId("TC-12384", "TC-12381")
     @Category("regression", "RC", "blockUser")
     @Test
     fun givenTeamOwner_whenOpeningTeamMemberContextMenusFromConversationListAndGroupDetails_thenBlockOptionIsNotVisible() {
@@ -166,7 +166,7 @@ class BlockTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4247", "TC-4248", "TC-4252", "TC-4253")
+    @TestCaseId("TC-12382", "TC-12383", "TC-12387", "TC-12388")
     @Category("regression", "RC", "blockUser", "unblockUser")
     @Test
     fun givenConnectedGuestUser_whenBlockingAndUnblockingFromUserProfile_thenUserIsBlockedAndUnblockedSuccessfully() {
@@ -330,7 +330,7 @@ class BlockTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4250", "TC-4251")
+    @TestCaseId("TC-12385", "TC-12386")
     @Category("regression", "RC", "blockUser", "unblockUser")
     @Test
     fun givenConnectedGuestUser_whenBlockingAndUnblockingFromConversationList_thenUserIsBlockedAndUnblockedSuccessfully() {
@@ -447,7 +447,7 @@ class BlockTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4256", "TC-4257", "TC-4254", "TC-4255")
+    @TestCaseId("TC-12391", "TC-12392", "TC-12389", "TC-12390")
     @Category("regression", "RC", "blockUser", "unblockUser")
     @Test
     fun givenConnectedTeamUserFromAnotherTeam_whenBlockingAndUnblockingFromConversationListAndGroupDetails_thenUserIsBlockedAndUnblockedSuccessfully() {

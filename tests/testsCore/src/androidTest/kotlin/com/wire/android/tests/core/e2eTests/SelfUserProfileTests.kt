@@ -39,7 +39,7 @@ class SelfUserProfileTests : BaseUiTest() {
     }
 
     @Suppress("LongMethod")
-    @TestCaseId("TC-4536")
+    @TestCaseId("TC-12615")
     @Category("regression", "RC", "selfUserProfile")
     @Test
     fun givenMyStatusIsBusy_whenIChangeItToNone_thenNoneStatusIsDisplayed() {

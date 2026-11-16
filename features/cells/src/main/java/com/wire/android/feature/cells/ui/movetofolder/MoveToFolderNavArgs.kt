@@ -19,12 +19,26 @@ package com.wire.android.feature.cells.ui.movetofolder
 
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
+import kotlinx.serialization.Serializable
 
+/**
+ * A node picked to be moved: its [uuid] and its current [path] (parent folder path + name).
+ */
+@Parcelize
+@Serializable
+data class NodeToMove(
+    val uuid: String,
+    val path: String,
+) : Parcelable
+
+/**
+ * @param currentPath the folder being browsed as a move destination.
+ * @param nodesToMove one node for a single move, several for a bulk move. All of them share the same parent folder.
+ */
 @Parcelize
 data class MoveToFolderNavArgs(
     val currentPath: String,
-    val nodeToMovePath: String,
-    val uuid: String,
+    val nodesToMove: List<NodeToMove>,
     val breadcrumbs: Array<String> = emptyArray()
 ) : Parcelable {
     override fun equals(other: Any?): Boolean {
@@ -34,8 +48,7 @@ data class MoveToFolderNavArgs(
         other as MoveToFolderNavArgs
 
         if (currentPath != other.currentPath) return false
-        if (nodeToMovePath != other.nodeToMovePath) return false
-        if (uuid != other.uuid) return false
+        if (nodesToMove != other.nodesToMove) return false
         if (!breadcrumbs.contentEquals(other.breadcrumbs)) return false
 
         return true
@@ -43,8 +56,7 @@ data class MoveToFolderNavArgs(
 
     override fun hashCode(): Int {
         var result = currentPath.hashCode()
-        result = 31 * result + nodeToMovePath.hashCode()
-        result = 31 * result + uuid.hashCode()
+        result = 31 * result + nodesToMove.hashCode()
         result = 31 * result + breadcrumbs.contentHashCode()
         return result
     }

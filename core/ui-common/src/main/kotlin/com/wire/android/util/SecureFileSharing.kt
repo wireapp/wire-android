@@ -16,6 +16,8 @@
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
 
+@file:Suppress("TooManyFunctions")
+
 package com.wire.android.util
 
 import android.app.ActivityOptions
@@ -72,6 +74,22 @@ fun Context.fileProviderSharedCacheFile(fileName: String): File {
     val shareDirectory = fileProviderSharedCacheDirectory()
     deleteStaleFileProviderSharedCacheFiles(shareDirectory)
     return File(shareDirectory, findFirstUniqueName(shareDirectory, fileName.ifBlank { ATTACHMENT_FILENAME }))
+}
+
+/** Deletes the file behind a uri made by [fileProviderUri] for the shared cache. Ignores any other uri. */
+fun Context.deleteFileProviderSharedCacheFile(uri: Uri) {
+    val isSharedCacheUri = uri.authority == getProviderAuthority() &&
+            uri.pathSegments.size == 2 && uri.pathSegments.first() == FILE_PROVIDER_SHARED_FILES_ROOT
+    if (isSharedCacheUri) {
+        val directory = fileProviderSharedCacheDirectory()
+        val file = File(directory, uri.lastPathSegment.orEmpty())
+        if (file.canonicalFile.parentFile == directory.canonicalFile) file.delete()
+    }
+}
+
+/** Deletes every file in the shared cache, including files this app never handled. */
+fun Context.deleteFileProviderSharedCacheDirectory() {
+    File(cacheDir, FILE_PROVIDER_SHARED_CACHE_DIRECTORY).deleteRecursively()
 }
 
 fun Context.shareableFileProviderUri(sourceFile: File, displayName: String? = null): Uri {

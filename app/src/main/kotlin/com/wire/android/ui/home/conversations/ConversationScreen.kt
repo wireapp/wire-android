@@ -81,6 +81,7 @@ import com.wire.android.ui.home.conversations.messages.ConversationMessagesViewM
 import com.wire.android.ui.home.conversations.messages.ConversationMessagesViewState
 import com.wire.android.ui.home.conversations.messages.draft.MessageDraftViewModel
 import com.wire.android.ui.home.conversations.migration.ConversationMigrationViewModel
+import com.wire.android.ui.home.conversations.migration.MigratedConversationRedirect
 import com.wire.android.ui.home.conversations.model.ExpirationStatus
 import com.wire.android.ui.home.conversations.model.MessageSenderId
 import com.wire.android.ui.home.conversations.model.UIMessage
@@ -169,8 +170,8 @@ internal fun ConversationScreenRouteContent(
                 messageComposerStateHolder.messageCompositionInputStateHolder.setFocused()
             }
         ),
-        editSheetState = rememberWireModalSheetState(
-            onDismissAction = {
+        messageOptionsState = rememberMessageOptionsState(
+            onTouchDismiss = {
                 messageComposerStateHolder.messageCompositionInputStateHolder.setFocused()
             },
         ),
@@ -234,7 +235,7 @@ internal fun ConversationScreenRouteContent(
             sendMessageViewModel.trySendMessage(
                 ComposableMessageBundle.UriPickedBundle(
                     conversationId = conversationMessagesViewModel.conversationId,
-                    attachmentUri = UriAsset(it),
+                    attachmentUri = UriAsset(it, isCameraCapture = true),
                 )
             )
         }
@@ -322,9 +323,10 @@ internal fun ConversationScreenRouteContent(
             }
     }
 
-    conversationMigrationViewModel.migratedConversationId?.let { migratedConversationId ->
-        navigation.replaceConversation(migratedConversationId)
-    }
+    MigratedConversationRedirect(
+        migratedConversationId = conversationMigrationViewModel.migratedConversationId,
+        replaceConversation = navigation::replaceConversation,
+    )
 
     when (showDialog.value) {
         ConversationScreenDialogType.PING_CONFIRMATION -> {
@@ -418,7 +420,11 @@ internal fun ConversationScreenRouteContent(
         },
         onAttachmentPicked = {
             if (conversationInfoViewModel.conversationInfoViewState.isWireCellEnabled) {
-                messageAttachmentsViewModel.onFilesSelected(listOf(it.uri))
+                if (it.isCameraCapture) {
+                    messageAttachmentsViewModel.onCameraCaptured(it.uri)
+                } else {
+                    messageAttachmentsViewModel.onFilesSelected(listOf(it.uri))
+                }
                 messageComposerStateHolder.messageCompositionInputStateHolder.showAttachments(false)
             } else {
                 val bundle = ComposableMessageBundle.UriPickedBundle(conversationInfoViewModel.conversationId, it)
@@ -508,6 +514,7 @@ internal fun ConversationScreenRouteContent(
         onDownloadAssetClick = conversationMessagesViewModel::openOrFetchAsset,
         onOpenAssetClick = conversationMessagesViewModel::downloadAndOpenAsset,
         onNavigateToReplyOriginalMessage = conversationMessagesViewModel::navigateToReplyOriginalMessage,
+        onReplyHighlightFinished = conversationMessagesViewModel::onReplyHighlightFinished,
         onSelfDeletingMessageRead = messageComposerViewModel::startSelfDeletion,
         onNewSelfDeletingMessagesStatus = messageComposerViewModel::updateSelfDeletingMessages,
         tempWritableImageUri = messageComposerViewModel.tempWritableImageUri,
@@ -565,6 +572,12 @@ internal fun ConversationScreenRouteContent(
     DisposableEffect(messageComposerViewModel) {
         onDispose {
             messageComposerViewModel.onConversationClosed()
+        }
+    }
+
+    DisposableEffect(conversationMessagesViewModel) {
+        onDispose {
+            conversationMessagesViewModel.clearReplyHighlight()
         }
     }
 
@@ -670,6 +683,7 @@ private fun ConversationScreenContent(
     onDownloadAssetClick: (messageId: String) -> Unit,
     onOpenAssetClick: (messageId: String) -> Unit,
     onNavigateToReplyOriginalMessage: (UIMessage) -> Unit,
+    onReplyHighlightFinished: (token: Long) -> Unit,
     onSelfDeletingMessageRead: (UIMessage) -> Unit,
     onNewSelfDeletingMessagesStatus: (SelfDeletionTimer) -> Unit,
     tempWritableImageUri: Uri?,
@@ -688,7 +702,7 @@ private fun ConversationScreenContent(
 ) {
     val context = LocalContext.current
     val snackbarHostState = LocalSnackbarHostState.current
-    Box(modifier = Modifier) {
+    Box {
         // only here we will use normal Scaffold because of specific behaviour of message composer
         Scaffold(
             contentColor = if (IS_BUBBLE_UI_ENABLED) {
@@ -755,6 +769,8 @@ private fun ConversationScreenContent(
                         unreadEventCount = conversationMessagesViewState.firstUnreadEventIndex,
                         conversationDetailsData = conversationInfoViewState.conversationDetailsData,
                         selectedMessageId = conversationMessagesViewState.searchedMessageId,
+                        replyHighlightRequest = conversationMessagesViewState.replyHighlightRequest,
+                        onReplyHighlightFinished = onReplyHighlightFinished,
                         messageComposerStateHolder = messageComposerStateHolder,
                         attachments = attachments,
                         messages = conversationMessagesViewState.messages,
@@ -773,6 +789,12 @@ private fun ConversationScreenContent(
                         onOpenProfile = onOpenProfile,
                         onUpdateConversationReadDate = onUpdateConversationReadDate,
                         onShowEditingOptions = conversationScreenState::showEditContextMenu,
+                        onKeyboardOptionsRequested = {
+                            conversationScreenState.messageOptionsState.open(it.header.messageId, fromKeyboard = true)
+                        },
+                        retainMessageNavigationForOptions = conversationScreenState.messageOptionsState.retainMessageNavigation,
+                        messageOptionsDismissal = conversationScreenState.messageOptionsState.dismissal,
+                        onMessageOptionsDismissalHandled = conversationScreenState.messageOptionsState::acknowledgeDismissal,
                         onSwipedToReply = messageComposerStateHolder::toReply,
                         onSelfDeletingMessageRead = onSelfDeletingMessageRead,
                         onFailedMessageCancelClicked = remember { { onDeleteMessage(it, false) } },
@@ -790,6 +812,7 @@ private fun ConversationScreenContent(
                         onAttachmentClick = onAttachmentClick,
                         onAttachmentMenuClick = onAttachmentMenuClick,
                         showHistoryLoadingIndicator = conversationInfoViewState.showHistoryLoadingIndicator,
+                        showsEncryptionNotice = conversationInfoViewState.showsEncryptionNotice,
                         isBubbleUiEnabled = IS_BUBBLE_UI_ENABLED,
                         isWireCellsEnabled = isWireCellsEnabled,
                         initialLoading = conversationInfoViewState.initialLoadingState != InitialLoadingState.LOADED,
@@ -800,7 +823,7 @@ private fun ConversationScreenContent(
 
         MessageOptionsModalSheetLayout(
             conversationId = conversationInfoViewState.conversationId,
-            sheetState = conversationScreenState.editSheetState,
+            optionsState = conversationScreenState.messageOptionsState,
             isNetworkAvailable = conversationMessagesViewState.isNetworkAvailable,
             onCopyClick = conversationScreenState::copyMessage,
             onDeleteClick = onDeleteMessage,
@@ -924,6 +947,7 @@ fun PreviewConversationScreen() = WireTheme {
         onOpenAssetClick = {},
         onDownloadAssetClick = {},
         onNavigateToReplyOriginalMessage = {},
+        onReplyHighlightFinished = {},
         onSelfDeletingMessageRead = {},
         onNewSelfDeletingMessagesStatus = {},
         tempWritableImageUri = null,

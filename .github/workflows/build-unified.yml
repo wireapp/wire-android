@@ -4,9 +4,10 @@ on:
   workflow_call:
     inputs:
       build-config:
-        description: "JSON build configuration matrix"
-        required: true
+        description: "JSON build configuration matrix; '[]' runs quality checks only"
+        required: false
         type: string
+        default: '[]'
       enable-deployment:
         description: "Enable deployment after successful build"
         required: false
@@ -226,6 +227,7 @@ jobs:
   # Build matrix job - only runs if all quality checks pass
   build:
     name: "Build ${{ matrix.flavor }}-${{ matrix.variant }}"
+    if: inputs.build-config != '[]'
     env:
       WIRE_RELEASE_VERSION: ${{ inputs.release-version }}
     needs: [ workflow-security, lint, style, compose-stability, ui-tests, unit-tests ]
@@ -394,6 +396,7 @@ jobs:
           OLD_STORE_PASSWORD: ${{ secrets.SIGNING_STORE_PASSWORD_PUBLIC_RELEASE_OLD }}
           APK_SIGNING_LINEAGE_B64: ${{ secrets.APK_SIGNING_LINEAGE_PUBLIC_RELEASE_B64 }}
         run: |
+          export APK_DIR="$(printf '%s' "$APK_DIR" | tr '[:upper:]' '[:lower:]')"
           make signing-lineage
 
       - name: Build AAB
@@ -420,6 +423,26 @@ jobs:
       - name: Move version file for consistent artifact structure
         if: matrix.generate-version-file == true
         run: mv app/version.txt app/build/outputs/
+
+      - name: Export release log build evidence
+        id: release_log_export
+        if: matrix.export-release-log == true
+        continue-on-error: true
+        env:
+          FLAVOR: ${{ matrix.flavor }}
+          VARIANT: ${{ matrix.variant }}
+        run: |
+          mkdir -p release-log
+          make release-log/build event="$GITHUB_EVENT_PATH" flavor="$FLAVOR" variant="$VARIANT" output=release-log/evidence.json
+
+      - name: Upload release log build evidence
+        if: steps.release_log_export.outcome == 'success'
+        continue-on-error: true
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: release-log-build-${{ matrix.flavor }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: release-log/evidence.json
+          retention-days: 90
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
@@ -464,7 +487,7 @@ jobs:
   # Deploy job (conditional)
   deploy:
     needs: build
-    if: inputs.enable-deployment == true
+    if: inputs.enable-deployment == true && inputs.build-config != '[]'
     permissions:
       contents: write # required by called deploy.yml workflow
       actions: read # required by called deploy.yml workflow

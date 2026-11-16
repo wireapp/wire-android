@@ -50,6 +50,33 @@ jobs:
             exit 1
           fi
 
+  release-log-context:
+    name: Export release log context
+    if: github.ref_type == 'tag'
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout tagged commit
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
+        with:
+          persist-credentials: false
+
+      - name: Export release context
+        continue-on-error: true
+        run: |
+          mkdir -p release-log
+          make release-log/context event="$GITHUB_EVENT_PATH" output=release-log/evidence.json
+
+      - name: Upload release context
+        continue-on-error: true
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: release-log-context-${{ github.run_id }}-${{ github.run_attempt }}
+          path: release-log/evidence.json
+          retention-days: 90
+
   build:
     needs: validate
     permissions:
@@ -68,6 +95,7 @@ jobs:
             "keystore-type": "prerelease",
             "build-type": "both",
             "generate-version-file": true,
+            "export-release-log": true,
             "deployment-targets": [
               {"type": "s3"},
               {
@@ -103,7 +131,7 @@ jobs:
       contents: write # create the prerelease and attach its binaries
     steps:
       - name: Download build artifacts
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
         with:
           name: Beta-Release-artifacts
           path: artifacts/

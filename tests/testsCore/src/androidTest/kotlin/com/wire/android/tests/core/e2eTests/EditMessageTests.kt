@@ -44,7 +44,7 @@ class EditMessageTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4330", "TC-4331", "TC-4332", "TC-4333")
+    @TestCaseId("TC-12462", "TC-12463", "TC-12464", "TC-12465")
     @Category("regression", "RC", "editMessage", "fdroid")
     @Test
     fun givenOneOnOneConversation_whenIEditSentMessageAndReceiveEditedMessage_thenEditsAndTimestampsAreDisplayed() {
@@ -231,7 +231,7 @@ class EditMessageTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4334", "TC-4335", "TC-4336", "TC-4337")
+    @TestCaseId("TC-12466", "TC-12467", "TC-12468", "TC-12469")
     @Category("regression", "RC", "editMessage", "fdroid")
     @Test
     fun givenGroupConversation_whenIEditSentMessageAndReceiveEditedMessage_thenEditsAndTimestampsAreDisplayed() {
@@ -340,7 +340,7 @@ class EditMessageTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4338")
+    @TestCaseId("TC-12470")
     @Category("regression", "RC", "editMessage", "WPB-3525")
     @Test
     fun givenGroupConversationWithManyMessages_whenIScrollAwayAndBack_thenEditOptionRemainsVisible() {
@@ -387,7 +387,7 @@ class EditMessageTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-8151")
+    @TestCaseId("TC-12680")
     @Category("regression", "RC", "editMessage", "WPB-10773")
     @Test
     fun givenMemberMessageInGroupConversation_whenMemberEditsItMultipleTimes_thenEveryEditIsReceived() {

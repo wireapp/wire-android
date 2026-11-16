@@ -17,7 +17,6 @@
  */
 package com.wire.android.ui.home.conversations.edit
 
-import android.R.id.message
 import android.annotation.SuppressLint
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -30,13 +29,12 @@ import com.wire.android.R
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetHeader
 import com.wire.android.ui.common.bottomsheet.WireMenuModalSheetContent
 import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
-import com.wire.android.ui.common.bottomsheet.WireModalSheetState
-import com.wire.android.ui.common.bottomsheet.WireSheetValue
-import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.progress.WireCircularProgressIndicator
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.home.conversations.messageOptionsMenuViewModel
+import com.wire.android.ui.home.conversations.MessageOptionsState
+import com.wire.android.ui.home.conversations.rememberMessageOptionsState
 import com.wire.android.ui.home.conversations.model.ExpirationStatus
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UIMessageContent
@@ -50,9 +48,9 @@ import com.wire.kalium.logic.data.message.mention.MessageMention
 
 @Composable
 @SuppressLint("ComposeModifierMissing")
-fun MessageOptionsModalSheetLayout(
+internal fun MessageOptionsModalSheetLayout(
     conversationId: ConversationId,
-    sheetState: WireModalSheetState<String>,
+    optionsState: MessageOptionsState,
     isNetworkAvailable: Boolean,
     onCopyClick: (text: String) -> Unit,
     onDeleteClick: (messageId: String, isMyMessage: Boolean) -> Unit,
@@ -72,12 +70,14 @@ fun MessageOptionsModalSheetLayout(
     val context = LocalContext.current
     val snackbarHostState = LocalSnackbarHostState.current
     WireModalSheetLayout(
-        sheetState = sheetState,
+        sheetState = optionsState.sheetState,
+        onBackPress = { optionsState.hide() },
+        onDismissRequest = optionsState::onDismissRequest,
         sheetContent = {
             when (val state = viewModel.observeMessageStateFlow(it).collectAsStateWithLifecycle().value) {
                 is MessageOptionsMenuState.Message -> MessageOptionsModalContent( // message state - show the sheet with proper content
                     message = state.message,
-                    sheetState = sheetState,
+                    optionsState = optionsState,
                     isNetworkAvailable = isNetworkAvailable,
                     onCopyClick = onCopyClick,
                     onDeleteClick = onDeleteClick,
@@ -90,7 +90,7 @@ fun MessageOptionsModalSheetLayout(
                     onDownloadAssetClick = onDownloadAssetClick,
                     onOpenAssetClick = onOpenAssetClick
                 ).also {
-                    sheetState.updateContent()
+                    optionsState.sheetState.updateContent()
                 }
 
                 MessageOptionsMenuState.Loading -> WireCircularProgressIndicator( // loading state - show a progress indicator
@@ -98,7 +98,7 @@ fun MessageOptionsModalSheetLayout(
                     modifier = Modifier.align(Alignment.CenterHorizontally)
                 )
 
-                MessageOptionsMenuState.NotAvailable -> sheetState.hide { // message not found - hide the sheet and show info
+                MessageOptionsMenuState.NotAvailable -> optionsState.hide { // message not found - hide the sheet and show info
                     @SuppressLint("LocalContextGetResourceValueCall")
                     // TODO: Refactor to avoid using context in the ViewModel callback
                     snackbarHostState.showSnackbar(context.getString(R.string.deleted_message_options_closed))
@@ -112,7 +112,7 @@ fun MessageOptionsModalSheetLayout(
 @Composable
 private fun MessageOptionsModalContent(
     message: UIMessage.Regular,
-    sheetState: WireModalSheetState<String>,
+    optionsState: MessageOptionsState,
     isNetworkAvailable: Boolean,
     onCopyClick: (text: String) -> Unit,
     onDeleteClick: (messageId: String, isMyMessage: Boolean) -> Unit,
@@ -151,7 +151,7 @@ private fun MessageOptionsModalContent(
             onCopyClick = remember(message.messageContent) {
                 (message.messageContent as? Copyable)?.textToCopy(context.resources)?.let {
                     {
-                        sheetState.hide {
+                        optionsState.hide {
                             onCopyClick(it)
                         }
                     }
@@ -159,7 +159,7 @@ private fun MessageOptionsModalContent(
             },
             onDeleteClick = remember(message.header.messageId) {
                 {
-                    sheetState.hide {
+                    optionsState.hide(focusHandledByAction = true) {
                         onDeleteClick(
                             message.header.messageId,
                             message.isMyMessage,
@@ -169,21 +169,21 @@ private fun MessageOptionsModalContent(
             },
             onReactionClick = remember(message.header.messageId) {
                 {
-                    sheetState.hide {
+                    optionsState.hide {
                         onReactionClick(message.header.messageId, it)
                     }
                 }
             },
             onDetailsClick = remember(message.header.messageId) {
                 {
-                    sheetState.hide {
+                    optionsState.hide(focusHandledByAction = true) {
                         onDetailsClick(message.header.messageId, message.isMyMessage)
                     }
                 }
             },
             onReplyClick = remember(message.header.messageId) {
                 {
-                    sheetState.hide {
+                    optionsState.hide(focusHandledByAction = true) {
                         onReplyClick(message)
                     }
                 }
@@ -192,7 +192,7 @@ private fun MessageOptionsModalContent(
                 {
                     when (message.messageContent) {
                         is UIMessageContent.TextMessage ->
-                            sheetState.hide {
+                            optionsState.hide(focusHandledByAction = true) {
                                 onEditClick(
                                     message.header.messageId,
                                     message.messageContent.messageBody.message.asString(context.resources),
@@ -202,7 +202,7 @@ private fun MessageOptionsModalContent(
                             }
 
                         is UIMessageContent.Multipart ->
-                            sheetState.hide {
+                            optionsState.hide(focusHandledByAction = true) {
                                 with(message.messageContent.messageBody) {
                                     onEditClick(
                                         message.header.messageId,
@@ -219,28 +219,28 @@ private fun MessageOptionsModalContent(
             },
             onShareAssetExternallyClick = remember(message.header.messageId) {
                 {
-                    sheetState.hide {
+                    optionsState.hide(focusHandledByAction = true) {
                         onShareAssetExternallyClick(message.header.messageId)
                     }
                 }
             },
             onShareAssetViaWireClick = remember(message.header.messageId) {
                 {
-                    sheetState.hide {
+                    optionsState.hide(focusHandledByAction = true) {
                         onShareAssetViaWireClick(message.header.messageId)
                     }
                 }
             },
             onDownloadAssetClick = remember(message.header.messageId) {
                 {
-                    sheetState.hide {
+                    optionsState.hide {
                         onDownloadAssetClick(message.header.messageId)
                     }
                 }
             },
             onOpenAssetClick = remember(message.header.messageId) {
                 {
-                    sheetState.hide {
+                    optionsState.hide(focusHandledByAction = true) {
                         onOpenAssetClick(message.header.messageId)
                     }
                 }
@@ -286,7 +286,7 @@ private fun UIMessageContent.Regular?.isEmptyMultipartText() =
 fun PreviewMessageOptionsModalSheetLayout() = WireTheme {
     MessageOptionsModalSheetLayout(
         conversationId = ConversationId("cid", "domain"),
-        sheetState = rememberWireModalSheetState(initialValue = WireSheetValue.Expanded("id")),
+        optionsState = rememberMessageOptionsState(initialMessageId = "id"),
         isNetworkAvailable = true,
         onCopyClick = {},
         onDeleteClick = { _, _ -> },

@@ -28,6 +28,7 @@ import io.mockk.slot
 import io.mockk.unmockkStatic
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
@@ -92,6 +93,64 @@ class SecureFileSharingTest {
         val sharedDirectory = File(cacheDirectory, FILE_PROVIDER_SHARED_CACHE_DIRECTORY)
         assertTrue(providerFile.captured.canonicalFile.toPath().startsWith(sharedDirectory.canonicalFile.toPath()))
         assertEquals(".._.._cell.txt", providerFile.captured.name)
+    }
+
+    @Test
+    fun givenSharedCacheUri_whenDeletingSharedCacheFile_thenFileIsRemovedFromDisk() {
+        val cacheDirectory = temporaryDirectory.resolve("cache").toFile().apply(File::mkdirs)
+        val sharedDirectory = File(cacheDirectory, FILE_PROVIDER_SHARED_CACHE_DIRECTORY).apply(File::mkdirs)
+        val sharedFile = File(sharedDirectory, "capture.jpg").apply { writeText(FILE_CONTENT) }
+        val otherFile = File(sharedDirectory, "other.jpg").apply { writeText(FILE_CONTENT) }
+        val context = mockk<Context> {
+            every { this@mockk.cacheDir } returns cacheDirectory
+            every { packageName } returns PACKAGE_NAME
+        }
+
+        context.deleteFileProviderSharedCacheFile(sharedUri("capture.jpg"))
+
+        assertFalse(sharedFile.exists())
+        assertTrue(otherFile.exists())
+    }
+
+    @Test
+    fun givenUriWithEncodedTraversal_whenDeletingSharedCacheFile_thenFileOutsideSharedCacheIsKept() {
+        val cacheDirectory = temporaryDirectory.resolve("cache").toFile().apply(File::mkdirs)
+        File(cacheDirectory, FILE_PROVIDER_SHARED_CACHE_DIRECTORY).mkdirs()
+        val victim = temporaryDirectory.resolve("files/x").toFile().apply {
+            parentFile?.mkdirs()
+            writeText(FILE_CONTENT)
+        }
+        val context = mockk<Context> {
+            every { this@mockk.cacheDir } returns cacheDirectory
+            every { packageName } returns PACKAGE_NAME
+        }
+
+        context.deleteFileProviderSharedCacheFile(sharedUri("../../files/x"))
+
+        assertTrue(victim.exists())
+    }
+
+    @Test
+    fun givenFilesInSharedCache_whenDeletingSharedCacheDirectory_thenAllSharedFilesAreRemoved() {
+        val cacheDirectory = temporaryDirectory.resolve("cache").toFile().apply(File::mkdirs)
+        val sharedDirectory = File(cacheDirectory, FILE_PROVIDER_SHARED_CACHE_DIRECTORY).apply(File::mkdirs)
+        File(sharedDirectory, "image_attachment.jpg").writeText(FILE_CONTENT)
+        File(sharedDirectory, "nested").apply(File::mkdirs).resolve("report.pdf").writeText(FILE_CONTENT)
+        val unrelatedFile = File(cacheDirectory, "unrelated.tmp").apply { writeText(FILE_CONTENT) }
+        val context = mockk<Context> {
+            every { this@mockk.cacheDir } returns cacheDirectory
+        }
+
+        context.deleteFileProviderSharedCacheDirectory()
+
+        assertEquals(emptyList<File>(), sharedDirectory.walkTopDown().filter { it.isFile }.toList())
+        assertTrue(unrelatedFile.exists())
+    }
+
+    private fun sharedUri(name: String): Uri = mockk {
+        every { authority } returns PROVIDER_AUTHORITY
+        every { pathSegments } returns listOf(FILE_PROVIDER_SHARED_FILES_ROOT, name)
+        every { lastPathSegment } returns name
     }
 
     private companion object {

@@ -41,7 +41,7 @@ class StatusTests : BaseUiTest() {
     }
 
     @Suppress("LongMethod")
-    @TestCaseId("TC-8413")
+    @TestCaseId("TC-12682")
     @Category("regression", "RC", "status")
     @Test
     fun givenIAmATeamMember_whenISetMyStatusToBusy_thenBusyStatusIsDisplayed() {
@@ -144,7 +144,7 @@ class StatusTests : BaseUiTest() {
     }
 
     @Suppress("LongMethod")
-    @TestCaseId("TC-8412")
+    @TestCaseId("TC-12681")
     @Category("regression", "RC", "status")
     @Test
     fun givenIAmATeamMember_whenISetMyStatusToAway_thenAwayStatusIsDisplayed() {
@@ -247,7 +247,7 @@ class StatusTests : BaseUiTest() {
     }
 
     @Suppress("LongMethod")
-    @TestCaseId("TC-8414")
+    @TestCaseId("TC-12683")
     @Category("regression", "RC", "status")
     @Test
     fun givenIAmATeamMember_whenISetMyStatusToAvailable_thenAvailableStatusIsDisplayed() {
@@ -350,7 +350,7 @@ class StatusTests : BaseUiTest() {
     }
 
     @Suppress("LongMethod")
-    @TestCaseId("TC-8415", "TC-8416", "TC-8417", "TC-8426")
+    @TestCaseId("TC-12684", "TC-12685", "TC-12686", "TC-12687")
     @Category("regression", "RC", "status")
     @Test
     fun givenAnotherMemberChangesTheirStatus_whenIViewTheirStatusIndicators_thenBusyStatusIsDisplayed() {

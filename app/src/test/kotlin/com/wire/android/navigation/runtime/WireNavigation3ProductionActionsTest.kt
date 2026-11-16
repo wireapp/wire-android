@@ -11,8 +11,8 @@
 package com.wire.android.navigation.runtime
 
 import com.wire.android.feature.cells.navigation.ConversationFilesRoute
-import com.wire.android.feature.meetings.ui.create.NewMeetingDetailsRoute
-import com.wire.android.feature.meetings.ui.create.NewMeetingRouteType
+import com.wire.android.feature.meetings.ui.NewMeetingDetailsRoute
+import com.wire.android.feature.meetings.ui.NewMeetingRouteType
 import com.wire.android.feature.meetings.ui.create.NewMeetingType
 import com.wire.android.navigation.LoginTypeSelector
 import com.wire.android.navigation.navigation3.WireNavigation3Runtime

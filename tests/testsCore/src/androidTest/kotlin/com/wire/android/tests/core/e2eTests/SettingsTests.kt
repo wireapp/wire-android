@@ -41,7 +41,7 @@ class SettingsTests : BaseUiTest() {
     }
 
     @Suppress("LongMethod")
-    @TestCaseId("TC-4545")
+    @TestCaseId("TC-12624")
     @Category("regression", "RC", "settings")
     @Test
     fun givenLoggedInTeamMember_whenIOpenAccountDetails_thenUserDetailsAreDisplayed() {
@@ -105,7 +105,7 @@ class SettingsTests : BaseUiTest() {
     }
 
     @Suppress("LongMethod")
-    @TestCaseId("TC-4543")
+    @TestCaseId("TC-12622")
     @Category("regression", "RC", "settings")
     @Test
     fun givenLoggedInTeamMember_whenITapResetPassword_thenAccountRecoveryPageIsDisplayed() {
@@ -167,7 +167,7 @@ class SettingsTests : BaseUiTest() {
     }
 
     @Suppress("LongMethod")
-    @TestCaseId("TC-4544")
+    @TestCaseId("TC-12623")
     @Category("regression", "RC", "settings")
     @Test
     fun givenLoggedInPersonalUser_whenITapResetPassword_thenAccountRecoveryPageIsDisplayed() {
@@ -212,7 +212,7 @@ class SettingsTests : BaseUiTest() {
     }
 
     @Suppress("LongMethod")
-    @TestCaseId("TC-4546")
+    @TestCaseId("TC-12625")
     @Category("regression", "RC", "settings")
     @Test
     fun givenLoggedInTeamMember_whenIChangeMyProfileName_thenNewProfileNameIsDisplayed() {
@@ -281,7 +281,7 @@ class SettingsTests : BaseUiTest() {
     }
 
     @Suppress("LongMethod")
-    @TestCaseId("TC-4540")
+    @TestCaseId("TC-12619")
     @Category("regression", "RC", "settings")
     @Test
     fun givenLoggedInTeamMember_whenIOpenReportBug_thenAndroidShareSheetIsDisplayed() {
@@ -337,7 +337,7 @@ class SettingsTests : BaseUiTest() {
     }
 
     @Suppress("LongMethod")
-    @TestCaseId("TC-4541", "TC-4542")
+    @TestCaseId("TC-12620", "TC-12621")
     @Category("regression", "RC", "settings")
     @Test
     fun givenLoggedInTeamMember_whenIToggleWebsocketConnection_thenSwitchChangesFromOnToOff() {

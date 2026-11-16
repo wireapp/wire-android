@@ -19,7 +19,6 @@
 package com.wire.android.ui.home.messagecomposer.state
 
 import androidx.compose.foundation.text.input.rememberTextFieldState
-import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
@@ -51,7 +50,7 @@ fun rememberMessageComposerStateHolder(
 ): MessageComposerStateHolder {
     val density = LocalDensity.current
 
-    val messageComposition = remember(draftMessageComposition) {
+    val messageComposition = remember {
         mutableStateOf(draftMessageComposition)
     }
 
@@ -72,17 +71,8 @@ fun rememberMessageComposerStateHolder(
         )
     }
 
-    LaunchedEffect(draftMessageComposition.draftText) {
-        if (draftMessageComposition.draftText.isNotBlank()) {
-            messageTextState.setTextAndPlaceCursorAtEnd(draftMessageComposition.draftText)
-        }
-
-        if (draftMessageComposition.selectedMentions.isNotEmpty()) {
-            messageCompositionHolder.value.setMentions(
-                draftMessageComposition.draftText,
-                draftMessageComposition.selectedMentions.map { it.intoMessageMention() }
-            )
-        }
+    LaunchedEffect(draftMessageComposition) {
+        messageCompositionHolder.value.restoreComposition(draftMessageComposition)
     }
 
     LaunchedEffect(Unit) {
@@ -101,14 +91,16 @@ fun rememberMessageComposerStateHolder(
             keyboardController = keyboardController,
             focusManager = focusManager,
             focusRequester = focusRequester,
-            density = density
+            density = density,
+            currentMentions = { messageComposition.value.selectedMentions.map { it.intoMessageMention() } },
         )
     ) {
         MessageCompositionInputStateHolder(
             messageTextState = messageTextState,
             keyboardController = keyboardController,
             focusManager = focusManager,
-            focusRequester = focusRequester
+            focusRequester = focusRequester,
+            currentMentions = { messageComposition.value.selectedMentions.map { it.intoMessageMention() } },
         )
     }
 
@@ -142,7 +134,7 @@ class MessageComposerStateHolder(
 
     fun toEdit(messageId: String, editMessageText: String, mentions: List<MessageMention>, isMultipart: Boolean) {
         messageCompositionHolder.value.setEditText(messageId, editMessageText, mentions, isMultipart)
-        messageCompositionInputStateHolder.toEdit(editMessageText, isMultipart)
+        messageCompositionInputStateHolder.toEdit(editMessageText, isMultipart, mentions)
     }
 
     fun toReply(message: UIMessage.Regular) {

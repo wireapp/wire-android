@@ -13,8 +13,8 @@ package com.wire.android.navigation.runtime
 import com.wire.android.navigation.navigation3.WireEntryProviderInstaller
 import com.wire.android.navigation.navigation3.WireNavigation3ResultType
 import com.wire.android.navigation.navigation3.WireNavigation3Runtime
-import com.wire.android.feature.meetings.ui.create.MeetingsNavigation3Actions
-import com.wire.android.feature.meetings.ui.create.MeetingsNavigation3Contribution
+import com.wire.android.feature.meetings.ui.MeetingsNavigation3Actions
+import com.wire.android.feature.meetings.ui.MeetingsNavigation3Contribution
 import com.wire.android.feature.sketch.navigation.SketchNavigation3Contribution
 import com.wire.android.feature.cells.navigation.CellsNavigation3Contribution
 import com.wire.android.navigation.routes.auth.AuthenticationNavigation3Actions
@@ -95,7 +95,7 @@ internal data class WireNavigation3ContributionCatalog(
  * app-lock overlays finish the registry. An entry type must be owned by exactly one contribution.
  */
 internal object WireNavigation3Contributions {
-    const val EXPECTED_ROUTE_REGISTRATION_COUNT: Int = 109
+    const val EXPECTED_ROUTE_REGISTRATION_COUNT: Int = 110
     const val EXPECTED_INSTALLER_COUNT: Int = 19
 
     fun create(

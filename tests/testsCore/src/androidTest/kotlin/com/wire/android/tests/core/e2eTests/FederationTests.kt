@@ -52,7 +52,7 @@ class FederationTests : BaseUiTest() {
     // ######################
 
     @Suppress("LongMethod")
-    @TestCaseId("TC-4099")
+    @TestCaseId("TC-12361")
     @Category("regression", "RC", "federation", "federationSearch")
     @Test
     fun givenAnotherTeamHasSearchableByAllTeamsEnabled_whenISearchByExactHandleOrFullText_thenIFindUserFromThatTeam() {
@@ -184,7 +184,7 @@ class FederationTests : BaseUiTest() {
     }
 
     @Suppress("LongMethod")
-    @TestCaseId("TC-4100", "TC-4101")
+    @TestCaseId("TC-12362", "TC-12363")
     @Category("regression", "RC", "federation", "federationSearch")
     @Test
     fun givenAnotherTeamHasSearchableByOwnTeamEnabled_whenISearchByFullTextOrExactHandle_thenOnlyExactHandleFindsUserFromThatTeam() {
@@ -329,7 +329,7 @@ class FederationTests : BaseUiTest() {
     }
 
     @Suppress("LongMethod")
-    @TestCaseId("TC-4102", "TC-4103")
+    @TestCaseId("TC-12364", "TC-12365")
     @Category("regression", "RC", "federation", "federationSearch")
     @Test
     fun givenMyTeamEnablesSearchVisibilityNoNameOutsideTeam_whenISearchAnotherTeamUserByFullTextOrHandle_thenOnlyExactHandleFindsThem() {
@@ -467,7 +467,7 @@ class FederationTests : BaseUiTest() {
     }
 
     @Suppress("LongMethod")
-    @TestCaseId("TC-4104", "TC-4105")
+    @TestCaseId("TC-12366", "TC-12367")
     @Category("regression", "RC", "federation", "federationSearch")
     @Test
     fun givenMyTeamEnablesSearchVisibilityNoNameOutsideTeam_whenISearchPersonalUserByFullTextOrHandle_thenOnlyExactHandleFindsThem() {
@@ -602,7 +602,7 @@ class FederationTests : BaseUiTest() {
     // ######################
 
     @Suppress("LongMethod")
-    @TestCaseId("TC-4110")
+    @TestCaseId("TC-12368")
     @Category("regression", "RC", "federation", "federationConnect")
     @Test
     fun givenUserOnDifferentBackend_whenISendAndCancelConnectionRequest_thenTheirConversationIsNotInList() {

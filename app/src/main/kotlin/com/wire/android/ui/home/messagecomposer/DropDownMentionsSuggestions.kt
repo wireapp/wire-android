@@ -39,8 +39,8 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.PopupProperties
 import com.wire.android.model.Clickable
-import com.wire.android.ui.home.conversations.mention.MemberItemToMention
 import com.wire.android.model.Contact
+import com.wire.android.ui.home.conversations.mention.MemberItemToMention
 
 @Composable
 fun DropDownMentionsSuggestions(
@@ -53,23 +53,26 @@ fun DropDownMentionsSuggestions(
     useKeyboardNavigation: Boolean = false,
     firstItemFocusRequester: FocusRequester = FocusRequester.Default,
     onDismissRequest: () -> Unit = {},
+    showEveryoneMention: Boolean = false,
+    onEveryoneMentionPicked: () -> Unit = {},
 ) {
     val configuration = LocalConfiguration.current
     val screenHeight = configuration.screenHeightDp
 
     val defaultMaxHeightDropdownMenu = getDropDownMaxHeight(screenHeight)
 
+    val suggestionCount = membersToMention.size + if (showEveryoneMention) 1 else 0
     val coordinateY = updateDropDownCoordinateY(
         cursorCoordinateY,
-        membersToMention.size,
+        suggestionCount,
         currentSelectedLineIndex,
         screenHeight
     )
 
-    val itemHeights = remember { mutableStateMapOf<Int, Int>() }
+    val itemHeights = remember(membersToMention, showEveryoneMention) { mutableStateMapOf<Int, Int>() }
     val density = LocalDensity.current
-    val maxHeight = remember(itemHeights.toMap()) {
-        return@remember calculateMaxHeight(defaultMaxHeightDropdownMenu, itemHeights, density, membersToMention)
+    val maxHeight = remember(itemHeights.toMap(), suggestionCount, density, defaultMaxHeightDropdownMenu) {
+        return@remember calculateMaxHeight(defaultMaxHeightDropdownMenu, itemHeights, density, suggestionCount)
     }
 
     Box(
@@ -89,6 +92,8 @@ fun DropDownMentionsSuggestions(
             if (useKeyboardNavigation) {
                 KeyboardMentionList(
                     membersToMention = membersToMention,
+                    showEveryoneMention = showEveryoneMention,
+                    onEveryoneMentionPicked = onEveryoneMentionPicked,
                     searchQuery = searchQuery,
                     onMentionPicked = onMentionPicked,
                     onDismissRequest = onDismissRequest,
@@ -98,6 +103,13 @@ fun DropDownMentionsSuggestions(
                         .heightIn(max = maxHeight),
                 )
             } else {
+                if (showEveryoneMention) {
+                    EveryoneItemToMention(
+                        searchQuery = searchQuery,
+                        clickable = Clickable { onEveryoneMentionPicked() },
+                        modifier = Modifier.onSizeChanged { itemHeights[0] = it.height },
+                    )
+                }
                 membersToMention.forEachIndexed { index, item ->
                     MemberItemToMention(
                         avatarData = item.avatarData,
@@ -109,7 +121,7 @@ fun DropDownMentionsSuggestions(
                         },
                         searchQuery = searchQuery,
                         modifier = Modifier.onSizeChanged {
-                            itemHeights[index] = it.height
+                            itemHeights[index + if (showEveryoneMention) 1 else 0] = it.height
                         }
                     )
                 }
@@ -123,9 +135,9 @@ private fun calculateMaxHeight(
     defaultMaxHeightDropdownMenu: Dp,
     itemHeights: Map<Int, Int>,
     density: Density,
-    membersToMention: List<Contact>,
+    suggestionCount: Int,
 ): Dp {
-    if (itemHeights.keys.toSet() != membersToMention.indices.toSet()) {
+    if (itemHeights.keys.toSet() != (0 until suggestionCount).toSet()) {
         // if we don't have all heights calculated yet, return default value
         return defaultMaxHeightDropdownMenu
     }

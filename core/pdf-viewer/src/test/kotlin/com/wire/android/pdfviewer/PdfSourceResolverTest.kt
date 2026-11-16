@@ -18,6 +18,7 @@
 package com.wire.android.pdfviewer
 
 import android.content.Context
+import com.wire.kalium.logic.data.user.UserId
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -141,7 +142,7 @@ internal class PdfSourceResolverTest {
         // the object key from the attachments DB instead of being handed a stale one.
         assertTrue(result.isSuccess)
         coVerify(exactly = 1) { loader.load(any(), null, any(), any(), any()) }
-        assertEquals(File(File(tempDir, "files"), "conv-42/doc.pdf"), result.getOrNull())
+        assertEquals(File(userDir(), "conv-42/doc.pdf"), result.getOrNull())
     }
 
     @Test
@@ -323,7 +324,7 @@ internal class PdfSourceResolverTest {
         )
 
         val file = result.getOrNull()
-        assertEquals(File(File(tempDir, "files"), "conv-42/reports/q3/report.pdf"), file)
+        assertEquals(File(userDir(), "conv-42/reports/q3/report.pdf"), file)
         assertTrue(file?.parentFile?.isDirectory == true, "sub folders should have been created")
     }
 
@@ -373,7 +374,7 @@ internal class PdfSourceResolverTest {
             dispatcher = Dispatchers.Default,
         )
 
-        assertEquals(File(File(tempDir, "files"), "conv-42/report.pdf"), result.getOrNull())
+        assertEquals(File(userDir(), "conv-42/report.pdf"), result.getOrNull())
     }
 
     @Test
@@ -414,8 +415,51 @@ internal class PdfSourceResolverTest {
             dispatcher = Dispatchers.Default,
         )
 
-        assertEquals(File(File(tempDir, "files"), "conv-42/asset-1.pdf"), result.getOrNull())
+        assertEquals(File(userDir(), "conv-42/asset-1.pdf"), result.getOrNull())
     }
+
+    @Test
+    fun givenTwoUsersWithTheSameConversationAndFileName_whenDownloading_thenTheFilesDiffer() = runTest {
+        val source = PdfDocumentSource(
+            localPath = null,
+            assetId = "asset-1",
+            remotePath = "",
+            conversationId = "conv-42",
+            fileName = "doc.pdf",
+            assetSize = 0L,
+        )
+
+        val first = resolver(writingLoader(bytes = 8)).resolve(source, dispatcher = Dispatchers.Default).getOrNull()
+        val second = resolver(writingLoader(bytes = 8), userId = OTHER_USER_ID)
+            .resolve(source, dispatcher = Dispatchers.Default).getOrNull()
+
+        assertEquals(File(userDir(), "conv-42/doc.pdf"), first)
+        assertEquals(File(File(File(tempDir, "files"), "other.domain/other-user/cells"), "conv-42/doc.pdf"), second)
+    }
+
+    @Test
+    fun givenAStoredPathFromTheOldLayout_whenResolving_thenItIsReusedWithoutDownloading() = runTest {
+        val oldLayoutFile = File(File(tempDir, "files"), "conv-42/doc.pdf").apply {
+            parentFile?.mkdirs()
+            writeText("%PDF-1.4")
+        }
+        val loader = mockk<PdfRemoteLoader>(relaxed = true)
+        val source = PdfDocumentSource(
+            localPath = oldLayoutFile.absolutePath,
+            assetId = "asset-1",
+            remotePath = "",
+            conversationId = "conv-42",
+            fileName = "doc.pdf",
+            assetSize = 0L,
+        )
+
+        val result = resolver(loader).resolve(source, dispatcher = Dispatchers.Default)
+
+        assertEquals(oldLayoutFile, result.getOrNull())
+        coVerify(exactly = 0) { loader.load(any(), any(), any(), any(), any()) }
+    }
+
+    private fun userDir() = File(File(tempDir, "files"), "${USER_ID.domain}/${USER_ID.value}/cells")
 
     private fun writingLoader(bytes: Int): PdfRemoteLoader = mockk {
         coEvery { load(any(), any(), any(), any(), any()) } coAnswers {
@@ -427,11 +471,12 @@ internal class PdfSourceResolverTest {
     private fun resolver(
         loader: PdfRemoteLoader = mockk(relaxed = true),
         preSignedLoader: PdfPreSignedLoader = mockk(relaxed = true),
+        userId: UserId = USER_ID,
     ): PdfSourceResolver {
         val context = mockk<Context>()
         every { context.getExternalFilesDir(any()) } returns File(tempDir, "files")
         every { context.cacheDir } returns File(tempDir, "cache")
-        return PdfSourceResolver(context, loader, preSignedLoader)
+        return PdfSourceResolver(context, userId, loader, preSignedLoader)
     }
 
     @Test
@@ -498,4 +543,9 @@ internal class PdfSourceResolverTest {
 
     private fun Result<File>.viewerError(): PdfViewerError? =
         (exceptionOrNull() as? PdfSourceException)?.error
+
+    private companion object {
+        val USER_ID = UserId("user-1", "wire.com")
+        val OTHER_USER_ID = UserId("other-user", "other.domain")
+    }
 }

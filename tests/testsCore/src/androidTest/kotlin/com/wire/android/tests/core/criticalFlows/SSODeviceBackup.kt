@@ -56,7 +56,7 @@ class SSODeviceBackup : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-8604")
+    @TestCaseId("TC-12691")
     @Category("criticalFlow")
     @Test
     fun givenSSOTeamWithKeycloak_whenSettingUpNewDeviceAndRestoringBackup_thenMessageIsRestored() {

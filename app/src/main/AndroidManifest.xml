@@ -345,12 +345,22 @@
         </receiver>
 
         <service
+            android:name=".services.RestartService"
+            android:exported="false"
+            android:process=":restart" />
+
+        <service
             android:name=".services.PersistentWebSocketService"
             android:exported="false"
             android:foregroundServiceType="specialUse" />
 
         <service
             android:name=".services.PendingMessagesForegroundService"
+            android:exported="false"
+            android:foregroundServiceType="dataSync" />
+
+        <service
+            android:name=".services.OfflineDownloadService"
             android:exported="false"
             android:foregroundServiceType="dataSync" />
 

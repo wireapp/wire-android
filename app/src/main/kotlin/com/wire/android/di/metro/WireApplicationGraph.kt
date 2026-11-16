@@ -36,6 +36,7 @@ import com.wire.android.notification.broadcastreceivers.NotificationReplyReceive
 import com.wire.android.notification.broadcastreceivers.PlayPauseAudioMessageReceiver
 import com.wire.android.notification.broadcastreceivers.StopAudioMessageReceiver
 import com.wire.android.services.CallService
+import com.wire.android.services.OfflineDownloadService
 import com.wire.android.services.PendingMessagesForegroundService
 import com.wire.android.services.PersistentWebSocketService
 import com.wire.android.services.PlayingAudioMessageService
@@ -85,6 +86,7 @@ interface WireApplicationGraph : ViewModelGraph {
     fun inject(activity: OngoingCallActivity)
     fun inject(service: PersistentWebSocketService)
     fun inject(service: PendingMessagesForegroundService)
+    fun inject(service: OfflineDownloadService)
     fun inject(service: CallService)
     fun inject(service: PlayingAudioMessageService)
     fun inject(receiver: StartServiceReceiver)

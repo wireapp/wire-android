@@ -48,7 +48,7 @@ class SessionExpirationTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4537")
+    @TestCaseId("TC-12616")
     @Category("regression", "RC", "sessionExpiration")
     @Test
     fun givenLoggedInTeamMember_whenTheirDeviceIsRemoved_thenAppropriateDeviceIsSignedOut() {
@@ -140,7 +140,7 @@ class SessionExpirationTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4538")
+    @TestCaseId("TC-12617")
     @Category("regression", "RC", "sessionExpiration", "multipleAccounts")
     @Test
     fun givenThreeLoggedInAccounts_whenEachClientIsRemoved_thenAccountsAreLoggedOutInSequence() {
@@ -361,7 +361,7 @@ class SessionExpirationTests : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4539")
+    @TestCaseId("TC-12618")
     @Category("regression", "RC", "sessionExpiration")
     @Test
     fun givenIAmLoggedIn_whenMyAccountIsRemovedFromTeam_thenIAmAutomaticallyLoggedOut() {

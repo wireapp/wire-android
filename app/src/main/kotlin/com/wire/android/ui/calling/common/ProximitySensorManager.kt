@@ -48,25 +48,40 @@ class ProximitySensorManager @Inject constructor(
     private lateinit var sensorManager: SensorManager
     private var proximity: Sensor? = null
     private lateinit var wakeLock: PowerManager.WakeLock
+    private val wakeLockLock = Any()
+
+    @Volatile
+    private var isListening = false
 
     fun initialize() {
         sensorManager = context.getSystemService(AppCompatActivity.SENSOR_SERVICE) as SensorManager
         proximity = sensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY)
         val powerManager = context.getSystemService(AppCompatActivity.POWER_SERVICE) as PowerManager
-        wakeLock = powerManager.newWakeLock(field, TAG)
+        wakeLock = powerManager.newWakeLock(field, TAG).apply {
+            // non-reference-counted so a redundant release() is a no-op instead of throwing "WakeLock under-locked"
+            setReferenceCounted(false)
+        }
     }
 
     fun registerListener() {
         proximity?.also { proximity ->
+            isListening = true
             sensorManager.registerListener(sensorEventListener, proximity, SensorManager.SENSOR_DELAY_NORMAL)
         }
     }
 
     fun unRegisterListener() {
+        sensorManager.unregisterListener(sensorEventListener)
+        synchronized(wakeLockLock) {
+            isListening = false
+            releaseWakeLock()
+        }
+    }
+
+    private fun releaseWakeLock() {
         if (wakeLock.isHeld) {
             wakeLock.release()
         }
-        sensorManager.unregisterListener(sensorEventListener)
     }
 
     private val sensorEventListener = object : SensorEventListener {
@@ -85,21 +100,20 @@ class ProximitySensorManager @Inject constructor(
                                 "$TAG onSensorChanged: isCallRunning: $isCallRunning distance: $distance " +
                                         "shouldTurnOffScreen: $shouldTurnOffScreen"
                             )
-                            if (shouldTurnOffScreen) {
-                                if (!wakeLock.isHeld) {
-                                    wakeLock.acquire()
-                                }
-                            } else {
-                                if (wakeLock.isHeld) {
-                                    wakeLock.release()
+                            synchronized(wakeLockLock) {
+                                // ignore events processed after the listener was unregistered
+                                if (shouldTurnOffScreen && isListening) {
+                                    if (!wakeLock.isHeld) {
+                                        wakeLock.acquire()
+                                    }
+                                } else {
+                                    releaseWakeLock()
                                 }
                             }
                         }
 
                         else -> { // NO SESSION - just release in case it's still held
-                            if (wakeLock.isHeld) {
-                                wakeLock.release()
-                            }
+                            synchronized(wakeLockLock) { releaseWakeLock() }
                         }
                     }
                 }

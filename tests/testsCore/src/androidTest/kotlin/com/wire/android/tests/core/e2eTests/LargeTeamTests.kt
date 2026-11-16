@@ -53,7 +53,7 @@ class LargeTeamTests : BaseUiTest() {
     // TODO: Increase the Kalium Test Service timeout so Member1 can log in and send a message.
     // TODO: Re-enable the commented steps after the timeout is increased.
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4398", "TC-8630")
+    @TestCaseId("TC-12517", "TC-12698")
     @Category("regression", "RC", "largeTeams")
     @Test
     fun givenIAmInLargeTeam_whenICreateGroupAndExchangeMessages_thenGroupIsCreatedAndMessagesAreReceived() {

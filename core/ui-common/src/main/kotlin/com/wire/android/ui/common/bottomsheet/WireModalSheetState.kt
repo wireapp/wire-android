@@ -34,7 +34,9 @@ import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
 
@@ -60,14 +62,18 @@ open class WireModalSheetState<T : Any>(
         private set
 
     fun show(value: T, hideKeyboard: Boolean = false) {
-        scope.launch {
-            // workaround for jumping bottom sheet when keyboard hides
-            if (hideKeyboard && keyboardController != null) {
-                keyboardController.hide()
-                delay(DELAY_TO_SHOW_BOTTOM_SHEET_WHEN_KEYBOARD_IS_OPEN)
-            }
-            currentValue = WireSheetValue.Expanded(value)
+        scope.launch { showAwaited(value, hideKeyboard) }
+    }
+
+    /** Opens in the caller's coroutine, so its owner can handle cancellation and completion directly. */
+    suspend fun showAwaited(value: T, hideKeyboard: Boolean = false) {
+        currentCoroutineContext().ensureActive()
+        // workaround for jumping bottom sheet when keyboard hides
+        if (hideKeyboard && keyboardController != null) {
+            keyboardController.hide()
+            delay(DELAY_TO_SHOW_BOTTOM_SHEET_WHEN_KEYBOARD_IS_OPEN)
         }
+        currentValue = WireSheetValue.Expanded(value)
     }
 
     fun hide(onComplete: suspend () -> Unit = {}) = scope.launch {

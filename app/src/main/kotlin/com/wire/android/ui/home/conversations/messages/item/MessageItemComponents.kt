@@ -15,6 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
+@file:Suppress("TooManyFunctions")
 package com.wire.android.ui.home.conversations.messages.item
 
 import android.annotation.SuppressLint
@@ -26,7 +27,9 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -42,6 +45,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -53,6 +57,7 @@ import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.spacers.HorizontalSpace
 import com.wire.android.ui.common.spacers.VerticalSpace
+import com.wire.android.ui.common.typography
 import com.wire.android.ui.home.conversations.SelfDeletionTimerHelper
 import com.wire.android.ui.home.conversations.mock.mockHeader
 import com.wire.android.ui.home.conversations.model.DeliveryStatusContent
@@ -328,6 +333,25 @@ internal fun MessageDecryptionFailure(
     }
 }
 
+/** An app notice in the sender's message slot, so unreadable content never reads as text they typed. */
+@Composable
+internal fun MessageUnsupportedContent(modifier: Modifier = Modifier) {
+    Row(modifier = modifier, verticalAlignment = Alignment.CenterVertically) {
+        Icon(
+            painter = painterResource(id = commonR.drawable.ic_info),
+            contentDescription = null,
+            tint = colorsScheme().secondaryText,
+            modifier = Modifier.size(dimensions().spacing14x),
+        )
+        HorizontalSpace.x8()
+        Text(
+            text = stringResource(R.string.unsupported_message_text),
+            style = typography().body05,
+            color = colorsScheme().secondaryText,
+        )
+    }
+}
+
 @SuppressLint("ComposeComposableModifier", "ComposeModifierWithoutDefault")
 @Composable
 internal fun Modifier.customizeMessageBackground(
@@ -374,6 +398,17 @@ internal fun Modifier.customizeMessageBackground(
     }
 
     return this.drawBehind { drawRect(backgroundColorAnimation.value) }
+}
+
+/**
+ * Draws a [color] tint behind the content, its alpha scaled by [intensity] (0..1).
+ * [intensity] is read in the draw phase, so animating it only redraws.
+ */
+internal fun Modifier.replyHighlight(color: Color, intensity: () -> Float): Modifier = drawBehind {
+    val currentIntensity = intensity()
+    if (currentIntensity > 0f) {
+        drawRect(color.copy(alpha = color.alpha * currentIntensity))
+    }
 }
 
 @Composable

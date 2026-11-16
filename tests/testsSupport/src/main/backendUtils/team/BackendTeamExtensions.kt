@@ -712,6 +712,54 @@ suspend fun BackendClient.addTeamCollaborator(
     )
 }
 
+// Cells is the backend feature name for Wire Drive. Enable it before signing in so the app loads the configuration.
+suspend fun BackendClient.enableCellsFeatureViaBackdoorTeam(team: Team) {
+    setCellsFeatureViaBackdoorTeam(team, enabled = true)
+}
+
+suspend fun BackendClient.disableCellsFeatureViaBackdoorTeam(team: Team) {
+    setCellsFeatureViaBackdoorTeam(team, enabled = false)
+}
+
+private suspend fun BackendClient.setCellsFeatureViaBackdoorTeam(team: Team, enabled: Boolean) {
+    val status = if (enabled) "enabled" else "disabled"
+    val teamId = Uri.encode(team.id)
+    val headers = defaultheaders.toMutableMap().apply {
+        put("Authorization", basicAuth.getEncoded())
+    }
+    NetworkBackendClient.sendJsonRequestWithCookies(
+        url = URI("teams/$teamId/features/cells/unlocked".composeInternalApiUrl()).toURL(),
+        method = "PUT",
+        headers = headers,
+        body = JSONObject().toString(),
+        options = RequestOptions(
+            expectedResponseCodes = NumberSequence.Array(intArrayOf(HttpURLConnection.HTTP_OK))
+        )
+    )
+    NetworkBackendClient.sendJsonRequestWithCookies(
+        url = URI("teams/$teamId/features/cells".composeInternalApiUrl()).toURL(),
+        method = "PATCH",
+        headers = headers,
+        body = JSONObject().put("status", status).toString(),
+        options = RequestOptions(
+            expectedResponseCodes = NumberSequence.Array(intArrayOf(HttpURLConnection.HTTP_OK))
+        )
+    )
+    val effectiveConfig = NetworkBackendClient.sendJsonRequestWithCookies(
+        url = URI("teams/$teamId/features/cells".composeInternalApiUrl()).toURL(),
+        method = "GET",
+        headers = headers,
+        options = RequestOptions(
+            expectedResponseCodes = NumberSequence.Array(intArrayOf(HttpURLConnection.HTTP_OK))
+        )
+    )
+    val effective = JSONObject(effectiveConfig.body)
+    check(effective.optString("status") == status && effective.optString("lockStatus") == "unlocked") {
+        "Cells feature is not $status and unlocked: " +
+            "status=${effective.optString("status")}, lockStatus=${effective.optString("lockStatus")}"
+    }
+}
+
 suspend fun BackendClient.enableChannelFeatureViaBackdoorTeam(team: Team) {
     val teamId = Uri.encode(team.id)
     val headers = defaultheaders.toMutableMap().apply {

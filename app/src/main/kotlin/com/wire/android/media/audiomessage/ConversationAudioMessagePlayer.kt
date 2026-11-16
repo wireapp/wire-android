@@ -21,6 +21,7 @@ import android.content.Context
 import android.media.MediaPlayer
 import android.media.MediaPlayer.SEEK_CLOSEST_SYNC
 import android.net.Uri
+import com.wire.android.appLogger
 import com.wire.android.di.ApplicationScope
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.services.ServicesManager
@@ -28,16 +29,20 @@ import com.wire.android.ui.common.R as commonR
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.extension.intervalFlow
 import com.wire.android.util.ui.UIText
+import com.wire.kalium.common.error.StorageFailure
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.asset.MessageAssetResult
 import com.wire.kalium.logic.feature.message.GetNextAudioMessageInConversationUseCase
 import com.wire.kalium.logic.feature.message.GetSenderNameByMessageIdUseCase
+import com.wire.kalium.logic.feature.message.ObserveMessageByIdUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.android.di.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -47,6 +52,7 @@ import kotlinx.coroutines.flow.conflate
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
@@ -57,6 +63,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
+import java.io.IOException
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.SingleIn
@@ -96,6 +103,7 @@ class ConversationAudioMessagePlayer
 
     private var audioMessageStateHistory: Map<MessageIdWrapper, AudioState> = emptyMap()
     private var currentAudioMessageId: MessageIdWrapper? = null
+    private var deletionObserverJob: Job? = null
 
     private val audioMessageStateUpdate = MutableSharedFlow<AudioMediaPlayerStateUpdate>(
         onBufferOverflow = BufferOverflow.SUSPEND
@@ -276,6 +284,8 @@ class ConversationAudioMessagePlayer
         if (currentAccountResult is CurrentSessionResult.Failure) return
         val userId = (currentAccountResult as CurrentSessionResult.Success).accountInfo.userId
 
+        observeAudioMessageDeletion(userId, conversationId, messageId)
+
         audioMessageStateUpdate.emit(
             AudioMediaPlayerStateUpdate.AudioMediaPlayingStateUpdate(conversationId, messageId, AudioMediaPlayingState.Fetching)
         )
@@ -293,29 +303,13 @@ class ConversationAudioMessagePlayer
                 val isFetchedAudioCurrentlyQueuedToPlay = MessageIdWrapper(conversationId, messageId) == currentAudioMessageId
 
                 if (isFetchedAudioCurrentlyQueuedToPlay) {
-                    audioMediaPlayer.setDataSource(context, Uri.parse(result.decodedAssetPath.toString()))
-                    audioMediaPlayer.prepare()
-
-                    if (position != null) audioMediaPlayer.seekTo(position)
-
-                    audioFocusHelper.request()
-                    audioMediaPlayer.start()
-
-                    setSpeed(_audioSpeed.value)
-
-                    audioMessageStateUpdate.emit(
-                        AudioMediaPlayerStateUpdate.AudioMediaPlayingStateUpdate(
-                            conversationId,
-                            messageId,
-                            AudioMediaPlayingState.Playing
-                        )
-                    )
-
-                    servicesManager.value.startPlayingAudioMessageService()
-
-                    audioMessageStateUpdate.emit(
-                        AudioMediaPlayerStateUpdate.TotalTimeUpdate(conversationId, messageId, audioMediaPlayer.duration)
-                    )
+                    try {
+                        startPlayback(conversationId, messageId, result.decodedAssetPath.toString(), position)
+                    } catch (e: IllegalStateException) {
+                        onPlaybackStartFailed(conversationId, messageId, e)
+                    } catch (e: IOException) {
+                        onPlaybackStartFailed(conversationId, messageId, e)
+                    }
                 }
             }
 
@@ -329,6 +323,61 @@ class ConversationAudioMessagePlayer
                 )
             }
         }
+    }
+
+    private suspend fun startPlayback(conversationId: ConversationId, messageId: String, assetPath: String, position: Int?) {
+        // the player may not be idle here (e.g. a previous stop was skipped while fetching, or another play request
+        // for the same message finished first), and setDataSource throws unless the player is idle, so always reset first
+        audioMediaPlayer.reset()
+        audioMediaPlayer.setDataSource(context, Uri.parse(assetPath))
+        audioMediaPlayer.prepare()
+
+        if (position != null) audioMediaPlayer.seekTo(position)
+
+        audioFocusHelper.request()
+        audioMediaPlayer.start()
+
+        setSpeed(_audioSpeed.value)
+
+        audioMessageStateUpdate.emit(
+            AudioMediaPlayerStateUpdate.AudioMediaPlayingStateUpdate(conversationId, messageId, AudioMediaPlayingState.Playing)
+        )
+
+        servicesManager.value.startPlayingAudioMessageService()
+
+        audioMessageStateUpdate.emit(
+            AudioMediaPlayerStateUpdate.TotalTimeUpdate(conversationId, messageId, audioMediaPlayer.duration)
+        )
+    }
+
+    private suspend fun onPlaybackStartFailed(conversationId: ConversationId, messageId: String, error: Exception) {
+        appLogger.e("ConversationAudioMessagePlayer: failed to start playback: ${error.message}")
+        audioMediaPlayer.reset()
+        audioFocusHelper.abandon()
+        audioMessageStateUpdate.emit(
+            AudioMediaPlayerStateUpdate.AudioMediaPlayingStateUpdate(conversationId, messageId, AudioMediaPlayingState.Failed)
+        )
+        if (currentAudioMessageId == MessageIdWrapper(conversationId, messageId)) currentAudioMessageId = null
+    }
+
+    // stops the playback when the currently played message gets deleted, no matter if locally, remotely or by self-deletion
+    private fun observeAudioMessageDeletion(userId: UserId, conversationId: ConversationId, messageId: String) {
+        deletionObserverJob?.cancel()
+        deletionObserverJob = scope.launch {
+            coreLogic.getSessionScope(userId).messages.observeMessageById(conversationId, messageId)
+                .firstOrNull { it.isDeleted() } ?: return@launch
+            if (currentAudioMessageId == MessageIdWrapper(conversationId, messageId)) {
+                forceToStopCurrentAudioMessage()
+                // when still fetching, stop is skipped, so clearing the id prevents the fetched audio from starting
+                currentAudioMessageId = null
+            }
+        }
+    }
+
+    private fun ObserveMessageByIdUseCase.Result.isDeleted(): Boolean = when (this) {
+        is ObserveMessageByIdUseCase.Result.Success ->
+            (message as? Message.Standalone)?.visibility.let { it != null && it != Message.Visibility.VISIBLE }
+        is ObserveMessageByIdUseCase.Result.Failure -> cause == StorageFailure.DataNotFound
     }
 
     suspend fun setPosition(conversationId: ConversationId, messageId: String, position: Int) {
@@ -504,6 +553,7 @@ class ConversationAudioMessagePlayer
     }
 
     internal fun clear() {
+        deletionObserverJob?.cancel()
         audioMediaPlayer.reset()
         currentAudioMessageId = null
         audioMessageStateHistory = emptyMap()

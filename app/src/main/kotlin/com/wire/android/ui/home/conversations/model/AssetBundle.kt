@@ -65,12 +65,14 @@ data class AssetBundle(
 /**
  * @param uri Uri of the asset
  * @param saveToDeviceIfInvalid if true then the asset will be copied to the public "media" directory if it's invalid (e.g. too large)
+ * @param isCameraCapture if true then the uri is the app's own camera output file, which is deleted once the asset is handled
  */
 data class UriAsset(
     val uri: Uri,
     val saveToDeviceIfInvalid: Boolean = false,
     val mimeType: String? = null,
     val audioWavesMask: List<Int>? = null,
+    val isCameraCapture: Boolean = false,
 )
 
 object PathParceler : Parceler<Path> {

@@ -37,19 +37,25 @@ import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.MeetingId
 import com.wire.kalium.logic.data.meeting.Meeting
 import com.wire.kalium.logic.data.meeting.MeetingOccurrence
-import com.wire.kalium.logic.data.meeting.UpsertMeeting
+import com.wire.kalium.logic.data.meeting.CreateMeeting
+import com.wire.kalium.logic.data.meeting.UpdateMeeting
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.auth.ValidatePasswordUseCase
+import com.wire.kalium.logic.feature.auth.ValidatePasswordResult
 import com.wire.kalium.logic.feature.conversation.ObserveConversationMembersUseCase
 import com.wire.kalium.logic.feature.conversation.RenameConversationUseCase
 import com.wire.kalium.logic.feature.conversation.RenamingResult
 import com.wire.kalium.logic.feature.meeting.CreateNewMeetingUseCase
 import com.wire.kalium.logic.feature.meeting.GetNextUnfinishedMeetingOccurrenceUseCase
 import com.wire.kalium.logic.feature.meeting.UpdateMeetingUseCase
+import com.wire.kalium.logic.feature.user.IsMeetingsEnabledUseCase
+import com.wire.kalium.logic.util.RandomPassword
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
+import io.mockk.verify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlin.time.Duration.Companion.hours
@@ -399,12 +405,13 @@ class NewMeetingViewModelTest {
 
             coVerify(exactly = 1) {
                 arrangement.createNewMeeting(
-                    UpsertMeeting(
+                    CreateMeeting(
                         title = "Quick sync",
                         startTime = currentTime,
                         endTime = currentTime + 1.hours,
                         tzid = MEETING_TIME_ZONE_ID,
                         recurrence = null,
+                        type = Meeting.Type.IMMEDIATE,
                         otherParticipants = emptyList()
                     )
                 )
@@ -421,7 +428,7 @@ class NewMeetingViewModelTest {
     @Test
     fun givenScheduleTypeWithValidData_whenSubmitCreationIsCalled_thenSuccessDoesNotRequestCall() = runTest(dispatcher) {
         val currentTime = Instant.parse("2026-01-01T12:00:00Z")
-        val createMeeting = UPSERT_MEETING.copy(startTime = currentTime + 2.hours, endTime = currentTime + 3.hours)
+        val createMeeting = CREATE_MEETING.copy(startTime = currentTime + 2.hours, endTime = currentTime + 3.hours)
         val (arrangement, viewModel) = arrangeViewModel(
             Arrangement(dispatcher)
                 .withNewMeetingType(NewMeetingType.Schedule)
@@ -475,7 +482,7 @@ class NewMeetingViewModelTest {
     fun givenEditTypeWithValidData_whenSubmitUpdateIsCalled_thenMeetingIsEditedAndSuccessActionIsSent() = runTest(dispatcher) {
         val currentTime = Instant.parse("2026-01-01T12:00:00Z")
         val contact = contact("contact-1")
-        val createMeeting = UPSERT_MEETING.copy(startTime = currentTime + 2.hours, endTime = currentTime + 3.hours)
+        val updateMeeting = UPDATE_MEETING.copy(startTime = currentTime + 2.hours, endTime = currentTime + 3.hours)
         val editType = NewMeetingType.Edit(MeetingId("meeting-id", "domain"))
         val nextOccurrence = MEETING_OCCURRENCE.copy(
             meeting = MEETING_OCCURRENCE.meeting.copy(
@@ -494,21 +501,47 @@ class NewMeetingViewModelTest {
                 .withCurrentTimeProvider { currentTime }
         )
 
-        enterTitle(viewModel, createMeeting.title)
-        viewModel.updateStartTime(createMeeting.startTime)
-        viewModel.updateEndTime(createMeeting.endTime)
+        viewModel.passwordTextState.setTextAndPlaceCursorAtEnd("ignored password")
+        enterTitle(viewModel, updateMeeting.title)
+        viewModel.updateStartTime(updateMeeting.startTime)
+        viewModel.updateEndTime(updateMeeting.endTime)
         viewModel.updateSelectedContact(selected = true, contact = contact)
         viewModel.confirmSelectedContacts()
-        viewModel.updateRepeatingInterval(createMeeting.recurrence?.toRepeatingInterval())
+        viewModel.updateRepeatingInterval(updateMeeting.recurrence?.toRepeatingInterval())
 
         viewModel.actions.test {
             viewModel.submitUpdate()
             advanceUntilIdle()
-            coVerify(exactly = 1) { arrangement.updateMeeting(editType.id, createMeeting) }
+            coVerify(exactly = 1) { arrangement.updateMeeting(editType.id, updateMeeting) }
+            verify(exactly = 0) { arrangement.validatePassword(any()) }
             assertFalse(viewModel.state.isSubmitting)
             assertNull(viewModel.state.submitError)
             assertEquals(NewMeetingViewActions.Success(), awaitItem())
             cancelAndConsumeRemainingEvents()
+        }
+    }
+
+    @Test
+    fun givenImmediateMeeting_whenSubmitUpdateIsCalled_thenTypeIsPreserved() = runTest(dispatcher) {
+        val editType = NewMeetingType.Edit(MEETING_OCCURRENCE.meeting.meetingId)
+        val immediateOccurrence = MEETING_OCCURRENCE.copy(
+            meeting = MEETING_OCCURRENCE.meeting.copy(type = Meeting.Type.IMMEDIATE)
+        )
+        val (arrangement, viewModel) = arrangeViewModel(
+            Arrangement(dispatcher)
+                .withNewMeetingType(editType)
+                .withNextUnfinishedMeetingOccurrence(immediateOccurrence)
+                .withUpdateMeetingResult(editType.id, UpdateMeetingUseCase.Result.Success)
+        )
+
+        advanceUntilIdle()
+        assertEquals(Meeting.Type.IMMEDIATE, viewModel.state.meetingType)
+
+        viewModel.submitUpdate()
+        advanceUntilIdle()
+
+        coVerify(exactly = 1) {
+            arrangement.updateMeeting(editType.id, match { it.type == Meeting.Type.IMMEDIATE })
         }
     }
 
@@ -528,13 +561,14 @@ class NewMeetingViewModelTest {
                 occurrenceStartTime = currentTime + 1.hours,
                 occurrenceEndTime = currentTime + 2.hours,
             )
-            val updateMeeting = UpsertMeeting(
+            val updateMeeting = UpdateMeeting(
                 title = "Retrospective sync",
                 startTime = pastStartTime,
                 endTime = pastEndTime,
                 tzid = MEETING_TIME_ZONE_ID,
                 recurrence = null,
-                otherParticipants = emptyList()
+                otherParticipants = emptyList(),
+                type = Meeting.Type.SCHEDULED,
             )
             val (arrangement, viewModel) = arrangeViewModel(
                 Arrangement(dispatcher)
@@ -872,7 +906,7 @@ class NewMeetingViewModelTest {
     fun givenLocalTimeZone_whenSubmitCreationIsCalled_thenCurrentLocalTzidIsPassed() = runTest(dispatcher) {
         val currentTime = Instant.parse("2026-01-01T12:00:00Z")
         val localTimeZoneID = "Europe/Berlin"
-        val createMeeting = UPSERT_MEETING.copy(
+        val createMeeting = CREATE_MEETING.copy(
             startTime = currentTime + 2.hours,
             endTime = currentTime + 3.hours,
             tzid = localTimeZoneID,
@@ -929,7 +963,7 @@ class NewMeetingViewModelTest {
             val localTimeZoneID = "Europe/Berlin"
             val nextOccurrence = MEETING_OCCURRENCE.copy(meeting = MEETING_OCCURRENCE.meeting.copy(tzid = meetingTimeZoneId))
             val editType = NewMeetingType.Edit(nextOccurrence.meeting.meetingId)
-            val updateMeeting = UPSERT_MEETING.copy(
+            val updateMeeting = UPDATE_MEETING.copy(
                 startTime = nextOccurrence.occurrenceStartTime,
                 endTime = nextOccurrence.occurrenceEndTime,
                 tzid = meetingTimeZoneId, // keep the original tzid since no time changes are made
@@ -966,7 +1000,7 @@ class NewMeetingViewModelTest {
             val updatedStartTime = currentTime + 3.hours
             val nextOccurrence = MEETING_OCCURRENCE.copy(meeting = MEETING_OCCURRENCE.meeting.copy(tzid = meetingTimeZoneId))
             val editType = NewMeetingType.Edit(nextOccurrence.meeting.meetingId)
-            val updateMeeting = UPSERT_MEETING.copy(
+            val updateMeeting = UPDATE_MEETING.copy(
                 startTime = updatedStartTime,
                 endTime = updatedStartTime + 1.hours, // it's recalculated based on the original duration of the meeting
                 tzid = meetingTimeZoneId, // keep the original tzid
@@ -1002,7 +1036,7 @@ class NewMeetingViewModelTest {
             val nextOccurrence = MEETING_OCCURRENCE.copy(meeting = MEETING_OCCURRENCE.meeting.copy(tzid = meetingTimeZoneId))
             val updatedEndTime = nextOccurrence.occurrenceStartTime + 2.hours
             val editType = NewMeetingType.Edit(nextOccurrence.meeting.meetingId)
-            val updateMeeting = UPSERT_MEETING.copy(
+            val updateMeeting = UPDATE_MEETING.copy(
                 startTime = nextOccurrence.occurrenceStartTime,
                 endTime = updatedEndTime,
                 tzid = meetingTimeZoneId, // keep the original tzid
@@ -1029,148 +1063,265 @@ class NewMeetingViewModelTest {
             }
         }
 
-    private fun TestScope.arrangeViewModel(
-        arrangement: Arrangement = Arrangement(dispatcher)
-    ): Pair<Arrangement, NewMeetingViewModelImpl> =
-        arrangement.arrange().also { runCurrent() }
-
-    private fun TestScope.enterTitle(viewModel: NewMeetingViewModel, title: String) {
-        viewModel.titleTextState.setTextAndPlaceCursorAtEnd(title)
-        advanceUntilIdle()
-    }
-
-    private fun contact(id: String) = Contact(
-        id = id,
-        domain = "wire.com",
-        name = "Contact $id",
-        handle = id,
-        membership = Membership.Standard,
-        connectionState = ConnectionState.ACCEPTED,
-    )
-
-    private inner class Arrangement(private val dispatcher: TestDispatcher) {
-        var currentTimeProvider = CurrentTimeProvider {
-            Instant.fromEpochMilliseconds(dispatcher.scheduler.currentTime)
-        }
-
-        @MockK
-        lateinit var currentTimeZoneProvider: CurrentTimeZoneProvider
-
-        @MockK
-        lateinit var createNewMeeting: CreateNewMeetingUseCase
-
-        @MockK
-        lateinit var updateMeeting: UpdateMeetingUseCase
-
-        @MockK
-        lateinit var getNextUnfinishedMeetingOccurrence: GetNextUnfinishedMeetingOccurrenceUseCase
-
-        @MockK
-        lateinit var observeConversationMembers: ObserveConversationMembersUseCase
-
-        @MockK
-        lateinit var renameConversationUseCase: RenameConversationUseCase
-
-        @MockK
-        lateinit var contactMapper: ContactMapper
-
-        private var newMeetingType: NewMeetingType = NewMeetingType.MeetNow
-
-        init {
-            MockKAnnotations.init(this)
-            every { currentTimeZoneProvider.invoke() } returns TimeZone.of(MEETING_OCCURRENCE.meeting.tzid)
-            coEvery { getNextUnfinishedMeetingOccurrence(any(), any()) } returns null
-            coEvery { observeConversationMembers(any()) } returns flowOf(emptyList())
-        }
-
-        fun withNewMeetingType(type: NewMeetingType) = apply {
-            newMeetingType = type
-        }
-
-        fun withCurrentTimeProvider(currentTime: () -> Instant) = apply {
-            currentTimeProvider = CurrentTimeProvider(currentTime)
-        }
-
-        fun withCurrentTimeZone(timeZoneId: String) = apply {
-            every { currentTimeZoneProvider.invoke() } returns TimeZone.of(timeZoneId)
-        }
-
-        fun withCreateMeetingResult(result: CreateNewMeetingUseCase.Result) = apply {
-            coEvery { createNewMeeting(any()) } returns result
-        }
-
-        fun withUpdateMeetingResult(meetingId: MeetingId, result: UpdateMeetingUseCase.Result) = apply {
-            coEvery { updateMeeting(meetingId, any()) } returns result
-        }
-
-        fun withRenameConversationResult(conversationId: ConversationId, conversationName: String, result: RenamingResult) = apply {
-            coEvery { renameConversationUseCase(conversationId, conversationName) } returns result
-        }
-
-        fun withNextUnfinishedMeetingOccurrence(nextMeetingOccurrence: MeetingOccurrence?) = apply {
-            coEvery { getNextUnfinishedMeetingOccurrence(any(), any()) } returns nextMeetingOccurrence
-        }
-
-        fun withNextUnfinishedMeetingOccurrenceFailure() = apply {
-            coEvery {
-                getNextUnfinishedMeetingOccurrence(any(), any())
-            } throws IllegalStateException("Failed to load meeting occurrence")
-        }
-
-        fun withConversationMembers(conversationId: ConversationId, members: List<MemberDetails>) = apply {
-            coEvery { observeConversationMembers(conversationId) } returns flowOf(members)
-        }
-
-        fun withMappedContact(otherUser: OtherUser, contact: Contact) = apply {
-            every { contactMapper.fromOtherUser(otherUser) } returns contact
-        }
-
-        fun arrange() = this to NewMeetingViewModelImpl(
-            navArgs = NewMeetingNavArgs(type = newMeetingType),
-            currentTimeProvider = currentTimeProvider,
-            currentTimeZoneProvider = currentTimeZoneProvider,
-            createNewMeeting = createNewMeeting,
-            updateMeeting = updateMeeting,
-            getNextUnfinishedMeetingOccurrence = getNextUnfinishedMeetingOccurrence,
-            observeConversationMembers = observeConversationMembers,
-            renameConversationUseCase = renameConversationUseCase,
-            contactMapper = contactMapper,
+    @Test
+    fun givenEmptySchedulePassword_whenSubmitting_thenValidationIsSkippedAndNullIsPassed() = runTest(dispatcher) {
+        val (arrangement, viewModel) = arrangeViewModel(
+            Arrangement(dispatcher)
+                .withNewMeetingType(NewMeetingType.Schedule)
+                .withCreateMeetingResult(CreateNewMeetingUseCase.Result.Success(ConversationId("meeting", "domain")))
         )
+        enterTitle(viewModel, "Weekly sync")
+
+        viewModel.submitCreation()
+        advanceUntilIdle()
+
+        verify(exactly = 0) { arrangement.validatePassword(any()) }
+        coVerify(exactly = 1) { arrangement.createNewMeeting(match { it.password == null }) }
+        assertFalse(viewModel.state.invalidPassword)
     }
 
-    private val MEETING_TIME_ZONE_ID = "Europe/Berlin"
-    private val MEETING_OCCURRENCE = MeetingOccurrence(
-        participants = emptyList(),
-        meeting = Meeting(
-            meetingId = MeetingId("meeting-id", "domain"),
-            conversationId = ConversationId("conversation-id", "domain"),
-            creatorId = UserId("creator-id", "domain"),
-            title = "Repeating meeting",
-            startTime = Instant.parse("2026-01-01T09:00:00Z"),
-            endTime = Instant.parse("2026-01-01T10:00:00Z"),
-            tzid = MEETING_TIME_ZONE_ID,
-            recurrence = Meeting.Recurrence(
-                frequency = MeetingItem.RepeatingInterval.Supported.first().frequency,
-                interval = MeetingItem.RepeatingInterval.Supported.first().interval.toLong(),
-                until = null
-            ),
-        ),
-        selfRole = MeetingOccurrence.SelfRole.Creator,
-        conversationName = "Daily",
-        conversationType = MeetingOccurrence.ConversationType.Group,
-        occurrenceId = "occurrence-id",
-        occurrenceStartTime = Instant.parse("2026-01-02T09:00:00Z"),
-        occurrenceEndTime = Instant.parse("2026-01-02T10:00:00Z"),
-    )
-    private val CONTACT = contact("contact-1")
-    private val UPSERT_MEETING = UpsertMeeting(
-        title = MEETING_OCCURRENCE.meeting.title,
-        startTime = MEETING_OCCURRENCE.meeting.startTime,
-        endTime = MEETING_OCCURRENCE.meeting.endTime,
-        tzid = MEETING_TIME_ZONE_ID,
-        recurrence = MEETING_OCCURRENCE.meeting.recurrence,
-        otherParticipants = listOf(UserId(CONTACT.id, CONTACT.domain))
-    )
+    @Test
+    fun givenValidSchedulePassword_whenSubmitting_thenExactPasswordIsPassed() = runTest(dispatcher) {
+        val password = " ValidPassword1! "
+        val (arrangement, viewModel) = arrangeViewModel(
+            Arrangement(dispatcher)
+                .withNewMeetingType(NewMeetingType.Schedule)
+                .withPasswordValidationResult(password, ValidatePasswordResult.Valid)
+                .withCreateMeetingResult(CreateNewMeetingUseCase.Result.Success(ConversationId("meeting", "domain")))
+        )
+        enterTitle(viewModel, "Weekly sync")
+        viewModel.passwordTextState.setTextAndPlaceCursorAtEnd(password)
+        viewModel.confirmPasswordTextState.setTextAndPlaceCursorAtEnd(password)
+        advanceUntilIdle()
+
+        viewModel.submitCreation()
+        advanceUntilIdle()
+
+        verify(exactly = 1) { arrangement.validatePassword(password) }
+        coVerify(exactly = 1) { arrangement.createNewMeeting(match { it.password == password }) }
+        assertFalse(viewModel.state.invalidPassword)
+    }
+
+    @Test
+    fun givenInvalidSchedulePassword_whenSubmitting_thenCreationIsBlocked() = runTest(dispatcher) {
+        val (arrangement, viewModel) = arrangeViewModel(
+            Arrangement(dispatcher)
+                .withNewMeetingType(NewMeetingType.Schedule)
+                .withPasswordValidationResult("invalid", ValidatePasswordResult.Invalid())
+        )
+        enterTitle(viewModel, "Weekly sync")
+        viewModel.passwordTextState.setTextAndPlaceCursorAtEnd("invalid")
+        advanceUntilIdle()
+
+        viewModel.submitCreation()
+        advanceUntilIdle()
+        enterTitle(viewModel, "Updated title")
+        viewModel.updateEndTime(viewModel.state.endTime + 1.hours)
+
+        assertEquals(true, viewModel.state.invalidPassword)
+        assertFalse(viewModel.state.continueButtonEnabled)
+        coVerify(exactly = 0) { arrangement.createNewMeeting(any()) }
+    }
+
+    @Test
+    fun givenInvalidSchedulePassword_whenCleared_thenErrorIsClearedAndMeetingCanBeCreatedWithoutPassword() = runTest(dispatcher) {
+        val (arrangement, viewModel) = arrangeViewModel(
+            Arrangement(dispatcher)
+                .withNewMeetingType(NewMeetingType.Schedule)
+                .withPasswordValidationResult("invalid", ValidatePasswordResult.Invalid())
+                .withCreateMeetingResult(CreateNewMeetingUseCase.Result.Success(ConversationId("meeting", "domain")))
+        )
+        enterTitle(viewModel, "Weekly sync")
+        viewModel.passwordTextState.setTextAndPlaceCursorAtEnd("invalid")
+        advanceUntilIdle()
+        viewModel.submitCreation()
+        advanceUntilIdle()
+
+        viewModel.passwordTextState.setTextAndPlaceCursorAtEnd("")
+        advanceUntilIdle()
+
+        assertFalse(viewModel.state.invalidPassword)
+        assertEquals(true, viewModel.state.continueButtonEnabled)
+        viewModel.submitCreation()
+        advanceUntilIdle()
+        verify(exactly = 1) { arrangement.validatePassword(any()) }
+        coVerify(exactly = 1) { arrangement.createNewMeeting(match { it.password == null }) }
+    }
+
+    @Test
+    fun givenScheduleType_whenGeneratingPassword_thenGeneratedPasswordIsUsedForCreation() = runTest(dispatcher) {
+        val password = "Abc123!@"
+        val (arrangement, viewModel) = arrangeViewModel(
+            Arrangement(dispatcher)
+                .withNewMeetingType(NewMeetingType.Schedule)
+                .withGeneratedPassword(password)
+                .withPasswordValidationResult(password, ValidatePasswordResult.Valid)
+                .withCreateMeetingResult(CreateNewMeetingUseCase.Result.Success(ConversationId("meeting", "domain")))
+        )
+        enterTitle(viewModel, "Weekly sync")
+
+        viewModel.onGenerateRandomPassword()
+        advanceUntilIdle()
+        assertEquals(password, viewModel.passwordTextState.text.toString())
+        assertEquals(password, viewModel.confirmPasswordTextState.text.toString())
+        viewModel.submitCreation()
+        advanceUntilIdle()
+
+        verify(exactly = 1) { arrangement.generatePassword(minLength = 8, maxLength = 8) }
+        coVerify(exactly = 1) { arrangement.createNewMeeting(match { it.password == password }) }
+    }
+
+    @Test
+    fun givenMeetNowTypeWithPassword_whenSubmitting_thenPasswordIsIgnored() = runTest(dispatcher) {
+        val (arrangement, viewModel) = arrangeViewModel(
+            Arrangement(dispatcher)
+                .withCreateMeetingResult(CreateNewMeetingUseCase.Result.Success(ConversationId("meeting", "domain")))
+        )
+        enterTitle(viewModel, "Quick sync")
+        viewModel.passwordTextState.setTextAndPlaceCursorAtEnd("invalid")
+
+        viewModel.submitCreation()
+        advanceUntilIdle()
+
+        verify(exactly = 0) { arrangement.validatePassword(any()) }
+        coVerify(exactly = 1) { arrangement.createNewMeeting(match { it.password == null }) }
+    }
+
+    @Test
+    fun givenMeetNowOrEditType_whenGeneratingPassword_thenPasswordIsNotGenerated() = runTest(dispatcher) {
+        listOf(NewMeetingType.MeetNow, NewMeetingType.Edit(MeetingId("meeting", "domain"))).forEach { type ->
+            val (arrangement, viewModel) = arrangeViewModel(Arrangement(dispatcher).withNewMeetingType(type))
+
+            viewModel.onGenerateRandomPassword()
+
+            verify(exactly = 0) { arrangement.generatePassword(any(), any()) }
+            assertEquals("", viewModel.passwordTextState.text.toString())
+        }
+    }
+
+    @Test
+    fun givenGuestLinksDisabled_whenSubmittingSchedule_thenPasswordIsIgnored() = runTest(dispatcher) {
+        listOf(false to true, true to false).forEach { (buildFlag, guestLinkSupport) ->
+            val (arrangement, viewModel) = arrangeViewModel(
+                Arrangement(dispatcher)
+                    .withNewMeetingType(NewMeetingType.Schedule)
+                    .withMeetingsGuestsLinksEnabled(buildFlag)
+                    .withGuestLinkSharingEnabled(guestLinkSupport)
+                    .withCreateMeetingResult(CreateNewMeetingUseCase.Result.Success(ConversationId("meeting", "domain")))
+            )
+            enterTitle(viewModel, "Weekly sync")
+            viewModel.passwordTextState.setTextAndPlaceCursorAtEnd("hidden password")
+            advanceUntilIdle()
+
+            viewModel.onGenerateRandomPassword()
+            viewModel.submitCreation()
+            advanceUntilIdle()
+
+            assertFalse(viewModel.state.isGuestLinkSharingEnabled)
+            assertFalse(viewModel.state.invalidPassword)
+            verify(exactly = 0) { arrangement.generatePassword(any(), any()) }
+            verify(exactly = 0) { arrangement.validatePassword(any()) }
+            coVerify(exactly = 1) { arrangement.createNewMeeting(match { it.password == null }) }
+        }
+    }
+
+    @Test
+    fun givenGuestLinksEnabledInitially_whenSubmitting_thenAvailabilityIsNotCheckedAgain() = runTest(dispatcher) {
+        val password = "ValidPassword1!"
+        val (arrangement, viewModel) = arrangeViewModel(
+            Arrangement(dispatcher)
+                .withNewMeetingType(NewMeetingType.Schedule)
+                .withPasswordValidationResult(password, ValidatePasswordResult.Valid)
+                .withCreateMeetingResult(CreateNewMeetingUseCase.Result.Success(ConversationId("meeting", "domain")))
+        )
+        assertEquals(true, viewModel.state.isGuestLinkSharingEnabled)
+        assertEquals(NewMeetingState.InitialLoadingState.Loaded, viewModel.state.initialLoading)
+        arrangement.withGuestLinkSharingEnabled(false)
+        enterTitle(viewModel, "Weekly sync")
+        viewModel.passwordTextState.setTextAndPlaceCursorAtEnd(password)
+        viewModel.confirmPasswordTextState.setTextAndPlaceCursorAtEnd(password)
+        advanceUntilIdle()
+
+        viewModel.submitCreation()
+        advanceUntilIdle()
+
+        assertEquals(true, viewModel.state.isGuestLinkSharingEnabled)
+        coVerify(exactly = 1) { arrangement.isMeetingsEnabledUseCase.isGuestLinkSharingEnabled() }
+        coVerify(exactly = 1) { arrangement.createNewMeeting(match { it.password == password }) }
+    }
+
+    @Test
+    fun givenMissingOrMismatchedConfirmation_whenSubmitting_thenCreationIsBlocked() = runTest(dispatcher) {
+        val password = "ValidPassword1!"
+        listOf("", "DifferentPassword1!").forEach { confirmation ->
+            val (arrangement, viewModel) = arrangeViewModel(
+                Arrangement(dispatcher)
+                    .withNewMeetingType(NewMeetingType.Schedule)
+                    .withPasswordValidationResult(password, ValidatePasswordResult.Valid)
+            )
+            enterTitle(viewModel, "Weekly sync")
+            viewModel.passwordTextState.setTextAndPlaceCursorAtEnd(password)
+            viewModel.confirmPasswordTextState.setTextAndPlaceCursorAtEnd(confirmation)
+            advanceUntilIdle()
+
+            viewModel.submitCreation()
+            advanceUntilIdle()
+            enterTitle(viewModel, "Updated title")
+            viewModel.updateEndTime(viewModel.state.endTime + 1.hours)
+
+            assertEquals(true, viewModel.state.passwordsDoNotMatch)
+            assertFalse(viewModel.state.invalidPassword)
+            assertFalse(viewModel.state.continueButtonEnabled)
+            coVerify(exactly = 0) { arrangement.createNewMeeting(any()) }
+        }
+    }
+
+    @Test
+    fun givenMismatchedConfirmation_whenCorrected_thenErrorClearsAndCreationSucceeds() = runTest(dispatcher) {
+        val password = "ValidPassword1!"
+        val (arrangement, viewModel) = arrangeViewModel(
+            Arrangement(dispatcher)
+                .withNewMeetingType(NewMeetingType.Schedule)
+                .withPasswordValidationResult(password, ValidatePasswordResult.Valid)
+                .withCreateMeetingResult(CreateNewMeetingUseCase.Result.Success(ConversationId("meeting", "domain")))
+        )
+        enterTitle(viewModel, "Weekly sync")
+        viewModel.passwordTextState.setTextAndPlaceCursorAtEnd(password)
+        advanceUntilIdle()
+        viewModel.submitCreation()
+        advanceUntilIdle()
+        assertEquals(true, viewModel.state.passwordsDoNotMatch)
+
+        viewModel.confirmPasswordTextState.setTextAndPlaceCursorAtEnd(password)
+        advanceUntilIdle()
+
+        assertFalse(viewModel.state.passwordsDoNotMatch)
+        assertEquals(true, viewModel.state.continueButtonEnabled)
+        viewModel.submitCreation()
+        advanceUntilIdle()
+        coVerify(exactly = 1) { arrangement.createNewMeeting(match { it.password == password }) }
+    }
+
+    @Test
+    fun givenOnlyConfirmationEntered_whenSubmitting_thenPasswordRemainsOptional() = runTest(dispatcher) {
+        val (arrangement, viewModel) = arrangeViewModel(
+            Arrangement(dispatcher)
+                .withNewMeetingType(NewMeetingType.Schedule)
+                .withCreateMeetingResult(CreateNewMeetingUseCase.Result.Success(ConversationId("meeting", "domain")))
+        )
+        enterTitle(viewModel, "Weekly sync")
+        viewModel.confirmPasswordTextState.setTextAndPlaceCursorAtEnd("IgnoredPassword1!")
+        advanceUntilIdle()
+
+        viewModel.submitCreation()
+        advanceUntilIdle()
+
+        assertFalse(viewModel.state.hasPasswordError)
+        verify(exactly = 0) { arrangement.validatePassword(any()) }
+        coVerify(exactly = 1) { arrangement.createNewMeeting(match { it.password == null }) }
+    }
+
+
 
     @Test
     fun givenScheduleDraft_whenFieldsAreChangedAndRestored_thenOnlyActualChangesRequireDiscard() = runTest(dispatcher) {
@@ -1272,4 +1423,188 @@ class NewMeetingViewModelTest {
         viewModel.confirmSelectedContacts()
         assertFalse(viewModel.hasUnsavedChanges())
     }
+
+    private fun TestScope.arrangeViewModel(
+        arrangement: Arrangement = Arrangement(dispatcher)
+    ): Pair<Arrangement, NewMeetingViewModelImpl> =
+        arrangement.arrange().also { runCurrent() }
+
+    private fun TestScope.enterTitle(viewModel: NewMeetingViewModel, title: String) {
+        viewModel.titleTextState.setTextAndPlaceCursorAtEnd(title)
+        advanceUntilIdle()
+    }
+
+    private fun contact(id: String) = Contact(
+        id = id,
+        domain = "wire.com",
+        name = "Contact $id",
+        handle = id,
+        membership = Membership.Standard,
+        connectionState = ConnectionState.ACCEPTED,
+    )
+
+    private inner class Arrangement(private val dispatcher: TestDispatcher) {
+        var currentTimeProvider = CurrentTimeProvider {
+            Instant.fromEpochMilliseconds(dispatcher.scheduler.currentTime)
+        }
+
+        @MockK
+        lateinit var currentTimeZoneProvider: CurrentTimeZoneProvider
+
+        @MockK
+        lateinit var createNewMeeting: CreateNewMeetingUseCase
+
+        @MockK
+        lateinit var updateMeeting: UpdateMeetingUseCase
+
+        @MockK
+        lateinit var getNextUnfinishedMeetingOccurrence: GetNextUnfinishedMeetingOccurrenceUseCase
+
+        @MockK
+        lateinit var observeConversationMembers: ObserveConversationMembersUseCase
+
+        @MockK
+        lateinit var renameConversationUseCase: RenameConversationUseCase
+
+        @MockK
+        lateinit var contactMapper: ContactMapper
+
+        @MockK
+        lateinit var validatePassword: ValidatePasswordUseCase
+
+        @MockK
+        lateinit var generatePassword: RandomPassword
+
+        @MockK
+        lateinit var isMeetingsEnabledUseCase: IsMeetingsEnabledUseCase
+
+        private var meetingsGuestsLinksEnabled = true
+
+        private var newMeetingType: NewMeetingType = NewMeetingType.MeetNow
+
+        init {
+            MockKAnnotations.init(this)
+            coEvery { isMeetingsEnabledUseCase.isGuestLinkSharingEnabled() } returns true
+            every { currentTimeZoneProvider.invoke() } returns TimeZone.of(MEETING_OCCURRENCE.meeting.tzid)
+            coEvery { getNextUnfinishedMeetingOccurrence(any(), any()) } returns null
+            coEvery { observeConversationMembers(any()) } returns flowOf(emptyList())
+        }
+
+        fun withGuestLinkSharingEnabled(enabled: Boolean) = apply {
+            coEvery { isMeetingsEnabledUseCase.isGuestLinkSharingEnabled() } returns enabled
+        }
+
+        fun withMeetingsGuestsLinksEnabled(enabled: Boolean) = apply {
+            meetingsGuestsLinksEnabled = enabled
+        }
+
+        fun withNewMeetingType(type: NewMeetingType) = apply {
+            newMeetingType = type
+        }
+
+        fun withGeneratedPassword(password: String) = apply {
+            every { generatePassword(minLength = 8, maxLength = 8) } returns password
+        }
+
+        fun withPasswordValidationResult(password: String, result: ValidatePasswordResult) = apply {
+            every { validatePassword(password) } returns result
+        }
+
+        fun withCurrentTimeProvider(currentTime: () -> Instant) = apply {
+            currentTimeProvider = CurrentTimeProvider(currentTime)
+        }
+
+        fun withCurrentTimeZone(timeZoneId: String) = apply {
+            every { currentTimeZoneProvider.invoke() } returns TimeZone.of(timeZoneId)
+        }
+
+        fun withCreateMeetingResult(result: CreateNewMeetingUseCase.Result) = apply {
+            coEvery { createNewMeeting(any()) } returns result
+        }
+
+        fun withUpdateMeetingResult(meetingId: MeetingId, result: UpdateMeetingUseCase.Result) = apply {
+            coEvery { updateMeeting(meetingId, any()) } returns result
+        }
+
+        fun withRenameConversationResult(conversationId: ConversationId, conversationName: String, result: RenamingResult) = apply {
+            coEvery { renameConversationUseCase(conversationId, conversationName) } returns result
+        }
+
+        fun withNextUnfinishedMeetingOccurrence(nextMeetingOccurrence: MeetingOccurrence?) = apply {
+            coEvery { getNextUnfinishedMeetingOccurrence(any(), any()) } returns nextMeetingOccurrence
+        }
+
+        fun withNextUnfinishedMeetingOccurrenceFailure() = apply {
+            coEvery {
+                getNextUnfinishedMeetingOccurrence(any(), any())
+            } throws IllegalStateException("Failed to load meeting occurrence")
+        }
+
+        fun withConversationMembers(conversationId: ConversationId, members: List<MemberDetails>) = apply {
+            coEvery { observeConversationMembers(conversationId) } returns flowOf(members)
+        }
+
+        fun withMappedContact(otherUser: OtherUser, contact: Contact) = apply {
+            every { contactMapper.fromOtherUser(otherUser) } returns contact
+        }
+
+        fun arrange() = this to NewMeetingViewModelImpl(
+            navArgs = NewMeetingNavArgs(type = newMeetingType),
+            currentTimeProvider = currentTimeProvider,
+            currentTimeZoneProvider = currentTimeZoneProvider,
+            createNewMeeting = createNewMeeting,
+            updateMeeting = updateMeeting,
+            getNextUnfinishedMeetingOccurrence = getNextUnfinishedMeetingOccurrence,
+            observeConversationMembers = observeConversationMembers,
+            renameConversationUseCase = renameConversationUseCase,
+            contactMapper = contactMapper,
+            validatePassword = validatePassword,
+            generatePassword = generatePassword,
+            isMeetingsEnabledUseCase = isMeetingsEnabledUseCase,
+            meetingsGuestsLinksEnabled = meetingsGuestsLinksEnabled,
+        )
+    }
+
+    private val MEETING_TIME_ZONE_ID = "Europe/Berlin"
+    private val MEETING_OCCURRENCE = MeetingOccurrence(
+        participants = emptyList(),
+        meeting = Meeting(
+            meetingId = MeetingId("meeting-id", "domain"),
+            conversationId = ConversationId("conversation-id", "domain"),
+            creatorId = UserId("creator-id", "domain"),
+            title = "Repeating meeting",
+            startTime = Instant.parse("2026-01-01T09:00:00Z"),
+            endTime = Instant.parse("2026-01-01T10:00:00Z"),
+            tzid = MEETING_TIME_ZONE_ID,
+            recurrence = Meeting.Recurrence(
+                frequency = MeetingItem.RepeatingInterval.Supported.first().frequency,
+                interval = MeetingItem.RepeatingInterval.Supported.first().interval.toLong(),
+                until = null
+            ),
+        ),
+        selfRole = MeetingOccurrence.SelfRole.Creator,
+        conversationName = "Daily",
+        conversationType = MeetingOccurrence.ConversationType.Group,
+        occurrenceId = "occurrence-id",
+        occurrenceStartTime = Instant.parse("2026-01-02T09:00:00Z"),
+        occurrenceEndTime = Instant.parse("2026-01-02T10:00:00Z"),
+    )
+    private val CONTACT = contact("contact-1")
+    private val CREATE_MEETING = CreateMeeting(
+        title = MEETING_OCCURRENCE.meeting.title,
+        startTime = MEETING_OCCURRENCE.meeting.startTime,
+        endTime = MEETING_OCCURRENCE.meeting.endTime,
+        tzid = MEETING_TIME_ZONE_ID,
+        recurrence = MEETING_OCCURRENCE.meeting.recurrence,
+        otherParticipants = listOf(UserId(CONTACT.id, CONTACT.domain))
+    )
+    private val UPDATE_MEETING = UpdateMeeting(
+        title = CREATE_MEETING.title,
+        startTime = CREATE_MEETING.startTime,
+        endTime = CREATE_MEETING.endTime,
+        tzid = CREATE_MEETING.tzid,
+        recurrence = CREATE_MEETING.recurrence,
+        otherParticipants = CREATE_MEETING.otherParticipants,
+        type = Meeting.Type.SCHEDULED,
+    )
 }

@@ -94,6 +94,9 @@ sealed class CellNodeUi {
         internal override val openLoadState: OpenLoadState? = null,
         override val downloadProgress: Float? = null,
         override val isAvailableOffline: Boolean = false,
+        val isDownloadQueued: Boolean = false,
+        /** How far its offline download got before the connection dropped; null unless paused, waiting to resume. */
+        val pausedDownloadProgress: Float? = null,
         val conversationId: String?,
         override val isViewerOnly: Boolean = false,
     ) : CellNodeUi()
@@ -103,6 +106,8 @@ internal fun Node.File.toUiModel(
     openLoadState: OpenLoadState? = null,
     downloadProgress: Float? = null,
     isAvailableOffline: Boolean = false,
+    isDownloadQueued: Boolean = false,
+    pausedDownloadProgress: Float? = null,
 ) = CellNodeUi.File(
     uuid = uuid,
     name = name,
@@ -127,6 +132,8 @@ internal fun Node.File.toUiModel(
     openLoadState = openLoadState,
     downloadProgress = downloadProgress,
     isAvailableOffline = isAvailableOffline,
+    isDownloadQueued = isDownloadQueued,
+    pausedDownloadProgress = pausedDownloadProgress,
     isViewerOnly = isViewerOnly,
 )
 
@@ -159,6 +166,19 @@ internal fun CellNodeUi.File.withSessionState(
 
 internal fun CellNodeUi.File.localFileAvailable() = localPath != null
 internal fun CellNodeUi.File.canOpenWithUrl() = contentUrl != null && assetType in listOf(IMAGE, VIDEO, AUDIO, PDF)
+
+/**
+ * Downloading for offline use, waiting for its turn to, or paused until the connection is back.
+ * Either way, a tap or "Cancel download" stops it.
+ */
+internal fun CellNodeUi.isOfflineDownloadPending() =
+    downloadProgress != null || (this as? CellNodeUi.File)?.let {
+        it.isDownloadQueued || it.pausedDownloadProgress != null
+    } == true
+
+/** How far the paused offline download of this file got, null unless paused. */
+internal val CellNodeUi.pausedDownloadProgress: Float? get() = (this as? CellNodeUi.File)?.pausedDownloadProgress
+
 internal fun CellNodeUi.isEditSupported() = (this as? CellNodeUi.File)?.isEditSupported == true
 
 /**

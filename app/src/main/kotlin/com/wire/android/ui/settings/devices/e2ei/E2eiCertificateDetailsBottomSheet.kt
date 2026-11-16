@@ -29,6 +29,7 @@ import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
 import com.wire.android.ui.common.bottomsheet.WireModalSheetState
 import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
 import com.wire.android.util.permission.rememberWriteStoragePermissionFlow
+import com.wire.android.ui.common.R as CommonR
 
 @Composable
 fun E2eiCertificateDetailsBottomSheet(
@@ -48,7 +49,7 @@ fun E2eiCertificateDetailsBottomSheet(
                 add {
                     CreateCertificateSheetItem(
                         title = stringResource(R.string.e2ei_certificate_details_copy_to_clipboard),
-                        icon = R.drawable.ic_copy,
+                        icon = CommonR.drawable.ic_copy,
                         onClicked = onCopyToClipboard,
                         enabled = true
                     )

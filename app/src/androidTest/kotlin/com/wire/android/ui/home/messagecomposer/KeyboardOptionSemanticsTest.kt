@@ -95,6 +95,31 @@ class KeyboardOptionSemanticsTest {
     }
 
     @Test
+    fun givenOnlyEveryoneSuggestion_whenRendered_thenItRemainsActionableWithoutMembers() {
+        var clicked = false
+        val description = "@all, " + InstrumentationRegistry.getInstrumentation().targetContext
+            .getString(R.string.mention_everyone_description)
+
+        composeTestRule.setContent {
+            WireTestTheme {
+                KeyboardMentionList(
+                    membersToMention = emptyList(),
+                    searchQuery = "all",
+                    showEveryoneMention = true,
+                    onEveryoneMentionPicked = { clicked = true },
+                    onMentionPicked = {},
+                    onDismissRequest = {},
+                    firstItemFocusRequester = remember { FocusRequester() },
+                )
+            }
+        }
+
+        assertSingleActionableNode(description)
+        composeTestRule.onNode(hasContentDescription(description) and hasClickAction()).performClick()
+        composeTestRule.runOnIdle { assertTrue(clicked) }
+    }
+
+    @Test
     fun givenKeyboardRichTextOption_whenRendered_thenItExposesOneActionableSemanticsNode() {
         var clicked = false
         val label = InstrumentationRegistry.getInstrumentation().targetContext

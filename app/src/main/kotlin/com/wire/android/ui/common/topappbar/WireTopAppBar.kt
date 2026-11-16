@@ -28,6 +28,7 @@ import com.wire.android.ui.calling.ongoing.getOngoingCallIntent
 @Composable
 fun WireTopAppBar(
     commonTopAppBarState: CommonTopAppBarState,
+    onRetrySyncClick: () -> Unit,
     modifier: Modifier = Modifier,
     backgroundType: BackgroundType = BackgroundType.Default,
     animateContentSize: Boolean = true,
@@ -38,6 +39,7 @@ fun WireTopAppBar(
         commonTopAppBarState = commonTopAppBarState,
         backgroundType = backgroundType,
         animateContentSize = animateContentSize,
+        onRetrySyncClick = onRetrySyncClick,
         onReturnToCallClick = { establishedCall ->
             getOngoingCallIntent(
                 context = context,

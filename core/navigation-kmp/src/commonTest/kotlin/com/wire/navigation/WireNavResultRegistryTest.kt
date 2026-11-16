@@ -18,6 +18,7 @@
 
 package com.wire.navigation
 
+import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.json.Json
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -188,6 +189,44 @@ class WireNavResultRegistryTest {
             WireNavResult.Value("value"),
             restored.consume(completed.id, completed.requesterEntryId),
         )
+    }
+
+    @Test
+    fun givenSavedIntegerResult_whenSnapshotIsDecoded_thenPayloadAndFormatArePreserved() {
+        val saved = """
+            {
+                "records": [{
+                    "request": {
+                        "id": "request",
+                        "contractId": "integer",
+                        "requesterEntryId": "requester-entry",
+                        "targetEntryId": "target-entry"
+                    },
+                    "state": {
+                        "type": "com.wire.navigation.WireNavResultState.Completed",
+                        "result": {
+                            "type": "com.wire.navigation.WireNavResult.Value",
+                            "value": 42
+                        }
+                    }
+                }]
+            }
+        """.trimIndent()
+
+        val restored = decodeWireNavResultRegistrySnapshot(saved, Int.serializer())
+
+        assertEquals(
+            WireNavResultRegistrySnapshot(
+                listOf(
+                    WireNavResultRecord(
+                        request(contractId = WireNavResultContractId("integer")),
+                        WireNavResultState.Completed(WireNavResult.Value(42)),
+                    )
+                )
+            ),
+            restored,
+        )
+        assertEquals(Json.parseToJsonElement(saved), Json.parseToJsonElement(restored.encode(Int.serializer())))
     }
 
     @Test

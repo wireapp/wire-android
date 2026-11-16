@@ -40,6 +40,7 @@ class HandleUriAssetUseCase @Inject constructor(
         saveToDeviceIfInvalid: Boolean = false,
         specifiedMimeType: String? = null, // specify a particular mimetype, otherwise it will be taken from the uri / file extension
         audioWavesMask: List<Int>? = null,
+        keepOversizedCopy: Boolean = false, // for callers that still use the file of a too large asset, e.g. Cells uploads
     ): Result = withContext(dispatchers.io()) {
         if (!isValidUriSchema(uri)) {
             return@withContext Result.Failure.Unknown
@@ -71,9 +72,13 @@ class HandleUriAssetUseCase @Inject constructor(
                         )
                     }
                 }
+                if (!keepOversizedCopy) {
+                    kaliumFileSystem.delete(assetBundle.dataPath)
+                }
                 return@withContext Result.Failure.AssetTooLarge(assetBundle, maxSizeLimitInBytes.div(sizeOf1MB).toInt())
             }
         } else {
+            kaliumFileSystem.delete(tempAssetPath)
             return@withContext Result.Failure.Unknown
         }
     }

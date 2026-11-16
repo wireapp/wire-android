@@ -70,5 +70,23 @@ class ValidationTest(unittest.TestCase):
                 self.assertEqual(accepted, result.returncode == 0)
                 self.assertEqual("runMode=deflake\n" if accepted else "", outputs)
 
+    def test_emulator_inputs_reject_upgrade_and_other_device_groups(self) -> None:
+        for group, upgrade, category, accepted in (
+            ("criticalFlow", "false", "criticalFlow", True),
+            ("criticalFlow", "false", "", True),
+            ("criticalFlow", "true", "criticalFlow", False),
+            ("criticalFlow", "false", "upgrade", False),
+            ("e2eTests", "false", "criticalFlow", False),
+        ):
+            with self.subTest(group=group, upgrade=upgrade, category=category):
+                result = subprocess.run(
+                    ["bash", str(SCRIPT), "validate-emulator-inputs"],
+                    env={**os.environ, "IS_UPGRADE": upgrade,
+                         "RESOLVED_CATEGORY": category, "TARGET_DEVICE_GROUP": group},
+                    capture_output=True, text=True, check=False,
+                )
+                self.assertEqual(accepted, result.returncode == 0, result.stdout + result.stderr)
+
+
 if __name__ == "__main__":
     unittest.main()

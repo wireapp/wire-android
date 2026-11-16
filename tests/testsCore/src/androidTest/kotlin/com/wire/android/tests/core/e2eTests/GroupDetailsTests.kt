@@ -40,7 +40,7 @@ class GroupDetailsTests : BaseUiTest() {
     }
 
     @Suppress("LongMethod")
-    @TestCaseId("TC-4344")
+    @TestCaseId("TC-12476")
     @Category("regression", "RC", "groups", "groupDetails")
     @Test
     fun givenIAmATeamOwner_whenChangingGuestAndServicesStates_thenGuestAndServicesStatesAreUpdated() {
@@ -179,7 +179,7 @@ class GroupDetailsTests : BaseUiTest() {
     }
 
     @Suppress("LongMethod")
-    @TestCaseId("TC-4353")
+    @TestCaseId("TC-12485")
     @Category("regression", "RC", "groups", "groupDetails")
     @Test
     fun givenIAmATeamOwner_whenChangingGroupName_thenGroupNameIsUpdated() {

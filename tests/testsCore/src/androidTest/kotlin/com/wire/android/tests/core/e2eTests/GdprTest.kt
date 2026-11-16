@@ -47,7 +47,7 @@ class GdprTest : BaseUiTest() {
     }
 
     @Suppress("LongMethod")
-    @TestCaseId("TC-8704", "TC-8132")
+    @TestCaseId("TC-12719", "TC-12668")
     @Category("regression", "gdpr")
     @Test
     fun givenTeamMember_whenAcceptingAnonymousDataSharing_thenAnalyticsInitializedIsSetToTrueAndIdentifierIsVisibleInDebugSettings() {
@@ -136,7 +136,7 @@ class GdprTest : BaseUiTest() {
     }
 
     @Suppress("LongMethod")
-    @TestCaseId("TC-8705", "TC-8134")
+    @TestCaseId("TC-12720", "TC-12670")
     @Category("regression", "gdpr")
     @Test
     fun givenPersonalUser_whenAcceptingAnonymousDataSharing_thenAnalyticsInitializedIsSetToTrueAndIdentifierIsVisibleInDebugSettings() {
@@ -212,7 +212,7 @@ class GdprTest : BaseUiTest() {
     }
 
     @Suppress("LongMethod")
-    @TestCaseId("TC-8706", "TC-8133")
+    @TestCaseId("TC-12721", "TC-12669")
     @Category("regression", "gdpr")
     @Test
     fun givenTeamMember_whenDecliningAnonymousDataSharing_thenAnalyticsInitializedIsSetToFalseAndIdentifierIsVisibleInDebugSettings() {
@@ -301,7 +301,7 @@ class GdprTest : BaseUiTest() {
     }
 
     @Suppress("LongMethod")
-    @TestCaseId("TC-8707", "TC-8135")
+    @TestCaseId("TC-12722", "TC-12671")
     @Category("regression", "gdpr")
     @Test
     fun givenPersonalUser_whenDecliningAnonymousDataSharing_thenAnalyticsInitializedIsSetToFalseAndIdentifierIsVisibleInDebugSettings() {

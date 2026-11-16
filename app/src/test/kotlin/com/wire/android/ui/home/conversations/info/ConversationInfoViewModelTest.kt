@@ -34,6 +34,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -352,6 +354,19 @@ class ConversationInfoViewModelTest {
             advanceUntilIdle()
             // When - Then
             assertEquals(InitialLoadingState.OPENING_MEETINGS_UNSUPPORTED, viewModel.conversationInfoViewState.initialLoadingState)
+            cancel()
+        }
+    }
+
+    @Test
+    fun `given a group, then show the encryption notice only once the details are loaded`() = runTest {
+        val (_, viewModel) = ConversationInfoViewModelArrangement()
+            .withConversationDetailUpdate(mockConversationDetailsGroup("Group"))
+            .arrange()
+        assertFalse(viewModel.conversationInfoViewState.showsEncryptionNotice)
+        launch { viewModel.observeConversationDetails() }.run {
+            advanceUntilIdle()
+            assertTrue(viewModel.conversationInfoViewState.showsEncryptionNotice)
             cancel()
         }
     }

@@ -51,7 +51,7 @@ class GroupCallChat : BaseCallUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-8602")
+    @TestCaseId("TC-12689")
     @Category("criticalFlow")
     @Tag(key = "criticalFlow", value = "groupCallChat")
     @Test

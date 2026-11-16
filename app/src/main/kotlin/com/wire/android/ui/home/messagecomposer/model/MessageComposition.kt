@@ -17,6 +17,8 @@
  */
 package com.wire.android.ui.home.messagecomposer.model
 
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.text.input.TextFieldBuffer
 import androidx.compose.runtime.MutableState
 import com.wire.android.ui.common.attachmentdraft.model.AttachmentDraftUi
 import com.wire.android.ui.home.conversations.model.UIMention
@@ -34,29 +36,25 @@ data class MessageComposition(
     val selectedMentions: List<UIMention> = emptyList(),
     val isMultipart: Boolean = false,
 ) {
-    fun getSelectedMentions(newMessageText: String): List<UIMention> {
-        val result = mutableSetOf<UIMention>()
-
-        selectedMentions.forEach { mention ->
-            if (newMessageText.length >= mention.start + mention.length) {
-                val substringInMentionPlace = newMessageText.substring(
-                    mention.start,
-                    mention.start + mention.length
-                )
-                if (substringInMentionPlace == mention.handler) {
-                    result.add(mention)
-                    return@forEach
+    /** Targets follow untouched UTF-16 ranges, never another occurrence of the same label. */
+    @OptIn(ExperimentalFoundationApi::class)
+    fun getSelectedMentions(buffer: TextFieldBuffer): List<UIMention> = selectedMentions.mapNotNull { mention ->
+        var shift = 0
+        for (index in 0 until buffer.changes.changeCount) {
+            val original = buffer.changes.getOriginalRange(index)
+            when {
+                original.max <= mention.start -> {
+                    shift += buffer.changes.getRange(index).length - original.length
                 }
-            }
-
-            val prevMentionEnd = result.lastOrNull()?.let { it.start + it.length } ?: 0
-            val newIndexOfMention = newMessageText.indexOf(mention.handler, prevMentionEnd)
-            if (newIndexOfMention >= 0) {
-                result.add(mention.copy(start = newIndexOfMention))
+                original.min < mention.start + mention.length -> return@mapNotNull null
             }
         }
-
-        return result.toList()
+        val shifted = mention.copy(start = mention.start + shift)
+        val hasValidRange = shifted.start >= 0 && shifted.length > 0 && shifted.start <= buffer.length - shifted.length
+        if (!hasValidRange) return@mapNotNull null
+        shifted.takeIf {
+            buffer.asCharSequence().subSequence(it.start, it.start + it.length).toString() == it.handler
+        }
     }
 
     fun toMessageBundle(
@@ -111,6 +109,7 @@ fun MessageComposition.toDraft(messageText: String): MessageDraft {
         text = messageText,
         editMessageId = editMessageId,
         quotedMessageId = quotedMessageId,
-        selectedMentionList = selectedMentions.map { it.intoMessageMention() }
+        selectedMentionList = selectedMentions.map { it.intoMessageMention() },
+        isMultipartEdit = isMultipart,
     )
 }

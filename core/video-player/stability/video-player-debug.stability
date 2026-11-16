@@ -6,7 +6,7 @@
 
 @Composable
 public fun com.wire.android.videoplayer.VideoPlayer(localPath: kotlin.String?, contentUrl: kotlin.String?, fileName: kotlin.String?, onNavigateBack: kotlin.Function0<kotlin.Unit>, modifier: androidx.compose.ui.Modifier, viewModel: com.wire.android.videoplayer.VideoPlayerViewModel): kotlin.Unit
-  skippable: false
+  skippable: true
   restartable: true
   params:
     - localPath: STABLE (class with no mutable properties)
@@ -18,10 +18,10 @@ public fun com.wire.android.videoplayer.VideoPlayer(localPath: kotlin.String?, c
 
 @Composable
 internal fun com.wire.android.videoplayer.VideoPlayerContent(player: androidx.media3.exoplayer.ExoPlayer, state: com.wire.android.videoplayer.VideoPlaybackState, localPath: kotlin.String?, fileName: kotlin.String?, onTogglePlayPause: kotlin.Function0<kotlin.Unit>, onToggleMute: kotlin.Function0<kotlin.Unit>, onSeek: kotlin.Function1<kotlin.Long, kotlin.Unit>, onNavigateBack: kotlin.Function0<kotlin.Unit>, modifier: androidx.compose.ui.Modifier): kotlin.Unit
-  skippable: false
+  skippable: true
   restartable: true
   params:
-    - player: RUNTIME (requires runtime check)
+    - player: UNKNOWN (interface or non-final class; concrete implementation unknown)
     - state: STABLE (class with no mutable properties)
     - localPath: STABLE (class with no mutable properties)
     - fileName: STABLE (class with no mutable properties)
@@ -33,8 +33,8 @@ internal fun com.wire.android.videoplayer.VideoPlayerContent(player: androidx.me
 
 @Composable
 public fun com.wire.android.videoplayer.videoPlayerViewModel(localPath: kotlin.String?, contentUrl: kotlin.String?, fileName: kotlin.String?): com.wire.android.videoplayer.VideoPlayerViewModel
-  skippable: true
-  restartable: true
+  skippable: false
+  restartable: false
   params:
     - localPath: STABLE (class with no mutable properties)
     - contentUrl: STABLE (class with no mutable properties)

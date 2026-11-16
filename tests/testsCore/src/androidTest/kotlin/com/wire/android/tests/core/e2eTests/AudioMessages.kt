@@ -45,7 +45,7 @@ class AudioMessages : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4081")
+    @TestCaseId("TC-12357")
     @Category("audioMessages", "regression", "RC")
     @Test
     fun givenUserReceivesAudioFile_whenPlayingAndPausingAudioMessage_thenAudioPlaybackTimeIsUpdated() {
@@ -182,7 +182,7 @@ class AudioMessages : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4082")
+    @TestCaseId("TC-12358")
     @Category("audioMessages", "regression", "RC")
     @Test
     fun givenUserRecordsAudioMessage_whenSendingRecordedAudioMessage_thenAudioFileIsVisibleInConversation() {
@@ -321,7 +321,7 @@ class AudioMessages : BaseUiTest() {
     }
 
     @Suppress("CyclomaticComplexMethod", "LongMethod")
-    @TestCaseId("TC-4083", "TC-4084")
+    @TestCaseId("TC-12359", "TC-12360")
     @Category("audioMessages", "regression", "RC")
     @Test
     fun givenUserRecordsLongAudioMessage_whenPlayingAndApplyingFilterBeforeSending_thenAudioFileIsVisibleInConversation() {

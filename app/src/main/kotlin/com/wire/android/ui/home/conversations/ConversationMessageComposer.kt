@@ -26,6 +26,7 @@ import com.wire.android.ui.common.rowitem.LoadingListContent
 import com.wire.android.ui.emoji.EmojiPickerBottomSheet
 import com.wire.android.ui.home.conversations.info.ConversationDetailsData
 import com.wire.android.ui.home.conversations.messagelist.ConversationMessageList
+import com.wire.android.ui.home.conversations.messages.ReplyHighlightRequest
 import com.wire.android.ui.home.conversations.messages.item.MessageClickActions
 import com.wire.android.ui.home.conversations.model.MessageSenderId
 import com.wire.android.ui.home.conversations.model.UIMessage
@@ -55,6 +56,8 @@ internal fun ConversationMessageComposer(
     playingAudioMessage: PlayingAudioMessage,
     assetStatuses: PersistentMap<String, MessageAssetStatus>,
     selectedMessageId: String?,
+    replyHighlightRequest: ReplyHighlightRequest?,
+    onReplyHighlightFinished: (token: Long) -> Unit,
     messageComposerStateHolder: MessageComposerStateHolder,
     attachments: List<AttachmentDraftUi>,
     messages: Flow<PagingData<UIMessage>>,
@@ -73,6 +76,10 @@ internal fun ConversationMessageComposer(
     onOpenProfile: (senderId: MessageSenderId) -> Unit,
     onUpdateConversationReadDate: (Instant) -> Unit,
     onShowEditingOptions: (UIMessage.Regular) -> Unit,
+    onKeyboardOptionsRequested: (UIMessage.Regular) -> Unit,
+    retainMessageNavigationForOptions: Boolean,
+    messageOptionsDismissal: MessageOptionsDismissal?,
+    onMessageOptionsDismissalHandled: (MessageOptionsDismissal) -> Boolean,
     onSwipedToReply: (UIMessage.Regular) -> Unit,
     onSelfDeletingMessageRead: (UIMessage) -> Unit,
     conversationDetailsData: ConversationDetailsData,
@@ -91,6 +98,7 @@ internal fun ConversationMessageComposer(
     onAttachmentMenuClick: (AttachmentDraftUi) -> Unit,
     currentTimeInMillisFlow: Flow<Long> = flow {},
     showHistoryLoadingIndicator: Boolean = false,
+    showsEncryptionNotice: Boolean = false,
     isBubbleUiEnabled: Boolean = false,
     isWireCellsEnabled: Boolean = false,
     initialLoading: Boolean = false,
@@ -121,6 +129,10 @@ internal fun ConversationMessageComposer(
                 playingAudioMessage = playingAudioMessage,
                 assetStatuses = assetStatuses,
                 onUpdateConversationReadDate = onUpdateConversationReadDate,
+                onKeyboardOptionsRequested = onKeyboardOptionsRequested,
+                retainMessageNavigationForOptions = retainMessageNavigationForOptions,
+                messageOptionsDismissal = messageOptionsDismissal,
+                onMessageOptionsDismissalHandled = onMessageOptionsDismissalHandled,
                 clickActions = MessageClickActions.Content(
                     onFullMessageLongClicked = onShowEditingOptions,
                     onProfileClicked = onOpenProfile,
@@ -143,9 +155,12 @@ internal fun ConversationMessageComposer(
                 },
                 conversationDetailsData = conversationDetailsData,
                 selectedMessageId = selectedMessageId,
+                replyHighlightRequest = replyHighlightRequest,
+                onReplyHighlightFinished = onReplyHighlightFinished,
                 interactionAvailability = messageComposerStateHolder.messageComposerViewState.value.interactionAvailability,
                 currentTimeInMillisFlow = currentTimeInMillisFlow,
                 showHistoryLoadingIndicator = showHistoryLoadingIndicator,
+                showsEncryptionNotice = showsEncryptionNotice,
                 isBubbleUiEnabled = isBubbleUiEnabled,
                 isWireCellsEnabled = isWireCellsEnabled,
             )

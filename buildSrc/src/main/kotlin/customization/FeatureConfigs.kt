@@ -159,11 +159,25 @@ enum class FeatureConfigs(val value: String, val configType: ConfigType) {
 
     PENDING_MESSAGES("pending_messages", ConfigType.BOOLEAN),
 
+    PENDING_CONNECTIONS("pending_connections", ConfigType.BOOLEAN),
+
     LINK_PREVIEW_ENABLED("link_preview_enabled", ConfigType.BOOLEAN),
 
     DRIVE_PERMISSIONS_ENABLED("drive_permissions_enabled", ConfigType.BOOLEAN),
 
+    MEETINGS_GUESTS_LINKS_ENABLED("meetings_guests_links_enabled", ConfigType.BOOLEAN),
+
     DRIVE_DIRECT_UPLOAD_ENABLED("drive_direct_upload_enabled", ConfigType.BOOLEAN),
 
     DRIVE_BULK_ACTIONS_ENABLED("drive_bulk_actions_enabled", ConfigType.BOOLEAN),
+
+    DRIVE_OFFLINE_ENABLED("drive_offline_enabled", ConfigType.BOOLEAN),
+
+    DRIVE_BULK_RESTORE_ENABLED("drive_bulk_restore_enabled", ConfigType.BOOLEAN),
+
+    /**
+     * Controls whether the @all (everyone) mention is offered in the composer mention suggestions.
+     * Disabled by default until all clients support receiving it.
+     */
+    EVERYONE_MENTION_ENABLED("everyone_mention_enabled", ConfigType.BOOLEAN),
 }

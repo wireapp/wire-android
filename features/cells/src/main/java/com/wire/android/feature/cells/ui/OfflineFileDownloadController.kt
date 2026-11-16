@@ -17,13 +17,18 @@
  */
 package com.wire.android.feature.cells.ui
 
+import com.wire.android.di.CurrentAccount
 import com.wire.android.feature.cells.ui.model.CellNodeUi
 import com.wire.android.feature.cells.util.FileHelper
+import com.wire.android.feature.cells.util.cellFileDestination
+import com.wire.kalium.cells.domain.usecase.download.CellDownloadPausedException
 import com.wire.kalium.cells.domain.usecase.download.DownloadCellFileUseCase
 import com.wire.kalium.cells.domain.usecase.offline.OfflineFileInfo
 import com.wire.kalium.cells.domain.usecase.offline.SaveOfflineFileUseCase
+import com.wire.kalium.common.error.NetworkFailure
 import com.wire.kalium.common.functional.Either
 import com.wire.kalium.common.functional.onSuccess
+import com.wire.kalium.logic.data.user.UserId
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -44,18 +49,27 @@ class OfflineFileDownloadController @Inject constructor(
     private val fileHelper: FileHelper,
     private val saveOfflineFile: SaveOfflineFileUseCase,
     private val sharedPathCache: CellFileLocalPathCache,
+    @CurrentAccount private val userId: UserId,
 ) {
 
     internal val downloadProgresses: StateFlow<Map<String, Float?>> = sharedPathCache.downloadProgresses
 
-    private data class ActiveDownload(val job: Job, val filePath: Path)
+    private data class ActiveDownload(
+        val job: Job,
+        val filePath: Path,
+        val onCancel: () -> Unit,
+        val onError: (CellError) -> Unit,
+    )
     private val activeJobs = mutableMapOf<String, ActiveDownload>()
 
+    @Suppress("LongParameterList")
     internal fun start(
         scope: CoroutineScope,
         cellNode: CellNodeUi.File,
         onSuccess: (localPath: String) -> Unit,
         onError: (CellError) -> Unit,
+        onCancel: () -> Unit = {},
+        initialProgress: Float? = null,
     ) {
         // If the file already exists locally (loaded this session or stored in DB),
         // skip the download and just persist the offline metadata.
@@ -66,26 +80,29 @@ class OfflineFileDownloadController @Inject constructor(
         }
 
         // Cancel any previous download for this node.
-        activeJobs.remove(cellNode.uuid)?.job?.cancel()
+        activeJobs.remove(cellNode.uuid)?.let { previous ->
+            previous.job.cancel()
+            previous.onCancel()
+        }
 
         val nodeName = cellNode.name ?: run {
             onError(CellError.OTHER_ERROR)
             return
         }
-        // Stored under <conversation>/<uuid>/ so files with the same name living in different
-        // folders of the same conversation do not overwrite each other.
-        val filePath = File(fileHelper.getExternalFilesDir(), cellNode.conversationId.orEmpty())
-            .let { File(it, cellNode.uuid) }
-            .also { it.mkdirs() }
-            .let { File(it, nodeName) }
-            .toOkioPath()
+        val filePath = fileHelper.cellFileDestination(userId, cellNode.conversationId, cellNode.uuid, nodeName).toOkioPath()
+
+        // Flag the file as downloading right away rather than once the coroutine runs, so a file leaving the
+        // bulk queue goes straight from queued to downloading, see BulkOfflineDownloadQueue. A resumed download starts
+        // from where it paused.
+        setProgress(cellNode.uuid, initialProgress)
 
         val job = scope.launch {
             performDownload(cellNode, nodeName, filePath, onSuccess, onError)
         }
 
-        activeJobs[cellNode.uuid] = ActiveDownload(job, filePath)
-        job.invokeOnCompletion { activeJobs.remove(cellNode.uuid) }
+        activeJobs[cellNode.uuid] = ActiveDownload(job, filePath, onCancel, onError)
+        // Only if still this download: a paused one may already have been started again for the same file.
+        job.invokeOnCompletion { if (activeJobs[cellNode.uuid]?.job === job) activeJobs.remove(cellNode.uuid) }
     }
 
     private fun saveExistingOfflineFile(
@@ -126,7 +143,6 @@ class OfflineFileDownloadController @Inject constructor(
         onError: (CellError) -> Unit,
     ) {
         val thisJob = coroutineContext.job
-        setProgress(cellNode.uuid, null)
 
         val result = download(
             assetId = cellNode.uuid,
@@ -167,6 +183,12 @@ class OfflineFileDownloadController @Inject constructor(
         }
 
         if (result is Either.Left) {
+            if (result.value is NetworkFailure.NoNetworkConnection) {
+                // Paused rather than failed: what was downloaded so far stays in its `.part` file to resume from, and the
+                // progress stays too, for the caller to show where it paused (see CellFileLocalPathCache.pauseDownload).
+                onError(CellError.NO_NETWORK)
+                return
+            }
             clearProgress(cellNode.uuid)
             // Fire-and-forget delete so the error callback is not blocked by IO.
             launch(Dispatchers.IO) { File(filePath.toString()).delete() }
@@ -174,9 +196,32 @@ class OfflineFileDownloadController @Inject constructor(
         }
     }
 
+    internal fun isDownloading(uuid: String): Boolean = activeJobs.containsKey(uuid)
+
+    /**
+     * Stops every running download because the connection dropped, without waiting for their requests to time out:
+     * each reports [CellError.NO_NETWORK], keeps its progress, and keeps what it downloaded so far to resume from.
+     */
+    internal fun pauseAll() {
+        val paused = activeJobs.values.toList()
+        activeJobs.clear()
+        paused.forEach { active ->
+            active.job.cancel(CellDownloadPausedException())
+            active.onError(CellError.NO_NETWORK)
+        }
+    }
+
+    internal fun cancelAll(scope: CoroutineScope) {
+        activeJobs.keys.toList().forEach { cancel(it, scope) }
+    }
+
+    /** Free space left where offline files are stored, see [cellFileDestination]. */
+    internal fun availableStorageBytes(): Long = fileHelper.getExternalFilesDir().usableSpace
+
     internal fun cancel(uuid: String, scope: CoroutineScope) {
         val active = activeJobs.remove(uuid) ?: return
         active.job.cancel()
+        active.onCancel()
         clearProgress(uuid)
         // Delete the partial file left by the cancelled download.
         scope.launch(Dispatchers.IO) { File(active.filePath.toString()).delete() }

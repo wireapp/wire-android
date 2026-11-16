@@ -70,6 +70,7 @@ class CellViewModel @AssistedInject constructor(
     private val restoreController: CellRestoreController,
     private val emptyRecycleBinController: EmptyRecycleBinController,
     private val offlineAccess: CellOfflineAccessController,
+    private val offlineAccessRules: OfflineAccessRules,
     private val uploadController: CellUploadController,
     private val viewerAccess: CellViewerAccess,
     private val hints: CellScreenHints,
@@ -107,12 +108,9 @@ class CellViewModel @AssistedInject constructor(
 
     internal val fileReadyFlow: Flow<CellNodeUi.File> = sharedPathCache.fileReadyEvents
 
-    // Bulk selection is offered in a shared drive and the recycle bin, and in All Files where only the offline actions
-    // apply, so there only when those are enabled. Search results keep the single-item flow.
     private val bulkSelection = CellBulkSelection(
-        isSupported = featureFlags.driveBulkActionsEnabled && !screenContext.isSearch &&
-                (screenContext.isConversationFiles || screenContext.isRecycleBin ||
-                        (screenContext.isAllFiles && featureFlags.bulkOfflineActionsEnabled)),
+        isSupported = featureFlags.driveBulkActionsEnabled &&
+                screenContext.offersBulkSelection(featureFlags.bulkOfflineActionsEnabled),
         isOnline = isOnline,
         isSelfUserViewerOnly = isSelfUserViewerOnly,
         scope = viewModelScope,
@@ -164,11 +162,11 @@ class CellViewModel @AssistedInject constructor(
     internal val uploadConfirmation: StateFlow<UploadConfirmation?> = uploadController.confirmation
 
     internal val canMakeSelectionAvailableOffline: StateFlow<Boolean> = selectedNodes
-        .map { offlineAccess.canMakeAnyAvailableOffline(it.values) }
+        .map { offlineAccessRules.canMakeAnyAvailableOffline(it.values) }
         .stateInScope(false)
 
     internal val canRemoveSelectionOfflineAccess: StateFlow<Boolean> = selectedNodes
-        .map { offlineAccess.canRemoveAnyOfflineAccess(it.values) }
+        .map { offlineAccessRules.canRemoveAnyOfflineAccess(it.values) }
         .stateInScope(false)
 
     /** Emptying the recycle bin is offered at its root only, behind the bulk actions flag, while online and for editors. */

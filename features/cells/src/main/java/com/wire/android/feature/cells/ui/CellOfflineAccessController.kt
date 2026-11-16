@@ -19,21 +19,16 @@ package com.wire.android.feature.cells.ui
 
 import com.wire.android.feature.cells.ui.dialog.BulkOfflineDialog
 import com.wire.android.feature.cells.ui.model.CellNodeUi
-import com.wire.android.feature.cells.ui.model.isOfflineDownloadPending
 import com.wire.android.feature.cells.ui.model.localFileAvailable
 import com.wire.android.feature.cells.ui.offline.OfflineDownloadEvent
 import com.wire.android.feature.cells.ui.offline.SessionOfflineDownloads
-import com.wire.kalium.cells.domain.usecase.offline.DeleteOfflineFileUseCase
-import com.wire.kalium.cells.domain.usecase.offline.GetOfflineFileUseCase
 import dev.zacsweers.metro.Inject
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.io.File
 
 /**
  * Saves files for offline use and removes their offline copy, one at a time or the bulk selection.
@@ -43,10 +38,9 @@ import java.io.File
  */
 class CellOfflineAccessController @Inject constructor(
     private val offlineDownloads: SessionOfflineDownloads,
-    private val getOfflineFile: GetOfflineFileUseCase,
-    private val deleteOfflineFile: DeleteOfflineFileUseCase,
+    private val offlineCopyRemover: OfflineCopyRemover,
     private val sharedPathCache: CellFileLocalPathCache,
-    private val featureFlags: CellFeatureFlags,
+    private val rules: OfflineAccessRules,
 ) {
 
     // Kept in the state, not sent as actions, so the dialogs survive configuration changes.
@@ -61,23 +55,13 @@ class CellOfflineAccessController @Inject constructor(
         offlineDownloads.events.collect { event -> onDownloadEvent(event, host) }
     }
 
-    /** Same rule as the single-item menu, see [CellFileActionsMenu]. */
-    internal fun canBeMadeAvailableOffline(file: CellNodeUi.File): Boolean =
-        !file.isAvailableOffline && !file.isOfflineDownloadPending() && featureFlags.collaboraIntegration && !file.isEditSupported
-
-    /** At least one of [nodes] can be saved for offline use, see [canBeMadeAvailableOffline]. */
-    internal fun canMakeAnyAvailableOffline(nodes: Collection<CellNodeUi>): Boolean =
-        featureFlags.bulkOfflineActionsEnabled && nodes.any { it is CellNodeUi.File && canBeMadeAvailableOffline(it) }
-
-    /** At least one of [nodes] is already saved for offline use. */
-    internal fun canRemoveAnyOfflineAccess(nodes: Collection<CellNodeUi>): Boolean =
-        featureFlags.bulkOfflineActionsEnabled && nodes.any { it is CellNodeUi.File && it.isAvailableOffline }
-
     internal fun makeAvailableOffline(file: CellNodeUi.File, host: CellScreenHost) =
         startDownloads(listOf(file), isBulk = false, host)
 
     /** Removes the offline copy of [file]. */
-    internal fun removeOfflineAccess(file: CellNodeUi.File, host: CellScreenHost) = host.scope.launch { deleteOfflineCopy(file) }
+    internal fun removeOfflineAccess(file: CellNodeUi.File, host: CellScreenHost) = host.scope.launch {
+        offlineCopyRemover.remove(file)
+    }
 
     /** Cancels an offline download, whether it is running or still waiting for its turn. */
     fun cancelDownload(uuid: String) {
@@ -90,7 +74,7 @@ class CellOfflineAccessController @Inject constructor(
      * When the files clearly won't fit on the device, says so instead of offering to download them.
      */
     internal fun showBulkConfirmation(selected: Collection<CellNodeUi>) {
-        val files = selected.filterIsInstance<CellNodeUi.File>().filter { canBeMadeAvailableOffline(it) }
+        val files = selected.filterIsInstance<CellNodeUi.File>().filter { rules.canBeMadeAvailableOffline(it) }
         if (files.isEmpty()) return
 
         // Files already on the device are saved without being downloaded again.
@@ -136,7 +120,7 @@ class CellOfflineAccessController @Inject constructor(
         host.scope.launch {
             // Local work only, and quick: finish it even if the user leaves the screen meanwhile.
             withContext(NonCancellable) {
-                files.forEach { deleteOfflineCopy(it) }
+                files.forEach { offlineCopyRemover.remove(it) }
             }
             host.sendAction(ShowOfflineAccessRemoved(removedCount = files.size))
         }
@@ -170,24 +154,6 @@ class CellOfflineAccessController @Inject constructor(
                 host.sendAction(ShowError(CellError.NO_SPACE_LEFT))
             }
         }
-    }
-
-    /** Removes the offline record of [file] and its copy on the device. */
-    private suspend fun deleteOfflineCopy(file: CellNodeUi.File) {
-        val localPath = getOfflineFile(file.uuid)?.localPath
-            ?: file.localPath
-            ?: sharedPathCache.getCompletedPath(file.uuid)
-
-        // Remove the DB record so the UI stops showing the offline indicator.
-        deleteOfflineFile(file.uuid)
-
-        // Delete the physical file from device storage
-        localPath?.takeIf { it.isNotBlank() }?.let { path ->
-            withContext(Dispatchers.IO) { File(path).delete() }
-        }
-
-        sharedPathCache.clearCompletedPath(file.uuid)
-        sharedPathCache.clearOpenLoadState(file.uuid)
     }
 
     private companion object {

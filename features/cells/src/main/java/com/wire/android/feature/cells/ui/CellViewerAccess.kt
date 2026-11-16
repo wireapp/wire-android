@@ -30,8 +30,9 @@ class CellViewerAccess @Inject constructor(
 
     /** Only the files of a conversation have access restrictions, and only with drive permissions enabled. */
     suspend fun isViewerOnly(context: CellScreenContext): Boolean {
-        if (!featureFlags.drivePermissionsEnabled) return false
-        val conversationId = context.rootConversationId?.takeIf { context.isConversationFiles } ?: return false
-        return !isSelfUserViewerOnConversation(qualifiedIdMapper.fromStringToQualifiedID(conversationId))
+        val conversationId = context.rootConversationId
+            ?.takeIf { featureFlags.drivePermissionsEnabled && context.isConversationFiles }
+        return conversationId != null &&
+                !isSelfUserViewerOnConversation(qualifiedIdMapper.fromStringToQualifiedID(conversationId))
     }
 }

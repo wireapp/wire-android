@@ -57,6 +57,13 @@ class CellScreenContext(
     /** A Drive or Shared Drive listing, which the search screen can be opened from. */
     val isSearchableListing: Boolean = !isSearch && !isRecycleBin
 
+    /**
+     * Bulk selection is offered in a shared drive and the recycle bin, and in All Files where only the offline actions
+     * apply, so there only when [bulkOfflineActionsEnabled]. Search results keep the single-item flow.
+     */
+    fun offersBulkSelection(bulkOfflineActionsEnabled: Boolean): Boolean =
+        !isSearch && (isConversationFiles || isRecycleBin || (isAllFiles && bulkOfflineActionsEnabled))
+
     val isSearchingDrive: Boolean = searchNavArgs?.screenType == DriveSearchScreenType.SHARED_DRIVE ||
             searchNavArgs?.screenType == DriveSearchScreenType.DRIVE
 

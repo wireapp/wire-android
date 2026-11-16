@@ -2336,6 +2336,8 @@ class CellViewModelTest {
                 bulkRestoreEnabled = true,
             )
 
+            val offlineAccessRules = OfflineAccessRules(featureFlags)
+
             return this to CellViewModel(
                 navArgs = CellFilesNavArgs(
                     conversationId = conversationId,
@@ -2379,11 +2381,15 @@ class CellViewModelTest {
                 emptyRecycleBinController = EmptyRecycleBinController(emptyRecycleBinUseCase),
                 offlineAccess = CellOfflineAccessController(
                     offlineDownloads = offlineDownloads,
-                    getOfflineFile = getOfflineFile,
-                    deleteOfflineFile = deleteOfflineFile,
+                    offlineCopyRemover = OfflineCopyRemover(
+                        getOfflineFile = getOfflineFile,
+                        deleteOfflineFile = deleteOfflineFile,
+                        sharedPathCache = sharedPathCache,
+                    ),
                     sharedPathCache = sharedPathCache,
-                    featureFlags = featureFlags,
+                    rules = offlineAccessRules,
                 ),
+                offlineAccessRules = offlineAccessRules,
                 uploadController = CellUploadController(
                     uploadFilePreparer = uploadFilePreparer,
                     uploadCoordinator = uploadCoordinator,

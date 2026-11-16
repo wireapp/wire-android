@@ -48,13 +48,13 @@ import com.wire.android.ui.home.settings.account.handle.ChangeHandleViewModel
 import com.wire.android.ui.home.settings.appearance.CustomizationViewModel
 import com.wire.android.ui.home.settings.appsettings.networkSettings.NetworkSettingsViewModel
 import com.wire.android.ui.home.settings.backup.BackupAndRestoreViewModel
-import com.wire.android.ui.home.settings.multifactorauthentication.MultiFactorAuthenticationViewModel
-import com.wire.android.ui.home.settings.multifactorauthentication.MultiFactorAuthenticationSetupViewModel
-import com.wire.android.ui.home.settings.multifactorauthentication.MultiFactorAuthenticationRecoveryCodesViewModel
-import com.wire.android.ui.home.settings.multifactorauthentication.MultiFactorAuthenticationTurnOffViewModel
-import com.wire.android.ui.home.settings.multifactorauthentication.MultiFactorAuthenticationEditAuthenticatorAppViewModel
-import com.wire.android.ui.home.settings.multifactorauthentication.MultiFactorAuthenticationAddAuthenticatorAppViewModel
-import com.wire.android.ui.home.settings.multifactorauthentication.MultiFactorAuthenticationRemoveAuthenticatorAppViewModel
+import com.wire.android.ui.home.settings.mfa.MFAViewModel
+import com.wire.android.ui.home.settings.mfa.MFASetupViewModel
+import com.wire.android.ui.home.settings.mfa.MFARecoveryCodesViewModel
+import com.wire.android.ui.home.settings.mfa.MFATurnOffViewModel
+import com.wire.android.ui.home.settings.mfa.MFAEditAuthenticatorAppViewModel
+import com.wire.android.ui.home.settings.mfa.MFAAddAuthenticatorAppViewModel
+import com.wire.android.ui.home.settings.mfa.MFARemoveAuthenticatorAppViewModel
 import com.wire.android.ui.home.settings.privacy.PrivacySettingsViewModel
 import com.wire.android.ui.initialsync.InitialSyncViewModel
 import com.wire.android.ui.joinConversation.JoinConversationViaCodeViewModel
@@ -275,38 +275,38 @@ object WireMetroViewModelBindings {
 
     @Provides
     @IntoMap
-    @ViewModelKey(MultiFactorAuthenticationViewModel::class)
-    fun multiFactorAuthenticationViewModel(viewModel: MultiFactorAuthenticationViewModel): ViewModel = viewModel
+    @ViewModelKey(MFAViewModel::class)
+    fun mfaViewModel(viewModel: MFAViewModel): ViewModel = viewModel
 
     @Provides
     @IntoMap
-    @ViewModelKey(MultiFactorAuthenticationSetupViewModel::class)
-    fun multiFactorAuthenticationSetupViewModel(viewModel: MultiFactorAuthenticationSetupViewModel): ViewModel = viewModel
+    @ViewModelKey(MFASetupViewModel::class)
+    fun mfaSetupViewModel(viewModel: MFASetupViewModel): ViewModel = viewModel
 
     @Provides
     @IntoMap
-    @ViewModelKey(MultiFactorAuthenticationRecoveryCodesViewModel::class)
-    fun multiFactorAuthenticationRecoveryCodesViewModel(viewModel: MultiFactorAuthenticationRecoveryCodesViewModel): ViewModel = viewModel
+    @ViewModelKey(MFARecoveryCodesViewModel::class)
+    fun mfaRecoveryCodesViewModel(viewModel: MFARecoveryCodesViewModel): ViewModel = viewModel
 
     @Provides
     @IntoMap
-    @ViewModelKey(MultiFactorAuthenticationTurnOffViewModel::class)
-    fun multiFactorAuthenticationTurnOffViewModel(viewModel: MultiFactorAuthenticationTurnOffViewModel): ViewModel = viewModel
+    @ViewModelKey(MFATurnOffViewModel::class)
+    fun mfaTurnOffViewModel(viewModel: MFATurnOffViewModel): ViewModel = viewModel
 
     @Provides
     @IntoMap
-    @ViewModelKey(MultiFactorAuthenticationEditAuthenticatorAppViewModel::class)
-    fun editAuthenticatorAppViewModel(viewModel: MultiFactorAuthenticationEditAuthenticatorAppViewModel): ViewModel = viewModel
+    @ViewModelKey(MFAEditAuthenticatorAppViewModel::class)
+    fun editAuthenticatorAppViewModel(viewModel: MFAEditAuthenticatorAppViewModel): ViewModel = viewModel
 
     @Provides
     @IntoMap
-    @ViewModelKey(MultiFactorAuthenticationAddAuthenticatorAppViewModel::class)
-    fun addAuthenticatorAppViewModel(viewModel: MultiFactorAuthenticationAddAuthenticatorAppViewModel): ViewModel = viewModel
+    @ViewModelKey(MFAAddAuthenticatorAppViewModel::class)
+    fun addAuthenticatorAppViewModel(viewModel: MFAAddAuthenticatorAppViewModel): ViewModel = viewModel
 
     @Provides
     @IntoMap
-    @ViewModelKey(MultiFactorAuthenticationRemoveAuthenticatorAppViewModel::class)
-    fun removeAuthenticatorAppViewModel(viewModel: MultiFactorAuthenticationRemoveAuthenticatorAppViewModel): ViewModel = viewModel
+    @ViewModelKey(MFARemoveAuthenticatorAppViewModel::class)
+    fun removeAuthenticatorAppViewModel(viewModel: MFARemoveAuthenticatorAppViewModel): ViewModel = viewModel
 
     @Provides
     @IntoMap

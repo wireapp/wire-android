@@ -156,7 +156,7 @@ class WireNavigation3ContributionsTest {
             "ui/home/newconversation/channelhistory/ChannelHistoryNavigation3Entries.kt",
             "ui/home/settings/SettingsNavigation3Entries.kt",
             "ui/home/settings/SettingsAccountNavigation3Entries.kt",
-            "ui/home/settings/multifactorauthentication/MultiFactorAuthenticationNavigation3Entries.kt",
+            "ui/home/settings/mfa/MFANavigation3Entries.kt",
             "ui/settings/devices/DeviceE2EINavigation3Entries.kt",
             "ui/userprofile/UserProfileNavigation3Entries.kt",
             "ui/userprofile/teammigration/TeamMigrationNavigation3Entries.kt",

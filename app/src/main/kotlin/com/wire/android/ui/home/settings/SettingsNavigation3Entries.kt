@@ -31,12 +31,12 @@ import com.wire.android.ui.home.settings.appearance.CustomizationScreen
 import com.wire.android.ui.home.settings.appsettings.AppSettingsScreen
 import com.wire.android.ui.home.settings.appsettings.networkSettings.NetworkSettingsScreen
 import com.wire.android.ui.home.settings.backup.BackupAndRestoreScreen
-import com.wire.android.ui.home.settings.multifactorauthentication.MultiFactorAuthenticationSetupResultType
-import com.wire.android.ui.home.settings.multifactorauthentication.MultiFactorAuthenticationRecoveryCodesResultType
-import com.wire.android.ui.home.settings.multifactorauthentication.MultiFactorAuthenticationTurnOffResultType
-import com.wire.android.ui.home.settings.multifactorauthentication.AuthenticatorAppRenameResultType
-import com.wire.android.ui.home.settings.multifactorauthentication.AuthenticatorAppAddedResultType
-import com.wire.android.ui.home.settings.multifactorauthentication.multiFactorAuthenticationNavigation3Entries
+import com.wire.android.ui.home.settings.mfa.MFASetupResultType
+import com.wire.android.ui.home.settings.mfa.MFARecoveryCodesResultType
+import com.wire.android.ui.home.settings.mfa.MFATurnOffResultType
+import com.wire.android.ui.home.settings.mfa.AuthenticatorAppRenameResultType
+import com.wire.android.ui.home.settings.mfa.AuthenticatorAppAddedResultType
+import com.wire.android.ui.home.settings.mfa.mfaNavigation3Entries
 import com.wire.android.ui.home.settings.privacy.PrivacySettingsConfigScreen
 import com.wire.navigation.SessionRoute
 import com.wire.navigation.WireNavigationCommand
@@ -88,9 +88,9 @@ internal object SettingsNavigation3Contribution {
     val resultTypes: List<WireNavigation3ResultType<*>> =
         listOf(
             SettingsAccountUpdateNavigation3ResultType,
-            MultiFactorAuthenticationSetupResultType,
-            MultiFactorAuthenticationRecoveryCodesResultType,
-            MultiFactorAuthenticationTurnOffResultType,
+            MFASetupResultType,
+            MFARecoveryCodesResultType,
+            MFATurnOffResultType,
             AuthenticatorAppRenameResultType,
             AuthenticatorAppAddedResultType,
         )
@@ -102,7 +102,7 @@ internal object SettingsNavigation3Contribution {
         listOf(
             settingsNavigation3Entries(runtime, actions),
             settingsAccountNavigation3Entries(runtime, actions),
-            multiFactorAuthenticationNavigation3Entries(runtime, actions::exitSettings),
+            mfaNavigation3Entries(runtime, actions::exitSettings),
         )
 }
 
@@ -196,7 +196,7 @@ internal fun SettingsItem.DirectionItem.toNavigation3Target(
                 SettingsItem.Customization,
                 SettingsItem.NetworkSettings,
                 SettingsItem.PrivacySettings,
-                SettingsItem.MultiFactorAuthentication,
+                SettingsItem.MFA,
                 SettingsItem.Licenses,
                 SettingsItem.Dependencies,
                 SettingsItem.BackupAndRestore,

@@ -123,7 +123,7 @@ fun SettingsScreenContent(
                         add(SettingsItem.BackupAndRestore)
                     }
                     if (BuildConfig.MULTI_FACTOR_AUTHENTICATION_ENABLED) {
-                        add(SettingsItem.MultiFactorAuthentication)
+                        add(SettingsItem.MFA)
                     }
                 },
                 trailingText = { settingsItem ->

@@ -25,6 +25,9 @@ import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import androidx.paging.map
 import com.wire.android.feature.cells.ui.CellFileLocalPathCache
+import com.wire.android.feature.cells.ui.CellNodeChangeEvents
+import com.wire.android.feature.cells.ui.CellNodeUpdate
+import com.wire.android.feature.cells.ui.applyTo
 import com.wire.android.feature.cells.ui.downloadProgressOf
 import com.wire.android.feature.cells.ui.model.CellNodeUi
 import com.wire.android.feature.cells.ui.model.toUiModel
@@ -69,6 +72,7 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.util.concurrent.ConcurrentHashMap
 import kotlin.time.Duration.Companion.milliseconds
 
 private const val SEARCH_DEBOUNCE_MILLIS = 200L
@@ -83,6 +87,7 @@ class SearchScreenViewModel @AssistedInject constructor(
     private val sharedPathCache: CellFileLocalPathCache,
     private val offlineDownloads: SessionOfflineDownloads,
     private val observeOfflineFiles: ObserveOfflineFilesUseCase,
+    private val nodeChangeEvents: CellNodeChangeEvents,
 ) : ViewModel() {
 
     @AssistedFactory
@@ -122,6 +127,14 @@ class SearchScreenViewModel @AssistedInject constructor(
     val uiState: StateFlow<SearchUiState> = _uiState.asStateFlow()
 
     private val queryFlow = MutableStateFlow("")
+
+    // Changes made to the results shown since they were loaded, applied on top of them. Kept for the whole search rather
+    // than cleared as results load again, which would show the outdated results unchanged until the new ones arrive:
+    // applied to results loaded after them, they only set what the server already says.
+    private val resultUpdates = MutableStateFlow<List<CellNodeUpdate>>(emptyList())
+
+    // Filled as result pages load, possibly off the main thread.
+    private val shownUuids: MutableSet<String> = ConcurrentHashMap.newKeySet()
 
     private val debouncedQueryFlow: Flow<String> = queryFlow
         .debounce(SEARCH_DEBOUNCE_MILLIS.milliseconds)
@@ -187,16 +200,18 @@ class SearchScreenViewModel @AssistedInject constructor(
                         when (node) {
                             is Node.Folder -> node.toUiModel()
                             is Node.File -> node.toUiModel()
-                        }
+                        }.also { shownUuids.add(it.uuid) }
                     }
                 }
             }.cachedIn(viewModelScope),
             sharedPathCache.openLoadStates,
             offlineDownloads.states,
             observeOfflineFiles(),
-        ) { pagingData, openLoadStates, downloadStates, offlineFiles ->
+            resultUpdates,
+        ) { pagingData, openLoadStates, downloadStates, offlineFiles, updates ->
             val offlineUuids = offlineFiles.map { it.id }.toSet()
-            pagingData.map { node ->
+            pagingData.map { loadedNode ->
+                val node = updates.applyTo(loadedNode)
                 if (node is CellNodeUi.File) {
                     node.withSessionState(
                         openLoadState = openLoadStates[node.uuid],
@@ -230,6 +245,14 @@ class SearchScreenViewModel @AssistedInject constructor(
     init {
         loadTags()
         loadOwners()
+        updateResultsUpdatedElsewhere()
+    }
+
+    // The changes are known: no need to load the results again for them.
+    private fun updateResultsUpdatedElsewhere() = viewModelScope.launch {
+        nodeChangeEvents.nodeUpdates.collect { update ->
+            if (update.uuid in shownUuids) resultUpdates.update { it + update }
+        }
     }
 
     internal fun loadTags() = viewModelScope.launch {

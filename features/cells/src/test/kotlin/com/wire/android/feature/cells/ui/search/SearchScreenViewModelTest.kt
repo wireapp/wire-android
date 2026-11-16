@@ -17,6 +17,7 @@
  */
 package com.wire.android.feature.cells.ui.search
 
+import com.wire.android.feature.cells.ui.CellNodeChangeEvents
 import androidx.paging.LoadState
 import androidx.paging.LoadStates
 import androidx.paging.PagingData
@@ -90,6 +91,7 @@ class SearchScreenViewModelTest {
     private lateinit var observeOfflineFiles: ObserveOfflineFilesUseCase
 
     private val sharedPathCache = CellFileLocalPathCache()
+    private val nodeChangeEvents = CellNodeChangeEvents()
     private val offlineDownloads = mockk<SessionOfflineDownloads> {
         every { states } returns MutableStateFlow(OfflineDownloadStates())
     }
@@ -177,6 +179,7 @@ class SearchScreenViewModelTest {
             sharedPathCache = sharedPathCache,
             offlineDownloads = offlineDownloads,
             observeOfflineFiles = observeOfflineFiles,
+            nodeChangeEvents = nodeChangeEvents,
         )
         advanceUntilIdle()
 
@@ -423,6 +426,7 @@ class SearchScreenViewModelTest {
             sharedPathCache = sharedPathCache,
             offlineDownloads = offlineDownloads,
             observeOfflineFiles = observeOfflineFiles,
+            nodeChangeEvents = nodeChangeEvents,
         )
     }
 
@@ -440,6 +444,7 @@ class SearchScreenViewModelTest {
             sharedPathCache = sharedPathCache,
             offlineDownloads = offlineDownloads,
             observeOfflineFiles = observeOfflineFiles,
+            nodeChangeEvents = nodeChangeEvents,
         )
     }
 
@@ -454,6 +459,7 @@ class SearchScreenViewModelTest {
             sharedPathCache = sharedPathCache,
             offlineDownloads = offlineDownloads,
             observeOfflineFiles = observeOfflineFiles,
+            nodeChangeEvents = nodeChangeEvents,
         )
     }
 
@@ -467,6 +473,7 @@ class SearchScreenViewModelTest {
             sharedPathCache = sharedPathCache,
             offlineDownloads = offlineDownloads,
             observeOfflineFiles = observeOfflineFiles,
+            nodeChangeEvents = nodeChangeEvents,
         )
     }
 }

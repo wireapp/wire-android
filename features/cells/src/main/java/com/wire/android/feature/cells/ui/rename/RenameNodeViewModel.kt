@@ -22,6 +22,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
+import com.wire.android.feature.cells.ui.CellNodeChangeEvents
+import com.wire.android.feature.cells.ui.CellNodeUpdate
 import com.wire.android.feature.cells.ui.common.FileNameError
 import com.wire.android.feature.cells.ui.common.validateFileName
 import com.wire.android.ui.common.ActionsViewModel
@@ -44,6 +46,7 @@ import kotlin.time.Duration.Companion.seconds
 class RenameNodeViewModel @AssistedInject constructor(
     @Assisted private val navArgs: RenameNodeNavArgs,
     private val renameNodeUseCase: RenameNodeUseCase,
+    private val nodeChangeEvents: CellNodeChangeEvents,
 ) : ActionsViewModel<RenameNodeViewModelAction>() {
 
     @AssistedFactory
@@ -78,12 +81,17 @@ class RenameNodeViewModel @AssistedInject constructor(
         viewState = viewState.copy(loading = true)
         viewModelScope.launch {
             val newNameWithExtension = newName.trim() + originalFile.extension?.takeIf { it.isNotEmpty() }?.let { ".$it" }.orEmpty()
+            val uuid = navArgs.uuid!!
+            val path = navArgs.currentPath!!
             renameNodeUseCase.invoke(
-                uuid = navArgs.uuid!!,
-                path = navArgs.currentPath!!,
+                uuid = uuid,
+                path = path,
                 newName = newNameWithExtension
             )
                 .onSuccess {
+                    nodeChangeEvents.onNodeUpdated(
+                        CellNodeUpdate.Renamed(uuid, name = newNameWithExtension, remotePath = path.renamedTo(newNameWithExtension))
+                    )
                     viewState = viewState.copy(loading = false)
                     sendAction(RenameNodeViewModelAction.Success)
                 }
@@ -127,6 +135,12 @@ private data class FileNameParts(
     val name: String,
     val extension: String?,
 )
+
+/** This path, the one of the node renamed, once renamed to [newName]: the path of its folder followed by [newName]. */
+private fun String.renamedTo(newName: String): String {
+    val folderPath = substringBeforeLast('/', missingDelimiterValue = "")
+    return if (folderPath.isEmpty()) newName else "$folderPath/$newName"
+}
 
 private fun RenameNodeNavArgs.getFileName() = if (isFolder == true) {
     FileNameParts(name = nodeName ?: "", extension = null)

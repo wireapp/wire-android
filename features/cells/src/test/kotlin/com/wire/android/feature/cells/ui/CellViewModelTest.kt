@@ -25,6 +25,7 @@ import androidx.paging.testing.asSnapshot
 import app.cash.turbine.test
 import com.wire.android.datastore.UserDataStore
 import com.wire.android.feature.cells.ui.dialog.BulkDeleteDialog
+import com.wire.android.feature.cells.ui.dialog.BulkOfflineDialog
 import com.wire.android.feature.cells.ui.dialog.BulkRestoreDialog
 import com.wire.android.feature.cells.ui.dialog.EmptyRecycleBinDialog
 import com.wire.android.feature.cells.ui.edit.OnlineEditor
@@ -85,6 +86,7 @@ import io.mockk.verify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
+import java.io.IOException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -117,6 +119,9 @@ class CellViewModelTest {
     private companion object {
         const val EDITOR_URL = "https://collabora.example.com/edit"
         const val PDF_RENDITION_URL = "https://cells.example.com/previews/document.pdf?signed"
+
+        /** Far more than any device has free. */
+        const val HUGE_FILE_SIZE = Long.MAX_VALUE / 4
 
         /** An office document: the backend offers an editor for it and generates a PDF rendition. */
         val editableDocument = Node.File(
@@ -211,6 +216,38 @@ class CellViewModelTest {
         val pagingData = viewModel.nodesFlow.first()
         val items = flowOf(pagingData).asSnapshot()
         assertEquals(items.size, 2)
+    }
+
+    @Test
+    fun `given the listing search is opened from when search files flow subscribed then the listing is not loaded again`() = runTest {
+        val arrangement = Arrangement()
+            .withLoadSuccess()
+            .withConversationId("conversationId")
+        val (_, listingViewModel) = arrangement.arrange()
+        listingViewModel.nodesFlow.first()
+        val (_, searchViewModel) = arrangement.withSearchScreenArgsOnly().arrange()
+
+        val items = flowOf(searchViewModel.nodesFlow.first()).asSnapshot()
+
+        assertEquals(2, items.size)
+        coVerify(exactly = 1) { arrangement.getCellFilesPagedUseCase(any(), any(), any(), any(), any()) }
+    }
+
+    @Test
+    fun `given a listing open at another path when search files flow subscribed then the searched folder is loaded`() = runTest {
+        val arrangement = Arrangement()
+            .withLoadSuccess()
+            .withConversationId("conversationId")
+        arrangement.arrange()
+        val (_, searchViewModel) = arrangement
+            .withConversationId("otherConversationId")
+            .withSearchScreenArgsOnly()
+            .arrange()
+
+        val items = flowOf(searchViewModel.nodesFlow.first()).asSnapshot()
+
+        assertEquals(2, items.size)
+        coVerify { arrangement.getCellFilesPagedUseCase("otherConversationId", any(), any(), any(), any()) }
     }
 
     @Test
@@ -936,6 +973,53 @@ class CellViewModelTest {
     }
 
     @Test
+    fun `given a file list when a node it shows is updated elsewhere then the node is updated without loading the list again`() =
+        runTest {
+            val (arrangement, viewModel) = Arrangement()
+                .withLoadSuccess()
+                .withConversationId("conversationId")
+                .arrange()
+            flowOf(viewModel.nodesFlow.first()).asSnapshot()
+            advanceUntilIdle()
+
+            arrangement.nodeChangeEvents.onNodeUpdated(
+                CellNodeUpdate.Renamed(testFiles[0].uuid, name = "renamed.png", remotePath = "conversationId/renamed.png")
+            )
+            arrangement.nodeChangeEvents.onNodeUpdated(CellNodeUpdate.TagsChanged(testFiles[0].uuid, listOf("tag")))
+            arrangement.nodeChangeEvents.onNodeUpdated(CellNodeUpdate.PublicLinkChanged(testFiles[0].uuid, "linkUuid"))
+            advanceUntilIdle()
+
+            val items = flowOf(viewModel.nodesFlow.first()).asSnapshot()
+            with(items.first { it.uuid == testFiles[0].uuid }) {
+                assertEquals("renamed.png", name)
+                assertEquals("conversationId/renamed.png", remotePath)
+                assertEquals(listOf("tag"), tags)
+                assertEquals("linkUuid", publicLinkId)
+            }
+            assertEquals(testFiles[1].name, items.first { it.uuid == testFiles[1].uuid }.name)
+            coVerify(exactly = 1) { arrangement.getCellFilesPagedUseCase(any(), any(), any(), any(), any()) }
+        }
+
+    @Test
+    fun `given a node updated in a file list when the list is loaded again then the server's nodes are shown as they are`() =
+        runTest {
+            val (arrangement, viewModel) = Arrangement()
+                .withLoadSuccess()
+                .withConversationId("conversationId")
+                .arrange()
+            flowOf(viewModel.nodesFlow.first()).asSnapshot()
+            advanceUntilIdle()
+            arrangement.nodeChangeEvents.onNodeUpdated(CellNodeUpdate.TagsChanged(testFiles[0].uuid, listOf("tag")))
+            advanceUntilIdle()
+
+            viewModel.onPullToRefresh()
+            advanceUntilIdle()
+
+            val items = flowOf(viewModel.nodesFlow.first()).asSnapshot()
+            assertEquals(emptyList<String>(), items.first { it.uuid == testFiles[0].uuid }.tags)
+        }
+
+    @Test
     fun `given no network when the bulk restore fails then show a no network failure and clear the selection`() = runTest {
         val (_, viewModel) = Arrangement()
             .withConversationId("conversationId")
@@ -1082,6 +1166,246 @@ class CellViewModelTest {
         assertTrue(viewModel.isBulkSelectionEnabled.value)
         assertEquals(setOf(file.uuid), viewModel.selectedNodes.value.keys)
     }
+
+    // region Bulk offline
+
+    @Test
+    fun `given a selected file that can be saved when selected then making the selection available offline is offered`() = runTest {
+        val (_, viewModel) = Arrangement().withConversationId("conversationId").arrange()
+
+        selectNodes(viewModel, listOf(testFiles[0].toUiModel()))
+
+        assertTrue(viewModel.canMakeSelectionAvailableOffline.value)
+        assertFalse(viewModel.canRemoveSelectionOfflineAccess.value)
+    }
+
+    @Test
+    fun `given only files already saved offline when selected then only removing offline access is offered`() = runTest {
+        val (_, viewModel) = Arrangement().withConversationId("conversationId").arrange()
+
+        selectNodes(viewModel, listOf(offlineUiFile(testFiles[0]), offlineUiFile(testFiles[1])))
+
+        assertFalse(viewModel.canMakeSelectionAvailableOffline.value)
+        assertTrue(viewModel.canRemoveSelectionOfflineAccess.value)
+    }
+
+    @Test
+    fun `given only editable documents and folders when selected then no offline action is offered`() = runTest {
+        val (_, viewModel) = Arrangement().withConversationId("conversationId").arrange()
+
+        selectNodes(viewModel, listOf(editableDocument.toUiModel(), testFolder()))
+
+        assertFalse(viewModel.canMakeSelectionAvailableOffline.value)
+        assertFalse(viewModel.canRemoveSelectionOfflineAccess.value)
+    }
+
+    @Test
+    fun `given a mixed selection when making it available offline then only the eligible files are confirmed`() = runTest {
+        val (_, viewModel) = Arrangement().withConversationId("conversationId").arrange()
+        val file = testFiles[0].toUiModel()
+        selectNodes(viewModel, listOf(testFolder(), file, editableDocument.toUiModel(), offlineUiFile(testFiles[1])))
+
+        viewModel.sendIntent(CellViewIntent.OnMakeSelectedNodesAvailableOfflineClick)
+
+        assertEquals(BulkOfflineDialog.Confirmation(files = listOf(file), skippedCount = 3), viewModel.bulkOfflineDialog.value)
+    }
+
+    @Test
+    fun `given nothing that can be saved selected when making it available offline then nothing is asked`() = runTest {
+        val (_, viewModel) = Arrangement().withConversationId("conversationId").arrange()
+        selectNodes(viewModel, listOf(offlineUiFile(testFiles[0])))
+
+        viewModel.sendIntent(CellViewIntent.OnMakeSelectedNodesAvailableOfflineClick)
+
+        assertNull(viewModel.bulkOfflineDialog.value)
+    }
+
+    @Test
+    fun `given files too large for the device when making them available offline then not enough storage is shown`() = runTest {
+        val (_, viewModel) = Arrangement().withConversationId("conversationId").arrange()
+        val hugeFile = testFiles[1].copy(size = HUGE_FILE_SIZE).toUiModel()
+        selectNodes(viewModel, listOf(hugeFile))
+
+        viewModel.sendIntent(CellViewIntent.OnMakeSelectedNodesAvailableOfflineClick)
+
+        val dialog = viewModel.bulkOfflineDialog.value
+        assertTrue(dialog is BulkOfflineDialog.NotEnoughStorage)
+        assertEquals(HUGE_FILE_SIZE, (dialog as BulkOfflineDialog.NotEnoughStorage).requiredBytes)
+    }
+
+    @Test
+    fun `given a large file already on the device when making it available offline then its size does not count`() = runTest {
+        val (_, viewModel) = Arrangement().withConversationId("conversationId").arrange()
+        // Has a local path: saved without being downloaded again.
+        val localHugeFile = testFiles[0].copy(size = HUGE_FILE_SIZE).toUiModel()
+        selectNodes(viewModel, listOf(localHugeFile))
+
+        viewModel.sendIntent(CellViewIntent.OnMakeSelectedNodesAvailableOfflineClick)
+
+        assertTrue(viewModel.bulkOfflineDialog.value is BulkOfflineDialog.Confirmation)
+    }
+
+    @Test
+    fun `given the confirmation when confirmed then every file is downloaded and saved for offline use`() = runTest {
+        val (arrangement, viewModel) = Arrangement()
+            .withConversationId("conversationId")
+            .withDownloadSuccess()
+            .arrange()
+        selectNodes(viewModel, testFiles.map { it.toUiModel() })
+        viewModel.sendIntent(CellViewIntent.OnMakeSelectedNodesAvailableOfflineClick)
+
+        viewModel.sendIntent(CellViewIntent.OnBulkOfflineConfirmed)
+        advanceUntilIdle()
+
+        coVerify(exactly = 1) { arrangement.saveOfflineFile(match { it.id == "fileUuid" }) }
+        coVerify(exactly = 1) { arrangement.saveOfflineFile(match { it.id == "fileUuid2" }) }
+    }
+
+    @Test
+    fun `given the confirmation when confirmed then the dialog closes and selection mode ends`() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withConversationId("conversationId")
+            .withDownloadSuccess()
+            .arrange()
+        selectNodes(viewModel, testFiles.map { it.toUiModel() })
+        viewModel.sendIntent(CellViewIntent.OnMakeSelectedNodesAvailableOfflineClick)
+
+        viewModel.sendIntent(CellViewIntent.OnBulkOfflineConfirmed)
+        advanceUntilIdle()
+
+        assertNull(viewModel.bulkOfflineDialog.value)
+        assertTrue(viewModel.selectedNodes.value.isEmpty())
+    }
+
+    @Test
+    fun `given every download succeeded when they all settled then one message sums them up`() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withConversationId("conversationId")
+            .withDownloadSuccess()
+            .arrange()
+        selectNodes(viewModel, testFiles.map { it.toUiModel() })
+        viewModel.sendIntent(CellViewIntent.OnMakeSelectedNodesAvailableOfflineClick)
+
+        viewModel.actions.test {
+            viewModel.sendIntent(CellViewIntent.OnBulkOfflineConfirmed)
+            advanceUntilIdle()
+
+            assertEquals(ShowOfflineFilesSaved(savedCount = 2), awaitItem())
+        }
+    }
+
+    @Test
+    fun `given the device runs out of space when downloading then running out of storage is shown`() = runTest {
+        val (arrangement, viewModel) = Arrangement()
+            .withConversationId("conversationId")
+            .withDownloadReturning(NetworkFailure.ServerMiscommunication(IOException("No space left on device")).left())
+            .arrange()
+        selectNodes(viewModel, listOf(testFiles[1].toUiModel()))
+        viewModel.sendIntent(CellViewIntent.OnMakeSelectedNodesAvailableOfflineClick)
+
+        viewModel.sendIntent(CellViewIntent.OnBulkOfflineConfirmed)
+        advanceUntilIdle()
+
+        assertEquals(BulkOfflineDialog.RanOutOfStorage(savedCount = 0, totalCount = 1), viewModel.bulkOfflineDialog.value)
+        coVerify(exactly = 0) { arrangement.saveOfflineFile(any()) }
+    }
+
+    @Test
+    fun `given the confirmation when dismissed then nothing is downloaded and the selection stays`() = runTest {
+        val (arrangement, viewModel) = Arrangement()
+            .withConversationId("conversationId")
+            .withDownloadSuccess()
+            .arrange()
+        val file = testFiles[0].toUiModel()
+        selectNodes(viewModel, listOf(file))
+        viewModel.sendIntent(CellViewIntent.OnMakeSelectedNodesAvailableOfflineClick)
+
+        viewModel.sendIntent(CellViewIntent.OnBulkOfflineDialogDismissed)
+        advanceUntilIdle()
+
+        assertNull(viewModel.bulkOfflineDialog.value)
+        assertEquals(setOf(file.uuid), viewModel.selectedNodes.value.keys)
+        coVerify(exactly = 0) { arrangement.downloadCellFileUseCase(any(), any(), any(), any(), any(), any(), any(), any()) }
+    }
+
+    @Test
+    fun `given a mixed selection when removing offline access then only the files saved offline are confirmed`() = runTest {
+        val (_, viewModel) = Arrangement().withConversationId("conversationId").arrange()
+        val offlineFile = offlineUiFile(testFiles[1])
+        selectNodes(viewModel, listOf(testFolder(), testFiles[0].toUiModel(), offlineFile))
+
+        viewModel.sendIntent(CellViewIntent.OnRemoveSelectedNodesOfflineAccessClick)
+
+        assertEquals(
+            BulkOfflineDialog.RemoveConfirmation(files = listOf(offlineFile), skippedCount = 2),
+            viewModel.bulkOfflineDialog.value,
+        )
+    }
+
+    @Test
+    fun `given nothing saved offline selected when removing offline access then nothing is asked`() = runTest {
+        val (_, viewModel) = Arrangement().withConversationId("conversationId").arrange()
+        selectNodes(viewModel, listOf(testFiles[0].toUiModel()))
+
+        viewModel.sendIntent(CellViewIntent.OnRemoveSelectedNodesOfflineAccessClick)
+
+        assertNull(viewModel.bulkOfflineDialog.value)
+    }
+
+    @Test
+    fun `given the remove confirmation when confirmed then the offline copy of every file is removed`() = runTest {
+        val (arrangement, viewModel) = Arrangement().withConversationId("conversationId").arrange()
+        selectNodes(viewModel, listOf(offlineUiFile(testFiles[0]), offlineUiFile(testFiles[1])))
+        viewModel.sendIntent(CellViewIntent.OnRemoveSelectedNodesOfflineAccessClick)
+
+        viewModel.sendIntent(CellViewIntent.OnBulkOfflineConfirmed)
+        advanceUntilIdle()
+
+        coVerify(exactly = 1) { arrangement.deleteOfflineFile("fileUuid") }
+        coVerify(exactly = 1) { arrangement.deleteOfflineFile("fileUuid2") }
+        assertNull(viewModel.bulkOfflineDialog.value)
+        assertTrue(viewModel.selectedNodes.value.isEmpty())
+    }
+
+    @Test
+    fun `given the remove confirmation when confirmed then one message says how many were removed`() = runTest {
+        val (_, viewModel) = Arrangement().withConversationId("conversationId").arrange()
+        selectNodes(viewModel, listOf(offlineUiFile(testFiles[0]), offlineUiFile(testFiles[1])))
+        viewModel.sendIntent(CellViewIntent.OnRemoveSelectedNodesOfflineAccessClick)
+
+        viewModel.actions.test {
+            viewModel.sendIntent(CellViewIntent.OnBulkOfflineConfirmed)
+            advanceUntilIdle()
+
+            assertEquals(ShowOfflineAccessRemoved(removedCount = 2), awaitItem())
+        }
+    }
+
+    @Test
+    fun `given the remove confirmation when dismissed then nothing is removed`() = runTest {
+        val (arrangement, viewModel) = Arrangement().withConversationId("conversationId").arrange()
+        selectNodes(viewModel, listOf(offlineUiFile(testFiles[0])))
+        viewModel.sendIntent(CellViewIntent.OnRemoveSelectedNodesOfflineAccessClick)
+
+        viewModel.sendIntent(CellViewIntent.OnBulkOfflineDialogDismissed)
+        advanceUntilIdle()
+
+        assertNull(viewModel.bulkOfflineDialog.value)
+        coVerify(exactly = 0) { arrangement.deleteOfflineFile(any()) }
+    }
+
+    // No local path: removing the offline copy then has no file to delete on the device.
+    private fun offlineUiFile(file: Node.File) = file.copy(localPath = null).toUiModel(isAvailableOffline = true)
+
+    private fun testFolder() = Node.Folder(
+        uuid = "folderUuid",
+        name = "reports",
+        remotePath = "conversationId/reports",
+        modifiedTime = 0L,
+        size = 0,
+    ).toUiModel()
+
+    // endregion
 
     private fun TestScope.selectNodes(viewModel: CellViewModel, nodes: List<CellNodeUi>) {
         advanceUntilIdle() // Lets the viewer access check enable bulk selection.
@@ -1752,6 +2076,7 @@ class CellViewModelTest {
 
         val sharedPathCache = CellFileLocalPathCache()
         val nodeChangeEvents = CellNodeChangeEvents()
+        val nodeListRegistry = CellNodeListRegistry()
 
         @MockK
         lateinit var getEditorUrlUseCase: GetEditorUrlUseCase
@@ -1862,6 +2187,10 @@ class CellViewModelTest {
         }
 
         fun withLoadSuccess() = withLoadedFiles(testFiles)
+
+        fun withDownloadReturning(result: Either<CoreFailure, Unit>) = apply {
+            coEvery { downloadCellFileUseCase(any(), any(), any(), any(), any(), any(), any(), any()) } returns result
+        }
 
         fun withDownloadSuccess() = apply {
             coEvery { downloadCellFileUseCase(any(), any(), any(), any(), any(), any(), any(), any()) } returns Unit.right()
@@ -1996,6 +2325,17 @@ class CellViewModelTest {
                 )
             )
 
+            val featureFlags = CellFeatureFlags(
+                kaliumConfigs = kaliumConfigs,
+                offlineFilesEnabled = true,
+                inAppImageViewerEnabled = inAppImageViewerEnabled,
+                drivePermissionsEnabled = true,
+                driveDirectUploadEnabled = true,
+                driveBulkActionsEnabled = true,
+                driveOfflineEnabled = true,
+                bulkRestoreEnabled = true,
+            )
+
             return this to CellViewModel(
                 navArgs = CellFilesNavArgs(
                     conversationId = conversationId,
@@ -2004,42 +2344,63 @@ class CellViewModelTest {
                     isOfflineOnly = isOfflineOnly,
                 ),
                 searchNavArgs = searchNavArgs,
-                getCellFilesPaged = getCellFilesPagedUseCase,
-                deleteCellAsset = deleteCellAssetUseCase,
-                deleteCellAssets = deleteCellAssetsUseCase,
-                restoreNodeFromRecycleBinUseCase = restoreNodeFromRecycleBinUseCase,
-                restoreNodesFromRecycleBin = restoreNodesFromRecycleBinUseCase,
-                emptyRecycleBinUseCase = emptyRecycleBinUseCase,
-                checkCellNodeAvailability = checkCellNodeAvailability,
-                isCellAvailable = isCellAvailableUseCase,
-                fileHelper = fileHelper,
-                getEditorUrl = getEditorUrlUseCase,
-                featureFlags = kaliumConfigs,
-                onlineEditor = onlineEditor,
-                cellFileActionsMenu = cellFileActionsMenu,
-                getWireCellsConfig = getWireCellsConfig,
-                sharedPathCache = sharedPathCache,
-                openFileDownloadController = openFileDownloadController,
-                offlineDownloads = offlineDownloads,
-                observeOfflineFiles = observeOfflineFiles,
-                deleteOfflineFile = deleteOfflineFile,
-                getOfflineFile = getOfflineFile,
+                featureFlags = featureFlags,
                 networkStateObserver = networkStateObserver,
-                getConversationName = getConversationNames,
-                getUserName = getUserNames,
-                isSelfUserViewerOnConversation = isSelfUserViewerOnConversation,
-                userDataStore = userDataStore,
-                qualifiedIdMapper = qualifiedIdMapper,
-                uploadFilePreparer = uploadFilePreparer,
-                uploadCoordinator = uploadCoordinator,
-                nodeChangeEvents = nodeChangeEvents,
-                offlineFilesEnabled = true,
-                inAppImageViewerEnabled = inAppImageViewerEnabled,
-                drivePermissionsEnabled = true,
-                driveDirectUploadEnabled = true,
-                driveBulkActionsEnabled = true,
-                driveOfflineEnabled = true,
-                bulkRestoreEnabled = true,
+                nodesSource = CellNodesSource(
+                    getCellFilesPaged = getCellFilesPagedUseCase,
+                    isAtLeastOneCellAvailable = isCellAvailableUseCase,
+                    observeOfflineFiles = observeOfflineFiles,
+                    sharedPathCache = sharedPathCache,
+                    offlineDownloads = offlineDownloads,
+                    getConversationName = getConversationNames,
+                    getUserName = getUserNames,
+                ),
+                fileOpener = CellFileOpener(
+                    fileHelper = fileHelper,
+                    getEditorUrl = getEditorUrlUseCase,
+                    onlineEditor = onlineEditor,
+                    openFileDownloadController = openFileDownloadController,
+                    getWireCellsConfig = getWireCellsConfig,
+                    featureFlags = featureFlags,
+                ),
+                availabilityChecker = CellNodeAvailabilityChecker(
+                    checkCellNodeAvailability = checkCellNodeAvailability,
+                    sharedPathCache = sharedPathCache,
+                ),
+                deleteController = CellDeleteController(
+                    deleteCellAsset = deleteCellAssetUseCase,
+                    deleteCellAssets = deleteCellAssetsUseCase,
+                ),
+                restoreController = CellRestoreController(
+                    restoreNodeFromRecycleBin = restoreNodeFromRecycleBinUseCase,
+                    restoreNodesFromRecycleBin = restoreNodesFromRecycleBinUseCase,
+                    nodeChangeEvents = nodeChangeEvents,
+                ),
+                emptyRecycleBinController = EmptyRecycleBinController(emptyRecycleBinUseCase),
+                offlineAccess = CellOfflineAccessController(
+                    offlineDownloads = offlineDownloads,
+                    getOfflineFile = getOfflineFile,
+                    deleteOfflineFile = deleteOfflineFile,
+                    sharedPathCache = sharedPathCache,
+                    featureFlags = featureFlags,
+                ),
+                uploadController = CellUploadController(
+                    uploadFilePreparer = uploadFilePreparer,
+                    uploadCoordinator = uploadCoordinator,
+                ),
+                viewerAccess = CellViewerAccess(
+                    isSelfUserViewerOnConversation = isSelfUserViewerOnConversation,
+                    qualifiedIdMapper = qualifiedIdMapper,
+                    featureFlags = featureFlags,
+                ),
+                hints = CellScreenHints(userDataStore),
+                cellFileActionsMenu = cellFileActionsMenu,
+                nodeChangesObserver = CellNodeChangesObserver(
+                    uploadCoordinator = uploadCoordinator,
+                    nodeChangeEvents = nodeChangeEvents,
+                ),
+                nodeListRegistry = nodeListRegistry,
+                sharedPathCache = sharedPathCache,
             )
         }
     }

@@ -21,6 +21,8 @@ import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.clearText
 import androidx.compose.runtime.snapshotFlow
 import androidx.lifecycle.viewModelScope
+import com.wire.android.feature.cells.ui.CellNodeChangeEvents
+import com.wire.android.feature.cells.ui.CellNodeUpdate
 import com.wire.android.ui.common.ActionsViewModel
 import com.wire.kalium.cells.domain.usecase.GetAllTagsUseCase
 import com.wire.kalium.cells.domain.usecase.RemoveNodeTagsUseCase
@@ -42,6 +44,7 @@ class AddRemoveTagsViewModel @AssistedInject constructor(
     private val getAllTagsUseCase: GetAllTagsUseCase,
     private val updateNodeTagsUseCase: UpdateNodeTagsUseCase,
     private val removeNodeTagsUseCase: RemoveNodeTagsUseCase,
+    private val nodeChangeEvents: CellNodeChangeEvents,
 ) : ActionsViewModel<AddRemoveTagsViewModelAction>() {
 
     @AssistedFactory
@@ -92,12 +95,16 @@ class AddRemoveTagsViewModel @AssistedInject constructor(
     fun updateTags() = viewModelScope.launch {
         _state.update { it.copy(isLoading = true) }
 
-        if (state.value.addedTags.isEmpty()) {
+        val tags = state.value.addedTags.toList()
+        if (tags.isEmpty()) {
             removeNodeTagsUseCase(navArgs.uuid)
         } else {
             updateNodeTagsUseCase(navArgs.uuid, state.value.addedTags)
         }
-            .onSuccess { sendAction(AddRemoveTagsViewModelAction.Success) }
+            .onSuccess {
+                nodeChangeEvents.onNodeUpdated(CellNodeUpdate.TagsChanged(navArgs.uuid, tags))
+                sendAction(AddRemoveTagsViewModelAction.Success)
+            }
             .onFailure { sendAction(AddRemoveTagsViewModelAction.Failure) }
             .also { _state.update { it.copy(isLoading = false) } }
     }

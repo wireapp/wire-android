@@ -232,7 +232,8 @@ class MediaGalleryViewModel @AssistedInject constructor(
                     fileManager.saveToExternalStorage(
                         imageData.assetName,
                         imageData.decodedAssetPath,
-                        imageData.assetSize
+                        imageData.assetSize,
+                        onError = ::onSaveError
                     ) {
                         onImageSavedToExternalStorage(it)
                     }

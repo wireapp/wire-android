@@ -3,7 +3,9 @@
 
 from __future__ import annotations
 
+import ast
 import copy
+import itertools
 import json
 import sys
 import tempfile
@@ -174,7 +176,14 @@ BETA_APK = "5c2091ab" * 8
 PROD_APK = "d7330f18" * 8
 
 
-UNMATCHED_GAP = "Tested APK matched no release build: this regression is not attached to a build page"
+CODES = ["Evidence missing", "Tests incomplete", "Not attached to a build", "Deflake not verified",
+         "Earlier attempt"]
+DOWNGRADING = ["Evidence missing", "Tests incomplete", "Deflake not verified"]
+PASSING = ["Not attached to a build", "Earlier attempt", None]
+
+
+def gap(code, detail="Some detail"):
+    return {"code": code, "detail": detail}
 
 
 def run_url(run):
@@ -228,6 +237,33 @@ class ValidatePayloadTest(unittest.TestCase):
         self.assertRejected("payload_beta", lambda p: p["evidence"]["jobs"].append({"name": "x", "conclusion": 5}))
         self.assertRejected("payload_beta", lambda p: p["evidence"].update(gaps="none"))
         self.assertRejected("payload_beta", lambda p: p["evidence"].update(gaps=[""]))
+        self.assertRejected("payload_beta", lambda p: p["evidence"].update(gaps=["Evidence missing"]))
+
+    def test_a_gap_has_exactly_a_code_from_the_closed_set_or_null_and_a_detail(self):
+        for code in CODES + [None]:
+            with self.subTest(code=code):
+                payload = load("payload_beta")
+                payload["evidence"]["gaps"] = [gap(code)]
+                contract.validate_payload(payload)
+        for bad in [gap("Something else"), gap("evidence missing"), gap(5), gap("Evidence missing", ""),
+                    gap("Evidence missing", "  "), gap("Evidence missing", None), {"code": None},
+                    {"detail": "x"}, dict(gap(None), extra=1)]:
+            with self.subTest(bad=bad):
+                self.assertRejected("payload_beta", lambda p: p["evidence"].update(gaps=[bad]))
+
+    def test_the_closed_set_is_the_five_page_items(self):
+        self.assertEqual(list(contract.GAP_CODES), CODES)
+
+    def test_a_gap_helper_refuses_a_code_outside_the_set(self):
+        self.assertEqual(contract.gap("Earlier attempt", "d"), {"code": "Earlier attempt", "detail": "d"})
+        self.assertEqual(contract.gap(None, "d"), {"code": None, "detail": "d"})
+        with self.assertRaises(ValueError):
+            contract.gap("Anything else", "d")
+
+    def test_the_origin_carries_the_build_commit(self):
+        self.assertRejected("payload_regression", lambda p: p["evidence"]["origin"].pop("sha"))
+        self.assertRejected("payload_regression", lambda p: p["evidence"]["origin"].update(sha="abc123"))
+        self.assertRejected("payload_regression", lambda p: p["evidence"]["origin"].update(sha=None))
 
 
 class BuildFieldsTest(unittest.TestCase):
@@ -246,14 +282,14 @@ class BuildFieldsTest(unittest.TestCase):
         self.assertEqual(fields["result"], "failed")
         self.assertEqual((fields["apkName"], fields["apkSha256"], fields["tests"]), ("", "", ""))
         self.assertEqual(fields["deploy"], "Build Prod-Compatrelease: failure")
-        self.assertEqual(fields["gaps"], "No build record: the build produced no APK")
+        self.assertEqual(fields["gaps"], "none")
 
     def test_regression_fields_link_the_matched_build_and_the_report(self):
         fields = contract.build_fields(load("payload_regression"))
         self.assertEqual(fields["kind"], "Regression")
         self.assertEqual(fields["result"], "failed")
         self.assertEqual(fields["runUrl"], run_url(1520))
-        self.assertEqual(fields["commit"], "test 0123456")
+        self.assertEqual(fields["commit"], "9f3c2a1")
         self.assertEqual((fields["apkName"], fields["apkSha256"]), ("wire-prod-compatrelease.apk", PROD_APK))
         self.assertEqual(fields["buildRunUrl"], run_url(1400))
         self.assertEqual(fields["deploy"], "")
@@ -269,20 +305,62 @@ class BuildFieldsTest(unittest.TestCase):
                                           "report https://example.com/allure/1600; "
                                           "not a full regression; source run 1520")
 
-    def test_unmatched_regression_is_partial_with_its_gap(self):
+    def test_an_unmatched_passing_regression_stays_passed_with_the_not_attached_code(self):
         payload = load("payload_unmatched")
         payload["evidence"]["qa"]["results"].update(passed=418, failed=0)
         fields = contract.build_fields(payload)
         self.assertEqual(fields["releaseVersion"], "unmatched")
-        self.assertEqual((fields["result"], fields["buildRunUrl"]), ("partial", ""))
-        self.assertEqual(fields["gaps"], UNMATCHED_GAP)
+        self.assertEqual((fields["result"], fields["buildRunUrl"]), ("passed", ""))
+        self.assertEqual(fields["gaps"], "Not attached to a build")
+
+    def test_the_commit_of_a_regression_is_the_matched_build_commit_and_empty_when_unmatched(self):
+        self.assertEqual(contract.build_fields(load("payload_deflake"))["commit"], "9f3c2a1")
+        self.assertEqual(contract.build_fields(load("payload_unmatched"))["commit"], "")
+        payload = load("payload_regression")
+        payload["evidence"]["qa"] = None
+        payload["evidence"]["origin"] = None
+        self.assertEqual(contract.build_fields(payload)["commit"], "")
+
+    def test_a_result_downgrades_only_for_the_codes_that_ask_for_attention(self):
+        for code in DOWNGRADING:
+            with self.subTest(code=code):
+                payload = load("payload_beta")
+                payload["evidence"]["gaps"] = [gap(code)]
+                fields = contract.build_fields(payload)
+                self.assertEqual((fields["result"], fields["gaps"]), ("partial", code))
+        for code in PASSING:
+            with self.subTest(code=code):
+                payload = load("payload_beta")
+                payload["evidence"]["gaps"] = [gap(code)]
+                fields = contract.build_fields(payload)
+                self.assertEqual(fields["result"], "passed")
+                self.assertEqual(fields["gaps"], code or "none")
+
+    def test_a_deploy_only_rerun_reads_by_its_conclusion_with_the_earlier_attempt_code(self):
+        for conclusion, result in [("success", "passed"), ("failure", "failed"), ("cancelled", "cancelled")]:
+            with self.subTest(conclusion=conclusion):
+                payload = load("payload_beta")
+                payload["evidence"].update(conclusion=conclusion, gaps=[gap("Earlier attempt")])
+                fields = contract.build_fields(payload)
+                self.assertEqual((fields["result"], fields["gaps"]), (result, "Earlier attempt"))
+
+    def test_the_page_lists_each_code_once_in_first_seen_order(self):
+        payload = load("payload_beta")
+        payload["evidence"]["gaps"] = [gap("Earlier attempt"), gap(None, "note"), gap("Evidence missing"),
+                                       gap("Earlier attempt", "again"), gap("Evidence missing", "again")]
+        self.assertEqual(contract.build_fields(payload)["gaps"], "Earlier attempt; Evidence missing")
+
+    def test_a_failed_test_outranks_every_gap(self):
+        payload = load("payload_regression")
+        payload["evidence"]["gaps"] = [gap("Evidence missing")]
+        self.assertEqual(contract.build_fields(payload)["result"], "failed")
 
     def test_cancelled_runs_report_cancelled(self):
         payload = load("payload_regression")
-        payload["evidence"].update(conclusion="cancelled", qa=None, gaps=["Evidence export unavailable"])
+        payload["evidence"].update(conclusion="cancelled", qa=None, gaps=[gap("Evidence missing")])
         fields = contract.build_fields(payload)
         self.assertEqual((fields["result"], fields["tests"], fields["apkName"]), ("cancelled", "", ""))
-        self.assertEqual(fields["gaps"], "Evidence export unavailable")
+        self.assertEqual(fields["gaps"], "Evidence missing")
 
     def test_timed_out_and_startup_failure_runs_report_failed(self):
         for conclusion in ["failure", "timed_out", "startup_failure"]:
@@ -299,7 +377,7 @@ class BuildFieldsTest(unittest.TestCase):
                 payload["evidence"]["qa"]["results"].update(change)
                 fields = contract.build_fields(payload)
                 self.assertEqual(fields["result"], "partial")
-                self.assertIn("Test results are missing or empty", fields["gaps"])
+                self.assertEqual(fields["gaps"], "Tests incomplete")
                 self.assertIn("results unavailable", fields["tests"])
 
     def test_missing_selected_tests_make_the_result_partial(self):
@@ -308,11 +386,11 @@ class BuildFieldsTest(unittest.TestCase):
                                                     selected=421, total=421)
         fields = contract.build_fields(payload)
         self.assertEqual(fields["result"], "partial")
-        self.assertIn("Selected tests are missing results", fields["gaps"])
+        self.assertEqual(fields["gaps"], "Tests incomplete")
 
     def test_a_successful_build_with_gaps_is_partial(self):
         payload = load("payload_beta")
-        payload["evidence"]["gaps"] = ["Google Play outcome unknown"]
+        payload["evidence"]["gaps"] = [gap("Evidence missing", "Google Play outcome unknown")]
         self.assertEqual(contract.build_fields(payload)["result"], "partial")
 
     def test_fields_are_always_the_same_strings(self):
@@ -324,8 +402,8 @@ class BuildFieldsTest(unittest.TestCase):
 
     def test_evidence_text_cannot_become_commands_or_markup(self):
         payload = load("payload_failed_build")
-        payload["evidence"]["gaps"] = ["one\ntwo\rthree", "::error::boom", "<script>x</script>",
-                                       "{{webhook.body}}", "x" * 2000]
+        payload["evidence"]["gaps"] = [gap("Evidence missing", text) for text in (
+            "one\ntwo\rthree", "::error::boom", "<script>x</script>", "{{webhook.body}}", "x" * 2000)]
         payload["evidence"]["jobs"][0]["name"] = "Build\n::set-output name=a::b"
         for name, value in contract.build_fields(payload).items():
             with self.subTest(field=name):
@@ -333,7 +411,7 @@ class BuildFieldsTest(unittest.TestCase):
                 for banned in ["::", "<", ">", "{{"]:
                     self.assertNotIn(banned, value)
                 self.assertLessEqual(len(value), 1000)
-        self.assertTrue(contract.build_fields(payload)["gaps"].endswith("\u2026"))
+        self.assertEqual(contract.build_fields(payload)["gaps"], "Evidence missing")
 
 
 HOSTILE_TEXT = [
@@ -382,21 +460,22 @@ class HostileTextTest(unittest.TestCase):
         for hostile in HOSTILE_TEXT:
             with self.subTest(hostile=hostile):
                 payload = load("payload_beta")
-                payload["evidence"]["gaps"] = ["Outcome unknown " + hostile]
-                gaps = contract.build_fields(payload)["gaps"]
+                payload["evidence"]["gaps"] = [gap("Evidence missing", "Outcome unknown " + hostile)]
+                self.assertEqual(contract.build_fields(payload)["gaps"], "Evidence missing")
+                lines = "\n".join(contract.detail_lines(payload))
                 for banned in "[]{}|<>&~":
-                    self.assertNotIn(banned, gaps)
-                self.assertNotRegex(gaps, r":[^ ]")
-                self.assertNotRegex(gaps, r"[^\x20-\x7e]")
+                    self.assertNotIn(banned, lines)
+                self.assertNotRegex(lines, r":[^ \n]")
+                self.assertNotRegex(lines, r"[^\x20-\x7e\n]")
 
-    def test_the_collector_gap_texts_survive_unchanged(self):
-        for text in ["No build record: the build produced no APK",
-                     "Build did not run in this attempt; its evidence belongs to an earlier attempt",
-                     "Release context belongs to an earlier attempt", "Tested APK matched no release build"]:
-            with self.subTest(text=text):
-                payload = load("payload_beta")
-                payload["evidence"]["gaps"] = [text]
-                self.assertEqual(contract.build_fields(payload)["gaps"], text)
+    def test_detail_lines_list_each_gap_with_its_code_or_a_note_label(self):
+        payload = load("payload_beta")
+        payload["evidence"]["gaps"] = [gap("Evidence missing", "Build evidence export is missing"),
+                                       gap(None, "No build record: the build produced no APK")]
+        self.assertEqual(contract.detail_lines(payload), [
+            "- Evidence missing: Build evidence export is missing",
+            "- note: No build record: the build produced no APK"])
+        self.assertEqual(contract.detail_lines(load("payload_beta")), [])
 
     def test_a_file_name_cannot_pose_as_two_apks(self):
         payload = load("payload_beta")
@@ -522,14 +601,14 @@ class RegressionCountsTest(unittest.TestCase):
         fields = self.fields(passed=0, failed=0, skipped=421, missing=0, selected=421, total=421,
                            passed_on_rerun=0)
         self.assertEqual(fields["result"], "partial")
-        self.assertIn("No tests were executed", fields["gaps"])
+        self.assertEqual(fields["gaps"], "Tests incomplete")
         self.assertIn("0 passed, 0 failed, 421 skipped, 0 missing", fields["tests"])
 
     def test_a_run_with_only_missing_results_is_never_a_pass(self):
         fields = self.fields(passed=0, failed=0, skipped=0, missing=5, selected=5, total=5,
                            passed_on_rerun=0)
         self.assertEqual(fields["result"], "partial")
-        self.assertIn("No tests were executed", fields["gaps"])
+        self.assertEqual(fields["gaps"], "Tests incomplete")
 
     def test_a_flaky_pass_shows_the_rerun_count(self):
         self.assertIn("2 passed on rerun", self.fields()["tests"])
@@ -578,16 +657,17 @@ class HostileRegressionTextTest(unittest.TestCase):
 class ReviewFindingsTest(unittest.TestCase):
     def test_unicode_line_separators_and_c1_controls_are_removed_from_fields(self):
         payload = load("payload_failed_build")
-        payload["evidence"]["gaps"] = ["a\u2028b\u2029c\x85d\x9fe"]
-        gaps = contract.build_fields(payload)["gaps"]
+        payload["evidence"]["gaps"] = [gap(None, "a\u2028b\u2029c\x85d\x9fe")]
+        gaps = "".join(contract.detail_lines(payload))
         for char in ["\u2028", "\u2029", "\x85", "\x9f"]:
             self.assertNotIn(char, gaps)
 
     def test_backticks_cannot_close_a_markdown_fence(self):
         payload = load("payload_failed_build")
-        payload["evidence"]["gaps"] = ["```\n# injected heading\n```"]
-        for value in contract.build_fields(payload).values():
+        payload["evidence"]["gaps"] = [gap(None, "```\n# injected heading\n```")]
+        for value in list(contract.build_fields(payload).values()) + contract.detail_lines(payload):
             self.assertNotIn("`", value)
+            self.assertNotIn("\n", value)
 
     def test_a_regression_without_its_qa_record_is_never_a_pass(self):
         for name in ["payload_regression", "payload_deflake"]:
@@ -596,7 +676,7 @@ class ReviewFindingsTest(unittest.TestCase):
                 payload["evidence"]["qa"] = None
                 fields = contract.build_fields(payload)
                 self.assertEqual(fields["result"], "partial")
-                self.assertIn("Regression evidence is missing", fields["gaps"])
+                self.assertEqual(fields["gaps"], "Evidence missing")
                 self.assertEqual(fields["tests"], "results unavailable")
 
     def test_a_cancelled_regression_without_its_record_stays_cancelled(self):
@@ -645,6 +725,53 @@ class ReviewFindingsTest(unittest.TestCase):
         payload["release_version"] = "4.39.0"
         with self.assertRaises(ValueError):
             contract.validate_payload(payload)
+
+class ClosedSetTest(unittest.TestCase):
+    """The page can show only the five codes, whoever produces a gap."""
+
+    CONSTANTS = {name: value for name, value in vars(contract).items()
+                 if name.isupper() and isinstance(value, str) and value in contract.GAP_CODES}
+
+    def test_every_producer_names_a_code_from_the_closed_set(self):
+        sources = [Path(contract.__file__), Path(__file__).resolve().parent / "release_log_report.py"]
+        calls = 0
+        for path in sources:
+            for node in ast.walk(ast.parse(path.read_text())):
+                if not isinstance(node, ast.Call):
+                    continue
+                name = node.func.attr if isinstance(node.func, ast.Attribute) else getattr(node.func, "id", None)
+                if name != "gap" or not node.args:
+                    continue
+                calls += 1
+                code = node.args[0]
+                label = "%s:%d" % (path.name, node.lineno)
+                if isinstance(code, ast.Constant):
+                    self.assertIsNone(code.value, label)
+                elif isinstance(code, ast.Attribute) and isinstance(code.value, ast.Name) and code.value.id == "contract":
+                    self.assertIn(code.attr, self.CONSTANTS, label)
+                elif isinstance(code, ast.Name):
+                    self.assertIn(code.id, self.CONSTANTS, label)
+                else:
+                    self.fail("gap code is not a constant of the closed set at " + label)
+        self.assertGreater(calls, 10)
+
+    def test_the_page_never_shows_anything_but_none_or_codes_of_the_set(self):
+        allowed = set(contract.GAP_CODES)
+        results = [dict(passed=None, failed=None, skipped=None, missing=None, selected=None, total=None, passed_on_rerun=None),
+                   dict(passed=0, failed=0, skipped=5, missing=0, selected=5, total=5, passed_on_rerun=0),
+                   dict(passed=4, failed=0, skipped=0, missing=1, selected=5, total=5, passed_on_rerun=0),
+                   dict(passed=5, failed=0, skipped=0, missing=0, selected=5, total=5, passed_on_rerun=0)]
+        for name, change, shown, conclusion, with_qa in itertools.product(
+                PAYLOADS, results, [[]] + [[gap(code)] for code in CODES + [None]],
+                ["success", "failure", "cancelled"], [True, False]):
+            payload = copy.deepcopy(load(name))
+            evidence = payload["evidence"]
+            evidence["gaps"], evidence["conclusion"] = shown, conclusion
+            if evidence["qa"] is not None:
+                evidence["qa"]["results"].update(change)
+                evidence["qa"] = evidence["qa"] if with_qa else None
+            page = contract.build_fields(payload)["gaps"]
+            self.assertTrue(page == "none" or set(page.split("; ")) <= allowed, page)
 
 
 if __name__ == "__main__":

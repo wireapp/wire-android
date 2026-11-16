@@ -122,6 +122,12 @@ if not failed_tests:
 # disabled, even if a normal-run name was entered in the dispatch form.
 effective_testiny_run_name = str(metadata.get("testiny_run_name", "")).strip()
 
+# Mask the device ID before exposing it as an output to later steps in this job.
+device_id = str(metadata.get("android_device_id", ""))
+if device_id:
+    escaped = device_id.replace("%", "%25").replace("\r", "%0D").replace("\n", "%0A")
+    print(f"::add-mask::{escaped}")
+
 print(f"Deflake bundle directory: {bundle_dir}")
 print(f"Selected workflow name: {metadata['source_workflow_name']}")
 print(f"Selected workflow file: {metadata['source_workflow_file']}")

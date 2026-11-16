@@ -24,7 +24,10 @@
     "qa": null,
     "origin": null,
     "gaps": [
-      "No build record: the build produced no APK"
+      {
+        "code": null,
+        "detail": "No build record: the build produced no APK"
+      }
     ]
   }
 }

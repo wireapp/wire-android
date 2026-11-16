@@ -196,7 +196,7 @@ class ConversationMessagesViewModelTest {
             viewModel.downloadAssetExternally(messageId)
 
             // Then
-            coVerify(exactly = 1) { arrangement.fileManager.saveToExternalStorage(any(), any(), any(), any(), any()) }
+            coVerify(exactly = 1) { arrangement.fileManager.saveToExternalStorage(any(), any(), any(), any(), any(), any()) }
             assert(viewModel.conversationViewState.downloadedAssetDialogState == DownloadedAssetDialogVisibilityState.Hidden)
         }
 

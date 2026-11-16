@@ -24,21 +24,37 @@ A manual production regression run joins it through the `QA Android Prod Regress
 | `kind` | `Beta N`, `Production`, `Regression`, or `Deflake`. |
 | `result` | `passed`, `failed`, `cancelled`, or `partial`. |
 | `runUrl` | The run and attempt on GitHub. |
-| `commit` | Short application SHA. |
+| `commit` | Short application SHA of the run. For a regression, the commit of the matched production build, empty when none matches. |
 | `apkName`, `apkSha256` | The final signed APK, after signing lineage. |
 | `buildRunUrl` | The matched build run, for a regression only. |
 | `deploy` | The result of each release job. |
 | `tests` | Test counts, selector, and report link, for a regression only. A test that failed first and passed on a rerun shows as `N passed on rerun`. |
-| `gaps` | `none`, or each missing or unverified item. |
+| `gaps` | `none`, or the items from [Gaps](#gaps) that apply, separated by `; `. |
 | `eventId` | The event identity, `<kind>:<repository>:<run id>:<attempt>`. A replay carries the same value. |
 
 `eventId` is the twelfth field. Add it to the webhook rule's field list and show it in the entry, so a replay is easy to spot on the page. The rule needs this change before the reporter sends the field.
 
-A missing result is a gap and never a pass. A run with no executed test, or with more selected tests than counted tests, is never a pass either. A run whose evidence file is missing still gets an entry that says so.
+A missing result is never a pass. A run with no executed test, or with more selected tests than counted tests, is never a pass either. A run whose evidence file is missing still gets an entry that says so.
+
+## Gaps
+
+The `gaps` field has a closed set of five items. The page never shows anything else.
+
+| Item | Meaning | Result |
+| --- | --- | --- |
+| `Evidence missing` | An export is missing, expired, or invalid. | `partial` |
+| `Tests incomplete` | The results are missing or empty, no test ran, or selected tests have no result. | `partial` |
+| `Deflake not verified` | A deflake run does not trace back to a full run. | `partial` |
+| `Not attached to a build` | The regression matches no single production build. | Unchanged |
+| `Earlier attempt` | The evidence belongs to an earlier attempt of the run. | Unchanged |
+
+A cancelled run stays `cancelled`, and a failed run or a failed test stays `failed`. A run whose conclusion is not success is `partial`. The other gaps never lower a pass: a passing regression that matches no build reads `passed` with `Not attached to a build`.
+
+Each gap also has a detail, and some gaps are notes with no item, such as a dropped report link or a failed build that produced no APK. The page does not show details. They are in the job summary of the `Release log` run, under `Details`.
 
 ## Manual and branch runs of a release workflow are skipped
 
-Only a run that a tag push started (Beta) or a `release` event started (Production) is a release run. The reporter checks the event and the run's `head_branch`. A manual run, or a run from a branch, is not reported, even if the branch is named like a tag. This stops a user with write access from forging an entry with a modified workflow. A skipped run writes no payload, logs `Release log: run <id> is not a release run, nothing to report`, and ends green.
+Only a run that a tag push started (Beta) or a `release` event started (Production) is a release run. The reporter checks the event and the run's `head_branch`. A manual run, or a run from a branch, is not reported, even if the branch is named like a tag. This stops a user with write access from forging an entry with a modified workflow. A build from a branch that has no export steps is skipped too. Its run has no `Export release log context` job and uploaded no `release-log-*` artifact in any attempt. A run whose export job ran and left no evidence is not skipped, and it shows the gap. A skipped run writes no payload, logs `Release log: run <id> has nothing to report`, and ends green.
 
 A regression run of `qa-android-prod-tests.yml` is a release run only when a person dispatched it (`workflow_dispatch`) from the default branch or from a `release/*` branch. A scheduled run, a push, or a dispatch from any other branch is skipped the same way, before the reporter reads any artifact. The reporter reads the default branch from one repository call. A deflake source run must pass the same check. A production build record counts only when its own run was a `release` event on a version tag.
 
@@ -65,11 +81,15 @@ To write the record by hand from the QA step environment, run `make release-log/
 
 The reporter reads the QA record of the run and checks it against the GitHub run: repository, run ID, attempt, and workflow. It does not require the tests commit to equal the run commit. It ignores artifacts of other attempts. It treats the record as data and drops a report link that is not on the repository's GitHub Pages site.
 
-It then looks for the production build that made the tested APK. It lists the production runs from the 90 days before the regression and reads each attempt's build record. It needs exactly one build with the same APK file name and SHA-256. The digest proves the bytes are the same, so the version label never refuses a match; the label can differ from the release tag and its build number is not the version code. Zero matches, several matches, an expired or invalid record, and a listing that cannot finish are all gaps. The word `latest` and the tests commit never identify the APK.
+It then looks for the production build that made the tested APK. It lists the production runs from the 90 days before the regression and reads each attempt's build record. It needs exactly one build with the same APK file name and SHA-256. The digest proves the bytes are the same, so the version label never refuses a match; the label can differ from the release tag and its build number is not the version code. The word `latest` and the tests commit never identify the APK.
 
-A regression that matches no build is still reported. It goes to the page for the APK's version label. When the APK has no readable label, it goes to one shared page for unmatched regressions. The `gaps` field then says the regression is not attached to a build page, and the entry has no `buildRunUrl`.
+- One match attaches, even when the reporter could not read other production builds. The details say which builds it could not check.
+- Zero matches, or several, read `Not attached to a build`. The reporter never picks one of several.
+- A production build with no record counts as a problem only when its run had the context export job. Runs from before the exporter existed have no records and are ignored.
 
-A deflake entry must trace back to a full run. The reporter reads the source run's record and compares two fingerprints: the one in the deflake record, and the one the source run wrote for its bundle. It also checks the tests commit, the suite, and the selector. It follows the chain of source runs until it reaches a full run. A fingerprint that differs, a bundle with no fingerprint, a source with no record, and a chain that repeats all fail the attribution. The entry then appears with the gap and without a build link. The deflake entry keeps its own results and retry count, and the `tests` field says `not a full regression`.
+A regression that matches no build is still reported. It goes to the page for the APK's version label. When the APK has no readable label, it goes to one shared page for unmatched regressions. The entry has no `buildRunUrl` and no `commit`.
+
+A deflake entry must trace back to a full run. The reporter reads the source run's record and compares two fingerprints: the one in the deflake record, and the one the source run wrote for its bundle. It also checks the tests commit, the suite, and the selector. It follows the chain of source runs until it reaches a full run. A fingerprint that differs, a bundle with no fingerprint, a source with no record, and a chain that repeats all fail the attribution. The entry then appears with `Deflake not verified` and without a build link. The deflake entry keeps its own results and retry count, and the `tests` field says `not a full regression`.
 
 A manual run of another flavor writes no record. A separate job in `qa-android-prod-tests.yml`, `release-log-skip-marker`, handles a normal run. The job has no `needs`, runs when the run mode is not a deflake and the `flavor` input is not `production`, continues on error, and has read-only repository access. It runs `make release-log/qa-skip` and uploads a small marker artifact, `release-log-qa-skip-<run id>-<attempt>`, kept for 90 days. The marker holds only the repository, run ID, and attempt. Because the job starts first and needs nothing, a run that is cancelled or fails before the export step still has its marker. A deflake reuses the flavor of its source run, so the `flavor` input says nothing about it. The deflake job decides instead. Its export step reads the flavor from the source bundle, and when that flavor is not `production` it writes the same marker (`RELEASE_LOG_SKIP_OUTPUT`). A step after it uploads the marker under the same name. The job `release-log-skip-marker` never runs for a deflake, and the normal job never uploads a marker, so only one upload uses that name in a run. A test checks this for a normal and a deflake run, with a production and a non-production flavor. When the record of the collected attempt is missing and a marker is present, the reporter ends with no entry and no red run, and the collect step logs that the run is not a release run. The marker may come from any attempt up to the collected one, because "Re-run failed jobs" does not run the marker job again and the run's inputs do not change. Each marker must match its own attempt and come from an unexpired artifact. A marker of a later attempt does not count. A record always wins over a marker. A missing record with no marker is still missing evidence. The job condition also skips scheduled QA runs, and the reporter skips them again.
 
@@ -95,13 +115,15 @@ Publication stays off until the variable is exactly `true`. While it is off, the
 
 ## Run it by hand
 
-Open the `Release log` workflow, choose `workflow_dispatch` on `develop`, and enter the run ID and attempt of a completed run. Tick `dry_run` to see the entry without sending it.
+Open the `Release log` workflow, choose `workflow_dispatch` on `develop`, and enter the run ID and attempt of a completed run. Tick `dry_run` to see the entry without sending it. The job summary shows the fields and the gap details.
 
 To see the fields for a payload file on your machine, with no network call:
 
 ```sh
 make release-log/publish payload=payload.json summary=/dev/stdout dry_run=1
 ```
+
+The summary holds the fields, then the gap details.
 
 ## When something goes wrong
 
@@ -111,12 +133,12 @@ make release-log/publish payload=payload.json summary=/dev/stdout dry_run=1
 | The reporter run fails with "version cannot be established" | The run came from a tag push or a release, but it has no valid release context and its tag no longer points at the run's commit. Nothing was sent, and a rerun repeats the result. Add the entry to the page by hand. |
 | The reporter run fails with an HTTP status | Confluence did not accept the request. Check the rule's audit log, then run the workflow again by hand. A replay can add a duplicate entry. |
 | The reporter succeeds and the page has no entry | HTTP success means Confluence accepted the request. Read the rule's audit log. |
-| A regression sits on the shared page for unmatched regressions | The tested APK matched no production build and had no readable version label. Read the `gaps` field. Move the entry by hand if the release is known. |
-| A regression shows `partial` with a gap about the source | The deflake source did not verify. Read the `gaps` field. The deflake tests still ran. |
+| A regression sits on the shared page for unmatched regressions | The tested APK matched no production build and had no readable version label. Read the details in the job summary. Move the entry by hand if the release is known. |
+| A regression shows `Deflake not verified` | The deflake source did not verify. Read the details in the job summary. The deflake tests still ran. |
 | A page starts with a later build | The first entry never arrived, so the rule created the page for the first event it received. A hand run of the earlier build appends below it. |
 | A release has a second page with a number in its title | The rule did not find the existing page. Someone renamed or moved it, or another page has the same title. Move the entries to one page, restore the title, and tell the rule's owner. |
 
 ## Limits
 
 - Two first entries for one new version within seconds can create a second page with a numbered title. Releases produce entries minutes or days apart.
-- A branch cut before this change has no export steps. Its runs show a gap and no APK digest.
+- A branch cut before this change has no export steps. The reporter skips its runs and logs that there is nothing to report.

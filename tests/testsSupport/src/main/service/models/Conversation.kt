@@ -37,7 +37,8 @@ data class Conversation(
     var creatorId: String = "",
     var receiptMode: Int? = null,
     var protocol: String = "",
-    var messageTimerInMilliseconds: Int = 0
+    var messageTimerInMilliseconds: Int = 0,
+    var cellsState: String? = null
 ) {
     val isReceiptModeEnabled: Boolean
         get() = receiptMode?.let { it > 0 } ?: false
@@ -48,6 +49,7 @@ data class Conversation(
 
             conversation.id = json.getString("id")
             conversation.protocol = json.getString("protocol")
+            conversation.cellsState = json.optString("cells_state", null)
             conversation.qualifiedID = QualifiedID.fromJSON(json.getJSONObject("qualified_id"))
 
             conversation.name = json.optString("name", null)?.takeIf { it.isNotBlank() }

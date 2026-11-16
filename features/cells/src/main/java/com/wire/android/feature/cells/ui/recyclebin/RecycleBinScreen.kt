@@ -70,6 +70,9 @@ internal fun RecycleBinRouteScreen(
     val bulkRestoreDialog by cellViewModel.bulkRestoreDialog.collectAsState()
     val emptyRecycleBinDialog by cellViewModel.emptyRecycleBinDialog.collectAsState()
     val canEmptyRecycleBin by cellViewModel.canEmptyRecycleBin.collectAsState()
+    val pagingListItems = cellViewModel.nodesFlow.collectAsLazyPagingItems()
+    // Nothing to empty: also hidden while the first page loads, until there is something listed.
+    val isRecycleBinEmpty = pagingListItems.itemCount == 0
 
     BackHandler(enabled = isSelectionMode) {
         cellViewModel.sendIntent(CellViewIntent.OnClearSelection)
@@ -101,7 +104,7 @@ internal fun RecycleBinRouteScreen(
                             }
                         },
                         actions = {
-                            if (canEmptyRecycleBin && !isSelectionMode) {
+                            if (canEmptyRecycleBin && !isSelectionMode && !isRecycleBinEmpty) {
                                 WireSecondaryIconButton(
                                     onButtonClicked = { cellViewModel.sendIntent(CellViewIntent.OnEmptyRecycleBinClick) },
                                     iconResource = commonR.drawable.ic_delete,
@@ -127,7 +130,7 @@ internal fun RecycleBinRouteScreen(
             Box(modifier = Modifier.padding(innerPadding)) {
                 CellScreenContent(
                     actionsFlow = cellViewModel.actions,
-                    pagingListItems = cellViewModel.nodesFlow.collectAsLazyPagingItems(),
+                    pagingListItems = pagingListItems,
                     sendIntent = { cellViewModel.sendIntent(it) },
                     menuState = cellViewModel.menu,
                     isRecycleBin = true,

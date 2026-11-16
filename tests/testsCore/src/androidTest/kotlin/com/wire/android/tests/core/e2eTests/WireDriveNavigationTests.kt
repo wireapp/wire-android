@@ -34,6 +34,7 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import uiautomatorutils.UiWaitUtils
 import user.utils.ClientUser
 import java.time.Instant
 import java.util.UUID
@@ -83,6 +84,7 @@ class WireDriveNavigationTests : BaseUiTest() {
                 deviceName = "Device1",
                 cellsEnabled = true
             )
+            testServiceHelper.waitForSharedDriveReady("user1Name", "DriveNavigation")
         }
 
         step("And User Member1 is me") {
@@ -130,7 +132,7 @@ class WireDriveNavigationTests : BaseUiTest() {
         step("And I see Upload complete and collapse the upload status panel") {
             pages.wireDrivePage.apply {
                 assertUploadCompleteVisible()
-                tapCollapseButtonOnUploadStatusPanel()
+                tapCollapseButtonOnUploadStatusPanel(timeout = UiWaitUtils.LONG_TIMEOUT)
             }
         }
 
@@ -177,7 +179,7 @@ class WireDriveNavigationTests : BaseUiTest() {
         step("And I see Upload complete and collapse the upload status panel") {
             pages.wireDrivePage.apply {
                 assertUploadCompleteVisible()
-                tapCollapseButtonOnUploadStatusPanel()
+                tapCollapseButtonOnUploadStatusPanel(timeout = UiWaitUtils.LONG_TIMEOUT)
             }
         }
 
@@ -191,14 +193,14 @@ class WireDriveNavigationTests : BaseUiTest() {
         step("And I return through ParentFolder to the Shared Drive main folder to begin the navigation checks") {
             pages.wireDrivePage.apply {
                 navigateBack()
-                assertFolderVisibleOnce("ChildFolder")
+                assertFolderVisibleOnce("ChildFolder", timeout = UiWaitUtils.LONG_TIMEOUT)
                 navigateBack()
             }
         }
 
         step("Then the main folder shows ParentFolder and its own PDF without ChildFolder or its PDF") {
             pages.wireDrivePage.apply {
-                assertFolderVisibleOnce("ParentFolder")
+                assertFolderVisibleOnce("ParentFolder", timeout = UiWaitUtils.LONG_TIMEOUT)
                 assertFileVisibleOnce(rootFile)
                 assertFolderNotVisible("ChildFolder")
                 assertFileNotVisible(childFile)
@@ -211,7 +213,7 @@ class WireDriveNavigationTests : BaseUiTest() {
 
         step("Then ParentFolder shows ChildFolder without either PDF") {
             pages.wireDrivePage.apply {
-                assertFolderVisibleOnce("ChildFolder")
+                assertFolderVisibleOnce("ChildFolder", timeout = UiWaitUtils.LONG_TIMEOUT)
                 assertFileNotVisible(rootFile)
                 assertFileNotVisible(childFile)
             }
@@ -223,7 +225,7 @@ class WireDriveNavigationTests : BaseUiTest() {
 
         step("Then ChildFolder shows its own PDF without the main folder's PDF") {
             pages.wireDrivePage.apply {
-                assertFileVisibleOnce(childFile)
+                assertFileVisibleOnce(childFile, timeout = UiWaitUtils.LONG_TIMEOUT)
                 assertFileNotVisible(rootFile)
             }
         }
@@ -234,7 +236,7 @@ class WireDriveNavigationTests : BaseUiTest() {
 
         step("Then ParentFolder still shows ChildFolder without either PDF") {
             pages.wireDrivePage.apply {
-                assertFolderVisibleOnce("ChildFolder")
+                assertFolderVisibleOnce("ChildFolder", timeout = UiWaitUtils.LONG_TIMEOUT)
                 assertFileNotVisible(rootFile)
                 assertFileNotVisible(childFile)
             }
@@ -246,7 +248,7 @@ class WireDriveNavigationTests : BaseUiTest() {
 
         step("Then the root shows ParentFolder and its own PDF without the PDF from ChildFolder") {
             pages.wireDrivePage.apply {
-                assertFolderVisibleOnce("ParentFolder")
+                assertFolderVisibleOnce("ParentFolder", timeout = UiWaitUtils.LONG_TIMEOUT)
                 assertFileVisibleOnce(rootFile)
                 assertFolderNotVisible("ChildFolder")
                 assertFileNotVisible(childFile)
@@ -262,7 +264,7 @@ class WireDriveNavigationTests : BaseUiTest() {
 
         step("Then ChildFolder still shows its own PDF once without the main folder's PDF") {
             pages.wireDrivePage.apply {
-                assertFileVisibleOnce(childFile)
+                assertFileVisibleOnce(childFile, timeout = UiWaitUtils.LONG_TIMEOUT)
                 assertFileNotVisible(rootFile)
             }
         }
@@ -290,6 +292,7 @@ class WireDriveNavigationTests : BaseUiTest() {
                 deviceName = "Device1",
                 cellsEnabled = true
             )
+            testServiceHelper.waitForSharedDriveReady("user1Name", "GroupFileOne")
         }
 
         step("And TeamOwner creates group conversation GroupFileTwo with Member1 and Shared Drive enabled") {
@@ -300,6 +303,7 @@ class WireDriveNavigationTests : BaseUiTest() {
                 deviceName = "Device1",
                 cellsEnabled = true
             )
+            testServiceHelper.waitForSharedDriveReady("user1Name", "GroupFileTwo")
         }
 
         step("And User Member1 is me") {
@@ -347,7 +351,7 @@ class WireDriveNavigationTests : BaseUiTest() {
         step("And I see Upload complete for the first PDF and collapse the upload status panel") {
             pages.wireDrivePage.apply {
                 assertUploadCompleteVisible()
-                tapCollapseButtonOnUploadStatusPanel()
+                tapCollapseButtonOnUploadStatusPanel(timeout = UiWaitUtils.LONG_TIMEOUT)
             }
         }
 
@@ -400,7 +404,7 @@ class WireDriveNavigationTests : BaseUiTest() {
         step("And I see Upload complete for the second PDF and collapse the upload status panel") {
             pages.wireDrivePage.apply {
                 assertUploadCompleteVisible()
-                tapCollapseButtonOnUploadStatusPanel()
+                tapCollapseButtonOnUploadStatusPanel(timeout = UiWaitUtils.LONG_TIMEOUT)
             }
         }
 
@@ -435,8 +439,8 @@ class WireDriveNavigationTests : BaseUiTest() {
         step("Then Drive shows both groups' PDFs once") {
             pages.wireDrivePage.apply {
                 assertDrivePageVisible()
-                assertFileVisibleOnce(firstGroupFile)
-                assertFileVisibleOnce(secondGroupFile)
+                assertFileVisibleOnce(firstGroupFile, timeout = UiWaitUtils.LONG_TIMEOUT)
+                assertFileVisibleOnce(secondGroupFile, timeout = UiWaitUtils.LONG_TIMEOUT)
             }
         }
 
@@ -628,6 +632,7 @@ class WireDriveNavigationTests : BaseUiTest() {
                 deviceName = "Device1",
                 cellsEnabled = true
             )
+            testServiceHelper.waitForSharedDriveReady("user1Name", "SharedWithGuest")
         }
 
         val guestFile = "GuestAccess-${UUID.randomUUID().toString().take(8)}.pdf"
@@ -651,10 +656,6 @@ class WireDriveNavigationTests : BaseUiTest() {
         }
 
         loginAsMember1ThroughStagingDeepLink()
-
-        step("And I wait until Wire service notification disappears") {
-            pages.conversationListPage.waitUntilWireServiceNotificationDisappears()
-        }
 
         step("When I open the main navigation menu as Member1") {
             pages.conversationListPage.apply {
@@ -689,7 +690,7 @@ class WireDriveNavigationTests : BaseUiTest() {
             pages.wireDrivePage.apply {
                 assertViewerAccessBannerVisible("Viewer access: you can’t upload or edit files.")
                 assertNewButtonAbsent()
-                assertFileVisibleOnce(guestFile)
+                assertFileVisibleOnce(guestFile, timeout = UiWaitUtils.LONG_TIMEOUT)
             }
         }
 
@@ -703,7 +704,7 @@ class WireDriveNavigationTests : BaseUiTest() {
             pages.wireDrivePage.apply {
                 assertViewerAccessBannerVisible("Viewer access: you can’t upload or edit files.")
                 assertNewButtonAbsent()
-                assertFileVisibleOnce(guestFile)
+                assertFileVisibleOnce(guestFile, timeout = UiWaitUtils.LONG_TIMEOUT)
             }
         }
     }
@@ -730,6 +731,7 @@ class WireDriveNavigationTests : BaseUiTest() {
                 deviceName = "Device1",
                 cellsEnabled = true
             )
+            testServiceHelper.waitForSharedDriveReady("user1Name", "ManySharedFiles")
         }
 
         val suffix = UUID.randomUUID().toString().take(8)
@@ -1359,6 +1361,7 @@ class WireDriveNavigationTests : BaseUiTest() {
                 deviceName = "Device1",
                 cellsEnabled = true
             )
+            testServiceHelper.waitForSharedDriveReady("user1Name", "SharedDriveDetailsGroup")
         }
 
         step("And TeamOwner creates SharedDriveDetailsChannel with Shared Drive enabled") {
@@ -1491,12 +1494,13 @@ class WireDriveNavigationTests : BaseUiTest() {
             }
         }
 
-        step("And I wait until Member1 is fully logged in and decline the share data alert") {
+        step("And I complete Member1's login prompts and wait for the Wire service notification to disappear") {
             pages.registrationPage.apply {
                 waitUntilLoginFlowIsCompleted()
                 clickAllowNotificationButton()
                 clickDeclineShareDataAlert()
             }
+            pages.conversationListPage.waitUntilWireServiceNotificationDisappears()
         }
     }
 }

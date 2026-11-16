@@ -22,7 +22,6 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.net.Uri
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -43,6 +42,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileOutputStream
+import java.io.IOException
 
 @Suppress("TooManyFunctions")
 class DrawingCanvasViewModel : ViewModel() {
@@ -147,7 +147,7 @@ class DrawingCanvasViewModel : ViewModel() {
      * @return The [Uri] of the saved image.
      */
     suspend fun saveImage(context: Context, tempWritableUri: Uri?): Uri {
-        val tempSketchFile = tempWritableUri.orTempUri(context)
+        var savedSketchUri = tempWritableUri.orTempUri(context)
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
                 with(state) {
@@ -159,20 +159,29 @@ class DrawingCanvasViewModel : ViewModel() {
                         Bitmap.Config.ARGB_8888
                     )
                     val canvas = Canvas(bitmap).apply { drawPaint(Paint().apply { color = Color.White.toArgb() }) }
-                    context.contentResolver.openFileDescriptor(tempSketchFile, "rwt")?.use { fileDescriptor ->
-                        FileOutputStream(fileDescriptor.fileDescriptor).use { fileOutputStream ->
-                            paths.forEach { path -> path.drawNative(canvas) }
-                            bitmap.compress(Bitmap.CompressFormat.JPEG, QUALITY, fileOutputStream)
-                            fileOutputStream.flush()
-                        }.also {
-                            Log.d("DrawingCanvasViewModel", "Image written to: $tempSketchFile")
-                        }
+                    paths.forEach { path -> path.drawNative(canvas) }
+                    try {
+                        context.writeBitmap(bitmap, savedSketchUri)
+                    } catch (e: IOException) {
+                        // The provided uri can point to a file whose directory no longer exists (e.g. the shared cache
+                        // was cleared on logout or by the system), so fall back to a fresh temp file in the cache.
+                        savedSketchUri = null.orTempUri(context)
+                        context.writeBitmap(bitmap, savedSketchUri)
                     }
                 }
             }
         }.join()
         initializeCanvas()
-        return tempSketchFile
+        return savedSketchUri
+    }
+
+    private fun Context.writeBitmap(bitmap: Bitmap, uri: Uri) {
+        contentResolver.openFileDescriptor(uri, "rwt")?.use { fileDescriptor ->
+            FileOutputStream(fileDescriptor.fileDescriptor).use { fileOutputStream ->
+                bitmap.compress(Bitmap.CompressFormat.JPEG, QUALITY, fileOutputStream)
+                fileOutputStream.flush()
+            }
+        }
     }
 
     fun onColorChanged(selectedColor: Color) {

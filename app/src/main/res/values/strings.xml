@@ -1116,6 +1116,7 @@
         <item quantity="other">Saving %1$d files for offline use</item>
     </plurals>
     <string name="notification_offline_download_progress_text">%1$d of %2$d saved</string>
+    <string name="notification_offline_download_waiting_for_network_text">Paused, waiting for connection · %1$d of %2$d saved</string>
     <string name="notification_offline_download_action_cancel">Cancel</string>
     <string name="notification_offline_download_complete_title">Saved for offline use</string>
     <plurals name="notification_offline_download_complete_text">

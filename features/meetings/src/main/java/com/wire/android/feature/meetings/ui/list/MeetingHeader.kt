@@ -25,20 +25,15 @@ import androidx.compose.ui.res.stringResource
 import com.wire.android.feature.meetings.R
 import com.wire.android.feature.meetings.model.MeetingHeader
 import com.wire.android.feature.meetings.ui.util.PreviewMultipleThemes
-import com.wire.android.util.rememberCurrentTimeProvider
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.rowitem.BigSectionHeader
 import com.wire.android.ui.common.rowitem.SectionHeader
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.DateAndTimeParsers
 import kotlin.time.Clock
-import kotlinx.datetime.DateTimeUnit
 import kotlin.time.Instant
 import kotlinx.datetime.TimeZone
-import kotlinx.datetime.minus
-import kotlinx.datetime.plus
 import kotlinx.datetime.toJavaZoneId
-import kotlinx.datetime.toLocalDateTime
 import kotlin.time.Duration.Companion.days
 
 @Composable
@@ -56,13 +51,13 @@ fun MeetingHeader(
             )
 
             is MeetingHeader.Day -> BigSectionHeader(
-                name = getDateHeaderString(time = header.time, displayTimeZone = displayTimeZone),
+                name = getDateHeaderString(header.time, displayTimeZone, header.relativeDay),
                 modifier = Modifier.padding(top = dimensions().spacing24x),
             )
 
             is MeetingHeader.DayAndHour -> {
                 BigSectionHeader(
-                    name = getDateHeaderString(time = header.time, displayTimeZone = displayTimeZone),
+                    name = getDateHeaderString(header.time, displayTimeZone, header.relativeDay),
                     modifier = Modifier.padding(top = dimensions().spacing8x),
                 )
                 SectionHeader(name = DateAndTimeParsers.meetingTime(instant = header.time, zoneId = displayZoneId))
@@ -74,16 +69,13 @@ fun MeetingHeader(
 }
 
 @Composable
-private fun getDateHeaderString(time: Instant, displayTimeZone: TimeZone): String {
-    val currentTime = rememberCurrentTimeProvider()
+private fun getDateHeaderString(time: Instant, displayTimeZone: TimeZone, relativeDay: MeetingHeader.RelativeDay): String {
     val dateString = DateAndTimeParsers.meetingDate(time, zoneId = displayTimeZone.toJavaZoneId())
-    val currentLocalDate = currentTime().toLocalDateTime(displayTimeZone).date
-    val localDate = time.toLocalDateTime(displayTimeZone).date
-    return when (localDate) {
-        currentLocalDate -> stringResource(R.string.meeting_date_header_today, dateString)
-        currentLocalDate.plus(1, DateTimeUnit.DAY) -> stringResource(R.string.meeting_date_header_tomorrow, dateString)
-        currentLocalDate.minus(1, DateTimeUnit.DAY) -> stringResource(R.string.meeting_date_header_yesterday, dateString)
-        else -> dateString
+    return when (relativeDay) {
+        MeetingHeader.RelativeDay.Today -> stringResource(R.string.meeting_date_header_today, dateString)
+        MeetingHeader.RelativeDay.Tomorrow -> stringResource(R.string.meeting_date_header_tomorrow, dateString)
+        MeetingHeader.RelativeDay.Yesterday -> stringResource(R.string.meeting_date_header_yesterday, dateString)
+        MeetingHeader.RelativeDay.Other -> dateString
     }
 }
 
@@ -96,25 +88,30 @@ fun PreviewMeetingHeaderOngoing() = WireTheme {
 @PreviewMultipleThemes
 @Composable
 fun PreviewMeetingHeaderToday() = WireTheme {
-    MeetingHeader(header = MeetingHeader.Day(time = Clock.System.now()))
+    MeetingHeader(header = MeetingHeader.Day(time = Clock.System.now(), relativeDay = MeetingHeader.RelativeDay.Today))
 }
 
 @PreviewMultipleThemes
 @Composable
 fun PreviewMeetingHeaderTomorrow() = WireTheme {
-    MeetingHeader(header = MeetingHeader.Day(time = Clock.System.now().plus(1.days)))
+    MeetingHeader(header = MeetingHeader.Day(time = Clock.System.now().plus(1.days), relativeDay = MeetingHeader.RelativeDay.Tomorrow))
 }
 
 @PreviewMultipleThemes
 @Composable
 fun PreviewMeetingHeaderOtherDay() = WireTheme {
-    MeetingHeader(header = MeetingHeader.Day(time = Instant.parse("2024-06-01T10:00:00Z")))
+    MeetingHeader(header = MeetingHeader.Day(time = Instant.parse("2024-06-01T10:00:00Z"), relativeDay = MeetingHeader.RelativeDay.Other))
 }
 
 @PreviewMultipleThemes
 @Composable
 fun PreviewMeetingHeaderDayAndHour() = WireTheme {
-    MeetingHeader(header = MeetingHeader.DayAndHour(time = Instant.parse("2024-06-01T10:00:00Z")))
+    MeetingHeader(
+        header = MeetingHeader.DayAndHour(
+            time = Instant.parse("2024-06-01T10:00:00Z"),
+            relativeDay = MeetingHeader.RelativeDay.Other
+        )
+    )
 }
 
 @PreviewMultipleThemes

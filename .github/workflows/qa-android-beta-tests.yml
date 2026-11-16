@@ -97,7 +97,7 @@ jobs:
   run-tests:
     uses: ./.github/workflows/qa-android-regression-tests.yml
     permissions:
-      contents: write
+      contents: read
       actions: read
     with:
       workflowTitle: QA Android Beta Regression RC
@@ -118,6 +118,8 @@ jobs:
       androidDeviceGroup: ${{ inputs.androidDeviceGroup || 'e2eTests' }}
       rerunFailedCount: ${{ inputs.rerunFailedCount || (inputs.runMode != 'Deflake failed tests' && '2' || '') }}
     secrets:
+      ANDROID_BOB_GH_TOKEN: ${{ secrets.ANDROID_BOB_GH_TOKEN }}
+      ANDROID_DEVICE_GROUPS_JSON: ${{ secrets.ANDROID_DEVICE_GROUPS_JSON }}
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}

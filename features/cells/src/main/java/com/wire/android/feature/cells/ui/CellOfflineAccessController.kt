@@ -127,8 +127,8 @@ class CellOfflineAccessController @Inject constructor(
     }
 
     private fun startDownloads(files: List<CellNodeUi.File>, isBulk: Boolean, host: CellScreenHost) {
-        val requestId = offlineDownloads.download(files.map(host.context::withConversation)) ?: return
-        requests[requestId] = isBulk
+        // Registered before any download starts: the request may settle before download() even returns.
+        offlineDownloads.download(files.map(host.context::withConversation)) { requestId -> requests[requestId] = isBulk }
     }
 
     private fun onDownloadEvent(event: OfflineDownloadEvent, host: CellScreenHost) {

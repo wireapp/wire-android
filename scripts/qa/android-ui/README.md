@@ -195,6 +195,10 @@ private report link and counts. Instrumentation output is saved to files instead
 of streamed to the public console; diagnostic and deflake artifacts are no longer
 uploaded to the public repository.
 
+Report generation and publication now belong to the internal reporting repository.
+The old `generate-allure-report` and `publish-allure-report` commands have been
+removed from `reporting.sh`, including the public `gh-pages` publishing path.
+
 Automatic retries remain grouped by logical test. The private report retains all
 attempts and attachments; the existing sanitized local merge is used only for the
 public counts and notification. Raw device serials are retained in the private
@@ -220,6 +224,9 @@ removed or rewritten automatically.
    restricted to `main`.
 3. Keep `ANDROID_BOB_GH_TOKEN` available to the Android execution jobs. The
    existing `BOT_LOGIN` and `BOT_ID` repository variables identify Git commits.
+   Reporting checkouts disable credential persistence. The handoff supplies
+   `GH_TOKEN` to Git through a command-scoped GitHub CLI credential helper for
+   the push, without saving it in Git configuration.
 4. Copy the current `ANDROID_DEVICE_GROUPS_JSON` variable value into an Actions
    secret of the same name, preferably in the existing `android-e2e` environment.
    The workflow now reads the secret so the full device list is masked in step

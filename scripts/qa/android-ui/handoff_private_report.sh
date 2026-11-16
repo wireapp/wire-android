@@ -19,7 +19,10 @@ git -C private-reports add incoming
 git -C private-reports -c "user.name=${BOT_LOGIN}" \
   -c "user.email=${BOT_ID}+${BOT_LOGIN}@users.noreply.github.com" \
   commit --quiet -m "ci: collect Android evidence ${report_id}"
-git -C private-reports push --quiet origin "reports/${report_id}"
+# Use GH_TOKEN for this push without saving credentials in Git configuration.
+git -C private-reports -c credential.helper= \
+  -c 'credential.helper=!gh auth git-credential' \
+  push --quiet origin "reports/${report_id}"
 
 run_id=$(gh api --method POST -H 'X-GitHub-Api-Version: 2022-11-28' \
   "repos/${REPORTING_REPOSITORY}/actions/workflows/publish-android-report.yml/dispatches" \

@@ -661,6 +661,7 @@ jobs:
           token: ${{ secrets.ANDROID_BOB_GH_TOKEN }}
           path: private-reports
           fetch-depth: 1
+          persist-credentials: false
 
       - name: Transfer evidence and publish private Allure report
         id: publish_allure_report
@@ -777,7 +778,6 @@ jobs:
           SKIP_DEVICE_CLEANUP: ${{ inputs.emulatorPool }}
           ALLURE_RESULTS_DIR: ${{ runner.temp }}/allure-results
           ALLURE_RESULTS_MERGED_DIR: ${{ runner.temp }}/allure-results-merged
-          ALLURE_REPORT_DIR: ${{ runner.temp }}/allure-report
         run: make qa-ui-report cmd=cleanup-workspace
 
       - name: Stop isolated Gradle daemons
@@ -858,7 +858,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: wireapp/android-e2etest-reports
-          ref: reports/${{ needs.validate-and-resolve-inputs.outputs.sourceRunId }}-${{ needs.validate-and-resolve-inputs.outputs.sourceRunAttempt }}
+          ref: refs/heads/reports/${{ needs.validate-and-resolve-inputs.outputs.sourceRunId }}-${{ needs.validate-and-resolve-inputs.outputs.sourceRunAttempt }}
           token: ${{ secrets.ANDROID_BOB_GH_TOKEN }}
           path: private-deflake-input
           sparse-checkout: incoming/deflake-input
@@ -1107,6 +1107,7 @@ jobs:
           token: ${{ secrets.ANDROID_BOB_GH_TOKEN }}
           path: private-reports
           fetch-depth: 1
+          persist-credentials: false
 
       - name: Transfer evidence and publish private Allure report
         id: publish_allure_report
@@ -1236,7 +1237,6 @@ jobs:
           SKIP_DEVICE_CLEANUP: ${{ inputs.emulatorPool }}
           ALLURE_RESULTS_DIR: ${{ runner.temp }}/allure-results
           ALLURE_RESULTS_MERGED_DIR: ${{ runner.temp }}/allure-results-merged
-          ALLURE_REPORT_DIR: ${{ runner.temp }}/allure-report
         run: make qa-ui-report cmd=cleanup-workspace
 
       - name: Stop isolated Gradle daemons

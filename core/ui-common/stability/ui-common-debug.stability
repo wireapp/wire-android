@@ -181,6 +181,13 @@ public fun com.wire.android.ui.common.MoreOptionIcon(onButtonClicked: kotlin.Fun
     - contentDescription: STABLE (primitive type)
 
 @Composable
+public fun com.wire.android.ui.common.OnboardingPendingBadge(modifier: androidx.compose.ui.Modifier): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - modifier: STABLE (marked @Stable or @Immutable)
+
+@Composable
 public fun com.wire.android.ui.common.OverlappingCirclesRow(overlapSize: androidx.compose.ui.unit.Dp, overlapCutoutSize: androidx.compose.ui.unit.Dp, overlapDirection: com.wire.android.ui.common.OverlapDirection, items: kotlin.collections.List<@[Composable] androidx.compose.runtime.internal.ComposableFunction0<kotlin.Unit>>, modifier: androidx.compose.ui.Modifier): kotlin.Unit
   skippable: true
   restartable: true

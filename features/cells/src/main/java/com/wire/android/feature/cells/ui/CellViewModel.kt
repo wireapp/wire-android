@@ -267,18 +267,21 @@ class CellViewModel @AssistedInject constructor(
         initialValue = false,
     )
 
-    // Bulk selection is only offered in a shared drive; search results, the recycle bin and All Files keep the single-item flow.
+    /** Whether the bulk actions bar offers the offline actions (make available / remove offline access). */
+    // Declared before bulkSelection, which reads it while being initialized.
+    val bulkOfflineActionsEnabled: Boolean = offlineFilesEnabled && driveOfflineEnabled
+
+    // Bulk selection is offered in a shared drive and the recycle bin, and in All Files where only the offline actions
+    // apply, so there only when those are enabled. Search results keep the single-item flow.
     private val bulkSelection = CellBulkSelection(
-        isSupported = driveBulkActionsEnabled && searchNavArgs == null && (isConversationFiles() || isRecycleBin()),
+        isSupported = driveBulkActionsEnabled && searchNavArgs == null &&
+                (isConversationFiles() || isRecycleBin() || (isAllFiles() && bulkOfflineActionsEnabled)),
         isOnline = isOnline,
         isSelfUserViewerOnly = isSelfUserViewerOnly,
         scope = viewModelScope,
     )
     internal val selectedNodes: StateFlow<Map<String, CellNodeUi>> = bulkSelection.selectedNodes
     internal val isBulkSelectionEnabled: StateFlow<Boolean> = bulkSelection.isEnabled
-
-    /** Whether the bulk actions bar offers the offline actions (make available / remove offline access). */
-    val bulkOfflineActionsEnabled: Boolean = offlineFilesEnabled && driveOfflineEnabled
 
     /** At least one selected file can be saved for offline use, see [canBeMadeAvailableOffline]. */
     internal val canMakeSelectionAvailableOffline: StateFlow<Boolean> = selectedNodes
@@ -446,6 +449,7 @@ class CellViewModel @AssistedInject constructor(
                                     downloadProgress = downloadStates.progresses.downloadProgressOf(node.uuid),
                                     isAvailableOffline = node.uuid in offlineUuids,
                                     isDownloadQueued = node.uuid in downloadStates.queued,
+                                    pausedDownloadProgress = downloadStates.paused[node.uuid],
                                 )
                             }
                         }
@@ -488,18 +492,78 @@ class CellViewModel @AssistedInject constructor(
             )
         }
 
-    internal val nodesFlow = combine(cellAvailableFlow, isOnline) { cellAvailable, online ->
-        cellAvailable to online
-    }.flatMapLatest { (cellAvailable, online) ->
+    /**
+     * Whether All Files and the shared drive offer to list only the files saved for offline use, see [isOfflineOnly].
+     * Not in search results nor in the recycle bin.
+     */
+    internal val offlineOnlyFilterEnabled: Boolean
+        get() = offlineFilesEnabled && searchNavArgs == null && (isAllFiles() || isConversationFiles())
+
+    private val _isOfflineOnly = MutableStateFlow(offlineOnlyFilterEnabled && navArgs.isOfflineOnly)
+
+    /**
+     * Lists just the files saved for offline use, like when there is no connection, without having to go offline.
+     * While offline the offline listing shows regardless.
+     */
+    internal val isOfflineOnly: StateFlow<Boolean> = _isOfflineOnly.asStateFlow()
+
+    /**
+     * Whether to offer switching to the offline listing: only when something here is saved for offline use, see
+     * [buildOfflineListing]. Kept while the offline listing is shown, so that removing the last saved file there
+     * doesn't take away the way back.
+     */
+    internal val showOfflineOnlyToggle: StateFlow<Boolean> = if (offlineOnlyFilterEnabled) {
+        combine(
+            observeOfflineFiles().map { files -> buildOfflineListing(navArgs.conversationId, files).isNotEmpty() },
+            isOfflineOnly,
+        ) { hasOfflineFiles, offlineOnly -> hasOfflineFiles || offlineOnly }
+            .stateIn(viewModelScope, SharingStarted.Eagerly, _isOfflineOnly.value)
+    } else {
+        MutableStateFlow(false).asStateFlow()
+    }
+
+    internal val nodesFlow = combine(cellAvailableFlow, isOnline, isOfflineOnly) { cellAvailable, online, offlineOnly ->
+        Triple(cellAvailable, online, offlineOnly)
+    }.flatMapLatest { (cellAvailable, online, offlineOnly) ->
         when {
             !cellAvailable -> flowOf(emptyData)
-            offlineFilesEnabled && !online -> offlineNodesFlow
+            offlineFilesEnabled && (!online || offlineOnly) -> offlineNodesFlow
             else -> sharedNodesFlow
         }
     }
 
+    /**
+     * The tip pointing at the offline toggle, shown along with it until dismissed or the toggle is first used.
+     * Waits for the bulk selection tip to be gone, so that only one tip shows at a time.
+     */
+    internal val showOfflineToggleHint: StateFlow<Boolean> = combine(
+        showOfflineOnlyToggle,
+        showBulkSelectionHint,
+        userDataStore.isOfflineToggleHintDismissed(),
+    ) { toggleShown, bulkSelectionHintShown, dismissed ->
+        toggleShown && !bulkSelectionHintShown && !dismissed
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.Eagerly,
+        initialValue = false,
+    )
+
+    internal fun onOfflineToggleHintDismissed() {
+        viewModelScope.launch { userDataStore.setOfflineToggleHintDismissed() }
+    }
+
+    internal fun setOfflineOnly(offlineOnly: Boolean) {
+        if (!offlineOnlyFilterEnabled || _isOfflineOnly.value == offlineOnly) return
+        // Once the toggle is found, the tip has nothing left to tell.
+        if (showOfflineToggleHint.value) onOfflineToggleHintDismissed()
+        // The selection was made in the other listing.
+        bulkSelection.clear()
+        _isOfflineOnly.value = offlineOnly
+    }
+
     fun onPullToRefresh() {
-        if (!isOnline.value) return
+        // The offline listing follows the local database on its own: there is nothing to refresh.
+        if (!isOnline.value || _isOfflineOnly.value) return
         _isPullToRefresh.value = true
         refreshNodes()
     }
@@ -1089,7 +1153,9 @@ class CellViewModel @AssistedInject constructor(
             isSearching = searchNavArgs?.screenType == DriveSearchScreenType.SHARED_DRIVE ||
                     searchNavArgs?.screenType == DriveSearchScreenType.DRIVE,
             isCollaboraEnabled = isCollaboraEnabled,
-            isOnline = isOnline.value,
+            // The folders of the offline listing only stand for the path of the files saved in them, there is no such
+            // node to act on: they get the menu they'd get offline.
+            isOnline = isOnline.value && !(_isOfflineOnly.value && cellNode is CellNodeUi.Folder),
         )
 
         _menu.emit(MenuOptions(cellNode, menuItems))

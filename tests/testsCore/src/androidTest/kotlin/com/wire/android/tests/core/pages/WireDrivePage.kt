@@ -21,6 +21,7 @@ import android.graphics.Point
 import android.text.format.DateFormat
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.By
+import androidx.test.uiautomator.Configurator
 import androidx.test.uiautomator.Direction
 import androidx.test.uiautomator.UiDevice
 import org.junit.Assert.assertEquals
@@ -37,6 +38,7 @@ import java.util.regex.Pattern
 import kotlin.time.Duration
 
 /** UI actions shared by Wire Drive scenarios; navigation assertions stay scoped to the current folder. */
+@Suppress("LargeClass")
 data class WireDrivePage(private val device: UiDevice) {
     private val newButton = UiSelectorParams(description = "New")
     private val createFolderOption = UiSelectorParams(text = "Create Folder")
@@ -165,6 +167,18 @@ data class WireDrivePage(private val device: UiDevice) {
     }
 
     fun createFolder(folderName: String): WireDrivePage {
+        submitNewFolder(folderName)
+        // The creation form's text field contains the same name as the new folder.
+        UiWaitUtils.waitUntilGoneOrThrow(
+            selector = By.clazz("android.widget.EditText").text(folderName),
+            timeout = UiWaitUtils.MEDIUM_TIMEOUT,
+            errorMessage = "The Create Folder form did not close for '$folderName'"
+        )
+        UiWaitUtils.waitElement(UiSelectorParams(text = folderName), timeout = UiWaitUtils.MEDIUM_TIMEOUT)
+        return this
+    }
+
+    fun submitNewFolder(folderName: String): WireDrivePage {
         UiWaitUtils.waitElement(newButton).click()
         UiWaitUtils.waitElement(createFolderOption).click()
         UiWaitUtils.waitElement(folderNameInput).text = folderName
@@ -174,7 +188,7 @@ data class WireDrivePage(private val device: UiDevice) {
         }
         if (!enabled) throw AssertionError("Create Folder button is not enabled for '$folderName'")
         device.findObject(createSelector).click()
-        return assertSharedDriveVisible()
+        return this
     }
 
     fun openFolder(folderName: String): WireDrivePage {
@@ -245,14 +259,14 @@ data class WireDrivePage(private val device: UiDevice) {
         return this
     }
 
-    fun tapCollapseButtonOnUploadStatusPanel(): WireDrivePage {
+    fun tapCollapseButtonOnUploadStatusPanel(timeout: Duration = UiWaitUtils.SHORT_WAIT): WireDrivePage {
         UiWaitUtils.waitElement(collapseButtonOnUploadStatusPanel).click()
-        UiWaitUtils.waitElement(newButton, timeout = UiWaitUtils.SHORT_WAIT)
+        UiWaitUtils.waitElement(newButton, timeout = timeout)
         return this
     }
 
-    fun assertFolderVisibleOnce(folderName: String): WireDrivePage {
-        UiWaitUtils.waitElement(UiSelectorParams(text = folderName), timeout = UiWaitUtils.STABLE_TIMEOUT)
+    fun assertFolderVisibleOnce(folderName: String, timeout: Duration = UiWaitUtils.STABLE_TIMEOUT): WireDrivePage {
+        UiWaitUtils.waitElement(UiSelectorParams(text = folderName), timeout = timeout)
         assertEquals(
             "Expected one folder named '$folderName' in the current folder",
             1,
@@ -376,9 +390,9 @@ data class WireDrivePage(private val device: UiDevice) {
         return this
     }
 
-    fun assertViewerFolderMenuActionsInSharedDrive(): WireDrivePage {
+    fun assertFolderMenuAllowsOnlyOpenInSharedDrive(): WireDrivePage {
         val open = UiWaitUtils.waitElement(UiSelectorParams(description = "Open"), timeout = UiWaitUtils.SHORT_WAIT)
-        assertTrue("Open is not clickable for a Viewer folder", open.isClickable)
+        assertTrue("Open is not clickable in the restricted folder menu", open.isClickable)
         val restrictedActions = listOf(
             "Add or Remove Tags",
             "Share via Link",
@@ -388,7 +402,7 @@ data class WireDrivePage(private val device: UiDevice) {
         )
         restrictedActions.forEach { action ->
             assertFalse(
-                "Restricted action '$action' is visible in the Viewer folder menu in Shared Drive",
+                "Restricted action '$action' is visible in the folder menu in Shared Drive",
                 device.hasObject(By.descContains(action))
             )
         }
@@ -405,6 +419,92 @@ data class WireDrivePage(private val device: UiDevice) {
 
     fun tapEditFileOptionOnDocumentMenu(): WireDrivePage {
         UiWaitUtils.waitElement(UiSelectorParams(description = "Edit file"), timeout = UiWaitUtils.SHORT_WAIT).click()
+        return this
+    }
+
+    fun assertShareOptionEnabled(): WireDrivePage {
+        val share = UiWaitUtils.waitElement(UiSelectorParams(description = "Share"), timeout = UiWaitUtils.SHORT_WAIT)
+        assertTrue("Share is not clickable for the downloaded PDF", share.isEnabled && share.isClickable)
+        return this
+    }
+
+    fun assertFileNameOnActionsMenu(fileName: String): WireDrivePage {
+        val open = UiWaitUtils.waitElement(UiSelectorParams(description = "Open"))
+        assertTrue("Filename '$fileName' is missing from its actions menu", open.parent.findObject(By.text(fileName)) != null)
+        return this
+    }
+
+    fun tapShareOption(): WireDrivePage {
+        UiWaitUtils.waitElement(UiSelectorParams(description = "Share"), timeout = UiWaitUtils.SHORT_WAIT).click()
+        return this
+    }
+
+    fun assertMakeAvailableOfflineOptionEnabled(): WireDrivePage {
+        val action = UiWaitUtils.waitElement(UiSelectorParams(description = "Make available offline"))
+        assertTrue("Make available offline is not enabled", action.isEnabled && action.isClickable)
+        return this
+    }
+
+    fun assertOfflineActionsAbsent(): WireDrivePage {
+        UiWaitUtils.waitElement(UiSelectorParams(description = "Open"))
+        listOf("Make available offline", "Remove offline access").forEach { action ->
+            assertFalse("'$action' is visible in this Shared Drive menu", device.hasObject(By.desc(action)))
+        }
+        return this
+    }
+
+    fun assertOfflineDownloadInProgress(fileName: String): WireDrivePage {
+        val configuration = Configurator.getInstance()
+        val originalIdleTimeout = configuration.waitForIdleTimeout
+        // Waiting for UI idle here can let the download finish before the test disconnects.
+        configuration.waitForIdleTimeout = 0
+        try {
+            val downloading = UiWaitUtils.retryUntilTimeout(UiWaitUtils.MEDIUM_TIMEOUT) {
+                device.hasObject(
+                    By.clickable(true).hasDescendant(By.text(fileName)).hasDescendant(By.text("Tap to cancel download"))
+                )
+            }
+            assertTrue("PDF '$fileName' did not remain in an active offline download; use an interruptible connection", downloading)
+        } finally {
+            configuration.waitForIdleTimeout = originalIdleTimeout
+        }
+        return this
+    }
+
+    fun tapMakeAvailableOfflineOption(): WireDrivePage {
+        UiWaitUtils.waitElement(UiSelectorParams(description = "Make available offline")).click()
+        return this
+    }
+
+    fun assertRemoveOfflineAccessOptionVisible(): WireDrivePage {
+        val action = UiWaitUtils.waitElement(UiSelectorParams(description = "Remove offline access"))
+        assertTrue("Remove offline access is not clickable", action.isClickable)
+        return this
+    }
+
+    fun tapRemoveOfflineAccessOption(): WireDrivePage {
+        UiWaitUtils.waitElement(UiSelectorParams(description = "Remove offline access")).click()
+        return this
+    }
+
+    fun assertOfflineBannerVisible(): WireDrivePage {
+        UiWaitUtils.waitElement(
+            UiSelectorParams(text = "You're offline and can see only saved files")
+        )
+        return this
+    }
+
+    fun assertOfflinePdfMenuAllowsOpenAndRemoveOfflineAccess(): WireDrivePage {
+        assertOpenActionEnabledOnThreeDotMenu()
+        assertRemoveOfflineAccessOptionVisible()
+        listOf("Share", "Share via Link", "Add or Remove Tags", "Move to folder", "Rename", "Delete").forEach { action ->
+            assertFalse("Server-dependent action '$action' is visible in the offline PDF three-dot menu", device.hasObject(By.desc(action)))
+        }
+        return this
+    }
+
+    fun assertCreateFolderErrorVisible(): WireDrivePage {
+        UiWaitUtils.waitElement(UiSelectorParams(text = "Unable to create folder. Please try again"))
         return this
     }
 
@@ -560,6 +660,7 @@ data class WireDrivePage(private val device: UiDevice) {
                 errorMessage = "Drive is still loading files"
             )
             val visibleFileNames = visiblePdfFileNames()
+            if (visibleFileNames.isEmpty()) return@retryUntilTimeout false
             assertEquals("Duplicate PDF entries are visible", visibleFileNames.distinct().size, visibleFileNames.size)
             val repeatedFileNames = visibleFileNames.filter { fileName ->
                 fileName in observedFileNames && fileName !in previousVisibleFileNames
@@ -586,7 +687,7 @@ data class WireDrivePage(private val device: UiDevice) {
     }
 
     fun getFirstVisiblePdfFileName(): String {
-        UiWaitUtils.waitElement(UiSelectorParams(textMatches = ".*\\.pdf"), timeout = UiWaitUtils.STABLE_TIMEOUT)
+        UiWaitUtils.waitElement(UiSelectorParams(textMatches = ".*\\.pdf"), timeout = UiWaitUtils.LONG_TIMEOUT)
         return visiblePdfFileNames().first()
     }
 
@@ -611,8 +712,18 @@ data class WireDrivePage(private val device: UiDevice) {
             .map { it.text }
     }
 
+    @Suppress("MagicNumber")
     private fun scrollFileList(direction: Direction): Boolean {
         val list = requireNotNull(device.findObject(fileList)) { "Drive file list is not visible" }
-        return list.scroll(direction, 0.5f)
+        val before = visiblePdfFileNames()
+        // Compose can omit scroll-finished events, causing scroll() to repeat gestures and skip rows.
+        val bounds = list.visibleBounds
+        val upper = Point(bounds.centerX(), bounds.top + bounds.height() / 4)
+        val lower = Point(bounds.centerX(), bounds.bottom - bounds.height() / 4)
+        // Holding the end point prevents a fling from skipping rows between observations.
+        val points = if (direction == Direction.DOWN) arrayOf(lower, upper, upper) else arrayOf(upper, lower, lower)
+        device.swipe(points, 20)
+        device.waitForIdle(UiWaitUtils.SHORT_WAIT.inWholeMilliseconds)
+        return visiblePdfFileNames() != before
     }
 }

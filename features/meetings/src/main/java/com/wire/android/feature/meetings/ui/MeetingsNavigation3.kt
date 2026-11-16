@@ -143,3 +143,6 @@ data class CreateMeetingLinkRoute(
 ) : SessionRoute {
     override val routeId: String = "meetings/link/create"
 }
+
+@Serializable
+enum class MeetingLinkMode { AfterCreation, Existing }

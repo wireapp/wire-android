@@ -111,7 +111,7 @@ jobs:
         run: make release-log/qa-skip output="${RUNNER_TEMP}/release-log-qa-skip/skip.json"
 
       - name: Upload release log skip marker
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           name: release-log-qa-skip-${{ github.run_id }}-${{ github.run_attempt }}
           path: ${{ runner.temp }}/release-log-qa-skip/skip.json
@@ -121,7 +121,7 @@ jobs:
   run-tests:
     uses: ./.github/workflows/qa-android-regression-tests.yml
     permissions:
-      contents: write
+      contents: read
       actions: read
     with:
       workflowTitle: QA Android Prod Regression RC
@@ -143,6 +143,8 @@ jobs:
       androidDeviceGroup: ${{ inputs.androidDeviceGroup || 'e2eTests' }}
       rerunFailedCount: ${{ inputs.rerunFailedCount || (inputs.runMode != 'Deflake failed tests' && '2' || '') }}
     secrets:
+      ANDROID_BOB_GH_TOKEN: ${{ secrets.ANDROID_BOB_GH_TOKEN }}
+      ANDROID_DEVICE_GROUPS_JSON: ${{ secrets.ANDROID_DEVICE_GROUPS_JSON }}
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}

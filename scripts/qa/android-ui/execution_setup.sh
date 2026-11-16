@@ -9,6 +9,8 @@ usage() {
 }
 
 ensure_required_tools() {
+  command -v git >/dev/null 2>&1 || { echo "ERROR: git is required for private reporting"; exit 1; }
+  command -v gh >/dev/null 2>&1 || { echo "ERROR: GitHub CLI (gh) is required for private reporting"; exit 1; }
   command -v adb >/dev/null 2>&1 || { echo "ERROR: adb not found"; exit 1; }
   command -v python3 >/dev/null 2>&1 || { echo "ERROR: python3 not found on this runner"; exit 1; }
 
@@ -258,7 +260,7 @@ install_apks_on_devices() {
     fi
     # Always install the selected new APK during general setup. The upgrade
     # phase explicitly reinstalls the old device-side APK before instrumentation.
-    ${adb_cmd} install -r "${NEW_APK_PATH}"
+    python3 scripts/qa/android-ui/install_apk_xiaomi.py "${serial}" "${APP_ID}" install -r "${NEW_APK_PATH}"
 
     if ! ${adb_cmd} shell pm list packages | grep -qx "package:${APP_ID}"; then
       echo "ERROR: '${APP_ID}' not installed on ${serial}."

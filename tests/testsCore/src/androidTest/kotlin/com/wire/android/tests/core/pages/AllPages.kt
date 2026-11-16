@@ -65,4 +65,6 @@ class AllPages(val device: UiDevice) {
     val importMediaPage = ImportMediaPage(device)
 
     val documentsUIPage = DocumentsUIPage(device)
+
+    val meetingsPage = MeetingsPage(device)
 }

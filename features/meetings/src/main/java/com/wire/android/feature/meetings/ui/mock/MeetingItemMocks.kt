@@ -105,6 +105,7 @@ val CurrentTimeProvider.scheduledChannelMeetingStartingSoon
         selfRole = MeetingItem.SelfRole.Creator,
         status = Status.Scheduled(
             startTime = currentTime().fullMinutes().plus(1.minutes),
+            remainingDuration = currentTime().fullMinutes().plus(1.minutes) - currentTime(),
             endTime = currentTime().fullMinutes().plus(65.minutes),
         )
     )
@@ -120,6 +121,7 @@ val CurrentTimeProvider.scheduledRepeatingGroupMeeting
         selfRole = MeetingItem.SelfRole.Creator,
         status = Status.Scheduled(
             startTime = currentTime().fullMinutes().plus(1.days).plus(60.minutes),
+            remainingDuration = currentTime().fullMinutes().plus(1.days).plus(60.minutes) - currentTime(),
             endTime = currentTime().fullMinutes().plus(1.days).plus(90.minutes),
         )
     )
@@ -202,6 +204,7 @@ val CurrentTimeProvider.pastMeetingMocks
             selfRole = MeetingItem.SelfRole.Creator,
             status = Status.Scheduled(
                 startTime = currentTime().fullMinutes().minus(3.days).minus(60.minutes),
+                remainingDuration = currentTime().fullMinutes().minus(3.days).minus(60.minutes) - currentTime(),
                 endTime = currentTime().fullMinutes().minus(3.days),
             ),
         )
@@ -223,6 +226,7 @@ val CurrentTimeProvider.nextMeetingMocks
             selfRole = MeetingItem.SelfRole.Creator,
             status = Status.Scheduled(
                 startTime = currentTime().fullMinutes().plus(2.days).minus(60.minutes),
+                remainingDuration = currentTime().fullMinutes().plus(2.days).minus(60.minutes) - currentTime(),
                 endTime = currentTime().fullMinutes().plus(2.days).minus(30.minutes),
             ),
         ),
@@ -236,6 +240,7 @@ val CurrentTimeProvider.nextMeetingMocks
             selfRole = MeetingItem.SelfRole.Creator,
             status = Status.Scheduled(
                 startTime = currentTime().fullMinutes().plus(2.days).minus(60.minutes),
+                remainingDuration = currentTime().fullMinutes().plus(2.days).minus(60.minutes) - currentTime(),
                 endTime = currentTime().fullMinutes().plus(2.days),
             ),
         ),
@@ -249,6 +254,7 @@ val CurrentTimeProvider.nextMeetingMocks
             selfRole = MeetingItem.SelfRole.Creator,
             status = Status.Scheduled(
                 startTime = currentTime().fullMinutes().plus(3.days).minus(60.minutes),
+                remainingDuration = currentTime().fullMinutes().plus(3.days).minus(60.minutes) - currentTime(),
                 endTime = currentTime().fullMinutes().plus(3.days),
             ),
         )

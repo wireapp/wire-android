@@ -20,14 +20,14 @@ package com.wire.android.feature.meetings.ui.options
 import com.wire.android.feature.meetings.model.MeetingLink
 import com.wire.android.feature.meetings.ui.link.MeetingLinkState
 import com.wire.android.feature.meetings.ui.link.MeetingLinkViewModelImpl
-import com.wire.kalium.logic.data.meeting.Meeting
 import com.wire.kalium.logic.data.id.MeetingId
+import com.wire.kalium.logic.data.meeting.Meeting
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.meeting.ObserveMeetingUseCase
 import io.mockk.MockKAnnotations
-import io.mockk.impl.annotations.MockK
 import io.mockk.coEvery
 import io.mockk.every
+import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi

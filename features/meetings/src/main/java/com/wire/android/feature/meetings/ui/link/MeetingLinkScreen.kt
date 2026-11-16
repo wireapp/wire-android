@@ -43,6 +43,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.DpSize
 import com.wire.android.feature.meetings.R
 import com.wire.android.feature.meetings.model.MeetingLink
 import com.wire.android.feature.meetings.ui.MeetingLinkMode
@@ -69,18 +70,18 @@ internal fun MeetingLinkScreen(
     meetingId: MeetingId,
     mode: MeetingLinkMode,
     onBack: () -> Unit,
+    onCreateNewLink: () -> Unit,
     viewModel: MeetingLinkViewModel = meetingLinkViewModel(meetingId),
 ) {
     when (val state = viewModel.state) {
         MeetingLinkState.Loading -> Unit
         MeetingLinkState.NotAvailable -> LaunchedEffect(state) { onBack() }
-        is MeetingLinkState.Ready -> {
-            MeetingLinkContent(
-                meetingLink = state.meetingLink,
-                onDismiss = onBack,
-                isCreationConfirmation = mode == MeetingLinkMode.AfterCreation,
-            )
-        }
+        is MeetingLinkState.Ready -> MeetingLinkContent(
+            meetingLink = state.meetingLink,
+            onDismiss = onBack,
+            onRotate = onCreateNewLink,
+            isCreationConfirmation = mode == MeetingLinkMode.AfterCreation,
+        )
     }
 }
 
@@ -90,6 +91,7 @@ internal fun MeetingLinkContent(
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier,
     isCreationConfirmation: Boolean = false,
+    onRotate: () -> Unit = {},
 ) {
     val link = meetingLink.url
     val scrollState = rememberScrollState()
@@ -143,6 +145,21 @@ internal fun MeetingLinkContent(
                 style = typography().body01
             )
             MeetingLinkSurface(link = link)
+            if (!isCreationConfirmation) {
+                WireSecondaryButton(
+                    text = stringResource(R.string.meeting_link_rotate),
+                    onClick = onRotate,
+                    fillMaxWidth = false,
+                    minSize = DpSize(dimensions().spacing32x, dimensions().spacing16x),
+                    leadingIcon = {
+                        Icon(
+                            painter = painterResource(CommonR.drawable.ic_refresh),
+                            contentDescription = null,
+                            modifier = Modifier.padding(end = dimensions().spacing4x),
+                        )
+                    },
+                )
+            }
             if (!isCreationConfirmation && !link.isNullOrBlank()) {
                 Text(
                     text = stringResource(

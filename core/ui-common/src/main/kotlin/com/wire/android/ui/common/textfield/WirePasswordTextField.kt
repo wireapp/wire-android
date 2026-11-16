@@ -86,7 +86,8 @@ fun WirePasswordTextField(
     shape: Shape = RoundedCornerShape(MaterialTheme.wireDimensions.textFieldCornerSize),
     colors: WireTextFieldColors = wireTextFieldColors(),
     onTap: (() -> Unit)? = null,
-    testTag: String = String.EMPTY
+    testTag: String = String.EMPTY,
+    readOnly: Boolean = false,
 ) {
     val autoFillType = if (autoFill) WireAutoFillType.Password else WireAutoFillType.None
     var passwordVisibility by remember { mutableStateOf(false) }
@@ -105,7 +106,7 @@ fun WirePasswordTextField(
         shape = shape,
         colors = colors,
         trailingIcon = { VisibilityIconButton(passwordVisibility) { passwordVisibility = it } },
-        modifier = modifier.then(autoFillModifier(autoFillType, textState::setTextAndPlaceCursorAtEnd)),
+        modifier = modifier.then(autoFillModifier(autoFillType) { if (!readOnly) textState.setTextAndPlaceCursorAtEnd(it) }),
         testTag = testTag,
         onTap = onTap,
         innerBasicTextField = { decorator, textFieldModifier ->
@@ -117,6 +118,7 @@ fun WirePasswordTextField(
                 inputTransformation = inputTransformation,
                 textObfuscationMode = if (passwordVisibility) TextObfuscationMode.Visible else TextObfuscationMode.RevealLastTyped,
                 enabled = state !is WireTextFieldState.Disabled,
+                readOnly = readOnly,
                 cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
                 interactionSource = interactionSource,
                 modifier = textFieldModifier,

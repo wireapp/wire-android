@@ -133,9 +133,6 @@ data class MeetingLinkRoute(
 }
 
 @Serializable
-enum class MeetingLinkMode { AfterCreation, Existing }
-
-@Serializable
 data class CreateMeetingLinkRoute(
     override val sessionId: WireSessionId,
     val meetingId: MeetingId,

@@ -49,13 +49,19 @@ object CustomTabsHelper {
             val customTabsIntent = buildCustomTabIntent(context)
             customTabsIntent.launchUrl(context, uri)
         } catch (exception: ActivityNotFoundException) {
-            AppJsonStyledLogger.log(
-                level = KaliumLogLevel.ERROR,
-                leadingMessage = "CustomTabsHelper",
-                jsonStringKeyValues = mapOf("targetURI" to uri),
-                error = exception
-            )
+            logLaunchFailure(uri, exception)
+        } catch (exception: SecurityException) {
+            logLaunchFailure(uri, exception)
         }
+    }
+
+    private fun logLaunchFailure(uri: Uri, exception: RuntimeException) {
+        AppJsonStyledLogger.log(
+            level = KaliumLogLevel.ERROR,
+            leadingMessage = "CustomTabsHelper",
+            jsonStringKeyValues = mapOf("targetURI" to uri),
+            error = exception
+        )
     }
 
     fun resolveUrl(url: String): String? =

@@ -47,6 +47,25 @@ internal class BulkOfflineDownloadQueue(
     private val pending = ArrayDeque<QueuedOfflineDownload>()
     private var runningCount = 0
     private var isLargeFileRunning = false
+    private var isOnline = true
+
+    /** Nothing starts while offline; going back online starts what is waiting, paused downloads first. */
+    @Synchronized
+    fun setOnline(online: Boolean) {
+        if (isOnline == online) return
+        isOnline = online
+        if (online) startNextDownloads()
+    }
+
+    /**
+     * Puts back [download], whose download the lost connection interrupted, at the head of the queue: it already had
+     * its turn. Call it before letting its slot go, with the queue offline, or it would start again right away.
+     */
+    @Synchronized
+    fun requeuePaused(download: QueuedOfflineDownload) {
+        pathCache.pauseDownload(download.file.uuid)
+        pending.addFirst(download)
+    }
 
     /**
      * Adds [downloads] to the queue: large files go after the large files already waiting but before every small one,
@@ -73,6 +92,7 @@ internal class BulkOfflineDownloadQueue(
         val download = pending.firstOrNull { it.file.uuid == uuid } ?: return false
         pending.remove(download)
         pathCache.clearDownloadsQueued(listOf(uuid))
+        pathCache.clearDownloadsPaused(listOf(uuid))
         download.onCancelled()
         // A cancelled large file at the head of the queue may have been holding the others back.
         startNextDownloads()
@@ -85,12 +105,13 @@ internal class BulkOfflineDownloadQueue(
         val cancelled = pending.toList()
         pending.clear()
         pathCache.clearDownloadsQueued(cancelled.map { it.file.uuid })
+        pathCache.clearDownloadsPaused(cancelled.map { it.file.uuid })
         cancelled.forEach { it.onCancelled() }
     }
 
     @Synchronized
     private fun startNextDownloads() {
-        while (pending.isNotEmpty()) {
+        while (isOnline && pending.isNotEmpty()) {
             val next = pending.first()
             val canStart = if (next.file.isLarge()) {
                 runningCount == 0
@@ -105,6 +126,7 @@ internal class BulkOfflineDownloadQueue(
             startDownload(next, onSettled(next.file))
             // Only now: the download flagged the file as downloading, so it never shows up as idle in between.
             pathCache.clearDownloadsQueued(listOf(next.file.uuid))
+            pathCache.clearDownloadsPaused(listOf(next.file.uuid))
         }
     }
 

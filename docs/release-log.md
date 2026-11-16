@@ -54,7 +54,7 @@ Each gap also has a detail, and some gaps are notes with no item, such as a drop
 
 ## Manual and branch runs of a release workflow are skipped
 
-Only a run that a tag push started (Beta) or a `release` event started (Production) is a release run. The reporter checks the event and the run's `head_branch`. A manual run, or a run from a branch, is not reported, even if the branch is named like a tag. This stops a user with write access from forging an entry with a modified workflow. A skipped run writes no payload, logs `Release log: run <id> is not a release run, nothing to report`, and ends green.
+Only a run that a tag push started (Beta) or a `release` event started (Production) is a release run. The reporter checks the event and the run's `head_branch`. A manual run, or a run from a branch, is not reported, even if the branch is named like a tag. This stops a user with write access from forging an entry with a modified workflow. A build from a branch that has no export steps is skipped too. Its run has no `Export release log context` job and uploaded no `release-log-*` artifact in any attempt. A run whose export job ran and left no evidence is not skipped, and it shows the gap. A skipped run writes no payload, logs `Release log: run <id> has nothing to report`, and ends green.
 
 A regression run of `qa-android-prod-tests.yml` is a release run only when a person dispatched it (`workflow_dispatch`) from the default branch or from a `release/*` branch. A scheduled run, a push, or a dispatch from any other branch is skipped the same way, before the reporter reads any artifact. The reporter reads the default branch from one repository call. A deflake source run must pass the same check. A production build record counts only when its own run was a `release` event on a version tag.
 
@@ -141,4 +141,4 @@ The summary holds the fields, then the gap details.
 ## Limits
 
 - Two first entries for one new version within seconds can create a second page with a numbered title. Releases produce entries minutes or days apart.
-- A branch cut before this change has no export steps. Its runs show a gap and no APK digest.
+- A branch cut before this change has no export steps. The reporter skips its runs and logs that there is nothing to report.

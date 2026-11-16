@@ -15,6 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
+@file:Suppress("TooManyFunctions")
 package com.wire.android.ui.home.conversations.messages.item
 
 import android.annotation.SuppressLint
@@ -397,6 +398,17 @@ internal fun Modifier.customizeMessageBackground(
     }
 
     return this.drawBehind { drawRect(backgroundColorAnimation.value) }
+}
+
+/**
+ * Draws a [color] tint behind the content, its alpha scaled by [intensity] (0..1).
+ * [intensity] is read in the draw phase, so animating it only redraws.
+ */
+internal fun Modifier.replyHighlight(color: Color, intensity: () -> Float): Modifier = drawBehind {
+    val currentIntensity = intensity()
+    if (currentIntensity > 0f) {
+        drawRect(color.copy(alpha = color.alpha * currentIntensity))
+    }
 }
 
 @Composable

@@ -119,7 +119,7 @@ internal enum class CellBulkAction(
     MakeAvailableOffline(R.drawable.ic_arrow_down_circle, R.string.cells_bulk_action_offline, R.string.make_available_offline_label),
     RemoveOfflineAccess(
         R.drawable.ic_arrow_down_circle_off,
-        R.string.cells_bulk_action_remove_offline,
+        R.string.cells_bulk_action_offline,
         R.string.remove_offline_access_label,
     ),
 

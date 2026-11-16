@@ -55,6 +55,7 @@ def validate_run_metadata(
 
     return {
         "sourceRunId": run_id,
+        "sourceRunAttempt": str(data.get("run_attempt") or 1),
         "sourceRepository": repository,
         "sourceWorkflowFile": workflow_file,
         "sourceHeadSha": head_sha,

@@ -17,5 +17,8 @@
   ~ along with this program. If not, see http://www.gnu.org/licenses/.
   -->
 <resources>
+    <string name="tap_to_cancel_queued_download">في انتظار التنزيل. انقر للإلغاء</string>
     <!-- Badge marking a newly released feature, not the "create new" action of cells_new_label -->
+    <string name="cells_bulk_offline_confirmation_button">تحميل</string>
+    <string name="cells_bulk_offline_not_enough_storage_title">لا توجد مساحة تخزين كافية</string>
 </resources>

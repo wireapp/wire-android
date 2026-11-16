@@ -159,6 +159,8 @@ enum class FeatureConfigs(val value: String, val configType: ConfigType) {
 
     PENDING_MESSAGES("pending_messages", ConfigType.BOOLEAN),
 
+    PENDING_CONNECTIONS("pending_connections", ConfigType.BOOLEAN),
+
     LINK_PREVIEW_ENABLED("link_preview_enabled", ConfigType.BOOLEAN),
 
     DRIVE_PERMISSIONS_ENABLED("drive_permissions_enabled", ConfigType.BOOLEAN),
@@ -178,4 +180,6 @@ enum class FeatureConfigs(val value: String, val configType: ConfigType) {
      * Disabled by default until all clients support receiving it.
      */
     EVERYONE_MENTION_ENABLED("everyone_mention_enabled", ConfigType.BOOLEAN),
+
+    MULTI_FACTOR_AUTHENTICATION_ENABLED("multi_factor_authentication_enabled", ConfigType.BOOLEAN),
 }

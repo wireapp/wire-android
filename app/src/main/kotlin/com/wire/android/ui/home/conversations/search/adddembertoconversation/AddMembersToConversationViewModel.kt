@@ -23,11 +23,15 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wire.android.ui.home.conversations.search.AddMembersSearchNavArgs
+import com.wire.android.di.metro.WireAssistedViewModelBinding
 import com.wire.android.model.Contact
+import com.wire.android.ui.home.conversations.ConversationSearchFolderManualViewModelFactoryGroup
+import com.wire.android.ui.home.conversations.search.AddMembersSearchNavArgs
 import com.wire.android.util.dispatchers.DispatcherProvider
+import com.wire.kalium.logic.data.user.ContactStatus
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.conversation.AddMemberToConversationUseCase
+import com.wire.kalium.logic.featureFlags.KaliumConfigs
 import dev.zacsweers.metro.Assisted
 import dev.zacsweers.metro.AssistedFactory
 import dev.zacsweers.metro.AssistedInject
@@ -36,14 +40,13 @@ import kotlinx.collections.immutable.persistentSetOf
 import kotlinx.collections.immutable.toImmutableSet
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import com.wire.android.di.metro.WireAssistedViewModelBinding
-import com.wire.android.ui.home.conversations.ConversationSearchFolderManualViewModelFactoryGroup
 
 @WireAssistedViewModelBinding(ConversationSearchFolderManualViewModelFactoryGroup::class)
 class AddMembersToConversationViewModel @AssistedInject constructor(
     private val addMemberToConversation: AddMemberToConversationUseCase,
     private val dispatchers: DispatcherProvider,
     @Assisted private val addMembersSearchNavArgs: AddMembersSearchNavArgs,
+    private val kaliumConfigs: KaliumConfigs,
 ) : ViewModel() {
     @AssistedFactory
     interface Factory {
@@ -66,9 +69,32 @@ class AddMembersToConversationViewModel @AssistedInject constructor(
         }
     }
 
+    private var contactStatuses: Map<UserId, ContactStatus?> = emptyMap()
+
+    fun updateContactStatuses(statuses: Map<UserId, ContactStatus?>) {
+        contactStatuses = if (kaliumConfigs.pendingConnections) statuses else emptyMap()
+        newGroupState = newGroupState.copy(
+            selectedContacts = newGroupState.selectedContacts.map { contact ->
+                contact.copy(contactStatus = contactStatuses[UserId(contact.id, contact.domain)])
+            }.toImmutableSet()
+        )
+    }
+
     fun updateSelectedContacts(selected: Boolean, contact: Contact) {
+        val userId = UserId(contact.id, contact.domain)
+        val status = if (kaliumConfigs.pendingConnections) {
+            if (contactStatuses.containsKey(userId)) contactStatuses[userId] else contact.contactStatus
+        } else {
+            null
+        }
+        if (selected && status == ContactStatus.NON_CONTACTABLE) return
         newGroupState = if (selected) {
-            newGroupState.copy(selectedContacts = (newGroupState.selectedContacts + contact).toImmutableSet())
+            newGroupState.copy(
+                selectedContacts = newGroupState.selectedContacts
+                    .filterNot { it.id == contact.id && it.domain == contact.domain }
+                    .plus(contact.copy(contactStatus = status))
+                    .toImmutableSet()
+            )
         } else {
             newGroupState.copy(
                 selectedContacts = newGroupState.selectedContacts.filterNot {

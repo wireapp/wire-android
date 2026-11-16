@@ -140,7 +140,7 @@
     <string name="meeting_share_link_unavailable">Ссылка на встречу недоступна.</string>
     <string name="meeting_share_copy_link">Скопировать ссылку</string>
     <string name="meeting_share_link_copied">Ссылка скопирована в буфер обмена</string>
-    <string name="new_meeting_password_input_label">Пароль (необязательно)</string>
+    <string name="new_meeting_password_input_label">Необязательно: задать пароль ссылки на встречу</string>
     <string name="new_meeting_password_input_placeholder">Введите пароль</string>
     <string name="new_meeting_password_description">Обязательно сообщите пароль своим гостям.</string>
     <string name="new_meeting_password_error">Используйте как минимум 8 символов, включая одну строчную букву, одну заглавную букву, цифру и специальный символ.</string>

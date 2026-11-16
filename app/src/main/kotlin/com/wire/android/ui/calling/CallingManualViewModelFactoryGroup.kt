@@ -34,6 +34,7 @@ import com.wire.android.ui.home.conversationslist.ConversationListCallViewModelP
 import com.wire.android.ui.home.conversationslist.model.ConversationsSource
 import com.wire.android.ui.home.meetings.MeetingsCallViewModel
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.id.MeetingId
 
 @WireAssistedViewModelFactoryGroup
 object CallingManualViewModelFactoryGroup
@@ -55,11 +56,14 @@ fun outgoingCallViewModel(conversationId: ConversationId): OutgoingCallViewModel
     }
 
 @Composable
-fun ongoingCallViewModel(conversationId: ConversationId): OngoingCallViewModel =
+fun ongoingCallViewModel(
+    conversationId: ConversationId,
+    createdMeetingId: MeetingId? = null,
+): OngoingCallViewModel =
     wireAssistedMetroViewModel<OngoingCallViewModel, CallingManualViewModelFactory>(
         instanceKey = "ongoing_$conversationId",
     ) { _ ->
-        ongoingCallViewModel(conversationId)
+        ongoingCallViewModel(conversationId, createdMeetingId)
     }
 
 @Composable

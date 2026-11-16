@@ -51,6 +51,8 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import okio.Path.Companion.toPath
 import java.io.File
 import java.io.IOException
@@ -76,6 +78,10 @@ class RecordAudioViewModel @Inject constructor(
         private set
 
     private var hasOngoingCall: Boolean = false
+
+    // stopRecording can be triggered several times at once (e.g. ON_STOP and going to background),
+    // so stopping and releasing the recorder must not run concurrently
+    private val stopRecorderMutex = Mutex()
 
     private val infoMessage = MutableSharedFlow<UIText>()
 
@@ -187,12 +193,14 @@ class RecordAudioViewModel @Inject constructor(
     fun stopRecording() {
         audioFocusHelper.abandonExclusive()
         viewModelScope.launch(dispatchers.default()) {
-            if (state.buttonState == RecordAudioButtonState.RECORDING) {
-                appLogger.i("[$tag] -> Stopping audioMediaRecorder")
-                audioMediaRecorder.stop()
+            stopRecorderMutex.withLock {
+                if (state.buttonState == RecordAudioButtonState.RECORDING) {
+                    appLogger.i("[$tag] -> Stopping audioMediaRecorder")
+                    audioMediaRecorder.stop()
+                }
+                appLogger.i("[$tag] -> Releasing audioMediaRecorder")
+                audioMediaRecorder.release()
             }
-            appLogger.i("[$tag] -> Releasing audioMediaRecorder")
-            audioMediaRecorder.release()
 
             if (state.originalOutputFile != null) {
                 state = state.copy(

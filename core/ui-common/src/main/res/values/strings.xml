@@ -107,6 +107,7 @@
     <string name="generate_password_button_text">Generate Password</string>
     <string name="label_ok">Ok</string>
     <string name="label_cancel">Cancel</string>
+    <string name="label_close">Close</string>
     <string name="label_no_selected_date">No selected date</string>
     <string name="content_description_check">Check mark</string>
     <string name="content_description_open_user_profile_label">open profile</string>
@@ -173,4 +174,6 @@
     <string name="app_permission_dialog_settings_negative_button">Not Now</string>
     <string name="copy_password_button_text">Copy password</string>
     <string name="password_copied">Password copied to clipboard</string>
+    <string name="onboarding_pending">Onboarding pending</string>
+    <string name="onboarding_pending_description">You can start a conversation with this team member once they are fully onboarded.</string>
 </resources>

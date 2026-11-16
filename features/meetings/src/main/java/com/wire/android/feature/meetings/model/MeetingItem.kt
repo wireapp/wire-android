@@ -85,6 +85,7 @@ data class MeetingItem(
         data class Scheduled(
             override val startTime: Instant, // scheduled start time
             override val endTime: Instant, // scheduled end time
+            val remainingDuration: Duration,
         ) : Status
 
         data class Ongoing(
@@ -111,5 +112,7 @@ data class MeetingItem(
     @Stable
     enum class SelfRole { Creator, Member }
 }
+
+data class MeetingLink(val url: String?, val hasPassword: Boolean = false)
 
 private const val GROUPLESS_AVATARS_LIMIT = 5

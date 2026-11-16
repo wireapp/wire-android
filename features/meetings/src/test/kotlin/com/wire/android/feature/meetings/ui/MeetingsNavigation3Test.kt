@@ -11,6 +11,7 @@
 package com.wire.android.feature.meetings.ui
 
 import com.wire.android.feature.meetings.ui.create.NewMeetingType
+import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.MeetingId
 import com.wire.navigation.WireSessionId
 import kotlinx.serialization.json.Json
@@ -66,11 +67,27 @@ internal class MeetingsNavigation3Test {
     }
 
     @Test
-    fun `given sharing route, when restored, then session and occurrence identity survive`() {
-        val route = ShareMeetingWithGuestsRoute(Session, "occurrence-id")
-        val restored = Json.decodeFromString<ShareMeetingWithGuestsRoute>(Json.encodeToString(route))
-        assertEquals(route, restored)
-        assertNotEquals(route.entryId, ShareMeetingWithGuestsRoute(Session, "occurrence-id").entryId)
+    fun `meeting link route preserves identity and presentation mode when restored`() {
+        val meetingId = MeetingId("meeting", "wire.test")
+        MeetingLinkMode.entries.forEach { mode ->
+            val route = MeetingLinkRoute(Session, meetingId, mode)
+            val restored = Json.decodeFromString<MeetingLinkRoute>(Json.encodeToString(route))
+            assertEquals(route, restored)
+            assertNotEquals(route.entryId, MeetingLinkRoute(Session, meetingId, mode).entryId)
+        }
+    }
+
+    @Test
+    fun `each meeting outcome preserves its type and required identifiers during serialization`() {
+        val meetingId = MeetingId("created-meeting", "wire.test")
+        val outcomes = listOf(
+            NewMeetingResult.Scheduled(meetingId),
+            NewMeetingResult.MeetNow(meetingId, ConversationId("conversation", "wire.test")),
+            NewMeetingResult.Updated,
+        )
+        outcomes.forEach { result ->
+            assertEquals(result, Json.decodeFromString<NewMeetingResult>(Json.encodeToString<NewMeetingResult>(result)))
+        }
     }
 
     private companion object {

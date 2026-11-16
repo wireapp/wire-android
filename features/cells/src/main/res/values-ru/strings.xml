@@ -54,6 +54,8 @@
     <string name="cancel">Отмена</string>
     <string name="confirm_delete_file_title">Удалить файл</string>
     <string name="confirm_delete_folder_title">Удалить папку</string>
+    <string name="confirm_delete_file_text">Файл %1$s будет перемещен в корзину.</string>
+    <string name="confirm_delete_folder_text">Папка%1$s со всеми файлами и подпапками переместится в корзину.</string>
     <string name="confirm_permanent_delete_file_text">Это навсегда удалит файл %1$s для всех участников.</string>
     <string name="confirm_permanent_delete_folder_text">Это навсегда удалит папку %1$s для всех участников.</string>
     <string name="reload">Перезагрузить</string>
@@ -62,6 +64,8 @@
     <string name="error_create_public_link">Не удается создать общедоступную ссылку.</string>
     <string name="cell_files_download_failure_message">Загрузка не удалась.</string>
     <string name="no_space_left_error">Недостаточно места для загрузки файла.</string>
+    <string name="download_no_network_error">Загрузка остановлена, поскольку вы оффлайн.</string>
+    <string name="tap_to_cancel_paused_download">Ожидание подключения. Нажмите, чтобы отменить</string>
     <string name="cells_upload_preparation_failed">Не удалось загрузить выбранные файлы.</string>
     <string name="cells_upload_preparation_partially_failed">Некоторые файлы не могут быть загружены.</string>
     <string name="download_file_message">Этот файл еще не скачан. Скачать сейчас?</string>
@@ -113,6 +117,7 @@
     <string name="loading_files">Загрузка файлов…</string>
     <string name="tap_to_cancel_loading">Нажмите, чтобы отменить загрузку</string>
     <string name="tap_to_cancel_download">Нажмите, чтобы отменить загрузку</string>
+    <string name="tap_to_cancel_queued_download">Ожидание загрузки. Нажмите, чтобы отменить</string>
     <string name="unable_to_load_retry">Не удалось загрузить, повторите попытку</string>
     <string name="ready_to_open">Готов к открытию</string>
     <string name="cancel_loading_label">Отменить загрузку…</string>
@@ -121,6 +126,7 @@
     <string name="remove_offline_access_label">Удалить оффлайн доступ</string>
     <string name="viewer_access_label">Доступ для просмотра</string>
     <string name="viewer_access_disabled_content_description">%1$s, отключено в доступе для просмотра</string>
+    <string name="cell_item_name_viewer_access_content_description">%1$s, доступ для просмотра</string>
     <string name="offline_file_saved_message">Файл сохранен для использования оффлайн</string>
     <string name="offline_banner_message">Вы не в сети и можете видеть только сохраненные файлы</string>
     <string name="file_open_snackbar_message">\"%1$s\" готов к открытию</string>
@@ -153,6 +159,7 @@
     <string name="cells_move_failure_dialog_message_many">При перемещении элементов что-то пошло не так. Возможно, некоторые из них были перемещены, поэтому перед повторной попыткой проверьте обе папки.</string>
     <string name="cells_move_failure_dialog_message_many_no_network">При перемещении элементов было прервано соединение. Возможно, некоторые из них были перемещены, поэтому перед повторной попыткой проверьте обе папки.</string>
     <string name="content_description_conversation_files_more_button">Открыть параметры файлов</string>
+    <string name="content_description_cell_item_more_button">Дополнительные параметры для %1$s</string>
     <string name="recycle_bin">Корзина</string>
     <string name="open_recycle_bin">Открыть корзину</string>
     <string name="empty_recycle_bin">Здесь вы найдете все удаленные файлы и папки.</string>
@@ -366,6 +373,18 @@
         <item quantity="many">Удалить %1$d элементов</item>
         <item quantity="other">Удалить %1$d элемента</item>
     </plurals>
+    <plurals name="cells_bulk_delete_confirmation_message">
+        <item quantity="one">%1$d элемент будет перемещен в корзину.</item>
+        <item quantity="few">%1$d элемента будут перемещены в корзину.</item>
+        <item quantity="many">%1$d элементов будут перемещены в корзину.</item>
+        <item quantity="other">%1$d элемента будут перемещены в корзину.</item>
+    </plurals>
+    <plurals name="cells_bulk_delete_confirmation_message_with_folders">
+        <item quantity="one">Папка %1$d, включая все файлы и вложенные папки будет перемещена в корзину.</item>
+        <item quantity="few">Эти %1$d элемента, включая все файлы и вложенные папки будут перемещены в корзину.</item>
+        <item quantity="many">Эти %1$d элементов, включая все файлы и вложенные папки будут перемещены в корзину.</item>
+        <item quantity="other">Эти %1$d элемента, включая все файлы и вложенные папки будут перемещены в корзину.</item>
+    </plurals>
     <plurals name="cells_bulk_delete_success">
         <item quantity="one">%1$d элемент был перемещен в корзину</item>
         <item quantity="few">%1$d элемента были перемещены в корзину</item>
@@ -393,7 +412,91 @@
     <string name="cells_bulk_delete_failure_title_one">Элемент не удален</string>
     <string name="cells_bulk_delete_failure_title_many">Элементы не удалены</string>
     <string name="cells_bulk_delete_failure_message_one">Что-то пошло не так при удалении элемента. Повторите попытку.</string>
+    <string name="cells_bulk_delete_failure_message_one_no_network">Не удалось удалить элемент, поскольку вы не подключены к интернету. Проверьте подключение к интернету и повторите попытку.</string>
     <string name="cells_bulk_delete_failure_message_many">При удалении элементов что-то пошло не так. Возможно, некоторые из них были перемещены в корзину, поэтому перед повторной попыткой проверьте оба.</string>
+    <string name="cells_bulk_delete_failure_message_many_no_network">Во время удаления элементов вы были не в сети. Пожалуйста, проверьте, все ли элементы были перемещены в корзину.</string>
+    <string name="cells_bulk_permanent_delete_failure_message_many">Во время удаления элементов что-то пошло не так. Пожалуйста, проверьте, все ли элементы были перемещены в корзину.</string>
     <string name="cells_bulk_permanent_delete_failure_message_many_no_network">Во время удаления элементов произошел сбой соединения. Некоторые из них, возможно, были удалены без возможности восстановления, поэтому перед повторной попыткой проверьте корзину.</string>
     <string name="cells_bulk_action_offline">Оффлайн</string>
+    <string name="cells_item_no_longer_available">Этот элемент больше не доступен. Возможно, он был удален или перемещен.</string>
+    <string name="cells_empty_recycle_bin_content_description">Очистить корзину</string>
+    <string name="cells_empty_recycle_bin_confirmation_title">Очистить корзину?</string>
+    <string name="cells_empty_recycle_bin_confirmation_message">Все сообщения из корзины этой беседы будут окончательно удалены для всех участников. Это действие нельзя отменить.</string>
+    <string name="cells_empty_recycle_bin_confirm">Пусто</string>
+    <string name="cells_empty_recycle_bin_success">Корзина очищена</string>
+    <string name="cells_empty_recycle_bin_failure_title">Корзина не очищена</string>
+    <string name="cells_empty_recycle_bin_failure_message">При очистке корзины произошла ошибка. Некоторые из элементов, возможно, были удалены без возможности восстановления, поэтому перед повторной попыткой проверьте корзину.</string>
+    <string name="cells_empty_recycle_bin_failure_message_no_network">При очистке корзины было потеряно подключение. Некоторые из элементов, возможно, были удалены без возможности восстановления, поэтому перед повторной попыткой проверьте корзину.</string>
+    <plurals name="cells_bulk_offline_confirmation_title">
+        <item quantity="one">Сделать %1$d файл доступным оффлайн?</item>
+        <item quantity="few">Сделать %1$d файла доступными оффлайн?</item>
+        <item quantity="many">Сделать %1$d файлов доступными оффлайн?</item>
+        <item quantity="other">Сделать %1$d файла доступными оффлайн?</item>
+    </plurals>
+    <plurals name="cells_bulk_offline_confirmation_message_with_size">
+        <item quantity="one">Файл (%1$s) будет загружен на это устройство, чтобы вы могли открыть его без подключения к сети.</item>
+        <item quantity="few">Эти файлы (всего %1$s) будут загружены на это устройство, чтобы вы могли открывать их без подключения к сети.</item>
+        <item quantity="many">Эти файлы (всего %1$s) будут загружены на это устройство, чтобы вы могли открывать их без подключения к сети.</item>
+        <item quantity="other">Эти файлы (всего %1$s) будут загружены на это устройство, чтобы вы могли открывать их без подключения к сети.</item>
+    </plurals>
+    <plurals name="cells_bulk_offline_confirmation_message">
+        <item quantity="one">Файл будет загружен на это устройство, чтобы вы могли открыть его без подключения к сети.</item>
+        <item quantity="few">Эти файлы будут загружены на это устройство, чтобы вы могли открывать их без подключения к сети.</item>
+        <item quantity="many">Эти файлы будут загружены на это устройство, чтобы вы могли открывать их без подключения к сети.</item>
+        <item quantity="other">Эти файлы будут загружены на это устройство, чтобы вы могли открывать их без подключения к сети.</item>
+    </plurals>
+    <plurals name="cells_bulk_offline_confirmation_skipped">
+        <item quantity="one">%1$d выбранный элемент нельзя сделать доступным офлайн и будет будет пропущен.</item>
+        <item quantity="few">%1$d выбранных элемента не могут быть доступны оффлайн и будут пропущены.</item>
+        <item quantity="many">%1$d выбранных элементов не могут быть доступны оффлайн и будут пропущены.</item>
+        <item quantity="other">%1$d выбранных элемента не могут быть доступны оффлайн и будут пропущены.</item>
+    </plurals>
+    <string name="cells_bulk_offline_confirmation_button">Скачать</string>
+    <string name="cells_bulk_offline_not_enough_storage_title">Недостаточно места</string>
+    <string name="cells_bulk_offline_not_enough_storage_message">Для этих файлов требуется %1$s, но на этом устройстве доступно только %2$s. Освободите место или выберите меньшее количество файлов, а затем попробуйте снова.</string>
+    <plurals name="cells_bulk_offline_ran_out_of_storage_message">
+        <item quantity="one">На вашем устройстве не хватает места. %1$d из %2$d файлов было сохранено для использования оффлайн Освободите место, а затем попробуйте снова с оставшимися файлами.</item>
+        <item quantity="few">На вашем устройстве не хватает места. %1$d из %2$d файлов были сохранены для использования офлайн. Освободите место, а затем попробуйте снова с оставшимися файлами.</item>
+        <item quantity="many">На вашем устройстве не хватает места. %1$d из %2$d файлов были сохранены для использования офлайн. Освободите место, а затем попробуйте снова с оставшимися файлами.</item>
+        <item quantity="other">На вашем устройстве не хватает места. %1$d из %2$d файлов были сохранены для использования офлайн. Освободите место, а затем попробуйте снова с оставшимися файлами.</item>
+    </plurals>
+    <string name="cells_bulk_offline_ran_out_of_storage_message_none">На вашем устройстве закончилось место, поэтому файлы для использования офлайн не были сохранены. Освободите немного места, а затем попробуйте снова.</string>
+    <plurals name="cells_bulk_remove_offline_confirmation_title">
+        <item quantity="one">Удалить доступ к %1$d файлу в офлайн?</item>
+        <item quantity="few">Удалить доступ к %1$d файлам в офлайн?</item>
+        <item quantity="many">Удалить доступ к %1$d файлам в офлайн?</item>
+        <item quantity="other">Удалить доступ к %1$d файлам в офлайн?</item>
+    </plurals>
+    <plurals name="cells_bulk_remove_offline_confirmation_message">
+        <item quantity="one">Файл будет удален с этого устройства. Вы по-прежнему сможете открыть его, пока находитесь в сети.</item>
+        <item quantity="few">Эти файлы будут удалены с этого устройства. Вы по-прежнему сможете открывать их, пока у вас есть доступ к сети.</item>
+        <item quantity="many">Эти файлы будут удалены с этого устройства. Вы по-прежнему сможете открывать их, пока у вас есть доступ к сети.</item>
+        <item quantity="other">Эти файлы будут удалены с этого устройства. Вы по-прежнему сможете открывать их, пока у вас есть доступ к сети.</item>
+    </plurals>
+    <plurals name="cells_bulk_remove_offline_confirmation_skipped">
+        <item quantity="one">%1$d выбранный элемент не сохранен для использования офлайн и будет пропущен.</item>
+        <item quantity="few">%1$d выбранных элемента не сохранены для использования офлайн и будут пропущены.</item>
+        <item quantity="many">%1$d выбранных элементов не сохранены для использования офлайн и будут пропущены.</item>
+        <item quantity="other">%1$d выбранных элемента не сохранены для использования офлайн и будут пропущены.</item>
+    </plurals>
+    <string name="cells_bulk_remove_offline_confirmation_button">Удалить</string>
+    <plurals name="cells_bulk_remove_offline_success">
+        <item quantity="one">Доступ офлайн удален для %1$d файла</item>
+        <item quantity="few">Доступ офлайн удален для %1$d файлов</item>
+        <item quantity="many">Доступ офлайн удален для %1$d файлов</item>
+        <item quantity="other">Доступ офлайн удален для %1$d файлов</item>
+    </plurals>
+    <plurals name="cells_bulk_offline_success">
+        <item quantity="one">%1$d файл сохранен для использования оффлайн</item>
+        <item quantity="few">%1$d файла сохранены для использования оффлайн</item>
+        <item quantity="many">%1$d файлов сохранены для использования оффлайн</item>
+        <item quantity="other">%1$d файлов сохранены для использования оффлайн</item>
+    </plurals>
+    <string name="cells_offline_files_label">Оффлайн файлы</string>
+    <string name="cells_show_offline_files_content_description">Показать только оффлайн файлы</string>
+    <string name="cells_show_all_files_content_description">Показать все файлы</string>
+    <string name="cells_offline_toggle_hint_title">Пересмотрите свои офлайн файлы</string>
+    <string name="cells_offline_toggle_hint_message">Нажмите здесь, чтобы отобразить только файлы, сохраненные на этом устройстве, даже если вы подключены к сети. Нажмите еще раз, чтобы увидеть все файлы.</string>
+    <string name="cells_offline_only_empty_title">Нет файлов, доступных офлайн</string>
+    <string name="cells_offline_only_empty_message">Здесь отображаются файлы, доступ к которым вы разрешили офлайн, чтобы вы можете открывать их без подключения к сети.</string>
 </resources>

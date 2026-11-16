@@ -46,6 +46,7 @@ import com.wire.android.feature.analytics.model.AnalyticsEvent
 import com.wire.android.feature.analytics.model.AnalyticsSettings
 import com.wire.android.navigation.runtime.WireNavigationDiagnostics
 import com.wire.android.notification.DriveUploadNotificationManager
+import com.wire.android.services.OfflineDownloadServiceLauncher
 import com.wire.android.util.AppNameUtil
 import com.wire.android.util.CurrentScreenManager
 import com.wire.android.util.DataDogLogger
@@ -122,6 +123,9 @@ class WireApplication : BaseApp() {
     lateinit var driveUploadNotificationManager: Lazy<DriveUploadNotificationManager>
 
     @Inject
+    lateinit var offlineDownloadServiceLauncher: Lazy<OfflineDownloadServiceLauncher>
+
+    @Inject
     lateinit var workManager: WorkManager
 
     override val workManagerConfiguration: Configuration
@@ -181,6 +185,11 @@ class WireApplication : BaseApp() {
             launch {
                 traceStartup("deferred.driveUploadNotification.observe.start")
                 driveUploadNotificationManager.value.observeAndNotify()
+            }
+
+            launch {
+                traceStartup("deferred.offlineDownloadService.observe.start")
+                offlineDownloadServiceLauncher.value.observe()
             }
 
             launch {

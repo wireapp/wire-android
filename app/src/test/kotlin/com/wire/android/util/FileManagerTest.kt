@@ -18,9 +18,26 @@
 package com.wire.android.util
 
 import android.app.Application
+import android.content.ContentResolver
+import android.content.ContentValues
+import android.content.ContextWrapper
+import android.net.Uri
+import android.provider.MediaStore
 import androidx.core.net.toUri
 import androidx.test.core.app.ApplicationProvider
+import com.wire.android.config.TestDispatcherProvider
+import io.mockk.every
+import io.mockk.mockk
+import kotlinx.coroutines.test.runTest
+import okio.Path.Companion.toOkioPath
+import okio.Path.Companion.toPath
+import java.io.ByteArrayOutputStream
+import java.io.File
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertThrows
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -53,5 +70,60 @@ class FileManagerTest {
                 fileManager.checkValidSchema(uri.toUri())
             }
         }
+    }
+
+    @Test
+    fun givenMediaStoreRejectsInsert_whenSavingToExternalStorage_thenOnErrorIsCalledInsteadOfCrashing() = runTest {
+        val contentResolver = mockk<ContentResolver> {
+            every { insert(any(), any()) } throws IllegalStateException("Failed to build unique file")
+        }
+        val context = object : ContextWrapper(ApplicationProvider.getApplicationContext()) {
+            override fun getContentResolver(): ContentResolver = contentResolver
+        }
+        var isErrorReported = false
+        var isFileSavedReported = false
+
+        FileManager(context).saveToExternalStorage(
+            assetName = "image.jpg",
+            assetDataPath = "/tmp/image.jpg".toPath(),
+            assetDataSize = 1L,
+            dispatcher = TestDispatcherProvider(),
+            onError = { isErrorReported = true },
+        ) { isFileSavedReported = true }
+
+        assertTrue(isErrorReported)
+        assertFalse(isFileSavedReported)
+    }
+
+    @Test
+    fun givenMediaStoreRejectsFirstInsert_whenSavingToExternalStorage_thenItRetriesWithAnotherNameAndSucceeds() = runTest {
+        val sourceFile = File.createTempFile("asset", ".jpg").apply { writeText("data") }
+        val insertedUri = Uri.parse("content://media/external/downloads/1")
+        val insertedNames = mutableListOf<String?>()
+        val contentResolver = mockk<ContentResolver>(relaxed = true) {
+            every { insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, any()) } answers {
+                insertedNames += secondArg<ContentValues>().getAsString(MediaStore.MediaColumns.DISPLAY_NAME)
+                if (insertedNames.size == 1) throw IllegalStateException("Failed to build unique file") else insertedUri
+            }
+            every { openOutputStream(insertedUri) } returns ByteArrayOutputStream()
+        }
+        val context = object : ContextWrapper(ApplicationProvider.getApplicationContext()) {
+            override fun getContentResolver(): ContentResolver = contentResolver
+        }
+        var isErrorReported = false
+        var isFileSavedReported = false
+
+        FileManager(context).saveToExternalStorage(
+            assetName = "image.jpg",
+            assetDataPath = sourceFile.toOkioPath(),
+            assetDataSize = sourceFile.length(),
+            dispatcher = TestDispatcherProvider(),
+            onError = { isErrorReported = true },
+        ) { isFileSavedReported = true }
+
+        assertFalse(isErrorReported)
+        assertTrue(isFileSavedReported)
+        assertEquals(2, insertedNames.size)
+        assertNotEquals(insertedNames[0], insertedNames[1])
     }
 }

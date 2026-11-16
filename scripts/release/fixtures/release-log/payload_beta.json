@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "release_version": "4.38.0",
+  "event_id": "beta:wireapp/wire-android:1001:1",
+  "kind": "beta",
+  "evidence": {
+    "source": {
+      "repository": "wireapp/wire-android",
+      "run_id": 1001,
+      "run_attempt": 1,
+      "workflow_path": ".github/workflows/build-beta.yml",
+      "url": "https://github.com/wireapp/wire-android/actions/runs/1001/attempts/1",
+      "tag": "v4.38.0-beta.2",
+      "sha": "7be41d0c3f2a9c1e5d6b8a4f0123456789abcdef"
+    },
+    "conclusion": "success",
+    "jobs": [
+      {
+        "name": "Validate beta tag",
+        "conclusion": "success"
+      },
+      {
+        "name": "Build Beta-Release",
+        "conclusion": "success"
+      },
+      {
+        "name": "Publish beta prerelease",
+        "conclusion": "success"
+      }
+    ],
+    "build": {
+      "schema_version": 1,
+      "kind": "build",
+      "repository": "wireapp/wire-android",
+      "run_id": 1001,
+      "run_attempt": 1,
+      "workflow_path": ".github/workflows/build-beta.yml",
+      "tag": "v4.38.0-beta.2",
+      "sha": "7be41d0c3f2a9c1e5d6b8a4f0123456789abcdef",
+      "flavor": "Beta",
+      "version_name": "4.38.0-beta.2",
+      "version_code": 71389,
+      "apks": [
+        {
+          "filename": "wire-beta-release.apk",
+          "sha256": "5c2091ab5c2091ab5c2091ab5c2091ab5c2091ab5c2091ab5c2091ab5c2091ab"
+        }
+      ]
+    },
+    "qa": null,
+    "origin": null,
+    "gaps": []
+  }
+}

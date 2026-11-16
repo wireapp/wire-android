@@ -901,6 +901,7 @@ Rispondendo qui, verr&#224; riagganciata l\'altra chiamata.</string>
     <string name="cancel_login_button_label">Annulla</string>
     <string name="cancel_login_dialog_description">Se annulli ora, effettuerai il logout.</string>
     <string name="cancel_login_dialog_title">Sei sicuro di voler annullare?</string>
+    <!-- Restart App dialog -->
     <!-- Analytics Usage dialog -->
     <!-- session reset -->
     <string name="label_system_message_session_reset">%1$s non &#232; stato in grado di decrittare alcuni dei tuoi messaggi ma ha risolto il problema. Questo ha influenzato tutte le conversazioni condivise.</string>

@@ -61,6 +61,7 @@ internal fun NewGroupConversationSearchPeopleRouteScreen(
             onOpenUserProfile(contact.id, contact.domain)
         },
         onContactChecked = newConversationViewModel::updateSelectedContacts,
+        onContactStatusesChanged = newConversationViewModel::updateContactStatuses,
         onClose = onBackClicked,
         navigationIconType = NavigationIconType.Back(R.string.content_description_new_conversation_back_btn),
         itemActionType = ItemActionType.CHECK,

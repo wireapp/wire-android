@@ -1233,7 +1233,7 @@ class NewMeetingViewModelTest {
                 Arrangement(dispatcher)
                     .withPasswordValidationResult("invalid", ValidatePasswordResult.Invalid())
                     .withNewMeetingType(type)
-                    .withCreateMeetingResult(CreateNewMeetingUseCase.Result.Success(ConversationId("meeting", "domain")))
+                .withCreateMeetingResult(CreateNewMeetingUseCase.Result.Success(ConversationId("meeting", "domain")))
             )
             enterTitle(viewModel, "Weekly sync")
             viewModel.passwordTextState.setTextAndPlaceCursorAtEnd("invalid")
@@ -1256,14 +1256,15 @@ class NewMeetingViewModelTest {
     @Test
     fun givenGuestLinksEnabled_whenGeneratingPassword_thenBothFieldsUseGeneratedPasswordForCreation() = runTest(dispatcher) {
         withCreationTypes { type ->
-            val password = "GeneratedPassword1!"
+            val password = "Abc123!@"
             val expectedType = if (type == NewMeetingType.MeetNow) Meeting.Type.IMMEDIATE else Meeting.Type.SCHEDULED
             val (arrangement, viewModel) = arrangeViewModel(
                 Arrangement(dispatcher)
                     .withGeneratedPassword(password)
                     .withPasswordValidationResult(password, ValidatePasswordResult.Valid)
                     .withNewMeetingType(type)
-                    .withCreateMeetingResult(CreateNewMeetingUseCase.Result.Success(ConversationId("meeting", "domain")))
+                .withPasswordValidationResult(password, ValidatePasswordResult.Valid)
+                .withCreateMeetingResult(CreateNewMeetingUseCase.Result.Success(ConversationId("meeting", "domain")))
             )
             enterTitle(viewModel, "Weekly sync")
 
@@ -1274,7 +1275,7 @@ class NewMeetingViewModelTest {
             viewModel.submitCreation()
             advanceUntilIdle()
 
-            verify(exactly = 1) { arrangement.generatePassword() }
+            verify(exactly = 1) { arrangement.generatePassword(minLength = 8, maxLength = 8) }
             verify(exactly = 1) { arrangement.validatePassword(password) }
             coVerify(exactly = 1) { arrangement.createNewMeeting(match { it.password == password && it.type == expectedType }) }
             assertFalse(viewModel.state.hasPasswordError)
@@ -1335,7 +1336,7 @@ class NewMeetingViewModelTest {
 
         viewModel.onGenerateRandomPassword()
 
-        verify(exactly = 0) { arrangement.generatePassword() }
+        verify(exactly = 0) { arrangement.generatePassword(any(), any()) }
         assertEquals("", viewModel.passwordTextState.text.toString())
     }
 
@@ -1360,7 +1361,7 @@ class NewMeetingViewModelTest {
 
                 assertFalse(viewModel.state.isGuestLinkSharingEnabled)
                 assertFalse(viewModel.state.invalidPassword)
-                verify(exactly = 0) { arrangement.generatePassword() }
+                verify(exactly = 0) { arrangement.generatePassword(any(), any()) }
                 verify(exactly = 0) { arrangement.validatePassword(any()) }
                 coVerify(exactly = 1) { arrangement.createNewMeeting(match { it.password == null }) }
             }
@@ -1375,7 +1376,7 @@ class NewMeetingViewModelTest {
                 Arrangement(dispatcher)
                     .withPasswordValidationResult(password, ValidatePasswordResult.Valid)
                     .withNewMeetingType(type)
-                    .withCreateMeetingResult(CreateNewMeetingUseCase.Result.Success(ConversationId("meeting", "domain")))
+                .withCreateMeetingResult(CreateNewMeetingUseCase.Result.Success(ConversationId("meeting", "domain")))
             )
             assertEquals(true, viewModel.state.isGuestLinkSharingEnabled)
             assertEquals(NewMeetingState.InitialLoadingState.Loaded, viewModel.state.initialLoading)
@@ -1639,6 +1640,14 @@ class NewMeetingViewModelTest {
 
         fun withNewMeetingType(type: NewMeetingType) = apply {
             newMeetingType = type
+        }
+
+        fun withGeneratedPassword(password: String) = apply {
+            every { generatePassword(minLength = 8, maxLength = 8) } returns password
+        }
+
+        fun withPasswordValidationResult(password: String, result: ValidatePasswordResult) = apply {
+            every { validatePassword(password) } returns result
         }
 
         fun withCurrentTimeProvider(currentTime: () -> Instant) = apply {

@@ -165,7 +165,11 @@ class AudioMediaRecorder @Inject constructor(
 
     suspend fun stop() {
         isRecording = false
-        audioRecorder?.stop()
+        try {
+            audioRecorder?.takeIf { it.recordingState == AudioRecord.RECORDSTATE_RECORDING }?.stop()
+        } catch (e: IllegalStateException) {
+            appLogger.e("[RecordAudio] stop: IllegalStateException - ${e.message}")
+        }
         recordingJob?.cancelAndJoin()
         recordingJob = null
     }

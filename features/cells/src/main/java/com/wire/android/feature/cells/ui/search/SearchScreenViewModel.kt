@@ -25,9 +25,11 @@ import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import androidx.paging.map
 import com.wire.android.feature.cells.ui.CellFileLocalPathCache
+import com.wire.android.feature.cells.ui.downloadProgressOf
 import com.wire.android.feature.cells.ui.model.CellNodeUi
 import com.wire.android.feature.cells.ui.model.toUiModel
 import com.wire.android.feature.cells.ui.model.withSessionState
+import com.wire.android.feature.cells.ui.offline.SessionOfflineDownloads
 import com.wire.android.feature.cells.ui.search.filter.data.FilterConversationUi
 import com.wire.android.feature.cells.ui.search.filter.data.FilterOwnerUi
 import com.wire.android.feature.cells.ui.search.filter.data.FilterTagUi
@@ -79,6 +81,7 @@ class SearchScreenViewModel @AssistedInject constructor(
     private val getOwners: GetOwnersUseCase,
     private val getPaginatedConversations: GetPaginatedCellConversationsFlowUseCase,
     private val sharedPathCache: CellFileLocalPathCache,
+    private val offlineDownloads: SessionOfflineDownloads,
     private val observeOfflineFiles: ObserveOfflineFilesUseCase,
 ) : ViewModel() {
 
@@ -189,15 +192,15 @@ class SearchScreenViewModel @AssistedInject constructor(
                 }
             }.cachedIn(viewModelScope),
             sharedPathCache.openLoadStates,
-            sharedPathCache.downloadProgresses,
+            offlineDownloads.states,
             observeOfflineFiles(),
-        ) { pagingData, openLoadStates, downloadProgresses, offlineFiles ->
+        ) { pagingData, openLoadStates, downloadStates, offlineFiles ->
             val offlineUuids = offlineFiles.map { it.id }.toSet()
             pagingData.map { node ->
                 if (node is CellNodeUi.File) {
                     node.withSessionState(
                         openLoadState = openLoadStates[node.uuid],
-                        downloadProgress = downloadProgresses[node.uuid],
+                        downloadProgress = downloadStates.progresses.downloadProgressOf(node.uuid),
                         isAvailableOffline = node.uuid in offlineUuids,
                     )
                 } else {

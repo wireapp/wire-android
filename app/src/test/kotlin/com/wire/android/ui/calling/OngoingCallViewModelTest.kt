@@ -26,6 +26,7 @@ import com.wire.android.assertions.shouldBeEqualTo
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.datastore.GlobalDataStore
+import com.wire.android.feature.meetings.model.MeetingLink
 import com.wire.android.framework.TestUser
 import com.wire.android.mapper.UICallParticipantMapper
 import com.wire.android.mapper.UserTypeMapper
@@ -55,7 +56,9 @@ import com.wire.kalium.logic.data.call.VideoState
 import com.wire.kalium.logic.data.conversation.ClientId
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.id.MeetingId
 import com.wire.kalium.logic.data.id.QualifiedID
+import com.wire.kalium.logic.data.meeting.Meeting
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.data.user.type.UserType
 import com.wire.kalium.logic.data.user.type.UserTypeInfo
@@ -68,9 +71,12 @@ import com.wire.kalium.logic.feature.call.usecase.SetCallQualityIntervalUseCase
 import com.wire.kalium.logic.feature.call.usecase.video.SetVideoSendStateUseCase
 import com.wire.kalium.logic.feature.client.ObserveCurrentClientIdUseCase
 import com.wire.kalium.logic.feature.incallreaction.SendInCallReactionUseCase
+import com.wire.kalium.logic.feature.meeting.ObserveMeetingUseCase
 import com.wire.kalium.logic.feature.message.MessageOperationResult
 import com.wire.kalium.network.NetworkState
 import com.wire.kalium.network.NetworkStateObserver
+import io.mockk.every
+import io.mockk.mockk
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -682,7 +688,78 @@ class OngoingCallViewModelTest {
         assertEquals(emptySet<InCallToast>(), ongoingCallViewModel.toasts.values)
     }
 
+    @Test
+    fun givenCreatedMeeting_whenLinkChanges_thenInvitationUsesLatestUrl() = runTest {
+        val arrangement = Arrangement()
+        arrangement.createdMeetingId = MeetingId("created-meeting", "wire.test")
+        arrangement.meetingFlow.value = invitationMeeting("https://wire.example/first")
+        val (_, viewModel) = arrangement.arrange()
+        assertEquals(MeetingLink("https://wire.example/first"), viewModel.state.meetingLink)
+
+        arrangement.meetingFlow.value = invitationMeeting("https://wire.example/rerolled")
+        advanceUntilIdle()
+        assertEquals(MeetingLink("https://wire.example/rerolled"), viewModel.state.meetingLink)
+
+        arrangement.meetingFlow.value = null
+        advanceUntilIdle()
+        assertEquals(null, viewModel.state.meetingLink)
+    }
+
+    @Test
+    fun givenMeetingInvitation_whenDismissed_thenLaterUpdatesDoNotReopenIt() = runTest {
+        val arrangement = Arrangement()
+        arrangement.createdMeetingId = MeetingId("created-meeting", "wire.test")
+        arrangement.meetingFlow.value = invitationMeeting("https://wire.example/first")
+        val (_, viewModel) = arrangement.arrange()
+        val callState = viewModel.state
+
+        viewModel.dismissMeetingInvitation()
+        arrangement.meetingFlow.value = invitationMeeting("https://wire.example/rerolled")
+        advanceUntilIdle()
+
+        assertEquals(null, viewModel.state.meetingLink)
+        assertEquals(callState.copy(meetingLink = null), viewModel.state)
+    }
+
+    @Test
+    fun givenDismissedInvitation_whenNewViewModelIsCreated_thenDismissalIsNotShared() = runTest {
+        val meetingId = MeetingId("created-meeting", "wire.test")
+        val meeting = invitationMeeting("https://wire.example/first")
+        val first = Arrangement().apply {
+            createdMeetingId = meetingId
+            meetingFlow.value = meeting
+        }.arrange().second
+        first.dismissMeetingInvitation()
+
+        val second = Arrangement().apply {
+            createdMeetingId = meetingId
+            meetingFlow.value = meeting
+        }.arrange().second
+
+        assertEquals(null, first.state.meetingLink)
+        assertEquals(MeetingLink("https://wire.example/first"), second.state.meetingLink)
+    }
+
+    @Test
+    fun givenOrdinaryCall_whenOpened_thenMeetingInvitationIsNotLoaded() = runTest {
+        val (arrangement, viewModel) = Arrangement().arrange()
+        assertEquals(null, viewModel.state.meetingLink)
+        coVerify(exactly = 0) { arrangement.observeMeeting(any()) }
+    }
+
+    private fun invitationMeeting(url: String, id: ConversationId = conversationId): Meeting = mockk {
+        every { link } returns url
+        every { hasPassword } returns false
+        every { creatorId } returns currentUserId
+        every { this@mockk.conversationId } returns id
+    }
+
     private inner class Arrangement {
+        var createdMeetingId: MeetingId? = null
+        val meetingFlow = MutableStateFlow<Meeting?>(null)
+
+        @MockK
+        lateinit var observeMeeting: ObserveMeetingUseCase
 
         @MockK
         lateinit var observeLastActiveCall: ObserveLastActiveCallWithSortedParticipantsUseCase
@@ -737,6 +814,8 @@ class OngoingCallViewModelTest {
                 uiCallParticipantMapper = UICallParticipantMapper(UserTypeMapper()),
                 networkStateObserver = networkStateObserver,
                 dispatchers = TestDispatcherProvider(dispatcher),
+                createdMeetingId = createdMeetingId,
+                observeMeeting = observeMeeting,
                 currentTimeProvider = CurrentTimeProvider {
                     Instant.fromEpochMilliseconds(dispatcher.scheduler.currentTime)
                 }
@@ -745,6 +824,7 @@ class OngoingCallViewModelTest {
 
         init {
             MockKAnnotations.init(this)
+            every { observeMeeting(any()) } returns meetingFlow
             coEvery { networkStateObserver.observeNetworkState() } returns MutableStateFlow(NetworkState.ConnectedWithInternet)
             coEvery { observeCallQualityData(any()) } returns emptyFlow()
             coEvery { observeInCallReactionsUseCase(any()) } returns reactionsFlow

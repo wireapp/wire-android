@@ -17,6 +17,7 @@
  */
 package com.wire.android.ui.calling.ongoing
 
+import com.wire.android.feature.meetings.model.MeetingLink
 import com.wire.android.ui.calling.model.UICallParticipant
 import com.wire.android.ui.calling.ongoing.details.CallQualityState
 import com.wire.android.ui.calling.ongoing.fullscreen.SelectedParticipant
@@ -29,6 +30,7 @@ data class OngoingCallState(
     val selectedParticipant: SelectedParticipant? = null,
     val callQuality: CallQualityState = CallQualityState(),
     val othersVideosDisabled: Boolean = false,
+    val meetingLink: MeetingLink? = null,
 ) {
     sealed interface FlowState {
         object Default : FlowState

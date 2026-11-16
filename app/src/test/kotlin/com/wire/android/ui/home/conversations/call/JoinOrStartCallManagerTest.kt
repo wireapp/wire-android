@@ -27,6 +27,7 @@ import com.wire.kalium.logic.data.call.Call
 import com.wire.kalium.logic.data.call.CallStatus
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.id.MeetingId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.sync.SyncState
 import com.wire.kalium.logic.data.user.UserId
@@ -63,6 +64,39 @@ import org.junit.jupiter.api.extension.ExtendWith
 @Suppress("UnusedFlow")
 @ExtendWith(CoroutineTestExtension::class)
 class JoinOrStartCallManagerTest {
+
+    @Test
+    fun `meeting invitation survives verification confirmation before starting call`() = runTest {
+        val (arrangement, manager) = Arrangement().withDegradedConversationNotified(false).arrange()
+        val invitation = MeetingId("created-meeting", "wire.test")
+        manager.actions.test {
+            manager.startCallIfPossible(conversationId, Conversation.Type.Group.Meeting, false, invitation)
+            advanceUntilIdle()
+            val dialog = assertIs<JoinOrStartCallScreenDialogType.VerificationDegraded>(manager.joinOrStartCallViewState.dialogType)
+            assertEquals(invitation, dialog.createdMeetingId)
+            expectNoEvents()
+
+            arrangement.withDegradedConversationNotified(true)
+            manager.startCallAfterDegradedVerification(dialog.conversationId, dialog.conversationType, dialog.createdMeetingId)
+            advanceUntilIdle()
+
+            assertEquals(JoinOrStartCallViewActions.InitiatedCall(conversationId, currentAccount, invitation), awaitItem())
+        }
+    }
+
+    @Test
+    fun `meeting invitation is also passed when opening an established call`() = runTest {
+        val (_, manager) = Arrangement()
+            .withIsConferenceCallingEnabled(ConferenceCallingResult.Disabled.Established)
+            .arrange()
+        val invitation = MeetingId("created-meeting", "wire.test")
+        manager.actions.test {
+            manager.startCallIfPossible(conversationId, Conversation.Type.Group.Meeting, false, invitation)
+            advanceUntilIdle()
+
+            assertEquals(JoinOrStartCallViewActions.JoinedCall(conversationId, currentAccount, invitation), awaitItem())
+        }
+    }
 
     @Test
     fun `given JoinAnyway dialog is displayed, when user dismiss it, then hide it`() = runTest {

@@ -98,6 +98,7 @@ import com.wire.android.ui.home.conversations.LocalAssetLocalPathKeyInScopeResol
 import com.wire.android.ui.home.conversations.LocalAudioMessageKeyInScopeResolver
 import com.wire.android.ui.home.conversations.MessageOptionsDismissal
 import com.wire.android.ui.home.conversations.info.ConversationDetailsData
+import com.wire.android.ui.home.conversations.messages.ReplyHighlightRequest
 import com.wire.android.ui.home.conversations.messages.item.AdminlessGroupDeleteReminderItem
 import com.wire.android.ui.home.conversations.messages.item.AssetLocalPathArgs
 import com.wire.android.ui.home.conversations.messages.item.ConversationEncryptionNoticeItem
@@ -153,7 +154,14 @@ internal fun ConversationMessageList(
     showsEncryptionNotice: Boolean = false,
     isBubbleUiEnabled: Boolean = false,
     isWireCellsEnabled: Boolean = false,
+    replyHighlightRequest: ReplyHighlightRequest? = null,
+    onReplyHighlightFinished: (token: Long) -> Unit = {},
 ) {
+    val replyHighlightState = rememberReplyHighlightState(
+        request = replyHighlightRequest,
+        lazyListState = lazyListState,
+        onFinished = onReplyHighlightFinished,
+    )
     val prevItemCount = remember { mutableStateOf(lazyPagingMessages.itemCount) }
     val readLastMessageAtStartTriggered = remember { mutableStateOf(false) }
     val currentTime by currentTimeInMillisFlow.collectAsState(initial = System.currentTimeMillis())
@@ -166,7 +174,7 @@ internal fun ConversationMessageList(
     fun firstVisibleMessageIndex() = lazyListState.firstVisibleItemIndex.takeIf { it < lazyPagingMessages.itemCount }
 
     LaunchedEffect(lazyPagingMessages.itemCount) {
-        if (lazyPagingMessages.itemCount > prevItemCount.value && selectedMessageId == null) {
+        if (lazyPagingMessages.itemCount > prevItemCount.value && selectedMessageId == null && replyHighlightRequest == null) {
             val canScrollToLastMessage = prevItemCount.value > 0 &&
                 lazyListState.firstVisibleItemIndex > 0 &&
                 lazyListState.firstVisibleItemIndex <= MAXIMUM_SCROLLED_MESSAGES_UNTIL_AUTOSCROLL_STOPS
@@ -471,6 +479,10 @@ internal fun ConversationMessageList(
                             swipeableMessageConfiguration = swipeableConfiguration,
                             onSelfDeletingMessageRead = onSelfDeletingMessageRead,
                             isSelectedMessage = message.header.messageId == selectedMessageId,
+                            replyHighlightIntensity = remember(replyHighlightState, message.header.messageId) {
+                                val messageId = message.header.messageId
+                                return@remember { replyHighlightState.intensityFor(messageId) }
+                            },
                             failureInteractionAvailable = interactionAvailability == InteractionAvailability.ENABLED,
                             isBubbleUiEnabled = isBubbleUiEnabled,
                         )

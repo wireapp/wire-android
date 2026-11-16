@@ -114,6 +114,7 @@ internal fun CellScreenContent(
     sortBy: SortBy = SortBy.Default,
     selectedNodeIds: Set<String> = emptySet(),
     isSelectionEnabled: Boolean = false,
+    isOfflineOnly: Boolean = false,
 ) {
 
     val context = LocalContext.current
@@ -145,6 +146,7 @@ internal fun CellScreenContent(
             isSearchResult = isSearchResult,
             isAllFiles = isAllFiles,
             isRecycleBin = isRecycleBin,
+            isOfflineOnly = isOfflineOnly,
         )
 
         else ->
@@ -367,6 +369,7 @@ private fun EmptyScreen(
     isSearchResult: Boolean = false,
     isAllFiles: Boolean = true,
     isRecycleBin: Boolean = false,
+    isOfflineOnly: Boolean = false,
 ) {
     Column(
         modifier = modifier
@@ -382,6 +385,7 @@ private fun EmptyScreen(
         )
         val emptyMessage = when {
             isSearchResult -> stringResource(R.string.no_results_found_label)
+            isOfflineOnly -> stringResource(R.string.cells_offline_only_empty_title)
             isAllFiles -> stringResource(R.string.file_list_empty_title)
             else -> stringResource(R.string.file_list_empty_title)
         }
@@ -394,6 +398,7 @@ private fun EmptyScreen(
         Text(
             text = when {
                 isSearchResult -> stringResource(R.string.file_list_search_empty_message)
+                isOfflineOnly -> stringResource(R.string.cells_offline_only_empty_message)
                 isAllFiles -> stringResource(R.string.file_list_empty_message)
                 isRecycleBin -> stringResource(R.string.empty_recycle_bin)
                 else -> stringResource(R.string.conversation_file_list_empty_message)
@@ -410,7 +415,7 @@ private fun EmptyScreen(
             )
         }
 
-        if (isAllFiles) {
+        if (isAllFiles && !isOfflineOnly) {
             LearnMoreLink(
                 textRes = R.string.empty_screen_learn_more,
                 page = SupportPage.CELLS_ALL_FILES,

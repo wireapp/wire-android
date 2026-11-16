@@ -453,12 +453,12 @@ class CollectProductionTest(unittest.TestCase):
         self.assertEqual(contract.build_fields(payload)["result"], "passed")
 
     def test_a_release_run_without_exports_takes_its_tag_from_the_verified_release_tag(self):
-        api = FakeApi(run=production_run(conclusion="cancelled"), jobs=[job("validate-release", "cancelled")],
-                      artifacts=[], refs=PROD_REFS)
+        api = FakeApi(run=production_run(conclusion="cancelled"),
+                      jobs=[job("validate-release", "cancelled"), job("Export release log context", "cancelled")], artifacts=[], refs=PROD_REFS)
         self.assertEqual(collect(api)["evidence"]["source"]["tag"], PROD_TAG)
 
     def test_a_release_run_cannot_claim_an_unverified_tag(self):
-        api = FakeApi(run=production_run(conclusion="cancelled"), jobs=[], artifacts=[],
+        api = FakeApi(run=production_run(conclusion="cancelled"), jobs=[job("Export release log context", "cancelled")], artifacts=[],
                       refs={PROD_TAG: {"object": {"type": "commit", "sha": OTHER_SHA}}})
         with self.assertRaises(report.CollectionError):
             collect(api)
@@ -494,7 +494,7 @@ class CollectProductionEligibilityTest(unittest.TestCase):
         self.assertEqual([call for call in api.calls if "/artifacts" in call or "/git/" in call], [])
 
     def test_a_release_run_whose_tag_moved_is_a_visible_error(self):
-        api = FakeApi(run=production_run(conclusion="cancelled"), jobs=[], artifacts=[],
+        api = FakeApi(run=production_run(conclusion="cancelled"), jobs=[job("Export release log context", "cancelled")], artifacts=[],
                       refs={PROD_TAG: {"object": {"type": "commit", "sha": OTHER_SHA}}})
         with self.assertRaisesRegex(report.CollectionError, "version cannot be established"):
             collect(api)
@@ -552,6 +552,44 @@ class CollectReleaseRunTest(unittest.TestCase):
 
     def test_a_tag_push_is_still_reported(self):
         self.assertEqual(collect(FakeApi(artifacts=good_artifacts()))["release_version"], "4.38.0")
+
+
+class CollectBuildWithoutExporterTest(unittest.TestCase):
+    """A build from before the exporter has no export job and no evidence in any attempt. It is skipped."""
+
+    def beta_jobs(self):
+        return [entry for entry in release_jobs() if entry["name"] != "Export release log context"]
+
+    def production_jobs(self):
+        return [entry for entry in production_jobs() if entry["name"] != "Export release log context"]
+
+    def test_a_beta_without_the_export_job_or_evidence_is_skipped(self):
+        self.assertIsNone(collect(FakeApi(jobs=self.beta_jobs())))
+
+    def test_a_production_run_without_the_export_job_or_evidence_is_skipped(self):
+        self.assertIsNone(collect(FakeApi(run=production_run(), jobs=self.production_jobs())))
+
+    def test_a_run_whose_export_job_ran_and_left_no_evidence_stays_a_visible_failure(self):
+        with self.assertRaises(report.CollectionError) as caught:
+            collect(FakeApi(jobs=release_jobs(), refs=TAG_REFS))
+        self.assertIsNotNone(caught.exception.partial)
+
+    def test_a_rerun_of_a_run_with_earlier_evidence_is_not_skipped(self):
+        run = run_metadata(run_attempt=2)
+        api = FakeApi(run=run, jobs=self.beta_jobs(), artifacts=good_artifacts(attempt=1), refs=TAG_REFS)
+        with self.assertRaises(report.CollectionError) as caught:
+            collect(api, attempt=2)
+        self.assertIn("earlier attempt", details(caught.exception.partial))
+
+    def test_expired_evidence_is_not_skipped(self):
+        artifacts = [("release-log-context-1001-1", b"", True), ("release-log-build-Beta-1001-1", b"", True)]
+        with self.assertRaises(report.CollectionError) as caught:
+            collect(FakeApi(jobs=self.beta_jobs(), artifacts=artifacts, refs=TAG_REFS))
+        self.assertIn("expired", details(caught.exception.partial))
+
+    def test_evidence_of_another_run_does_not_count(self):
+        other = [("release-log-context-2002-1", b""), ("release-log-build-Beta-2002-1", b"")]
+        self.assertIsNone(collect(FakeApi(jobs=self.beta_jobs(), artifacts=other)))
 
     def test_a_moved_tag_is_a_visible_error(self):
         refs = {TAG: {"object": {"type": "commit", "sha": OTHER_SHA}}}
@@ -970,7 +1008,7 @@ class CommandLineTest(unittest.TestCase):
                                                   api=FakeApi(run=run, jobs=[job("Validate beta tag", "skipped")]))
             self.assertEqual(code, 0)
             self.assertFalse(target.exists())
-        self.assertIn("Release log: run 1001 is not a release run, nothing to report", printed)
+        self.assertIn("Release log: run 1001 has nothing to report", printed)
         self.assertEqual(errors, "")
 
     def test_bad_run_numbers_fail_without_a_traceback(self):
@@ -1894,7 +1932,7 @@ class SkippedRegressionTest(unittest.TestCase):
                 self, ["collect", "--repository", REPO, "--run-id", "1520", "--run-attempt", "1",
                        "--output", str(target)], api=skip_world())
             self.assertEqual((code, errors), (0, ""))
-            self.assertIn("is not a release run, nothing to report", output)
+            self.assertIn("has nothing to report", output)
             self.assertFalse(target.exists())
 
 

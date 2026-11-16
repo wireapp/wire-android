@@ -108,7 +108,7 @@ class MeetingMapperTest {
     fun givenMeetingStartsInFuture_whenMappingToMeetingItem_thenStatusIsScheduled() {
         val startTime = currentTime + 10.minutes
         val endTime = currentTime + 40.minutes
-        val expected = meetingItem(Scheduled(startTime = startTime, endTime = endTime))
+        val expected = meetingItem(Scheduled(startTime = startTime, endTime = endTime, remainingDuration = 10.minutes))
         val result = meeting(startTime = startTime, endTime = endTime)
             .toMeetingItem(selfUserId = UserId("self", "wire.com"), time = currentTime, ongoingCallStatus = null)
         assertEquals(expected, result)

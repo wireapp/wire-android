@@ -59,6 +59,11 @@ class AllPages(val device: UiDevice) {
 
     val wireDrivePage = WireDrivePage(device)
     val pdfViewerPage = PdfViewerPage(device)
+    val pdfShareReceiverPage = PdfShareReceiverPage(device)
+
+    val driveMediaPlayerPage = DriveMediaPlayerPage(device)
+
+    val driveImageViewerPage = DriveImageViewerPage(device)
 
     val documentEditorPage = DocumentEditorPage(device)
 

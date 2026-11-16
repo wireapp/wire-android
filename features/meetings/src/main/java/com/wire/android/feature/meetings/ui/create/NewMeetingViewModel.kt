@@ -30,6 +30,7 @@ import com.wire.android.feature.meetings.model.MeetingItem
 import com.wire.android.feature.meetings.ui.MeetingsManualViewModelFactoryGroup
 import com.wire.android.feature.meetings.ui.create.NewMeetingState.Companion.initialState
 import com.wire.android.feature.meetings.ui.create.NewMeetingState.InitialLoadingState
+import com.wire.android.feature.meetings.ui.create.NewMeetingViewModel.Companion.GENERATED_PASSWORD_LENGTH
 import com.wire.android.feature.meetings.ui.create.NewMeetingViewModel.Companion.MEETING_NAME_MAX_COUNT
 import com.wire.android.mapper.ContactMapper
 import com.wire.android.model.Contact
@@ -99,6 +100,7 @@ interface NewMeetingViewModel : ActionsManager<NewMeetingViewActions> {
 
     companion object {
         const val MEETING_NAME_MAX_COUNT = 64
+        const val GENERATED_PASSWORD_LENGTH = 8
     }
 }
 
@@ -215,7 +217,7 @@ class NewMeetingViewModelImpl @AssistedInject constructor(
 
     override fun onGenerateRandomPassword() {
         if (type == NewMeetingType.Schedule && state.isGuestLinkSharingEnabled) {
-            val password = generatePassword()
+            val password = generatePassword(minLength = GENERATED_PASSWORD_LENGTH, maxLength = GENERATED_PASSWORD_LENGTH)
             passwordTextState.setTextAndPlaceCursorAtEnd(password)
             confirmPasswordTextState.setTextAndPlaceCursorAtEnd(password)
         }

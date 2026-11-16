@@ -27,6 +27,7 @@ import com.wire.android.ui.home.conversations.call.JoinOrStartCallManager
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.id.MeetingId
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.call.usecase.AnswerCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
@@ -84,12 +85,13 @@ class MeetingsCallViewModel @Inject constructor(
         }
     }
 
-    fun startCallIfPossible(conversationId: ConversationId) {
+    fun startCallIfPossible(conversationId: ConversationId, createdMeetingId: MeetingId? = null) {
         viewModelScope.launch {
             ensureMLSEstablished(conversationId) {
                 callManager.startCallIfPossible(
                     conversationId = conversationId,
                     conversationType = Conversation.Type.Group.Meeting,
+                    createdMeetingId = createdMeetingId,
                     shouldCheckParticipantCount = false, // since this is a meeting, we don't need to check participant count
                 )
             }

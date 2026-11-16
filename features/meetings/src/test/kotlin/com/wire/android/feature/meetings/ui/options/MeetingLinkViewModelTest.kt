@@ -17,8 +17,13 @@
  */
 package com.wire.android.feature.meetings.ui.options
 
-import com.wire.kalium.logic.data.meeting.MeetingOccurrence
-import com.wire.kalium.logic.feature.meeting.ObserveMeetingOccurrenceUseCase
+import com.wire.android.feature.meetings.model.MeetingLink
+import com.wire.android.feature.meetings.ui.link.MeetingLinkState
+import com.wire.android.feature.meetings.ui.link.MeetingLinkViewModelImpl
+import com.wire.kalium.logic.data.meeting.Meeting
+import com.wire.kalium.logic.data.id.MeetingId
+import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.meeting.ObserveMeetingUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.impl.annotations.MockK
 import io.mockk.coEvery
@@ -38,7 +43,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
 @OptIn(ExperimentalCoroutinesApi::class)
-class ShareMeetingWithGuestsViewModelTest {
+class MeetingLinkViewModelTest {
     private val dispatcher = StandardTestDispatcher()
 
     @BeforeEach
@@ -50,16 +55,23 @@ class ShareMeetingWithGuestsViewModelTest {
     fun tearDown() = Dispatchers.resetMain()
 
     @Test
+    fun givenMeetingWithoutUrl_thenConfirmationStillHasReadyState() = runTest(dispatcher) {
+        val (_, viewModel) = Arrangement().withObservedMeeting(meeting(null, false)).arrange()
+        runCurrent()
+        assertEquals(MeetingLinkState.Ready(MeetingLink(null)), viewModel.state)
+    }
+
+    @Test
     fun givenMeetingUpdates_thenStateUsesLatestValues() = runTest(dispatcher) {
         val (arrangement, viewModel) = Arrangement()
             .withObservedMeeting(meeting("first", false))
             .arrange()
-        assertEquals(ShareMeetingWithGuestsState.Loading, viewModel.state)
+        assertEquals(MeetingLinkState.Loading, viewModel.state)
         runCurrent()
-        assertEquals(ShareMeetingWithGuestsState.Ready("first", false), viewModel.state)
+        assertEquals(MeetingLinkState.Ready(MeetingLink("first", false)), viewModel.state)
         arrangement.withObservedMeeting(meeting("updated", true))
         runCurrent()
-        assertEquals(ShareMeetingWithGuestsState.Ready("updated", true), viewModel.state)
+        assertEquals(MeetingLinkState.Ready(MeetingLink("updated", true)), viewModel.state)
     }
 
     @Test
@@ -70,47 +82,49 @@ class ShareMeetingWithGuestsViewModelTest {
         runCurrent()
         arrangement.withObservedMeeting(null)
         runCurrent()
-        assertEquals(ShareMeetingWithGuestsState.NotAvailable, viewModel.state)
+        assertEquals(MeetingLinkState.NotAvailable, viewModel.state)
         arrangement.withObservedMeeting(meeting("link", false))
         runCurrent()
-        assertEquals(ShareMeetingWithGuestsState.Ready("link", false), viewModel.state)
-        arrangement.withObservedMeeting(meeting("link", false, MeetingOccurrence.SelfRole.Member))
+        assertEquals(MeetingLinkState.Ready(MeetingLink("link", false)), viewModel.state)
+        arrangement.withObservedMeeting(meeting("link", false, UserId("other", "wire.test")))
         runCurrent()
-        assertEquals(ShareMeetingWithGuestsState.NotAvailable, viewModel.state)
+        assertEquals(MeetingLinkState.NotAvailable, viewModel.state)
     }
 
     private fun meeting(
         link: String?,
         hasPassword: Boolean,
-        role: MeetingOccurrence.SelfRole = MeetingOccurrence.SelfRole.Creator,
-    ): MeetingOccurrence = mockk {
-        every { selfRole } returns role
-        every { meeting.link } returns link
-        every { meeting.hasPassword } returns hasPassword
+        creator: UserId = SELF_ID,
+    ): Meeting = mockk {
+        every { creatorId } returns creator
+        every { this@mockk.link } returns link
+        every { this@mockk.hasPassword } returns hasPassword
     }
 
     private class Arrangement {
         @MockK
-        lateinit var observeMeetingOccurrenceUseCase: ObserveMeetingOccurrenceUseCase
+        lateinit var observeMeetingUseCase: ObserveMeetingUseCase
 
-        private val observedMeeting = MutableStateFlow<MeetingOccurrence?>(null)
+        private val observedMeeting = MutableStateFlow<Meeting?>(null)
 
         init {
             MockKAnnotations.init(this)
-            coEvery { observeMeetingOccurrenceUseCase.invoke(OCCURRENCE_ID) } returns observedMeeting
+            coEvery { observeMeetingUseCase.invoke(MEETING_ID) } returns observedMeeting
         }
 
-        fun withObservedMeeting(meeting: MeetingOccurrence?) = apply {
+        fun withObservedMeeting(meeting: Meeting?) = apply {
             observedMeeting.value = meeting
         }
 
-        fun arrange() = this to ShareMeetingWithGuestsViewModelImpl(
-            occurrenceId = OCCURRENCE_ID,
-            observeMeetingOccurrence = observeMeetingOccurrenceUseCase,
+        fun arrange() = this to MeetingLinkViewModelImpl(
+            meetingId = MEETING_ID,
+            observeMeeting = observeMeetingUseCase,
+            selfUserId = SELF_ID,
         )
     }
 
     private companion object {
-        const val OCCURRENCE_ID = "occurrence-id"
+        val MEETING_ID = MeetingId("meeting-id", "wire.test")
+        val SELF_ID = UserId("self", "wire.test")
     }
 }

@@ -188,6 +188,7 @@ class WireDrivePermissionsTests : BaseUiTest() {
                 deviceName = "Device1",
                 cellsEnabled = true
             )
+            testServiceHelper.waitForSharedDriveReady("user1Name", "SharedPermissions")
         }
 
         step("And GuestTeamOwner creates OtherFiles Conversation with GuestMember and Shared Drive enabled") {
@@ -198,6 +199,7 @@ class WireDrivePermissionsTests : BaseUiTest() {
                 deviceName = "Device1",
                 cellsEnabled = true
             )
+            testServiceHelper.waitForSharedDriveReady("user3Name", "OtherFiles")
         }
 
         val suffix = UUID.randomUUID().toString().take(8)
@@ -307,7 +309,7 @@ class WireDrivePermissionsTests : BaseUiTest() {
         step("And Guest sees the Viewer banner and both files in Shared Drive") {
             pages.wireDrivePage.apply {
                 assertViewerAccessBannerVisible("Viewer access: you can’t upload or edit files.")
-                assertFileVisibleOnce(sharedPdf)
+                assertFileVisibleOnce(sharedPdf, timeout = UiWaitUtils.LONG_TIMEOUT)
                 assertFileVisibleOnce(sharedDocument)
             }
         }
@@ -373,7 +375,7 @@ class WireDrivePermissionsTests : BaseUiTest() {
             pages.wireDrivePage.apply {
                 assertViewerAccessBannerVisible("Viewer access: you can’t upload or edit files.")
                 assertNewButtonAbsent()
-                assertFileVisibleOnce(sharedPdf)
+                assertFileVisibleOnce(sharedPdf, timeout = UiWaitUtils.LONG_TIMEOUT)
                 assertFileVisibleOnce(sharedDocument)
             }
         }
@@ -505,6 +507,7 @@ class WireDrivePermissionsTests : BaseUiTest() {
                 deviceName = "Device1",
                 cellsEnabled = true
             )
+            testServiceHelper.waitForSharedDriveReady("user1Name", "ViewerRestrictions")
         }
 
         val sharedPdf = "ViewerRestrictions-${UUID.randomUUID().toString().take(8)}.pdf"
@@ -530,7 +533,7 @@ class WireDrivePermissionsTests : BaseUiTest() {
         step("Then Guest sees the Viewer access banner and the PDF, with no Shared Drive options button") {
             pages.wireDrivePage.apply {
                 assertViewerAccessBannerVisible("Viewer access: you can’t upload or edit files.")
-                assertFileVisibleOnce(sharedPdf)
+                assertFileVisibleOnce(sharedPdf, timeout = UiWaitUtils.LONG_TIMEOUT)
                 assertSharedDriveOptionsButtonAbsent()
             }
         }
@@ -547,7 +550,7 @@ class WireDrivePermissionsTests : BaseUiTest() {
             pages.wireDrivePage.navigateBack()
             pages.groupConversationDetailsPage.tapSharedDriveButton()
             pages.wireDrivePage.apply {
-                assertFileVisibleOnce(sharedPdf)
+                assertFileVisibleOnce(sharedPdf, timeout = UiWaitUtils.LONG_TIMEOUT)
                 assertViewerAccessBannerNoLongerVisible()
                 assertSharedDriveOptionsButtonAbsent()
             }
@@ -643,6 +646,7 @@ class WireDrivePermissionsTests : BaseUiTest() {
                 deviceName = "Device1",
                 cellsEnabled = true
             )
+            testServiceHelper.waitForSharedDriveReady("user1Name", "RestrictedActions")
         }
 
         val sharedPdf = "RestrictedActions-${UUID.randomUUID().toString().take(8)}.pdf"
@@ -686,7 +690,7 @@ class WireDrivePermissionsTests : BaseUiTest() {
         step("Then GuestMember sees the Viewer banner, PDF and folder in Shared Drive") {
             pages.wireDrivePage.apply {
                 assertViewerAccessBannerVisible("Viewer access: you can’t upload or edit files.")
-                assertFileVisibleOnce(sharedPdf)
+                assertFileVisibleOnce(sharedPdf, timeout = UiWaitUtils.LONG_TIMEOUT)
                 assertFolderVisibleOnce("ViewerFolder")
             }
         }
@@ -924,6 +928,7 @@ class WireDrivePermissionsTests : BaseUiTest() {
                 deviceName = "Device1",
                 cellsEnabled = true
             )
+            testServiceHelper.waitForSharedDriveReady("user1Name", "ExternalOpening")
         }
 
         val sharedHtml = "ExternalOpening-${UUID.randomUUID().toString().take(8)}.html"
@@ -1082,6 +1087,7 @@ class WireDrivePermissionsTests : BaseUiTest() {
                 deviceName = "Device1",
                 cellsEnabled = true
             )
+            testServiceHelper.waitForSharedDriveReady("user3Name", "SendFilesHere")
         }
         step("And TeamOwner creates OtherFiles Conversation with Member1 and Shared Drive enabled") {
             testServiceHelper.userCreatesMLSGroupConversation(
@@ -1091,6 +1097,7 @@ class WireDrivePermissionsTests : BaseUiTest() {
                 deviceName = "Device1",
                 cellsEnabled = true
             )
+            testServiceHelper.waitForSharedDriveReady("user1Name", "OtherFiles")
         }
         step("And Member1 sees both Conversations") {
             pages.conversationListPage.apply {
@@ -1266,6 +1273,7 @@ class WireDrivePermissionsTests : BaseUiTest() {
                 deviceName = "Device1",
                 cellsEnabled = true
             )
+            testServiceHelper.waitForSharedDriveReady("user1Name", "DocumentPermissions")
         }
 
         val suffix = UUID.randomUUID().toString().take(8)
@@ -1332,9 +1340,15 @@ class WireDrivePermissionsTests : BaseUiTest() {
         }
         step("When Member1 closes the document editor and switches to Guest's account") {
             pages.documentEditorPage.closeEditor()
-            pages.wireDrivePage.navigateBack()
-            pages.groupConversationDetailsPage.tapBackButton()
-            pages.conversationViewPage.tapBackButtonToCloseConversationViewPage()
+            pages.wireDrivePage.apply {
+                assertSharedDriveVisible()
+                navigateBack()
+            }
+            pages.groupConversationDetailsPage.tapCloseButtonOnGroupConversationDetailsPage()
+            pages.conversationViewPage.apply {
+                assertGroupConversationInForeground("DocumentPermissions")
+                tapBackButtonToCloseConversationViewPage()
+            }
             pages.conversationListPage.clickUserProfileButton()
             pages.selfUserProfilePage.tapOtherAccountByName(guest.name.orEmpty())
             clientUserManager.setSelfUser(guest)
@@ -1465,6 +1479,7 @@ class WireDrivePermissionsTests : BaseUiTest() {
                 deviceName = "Device1",
                 cellsEnabled = true
             )
+            testServiceHelper.waitForSharedDriveReady("user1Name", "MembershipPermissions")
         }
 
         val suffix = UUID.randomUUID().toString().take(8)
@@ -1515,7 +1530,8 @@ class WireDrivePermissionsTests : BaseUiTest() {
         step("When Guest tries to open the previously unopened PDF, Wire reports that the item is no longer available") {
             UiWaitUtils.assertToastDisplayed(
                 text = "This item is no longer available. It may have been deleted or moved.",
-                trigger = { pages.wireDrivePage.openFile(unopenedPdf) }
+                trigger = { pages.wireDrivePage.openFile(unopenedPdf) },
+                timeout = UiWaitUtils.LONG_TIMEOUT
             )
         }
         step("Then Guest remains in Shared Drive with the Viewer banner and the unavailable PDF is absent") {
@@ -1657,6 +1673,7 @@ class WireDrivePermissionsTests : BaseUiTest() {
                 deviceName = "Device1",
                 cellsEnabled = true
             )
+            testServiceHelper.waitForSharedDriveReady("user1Name", "BulkPermissions")
         }
 
         val suffix = UUID.randomUUID().toString().take(8)
@@ -1680,8 +1697,8 @@ class WireDrivePermissionsTests : BaseUiTest() {
             pages.conversationViewPage.clickOnGroupConversationDetails("BulkPermissions")
             pages.groupConversationDetailsPage.tapSharedDriveButton()
             pages.wireDrivePage.apply {
+                assertFileVisibleOnce(sharedPdf, timeout = UiWaitUtils.LONG_TIMEOUT)
                 assertSharedDriveVisibleWithoutViewerBanner()
-                assertFileVisibleOnce(sharedPdf)
             }
         }
 
@@ -1782,7 +1799,7 @@ class WireDrivePermissionsTests : BaseUiTest() {
         step("Then personal Guest sees the Viewer access banner, PDF and BulkFolder in Shared Drive") {
             pages.wireDrivePage.apply {
                 assertViewerAccessBannerVisible("Viewer access: you can’t upload or edit files.")
-                assertFileVisibleOnce(sharedPdf)
+                assertFileVisibleOnce(sharedPdf, timeout = UiWaitUtils.LONG_TIMEOUT)
                 assertFolderVisibleOnce("BulkFolder")
             }
         }
@@ -1841,7 +1858,7 @@ class WireDrivePermissionsTests : BaseUiTest() {
         step("Then GuestMember from another team sees the Viewer access banner, PDF and BulkFolder in Shared Drive") {
             pages.wireDrivePage.apply {
                 assertViewerAccessBannerVisible("Viewer access: you can’t upload or edit files.")
-                assertFileVisibleOnce(sharedPdf)
+                assertFileVisibleOnce(sharedPdf, timeout = UiWaitUtils.LONG_TIMEOUT)
                 assertFolderVisibleOnce("BulkFolder")
             }
         }

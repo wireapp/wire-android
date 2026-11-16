@@ -38,6 +38,7 @@ import java.util.regex.Pattern
 import kotlin.time.Duration
 
 /** UI actions shared by Wire Drive scenarios; navigation assertions stay scoped to the current folder. */
+@Suppress("LargeClass")
 data class WireDrivePage(private val device: UiDevice) {
     private val newButton = UiSelectorParams(description = "New")
     private val createFolderOption = UiSelectorParams(text = "Create Folder")
@@ -258,14 +259,14 @@ data class WireDrivePage(private val device: UiDevice) {
         return this
     }
 
-    fun tapCollapseButtonOnUploadStatusPanel(): WireDrivePage {
+    fun tapCollapseButtonOnUploadStatusPanel(timeout: Duration = UiWaitUtils.SHORT_WAIT): WireDrivePage {
         UiWaitUtils.waitElement(collapseButtonOnUploadStatusPanel).click()
-        UiWaitUtils.waitElement(newButton, timeout = UiWaitUtils.SHORT_WAIT)
+        UiWaitUtils.waitElement(newButton, timeout = timeout)
         return this
     }
 
-    fun assertFolderVisibleOnce(folderName: String): WireDrivePage {
-        UiWaitUtils.waitElement(UiSelectorParams(text = folderName), timeout = UiWaitUtils.STABLE_TIMEOUT)
+    fun assertFolderVisibleOnce(folderName: String, timeout: Duration = UiWaitUtils.STABLE_TIMEOUT): WireDrivePage {
+        UiWaitUtils.waitElement(UiSelectorParams(text = folderName), timeout = timeout)
         assertEquals(
             "Expected one folder named '$folderName' in the current folder",
             1,
@@ -659,6 +660,7 @@ data class WireDrivePage(private val device: UiDevice) {
                 errorMessage = "Drive is still loading files"
             )
             val visibleFileNames = visiblePdfFileNames()
+            if (visibleFileNames.isEmpty()) return@retryUntilTimeout false
             assertEquals("Duplicate PDF entries are visible", visibleFileNames.distinct().size, visibleFileNames.size)
             val repeatedFileNames = visibleFileNames.filter { fileName ->
                 fileName in observedFileNames && fileName !in previousVisibleFileNames
@@ -685,7 +687,7 @@ data class WireDrivePage(private val device: UiDevice) {
     }
 
     fun getFirstVisiblePdfFileName(): String {
-        UiWaitUtils.waitElement(UiSelectorParams(textMatches = ".*\\.pdf"), timeout = UiWaitUtils.STABLE_TIMEOUT)
+        UiWaitUtils.waitElement(UiSelectorParams(textMatches = ".*\\.pdf"), timeout = UiWaitUtils.LONG_TIMEOUT)
         return visiblePdfFileNames().first()
     }
 
@@ -710,8 +712,18 @@ data class WireDrivePage(private val device: UiDevice) {
             .map { it.text }
     }
 
+    @Suppress("MagicNumber")
     private fun scrollFileList(direction: Direction): Boolean {
         val list = requireNotNull(device.findObject(fileList)) { "Drive file list is not visible" }
-        return list.scroll(direction, 0.5f)
+        val before = visiblePdfFileNames()
+        // Compose can omit scroll-finished events, causing scroll() to repeat gestures and skip rows.
+        val bounds = list.visibleBounds
+        val upper = Point(bounds.centerX(), bounds.top + bounds.height() / 4)
+        val lower = Point(bounds.centerX(), bounds.bottom - bounds.height() / 4)
+        // Holding the end point prevents a fling from skipping rows between observations.
+        val points = if (direction == Direction.DOWN) arrayOf(lower, upper, upper) else arrayOf(upper, lower, lower)
+        device.swipe(points, 20)
+        device.waitForIdle(UiWaitUtils.SHORT_WAIT.inWholeMilliseconds)
+        return visiblePdfFileNames() != before
     }
 }

@@ -48,7 +48,7 @@ import com.wire.android.ui.home.settings.account.handle.ChangeHandleViewModel
 import com.wire.android.ui.home.settings.appearance.CustomizationViewModel
 import com.wire.android.ui.home.settings.appsettings.networkSettings.NetworkSettingsViewModel
 import com.wire.android.ui.home.settings.backup.BackupAndRestoreViewModel
-import com.wire.android.ui.home.settings.mfa.MFAViewModel
+import com.wire.android.ui.home.settings.mfa.MFAOverviewViewModel
 import com.wire.android.ui.home.settings.mfa.MFASetupViewModel
 import com.wire.android.ui.home.settings.mfa.MFARecoveryCodesViewModel
 import com.wire.android.ui.home.settings.mfa.MFATurnOffViewModel
@@ -275,8 +275,8 @@ object WireMetroViewModelBindings {
 
     @Provides
     @IntoMap
-    @ViewModelKey(MFAViewModel::class)
-    fun mfaViewModel(viewModel: MFAViewModel): ViewModel = viewModel
+    @ViewModelKey(MFAOverviewViewModel::class)
+    fun mfaOverviewViewModel(viewModel: MFAOverviewViewModel): ViewModel = viewModel
 
     @Provides
     @IntoMap

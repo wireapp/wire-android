@@ -48,7 +48,7 @@ class MFASetupNavigationTest {
     @Test
     fun `completion removes every setup screen and returns to the original overview`() {
         val settings = SettingsRoute(session)
-        val overview = MFARoute(session)
+        val overview = MFAOverviewRoute(session)
         val root = MFASetupRoute(session)
         val stack = mutableListOf<NavKey>(settings, overview, root)
         val navigator = WireNavigationController(stack)
@@ -70,7 +70,7 @@ class MFASetupNavigationTest {
 
     @Test
     fun `a restored step without in-memory enrollment can restart at password confirmation`() {
-        val overview = MFARoute(session)
+        val overview = MFAOverviewRoute(session)
         val restored = MFASetupRoute(session, step = MFASetupStep.RECOVERY_CODES)
 
         val stack = setupRootBackStack(listOf(overview, restored), restored.flowId)

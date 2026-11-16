@@ -49,7 +49,7 @@ class AuthenticatorAppOperationsNavigationTest {
 
     @Test
     fun `add completion collapses to its original requester and removal pops both confirmation and edit`() {
-        val overview = MFARoute(session)
+        val overview = MFAOverviewRoute(session)
         val list = MFAAuthenticatorAppsRoute(session, overview.flowId)
         val addRoot = MFAAddAuthenticatorAppRoute(session)
         val addName = addRoot.copy(step = MFASetupStep.NAME_APP, entryId = WireNavEntryId.random())

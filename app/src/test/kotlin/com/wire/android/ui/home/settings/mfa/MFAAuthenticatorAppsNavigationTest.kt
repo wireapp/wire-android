@@ -36,7 +36,7 @@ class MFAAuthenticatorAppsNavigationTest {
 
     @Test
     fun `list and editor retain the overview owner while keeping independent screen identities`() {
-        val overview = MFARoute(session)
+        val overview = MFAOverviewRoute(session)
         val list = MFAAuthenticatorAppsRoute(session, overview.flowId)
         val edit = MFAEditAuthenticatorAppRoute(session, overview.flowId, "phone")
 
@@ -49,7 +49,7 @@ class MFAAuthenticatorAppsNavigationTest {
 
     @Test
     fun `back from editing reveals the original list then the original overview`() {
-        val overview = MFARoute(session)
+        val overview = MFAOverviewRoute(session)
         val list = MFAAuthenticatorAppsRoute(session, overview.flowId)
         val navigator = WireNavigationController(mutableListOf<NavKey>(overview))
         navigator.navigate(WireNavigationCommand(list))

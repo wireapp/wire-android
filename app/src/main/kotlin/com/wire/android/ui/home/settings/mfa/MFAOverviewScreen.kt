@@ -54,25 +54,25 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 import kotlinx.datetime.LocalDate
 
 @Composable
-fun MFAScreen(
+fun MFAOverviewScreen(
     onBackPressed: () -> Unit,
-    viewModel: MFAViewModel,
+    viewModel: MFAOverviewViewModel,
     onSetUp: () -> Unit,
     onManageRecoveryCodes: (RecoveryCodesStatus) -> Unit,
     onTurnOff: () -> Unit,
     onManageAuthenticatorApps: () -> Unit,
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
-    MFAScreenContent(
+    MFAOverviewScreenContent(
         state = state,
         onBackPressed = onBackPressed,
         onRetry = viewModel::refresh,
         onAction = { action ->
             when (action) {
-                MFAAction.SetUp -> onSetUp()
-                MFAAction.TurnOff -> onTurnOff()
-                MFAAction.ManageAuthenticatorApps -> onManageAuthenticatorApps()
-                MFAAction.ManageRecoveryCodes -> {
+                MFAOverviewAction.SetUp -> onSetUp()
+                MFAOverviewAction.TurnOff -> onTurnOff()
+                MFAOverviewAction.ManageAuthenticatorApps -> onManageAuthenticatorApps()
+                MFAOverviewAction.ManageRecoveryCodes -> {
                     val loaded = state as? MFAOverviewState.Loaded
                     (loaded?.overview as? MFAOverview.Enabled)?.let {
                         onManageRecoveryCodes(it.recoveryCodesStatus)
@@ -84,11 +84,11 @@ fun MFAScreen(
 }
 
 @Composable
-internal fun MFAScreenContent(
+internal fun MFAOverviewScreenContent(
     state: MFAOverviewState,
     onBackPressed: () -> Unit,
     onRetry: () -> Unit,
-    onAction: (MFAAction) -> Unit,
+    onAction: (MFAOverviewAction) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     WireScaffold(
@@ -122,7 +122,7 @@ internal fun MFAScreenContent(
 private fun OverviewContent(
     state: MFAOverviewState.Loaded,
     onRetry: () -> Unit,
-    onAction: (MFAAction) -> Unit,
+    onAction: (MFAOverviewAction) -> Unit,
 ) {
     val overview = state.overview
     Column(Modifier.fillMaxSize()) {
@@ -151,7 +151,7 @@ private fun OverviewContent(
                         overview.authenticatorApps.size,
                         overview.authenticatorApps.size,
                     ),
-                    clickable = Clickable { onAction(MFAAction.ManageAuthenticatorApps) },
+                    clickable = Clickable { onAction(MFAOverviewAction.ManageAuthenticatorApps) },
                 )
                 GroupConversationOptionsItem(
                     title = stringResource(R.string.mfa_recovery_codes),
@@ -160,7 +160,7 @@ private fun OverviewContent(
                         overview.recoveryCodesStatus.remaining,
                         overview.recoveryCodesStatus.total,
                     ),
-                    clickable = Clickable { onAction(MFAAction.ManageRecoveryCodes) },
+                    clickable = Clickable { onAction(MFAOverviewAction.ManageRecoveryCodes) },
                 )
             }
             if (state.hasRefreshError) {
@@ -170,13 +170,13 @@ private fun OverviewContent(
         if (overview is MFAOverview.Disabled) {
             WirePrimaryButton(
                 text = stringResource(R.string.mfa_set_up),
-                onClick = { onAction(MFAAction.SetUp) },
+                onClick = { onAction(MFAOverviewAction.SetUp) },
                 modifier = Modifier.padding(dimensions().spacing16x),
             )
         } else {
             WireSecondaryButton(
                 text = stringResource(R.string.mfa_turn_off),
-                onClick = { onAction(MFAAction.TurnOff) },
+                onClick = { onAction(MFAOverviewAction.TurnOff) },
                 state = WireButtonState.Error,
                 modifier = Modifier.padding(dimensions().spacing16x),
             )
@@ -202,13 +202,13 @@ private fun OverviewError(onRetry: () -> Unit, modifier: Modifier = Modifier) {
 
 @PreviewMultipleThemes
 @Composable
-private fun PreviewMFADisabled() = WireTheme {
+private fun PreviewMFAOverviewDisabled() = WireTheme {
     OverviewPreview(MFAOverviewState.Loaded(MFAOverview.Disabled))
 }
 
 @PreviewMultipleThemes
 @Composable
-private fun PreviewMFAEnabled() = WireTheme {
+private fun PreviewMFAOverviewEnabled() = WireTheme {
     OverviewPreview(
         MFAOverviewState.Loaded(
             MFAOverview.Enabled(
@@ -221,17 +221,17 @@ private fun PreviewMFAEnabled() = WireTheme {
 
 @PreviewMultipleThemes
 @Composable
-private fun PreviewMFALoading() = WireTheme {
+private fun PreviewMFAOverviewLoading() = WireTheme {
     OverviewPreview(MFAOverviewState.Loading)
 }
 
 @PreviewMultipleThemes
 @Composable
-private fun PreviewMFAError() = WireTheme {
+private fun PreviewMFAOverviewError() = WireTheme {
     OverviewPreview(MFAOverviewState.Error)
 }
 
 @Composable
 private fun OverviewPreview(state: MFAOverviewState) {
-    MFAScreenContent(state, onBackPressed = {}, onRetry = {}, onAction = {})
+    MFAOverviewScreenContent(state, onBackPressed = {}, onRetry = {}, onAction = {})
 }

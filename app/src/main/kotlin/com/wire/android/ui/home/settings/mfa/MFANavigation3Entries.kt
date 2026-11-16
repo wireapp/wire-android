@@ -62,7 +62,7 @@ internal fun mfaNavigation3Entries(
     runtime: WireNavigation3Runtime,
     onExit: () -> Unit,
 ): WireEntryProviderInstaller = {
-    wireEntry<MFARoute> { route ->
+    wireEntry<MFAOverviewRoute> { route ->
         MFAOverviewEntry(runtime, route, onExit)
     }
     wireEntry<MFASetupRoute> { route ->
@@ -91,10 +91,10 @@ internal fun mfaNavigation3Entries(
 @Composable
 private fun MFAOverviewEntry(
     runtime: WireNavigation3Runtime,
-    route: MFARoute,
+    route: MFAOverviewRoute,
     onExit: () -> Unit,
 ) {
-    val viewModel: MFAViewModel = settingsViewModel(
+    val viewModel: MFAOverviewViewModel = settingsViewModel(
         viewModelStoreOwner = wireViewModelStoreOwner(WireViewModelOwner.Flow(route.flowId)),
     )
     var setupRequestId by rememberSaveable(route.entryId.value) { mutableStateOf<String?>(null) }
@@ -140,7 +140,7 @@ private fun MFAOverviewEntry(
             coroutineScope.launch { snackbarHostState.showSnackbar(turnOffSuccessMessage) }
         },
     )
-    MFAScreen(
+    MFAOverviewScreen(
         onBackPressed = { if (!runtime.navigator.goBack()) onExit() },
         viewModel = viewModel,
         onSetUp = {

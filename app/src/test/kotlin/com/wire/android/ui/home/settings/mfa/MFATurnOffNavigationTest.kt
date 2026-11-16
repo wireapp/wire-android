@@ -42,7 +42,7 @@ class MFATurnOffNavigationTest {
 
     @Test
     fun `leaving the confirmation screen returns to the original overview`() {
-        val overview = MFARoute(session)
+        val overview = MFAOverviewRoute(session)
         val navigator = WireNavigationController(mutableListOf<NavKey>(overview))
         navigator.navigate(WireNavigationCommand(MFATurnOffRoute(session)))
 

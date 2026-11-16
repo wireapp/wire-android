@@ -38,7 +38,7 @@ sealed interface MFAOverviewState {
     ) : MFAOverviewState
 }
 
-class MFAViewModel @Inject constructor(
+class MFAOverviewViewModel @Inject constructor(
     store: MFAStore,
 ) : ViewModel() {
     // Construct the use cases from the same unscoped store so the flow owns exactly one cache.

@@ -47,7 +47,7 @@ class MFARecoveryCodesNavigationTest {
 
     @Test
     fun `closing the codes flow returns to the existing overview without leaving recovery screens behind`() {
-        val overview = MFARoute(session)
+        val overview = MFAOverviewRoute(session)
         val root = MFARecoveryCodesRoute(session, 3, 10)
         val stack = mutableListOf<NavKey>(overview, root)
         val navigator = WireNavigationController(stack)

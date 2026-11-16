@@ -70,7 +70,7 @@ internal fun MFATurnOffEntry(
 @Composable
 internal fun ConsumeMFATurnOffResult(
     runtime: WireNavigation3Runtime,
-    route: MFARoute,
+    route: MFAOverviewRoute,
     requestIdValue: String?,
     onConsumed: () -> Unit,
     onSuccess: () -> Unit,

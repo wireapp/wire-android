@@ -36,7 +36,7 @@ internal fun MFARemoveAuthenticatorAppEntry(
     route: MFARemoveAuthenticatorAppRoute,
     onExit: () -> Unit,
 ) {
-    val areaViewModel: MFAViewModel = settingsViewModel(
+    val areaViewModel: MFAOverviewViewModel = settingsViewModel(
         viewModelStoreOwner = wireViewModelStoreOwner(WireViewModelOwner.Flow(route.flowId)),
     )
     val viewModel: MFARemoveAuthenticatorAppViewModel = settingsViewModel()

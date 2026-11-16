@@ -18,9 +18,21 @@
 
 package com.wire.android.ui.home.settings.mfa
 
-enum class MFAAction {
-    SetUp,
-    ManageAuthenticatorApps,
-    ManageRecoveryCodes,
-    TurnOff,
+import com.wire.navigation.SessionRoute
+import com.wire.navigation.WireNavEntryId
+import com.wire.navigation.WireSessionId
+import kotlinx.serialization.Serializable
+
+@Serializable
+data class MFAOverviewRoute(
+    override val sessionId: WireSessionId,
+    override val entryId: WireNavEntryId = WireNavEntryId.random(),
+    override val flowId: String = "multi-factor-authentication:${entryId.value}",
+) : SessionRoute {
+    override val routeId: String
+        get() = ROUTE_ID
+
+    companion object {
+        const val ROUTE_ID = "app/multi_factor_authentication_screen"
+    }
 }

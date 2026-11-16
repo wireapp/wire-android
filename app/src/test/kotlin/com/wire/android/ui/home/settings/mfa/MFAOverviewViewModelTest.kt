@@ -39,7 +39,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(CoroutineTestExtension::class)
-class MFAViewModelTest {
+class MFAOverviewViewModelTest {
     private val owner = ViewModelStore()
     private val enabled = MFAOverview.Enabled(
         authenticatorApps = listOf(AuthenticatorApp("phone", "Android phone", LocalDate(2026, 10, 14))),
@@ -242,9 +242,9 @@ class MFAViewModelTest {
         )
     }
 
-    private fun createViewModel(store: MFAStore): MFAViewModel =
+    private fun createViewModel(store: MFAStore): MFAOverviewViewModel =
         ViewModelProvider.create(
             owner,
-            viewModelFactory { initializer { MFAViewModel(store) } },
-        )[MFAViewModel::class]
+            viewModelFactory { initializer { MFAOverviewViewModel(store) } },
+        )[MFAOverviewViewModel::class]
 }

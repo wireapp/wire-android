@@ -55,7 +55,7 @@ internal fun MFAAuthenticatorAppsEntry(
     route: MFAAuthenticatorAppsRoute,
     onExit: () -> Unit,
 ) {
-    val viewModel: MFAViewModel = settingsViewModel(
+    val viewModel: MFAOverviewViewModel = settingsViewModel(
         viewModelStoreOwner = wireViewModelStoreOwner(WireViewModelOwner.Flow(route.flowId)),
     )
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -107,7 +107,7 @@ private fun ConsumeAddedAuthenticatorResult(
     runtime: WireNavigation3Runtime,
     route: MFAAuthenticatorAppsRoute,
     requestIdValue: String?,
-    viewModel: MFAViewModel,
+    viewModel: MFAOverviewViewModel,
     onConsumed: () -> Unit,
 ) {
     val currentEntryId = runtime.navigator.currentRoute?.entryId
@@ -142,7 +142,7 @@ internal fun MFAEditAuthenticatorAppEntry(
     route: MFAEditAuthenticatorAppRoute,
     onExit: () -> Unit,
 ) {
-    val areaViewModel: MFAViewModel = settingsViewModel(
+    val areaViewModel: MFAOverviewViewModel = settingsViewModel(
         viewModelStoreOwner = wireViewModelStoreOwner(WireViewModelOwner.Flow(route.flowId)),
     )
     val editViewModel: MFAEditAuthenticatorAppViewModel = settingsViewModel()

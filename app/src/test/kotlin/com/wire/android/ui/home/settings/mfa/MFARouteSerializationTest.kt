@@ -32,7 +32,7 @@ class MFARouteSerializationTest {
     @Test
     fun `MFA routes restore through the Android navigation serializer`() {
         val routes = listOf<SessionRoute>(
-            MFARoute(session),
+            MFAOverviewRoute(session),
             MFASetupRoute(session, step = MFASetupStep.VERIFY_CODE),
             MFAAddAuthenticatorAppRoute(session, step = MFASetupStep.NAME_APP),
             MFAAuthenticatorAppsRoute(session, "mfa-area"),

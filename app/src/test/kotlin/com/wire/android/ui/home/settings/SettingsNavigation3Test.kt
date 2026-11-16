@@ -18,7 +18,7 @@
 
 package com.wire.android.ui.home.settings
 
-import com.wire.android.ui.home.settings.mfa.MFARoute
+import com.wire.android.ui.home.settings.mfa.MFAOverviewRoute
 import com.wire.navigation.SessionRoute
 import com.wire.navigation.WireNavEntryId
 import com.wire.navigation.WireSessionId
@@ -49,7 +49,7 @@ class SettingsNavigation3Test {
             PrivacySettingsRoute(sessionId, WireNavEntryId("privacy-settings-entry")),
         )
         assertSerializationRoundTrip(
-            MFARoute(sessionId, WireNavEntryId("multi-factor-authentication-entry")),
+            MFAOverviewRoute(sessionId, WireNavEntryId("multi-factor-authentication-entry")),
         )
         assertSerializationRoundTrip(
             CustomizationSettingsRoute(sessionId, WireNavEntryId("customization-settings-entry")),
@@ -98,11 +98,11 @@ class SettingsNavigation3Test {
 
     @Test
     fun givenMfaRoutes_whenCreatingAndRestoringFlows_thenEachVisitOwnsAnIndependentCache() {
-        val first = MFARoute(sessionId)
-        val second = MFARoute(sessionId)
+        val first = MFAOverviewRoute(sessionId)
+        val second = MFAOverviewRoute(sessionId)
 
         assertNotEquals(first.flowId, second.flowId)
-        val restored = Json.decodeFromString<MFARoute>(Json.encodeToString(first))
+        val restored = Json.decodeFromString<MFAOverviewRoute>(Json.encodeToString(first))
         assertEquals(first.flowId, restored.flowId)
     }
 
@@ -113,7 +113,7 @@ class SettingsNavigation3Test {
             AppSettingsRoute(sessionId) to "app/app_settings_screen",
             NetworkSettingsRoute(sessionId) to "app/network_settings_screen",
             PrivacySettingsRoute(sessionId) to "app/privacy_settings_config_screen",
-            MFARoute(sessionId) to "app/multi_factor_authentication_screen",
+            MFAOverviewRoute(sessionId) to "app/multi_factor_authentication_screen",
             CustomizationSettingsRoute(sessionId) to "app/customization_screen",
             LicensesSettingsRoute(sessionId) to "app/licenses_screen",
             DependenciesSettingsRoute(sessionId) to "app/dependencies_screen",
@@ -141,7 +141,7 @@ class SettingsNavigation3Test {
             SettingsItem.AboutApp to AboutThisAppRoute(sessionId, entryId),
             SettingsItem.NetworkSettings to NetworkSettingsRoute(sessionId, entryId),
             SettingsItem.PrivacySettings to PrivacySettingsRoute(sessionId, entryId),
-            SettingsItem.MFA to MFARoute(sessionId, entryId),
+            SettingsItem.MFA to MFAOverviewRoute(sessionId, entryId),
             SettingsItem.Customization to CustomizationSettingsRoute(sessionId, entryId),
             SettingsItem.Licenses to LicensesSettingsRoute(sessionId, entryId),
             SettingsItem.Dependencies to DependenciesSettingsRoute(sessionId, entryId),

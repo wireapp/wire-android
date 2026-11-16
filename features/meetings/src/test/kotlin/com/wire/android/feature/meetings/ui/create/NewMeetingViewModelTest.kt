@@ -59,6 +59,7 @@ import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.verify
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
@@ -81,6 +82,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import kotlin.time.Duration.Companion.hours
+import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Instant
 
 @Suppress("LargeClass")
@@ -438,7 +440,7 @@ class NewMeetingViewModelTest {
             Arrangement(dispatcher)
                 .withNewMeetingType(NewMeetingType.MeetNow)
                 .withCurrentTimeProvider { currentTime }
-                .withCreateMeetingResult(CreateNewMeetingUseCase.Result.Success(createdConversationId, CREATED_MEETING_ID),)
+                .withCreateMeetingResult(CreateNewMeetingUseCase.Result.Success(createdConversationId, CREATED_MEETING_ID))
         )
 
         enterTitle(viewModel, "  Quick sync  ")
@@ -526,7 +528,7 @@ class NewMeetingViewModelTest {
                 .withNewMeetingType(NewMeetingType.Schedule)
                 .withMeetingsGuestsLinksEnabled(false)
                 .withGuestLinkSharingEnabled(false)
-                .withCreateMeetingResult(CreateNewMeetingUseCase.Result.Success(CONVERSATION_ID, CREATED_MEETING_ID),)
+                .withCreateMeetingResult(CreateNewMeetingUseCase.Result.Success(CONVERSATION_ID, CREATED_MEETING_ID))
         )
         enterTitle(viewModel, "Planning")
         viewModel.actions.test {
@@ -572,7 +574,7 @@ class NewMeetingViewModelTest {
             val (arrangement, viewModel) = arrangeViewModel(
                 Arrangement(dispatcher)
                     .withNewMeetingType(type)
-                    .withCreateMeetingResult(CreateNewMeetingUseCase.Result.Success(ConversationId("meeting", "domain")))
+                    .withCreateMeetingResult(CreateNewMeetingUseCase.Result.Success(CONVERSATION_ID, CREATED_MEETING_ID))
             )
             enterTitle(viewModel, "  Weekly sync  ")
             viewModel.updateSelectedContact(true, shared)
@@ -1050,7 +1052,11 @@ class NewMeetingViewModelTest {
                 advanceUntilIdle()
 
                 coVerify(exactly = 1) { arrangement.createNewMeeting(createMeeting) }
-                assertEquals(NewMeetingViewActions.Success(NewMeetingResult.Scheduled(CREATED_MEETING_ID)), awaitItem())
+                val expectedResult = when (type) {
+                    NewMeetingType.MeetNow -> NewMeetingResult.MeetNow(CREATED_MEETING_ID, CONVERSATION_ID)
+                    else -> NewMeetingResult.Scheduled(CREATED_MEETING_ID)
+                }
+                assertEquals(NewMeetingViewActions.Success(expectedResult), awaitItem())
                 cancelAndConsumeRemainingEvents()
             }
         }

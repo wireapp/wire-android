@@ -1643,7 +1643,7 @@ class NewMeetingViewModelTest {
         }
 
         fun withGeneratedPassword(password: String) = apply {
-            every { generatePassword(minLength = 8, maxLength = 8) } returns password
+            every { generatePassword(minLength = any(), maxLength = any()) } returns password
         }
 
         fun withPasswordValidationResult(password: String, result: ValidatePasswordResult) = apply {
@@ -1664,14 +1664,6 @@ class NewMeetingViewModelTest {
 
         fun withPendingCreateMeetingResult(result: CompletableDeferred<CreateNewMeetingUseCase.Result>) = apply {
             coEvery { createNewMeeting(any()) } coAnswers { result.await() }
-        }
-
-        fun withPasswordValidationResult(password: String, result: ValidatePasswordResult) = apply {
-            every { validatePassword(password) } returns result
-        }
-
-        fun withGeneratedPassword(password: String) = apply {
-            every { generatePassword() } returns password
         }
 
         fun withUpdateMeetingResult(meetingId: MeetingId, result: UpdateMeetingUseCase.Result) = apply {

@@ -17,6 +17,7 @@
  */
 package com.wire.android.tests.core.pages
 
+import android.os.Build
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
 import org.junit.Assert.assertEquals
@@ -27,7 +28,7 @@ import uiautomatorutils.UiWaitUtils
 data class ChromePage(private val device: UiDevice) {
 
     private val useWithoutAccountLocator = UiSelectorParams(text = "Use without an account")
-    private val noThanksLocator = UiSelectorParams(text = "No thanks")
+    private val noThanksLocator = UiSelectorParams(textMatches = "No,? thanks")
     private val declineCookiesLocator = UiSelectorParams(text = "Decline")
     private val networkQualityArticleTitle = UiSelectorParams(textContains = "Check network quality")
     private val sharedDriveArticleTitle = UiSelectorParams(textContains = "Use Drive in conversations")
@@ -89,17 +90,38 @@ data class ChromePage(private val device: UiDevice) {
 
     fun selectChromeFromOpenWithDialog(): ChromePage {
         val chromeAddressBar = UiSelectorParams(resourceId = "com.android.chrome:id/url_bar")
-        val chrome = UiWaitUtils.waitAnyVisible(
-            selectors = listOf(chromeAddressBar, UiSelectorParams(text = "Chrome"), UiSelectorParams(text = "Open with Chrome")),
+        val justOnce = UiSelectorParams(text = "Just once")
+        val chromeScreens = listOf(chromeAddressBar, noThanksLocator)
+        val chromeChoices = chromeScreens + listOf(
+            UiSelectorParams(text = "Chrome"),
+            UiSelectorParams(text = "Open with Chrome"),
+            justOnce
+        )
+        val choices = if (Build.MANUFACTURER.equals("Xiaomi", ignoreCase = true)) {
+            chromeChoices + UiSelectorParams(text = "More")
+        } else {
+            chromeChoices
+        }
+        var chrome = UiWaitUtils.waitAnyVisible(
+            selectors = choices,
             timeout = UiWaitUtils.VERY_LONG_TIMEOUT
         ) ?: throw AssertionError("Chrome is not open or shown in the Open with dialog")
-        if (chrome.resourceName == "com.android.chrome:id/url_bar") return this
-        if (chrome.text == "Chrome") chrome.click()
-        val choice = UiWaitUtils.waitAnyVisible(
-            selectors = listOf(chromeAddressBar, UiSelectorParams(text = "Just once")),
-            timeout = UiWaitUtils.STABLE_TIMEOUT
-        ) ?: throw AssertionError("Neither Chrome nor Just once is visible after selecting Chrome")
-        if (choice.text == "Just once") choice.click()
+        // MIUI initially hides Chrome behind More in its Open with dialog.
+        if (chrome.text == "More") {
+            chrome.click()
+            chrome = UiWaitUtils.waitElement(UiSelectorParams(text = "Chrome"), timeout = UiWaitUtils.STABLE_TIMEOUT)
+        }
+        if (device.currentPackageName == "com.android.chrome") return this
+        if (chrome.text == "Just once") {
+            chrome.click()
+        } else {
+            if (chrome.text == "Chrome") chrome.click()
+            val choice = UiWaitUtils.waitAnyVisible(
+                selectors = chromeScreens + justOnce,
+                timeout = UiWaitUtils.STABLE_TIMEOUT
+            ) ?: throw AssertionError("Neither Chrome nor Just once is visible after selecting Chrome")
+            if (choice.text == "Just once") choice.click()
+        }
         return this
     }
 
@@ -110,6 +132,21 @@ data class ChromePage(private val device: UiDevice) {
         )
         UiWaitUtils.waitElement(UiSelectorParams(text = expectedText), timeout = UiWaitUtils.VERY_LONG_TIMEOUT)
         assertEquals("The HTML file is not open in Chrome", "com.android.chrome", device.currentPackageName)
+        return this
+    }
+
+    fun navigateBack(): ChromePage {
+        device.pressBack()
+        return this
+    }
+
+    fun assertTextFileOpenInChrome(fileName: String, expectedText: String): ChromePage {
+        UiWaitUtils.waitElement(
+            UiSelectorParams(resourceId = "com.android.chrome:id/url_bar", textContains = fileName),
+            timeout = UiWaitUtils.SHORT_TIMEOUT
+        )
+        UiWaitUtils.waitElement(UiSelectorParams(textContains = expectedText), timeout = UiWaitUtils.SHORT_TIMEOUT)
+        assertEquals("The TXT file is not open in Chrome", "com.android.chrome", device.currentPackageName)
         return this
     }
 

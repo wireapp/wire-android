@@ -145,8 +145,12 @@ fun waitForNewDownloadedFileName(
 }
 
 /** Creates a valid, identifiable PDF that Android's file picker can discover in Downloads. */
-@Suppress("MagicNumber", "ThrowsCount", "TooGenericExceptionCaught")
-fun createPdfInDeviceDownloadsFolder(fileName: String, text: String): Uri {
+fun createPdfInDeviceDownloadsFolder(fileName: String, text: String): Uri =
+    createMultipagePdfInDeviceDownloadsFolder(fileName, listOf(text))
+
+// Writes each PDF once and publishes it to Downloads only after all pages have been written.
+@Suppress("ThrowsCount", "TooGenericExceptionCaught")
+private fun writePdfToDeviceDownloads(fileName: String, drawPages: (PdfDocument) -> Unit): Uri {
     val resolver = InstrumentationRegistry.getInstrumentation().targetContext.contentResolver
     val uri = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
         val values = ContentValues().apply {
@@ -164,9 +168,7 @@ fun createPdfInDeviceDownloadsFolder(fileName: String, text: String): Uri {
     }
     val document = PdfDocument()
     return try {
-        val page = document.startPage(PdfDocument.PageInfo.Builder(300, 400, 1).create())
-        page.canvas.drawText(text, 20f, 40f, Paint().apply { textSize = 14f })
-        document.finishPage(page)
+        drawPages(document)
         val output = resolver.openOutputStream(uri) ?: throw IOException("Could not open PDF output '$fileName'")
         output.use(document::writeTo)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
@@ -183,8 +185,53 @@ fun createPdfInDeviceDownloadsFolder(fileName: String, text: String): Uri {
 
 fun deleteDeviceDownload(uri: Uri) {
     if (uri.scheme == "file") {
-        File(requireNotNull(uri.path)).delete()
+        val path = requireNotNull(uri.path)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            // QR fixtures return file URIs even though their Downloads entries were created through MediaStore.
+            InstrumentationRegistry.getInstrumentation().targetContext.contentResolver.delete(
+                MediaStore.Downloads.EXTERNAL_CONTENT_URI,
+                "${MediaStore.MediaColumns.DATA} = ?",
+                arrayOf(path)
+            )
+        }
+        File(path).delete()
     } else {
         InstrumentationRegistry.getInstrumentation().targetContext.contentResolver.delete(uri, null, null)
+    }
+}
+
+/** Creates numbered, identifiable PDF pages using the shared Downloads writer. */
+@Suppress("MagicNumber")
+fun createMultipagePdfInDeviceDownloadsFolder(fileName: String, pageTexts: List<String>): Uri {
+    require(pageTexts.isNotEmpty()) { "A PDF fixture must contain at least one page" }
+    return writePdfToDeviceDownloads(fileName) { document ->
+        pageTexts.forEachIndexed { index, text ->
+            val page = document.startPage(PdfDocument.PageInfo.Builder(300, 400, index + 1).create())
+            page.canvas.drawText(text, 20f, 40f, Paint().apply { textSize = 14f })
+            document.finishPage(page)
+        }
+    }
+}
+
+/** Adds distinct image data to each page so cancellation tests use a real, multi-megabyte PDF. */
+@Suppress("MagicNumber")
+fun createLargePdfInDeviceDownloadsFolder(fileName: String, pageTexts: List<String>): Uri {
+    require(pageTexts.isNotEmpty()) { "A PDF fixture must contain at least one page" }
+    val random = kotlin.random.Random(0)
+    return writePdfToDeviceDownloads(fileName) { document ->
+        pageTexts.forEachIndexed { index, text ->
+            val image = Bitmap.createBitmap(1024, 1024, Bitmap.Config.ARGB_8888)
+            try {
+                val pixels =
+                    IntArray(image.width * image.height) { Color.rgb(random.nextInt(256), random.nextInt(256), random.nextInt(256)) }
+                image.setPixels(pixels, 0, image.width, 0, 0, image.width, image.height)
+                val page = document.startPage(PdfDocument.PageInfo.Builder(300, 400, index + 1).create())
+                page.canvas.drawText(text, 20f, 40f, Paint().apply { textSize = 14f })
+                page.canvas.drawBitmap(image, null, android.graphics.Rect(20, 70, 280, 370), null)
+                document.finishPage(page)
+            } finally {
+                image.recycle()
+            }
+        }
     }
 }

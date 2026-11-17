@@ -46,9 +46,10 @@ import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.home.conversations.details.options.ArrowType
 import com.wire.android.ui.home.conversations.details.options.GroupConversationOptionsItem
-import com.wire.android.ui.home.settings.mfa.AuthenticatorApp
-import com.wire.android.ui.home.settings.mfa.MFAOverview
-import com.wire.android.ui.home.settings.mfa.RecoveryCodesStatus
+import com.wire.kalium.logic.feature.mfa.AuthenticatorApp
+import com.wire.kalium.logic.feature.mfa.MFAConstraints.MAX_AUTHENTICATOR_APPS
+import com.wire.kalium.logic.feature.mfa.MFAOverview
+import com.wire.kalium.logic.feature.mfa.RecoveryCodesStatus
 import com.wire.android.ui.home.settings.mfa.overview.MFAOverviewState
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme

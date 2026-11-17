@@ -32,7 +32,8 @@ import com.wire.android.navigation.navigation3.WireNavigation3Runtime
 import com.wire.android.navigation.navigation3.wireViewModelStoreOwner
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.home.settings.settingsViewModel
-import com.wire.android.ui.home.settings.mfa.MFAOverview
+import com.wire.kalium.logic.feature.mfa.MFAConstraints.MAX_AUTHENTICATOR_APPS
+import com.wire.kalium.logic.feature.mfa.MFAOverview
 import com.wire.android.ui.home.settings.mfa.authenticatorapps.add.AuthenticatorAppAddedResultType
 import com.wire.android.ui.home.settings.mfa.authenticatorapps.add.MFAAddAuthenticatorAppRoute
 import com.wire.android.ui.home.settings.mfa.authenticatorapps.edit.AuthenticatorAppRenameResultType
@@ -63,17 +64,16 @@ internal fun MFAAuthenticatorAppsEntry(
     LaunchedEffect(renameRequestId, currentEntryId) {
         if (currentEntryId != route.entryId) return@LaunchedEffect
         val requestId = renameRequestId?.let(::WireNavResultRequestId) ?: return@LaunchedEffect
-        when (val result = runtime.consumeResult(requestId, AuthenticatorAppRenameResultType)) {
+        when (runtime.consumeResult(requestId, AuthenticatorAppRenameResultType)) {
             is WireNavResult.Value -> {
                 renameRequestId = null
-                viewModel.onAuthenticatorAppRenamed(result.value)
                 scope.launch { snackbar.showSnackbar(renamedMessage) }
             }
             WireNavResult.Canceled -> renameRequestId = null
             null -> Unit
         }
     }
-    ConsumeAddedAuthenticatorResult(runtime, route, addRequestId, viewModel) { addRequestId = null }
+    ConsumeAddedAuthenticatorResult(runtime, route, addRequestId) { addRequestId = null }
     MFAAuthenticatorAppsScreen(
         state = state,
         onBack = { if (!runtime.navigator.goBack()) onExit() },
@@ -102,28 +102,19 @@ private fun ConsumeAddedAuthenticatorResult(
     runtime: WireNavigation3Runtime,
     route: MFAAuthenticatorAppsRoute,
     requestIdValue: String?,
-    viewModel: MFAOverviewViewModel,
     onConsumed: () -> Unit,
 ) {
     val currentEntryId = runtime.navigator.currentRoute?.entryId
     val snackbar = LocalSnackbarHostState.current
     val scope = rememberCoroutineScope()
     val addedMessage = stringResource(R.string.mfa_app_added)
-    val limitMessage = stringResource(R.string.mfa_authenticator_apps_limit, MAX_AUTHENTICATOR_APPS)
-    val addFailureMessage = stringResource(R.string.mfa_add_app_error)
     LaunchedEffect(requestIdValue, currentEntryId) {
         if (currentEntryId != route.entryId) return@LaunchedEffect
         val requestId = requestIdValue?.let(::WireNavResultRequestId) ?: return@LaunchedEffect
-        when (val result = runtime.consumeResult(requestId, AuthenticatorAppAddedResultType)) {
+        when (runtime.consumeResult(requestId, AuthenticatorAppAddedResultType)) {
             is WireNavResult.Value -> {
-                val outcome = viewModel.onAuthenticatorAppAdded(result.value).await()
                 onConsumed()
-                val message = when (outcome) {
-                    AuthenticatorAppMutationResult.SUCCESS -> addedMessage
-                    AuthenticatorAppMutationResult.LIMIT_REACHED -> limitMessage
-                    else -> addFailureMessage
-                }
-                scope.launch { snackbar.showSnackbar(message) }
+                scope.launch { snackbar.showSnackbar(addedMessage) }
             }
             WireNavResult.Canceled -> onConsumed()
             null -> Unit

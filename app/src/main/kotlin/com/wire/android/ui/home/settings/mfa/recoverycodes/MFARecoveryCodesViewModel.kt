@@ -22,6 +22,9 @@ import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.clearText
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wire.kalium.common.functional.fold
+import com.wire.kalium.logic.feature.mfa.ConfirmMFAPasswordUseCase
+import com.wire.kalium.logic.feature.mfa.GenerateMFARecoveryCodesUseCase
 import dev.zacsweers.metro.Inject
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
@@ -60,8 +63,10 @@ class MFARecoveryCodesViewModel @Inject constructor(
         password.clearText()
         _state.update { it.copy(isConfirmingPassword = true, hasError = false) }
         perform {
-            confirmPassword(enteredPassword)
-            _state.update { it.copy(passwordConfirmed = true, nextStep = MFARecoveryCodesStep.SUMMARY) }
+            confirmPassword(enteredPassword).fold(
+                { _state.update { it.copy(hasError = true) } },
+                { _state.update { it.copy(passwordConfirmed = true, nextStep = MFARecoveryCodesStep.SUMMARY) } },
+            )
         }
     }
 
@@ -81,16 +86,20 @@ class MFARecoveryCodesViewModel @Inject constructor(
         if (current.isBusy || current.codes.isNotEmpty()) return
         _state.update { it.copy(isGenerating = true, hasError = false) }
         perform {
-            val codes = generateCodes()
-            check(codes.isNotEmpty())
-            _state.update {
-                it.copy(
-                    codes = codes,
-                    codesSaved = false,
-                    showGenerationConfirmation = false,
-                    nextStep = MFARecoveryCodesStep.NEW_CODES,
-                )
-            }
+            generateCodes().fold(
+                { _state.update { it.copy(hasError = true, showGenerationConfirmation = false) } },
+                { codes ->
+                    check(codes.isNotEmpty())
+                    _state.update {
+                        it.copy(
+                            codes = codes,
+                            codesSaved = false,
+                            showGenerationConfirmation = false,
+                            nextStep = MFARecoveryCodesStep.NEW_CODES,
+                        )
+                    }
+                },
+            )
         }
     }
 

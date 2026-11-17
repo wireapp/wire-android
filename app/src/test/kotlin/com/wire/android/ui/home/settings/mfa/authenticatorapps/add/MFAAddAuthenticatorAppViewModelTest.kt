@@ -26,7 +26,9 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.ui.home.settings.mfa.setup.MFASetupError
 import com.wire.android.ui.home.settings.mfa.setup.MFASetupStep
-import com.wire.android.ui.home.settings.mfa.setup.StartMFASetupUseCase
+import com.wire.android.ui.home.settings.mfa.MFATestFixture
+import com.wire.kalium.common.functional.Either
+import com.wire.kalium.logic.feature.mfa.FinishAddingAuthenticatorAppUseCase
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
@@ -54,8 +56,7 @@ class MFAAddAuthenticatorAppViewModelTest {
 
     @Test
     fun `adding an app requires verification and a name and skips recovery codes`() = runTest {
-        val finish = mockk<FinishAddingAuthenticatorAppUseCase>()
-        coEvery { finish(any(), any()) } coAnswers { FinishAddingAuthenticatorAppUseCase()(firstArg(), secondArg()) }
+        val finish = MFATestFixture().finishAdding
         val viewModel = createViewModel(finish)
         viewModel.name.setTextAndPlaceCursorAtEnd("Backup phone")
         viewModel.addApp()
@@ -110,7 +111,7 @@ class MFAAddAuthenticatorAppViewModelTest {
         advanceUntilIdle()
         assertEquals(MFASetupError.GENERIC, viewModel.state.value.error)
         assertNull(viewModel.state.value.completion)
-        coEvery { finish(any(), any()) } returns AuthenticatorAppAddedResult(enrollment.id, "Backup")
+        coEvery { finish(any(), any()) } returns Either.Right(MFATestFixture().app.copy(id = enrollment.id, name = "Backup"))
         viewModel.addApp()
         advanceUntilIdle()
         assertEquals(enrollment, viewModel.state.value.enrollment)
@@ -140,14 +141,14 @@ class MFAAddAuthenticatorAppViewModelTest {
     }
 
     private fun createViewModel(
-        finish: FinishAddingAuthenticatorAppUseCase = FinishAddingAuthenticatorAppUseCase(),
+        finish: FinishAddingAuthenticatorAppUseCase = MFATestFixture().finishAdding,
     ): MFAAddAuthenticatorAppViewModel = ViewModelProvider.create(
         owner,
         viewModelFactory {
             initializer {
                 MFAAddAuthenticatorAppViewModel(
-                    StartMFASetupUseCase(),
-                    VerifyAuthenticatorAppCodeUseCase(),
+                    MFATestFixture().startSetup,
+                    MFATestFixture().verifyAuthenticator,
                     finish,
                 )
             }

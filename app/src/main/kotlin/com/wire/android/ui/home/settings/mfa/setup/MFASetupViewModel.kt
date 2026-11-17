@@ -22,6 +22,13 @@ import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.clearText
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wire.kalium.common.functional.fold
+import com.wire.kalium.logic.feature.mfa.CompleteMFASetupUseCase
+import com.wire.kalium.logic.feature.mfa.MFAConstraints.AUTHENTICATION_CODE_LENGTH
+import com.wire.kalium.logic.feature.mfa.MFAEnrollment
+import com.wire.kalium.logic.feature.mfa.MFAFailure
+import com.wire.kalium.logic.feature.mfa.StartMFASetupUseCase
+import com.wire.kalium.logic.feature.mfa.VerifyMFASetupCodeUseCase
 import dev.zacsweers.metro.Inject
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
@@ -48,6 +55,7 @@ data class MFASetupState(
 class MFASetupViewModel @Inject constructor(
     private val startSetup: StartMFASetupUseCase,
     private val verifyCode: VerifyMFASetupCodeUseCase,
+    private val completeSetup: CompleteMFASetupUseCase,
 ) : ViewModel() {
     // Plain in-memory field state: these values must not be restored from saved state.
     val password = TextFieldState()
@@ -66,13 +74,22 @@ class MFASetupViewModel @Inject constructor(
         password.clearText()
         perform {
             // Going back through confirmation must not create a second enrollment.
-            val enrollment = _state.value.enrollment ?: startSetup(enteredPassword)
-            _state.update { it.copy(enrollment = enrollment, nextStep = MFASetupStep.LINK_AUTHENTICATOR) }
+            val existing = _state.value.enrollment
+            if (existing != null) {
+                _state.update { it.copy(nextStep = MFASetupStep.LINK_AUTHENTICATOR) }
+            } else {
+                startSetup(enteredPassword).fold(
+                    { _state.update { it.copy(error = MFASetupError.GENERIC) } },
+                    { enrollment -> _state.update { it.copy(enrollment = enrollment, nextStep = MFASetupStep.LINK_AUTHENTICATOR) } },
+                )
+            }
         }
     }
 
     fun verifyAuthenticationCode() {
-        if (_state.value.isBusy || _state.value.enrollment == null) return
+        val current = _state.value
+        val enrollment = current.enrollment
+        if (current.isBusy || enrollment == null) return
         val enteredCode = code.text.toString()
         if (enteredCode.length != AUTHENTICATION_CODE_LENGTH) {
             _state.update { it.copy(error = MFASetupError.INVALID_CODE) }
@@ -80,17 +97,18 @@ class MFASetupViewModel @Inject constructor(
         }
         code.clearText()
         perform {
-            val codes = verifyCode(enteredCode)
-            if (codes == null) {
-                _state.update { it.copy(error = MFASetupError.INVALID_CODE) }
-            } else {
-                _state.update {
-                    it.copy(
-                        recoveryCodes = it.recoveryCodes.ifEmpty { codes },
-                        nextStep = MFASetupStep.RECOVERY_CODES,
-                    )
-                }
-            }
+            verifyCode(enrollment.id, enteredCode).fold(
+                { failure ->
+                    _state.update {
+                        it.copy(error = if (failure == MFAFailure.INVALID_CODE) MFASetupError.INVALID_CODE else MFASetupError.GENERIC)
+                    }
+                },
+                { codes ->
+                    _state.update {
+                        it.copy(recoveryCodes = it.recoveryCodes.ifEmpty { codes }, nextStep = MFASetupStep.RECOVERY_CODES)
+                    }
+                },
+            )
         }
     }
 
@@ -101,9 +119,17 @@ class MFASetupViewModel @Inject constructor(
     fun finishSetup(authenticatorName: String) {
         val current = _state.value
         val enrollment = current.enrollment ?: return
-        if (!current.recoveryCodesSaved || current.recoveryCodes.isEmpty() || current.isBusy) return
-        _state.update {
-            it.copy(completion = MFASetupResult(enrollment.id, authenticatorName, current.recoveryCodes.size))
+        val hasSavedCodes = current.recoveryCodesSaved && current.recoveryCodes.isNotEmpty()
+        if (!hasSavedCodes || current.isBusy || current.completion != null) return
+        perform {
+            completeSetup(enrollment.id, authenticatorName).fold(
+                { _state.update { it.copy(error = MFASetupError.GENERIC) } },
+                {
+                    _state.update {
+                        it.copy(completion = MFASetupResult(enrollment.id, authenticatorName, current.recoveryCodes.size))
+                    }
+                },
+            )
         }
     }
 

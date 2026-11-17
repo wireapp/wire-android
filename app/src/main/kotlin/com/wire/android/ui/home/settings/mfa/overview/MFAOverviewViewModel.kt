@@ -20,23 +20,15 @@ package com.wire.android.ui.home.settings.mfa.overview
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wire.android.ui.home.settings.mfa.DummyMFALoader
-import com.wire.android.ui.home.settings.mfa.MFAOverview
-import com.wire.android.ui.home.settings.mfa.MFAStore
-import com.wire.android.ui.home.settings.mfa.authenticatorapps.add.AuthenticatorAppAddedResult
-import com.wire.android.ui.home.settings.mfa.authenticatorapps.add.CompleteAuthenticatorAppAdditionUseCase
-import com.wire.android.ui.home.settings.mfa.authenticatorapps.edit.AuthenticatorAppRenameResult
-import com.wire.android.ui.home.settings.mfa.authenticatorapps.edit.CompleteAuthenticatorAppRenameUseCase
-import com.wire.android.ui.home.settings.mfa.authenticatorapps.remove.CompleteAuthenticatorAppRemovalUseCase
-import com.wire.android.ui.home.settings.mfa.recoverycodes.MFARecoveryCodesResult
-import com.wire.android.ui.home.settings.mfa.recoverycodes.UpdateMFARecoveryCodesStatusUseCase
-import com.wire.android.ui.home.settings.mfa.setup.CompleteMFASetupUseCase
-import com.wire.android.ui.home.settings.mfa.setup.MFASetupResult
-import com.wire.android.ui.home.settings.mfa.turnoff.CompleteMFATurnOffUseCase
+import com.wire.kalium.common.functional.Either
+import com.wire.kalium.logic.feature.mfa.MFAOverview
+import com.wire.kalium.logic.feature.mfa.ObserveMFAOverviewUseCase
+import com.wire.kalium.logic.feature.mfa.RefreshMFAOverviewUseCase
 import dev.zacsweers.metro.Inject
-import kotlinx.coroutines.async
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
@@ -51,32 +43,21 @@ sealed interface MFAOverviewState {
     ) : MFAOverviewState
 }
 
-class MFAOverviewViewModel(
-    store: MFAStore,
-    loadOverview: suspend () -> MFAOverview,
+class MFAOverviewViewModel @Inject constructor(
+    observeOverview: ObserveMFAOverviewUseCase,
+    private val refreshOverview: RefreshMFAOverviewUseCase,
 ) : ViewModel() {
-    @Inject
-    constructor(store: MFAStore, loader: DummyMFALoader) : this(store, loader::invoke)
+    private data class RefreshStatus(val isRefreshing: Boolean = false, val hasError: Boolean = false)
+    private val refreshStatus = MutableStateFlow(RefreshStatus())
 
-    // Construct the use cases from the same unscoped store so the flow owns exactly one cache.
-    private val observeOverview = ObserveMFAOverviewUseCase(store)
-    private val refreshOverview = RefreshMFAOverviewUseCase(store, loadOverview)
-    private val completeSetup = CompleteMFASetupUseCase(store)
-    private val updateRecoveryCodes = UpdateMFARecoveryCodesStatusUseCase(store)
-    private val completeTurnOff = CompleteMFATurnOffUseCase(store)
-    private val completeAuthenticatorRename = CompleteAuthenticatorAppRenameUseCase(store)
-    private val completeAuthenticatorAddition = CompleteAuthenticatorAppAdditionUseCase(store)
-    private val completeAuthenticatorRemoval = CompleteAuthenticatorAppRemovalUseCase(store)
-
-    val state = observeOverview().map { storeState ->
-        val overview = storeState.overview
+    val state = combine(observeOverview(), refreshStatus) { overview, status ->
         when {
             overview != null -> MFAOverviewState.Loaded(
                 overview = overview,
-                isRefreshing = storeState.isRefreshing,
-                hasRefreshError = storeState.hasRefreshError,
+                isRefreshing = status.isRefreshing,
+                hasRefreshError = status.hasError,
             )
-            storeState.hasRefreshError -> MFAOverviewState.Error
+            status.hasError -> MFAOverviewState.Error
             else -> MFAOverviewState.Loading
         }
     }.stateIn(viewModelScope, SharingStarted.Eagerly, MFAOverviewState.Loading)
@@ -85,31 +66,21 @@ class MFAOverviewViewModel(
         refresh()
     }
 
+    @Suppress("TooGenericExceptionCaught")
     fun refresh() {
-        viewModelScope.launch { refreshOverview() }
-    }
-
-    fun onSetupCompleted(result: MFASetupResult) {
-        viewModelScope.launch { completeSetup(result) }
-    }
-
-    fun onRecoveryCodesGenerated(result: MFARecoveryCodesResult) {
-        viewModelScope.launch { updateRecoveryCodes(result) }
-    }
-
-    fun onTurnOffCompleted() {
-        viewModelScope.launch { completeTurnOff() }
-    }
-
-    fun onAuthenticatorAppRenamed(result: AuthenticatorAppRenameResult) {
-        viewModelScope.launch { completeAuthenticatorRename(result) }
-    }
-
-    fun onAuthenticatorAppAdded(result: AuthenticatorAppAddedResult) = viewModelScope.async {
-        completeAuthenticatorAddition(result)
-    }
-
-    fun removeAuthenticatorApp(appId: String) = viewModelScope.async {
-        completeAuthenticatorRemoval(appId)
+        if (refreshStatus.value.isRefreshing) return
+        refreshStatus.value = RefreshStatus(isRefreshing = true)
+        viewModelScope.launch {
+            var hasError = false
+            try {
+                hasError = refreshOverview() is Either.Left
+            } catch (cancelled: CancellationException) {
+                throw cancelled
+            } catch (_: Exception) {
+                hasError = true
+            } finally {
+                refreshStatus.value = RefreshStatus(hasError = hasError)
+            }
+        }
     }
 }

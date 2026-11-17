@@ -23,6 +23,9 @@ import androidx.compose.foundation.text.input.clearText
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.ui.home.settings.mfa.components.canSubmitMFACredentials
+import com.wire.kalium.common.functional.fold
+import com.wire.kalium.logic.feature.mfa.MFAFailure
+import com.wire.kalium.logic.feature.mfa.TurnOffMFAUseCase
 import dev.zacsweers.metro.Inject
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
@@ -59,13 +62,17 @@ class MFATurnOffViewModel @Inject constructor(
         _state.value = MFATurnOffState(isBusy = true)
         operationJob = viewModelScope.launch {
             try {
-                if (turnOffMFA(enteredPassword, enteredCode)) {
-                    password.clearText()
-                    code.clearText()
-                    _state.value = MFATurnOffState(isCompleted = true)
-                } else {
-                    _state.update { it.copy(error = MFATurnOffError.INVALID_CODE) }
-                }
+                turnOffMFA(enteredPassword, enteredCode).fold(
+                    { failure ->
+                        val error = if (failure == MFAFailure.INVALID_CODE) MFATurnOffError.INVALID_CODE else MFATurnOffError.GENERIC
+                        _state.update { it.copy(error = error) }
+                    },
+                    {
+                        password.clearText()
+                        code.clearText()
+                        _state.value = MFATurnOffState(isCompleted = true)
+                    },
+                )
             } catch (cancelled: CancellationException) {
                 throw cancelled
             } catch (_: Exception) {

@@ -22,8 +22,10 @@ import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.clearText
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wire.android.ui.home.settings.mfa.authenticatorapps.AuthenticatorAppMutationResult
 import com.wire.android.ui.home.settings.mfa.components.canSubmitMFACredentials
+import com.wire.kalium.common.functional.fold
+import com.wire.kalium.logic.feature.mfa.MFAFailure
+import com.wire.kalium.logic.feature.mfa.RemoveAuthenticatorAppUseCase
 import dev.zacsweers.metro.Inject
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
@@ -36,7 +38,7 @@ enum class RemoveAuthenticatorAppError { INVALID_CODE, GENERIC, LAST_APP, UNAVAI
 
 data class MFARemoveAuthenticatorAppState(
     val isBusy: Boolean = false,
-    val isValidated: Boolean = false,
+    val isCompleted: Boolean = false,
     val error: RemoveAuthenticatorAppError? = null,
 )
 
@@ -52,7 +54,7 @@ class MFARemoveAuthenticatorAppViewModel @Inject constructor(
     @Suppress("TooGenericExceptionCaught")
     fun confirmRemoval(appId: String) {
         val current = _state.value
-        if (current.isBusy || current.isValidated) return
+        if (current.isBusy || current.isCompleted) return
         val enteredPassword = password.text.toString()
         val enteredCode = code.text.toString()
         if (!canSubmitMFACredentials(enteredPassword, enteredCode)) return
@@ -60,13 +62,22 @@ class MFARemoveAuthenticatorAppViewModel @Inject constructor(
         _state.value = MFARemoveAuthenticatorAppState(isBusy = true)
         operationJob = viewModelScope.launch {
             try {
-                if (removeApp(appId, enteredPassword, enteredCode)) {
-                    password.clearText()
-                    code.clearText()
-                    _state.update { it.copy(isValidated = true) }
-                } else {
-                    _state.update { it.copy(error = RemoveAuthenticatorAppError.INVALID_CODE) }
-                }
+                removeApp(appId, enteredPassword, enteredCode).fold(
+                    { failure ->
+                        val error = when (failure) {
+                            MFAFailure.INVALID_CODE -> RemoveAuthenticatorAppError.INVALID_CODE
+                            MFAFailure.LAST_APP -> RemoveAuthenticatorAppError.LAST_APP
+                            MFAFailure.NOT_FOUND, MFAFailure.MFA_DISABLED -> RemoveAuthenticatorAppError.UNAVAILABLE
+                            else -> RemoveAuthenticatorAppError.GENERIC
+                        }
+                        _state.update { it.copy(error = error) }
+                    },
+                    {
+                        password.clearText()
+                        code.clearText()
+                        _state.update { it.copy(isCompleted = true) }
+                    },
+                )
             } catch (cancelled: CancellationException) {
                 throw cancelled
             } catch (_: Exception) {
@@ -75,16 +86,6 @@ class MFARemoveAuthenticatorAppViewModel @Inject constructor(
                 _state.update { it.copy(isBusy = false) }
             }
         }
-    }
-
-    fun removalRejected(outcome: AuthenticatorAppMutationResult) {
-        _state.value = MFARemoveAuthenticatorAppState(
-            error = if (outcome == AuthenticatorAppMutationResult.LAST_APP) {
-                RemoveAuthenticatorAppError.LAST_APP
-            } else {
-                RemoveAuthenticatorAppError.UNAVAILABLE
-            },
-        )
     }
 
     fun cancel() {

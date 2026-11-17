@@ -25,6 +25,9 @@ import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.wire.android.config.CoroutineTestExtension
+import com.wire.android.ui.home.settings.mfa.MFATestFixture
+import com.wire.kalium.common.functional.Either
+import com.wire.kalium.logic.feature.mfa.TurnOffMFAUseCase
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
@@ -70,7 +73,7 @@ class MFATurnOffViewModelTest {
         val useCase = mockk<TurnOffMFAUseCase>()
         coEvery { useCase(any(), any()) } coAnswers {
             delay(500)
-            true
+            Either.Right(Unit)
         }
         val viewModel = createViewModel(useCase)
         viewModel.password.setTextAndPlaceCursorAtEnd("password")
@@ -121,7 +124,7 @@ class MFATurnOffViewModelTest {
 
         assertEquals(MFATurnOffError.GENERIC, viewModel.state.value.error)
         assertFalse(viewModel.state.value.isCompleted)
-        coEvery { useCase(any(), any()) } returns true
+        coEvery { useCase(any(), any()) } returns Either.Right(Unit)
         viewModel.code.setTextAndPlaceCursorAtEnd("111111")
         viewModel.turnOff()
         advanceUntilIdle()
@@ -161,7 +164,7 @@ class MFATurnOffViewModelTest {
     }
 
     private fun createViewModel(
-        useCase: TurnOffMFAUseCase = TurnOffMFAUseCase(),
+        useCase: TurnOffMFAUseCase = MFATestFixture().turnOff,
     ): MFATurnOffViewModel = ViewModelProvider.create(
         owner,
         viewModelFactory { initializer { MFATurnOffViewModel(useCase) } },

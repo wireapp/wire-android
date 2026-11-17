@@ -37,7 +37,7 @@ import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.textfield.WirePasswordTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
-import com.wire.android.ui.home.settings.mfa.setup.AUTHENTICATION_CODE_LENGTH
+import com.wire.kalium.logic.feature.mfa.MFAConstraints.AUTHENTICATION_CODE_LENGTH
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 

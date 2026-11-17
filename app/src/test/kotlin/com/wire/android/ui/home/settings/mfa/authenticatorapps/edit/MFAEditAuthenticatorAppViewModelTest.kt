@@ -24,7 +24,10 @@ import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.wire.android.config.CoroutineTestExtension
-import com.wire.android.ui.home.settings.mfa.AuthenticatorApp
+import com.wire.android.ui.home.settings.mfa.MFATestFixture
+import com.wire.kalium.common.functional.Either
+import com.wire.kalium.logic.feature.mfa.AuthenticatorApp
+import com.wire.kalium.logic.feature.mfa.RenameAuthenticatorAppUseCase
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
@@ -83,8 +86,7 @@ class MFAEditAuthenticatorAppViewModelTest {
 
     @Test
     fun `saving trims the new name and ignores repeated submissions`() = runTest {
-        val rename = mockk<RenameAuthenticatorAppUseCase>()
-        coEvery { rename(any(), any()) } coAnswers { RenameAuthenticatorAppUseCase()(firstArg(), secondArg()) }
+        val rename = MFATestFixture().rename
         val viewModel = createViewModel(rename)
         viewModel.initialize(app)
         viewModel.name.setTextAndPlaceCursorAtEnd("  Backup phone  ")
@@ -113,7 +115,7 @@ class MFAEditAuthenticatorAppViewModelTest {
         assertTrue(viewModel.state.value.hasError)
         assertNull(viewModel.state.value.result)
         assertEquals("Backup phone", viewModel.name.text.toString())
-        coEvery { rename(any(), any()) } returns AuthenticatorAppRenameResult(app.id, "Backup phone")
+        coEvery { rename(any(), any()) } returns Either.Right(app.copy(name = "Backup phone"))
         viewModel.save()
         advanceUntilIdle()
         assertFalse(viewModel.state.value.hasError)
@@ -136,7 +138,7 @@ class MFAEditAuthenticatorAppViewModelTest {
     }
 
     private fun createViewModel(
-        rename: RenameAuthenticatorAppUseCase = RenameAuthenticatorAppUseCase(),
+        rename: RenameAuthenticatorAppUseCase = MFATestFixture().rename,
     ): MFAEditAuthenticatorAppViewModel = ViewModelProvider.create(
         owner,
         viewModelFactory { initializer { MFAEditAuthenticatorAppViewModel(rename) } },

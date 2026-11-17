@@ -24,6 +24,10 @@ import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.wire.android.config.CoroutineTestExtension
+import com.wire.android.ui.home.settings.mfa.MFATestFixture
+import com.wire.kalium.common.functional.Either
+import com.wire.kalium.logic.feature.mfa.ConfirmMFAPasswordUseCase
+import com.wire.kalium.logic.feature.mfa.GenerateMFARecoveryCodesUseCase
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
@@ -35,7 +39,6 @@ import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
-import org.junit.jupiter.api.Assertions.assertNotEquals
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
@@ -82,7 +85,7 @@ class MFARecoveryCodesViewModelTest {
         val codes = listOf("aaaaa-bbbbb-ccccc", "ddddd-eeeee-fffff")
         coEvery { generate() } coAnswers {
             delay(500)
-            codes
+            Either.Right(codes)
         }
         val viewModel = createViewModel(generate = generate)
         viewModel.password.setTextAndPlaceCursorAtEnd("password")
@@ -128,7 +131,7 @@ class MFARecoveryCodesViewModelTest {
         assertTrue(viewModel.state.value.codes.isEmpty())
         assertNull(viewModel.state.value.nextStep)
         assertTrue(viewModel.state.value.canNavigateBack)
-        coEvery { generate() } returns listOf("new-code")
+        coEvery { generate() } returns Either.Right(listOf("new-code"))
         viewModel.requestGeneration()
         viewModel.generateNewCodes()
         advanceUntilIdle()
@@ -147,7 +150,10 @@ class MFARecoveryCodesViewModelTest {
         assertTrue(viewModel.state.value.hasError)
         assertFalse(viewModel.state.value.passwordConfirmed)
 
-        coEvery { confirm(any()) } coAnswers { delay(500) }
+        coEvery { confirm(any()) } coAnswers {
+            delay(500)
+            Either.Right(Unit)
+        }
         viewModel.password.setTextAndPlaceCursorAtEnd("password")
         viewModel.confirmPassword()
         viewModel.cancelPendingOperation()
@@ -158,14 +164,7 @@ class MFARecoveryCodesViewModelTest {
     }
 
     @Test
-    fun `each dummy generation creates a new set and disposing the flow clears the displayed codes`() = runTest {
-        val generate = GenerateMFARecoveryCodesUseCase()
-        val first = generate()
-        val second = generate()
-        assertEquals(10, first.size)
-        assertEquals(10, first.toSet().size)
-        assertNotEquals(first, second)
-
+    fun `disposing the flow clears the displayed codes`() = runTest {
         val viewModel = createViewModel()
         viewModel.password.setTextAndPlaceCursorAtEnd("password")
         viewModel.confirmPassword()
@@ -180,9 +179,8 @@ class MFARecoveryCodesViewModelTest {
     }
 
     private fun createViewModel(
-        confirm: ConfirmMFAPasswordUseCase = ConfirmMFAPasswordUseCase(),
-        generate: GenerateMFARecoveryCodesUseCase =
-            GenerateMFARecoveryCodesUseCase(),
+        confirm: ConfirmMFAPasswordUseCase = MFATestFixture().confirmPassword,
+        generate: GenerateMFARecoveryCodesUseCase = MFATestFixture().generateCodes,
     ): MFARecoveryCodesViewModel = ViewModelProvider.create(
         owner,
         viewModelFactory { initializer { MFARecoveryCodesViewModel(confirm, generate) } },

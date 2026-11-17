@@ -18,7 +18,7 @@
 
 package com.wire.android.ui.home.settings.mfa.components
 
-import com.wire.android.ui.home.settings.mfa.setup.AUTHENTICATION_CODE_LENGTH
+import com.wire.kalium.logic.feature.mfa.MFAConstraints.AUTHENTICATION_CODE_LENGTH
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column

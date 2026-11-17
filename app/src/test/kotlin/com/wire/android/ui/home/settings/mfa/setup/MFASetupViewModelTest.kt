@@ -24,9 +24,17 @@ import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.wire.android.config.CoroutineTestExtension
+import com.wire.android.ui.home.settings.mfa.MFATestFixture
+import com.wire.kalium.common.functional.Either
+import com.wire.kalium.logic.feature.mfa.CompleteMFASetupUseCase
+import com.wire.kalium.logic.feature.mfa.MFAEnrollment
+import com.wire.kalium.logic.feature.mfa.MFAFailure
+import com.wire.kalium.logic.feature.mfa.StartMFASetupUseCase
 import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.mockk
 import java.io.IOException
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
@@ -75,8 +83,38 @@ class MFASetupViewModelTest {
 
         viewModel.setRecoveryCodesSaved(true)
         viewModel.finishSetup("Android phone")
+        advanceUntilIdle()
         assertEquals(viewModel.state.value.enrollment!!.id, viewModel.state.value.completion!!.authenticatorId)
         assertEquals(10, viewModel.state.value.completion!!.recoveryCodesCount)
+    }
+
+    @Test
+    fun `completion waits for Kalium and a rejected commit can be retried without navigating`() = runTest {
+        val fixture = MFATestFixture()
+        val response = CompletableDeferred<Either<MFAFailure, Unit>>()
+        coEvery { fixture.completeSetup(any(), any()) } coAnswers { response.await() }
+        val viewModel = createViewModel(completeSetup = fixture.completeSetup)
+        viewModel.password.setTextAndPlaceCursorAtEnd("password")
+        viewModel.confirmPassword()
+        advanceUntilIdle()
+        viewModel.code.setTextAndPlaceCursorAtEnd("111111")
+        viewModel.verifyAuthenticationCode()
+        advanceUntilIdle()
+        viewModel.setRecoveryCodesSaved(true)
+        viewModel.finishSetup("Phone")
+        assertTrue(viewModel.state.value.isBusy)
+        assertNull(viewModel.state.value.completion)
+        response.complete(Either.Left(MFAFailure.MFA_ALREADY_ENABLED))
+        advanceUntilIdle()
+        assertEquals(MFASetupError.GENERIC, viewModel.state.value.error)
+        assertNull(viewModel.state.value.completion)
+
+        coEvery { fixture.completeSetup(any(), any()) } returns Either.Right(Unit)
+        viewModel.finishSetup("Phone")
+        viewModel.finishSetup("Phone")
+        advanceUntilIdle()
+        assertNotNull(viewModel.state.value.completion)
+        coVerify(exactly = 2) { fixture.completeSetup(any(), "Phone") }
     }
 
     @Test
@@ -167,7 +205,7 @@ class MFASetupViewModelTest {
         assertEquals(MFASetupError.GENERIC, viewModel.state.value.error)
         assertFalse(viewModel.state.value.isBusy)
 
-        coEvery { startSetup(any()) } returns MFAEnrollment("id", "demo@wire.example", "secret")
+        coEvery { startSetup(any()) } returns Either.Right(MFAEnrollment("id", "demo@wire.example", "secret"))
         viewModel.password.setTextAndPlaceCursorAtEnd("password")
         viewModel.confirmPassword()
         advanceUntilIdle()
@@ -184,11 +222,15 @@ class MFASetupViewModelTest {
     }
 
     private fun createViewModel(
-        startSetup: StartMFASetupUseCase = StartMFASetupUseCase(),
+        startSetup: StartMFASetupUseCase = MFATestFixture().startSetup,
+        completeSetup: CompleteMFASetupUseCase = MFATestFixture().completeSetup,
     ): MFASetupViewModel = ViewModelProvider.create(
         owner,
         viewModelFactory {
-            initializer { MFASetupViewModel(startSetup, VerifyMFASetupCodeUseCase()) }
+            initializer {
+                val fixture = MFATestFixture()
+                MFASetupViewModel(startSetup, fixture.verifySetup, completeSetup)
+            }
         },
     )[MFASetupViewModel::class]
 }

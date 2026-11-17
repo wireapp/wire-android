@@ -25,7 +25,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.wire.android.navigation.navigation3.WireNavigation3ResultType
 import com.wire.android.navigation.navigation3.WireNavigation3Runtime
 import com.wire.android.navigation.navigation3.wireViewModelStoreOwner
-import com.wire.android.ui.home.settings.mfa.MFAOverview
+import com.wire.kalium.logic.feature.mfa.MFAOverview
 import com.wire.android.ui.home.settings.mfa.authenticatorapps.remove.MFARemoveAuthenticatorAppRoute
 import com.wire.android.ui.home.settings.mfa.overview.MFAOverviewState
 import com.wire.android.ui.home.settings.mfa.overview.MFAOverviewViewModel

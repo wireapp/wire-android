@@ -22,7 +22,9 @@ import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wire.android.ui.home.settings.mfa.AuthenticatorApp
+import com.wire.kalium.common.functional.fold
+import com.wire.kalium.logic.feature.mfa.AuthenticatorApp
+import com.wire.kalium.logic.feature.mfa.RenameAuthenticatorAppUseCase
 import dev.zacsweers.metro.Inject
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
@@ -63,8 +65,10 @@ class MFAEditAuthenticatorAppViewModel @Inject constructor(
         _state.update { it.copy(isSaving = true, hasError = false) }
         saveJob = viewModelScope.launch {
             try {
-                val result = renameApp(app.id, newName)
-                _state.update { it.copy(result = result) }
+                renameApp(app.id, newName).fold(
+                    { _state.update { it.copy(hasError = true) } },
+                    { renamed -> _state.update { it.copy(result = AuthenticatorAppRenameResult(renamed.id, renamed.name)) } },
+                )
             } catch (cancelled: CancellationException) {
                 throw cancelled
             } catch (_: Exception) {

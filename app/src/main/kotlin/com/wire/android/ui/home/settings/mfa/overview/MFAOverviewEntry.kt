@@ -65,10 +65,9 @@ internal fun MFAOverviewEntry(
     LaunchedEffect(setupRequestId, currentEntryId) {
         if (currentEntryId != route.entryId) return@LaunchedEffect
         val requestId = setupRequestId?.let(::WireNavResultRequestId) ?: return@LaunchedEffect
-        when (val result = runtime.consumeResult(requestId, MFASetupResultType)) {
+        when (runtime.consumeResult(requestId, MFASetupResultType)) {
             is WireNavResult.Value -> {
                 setupRequestId = null
-                viewModel.onSetupCompleted(result.value)
                 coroutineScope.launch { snackbarHostState.showSnackbar(successMessage) }
             }
             WireNavResult.Canceled -> setupRequestId = null
@@ -78,10 +77,9 @@ internal fun MFAOverviewEntry(
     LaunchedEffect(recoveryCodesRequestId, currentEntryId) {
         if (currentEntryId != route.entryId) return@LaunchedEffect
         val requestId = recoveryCodesRequestId?.let(::WireNavResultRequestId) ?: return@LaunchedEffect
-        when (val result = runtime.consumeResult(requestId, MFARecoveryCodesResultType)) {
+        when (runtime.consumeResult(requestId, MFARecoveryCodesResultType)) {
             is WireNavResult.Value -> {
                 recoveryCodesRequestId = null
-                viewModel.onRecoveryCodesGenerated(result.value)
             }
             WireNavResult.Canceled -> recoveryCodesRequestId = null
             null -> Unit
@@ -93,7 +91,6 @@ internal fun MFAOverviewEntry(
         requestIdValue = turnOffRequestId,
         onConsumed = { turnOffRequestId = null },
         onSuccess = {
-            viewModel.onTurnOffCompleted()
             coroutineScope.launch { snackbarHostState.showSnackbar(turnOffSuccessMessage) }
         },
     )

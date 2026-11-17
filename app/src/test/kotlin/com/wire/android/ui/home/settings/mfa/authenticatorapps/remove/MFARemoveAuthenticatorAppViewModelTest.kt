@@ -24,7 +24,10 @@ import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.wire.android.config.CoroutineTestExtension
-import com.wire.android.ui.home.settings.mfa.authenticatorapps.AuthenticatorAppMutationResult
+import com.wire.android.ui.home.settings.mfa.MFATestFixture
+import com.wire.kalium.common.functional.Either
+import com.wire.kalium.logic.feature.mfa.MFAFailure
+import com.wire.kalium.logic.feature.mfa.RemoveAuthenticatorAppUseCase
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
@@ -51,12 +54,7 @@ class MFARemoveAuthenticatorAppViewModelTest {
 
     @Test
     fun `password and a valid code are required and duplicate submissions are ignored`() = runTest {
-        val remove = mockk<RemoveAuthenticatorAppUseCase>()
-        coEvery {
-            remove(any(), any(), any())
-        } coAnswers {
-            RemoveAuthenticatorAppUseCase()(firstArg(), secondArg(), thirdArg())
-        }
+        val remove = MFATestFixture().remove
         val viewModel = createViewModel(remove)
         viewModel.confirmRemoval("backup")
         coVerify(exactly = 0) { remove(any(), any(), any()) }
@@ -65,19 +63,16 @@ class MFARemoveAuthenticatorAppViewModelTest {
         viewModel.confirmRemoval("backup")
         advanceUntilIdle()
         assertEquals(RemoveAuthenticatorAppError.INVALID_CODE, viewModel.state.value.error)
-        assertFalse(viewModel.state.value.isValidated)
+        assertFalse(viewModel.state.value.isCompleted)
 
         viewModel.code.setTextAndPlaceCursorAtEnd("111111")
         viewModel.confirmRemoval("backup")
         viewModel.confirmRemoval("backup")
         advanceUntilIdle()
-        assertTrue(viewModel.state.value.isValidated)
+        assertTrue(viewModel.state.value.isCompleted)
         assertTrue(viewModel.password.text.isEmpty())
         assertTrue(viewModel.code.text.isEmpty())
         coVerify(exactly = 1) { remove("backup", "password", "111111") }
-        viewModel.removalRejected(AuthenticatorAppMutationResult.LAST_APP)
-        assertEquals(RemoveAuthenticatorAppError.LAST_APP, viewModel.state.value.error)
-        assertFalse(viewModel.state.value.isValidated)
     }
 
     @Test
@@ -90,13 +85,26 @@ class MFARemoveAuthenticatorAppViewModelTest {
         viewModel.confirmRemoval("backup")
         advanceUntilIdle()
         assertEquals(RemoveAuthenticatorAppError.GENERIC, viewModel.state.value.error)
-        assertFalse(viewModel.state.value.isValidated)
+        assertFalse(viewModel.state.value.isCompleted)
 
-        coEvery { remove(any(), any(), any()) } returns true
+        coEvery { remove(any(), any(), any()) } returns Either.Right(Unit)
         viewModel.code.setTextAndPlaceCursorAtEnd("111111")
         viewModel.confirmRemoval("backup")
         advanceUntilIdle()
-        assertTrue(viewModel.state.value.isValidated)
+        assertTrue(viewModel.state.value.isCompleted)
+    }
+
+    @Test
+    fun `Kalium rejecting the last authenticator keeps confirmation open`() = runTest {
+        val remove = mockk<RemoveAuthenticatorAppUseCase>()
+        coEvery { remove(any(), any(), any()) } returns Either.Left(MFAFailure.LAST_APP)
+        val viewModel = createViewModel(remove)
+        viewModel.password.setTextAndPlaceCursorAtEnd("password")
+        viewModel.code.setTextAndPlaceCursorAtEnd("111111")
+        viewModel.confirmRemoval("last")
+        advanceUntilIdle()
+        assertEquals(RemoveAuthenticatorAppError.LAST_APP, viewModel.state.value.error)
+        assertFalse(viewModel.state.value.isCompleted)
     }
 
     @Test
@@ -119,7 +127,7 @@ class MFARemoveAuthenticatorAppViewModelTest {
     }
 
     private fun createViewModel(
-        remove: RemoveAuthenticatorAppUseCase = RemoveAuthenticatorAppUseCase(),
+        remove: RemoveAuthenticatorAppUseCase = MFATestFixture().remove,
     ): MFARemoveAuthenticatorAppViewModel = ViewModelProvider.create(
         owner,
         viewModelFactory { initializer { MFARemoveAuthenticatorAppViewModel(remove) } },

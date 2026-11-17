@@ -27,8 +27,7 @@ import com.wire.android.R
 import com.wire.android.navigation.navigation3.WireNavigation3Runtime
 import com.wire.android.navigation.navigation3.wireViewModelStoreOwner
 import com.wire.android.ui.home.settings.settingsViewModel
-import com.wire.android.ui.home.settings.mfa.MFAOverview
-import com.wire.android.ui.home.settings.mfa.authenticatorapps.AuthenticatorAppMutationResult
+import com.wire.kalium.logic.feature.mfa.MFAOverview
 import com.wire.android.ui.home.settings.mfa.authenticatorapps.MFAAuthenticatorAppsRoute
 import com.wire.android.ui.home.settings.mfa.components.MFACredentialsScreen
 import com.wire.android.ui.home.settings.mfa.overview.MFAOverviewState
@@ -53,15 +52,10 @@ internal fun MFARemoveAuthenticatorAppEntry(
     val app = apps.find { it.id == route.appId }
     val canRemove = app != null && apps.size > 1
     val currentEntryId = runtime.navigator.currentRoute?.entryId
-    LaunchedEffect(state.isValidated, currentEntryId) {
-        if (!state.isValidated || currentEntryId != route.entryId) return@LaunchedEffect
-        val outcome = areaViewModel.removeAuthenticatorApp(route.appId).await()
-        if (outcome == AuthenticatorAppMutationResult.SUCCESS) {
-            val popCount = authenticatorAppsReturnPopCount(runtime.navigator.routes, route.flowId)
-            repeat(popCount) { runtime.navigator.goBack() }
-        } else {
-            viewModel.removalRejected(outcome)
-        }
+    LaunchedEffect(state.isCompleted, currentEntryId) {
+        if (!state.isCompleted || currentEntryId != route.entryId) return@LaunchedEffect
+        val popCount = authenticatorAppsReturnPopCount(runtime.navigator.routes, route.flowId)
+        repeat(popCount) { runtime.navigator.goBack() }
     }
     val error = removalErrorText(state.error, app == null, apps.size <= 1)
     MFACredentialsScreen(
@@ -72,12 +66,12 @@ internal fun MFARemoveAuthenticatorAppEntry(
         confirmLabel = stringResource(R.string.label_remove),
         password = viewModel.password,
         code = viewModel.code,
-        isBusy = state.isBusy || state.isValidated,
+        isBusy = state.isBusy || state.isCompleted,
         actionAvailable = canRemove,
         errorText = error,
         isCodeInvalid = state.error == RemoveAuthenticatorAppError.INVALID_CODE,
         onBack = {
-            if (!viewModel.state.value.isValidated) {
+            if (!viewModel.state.value.isCompleted) {
                 viewModel.cancel()
                 if (!runtime.navigator.goBack()) onExit()
             }

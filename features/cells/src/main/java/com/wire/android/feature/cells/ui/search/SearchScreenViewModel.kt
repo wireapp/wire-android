@@ -73,9 +73,22 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.atomic.AtomicInteger
 import kotlin.time.Duration.Companion.milliseconds
 
 private const val SEARCH_DEBOUNCE_MILLIS = 200L
+
+/** A result as fetched from the server, by the [fetch]-th fetch. */
+private data class FetchedNode(val node: CellNodeUi, val fetch: Int)
+
+/** A change made to a result while the [fetch]-th fetch was the latest. */
+private data class FetchUpdate(val update: CellNodeUpdate, val fetch: Int)
+
+/**
+ * The changes the results of the [fetch]-th fetch can miss: those made since it started. Changes made before it are
+ * already on the server it fetched them from, and applying them anyway would hide later changes made elsewhere.
+ */
+private fun List<FetchUpdate>.missedBy(fetch: Int): List<CellNodeUpdate> = filter { it.fetch >= fetch }.map { it.update }
 
 @Suppress("TooManyFunctions")
 class SearchScreenViewModel @AssistedInject constructor(
@@ -128,10 +141,11 @@ class SearchScreenViewModel @AssistedInject constructor(
 
     private val queryFlow = MutableStateFlow("")
 
-    // Changes made to the results shown since they were loaded, applied on top of them. Kept for the whole search rather
-    // than cleared as results load again, which would show the outdated results unchanged until the new ones arrive:
-    // applied to results loaded after them, they only set what the server already says.
-    private val resultUpdates = MutableStateFlow<List<CellNodeUpdate>>(emptyList())
+    // Numbers the fetches of results from the server, so that each result only gets the changes its fetch can miss.
+    private val fetchCount = AtomicInteger(0)
+
+    // Changes made to the results shown, applied on top of them, along with the fetch running when each was made.
+    private val resultUpdates = MutableStateFlow<List<FetchUpdate>>(emptyList())
 
     // Filled as result pages load, possibly off the main thread.
     private val shownUuids: MutableSet<String> = ConcurrentHashMap.newKeySet()
@@ -159,7 +173,8 @@ class SearchScreenViewModel @AssistedInject constructor(
 
     val cellNodesFlow: Flow<PagingData<CellNodeUi>> =
         combine(
-            searchParamsFlow.flatMapLatest<SearchParams, PagingData<CellNodeUi>> { params: SearchParams ->
+            searchParamsFlow.flatMapLatest<SearchParams, PagingData<FetchedNode>> { params: SearchParams ->
+                val fetch = startFetch()
                 val hasFilters = params.sortingCriteria != inheritedSortingCriteria ||
                         params.query.isNotEmpty() ||
                         params.tagIds.isNotEmpty() ||
@@ -197,10 +212,12 @@ class SearchScreenViewModel @AssistedInject constructor(
                     isRecursive = params.query.isNotEmpty()
                 ).map { pagingData: PagingData<Node> ->
                     pagingData.map { node: Node ->
-                        when (node) {
+                        val uiNode = when (node) {
                             is Node.Folder -> node.toUiModel()
                             is Node.File -> node.toUiModel()
-                        }.also { shownUuids.add(it.uuid) }
+                        }
+                        shownUuids.add(uiNode.uuid)
+                        FetchedNode(uiNode, fetch)
                     }
                 }
             }.cachedIn(viewModelScope),
@@ -210,8 +227,8 @@ class SearchScreenViewModel @AssistedInject constructor(
             resultUpdates,
         ) { pagingData, openLoadStates, downloadStates, offlineFiles, updates ->
             val offlineUuids = offlineFiles.map { it.id }.toSet()
-            pagingData.map { loadedNode ->
-                val node = updates.applyTo(loadedNode)
+            pagingData.map { fetchedNode ->
+                val node = updates.missedBy(fetchedNode.fetch).applyTo(fetchedNode.node)
                 if (node is CellNodeUi.File) {
                     node.withSessionState(
                         openLoadState = openLoadStates[node.uuid],
@@ -251,8 +268,18 @@ class SearchScreenViewModel @AssistedInject constructor(
     // The changes are known: no need to load the results again for them.
     private fun updateResultsUpdatedElsewhere() = viewModelScope.launch {
         nodeChangeEvents.nodeUpdates.collect { update ->
-            if (update.uuid in shownUuids) resultUpdates.update { it + update }
+            if (update.uuid in shownUuids) resultUpdates.update { it + FetchUpdate(update, fetch = fetchCount.get()) }
         }
+    }
+
+    /**
+     * Starts a new fetch of results, and forgets the changes nothing needs anymore: the results shown until the new ones
+     * arrive, from the previous fetch, only need the changes made since that one started.
+     */
+    private fun startFetch(): Int {
+        val fetch = fetchCount.incrementAndGet()
+        resultUpdates.update { updates -> updates.filter { it.fetch >= fetch - 1 } }
+        return fetch
     }
 
     internal fun loadTags() = viewModelScope.launch {

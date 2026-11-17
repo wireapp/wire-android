@@ -18,7 +18,7 @@
 
 package com.wire.android.ui.home.settings
 
-import com.wire.android.ui.home.settings.mfa.MFAOverviewRoute
+import com.wire.android.ui.home.settings.mfa.overview.MFAOverviewRoute
 import com.wire.navigation.SessionRoute
 import com.wire.navigation.WireNavEntryId
 import com.wire.navigation.WireSessionId

@@ -31,12 +31,12 @@ import com.wire.android.ui.home.settings.appearance.CustomizationScreen
 import com.wire.android.ui.home.settings.appsettings.AppSettingsScreen
 import com.wire.android.ui.home.settings.appsettings.networkSettings.NetworkSettingsScreen
 import com.wire.android.ui.home.settings.backup.BackupAndRestoreScreen
-import com.wire.android.ui.home.settings.mfa.MFASetupResultType
-import com.wire.android.ui.home.settings.mfa.MFARecoveryCodesResultType
-import com.wire.android.ui.home.settings.mfa.MFATurnOffResultType
-import com.wire.android.ui.home.settings.mfa.AuthenticatorAppRenameResultType
-import com.wire.android.ui.home.settings.mfa.AuthenticatorAppAddedResultType
+import com.wire.android.ui.home.settings.mfa.authenticatorapps.add.AuthenticatorAppAddedResultType
+import com.wire.android.ui.home.settings.mfa.authenticatorapps.edit.AuthenticatorAppRenameResultType
 import com.wire.android.ui.home.settings.mfa.mfaNavigation3Entries
+import com.wire.android.ui.home.settings.mfa.recoverycodes.MFARecoveryCodesResultType
+import com.wire.android.ui.home.settings.mfa.setup.MFASetupResultType
+import com.wire.android.ui.home.settings.mfa.turnoff.MFATurnOffResultType
 import com.wire.android.ui.home.settings.privacy.PrivacySettingsConfigScreen
 import com.wire.navigation.SessionRoute
 import com.wire.navigation.WireNavigationCommand

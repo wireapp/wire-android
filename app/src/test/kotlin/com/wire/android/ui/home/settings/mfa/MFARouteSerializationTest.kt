@@ -20,6 +20,16 @@ package com.wire.android.ui.home.settings.mfa
 
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.serialization.NavKeySerializer
+import com.wire.android.ui.home.settings.mfa.authenticatorapps.MFAAuthenticatorAppsRoute
+import com.wire.android.ui.home.settings.mfa.authenticatorapps.add.MFAAddAuthenticatorAppRoute
+import com.wire.android.ui.home.settings.mfa.authenticatorapps.edit.MFAEditAuthenticatorAppRoute
+import com.wire.android.ui.home.settings.mfa.authenticatorapps.remove.MFARemoveAuthenticatorAppRoute
+import com.wire.android.ui.home.settings.mfa.overview.MFAOverviewRoute
+import com.wire.android.ui.home.settings.mfa.recoverycodes.MFARecoveryCodesRoute
+import com.wire.android.ui.home.settings.mfa.recoverycodes.MFARecoveryCodesStep
+import com.wire.android.ui.home.settings.mfa.setup.MFASetupRoute
+import com.wire.android.ui.home.settings.mfa.setup.MFASetupStep
+import com.wire.android.ui.home.settings.mfa.turnoff.MFATurnOffRoute
 import com.wire.navigation.SessionRoute
 import com.wire.navigation.WireSessionId
 import kotlinx.serialization.json.Json

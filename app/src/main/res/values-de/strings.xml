@@ -1868,7 +1868,6 @@ registriert. Bitte versuchen Sie es mit einer anderen.</string>
     <string name="notification_meeting_cancel">%1$s hat dieses Meeting abgesagt</string>
     <string name="notification_meeting_cancel_short">Meeting abgesagt</string>
     <string name="notification_meeting_starting_at">Beginnt %1$s</string>
-    <string name="meeting_reminder_exact_alarm_settings">Einstellungen öffnen</string>
     <plurals name="startup_account_limit_title">
         <item quantity="one">Konto entfernen</item>
         <item quantity="other">%1$d Konten entfernen</item>

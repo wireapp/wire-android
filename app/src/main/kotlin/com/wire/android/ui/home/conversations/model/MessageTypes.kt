@@ -336,7 +336,9 @@ private fun MessageImageOverlay(
             )
         }
 
-        AssetTransferStatus.SAVED_INTERNALLY, AssetTransferStatus.UPLOADED -> {
+        AssetTransferStatus.SAVED_INTERNALLY,
+        AssetTransferStatus.SAVED_EXTERNALLY,
+        AssetTransferStatus.UPLOADED -> {
             ImageMessageInProgress(
                 size = size,
                 isDownloading = true,
@@ -372,6 +374,7 @@ private fun AssetTransferStatus.shouldHideLoadingWhenSourceExists(): Boolean =
         DOWNLOAD_IN_PROGRESS,
         AssetTransferStatus.NOT_DOWNLOADED,
         AssetTransferStatus.SAVED_INTERNALLY,
+        AssetTransferStatus.SAVED_EXTERNALLY,
         AssetTransferStatus.UPLOADED -> true
 
         else -> false

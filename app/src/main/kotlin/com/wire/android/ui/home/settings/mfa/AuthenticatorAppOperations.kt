@@ -20,6 +20,9 @@ package com.wire.android.ui.home.settings.mfa
 
 import dev.zacsweers.metro.Inject
 import kotlinx.coroutines.delay
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
+import kotlin.time.Clock
 
 private const val DUMMY_APP_OPERATION_DELAY_MILLIS = 500L
 
@@ -50,9 +53,41 @@ class RemoveAuthenticatorAppUseCase @Inject constructor() {
 }
 
 class CompleteAuthenticatorAppAdditionUseCase(private val store: MFAStore) {
-    suspend operator fun invoke(result: AuthenticatorAppAddedResult): AuthenticatorAppMutationResult = store.addAuthenticatorApp(result)
+    suspend operator fun invoke(result: AuthenticatorAppAddedResult): AuthenticatorAppMutationResult = store.updateOverview { current ->
+        val overview = current as? MFAOverview.Enabled
+            ?: return@updateOverview MFAOverviewUpdate(result = AuthenticatorAppMutationResult.MFA_DISABLED)
+        if (overview.authenticatorApps.any { it.id == result.appId }) {
+            return@updateOverview MFAOverviewUpdate(result = AuthenticatorAppMutationResult.SUCCESS)
+        }
+        if (overview.authenticatorApps.size >= MAX_AUTHENTICATOR_APPS) {
+            return@updateOverview MFAOverviewUpdate(result = AuthenticatorAppMutationResult.LIMIT_REACHED)
+        }
+        require(result.name.isNotBlank())
+        val app = AuthenticatorApp(
+            id = result.appId,
+            name = result.name.trim(),
+            addedOn = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date,
+        )
+        MFAOverviewUpdate(
+            overview = overview.copy(authenticatorApps = overview.authenticatorApps + app),
+            result = AuthenticatorAppMutationResult.SUCCESS,
+        )
+    }
 }
 
 class CompleteAuthenticatorAppRemovalUseCase(private val store: MFAStore) {
-    suspend operator fun invoke(appId: String): AuthenticatorAppMutationResult = store.removeAuthenticatorApp(appId)
+    suspend operator fun invoke(appId: String): AuthenticatorAppMutationResult = store.updateOverview { current ->
+        val overview = current as? MFAOverview.Enabled
+            ?: return@updateOverview MFAOverviewUpdate(result = AuthenticatorAppMutationResult.MFA_DISABLED)
+        if (overview.authenticatorApps.none { it.id == appId }) {
+            return@updateOverview MFAOverviewUpdate(result = AuthenticatorAppMutationResult.NOT_FOUND)
+        }
+        if (overview.authenticatorApps.size <= 1) {
+            return@updateOverview MFAOverviewUpdate(result = AuthenticatorAppMutationResult.LAST_APP)
+        }
+        MFAOverviewUpdate(
+            overview = overview.copy(authenticatorApps = overview.authenticatorApps.filterNot { it.id == appId }),
+            result = AuthenticatorAppMutationResult.SUCCESS,
+        )
+    }
 }

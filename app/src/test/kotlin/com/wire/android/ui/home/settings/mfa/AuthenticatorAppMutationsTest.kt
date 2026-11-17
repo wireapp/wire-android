@@ -30,51 +30,57 @@ class AuthenticatorAppMutationsTest {
 
     @Test
     fun `adding and removing preserve other apps and recovery codes across refreshes`() = runTest {
-        val store = MFAStore { overview }
-        store.refresh()
-        assertEquals(AuthenticatorAppMutationResult.SUCCESS, store.addAuthenticatorApp(AuthenticatorAppAddedResult("backup", " Backup ")))
+        val store = MFAStore()
+        val refresh = RefreshMFAOverviewUseCase(store) { overview }
+        val addition = CompleteAuthenticatorAppAdditionUseCase(store)
+        val removal = CompleteAuthenticatorAppRemovalUseCase(store)
+        refresh()
+        assertEquals(AuthenticatorAppMutationResult.SUCCESS, addition(AuthenticatorAppAddedResult("backup", " Backup ")))
         val added = store.state.value.overview as MFAOverview.Enabled
         assertEquals(primary, added.authenticatorApps.first())
         assertEquals("Backup", added.authenticatorApps.last().name)
         assertEquals(overview.recoveryCodesStatus, added.recoveryCodesStatus)
-        store.refresh()
+        refresh()
         assertEquals(added, store.state.value.overview)
 
-        assertEquals(AuthenticatorAppMutationResult.SUCCESS, store.removeAuthenticatorApp(primary.id))
+        assertEquals(AuthenticatorAppMutationResult.SUCCESS, removal(primary.id))
         val removed = store.state.value.overview as MFAOverview.Enabled
         assertEquals(listOf(added.authenticatorApps.last()), removed.authenticatorApps)
         assertEquals(overview.recoveryCodesStatus, removed.recoveryCodesStatus)
-        store.refresh()
+        refresh()
         assertEquals(removed, store.state.value.overview)
-        assertEquals(AuthenticatorAppMutationResult.LAST_APP, store.removeAuthenticatorApp("backup"))
+        assertEquals(AuthenticatorAppMutationResult.LAST_APP, removal("backup"))
         assertEquals(removed, store.state.value.overview)
     }
 
     @Test
-    fun `the store enforces the five-app limit and replayed results do not duplicate an app`() = runTest {
-        val store = MFAStore { overview }
-        store.refresh()
+    fun `the addition use case enforces the five-app limit and replayed results do not duplicate an app`() = runTest {
+        val store = MFAStore()
+        val addition = CompleteAuthenticatorAppAdditionUseCase(store)
+        RefreshMFAOverviewUseCase(store) { overview }()
         repeat(4) { index ->
             assertEquals(
                 AuthenticatorAppMutationResult.SUCCESS,
-                store.addAuthenticatorApp(AuthenticatorAppAddedResult("backup-$index", "Backup $index")),
+                addition(AuthenticatorAppAddedResult("backup-$index", "Backup $index")),
             )
         }
         val full = store.state.value.overview as MFAOverview.Enabled
         assertEquals(5, full.authenticatorApps.size)
-        assertEquals(AuthenticatorAppMutationResult.LIMIT_REACHED, store.addAuthenticatorApp(AuthenticatorAppAddedResult("extra", "Extra")))
-        assertEquals(AuthenticatorAppMutationResult.SUCCESS, store.addAuthenticatorApp(AuthenticatorAppAddedResult("backup-0", "Backup 0")))
+        assertEquals(AuthenticatorAppMutationResult.LIMIT_REACHED, addition(AuthenticatorAppAddedResult("extra", "Extra")))
+        assertEquals(AuthenticatorAppMutationResult.SUCCESS, addition(AuthenticatorAppAddedResult("backup-0", "Backup 0")))
         assertEquals(full, store.state.value.overview)
     }
 
     @Test
     fun `concurrent removals cannot remove the final authenticator`() = runTest {
-        val store = MFAStore {
+        val store = MFAStore()
+        RefreshMFAOverviewUseCase(store) {
             overview.copy(authenticatorApps = listOf(primary, primary.copy(id = "backup")))
-        }
-        store.refresh()
-        val first = async { store.removeAuthenticatorApp("primary") }
-        val second = async { store.removeAuthenticatorApp("backup") }
+        }()
+        val firstRemoval = CompleteAuthenticatorAppRemovalUseCase(store)
+        val secondRemoval = CompleteAuthenticatorAppRemovalUseCase(store)
+        val first = async { firstRemoval("primary") }
+        val second = async { secondRemoval("backup") }
 
         assertEquals(
             setOf(AuthenticatorAppMutationResult.SUCCESS, AuthenticatorAppMutationResult.LAST_APP),
@@ -87,16 +93,18 @@ class AuthenticatorAppMutationsTest {
 
     @Test
     fun `stale operations do not change unknown apps or re-enable MFA`() = runTest {
-        val store = MFAStore { overview }
-        store.refresh()
-        assertEquals(AuthenticatorAppMutationResult.NOT_FOUND, store.removeAuthenticatorApp("unknown"))
+        val store = MFAStore()
+        val addition = CompleteAuthenticatorAppAdditionUseCase(store)
+        val removal = CompleteAuthenticatorAppRemovalUseCase(store)
+        RefreshMFAOverviewUseCase(store) { overview }()
+        assertEquals(AuthenticatorAppMutationResult.NOT_FOUND, removal("unknown"))
         assertEquals(overview, store.state.value.overview)
-        store.completeTurnOff()
+        CompleteMFATurnOffUseCase(store)()
         assertEquals(
             AuthenticatorAppMutationResult.MFA_DISABLED,
-            store.addAuthenticatorApp(AuthenticatorAppAddedResult("backup", "Backup")),
+            addition(AuthenticatorAppAddedResult("backup", "Backup")),
         )
-        assertEquals(AuthenticatorAppMutationResult.MFA_DISABLED, store.removeAuthenticatorApp(primary.id))
+        assertEquals(AuthenticatorAppMutationResult.MFA_DISABLED, removal(primary.id))
         assertEquals(MFAOverview.Disabled, store.state.value.overview)
     }
 }

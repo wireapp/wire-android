@@ -38,12 +38,16 @@ sealed interface MFAOverviewState {
     ) : MFAOverviewState
 }
 
-class MFAOverviewViewModel @Inject constructor(
+class MFAOverviewViewModel(
     store: MFAStore,
+    loadOverview: suspend () -> MFAOverview,
 ) : ViewModel() {
+    @Inject
+    constructor(store: MFAStore, loader: DummyMFALoader) : this(store, loader::invoke)
+
     // Construct the use cases from the same unscoped store so the flow owns exactly one cache.
     private val observeOverview = ObserveMFAOverviewUseCase(store)
-    private val refreshOverview = RefreshMFAOverviewUseCase(store)
+    private val refreshOverview = RefreshMFAOverviewUseCase(store, loadOverview)
     private val completeSetup = CompleteMFASetupUseCase(store)
     private val updateRecoveryCodes = UpdateMFARecoveryCodesStatusUseCase(store)
     private val completeTurnOff = CompleteMFATurnOffUseCase(store)
@@ -57,9 +61,9 @@ class MFAOverviewViewModel @Inject constructor(
             overview != null -> MFAOverviewState.Loaded(
                 overview = overview,
                 isRefreshing = storeState.isRefreshing,
-                hasRefreshError = storeState.failure != null,
+                hasRefreshError = storeState.hasRefreshError,
             )
-            storeState.failure != null -> MFAOverviewState.Error
+            storeState.hasRefreshError -> MFAOverviewState.Error
             else -> MFAOverviewState.Loading
         }
     }.stateIn(viewModelScope, SharingStarted.Eagerly, MFAOverviewState.Loading)

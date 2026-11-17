@@ -54,7 +54,7 @@ class MFAOverviewViewModelTest {
     @Test
     fun `given no cached data then loading is shown until the overview arrives`() = runTest {
         val response = CompletableDeferred<MFAOverview>()
-        val viewModel = createViewModel(MFAStore { response.await() })
+        val viewModel = createViewModel { response.await() }
         runCurrent()
         assertEquals(MFAOverviewState.Loading, viewModel.state.value)
 
@@ -70,12 +70,10 @@ class MFAOverviewViewModelTest {
     @Test
     fun `given initial load failure when retry succeeds then error is replaced with content`() = runTest {
         var fail = true
-        val viewModel = createViewModel(
-            MFAStore {
-                if (fail) throw IOException("Offline")
-                enabled
-            }
-        )
+        val viewModel = createViewModel {
+            if (fail) throw IOException("Offline")
+            enabled
+        }
         runCurrent()
         assertEquals(MFAOverviewState.Error, viewModel.state.value)
 
@@ -89,12 +87,13 @@ class MFAOverviewViewModelTest {
     @Test
     fun `given a loaded overview when the store changes then the screen reacts without being recreated`() = runTest {
         var response = enabled
-        val store = MFAStore { response }
-        val viewModel = createViewModel(store)
+        val store = MFAStore()
+        val loadOverview: suspend () -> MFAOverview = { response }
+        val viewModel = createViewModel(store, loadOverview)
         runCurrent()
 
         response = enabled.copy(authenticatorApps = enabled.authenticatorApps.map { it.copy(name = "New name") })
-        store.refresh()
+        RefreshMFAOverviewUseCase(store, loadOverview)()
         runCurrent()
 
         assertEquals(MFAOverviewState.Loaded(response), viewModel.state.value)
@@ -103,7 +102,7 @@ class MFAOverviewViewModelTest {
     @Test
     fun `given cached data when refresh is pending or fails then content stays visible`() = runTest {
         var response = CompletableDeferred<MFAOverview>().also { it.complete(enabled) }
-        val viewModel = createViewModel(MFAStore { response.await() })
+        val viewModel = createViewModel { response.await() }
         runCurrent()
 
         response = CompletableDeferred()
@@ -121,14 +120,14 @@ class MFAOverviewViewModelTest {
     fun `when the flow owner is cleared then the pending load is cancelled without publishing an error`() = runTest {
         var cancelled = false
         val response = CompletableDeferred<MFAOverview>()
-        val store = MFAStore {
+        val store = MFAStore()
+        createViewModel(store) {
             try {
                 response.await()
             } finally {
                 cancelled = true
             }
         }
-        createViewModel(store)
         runCurrent()
 
         owner.clear()
@@ -136,14 +135,13 @@ class MFAOverviewViewModelTest {
 
         assertTrue(cancelled)
         assertFalse(store.state.value.isRefreshing)
-        assertNull(store.state.value.failure)
+        assertFalse(store.state.value.hasRefreshError)
         assertNull(store.state.value.overview)
     }
 
     @Test
     fun `completed setup updates the observed overview and a dummy refresh keeps it enabled`() = runTest {
-        val store = MFAStore { MFAOverview.Disabled }
-        val viewModel = createViewModel(store)
+        val viewModel = createViewModel { MFAOverview.Disabled }
         viewModel.onSetupCompleted(MFASetupResult("new-app", "Android phone", 10))
         runCurrent()
 
@@ -160,7 +158,7 @@ class MFAOverviewViewModelTest {
     @Test
     fun `regenerating codes resets the count without changing authenticators and survives a refresh`() = runTest {
         val original = enabled.copy(recoveryCodesStatus = RecoveryCodesStatus(3, 10))
-        val viewModel = createViewModel(MFAStore { original })
+        val viewModel = createViewModel { original }
         runCurrent()
 
         viewModel.onRecoveryCodesGenerated(MFARecoveryCodesResult(10))
@@ -175,7 +173,7 @@ class MFAOverviewViewModelTest {
 
     @Test
     fun `turning off clears the enabled overview and an enabled remote snapshot cannot restore it`() = runTest {
-        val viewModel = createViewModel(MFAStore { enabled })
+        val viewModel = createViewModel { enabled }
         runCurrent()
         viewModel.onTurnOffCompleted()
         runCurrent()
@@ -189,7 +187,7 @@ class MFAOverviewViewModelTest {
 
     @Test
     fun `setup after turning off creates a fresh enabled overview without the old authenticator`() = runTest {
-        val viewModel = createViewModel(MFAStore { enabled })
+        val viewModel = createViewModel { enabled }
         runCurrent()
         viewModel.onTurnOffCompleted()
         runCurrent()
@@ -210,7 +208,7 @@ class MFAOverviewViewModelTest {
     fun `renaming updates the shared snapshot by id and preserves other account data across refreshes`() = runTest {
         val other = enabled.authenticatorApps.single().copy(id = "backup", name = "Backup")
         val original = enabled.copy(authenticatorApps = enabled.authenticatorApps + other)
-        val viewModel = createViewModel(MFAStore { original })
+        val viewModel = createViewModel { original }
         runCurrent()
         val app = enabled.authenticatorApps.single()
 
@@ -226,7 +224,7 @@ class MFAOverviewViewModelTest {
 
     @Test
     fun `stale rename results neither add missing apps nor restore MFA after turning off`() = runTest {
-        val viewModel = createViewModel(MFAStore { enabled })
+        val viewModel = createViewModel { enabled }
         runCurrent()
         viewModel.onAuthenticatorAppRenamed(AuthenticatorAppRenameResult("missing", "New name"))
         runCurrent()
@@ -242,9 +240,12 @@ class MFAOverviewViewModelTest {
         )
     }
 
-    private fun createViewModel(store: MFAStore): MFAOverviewViewModel =
+    private fun createViewModel(
+        store: MFAStore = MFAStore(),
+        loadOverview: suspend () -> MFAOverview,
+    ): MFAOverviewViewModel =
         ViewModelProvider.create(
             owner,
-            viewModelFactory { initializer { MFAOverviewViewModel(store) } },
+            viewModelFactory { initializer { MFAOverviewViewModel(store, loadOverview) } },
         )[MFAOverviewViewModel::class]
 }

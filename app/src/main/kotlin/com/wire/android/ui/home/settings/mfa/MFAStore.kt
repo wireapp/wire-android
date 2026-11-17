@@ -19,129 +19,56 @@
 package com.wire.android.ui.home.settings.mfa
 
 import dev.zacsweers.metro.Inject
-import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import kotlin.time.Clock
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toLocalDateTime
-
-private const val DUMMY_LOADING_DELAY_MILLIS = 500L
 
 data class MFAStoreState(
     val overview: MFAOverview? = null,
     val isRefreshing: Boolean = false,
-    val failure: Exception? = null,
+    val hasRefreshError: Boolean = false,
 )
 
 /** Owned by the MFA flow ViewModel, not the account's dependency graph. */
-class MFAStore(
-    private val loadOverview: suspend () -> MFAOverview,
-) {
-    @Inject
-    constructor(loader: DummyMFALoader) : this(loader::invoke)
-
+class MFAStore @Inject constructor() {
     private val _state = MutableStateFlow(MFAStoreState())
     val state = _state.asStateFlow()
-    private val refreshMutex = Mutex()
+    private val updateMutex = Mutex()
     private var dummyOverviewOverride: MFAOverview? = null
 
-    @Suppress("TooGenericExceptionCaught")
-    suspend fun refresh() {
-        // Multiple screens can request a refresh; reuse the operation already in progress.
-        if (!refreshMutex.tryLock()) return
+    /** Refreshes and mutations share one lock; overlapping refresh requests are skipped. */
+    internal suspend fun withRefresh(block: suspend () -> Unit) {
+        if (!updateMutex.tryLock()) return
         try {
-            _state.update { it.copy(isRefreshing = true, failure = null) }
-            val overview = loadOverview()
-            _state.value = MFAStoreState(overview = dummyOverviewOverride ?: overview)
-        } catch (cancelled: CancellationException) {
-            throw cancelled
-        } catch (failure: Exception) {
-            _state.update { it.copy(failure = failure) }
+            block()
         } finally {
-            _state.update { it.copy(isRefreshing = false) }
-            refreshMutex.unlock()
+            updateMutex.unlock()
         }
     }
 
-    suspend fun completeSetup(result: MFASetupResult) = refreshMutex.withLock {
-        // Keep local prototype changes authoritative until the MFA area is closed.
-        val overview = MFAOverview.Enabled(
-            authenticatorApps = listOf(
-                AuthenticatorApp(
-                    id = result.authenticatorId,
-                    name = result.authenticatorName,
-                    addedOn = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date,
-                )
-            ),
-            recoveryCodesStatus = RecoveryCodesStatus(result.recoveryCodesCount, result.recoveryCodesCount),
-        )
-        dummyOverviewOverride = overview
-        _state.value = MFAStoreState(overview = overview)
+    /** Called inside [withRefresh] so loading cannot overwrite a concurrent mutation. */
+    internal fun publishRefreshedOverview(overview: MFAOverview) {
+        _state.update { it.copy(overview = dummyOverviewOverride ?: overview) }
     }
 
-    suspend fun updateRecoveryCodesStatus(result: MFARecoveryCodesResult) = refreshMutex.withLock {
-        val overview = _state.value.overview as? MFAOverview.Enabled ?: return@withLock
-        val updated = overview.copy(recoveryCodesStatus = RecoveryCodesStatus(result.generatedCount, result.generatedCount))
-        dummyOverviewOverride = updated
-        _state.value = MFAStoreState(overview = updated)
+    /** Refresh status is published by the refresh use case while it holds [withRefresh]. */
+    internal fun setRefreshStatus(isRefreshing: Boolean, hasRefreshError: Boolean) {
+        _state.update { it.copy(isRefreshing = isRefreshing, hasRefreshError = hasRefreshError) }
     }
 
-    suspend fun completeTurnOff() = refreshMutex.withLock {
-        dummyOverviewOverride = MFAOverview.Disabled
-        _state.value = MFAStoreState(overview = MFAOverview.Disabled)
-    }
-
-    suspend fun completeAuthenticatorAppRename(result: AuthenticatorAppRenameResult) = refreshMutex.withLock {
-        val overview = _state.value.overview as? MFAOverview.Enabled ?: return@withLock
-        if (overview.authenticatorApps.none { it.id == result.appId }) return@withLock
-        val trimmedName = result.name.trim()
-        require(trimmedName.isNotEmpty())
-        val updated = overview.copy(
-            authenticatorApps = overview.authenticatorApps.map { app ->
-                if (app.id == result.appId) app.copy(name = trimmedName) else app
-            },
-        )
-        dummyOverviewOverride = updated
-        _state.value = MFAStoreState(overview = updated)
-    }
-
-    suspend fun addAuthenticatorApp(result: AuthenticatorAppAddedResult): AuthenticatorAppMutationResult = refreshMutex.withLock {
-        val overview = _state.value.overview as? MFAOverview.Enabled
-            ?: return@withLock AuthenticatorAppMutationResult.MFA_DISABLED
-        if (overview.authenticatorApps.any { it.id == result.appId }) return@withLock AuthenticatorAppMutationResult.SUCCESS
-        if (overview.authenticatorApps.size >= MAX_AUTHENTICATOR_APPS) return@withLock AuthenticatorAppMutationResult.LIMIT_REACHED
-        require(result.name.isNotBlank())
-        val app = AuthenticatorApp(
-            id = result.appId,
-            name = result.name.trim(),
-            addedOn = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date,
-        )
-        val updated = overview.copy(authenticatorApps = overview.authenticatorApps + app)
-        dummyOverviewOverride = updated
-        _state.value = MFAStoreState(overview = updated)
-        AuthenticatorAppMutationResult.SUCCESS
-    }
-
-    suspend fun removeAuthenticatorApp(appId: String): AuthenticatorAppMutationResult = refreshMutex.withLock {
-        val overview = _state.value.overview as? MFAOverview.Enabled
-            ?: return@withLock AuthenticatorAppMutationResult.MFA_DISABLED
-        if (overview.authenticatorApps.none { it.id == appId }) return@withLock AuthenticatorAppMutationResult.NOT_FOUND
-        if (overview.authenticatorApps.size <= 1) return@withLock AuthenticatorAppMutationResult.LAST_APP
-        val updated = overview.copy(authenticatorApps = overview.authenticatorApps.filterNot { it.id == appId })
-        dummyOverviewOverride = updated
-        _state.value = MFAStoreState(overview = updated)
-        AuthenticatorAppMutationResult.SUCCESS
+    /** Evaluate rules against the latest overview and publish their outcome under the same lock. */
+    internal suspend fun <T> updateOverview(transform: (MFAOverview?) -> MFAOverviewUpdate<T>): T = updateMutex.withLock {
+        val update = transform(_state.value.overview)
+        update.overview?.let { overview ->
+            // Keep local prototype changes authoritative until the MFA area is closed.
+            dummyOverviewOverride = overview
+            _state.value = MFAStoreState(overview = overview)
+        }
+        update.result
     }
 }
 
-class DummyMFALoader @Inject constructor() {
-    suspend operator fun invoke(): MFAOverview {
-        delay(DUMMY_LOADING_DELAY_MILLIS)
-        return MFAOverview.Disabled
-    }
-}
+/** A null overview leaves the cache unchanged, for example when an operation is rejected. */
+internal data class MFAOverviewUpdate<T>(val overview: MFAOverview? = null, val result: T)

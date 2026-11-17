@@ -139,4 +139,7 @@
     <string name="new_meeting_confirm_password_input_label">Confirm password</string>
     <string name="new_meeting_confirm_password_input_placeholder">Re-enter password</string>
     <string name="new_meeting_password_mismatch_error">Passwords do not match</string>
+    <string name="meeting_creation_confirmation_description">Share this link to invite participants.</string>
+    <string name="meeting_invite_guests_title">Invite guests via link</string>
+    <string name="meeting_invite_guests_close_content_description">Close guest link card</string>
 </resources>

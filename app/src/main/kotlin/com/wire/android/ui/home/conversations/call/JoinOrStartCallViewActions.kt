@@ -26,12 +26,21 @@ import com.wire.android.ui.calling.getOutgoingCallIntent
 import com.wire.android.ui.calling.ongoing.getOngoingCallIntent
 import com.wire.android.ui.common.HandleActions
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.id.MeetingId
 import com.wire.kalium.logic.data.user.UserId
 import kotlinx.coroutines.flow.Flow
 
 sealed interface JoinOrStartCallViewActions {
-    data class JoinedCall(val conversationId: ConversationId, val userId: UserId) : JoinOrStartCallViewActions
-    data class InitiatedCall(val conversationId: ConversationId, val userId: UserId) : JoinOrStartCallViewActions
+    data class JoinedCall(
+        val conversationId: ConversationId,
+        val userId: UserId,
+        val createdMeetingId: MeetingId? = null,
+    ) : JoinOrStartCallViewActions
+    data class InitiatedCall(
+        val conversationId: ConversationId,
+        val userId: UserId,
+        val createdMeetingId: MeetingId? = null,
+    ) : JoinOrStartCallViewActions
 }
 
 @Composable
@@ -40,12 +49,26 @@ fun Flow<JoinOrStartCallViewActions>.HandleActions() {
     HandleActions(this) { action ->
         when (action) {
             is JoinOrStartCallViewActions.InitiatedCall -> {
-                context.startActivity(getOutgoingCallIntent(context, action.conversationId.toString(), action.userId.toString()))
+                context.startActivity(
+                    getOutgoingCallIntent(
+                        context = context,
+                        conversationId = action.conversationId.toString(),
+                        userId = action.userId.toString(),
+                        createdMeetingId = action.createdMeetingId
+                    )
+                )
                 AnonymousAnalyticsManagerImpl.sendEvent(event = AnalyticsEvent.CallInitiated)
             }
 
             is JoinOrStartCallViewActions.JoinedCall -> {
-                context.startActivity(getOngoingCallIntent(context, action.conversationId.toString(), action.userId.toString()))
+                context.startActivity(
+                    getOngoingCallIntent(
+                        context = context,
+                        conversationId = action.conversationId.toString(),
+                        userId = action.userId.toString(),
+                        createdMeetingId = action.createdMeetingId,
+                    )
+                )
                 AnonymousAnalyticsManagerImpl.sendEvent(event = AnalyticsEvent.CallJoined)
             }
         }

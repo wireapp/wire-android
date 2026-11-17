@@ -27,6 +27,7 @@ import com.wire.android.di.CurrentAccount
 import com.wire.android.di.metro.WireAssistedViewModelBinding
 import com.wire.android.feature.meetings.model.MeetingLink
 import com.wire.android.feature.meetings.ui.MeetingsManualViewModelFactoryGroup
+import com.wire.android.feature.meetings.ui.create.NewMeetingViewModel.Companion.GENERATED_PASSWORD_LENGTH
 import com.wire.android.ui.common.ActionsManager
 import com.wire.android.ui.common.ActionsViewModel
 import com.wire.android.ui.common.textfield.textAsFlow
@@ -111,7 +112,7 @@ class CreateMeetingLinkViewModelImpl @AssistedInject constructor(
 
     override fun onGenerateRandomPassword() {
         if ((state as? CreateMeetingLinkState.Ready)?.isSubmitting == false) {
-            val password = generatePassword()
+            val password = generatePassword(minLength = GENERATED_PASSWORD_LENGTH, maxLength = GENERATED_PASSWORD_LENGTH)
             passwordTextState.setTextAndPlaceCursorAtEnd(password)
             confirmPasswordTextState.setTextAndPlaceCursorAtEnd(password)
         }

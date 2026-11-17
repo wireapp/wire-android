@@ -171,12 +171,12 @@ class CreateMeetingLinkViewModelTest {
         val (arrangement, viewModel) = Arrangement().withObservedMeeting(meeting("old", false)).arrange()
         runCurrent()
         viewModel.onGenerateRandomPassword()
-        assertEquals("Generated123!", viewModel.passwordTextState.text.toString())
+        assertEquals("Abc123!@", viewModel.passwordTextState.text.toString())
         assertEquals(viewModel.passwordTextState.text.toString(), viewModel.confirmPasswordTextState.text.toString())
         arrangement.withObservedMeeting(meeting("updated", true))
         runCurrent()
         assertEquals(CreateMeetingLinkState.Ready(MeetingLink("updated", true)), viewModel.state)
-        assertEquals("Generated123!", viewModel.passwordTextState.text.toString())
+        assertEquals("Abc123!@", viewModel.passwordTextState.text.toString())
     }
 
     @Test
@@ -229,7 +229,7 @@ class CreateMeetingLinkViewModelTest {
         init {
             MockKAnnotations.init(this)
             every { validatePassword(any()) } returns ValidatePasswordResult.Valid
-            every { generatePassword() } returns "Generated123!"
+            every { generatePassword(any(), any()) } returns "Abc123!@"
             coEvery { rotateMeetingLink(any(), any()) } returns RotateMeetingLinkUseCase.Result.Success(
                 mockk {
                     every { link } returns "new"

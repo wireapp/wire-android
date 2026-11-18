@@ -27,7 +27,7 @@ import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.ui.home.settings.mfa.setup.MFASetupError
 import com.wire.android.ui.home.settings.mfa.setup.MFASetupStep
 import com.wire.android.ui.home.settings.mfa.MFATestFixture
-import com.wire.kalium.common.functional.Either
+import com.wire.kalium.logic.feature.mfa.FinishAddingAuthenticatorAppResult
 import com.wire.kalium.logic.feature.mfa.FinishAddingAuthenticatorAppUseCase
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -111,7 +111,9 @@ class MFAAddAuthenticatorAppViewModelTest {
         advanceUntilIdle()
         assertEquals(MFASetupError.GENERIC, viewModel.state.value.error)
         assertNull(viewModel.state.value.completion)
-        coEvery { finish(any(), any()) } returns Either.Right(MFATestFixture().app.copy(id = enrollment.id, name = "Backup"))
+        coEvery { finish(any(), any()) } returns FinishAddingAuthenticatorAppResult.Success(
+            MFATestFixture().app.copy(id = enrollment.id, name = "Backup"),
+        )
         viewModel.addApp()
         advanceUntilIdle()
         assertEquals(enrollment, viewModel.state.value.enrollment)

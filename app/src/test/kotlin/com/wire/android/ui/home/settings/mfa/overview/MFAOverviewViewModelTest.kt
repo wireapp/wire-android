@@ -24,11 +24,11 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.kalium.common.error.CoreFailure
-import com.wire.kalium.common.functional.Either
 import com.wire.kalium.logic.feature.mfa.AuthenticatorApp
 import com.wire.kalium.logic.feature.mfa.MFAOverview
 import com.wire.kalium.logic.feature.mfa.ObserveMFAOverviewUseCase
 import com.wire.kalium.logic.feature.mfa.RecoveryCodesStatus
+import com.wire.kalium.logic.feature.mfa.RefreshMFAOverviewResult
 import com.wire.kalium.logic.feature.mfa.RefreshMFAOverviewUseCase
 import io.mockk.coEvery
 import io.mockk.every
@@ -67,7 +67,7 @@ class MFAOverviewViewModelTest {
         val viewModel = createViewModel(overview) {
             response.await()
             overview.value = MFAOverview.Disabled
-            Either.Right(Unit)
+            RefreshMFAOverviewResult.Success
         }
         runCurrent()
         assertEquals(MFAOverviewState.Loading, viewModel.state.value)
@@ -82,10 +82,10 @@ class MFAOverviewViewModelTest {
         var fail = true
         val viewModel = createViewModel(overview) {
             if (fail) {
-                Either.Left(CoreFailure.Unknown(null))
+                RefreshMFAOverviewResult.Failure(CoreFailure.Unknown(null))
             } else {
                 overview.value = enabled
-                Either.Right(Unit)
+                RefreshMFAOverviewResult.Success
             }
         }
         runCurrent()
@@ -117,11 +117,11 @@ class MFAOverviewViewModelTest {
     @Test
     fun `cached content remains visible while refreshing and after a failure`() = runTest {
         val overview = MutableStateFlow<MFAOverview?>(enabled)
-        val response = CompletableDeferred<Either<CoreFailure, Unit>>()
+        val response = CompletableDeferred<RefreshMFAOverviewResult>()
         val viewModel = createViewModel(overview) { response.await() }
         runCurrent()
         assertEquals(MFAOverviewState.Loaded(enabled, isRefreshing = true), viewModel.state.value)
-        response.complete(Either.Left(CoreFailure.Unknown(null)))
+        response.complete(RefreshMFAOverviewResult.Failure(CoreFailure.Unknown(null)))
         runCurrent()
         assertEquals(MFAOverviewState.Loaded(enabled, hasRefreshError = true), viewModel.state.value)
     }
@@ -133,7 +133,7 @@ class MFAOverviewViewModelTest {
         val viewModel = createViewModel(MutableStateFlow(enabled)) {
             try {
                 response.await()
-                Either.Right(Unit)
+                RefreshMFAOverviewResult.Success
             } finally {
                 cancelled = true
             }
@@ -147,7 +147,7 @@ class MFAOverviewViewModelTest {
 
     private fun createViewModel(
         overview: MutableStateFlow<MFAOverview?>,
-        refresh: suspend () -> Either<CoreFailure, Unit> = { Either.Right(Unit) },
+        refresh: suspend () -> RefreshMFAOverviewResult = { RefreshMFAOverviewResult.Success },
     ): MFAOverviewViewModel {
         val observe = mockk<ObserveMFAOverviewUseCase>()
         val refreshUseCase = mockk<RefreshMFAOverviewUseCase>()

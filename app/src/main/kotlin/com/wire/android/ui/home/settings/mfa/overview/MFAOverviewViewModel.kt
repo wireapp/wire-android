@@ -20,9 +20,9 @@ package com.wire.android.ui.home.settings.mfa.overview
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wire.kalium.common.functional.Either
 import com.wire.kalium.logic.feature.mfa.MFAOverview
 import com.wire.kalium.logic.feature.mfa.ObserveMFAOverviewUseCase
+import com.wire.kalium.logic.feature.mfa.RefreshMFAOverviewResult
 import com.wire.kalium.logic.feature.mfa.RefreshMFAOverviewUseCase
 import dev.zacsweers.metro.Inject
 import kotlinx.coroutines.CancellationException
@@ -73,7 +73,10 @@ class MFAOverviewViewModel @Inject constructor(
         viewModelScope.launch {
             var hasError = false
             try {
-                hasError = refreshOverview() is Either.Left
+                hasError = when (refreshOverview()) {
+                    is RefreshMFAOverviewResult.Failure -> true
+                    RefreshMFAOverviewResult.Success -> false
+                }
             } catch (cancelled: CancellationException) {
                 throw cancelled
             } catch (_: Exception) {

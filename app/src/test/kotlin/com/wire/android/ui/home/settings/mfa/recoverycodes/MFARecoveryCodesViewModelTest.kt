@@ -25,8 +25,9 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.ui.home.settings.mfa.MFATestFixture
-import com.wire.kalium.common.functional.Either
+import com.wire.kalium.logic.feature.mfa.ConfirmMFAPasswordResult
 import com.wire.kalium.logic.feature.mfa.ConfirmMFAPasswordUseCase
+import com.wire.kalium.logic.feature.mfa.GenerateMFARecoveryCodesResult
 import com.wire.kalium.logic.feature.mfa.GenerateMFARecoveryCodesUseCase
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -85,7 +86,7 @@ class MFARecoveryCodesViewModelTest {
         val codes = listOf("aaaaa-bbbbb-ccccc", "ddddd-eeeee-fffff")
         coEvery { generate() } coAnswers {
             delay(500)
-            Either.Right(codes)
+            GenerateMFARecoveryCodesResult.Success(codes)
         }
         val viewModel = createViewModel(generate = generate)
         viewModel.password.setTextAndPlaceCursorAtEnd("password")
@@ -131,7 +132,7 @@ class MFARecoveryCodesViewModelTest {
         assertTrue(viewModel.state.value.codes.isEmpty())
         assertNull(viewModel.state.value.nextStep)
         assertTrue(viewModel.state.value.canNavigateBack)
-        coEvery { generate() } returns Either.Right(listOf("new-code"))
+        coEvery { generate() } returns GenerateMFARecoveryCodesResult.Success(listOf("new-code"))
         viewModel.requestGeneration()
         viewModel.generateNewCodes()
         advanceUntilIdle()
@@ -152,7 +153,7 @@ class MFARecoveryCodesViewModelTest {
 
         coEvery { confirm(any()) } coAnswers {
             delay(500)
-            Either.Right(Unit)
+            ConfirmMFAPasswordResult.Success
         }
         viewModel.password.setTextAndPlaceCursorAtEnd("password")
         viewModel.confirmPassword()

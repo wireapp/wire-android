@@ -22,12 +22,14 @@ import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.clearText
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wire.kalium.common.functional.fold
+import com.wire.kalium.logic.feature.mfa.CompleteMFASetupResult
 import com.wire.kalium.logic.feature.mfa.CompleteMFASetupUseCase
 import com.wire.kalium.logic.feature.mfa.MFAConstraints.AUTHENTICATION_CODE_LENGTH
 import com.wire.kalium.logic.feature.mfa.MFAEnrollment
 import com.wire.kalium.logic.feature.mfa.MFAFailure
+import com.wire.kalium.logic.feature.mfa.StartMFASetupResult
 import com.wire.kalium.logic.feature.mfa.StartMFASetupUseCase
+import com.wire.kalium.logic.feature.mfa.VerifyMFASetupCodeResult
 import com.wire.kalium.logic.feature.mfa.VerifyMFASetupCodeUseCase
 import dev.zacsweers.metro.Inject
 import kotlinx.coroutines.CancellationException
@@ -78,10 +80,12 @@ class MFASetupViewModel @Inject constructor(
             if (existing != null) {
                 _state.update { it.copy(nextStep = MFASetupStep.LINK_AUTHENTICATOR) }
             } else {
-                startSetup(enteredPassword).fold(
-                    { _state.update { it.copy(error = MFASetupError.GENERIC) } },
-                    { enrollment -> _state.update { it.copy(enrollment = enrollment, nextStep = MFASetupStep.LINK_AUTHENTICATOR) } },
-                )
+                when (val result = startSetup(enteredPassword)) {
+                    is StartMFASetupResult.Failure -> _state.update { it.copy(error = MFASetupError.GENERIC) }
+                    is StartMFASetupResult.Success -> _state.update {
+                        it.copy(enrollment = result.enrollment, nextStep = MFASetupStep.LINK_AUTHENTICATOR)
+                    }
+                }
             }
         }
     }
@@ -97,18 +101,17 @@ class MFASetupViewModel @Inject constructor(
         }
         code.clearText()
         perform {
-            verifyCode(enrollment.id, enteredCode).fold(
-                { failure ->
+            when (val result = verifyCode(enrollment.id, enteredCode)) {
+                is VerifyMFASetupCodeResult.Failure -> {
+                    val error = if (result.failure == MFAFailure.INVALID_CODE) MFASetupError.INVALID_CODE else MFASetupError.GENERIC
+                    _state.update { it.copy(error = error) }
+                }
+                is VerifyMFASetupCodeResult.Success -> {
                     _state.update {
-                        it.copy(error = if (failure == MFAFailure.INVALID_CODE) MFASetupError.INVALID_CODE else MFASetupError.GENERIC)
+                        it.copy(recoveryCodes = it.recoveryCodes.ifEmpty { result.recoveryCodes }, nextStep = MFASetupStep.RECOVERY_CODES)
                     }
-                },
-                { codes ->
-                    _state.update {
-                        it.copy(recoveryCodes = it.recoveryCodes.ifEmpty { codes }, nextStep = MFASetupStep.RECOVERY_CODES)
-                    }
-                },
-            )
+                }
+            }
         }
     }
 
@@ -122,14 +125,14 @@ class MFASetupViewModel @Inject constructor(
         val hasSavedCodes = current.recoveryCodesSaved && current.recoveryCodes.isNotEmpty()
         if (!hasSavedCodes || current.isBusy || current.completion != null) return
         perform {
-            completeSetup(enrollment.id, authenticatorName).fold(
-                { _state.update { it.copy(error = MFASetupError.GENERIC) } },
-                {
+            when (completeSetup(enrollment.id, authenticatorName)) {
+                is CompleteMFASetupResult.Failure -> _state.update { it.copy(error = MFASetupError.GENERIC) }
+                CompleteMFASetupResult.Success -> {
                     _state.update {
                         it.copy(completion = MFASetupResult(enrollment.id, authenticatorName, current.recoveryCodes.size))
                     }
-                },
-            )
+                }
+            }
         }
     }
 

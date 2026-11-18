@@ -18,26 +18,35 @@
 
 package com.wire.android.ui.home.settings.mfa
 
-import com.wire.kalium.common.functional.Either
 import com.wire.kalium.logic.feature.mfa.AuthenticatorApp
+import com.wire.kalium.logic.feature.mfa.CompleteMFASetupResult
 import com.wire.kalium.logic.feature.mfa.CompleteMFASetupUseCase
+import com.wire.kalium.logic.feature.mfa.ConfirmMFAPasswordResult
 import com.wire.kalium.logic.feature.mfa.ConfirmMFAPasswordUseCase
+import com.wire.kalium.logic.feature.mfa.FinishAddingAuthenticatorAppResult
 import com.wire.kalium.logic.feature.mfa.FinishAddingAuthenticatorAppUseCase
+import com.wire.kalium.logic.feature.mfa.GenerateMFARecoveryCodesResult
 import com.wire.kalium.logic.feature.mfa.GenerateMFARecoveryCodesUseCase
 import com.wire.kalium.logic.feature.mfa.MFAEnrollment
 import com.wire.kalium.logic.feature.mfa.MFAFailure
+import com.wire.kalium.logic.feature.mfa.RemoveAuthenticatorAppResult
 import com.wire.kalium.logic.feature.mfa.RemoveAuthenticatorAppUseCase
+import com.wire.kalium.logic.feature.mfa.RenameAuthenticatorAppResult
 import com.wire.kalium.logic.feature.mfa.RenameAuthenticatorAppUseCase
+import com.wire.kalium.logic.feature.mfa.StartMFASetupResult
 import com.wire.kalium.logic.feature.mfa.StartMFASetupUseCase
+import com.wire.kalium.logic.feature.mfa.TurnOffMFAResult
 import com.wire.kalium.logic.feature.mfa.TurnOffMFAUseCase
+import com.wire.kalium.logic.feature.mfa.VerifyAuthenticatorAppCodeResult
 import com.wire.kalium.logic.feature.mfa.VerifyAuthenticatorAppCodeUseCase
+import com.wire.kalium.logic.feature.mfa.VerifyMFASetupCodeResult
 import com.wire.kalium.logic.feature.mfa.VerifyMFASetupCodeUseCase
 import io.mockk.coEvery
 import io.mockk.mockk
 import kotlinx.coroutines.delay
 import kotlinx.datetime.LocalDate
 
-/** Canned Kalium responses for presentation tests; domain behavior is tested in Kalium. */
+/** Canned Kalium responses for MFA presentation tests. */
 internal class MFATestFixture {
     val enrollment = MFAEnrollment("enrollment", "user@wire.example", "test-key")
     val codes = List(10) { "recovery-$it" }
@@ -54,26 +63,32 @@ internal class MFATestFixture {
     val turnOff = mockk<TurnOffMFAUseCase>()
 
     init {
-        coEvery { startSetup(any()) } coAnswers { delayed(Either.Right(enrollment)) }
-        coEvery { verifySetup(any(), any()) } coAnswers { delayed(Either.Right(codes)) }
-        coEvery { verifySetup(any(), "000000") } coAnswers { delayed(Either.Left(MFAFailure.INVALID_CODE)) }
-        coEvery { completeSetup(any(), any()) } coAnswers { delayed(Either.Right(Unit)) }
-        coEvery { verifyAuthenticator(any(), any()) } coAnswers { delayed(Either.Right(Unit)) }
-        coEvery { verifyAuthenticator(any(), "000000") } coAnswers { delayed(Either.Left(MFAFailure.INVALID_CODE)) }
+        coEvery { startSetup(any()) } coAnswers { delayed(StartMFASetupResult.Success(enrollment)) }
+        coEvery { verifySetup(any(), any()) } coAnswers { delayed(VerifyMFASetupCodeResult.Success(codes)) }
+        coEvery { verifySetup(any(), "000000") } coAnswers {
+            delayed(VerifyMFASetupCodeResult.Failure(MFAFailure.INVALID_CODE))
+        }
+        coEvery { completeSetup(any(), any()) } coAnswers { delayed(CompleteMFASetupResult.Success) }
+        coEvery { verifyAuthenticator(any(), any()) } coAnswers { delayed(VerifyAuthenticatorAppCodeResult.Success) }
+        coEvery { verifyAuthenticator(any(), "000000") } coAnswers {
+            delayed(VerifyAuthenticatorAppCodeResult.Failure(MFAFailure.INVALID_CODE))
+        }
         coEvery { finishAdding(any(), any()) } coAnswers {
             delay(500)
-            Either.Right(app.copy(id = firstArg(), name = secondArg()))
+            FinishAddingAuthenticatorAppResult.Success(app.copy(id = firstArg(), name = secondArg()))
         }
         coEvery { rename(any(), any()) } coAnswers {
             delay(500)
-            Either.Right(app.copy(id = firstArg(), name = secondArg()))
+            RenameAuthenticatorAppResult.Success(app.copy(id = firstArg(), name = secondArg()))
         }
-        coEvery { remove(any(), any(), any()) } coAnswers { delayed(Either.Right(Unit)) }
-        coEvery { remove(any(), any(), "000000") } coAnswers { delayed(Either.Left(MFAFailure.INVALID_CODE)) }
-        coEvery { confirmPassword(any()) } coAnswers { delayed(Either.Right(Unit)) }
-        coEvery { generateCodes() } coAnswers { delayed(Either.Right(codes)) }
-        coEvery { turnOff(any(), any()) } coAnswers { delayed(Either.Right(Unit)) }
-        coEvery { turnOff(any(), "000000") } coAnswers { delayed(Either.Left(MFAFailure.INVALID_CODE)) }
+        coEvery { remove(any(), any(), any()) } coAnswers { delayed(RemoveAuthenticatorAppResult.Success) }
+        coEvery { remove(any(), any(), "000000") } coAnswers {
+            delayed(RemoveAuthenticatorAppResult.Failure(MFAFailure.INVALID_CODE))
+        }
+        coEvery { confirmPassword(any()) } coAnswers { delayed(ConfirmMFAPasswordResult.Success) }
+        coEvery { generateCodes() } coAnswers { delayed(GenerateMFARecoveryCodesResult.Success(codes)) }
+        coEvery { turnOff(any(), any()) } coAnswers { delayed(TurnOffMFAResult.Success) }
+        coEvery { turnOff(any(), "000000") } coAnswers { delayed(TurnOffMFAResult.Failure(MFAFailure.INVALID_CODE)) }
     }
 
     private suspend fun <T> delayed(result: T): T {

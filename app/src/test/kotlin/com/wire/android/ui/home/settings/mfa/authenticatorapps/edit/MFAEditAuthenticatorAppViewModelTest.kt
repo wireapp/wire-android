@@ -25,8 +25,8 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.ui.home.settings.mfa.MFATestFixture
-import com.wire.kalium.common.functional.Either
 import com.wire.kalium.logic.feature.mfa.AuthenticatorApp
+import com.wire.kalium.logic.feature.mfa.RenameAuthenticatorAppResult
 import com.wire.kalium.logic.feature.mfa.RenameAuthenticatorAppUseCase
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -115,7 +115,7 @@ class MFAEditAuthenticatorAppViewModelTest {
         assertTrue(viewModel.state.value.hasError)
         assertNull(viewModel.state.value.result)
         assertEquals("Backup phone", viewModel.name.text.toString())
-        coEvery { rename(any(), any()) } returns Either.Right(app.copy(name = "Backup phone"))
+        coEvery { rename(any(), any()) } returns RenameAuthenticatorAppResult.Success(app.copy(name = "Backup phone"))
         viewModel.save()
         advanceUntilIdle()
         assertFalse(viewModel.state.value.hasError)

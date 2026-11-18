@@ -23,8 +23,8 @@ import androidx.compose.foundation.text.input.clearText
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.ui.home.settings.mfa.components.canSubmitMFACredentials
-import com.wire.kalium.common.functional.fold
 import com.wire.kalium.logic.feature.mfa.MFAFailure
+import com.wire.kalium.logic.feature.mfa.RemoveAuthenticatorAppResult
 import com.wire.kalium.logic.feature.mfa.RemoveAuthenticatorAppUseCase
 import dev.zacsweers.metro.Inject
 import kotlinx.coroutines.CancellationException
@@ -62,22 +62,22 @@ class MFARemoveAuthenticatorAppViewModel @Inject constructor(
         _state.value = MFARemoveAuthenticatorAppState(isBusy = true)
         operationJob = viewModelScope.launch {
             try {
-                removeApp(appId, enteredPassword, enteredCode).fold(
-                    { failure ->
-                        val error = when (failure) {
+                when (val result = removeApp(appId, enteredPassword, enteredCode)) {
+                    is RemoveAuthenticatorAppResult.Failure -> {
+                        val error = when (result.failure) {
                             MFAFailure.INVALID_CODE -> RemoveAuthenticatorAppError.INVALID_CODE
                             MFAFailure.LAST_APP -> RemoveAuthenticatorAppError.LAST_APP
                             MFAFailure.NOT_FOUND, MFAFailure.MFA_DISABLED -> RemoveAuthenticatorAppError.UNAVAILABLE
                             else -> RemoveAuthenticatorAppError.GENERIC
                         }
                         _state.update { it.copy(error = error) }
-                    },
-                    {
+                    }
+                    RemoveAuthenticatorAppResult.Success -> {
                         password.clearText()
                         code.clearText()
                         _state.update { it.copy(isCompleted = true) }
-                    },
-                )
+                    }
+                }
             } catch (cancelled: CancellationException) {
                 throw cancelled
             } catch (_: Exception) {

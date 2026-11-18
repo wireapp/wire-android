@@ -25,8 +25,8 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.ui.home.settings.mfa.MFATestFixture
-import com.wire.kalium.common.functional.Either
 import com.wire.kalium.logic.feature.mfa.MFAFailure
+import com.wire.kalium.logic.feature.mfa.RemoveAuthenticatorAppResult
 import com.wire.kalium.logic.feature.mfa.RemoveAuthenticatorAppUseCase
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -87,7 +87,7 @@ class MFARemoveAuthenticatorAppViewModelTest {
         assertEquals(RemoveAuthenticatorAppError.GENERIC, viewModel.state.value.error)
         assertFalse(viewModel.state.value.isCompleted)
 
-        coEvery { remove(any(), any(), any()) } returns Either.Right(Unit)
+        coEvery { remove(any(), any(), any()) } returns RemoveAuthenticatorAppResult.Success
         viewModel.code.setTextAndPlaceCursorAtEnd("111111")
         viewModel.confirmRemoval("backup")
         advanceUntilIdle()
@@ -97,7 +97,7 @@ class MFARemoveAuthenticatorAppViewModelTest {
     @Test
     fun `Kalium rejecting the last authenticator keeps confirmation open`() = runTest {
         val remove = mockk<RemoveAuthenticatorAppUseCase>()
-        coEvery { remove(any(), any(), any()) } returns Either.Left(MFAFailure.LAST_APP)
+        coEvery { remove(any(), any(), any()) } returns RemoveAuthenticatorAppResult.Failure(MFAFailure.LAST_APP)
         val viewModel = createViewModel(remove)
         viewModel.password.setTextAndPlaceCursorAtEnd("password")
         viewModel.code.setTextAndPlaceCursorAtEnd("111111")

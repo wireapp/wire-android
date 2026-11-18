@@ -90,8 +90,11 @@ class CallService : Service() {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         appLogger.i("$TAG: onStartCommand")
-        startForegroundWithPlaceholderNotification()
         val action = intent?.getActionTypeExtra(EXTRA_ACTION_TYPE) ?: Action.Start.Default
+        if (!startForegroundWithPlaceholderNotification(action)) {
+            stopSelf()
+            return START_NOT_STICKY
+        }
         _serviceState.value = ServiceState.FOREGROUND
         scope.launch {
             lifecycleManager.handleAction(action)
@@ -134,45 +137,65 @@ class CallService : Service() {
         }
     }
 
-    private fun startForegroundWithPlaceholderNotification() {
+    /**
+     * Starts the service in the foreground and returns whether it succeeded.
+     *
+     * The microphone type is only requested when starting a call with the RECORD_AUDIO permission granted. Since Android 14,
+     * the system rejects it when the app isn't allowed to use the microphone at that moment (e.g. not visible), so in that case
+     * we fall back to the phone call type only instead of crashing.
+     */
+    private fun startForegroundWithPlaceholderNotification(action: Action): Boolean {
         appLogger.i("$TAG: generating foregroundNotification placeholder...")
         notificationChannelsManager.createOngoingCallNotificationChannel()
         val notification: Notification = callNotificationManager.builder.getCallServicePlaceholderNotification()
         val hasRecordAudioPermission = ContextCompat.checkSelfPermission(this, RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED
         val isAppVisible = currentScreenManager.isAppVisibleFlow().value
-        try {
-            ServiceCompat.startForeground(
-                this,
-                NotificationIds.CALL_OUTGOING_ONGOING_NOTIFICATION_ID.ordinal,
-                notification,
-                when (hasRecordAudioPermission) {
-                    true -> ServiceInfo.FOREGROUND_SERVICE_TYPE_PHONE_CALL or ServiceInfo.FOREGROUND_SERVICE_TYPE_MICROPHONE
+        val requestMicrophone = action is Action.Start && hasRecordAudioPermission
+        val diagnostics = "action: ${action::class.simpleName}, RECORD_AUDIO permission: $hasRecordAudioPermission, " +
+                "isAppVisible: $isAppVisible"
 
-                    // Safety measure, we don't have the required permission, but startForeground still needs to be called to avoid crash.
-                    // In that case, we start it with the type that doesn't require the runtime permission to avoid potential crash,
-                    // and then the service is being stopped right after starting foreground.
-                    false -> ServiceInfo.FOREGROUND_SERVICE_TYPE_PHONE_CALL
-                }
-            )
-            appLogger.i("$TAG: started foreground with placeholder notification, isAppVisible:$isAppVisible")
-            if (!hasRecordAudioPermission) {
-                scope.launch {
-                    appLogger.i("$TAG: Stopping service started without RECORD_AUDIO permission")
-                    lifecycleManager.handleAction(Action.Stop)
-                }
-            }
-        } catch (e: SecurityException) {
-            throw StartForegroundException(
-                message = "$TAG: Unable to start foreground service, " +
-                        "RECORD_AUDIO permission: $hasRecordAudioPermission, isAppVisible:$isAppVisible, original message: ${e.message}",
-                cause = e,
-            )
+        val started = if (requestMicrophone) {
+            tryStartForeground(notification, PHONE_CALL_AND_MICROPHONE_TYPE, diagnostics) ||
+                tryStartForeground(notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_PHONE_CALL, diagnostics)
+        } else {
+            // Without the permission, or when only stopping, the microphone is not needed, and the phone call type
+            // doesn't require the app to be in the foreground.
+            tryStartForeground(notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_PHONE_CALL, diagnostics)
         }
+
+        if (!started) {
+            appLogger.e("$TAG: Unable to start foreground service with any type, stopping. $diagnostics")
+            return false
+        }
+
+        appLogger.i("$TAG: started foreground with placeholder notification, isAppVisible:$isAppVisible")
+        if (!hasRecordAudioPermission) {
+            scope.launch {
+                appLogger.i("$TAG: Stopping service started without RECORD_AUDIO permission")
+                lifecycleManager.handleAction(Action.Stop)
+            }
+        }
+        return true
+    }
+
+    private fun tryStartForeground(notification: Notification, foregroundServiceType: Int, diagnostics: String): Boolean = try {
+        ServiceCompat.startForeground(
+            this,
+            NotificationIds.CALL_OUTGOING_ONGOING_NOTIFICATION_ID.ordinal,
+            notification,
+            foregroundServiceType
+        )
+        true
+    } catch (e: SecurityException) {
+        appLogger.w("$TAG: startForeground rejected for type $foregroundServiceType, $diagnostics, reason: ${e.message}")
+        false
     }
 
     companion object {
         private const val TAG = "CallService"
         private const val EXTRA_ACTION_TYPE = "action_type"
+        private const val PHONE_CALL_AND_MICROPHONE_TYPE =
+            ServiceInfo.FOREGROUND_SERVICE_TYPE_PHONE_CALL or ServiceInfo.FOREGROUND_SERVICE_TYPE_MICROPHONE
 
         fun newIntent(context: Context, actionType: Action = Action.Start.Default): Intent = Intent(context, CallService::class.java)
             .putExtra(EXTRA_ACTION_TYPE, actionType)
@@ -207,5 +230,3 @@ private fun Intent.putExtra(name: String, actionType: Action): Intent = putExtra
 private fun Intent.getActionTypeExtra(name: String): Action? = getBundleExtra(name)?.let {
     Bundlizer.unbundle(Action.serializer(), it)
 }
-
-private class StartForegroundException(override val message: String, override val cause: Throwable?) : RuntimeException(message, cause)

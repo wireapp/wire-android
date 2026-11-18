@@ -17,6 +17,11 @@
  */
 package com.wire.android.util
 
+import android.content.Context
+import android.net.Uri
+import io.mockk.every
+import io.mockk.mockk
+import org.junit.jupiter.api.Assertions.assertDoesNotThrow
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Test
@@ -57,5 +62,14 @@ class CustomTabsHelperTest {
         val result = CustomTabsHelper.resolveUrl("")
 
         assertNull(result)
+    }
+
+    @Test
+    fun `given the browser activity cannot be started, when launching uri, then it does not crash`() {
+        val context = mockk<Context>(relaxed = true) {
+            every { startActivity(any(), any()) } throws SecurityException("Permission Denial: starting Intent")
+        }
+
+        assertDoesNotThrow { CustomTabsHelper.launchUri(context, mockk<Uri>()) }
     }
 }

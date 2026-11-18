@@ -17,6 +17,10 @@
  */
 package com.wire.android.feature.cells.ui.search
 
+import com.wire.android.feature.cells.ui.CellNodeChangeEvents
+import androidx.paging.testing.asSnapshot
+import com.wire.android.feature.cells.ui.CellNodeUpdate
+import kotlinx.coroutines.launch
 import androidx.paging.LoadState
 import androidx.paging.LoadStates
 import androidx.paging.PagingData
@@ -69,6 +73,7 @@ class SearchScreenViewModelTest {
 
     private companion object {
         const val CONVERSATION_ID = "conversationId123"
+        const val FILE_UUID = "fileUuid"
         val mockTags = setOf("tag1", "tag2", "tag3")
     }
 
@@ -90,6 +95,7 @@ class SearchScreenViewModelTest {
     private lateinit var observeOfflineFiles: ObserveOfflineFilesUseCase
 
     private val sharedPathCache = CellFileLocalPathCache()
+    private val nodeChangeEvents = CellNodeChangeEvents()
     private val offlineDownloads = mockk<SessionOfflineDownloads> {
         every { states } returns MutableStateFlow(OfflineDownloadStates())
     }
@@ -177,6 +183,7 @@ class SearchScreenViewModelTest {
             sharedPathCache = sharedPathCache,
             offlineDownloads = offlineDownloads,
             observeOfflineFiles = observeOfflineFiles,
+            nodeChangeEvents = nodeChangeEvents,
         )
         advanceUntilIdle()
 
@@ -395,6 +402,55 @@ class SearchScreenViewModelTest {
         coVerify(exactly = 1) { getCellFilesPaged(conversation.id.toString(), "", any(), any()) }
     }
 
+    @Test
+    fun givenResultRenamedLocally_whenResultsAreFetchedAgain_thenTheServerNameIsShownNotTheLocalOne() = runTest {
+        every { observeOfflineFiles() } returns flowOf(emptyList())
+        coEvery { getCellFilesPaged(any(), any(), any(), any(), any()) } returnsMany listOf(
+            flowOf(pageOf(fileNamed("name.txt"))),
+            // Renamed again elsewhere since.
+            flowOf(pageOf(fileNamed("other_name.txt"))),
+        )
+        val viewModel = createViewModel()
+        backgroundScope.launch { viewModel.cellNodesFlow.collect {} }
+        viewModel.onSearchQueryChanged("name")
+        advanceUntilIdle()
+        flowOf(viewModel.cellNodesFlow.first()).asSnapshot()
+
+        nodeChangeEvents.onNodeUpdated(CellNodeUpdate.Renamed(FILE_UUID, name = "my_name.txt", remotePath = "my_name.txt"))
+        advanceUntilIdle()
+
+        // Made while these results were the latest: they can't have it yet.
+        assertEquals("my_name.txt", flowOf(viewModel.cellNodesFlow.first()).asSnapshot().single().name)
+
+        viewModel.onSearchQueryChanged("na")
+        advanceUntilIdle()
+
+        // Fetched after the rename: the server already has it, and more recent changes too.
+        assertEquals("other_name.txt", flowOf(viewModel.cellNodesFlow.first()).asSnapshot().single().name)
+    }
+
+    private fun fileNamed(name: String) = Node.File(
+        uuid = FILE_UUID,
+        conversationId = CONVERSATION_ID,
+        versionId = "versionId",
+        name = name,
+        mimeType = "text/plain",
+        remotePath = name,
+        localPath = null,
+        contentUrl = null,
+        size = 1024,
+        modifiedTime = 1234567890L,
+    )
+
+    private fun pageOf(vararg nodes: Node) = PagingData.from(
+        data = nodes.toList(),
+        sourceLoadStates = LoadStates(
+            prepend = LoadState.NotLoading(true),
+            append = LoadState.NotLoading(true),
+            refresh = LoadState.NotLoading(true),
+        ),
+    )
+
     /**
      * [SearchScreenViewModel.cellNodesFlow] combines the paged files with the offline files flow,
      * so both have to emit for the combined flow to produce a value that can be collected.
@@ -423,6 +479,7 @@ class SearchScreenViewModelTest {
             sharedPathCache = sharedPathCache,
             offlineDownloads = offlineDownloads,
             observeOfflineFiles = observeOfflineFiles,
+            nodeChangeEvents = nodeChangeEvents,
         )
     }
 
@@ -440,6 +497,7 @@ class SearchScreenViewModelTest {
             sharedPathCache = sharedPathCache,
             offlineDownloads = offlineDownloads,
             observeOfflineFiles = observeOfflineFiles,
+            nodeChangeEvents = nodeChangeEvents,
         )
     }
 
@@ -454,6 +512,7 @@ class SearchScreenViewModelTest {
             sharedPathCache = sharedPathCache,
             offlineDownloads = offlineDownloads,
             observeOfflineFiles = observeOfflineFiles,
+            nodeChangeEvents = nodeChangeEvents,
         )
     }
 
@@ -467,6 +526,7 @@ class SearchScreenViewModelTest {
             sharedPathCache = sharedPathCache,
             offlineDownloads = offlineDownloads,
             observeOfflineFiles = observeOfflineFiles,
+            nodeChangeEvents = nodeChangeEvents,
         )
     }
 }

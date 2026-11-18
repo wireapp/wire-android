@@ -26,8 +26,9 @@ import kotlinx.coroutines.flow.asSharedFlow
 
 /**
  * Tells the file lists that nodes changed elsewhere, so they refresh even while they sit on the back stack: e.g. the
- * parent folder when nodes are moved up into it, or the conversation's files once nodes are restored from the recycle
- * bin. These flows span several screens, which is why this isn't passed back as a navigation result.
+ * parent folder when nodes are moved up into it, the conversation's files once nodes are restored from the recycle
+ * bin, or the lists showing a node renamed, tagged or shared via a public link, which update it in place, see
+ * [CellNodeUpdate]. These flows span several screens, which is why this isn't passed back as a navigation result.
  */
 @SingleIn(MetroSessionScope::class)
 class CellNodeChangeEvents @Inject constructor() {
@@ -40,6 +41,16 @@ class CellNodeChangeEvents @Inject constructor() {
     /** Conversation ids nodes were restored in. Which of their folders isn't known, see [onNodesRestored]. */
     val restoredInConversations: SharedFlow<String> = _restoredInConversations.asSharedFlow()
 
+    // Each update matters on its own, unlike the refresh requests above: buffer enough of them not to drop any.
+    private val _nodeUpdates = MutableSharedFlow<CellNodeUpdate>(extraBufferCapacity = UPDATES_BUFFER_CAPACITY)
+
+    /** Changes made to nodes from this device, which the lists showing them apply in place. */
+    val nodeUpdates: SharedFlow<CellNodeUpdate> = _nodeUpdates.asSharedFlow()
+
+    fun onNodeUpdated(update: CellNodeUpdate) {
+        _nodeUpdates.tryEmit(update)
+    }
+
     /** @param folderPaths the folders the nodes left and the folder they were moved into. */
     fun onNodesMoved(folderPaths: Set<String>) {
         _changedFolderPaths.tryEmit(folderPaths)
@@ -51,5 +62,9 @@ class CellNodeChangeEvents @Inject constructor() {
      */
     fun onNodesRestored(conversationId: String) {
         _restoredInConversations.tryEmit(conversationId)
+    }
+
+    private companion object {
+        const val UPDATES_BUFFER_CAPACITY = 16
     }
 }

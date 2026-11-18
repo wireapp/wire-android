@@ -46,7 +46,7 @@ import com.wire.android.model.ItemActionType
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.WireTestTheme
 import com.wire.android.ui.common.connection.CONNECTION_ACTION_BUTTONS_TEST_TAG
-import com.wire.android.ui.home.conversations.search.InternalContactSearchResultItem
+import com.wire.android.search.users.InternalContactSearchResultItem
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.theme.WireColorSchemeTypes
 import com.wire.kalium.logic.data.user.ConnectionState

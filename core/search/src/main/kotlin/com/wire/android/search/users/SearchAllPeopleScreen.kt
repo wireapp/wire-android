@@ -52,15 +52,12 @@ import com.wire.android.model.Clickable
 import com.wire.android.model.Contact
 import com.wire.android.model.ItemActionType
 import com.wire.android.search.R
+import com.wire.android.search.SearchQuery
 import com.wire.android.search.util.ui.PreviewMultipleThemes
 import com.wire.android.search.widget.SearchFailureBox
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.progress.CenteredCircularProgressBarIndicator
-import com.wire.android.ui.home.conversations.search.EmptySearchQueryScreen
-import com.wire.android.ui.home.conversations.search.ExternalContactSearchResultItem
-import com.wire.android.ui.home.conversations.search.InternalContactSearchResultItem
-import com.wire.android.ui.home.conversations.search.rememberSearchPeopleScreenState
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.ui.FolderType
@@ -71,6 +68,7 @@ import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserId
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.persistentSetOf
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.collections.immutable.toPersistentList
 import com.wire.android.ui.common.R as commonR
@@ -93,7 +91,7 @@ sealed interface SearchUiState {
 
 @Composable
 fun SearchAllPeopleScreen(
-    searchQuery: String,
+    query: SearchQuery,
     contactsSearchResult: ImmutableList<Contact>,
     publicSearchResult: ImmutableList<Contact>,
     contactsSelectedSearchResult: ImmutableList<Contact>,
@@ -102,6 +100,9 @@ fun SearchAllPeopleScreen(
     actionType: ItemActionType,
     onChecked: (Boolean, Contact) -> Unit,
     onOpenUserProfile: (Contact) -> Unit,
+    emailInvitationsEnabled: Boolean = false,
+    selectedEmails: Set<String> = emptySet(),
+    onEmailChecked: (Boolean, String) -> Unit = { _, _ -> },
     firstContactFocusRequester: FocusRequester? = null,
     nextFocusRequester: FocusRequester? = null,
     selectedContactResultsExpanded: Boolean = false,
@@ -121,12 +122,13 @@ fun SearchAllPeopleScreen(
         }
     }
 
-    val uiState by remember(searchQuery, isLoading, noSearchResults) {
+    val uiState by remember(query, isLoading, noSearchResults, emailInvitationsEnabled) {
         derivedStateOf {
             when {
                 isLoading -> SearchUiState.Loading
-                searchQuery.isBlank() && noSearchResults -> SearchUiState.EmptyQuery
-                searchQuery.isNotBlank() && noSearchResults -> SearchUiState.NoResults
+                emailInvitationsEnabled -> SearchUiState.ShowResults
+                query.text.isBlank() && noSearchResults -> SearchUiState.EmptyQuery
+                query.text.isNotBlank() && noSearchResults -> SearchUiState.NoResults
                 else -> SearchUiState.ShowResults
             }
         }
@@ -137,7 +139,10 @@ fun SearchAllPeopleScreen(
         SearchUiState.EmptyQuery -> EmptySearchQueryScreen()
         SearchUiState.NoResults -> SearchFailureBox(R.string.label_no_results_found)
         SearchUiState.ShowResults -> SearchResult(
-            searchQuery = searchQuery,
+            query = query,
+            emailInvitationsEnabled = emailInvitationsEnabled,
+            selectedEmails = selectedEmails,
+            onEmailChecked = onEmailChecked,
             publicSearchResult = publicSearchResult,
             contactsSearchResult = contactsSearchResult,
             contactsSelectedSearchResult = contactsSelectedSearchResult,
@@ -160,7 +165,7 @@ fun SearchAllPeopleScreen(
 
 @Composable
 private fun SearchResult(
-    searchQuery: String,
+    query: SearchQuery,
     contactsSearchResult: ImmutableList<Contact>,
     publicSearchResult: ImmutableList<Contact>,
     contactsSelectedSearchResult: ImmutableList<Contact>,
@@ -174,6 +179,9 @@ private fun SearchResult(
     onContactResultsExpansionChanged: (Boolean) -> Unit,
     publicResultsExpanded: Boolean,
     onPublicResultsExpansionChanged: (Boolean) -> Unit,
+    emailInvitationsEnabled: Boolean = false,
+    selectedEmails: Set<String> = emptySet(),
+    onEmailChecked: (Boolean, String) -> Unit = { _, _ -> },
     lazyListState: LazyListState = rememberLazyListState(),
     firstContactFocusRequester: FocusRequester? = null,
     nextFocusRequester: FocusRequester? = null,
@@ -200,15 +208,26 @@ private fun SearchResult(
                     }
                 },
         ) {
-            if (contactsSelectedSearchResult.isNotEmpty()) { // selected contacts section filtered by search query
+            val selectedSearchResults = selectedEmails
+                .filter { emailInvitationsEnabled && it.contains(query.text.trim(), ignoreCase = true) }
+                .map { email ->
+                    InternalSearchItem.EmailItem(
+                        email = email,
+                        selected = true,
+                        message = UIText.StringResource(R.string.email_invitation_description),
+                        enabled = true,
+                    )
+                }
+                .plus(contactsSelectedSearchResult.map { contact -> InternalSearchItem.ContactItem(contact = contact, selected = true) })
+                .toImmutableList()
+
+            if (selectedSearchResults.isNotEmpty()) {
                 internalSearchResults(
-                    searchTitle = UIText.StringResource(commonR.string.label_selected, contactsSelectedSearchResult.size),
-                    searchQuery = searchQuery,
+                    searchTitle = UIText.StringResource(commonR.string.label_selected, selectedSearchResults.size),
+                    searchResult = selectedSearchResults,
+                    query = query,
                     onChecked = onChecked,
-                    searchResult = contactsSelectedSearchResult.map { it to true }.toImmutableList(),
-                    allItemsVisible = true, // for selected contacts we always show all items
-                    showMoreOrLessButtonVisible = false,
-                    onShowAllButtonClicked = searchPeopleScreenState::toggleShowAllContactsResult,
+                    onEmailChecked = onEmailChecked,
                     onOpenUserProfile = onOpenUserProfile,
                     actionType = actionType,
                     expanded = selectedContactResultsExpanded,
@@ -218,12 +237,19 @@ private fun SearchResult(
                 )
             }
 
-            if (contactsSearchResult.isNotEmpty()) { // non-selected contacts section filtered by search query
+            val internalSearchResults = listOfNotNull(
+                emailInvitationCandidate(emailInvitationsEnabled, query, selectedEmails)
+            ).plus(
+                contactsSearchResult.map { InternalSearchItem.ContactItem(it, selected = false) }
+            ).toImmutableList()
+
+            if (internalSearchResults.isNotEmpty()) { // non-selected contacts section filtered by search query
                 internalSearchResults(
                     searchTitle = UIText.StringResource(commonR.string.label_contacts),
-                    searchQuery = searchQuery,
+                    query = query,
                     onChecked = onChecked,
-                    searchResult = contactsSearchResult.map { it to false }.toImmutableList(),
+                    onEmailChecked = onEmailChecked,
+                    searchResult = internalSearchResults,
                     allItemsVisible = !isSearchActive || searchPeopleScreenState.contactsAllResultsCollapsed,
                     showMoreOrLessButtonVisible = isSearchActive,
                     onShowAllButtonClicked = searchPeopleScreenState::toggleShowAllContactsResult,
@@ -239,7 +265,7 @@ private fun SearchResult(
             if (publicSearchResult.isNotEmpty()) { // public results section filtered by search query
                 externalSearchResults(
                     searchTitle = UIText.StringResource(commonR.string.label_public_wire),
-                    searchQuery = searchQuery,
+                    searchTerm = query.contactTerm,
                     searchResult = publicSearchResult,
                     allItemsVisible = searchPeopleScreenState.publicResultsCollapsed,
                     showMoreOrLessButtonVisible = isSearchActive,
@@ -260,56 +286,101 @@ private fun SearchResult(
 }
 
 @Suppress("LongParameterList")
+@Composable
+private fun InternalContactResultItem(
+    contact: Contact,
+    isSelected: Boolean,
+    searchTerm: String,
+    onChecked: (Boolean, Contact) -> Unit,
+    onOpenUserProfile: (Contact) -> Unit,
+    actionType: ItemActionType,
+    modifier: Modifier = Modifier,
+) {
+    with(contact) {
+        val onCheckDescription = stringResource(
+            id = when {
+                isSelected -> commonR.string.content_description_unselect_label
+                else -> commonR.string.content_description_select_label
+            }
+        )
+        val clickDescription = stringResource(id = commonR.string.content_description_open_user_profile_label)
+        val onCheckClickable = remember(contact, isSelected) {
+            Clickable(enabled = !isOnboardingPending || isSelected, onClickDescription = onCheckDescription) {
+                if (!isOnboardingPending || isSelected) onChecked(!isSelected, contact)
+            }
+        }
+        InternalContactSearchResultItem(
+            avatarData = avatarData,
+            name = name,
+            label = label,
+            membership = membership,
+            searchQuery = searchTerm,
+            connectionState = connectionState,
+            isOnboardingPending = isOnboardingPending,
+            isSelected = isSelected,
+            onCheckClickable = onCheckClickable,
+            actionType = actionType,
+            clickable = remember(contact) { Clickable(onClickDescription = clickDescription) { onOpenUserProfile(contact) } },
+            modifier = modifier
+        )
+    }
+}
+
+private sealed interface InternalSearchItem {
+    val key: String
+
+    data class ContactItem(val contact: Contact, val selected: Boolean) : InternalSearchItem {
+        override val key: String get() = "contact:${contact.id}@${contact.domain}"
+    }
+    data class EmailItem(val email: String, val selected: Boolean, val message: UIText, val enabled: Boolean) : InternalSearchItem {
+        override val key: String get() = "email:$email"
+    }
+}
+
+@Suppress("LongParameterList")
 private fun LazyListScope.internalSearchResults(
     searchTitle: UIText,
-    allItemsVisible: Boolean,
-    showMoreOrLessButtonVisible: Boolean,
     actionType: ItemActionType,
     onChecked: (Boolean, Contact) -> Unit,
-    searchResult: ImmutableList<Pair<Contact, Boolean>>,
-    searchQuery: String,
-    onShowAllButtonClicked: () -> Unit,
+    searchResult: ImmutableList<InternalSearchItem>,
+    query: SearchQuery,
     onOpenUserProfile: (Contact) -> Unit,
     onExpansionChanged: (Boolean) -> Unit,
     expanded: Boolean,
     firstContactId: String?,
     firstContactFocusRequester: FocusRequester?,
+    onEmailChecked: (Boolean, String) -> Unit = { _, _ -> },
+    allItemsVisible: Boolean = true,
+    showMoreOrLessButtonVisible: Boolean = false,
+    onShowAllButtonClicked: () -> Unit = {},
 ) {
     if (searchResult.isNotEmpty()) {
         sectionWithElements(
             header = searchTitle,
-            items = (if (allItemsVisible) searchResult else searchResult.take(DEFAULT_SEARCH_RESULT_ITEM_SIZE))
-                .associateBy { (contact, _) ->
-                    contact.id
-                },
+            items = when {
+                allItemsVisible -> searchResult
+                else -> searchResult.take(DEFAULT_SEARCH_RESULT_ITEM_SIZE)
+            }.associateBy { it.key },
             folderType = FolderType.Collapsing(expanded = expanded, onChanged = onExpansionChanged),
-        ) { (contact, isSelected) ->
-            with(contact) {
-                val onCheckDescription = stringResource(
-                    id = when {
-                        isSelected -> commonR.string.content_description_unselect_label
-                        else -> commonR.string.content_description_select_label
-                    }
+        ) { result: InternalSearchItem ->
+            when (result) {
+                is InternalSearchItem.EmailItem -> EmailInvitationItem(
+                    email = result.email,
+                    searchQuery = query.text,
+                    selected = result.selected,
+                    message = result.message.asString(),
+                    enabled = result.enabled,
+                    onChecked = { onEmailChecked(!result.selected, result.email) },
                 )
-                val clickDescription = stringResource(id = commonR.string.content_description_open_user_profile_label)
-                val onCheckClickable = remember(contact, isSelected) {
-                    Clickable(enabled = !isOnboardingPending || isSelected, onClickDescription = onCheckDescription) {
-                        if (!isOnboardingPending || isSelected) onChecked(!isSelected, contact)
-                    }
-                }
-                InternalContactSearchResultItem(
-                    avatarData = avatarData,
-                    name = name,
-                    label = label,
-                    membership = membership,
-                    searchQuery = searchQuery,
-                    connectionState = connectionState,
-                    isOnboardingPending = isOnboardingPending,
-                    isSelected = isSelected,
-                    onCheckClickable = onCheckClickable,
+
+                is InternalSearchItem.ContactItem -> InternalContactResultItem(
+                    contact = result.contact,
+                    isSelected = result.selected,
+                    searchTerm = query.contactTerm,
+                    onChecked = onChecked,
+                    onOpenUserProfile = onOpenUserProfile,
                     actionType = actionType,
-                    clickable = remember(contact) { Clickable(onClickDescription = clickDescription) { onOpenUserProfile(contact) } },
-                    modifier = contact.firstContactFocusModifier(firstContactId, firstContactFocusRequester)
+                    modifier = result.contact.firstContactFocusModifier(firstContactId, firstContactFocusRequester),
                 )
             }
         }
@@ -340,7 +411,7 @@ private fun LazyListScope.externalSearchResults(
     allItemsVisible: Boolean,
     showMoreOrLessButtonVisible: Boolean,
     searchResult: List<Contact>,
-    searchQuery: String,
+    searchTerm: String,
     onShowAllButtonClicked: () -> Unit,
     onOpenUserProfile: (Contact) -> Unit,
     expanded: Boolean,
@@ -366,7 +437,7 @@ private fun LazyListScope.externalSearchResults(
                 membership = membership,
                 connectionState = connectionState,
                 isOnboardingPending = isOnboardingPending,
-                searchQuery = searchQuery,
+                searchQuery = searchTerm,
                 clickable = remember(contact) { Clickable(onClickDescription = clickDescription) { onOpenUserProfile(contact) } },
                 modifier = contact.firstContactFocusModifier(firstContactId, firstContactFocusRequester)
             )
@@ -422,6 +493,27 @@ private fun ShowButton(
     }
 }
 
+private fun emailInvitationCandidate(
+    enabled: Boolean,
+    query: SearchQuery,
+    selectedEmails: Set<String>,
+): InternalSearchItem.EmailItem? {
+    if (!enabled || query.text.isBlank()) return null
+    val email = query.text.trim()
+    val duplicate = selectedEmails.any { it.equals(email, ignoreCase = true) }
+    val message = when {
+        duplicate -> R.string.email_invitation_duplicate
+        !query.isValidEmail -> R.string.email_invitation_invalid
+        else -> R.string.email_invitation_description
+    }
+    return InternalSearchItem.EmailItem(
+        email = email,
+        selected = false,
+        message = UIText.StringResource(message),
+        enabled = query.isValidEmail && !duplicate,
+    )
+}
+
 @PreviewMultipleThemes
 @Composable
 fun PreviewShowButton() {
@@ -434,7 +526,7 @@ fun PreviewShowButton() {
 @Composable
 fun PreviewSearchAllPeopleScreen_Loading() = WireTheme {
     SearchAllPeopleScreen(
-        searchQuery = "Search query",
+        query = SearchQuery(text = "Search query"),
         contactsSearchResult = persistentListOf(),
         publicSearchResult = persistentListOf(),
         contactsSelectedSearchResult = persistentListOf(),
@@ -451,7 +543,7 @@ fun PreviewSearchAllPeopleScreen_Loading() = WireTheme {
 fun PreviewSearchAllPeopleScreen_InitialResults() = WireTheme {
     val contacts = previewContactsList(count = 10, startIndex = 0, isContact = true)
     SearchAllPeopleScreen(
-        searchQuery = "",
+        query = SearchQuery(text = ""),
         contactsSearchResult = contacts,
         publicSearchResult = persistentListOf(),
         contactsSelectedSearchResult = persistentListOf(),
@@ -467,7 +559,7 @@ fun PreviewSearchAllPeopleScreen_InitialResults() = WireTheme {
 @Composable
 fun PreviewSearchAllPeopleScreen_EmptyInitialResults() = WireTheme {
     SearchAllPeopleScreen(
-        searchQuery = "",
+        query = SearchQuery(text = ""),
         contactsSearchResult = persistentListOf(),
         publicSearchResult = persistentListOf(),
         contactsSelectedSearchResult = persistentListOf(),
@@ -485,7 +577,7 @@ fun PreviewSearchAllPeopleScreen_SearchResults_TypeClick() = WireTheme {
     val contacts = previewContactsList(count = 10, startIndex = 0, isContact = true)
     val public = previewContactsList(count = 10, startIndex = 10, isContact = false)
     SearchAllPeopleScreen(
-        searchQuery = "Con",
+        query = SearchQuery(text = "Con"),
         contactsSearchResult = contacts,
         publicSearchResult = public,
         contactsSelectedSearchResult = persistentListOf(),
@@ -504,10 +596,12 @@ fun PreviewSearchAllPeopleScreen_SearchResults_TypeCheck() = WireTheme {
     val public = previewContactsList(count = 10, startIndex = 10, isContact = false)
     val selectedContacts = previewContactsList(count = 5, startIndex = 20, isContact = true)
     SearchAllPeopleScreen(
-        searchQuery = "Con",
+        query = SearchQuery(text = "Con"),
         contactsSearchResult = contacts,
         publicSearchResult = public,
         contactsSelectedSearchResult = selectedContacts,
+        emailInvitationsEnabled = true,
+        selectedEmails = persistentSetOf("contact_email@wire.com"),
         isLoading = false,
         isSearchActive = true,
         actionType = ItemActionType.CHECK,
@@ -521,7 +615,7 @@ fun PreviewSearchAllPeopleScreen_SearchResults_TypeCheck() = WireTheme {
 @Composable
 fun PreviewSearchAllPeopleScreen_EmptySearchResults() = WireTheme {
     SearchAllPeopleScreen(
-        searchQuery = "Con",
+        query = SearchQuery(text = "Con"),
         contactsSearchResult = persistentListOf(),
         publicSearchResult = persistentListOf(),
         contactsSelectedSearchResult = persistentListOf(),

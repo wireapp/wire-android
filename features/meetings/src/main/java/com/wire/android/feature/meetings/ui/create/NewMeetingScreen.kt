@@ -203,6 +203,7 @@ fun NewMeetingContent(
                 VerticalSpace.x24()
                 ParticipantsInput(
                     participants = state.confirmedContacts,
+                    emails = state.confirmedEmails,
                     onClick = onParticipantsClicked,
                 )
                 if (type == NewMeetingType.Schedule && state.isGuestLinkSharingEnabled) {
@@ -365,6 +366,7 @@ private fun TitleInput(
 @Composable
 private fun ParticipantsInput(
     participants: ImmutableSet<Contact>,
+    emails: Set<String>,
     onClick: () -> Unit,
 ) {
     val resources = LocalResources.current
@@ -372,7 +374,7 @@ private fun ParticipantsInput(
     val textColor = colorsScheme().onSurface
     val suffixColor = colorsScheme().secondaryText
     val textMeasurer = rememberTextMeasurer()
-    val textFieldState = rememberTextFieldState(participants.joinToString(", ") { it.name })
+    val textFieldState = rememberTextFieldState((participants.map { it.name } + emails).joinToString(", "))
     var innerTextWidthPx by remember { mutableIntStateOf(0) }
     val truncationTransformation = remember(innerTextWidthPx) {
         TextListTruncationTransformation(
@@ -387,8 +389,8 @@ private fun ParticipantsInput(
         )
     }
 
-    LaunchedEffect(participants) {
-        textFieldState.setTextAndPlaceCursorAtEnd(participants.joinToString(", ") { it.name })
+    LaunchedEffect(participants, emails) {
+        textFieldState.setTextAndPlaceCursorAtEnd((participants.map { it.name } + emails).joinToString(", "))
     }
 
     val semanticDescription = stringResource(R.string.new_meeting_participants_input_placeholder)

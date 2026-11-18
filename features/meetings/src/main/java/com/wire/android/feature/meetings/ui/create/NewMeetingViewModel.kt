@@ -47,6 +47,7 @@ import com.wire.kalium.logic.data.meeting.CreateMeeting
 import com.wire.kalium.logic.data.meeting.UpdateMeeting
 import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.auth.ValidateEmailUseCase
 import com.wire.kalium.logic.feature.auth.ValidatePasswordUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationMembersUseCase
 import com.wire.kalium.logic.feature.conversation.RenameConversationUseCase
@@ -88,6 +89,7 @@ interface NewMeetingViewModel : ActionsManager<NewMeetingViewActions> {
 
     fun updateSelectedContact(selected: Boolean, contact: Contact) {}
     fun updateSelectedGroup(selected: Boolean, group: SearchGroup) {}
+    fun updateSelectedEmail(selected: Boolean, email: String) {}
     fun confirmSelectedContacts() {}
     fun resetSelectedContacts() {}
     fun updateStartTime(startTime: Instant) {}
@@ -129,6 +131,7 @@ class NewMeetingViewModelImpl @AssistedInject constructor(
     private val renameConversationUseCase: RenameConversationUseCase,
     private val contactMapper: ContactMapper,
     private val validatePassword: ValidatePasswordUseCase,
+    private val validateEmail: ValidateEmailUseCase,
     private val generatePassword: RandomPassword,
     private val isMeetingsEnabledUseCase: IsMeetingsEnabledUseCase,
     @Named("meetingsGuestsLinksEnabled") private val meetingsGuestsLinksEnabled: Boolean,
@@ -144,6 +147,8 @@ class NewMeetingViewModelImpl @AssistedInject constructor(
     override val confirmPasswordTextState: TextFieldState = TextFieldState()
     override var state: NewMeetingState by mutableStateOf(initialState(currentTimeProvider, currentTimeZoneProvider))
         private set
+
+    private var initialEditSnapshot: EditSnapshot? = null
 
     init {
         observeTitleChanges()
@@ -170,15 +175,21 @@ class NewMeetingViewModelImpl @AssistedInject constructor(
                             meetingType = meetingOccurrence.meeting.type,
                             selectedIndividualContacts = otherContacts,
                             confirmedIndividualContacts = otherContacts,
+                            selectedEmails = meetingOccurrence.meeting.invitedEmails.toPersistentSet(),
+                            confirmedEmails = meetingOccurrence.meeting.invitedEmails.toPersistentSet(),
                         )
+                    }
+                    initialEditSnapshot = currentEditSnapshot()
+                    if (meetingOccurrence != null) {
+                        validateTitle()
+                        validateStartAndEndTime()
                     }
                 }
                 state = state.copy(
-                    isGuestLinkSharingEnabled = meetingType == NewMeetingType.Schedule
-                            && meetingsGuestsLinksEnabled
-                            && isMeetingsEnabledUseCase.isGuestLinkSharingEnabled(),
+                    isGuestLinkSharingEnabled = meetingsGuestsLinksEnabled && isMeetingsEnabledUseCase.isGuestLinkSharingEnabled(),
                     initialLoading = InitialLoadingState.Loaded,
                 )
+                refreshContinueButton()
             } catch (_: Exception) {
                 state = state.copy(initialLoading = InitialLoadingState.Error)
             }
@@ -211,9 +222,8 @@ class NewMeetingViewModelImpl @AssistedInject constructor(
         state = state.copy(
             invalidPassword = false,
             passwordsDoNotMatch = false,
-            continueButtonEnabled = titleTextState.text.trim().isNotEmpty() &&
-                    state.titleError == null && state.startTimeError == null && state.endTimeError == null && !state.isSubmitting
         )
+        refreshContinueButton()
     }
 
     override fun onGenerateRandomPassword() {
@@ -237,8 +247,8 @@ class NewMeetingViewModelImpl @AssistedInject constructor(
         state = state.copy(
             invalidPassword = invalidPassword,
             passwordsDoNotMatch = passwordsDoNotMatch,
-            continueButtonEnabled = state.continueButtonEnabled && passwordValid,
         )
+        refreshContinueButton()
         return passwordValid
     }
 
@@ -267,16 +277,34 @@ class NewMeetingViewModelImpl @AssistedInject constructor(
         )
     }
 
+    override fun updateSelectedEmail(selected: Boolean, email: String) {
+        if (type == NewMeetingType.MeetNow) return
+        val trimmed = email.trim()
+        if (selected) {
+            if (!validateEmail(trimmed) || state.selectedEmails.any { it.equals(trimmed, ignoreCase = true) }) return
+            state = state.copy(
+                selectedEmails = (state.selectedEmails + trimmed).toPersistentSet()
+            )
+        } else {
+            state = state.copy(
+                selectedEmails = state.selectedEmails.filterNot { it.equals(trimmed, ignoreCase = true) }.toPersistentSet()
+            )
+        }
+    }
+
     override fun confirmSelectedContacts() {
         state = state.copy(
             confirmedGroups = state.selectedGroups,
+            confirmedEmails = state.selectedEmails,
             confirmedIndividualContacts = state.selectedIndividualContacts,
         )
+        refreshContinueButton()
     }
 
     override fun resetSelectedContacts() {
         state = state.copy(
             selectedGroups = state.confirmedGroups,
+            selectedEmails = state.confirmedEmails,
             selectedIndividualContacts = state.confirmedIndividualContacts,
         )
     }
@@ -302,6 +330,7 @@ class NewMeetingViewModelImpl @AssistedInject constructor(
 
     override fun updateRepeatingInterval(interval: MeetingItem.RepeatingInterval?) {
         state = state.copy(repeatingInterval = interval)
+        refreshContinueButton()
     }
 
     private fun validateTitle(): Boolean {
@@ -312,11 +341,8 @@ class NewMeetingViewModelImpl @AssistedInject constructor(
         }
         state = state.copy(
             titleError = titleError,
-            continueButtonEnabled = titleTextState.text.trim().isNotEmpty() &&
-                    titleError == null &&
-                    state.startTimeError == null &&
-                    state.endTimeError == null && !state.hasPasswordError
         )
+        refreshContinueButton()
         return titleError == null
     }
 
@@ -334,12 +360,28 @@ class NewMeetingViewModelImpl @AssistedInject constructor(
         state = state.copy(
             startTimeError = startTimeError,
             endTimeError = endTimeError,
-            continueButtonEnabled = titleTextState.text.trim().isNotEmpty() &&
-                    state.titleError == null &&
-                    startTimeError == null &&
-                    endTimeError == null && !state.hasPasswordError
         )
+        refreshContinueButton()
         return startTimeError == null && endTimeError == null
+    }
+
+    private fun currentEditSnapshot(): EditSnapshot = EditSnapshot(
+        title = titleTextState.text.trim().toString(),
+        startTime = state.startTime,
+        endTime = state.endTime,
+        tzid = state.tzid,
+        repeatingInterval = state.repeatingInterval,
+        participantIds = state.confirmedContacts.map { UserId(it.id, it.domain) }.toSet(),
+        emails = state.confirmedEmails.map { it.lowercase() }.toSet(),
+    )
+
+    private fun refreshContinueButton() {
+        val hasChanges = type !is NewMeetingType.Edit || initialEditSnapshot?.let { it != currentEditSnapshot() } == true
+        state = state.copy(
+            continueButtonEnabled = state.initialLoading == InitialLoadingState.Loaded &&
+                !state.isSubmitting && hasChanges && titleTextState.text.trim().isNotEmpty() &&
+                state.titleError == null && state.startTimeError == null && state.endTimeError == null && !state.hasPasswordError
+        )
     }
 
     override fun submitCreation() {
@@ -368,10 +410,12 @@ class NewMeetingViewModelImpl @AssistedInject constructor(
                         recurrence = state.repeatingInterval?.let { Meeting.Recurrence(it.frequency, it.interval.toLong(), null) },
                         type = if (type == NewMeetingType.MeetNow) Meeting.Type.IMMEDIATE else Meeting.Type.SCHEDULED,
                         password = optionalPassword,
+                        invitedEmails = state.confirmedEmails.toList(),
                         otherParticipants = state.confirmedContacts.map { UserId(it.id, it.domain) }
                     )
                 )
-                state = state.copy(isSubmitting = false, continueButtonEnabled = true)
+                state = state.copy(isSubmitting = false)
+                refreshContinueButton()
                 when (creationResult) {
                     is CreateNewMeetingUseCase.Result.Success -> sendAction(
                         NewMeetingViewActions.Success(
@@ -393,7 +437,7 @@ class NewMeetingViewModelImpl @AssistedInject constructor(
         viewModelScope.launch {
             val titleValid = validateTitle()
             val startAndEndTimeValid = validateStartAndEndTime()
-            if (titleValid && startAndEndTimeValid && !state.isSubmitting) {
+            if (titleValid && startAndEndTimeValid && state.continueButtonEnabled) {
                 state = state.copy(isSubmitting = true, continueButtonEnabled = false)
                 val updateResult = updateMeeting(
                     meetingId = meetingType.id,
@@ -404,10 +448,12 @@ class NewMeetingViewModelImpl @AssistedInject constructor(
                         tzid = state.tzid,
                         recurrence = state.repeatingInterval?.let { Meeting.Recurrence(it.frequency, it.interval.toLong(), null) },
                         type = state.meetingType,
+                        invitedEmails = state.confirmedEmails.toList(),
                         otherParticipants = state.confirmedContacts.map { UserId(it.id, it.domain) }
                     )
                 )
-                state = state.copy(isSubmitting = false, continueButtonEnabled = true)
+                state = state.copy(isSubmitting = false)
+                refreshContinueButton()
                 when (updateResult) {
                     is UpdateMeetingUseCase.Result.Success -> sendAction(NewMeetingViewActions.Success(NewMeetingResult.Updated))
                     is UpdateMeetingUseCase.Result.Failure -> state = state.copy(
@@ -427,7 +473,8 @@ class NewMeetingViewModelImpl @AssistedInject constructor(
         viewModelScope.launch {
             state = state.copy(isSubmitting = true, continueButtonEnabled = false)
             renameConversationUseCase(conversationId = conversationId, conversationName = titleTextState.text.trim().toString()).let {
-                state = state.copy(isSubmitting = false, continueButtonEnabled = true)
+                state = state.copy(isSubmitting = false)
+                refreshContinueButton()
                 when (it) {
                     is RenamingResult.Failure ->
                         state = state.copy(submitError = NewMeetingState.SubmitError.UpdateConversationNameFailure(conversationId))
@@ -442,6 +489,16 @@ class NewMeetingViewModelImpl @AssistedInject constructor(
         state = state.copy(submitError = null)
     }
 }
+
+private data class EditSnapshot(
+    val title: String,
+    val startTime: Instant,
+    val endTime: Instant,
+    val tzid: String,
+    val repeatingInterval: MeetingItem.RepeatingInterval?,
+    val participantIds: Set<UserId>,
+    val emails: Set<String>,
+)
 
 internal fun getNextFullHour(now: Instant, timeZone: TimeZone): Instant {
     val futureHour = now.plus(1, DateTimeUnit.HOUR, timeZone)
@@ -478,6 +535,8 @@ data class NewMeetingState(
     val confirmedIndividualContacts: ImmutableSet<Contact> = persistentSetOf(),
     val selectedGroups: ImmutableSet<SearchGroup> = persistentSetOf(),
     val confirmedGroups: ImmutableSet<SearchGroup> = persistentSetOf(),
+    val selectedEmails: ImmutableSet<String> = persistentSetOf(),
+    val confirmedEmails: ImmutableSet<String> = persistentSetOf(),
     val continueButtonEnabled: Boolean = false,
     val titleError: TitleError? = null,
     val invalidPassword: Boolean = false,

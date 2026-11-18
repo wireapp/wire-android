@@ -44,6 +44,7 @@ import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.auth.ValidatePasswordResult
+import com.wire.kalium.logic.feature.auth.ValidateEmailUseCase
 import com.wire.kalium.logic.feature.auth.ValidatePasswordUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationMembersUseCase
 import com.wire.kalium.logic.feature.conversation.RenameConversationUseCase
@@ -77,6 +78,7 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertNull
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -97,6 +99,285 @@ class NewMeetingViewModelTest {
     @AfterEach
     fun tearDown() {
         Dispatchers.resetMain()
+    }
+
+    @Test
+    fun givenEmailRejectedBySharedValidator_whenSelecting_thenItIsNotAdded() = runTest(dispatcher) {
+        val arrangement = Arrangement(dispatcher).withNewMeetingType(NewMeetingType.Schedule)
+        every { arrangement.validateEmail("person@example.com") } returns false
+        val (_, viewModel) = arrangeViewModel(arrangement)
+
+        viewModel.updateSelectedEmail(true, " person@example.com ")
+
+        assertEquals(emptySet<String>(), viewModel.state.selectedEmails)
+        verify(exactly = 1) { arrangement.validateEmail("person@example.com") }
+    }
+
+    @Test
+    fun givenEmailSelections_whenValidatingConfirmingAndResetting_thenOnlyUniqueValidConfirmedEmailsRemain() = runTest(dispatcher) {
+        val (_, viewModel) = arrangeViewModel(Arrangement(dispatcher).withNewMeetingType(NewMeetingType.Schedule))
+        viewModel.updateSelectedEmail(true, "invalid")
+        viewModel.updateSelectedEmail(true, " person@example.com ")
+        viewModel.updateSelectedEmail(true, "PERSON@EXAMPLE.COM")
+        assertEquals(setOf("person@example.com"), viewModel.state.selectedEmails)
+        assertEquals(emptySet<String>(), viewModel.state.confirmedEmails)
+
+        viewModel.confirmSelectedContacts()
+        viewModel.updateSelectedEmail(false, "person@example.com")
+        assertEquals(emptySet<String>(), viewModel.state.selectedEmails)
+        viewModel.resetSelectedContacts()
+        assertEquals(setOf("person@example.com"), viewModel.state.selectedEmails)
+        viewModel.updateSelectedEmail(false, "person@example.com")
+        viewModel.confirmSelectedContacts()
+        assertEquals(emptySet<String>(), viewModel.state.confirmedEmails)
+    }
+
+    @Test
+    fun givenMeetNow_whenAddingEmail_thenEmailIsNotSelected() = runTest(dispatcher) {
+        val (_, viewModel) = arrangeViewModel(Arrangement(dispatcher).withNewMeetingType(NewMeetingType.MeetNow))
+        viewModel.updateSelectedEmail(true, "person@example.com")
+        viewModel.confirmSelectedContacts()
+        assertEquals(emptySet<String>(), viewModel.state.selectedEmails)
+        assertEquals(emptySet<String>(), viewModel.state.confirmedEmails)
+    }
+
+    @Test
+    fun givenExistingEmailInvitees_whenEditing_thenEmailsAreLoadedAndSubmitted() = runTest(dispatcher) {
+        val occurrence = MEETING_OCCURRENCE.copy(
+            meeting = MEETING_OCCURRENCE.meeting.copy(invitedEmails = listOf("existing@example.com"))
+        )
+        val (arrangement, viewModel) = arrangeViewModel(
+            Arrangement(dispatcher)
+                .withNewMeetingType(NewMeetingType.Edit(CREATED_MEETING_ID))
+                .withNextUnfinishedMeetingOccurrence(occurrence)
+                .withUpdateMeetingResult(CREATED_MEETING_ID, UpdateMeetingUseCase.Result.Success)
+        )
+        assertEquals(setOf("existing@example.com"), viewModel.state.confirmedEmails)
+        assertFalse(viewModel.state.continueButtonEnabled)
+        viewModel.updateSelectedEmail(false, "existing@example.com")
+        viewModel.updateSelectedEmail(true, "new@example.com")
+        viewModel.confirmSelectedContacts()
+        assertTrue(viewModel.state.continueButtonEnabled)
+        viewModel.submitUpdate()
+        advanceUntilIdle()
+        coVerify { arrangement.updateMeeting(CREATED_MEETING_ID, match { it.invitedEmails == listOf("new@example.com") }) }
+    }
+
+    @Test
+    fun givenExistingMeeting_whenOnlyParticipantsChange_thenConfirmIsEnabledAndChangesAreSubmitted() = runTest(dispatcher) {
+        val existingContact = contact("existing")
+        val replacement = contact("replacement")
+        val existingUser = TestUser.OTHER_USER.copy(id = UserId(existingContact.id, existingContact.domain))
+        val (arrangement, viewModel) = arrangeViewModel(
+            Arrangement(dispatcher)
+                .withNewMeetingType(NewMeetingType.Edit(CREATED_MEETING_ID))
+                .withNextUnfinishedMeetingOccurrence(MEETING_OCCURRENCE)
+                .withConversationMembers(CONVERSATION_ID, listOf(MemberDetails(existingUser, Conversation.Member.Role.Member)))
+                .withMappedContact(existingUser, existingContact)
+                .withUpdateMeetingResult(CREATED_MEETING_ID, UpdateMeetingUseCase.Result.Success)
+        )
+
+        assertFalse(viewModel.state.continueButtonEnabled)
+        viewModel.updateSelectedContact(false, existingContact)
+        viewModel.updateSelectedContact(true, replacement)
+        assertFalse(viewModel.state.continueButtonEnabled)
+        viewModel.confirmSelectedContacts()
+
+        assertTrue(viewModel.state.continueButtonEnabled)
+        assertEquals(MEETING_OCCURRENCE.meeting.title, viewModel.titleTextState.text.toString())
+        assertEquals(MEETING_OCCURRENCE.occurrenceStartTime, viewModel.state.startTime)
+        assertEquals(MEETING_OCCURRENCE.occurrenceEndTime, viewModel.state.endTime)
+        viewModel.submitUpdate()
+        advanceUntilIdle()
+        coVerify {
+            arrangement.updateMeeting(
+                CREATED_MEETING_ID,
+                match { it.otherParticipants == listOf(UserId(replacement.id, replacement.domain)) }
+            )
+        }
+    }
+
+    @Test
+    fun givenExistingMeetingWithInvalidTitle_whenParticipantsChange_thenConfirmRemainsDisabled() = runTest(dispatcher) {
+        val occurrence = MEETING_OCCURRENCE.copy(
+            meeting = MEETING_OCCURRENCE.meeting.copy(title = "a".repeat(NewMeetingViewModel.MEETING_NAME_MAX_COUNT + 1))
+        )
+        val (_, viewModel) = arrangeViewModel(
+            Arrangement(dispatcher)
+                .withNewMeetingType(NewMeetingType.Edit(CREATED_MEETING_ID))
+                .withNextUnfinishedMeetingOccurrence(occurrence)
+        )
+
+        viewModel.updateSelectedContact(true, CONTACT)
+        viewModel.confirmSelectedContacts()
+
+        assertFalse(viewModel.state.continueButtonEnabled)
+        assertEquals(NewMeetingState.TitleError.TitleExceedsLimitError, viewModel.state.titleError)
+    }
+
+    @Test
+    fun givenExistingMeeting_whenOnlyGroupSelectionChanges_thenConfirmIsEnabled() = runTest(dispatcher) {
+        val (_, viewModel) = arrangeViewModel(
+            Arrangement(dispatcher)
+                .withNewMeetingType(NewMeetingType.Edit(CREATED_MEETING_ID))
+                .withNextUnfinishedMeetingOccurrence(MEETING_OCCURRENCE)
+        )
+        val group = SearchGroup(ConversationId("group", "wire.com"), "Group", setOf(CONTACT))
+
+        assertFalse(viewModel.state.continueButtonEnabled)
+        viewModel.updateSelectedGroup(true, group)
+        viewModel.confirmSelectedContacts()
+
+        assertTrue(viewModel.state.continueButtonEnabled)
+        assertEquals(setOf(CONTACT), viewModel.state.confirmedContacts)
+    }
+
+    @Test
+    fun givenUnchangedLoadedMeeting_whenConfirmingSelectionOrSubmitting_thenConfirmIsDisabledAndNoUpdateIsSent() = runTest(dispatcher) {
+        val (arrangement, viewModel) = arrangeViewModel(
+            Arrangement(dispatcher)
+                .withNewMeetingType(NewMeetingType.Edit(CREATED_MEETING_ID))
+                .withNextUnfinishedMeetingOccurrence(MEETING_OCCURRENCE)
+        )
+        advanceUntilIdle()
+
+        assertFalse(viewModel.state.continueButtonEnabled)
+        viewModel.confirmSelectedContacts()
+        assertFalse(viewModel.state.continueButtonEnabled)
+        viewModel.submitUpdate()
+        advanceUntilIdle()
+
+        assertFalse(viewModel.state.continueButtonEnabled)
+        coVerify(exactly = 0) { arrangement.updateMeeting(any(), any()) }
+    }
+
+    @Test
+    fun givenLoadedMeeting_whenTitleTimesOrRecurrenceChangeAndRevert_thenConfirmTracksActualChanges() = runTest(dispatcher) {
+        val (_, viewModel) = arrangeViewModel(
+            Arrangement(dispatcher)
+                .withNewMeetingType(NewMeetingType.Edit(CREATED_MEETING_ID))
+                .withNextUnfinishedMeetingOccurrence(MEETING_OCCURRENCE)
+        )
+        val originalTitle = MEETING_OCCURRENCE.meeting.title
+        val originalStart = MEETING_OCCURRENCE.occurrenceStartTime
+        val originalEnd = MEETING_OCCURRENCE.occurrenceEndTime
+        val originalRecurrence = MEETING_OCCURRENCE.meeting.recurrence?.toRepeatingInterval()
+
+        enterTitle(viewModel, "$originalTitle changed")
+        assertTrue(viewModel.state.continueButtonEnabled)
+        enterTitle(viewModel, originalTitle)
+        assertFalse(viewModel.state.continueButtonEnabled)
+        viewModel.updateStartTime(originalStart + 1.hours)
+        assertTrue(viewModel.state.continueButtonEnabled)
+        viewModel.updateStartTime(originalStart)
+        assertFalse(viewModel.state.continueButtonEnabled)
+        viewModel.updateEndTime(originalEnd + 1.hours)
+        assertTrue(viewModel.state.continueButtonEnabled)
+        viewModel.updateEndTime(originalEnd)
+        assertFalse(viewModel.state.continueButtonEnabled)
+        viewModel.updateRepeatingInterval(null)
+        assertTrue(viewModel.state.continueButtonEnabled)
+        viewModel.updateRepeatingInterval(originalRecurrence)
+        assertFalse(viewModel.state.continueButtonEnabled)
+    }
+
+    @Test
+    fun givenLoadedMeeting_whenParticipantsAreChangedCancelledAndRestored_thenConfirmUsesCommittedParticipantIds() = runTest(dispatcher) {
+        val existingUser = TestUser.OTHER_USER.copy(id = UserId(CONTACT.id, CONTACT.domain))
+        val (_, viewModel) = arrangeViewModel(
+            Arrangement(dispatcher)
+                .withNewMeetingType(NewMeetingType.Edit(CREATED_MEETING_ID))
+                .withNextUnfinishedMeetingOccurrence(MEETING_OCCURRENCE)
+                .withConversationMembers(CONVERSATION_ID, listOf(MemberDetails(existingUser, Conversation.Member.Role.Member)))
+                .withMappedContact(existingUser, CONTACT)
+        )
+        val added = contact("added")
+        val sameMembersGroup = SearchGroup(ConversationId("group", "wire.com"), "Group", setOf(CONTACT))
+
+        viewModel.updateSelectedContact(true, added)
+        viewModel.resetSelectedContacts()
+        assertFalse(viewModel.state.continueButtonEnabled)
+        viewModel.updateSelectedGroup(true, sameMembersGroup)
+        viewModel.confirmSelectedContacts()
+        assertFalse(viewModel.state.continueButtonEnabled)
+        viewModel.updateSelectedContact(true, added)
+        viewModel.confirmSelectedContacts()
+        assertTrue(viewModel.state.continueButtonEnabled)
+        viewModel.updateSelectedContact(false, added)
+        viewModel.confirmSelectedContacts()
+        assertFalse(viewModel.state.continueButtonEnabled)
+        viewModel.updateSelectedContact(false, CONTACT)
+        viewModel.confirmSelectedContacts()
+        assertTrue(viewModel.state.continueButtonEnabled)
+        viewModel.updateSelectedContact(true, CONTACT.copy(name = "Updated display name"))
+        viewModel.confirmSelectedContacts()
+        assertFalse(viewModel.state.continueButtonEnabled)
+    }
+
+    @Test
+    fun givenLoadedEmailInvitees_whenEmailsChangeAndRevert_thenConfirmIgnoresAddressOrderAndCase() = runTest(dispatcher) {
+        val occurrence = MEETING_OCCURRENCE.copy(
+            meeting = MEETING_OCCURRENCE.meeting.copy(invitedEmails = listOf("first@example.com", "second@example.com"))
+        )
+        val (_, viewModel) = arrangeViewModel(
+            Arrangement(dispatcher)
+                .withNewMeetingType(NewMeetingType.Edit(CREATED_MEETING_ID))
+                .withNextUnfinishedMeetingOccurrence(occurrence)
+        )
+
+        assertFalse(viewModel.state.continueButtonEnabled)
+        viewModel.updateSelectedEmail(true, "added@example.com")
+        viewModel.resetSelectedContacts()
+        assertFalse(viewModel.state.continueButtonEnabled)
+        viewModel.updateSelectedEmail(false, "first@example.com")
+        viewModel.confirmSelectedContacts()
+        assertTrue(viewModel.state.continueButtonEnabled)
+        viewModel.updateSelectedEmail(true, "FIRST@example.com")
+        viewModel.confirmSelectedContacts()
+        assertFalse(viewModel.state.continueButtonEnabled)
+        viewModel.updateSelectedEmail(true, "added@example.com")
+        viewModel.confirmSelectedContacts()
+        assertTrue(viewModel.state.continueButtonEnabled)
+        viewModel.updateSelectedEmail(false, "added@example.com")
+        viewModel.confirmSelectedContacts()
+        assertFalse(viewModel.state.continueButtonEnabled)
+    }
+
+    @Test
+    fun givenParticipantOnlyChanges_whenEndTimeBecomesInvalid_thenConfirmRequiresValidTimesAndActualChanges() = runTest(dispatcher) {
+        val (_, viewModel) = arrangeViewModel(
+            Arrangement(dispatcher)
+                .withNewMeetingType(NewMeetingType.Edit(CREATED_MEETING_ID))
+                .withNextUnfinishedMeetingOccurrence(MEETING_OCCURRENCE)
+        )
+
+        viewModel.updateSelectedContact(true, CONTACT)
+        viewModel.confirmSelectedContacts()
+        assertTrue(viewModel.state.continueButtonEnabled)
+        viewModel.updateEndTime(viewModel.state.startTime - 1.hours)
+        assertFalse(viewModel.state.continueButtonEnabled)
+        viewModel.updateEndTime(MEETING_OCCURRENCE.occurrenceEndTime)
+        assertTrue(viewModel.state.continueButtonEnabled)
+        viewModel.updateSelectedContact(false, CONTACT)
+        viewModel.confirmSelectedContacts()
+        assertFalse(viewModel.state.continueButtonEnabled)
+    }
+
+    @Test
+    fun givenScheduledMeeting_whenCreating_thenConfirmedEmailsAreSubmitted() = runTest(dispatcher) {
+        val (arrangement, viewModel) = arrangeViewModel(
+            Arrangement(dispatcher)
+                .withNewMeetingType(NewMeetingType.Schedule)
+                .withCreateMeetingResult(
+                    CreateNewMeetingUseCase.Result.Success(meetingId = CREATED_MEETING_ID, conversationId = CONVERSATION_ID)
+                )
+        )
+        viewModel.titleTextState.setTextAndPlaceCursorAtEnd("Email meeting")
+        viewModel.updateSelectedEmail(true, "person@example.com")
+        viewModel.confirmSelectedContacts()
+        viewModel.submitCreation()
+        advanceUntilIdle()
+        coVerify { arrangement.createNewMeeting(match { it.invitedEmails == listOf("person@example.com") }) }
     }
 
     @Test
@@ -573,6 +854,7 @@ class NewMeetingViewModelTest {
 
         advanceUntilIdle()
         assertEquals(Meeting.Type.IMMEDIATE, viewModel.state.meetingType)
+        enterTitle(viewModel, "Updated immediate meeting")
 
         viewModel.submitUpdate()
         advanceUntilIdle()
@@ -1001,6 +1283,7 @@ class NewMeetingViewModelTest {
             val nextOccurrence = MEETING_OCCURRENCE.copy(meeting = MEETING_OCCURRENCE.meeting.copy(tzid = meetingTimeZoneId))
             val editType = NewMeetingType.Edit(nextOccurrence.meeting.meetingId)
             val updateMeeting = UPDATE_MEETING.copy(
+                title = "Updated meeting",
                 startTime = nextOccurrence.occurrenceStartTime,
                 endTime = nextOccurrence.occurrenceEndTime,
                 tzid = meetingTimeZoneId, // keep the original tzid since no time changes are made
@@ -1407,6 +1690,9 @@ class NewMeetingViewModelTest {
         lateinit var validatePassword: ValidatePasswordUseCase
 
         @MockK
+        lateinit var validateEmail: ValidateEmailUseCase
+
+        @MockK
         lateinit var generatePassword: RandomPassword
 
         @MockK
@@ -1418,6 +1704,8 @@ class NewMeetingViewModelTest {
 
         init {
             MockKAnnotations.init(this)
+            every { validateEmail(any()) } returns true
+            every { validateEmail("invalid") } returns false
             coEvery { isMeetingsEnabledUseCase.isGuestLinkSharingEnabled() } returns true
             every { currentTimeZoneProvider.invoke() } returns TimeZone.of(MEETING_OCCURRENCE.meeting.tzid)
             coEvery { getNextUnfinishedMeetingOccurrence(any(), any()) } returns null
@@ -1493,6 +1781,7 @@ class NewMeetingViewModelTest {
             renameConversationUseCase = renameConversationUseCase,
             contactMapper = contactMapper,
             validatePassword = validatePassword,
+            validateEmail = validateEmail,
             generatePassword = generatePassword,
             isMeetingsEnabledUseCase = isMeetingsEnabledUseCase,
             meetingsGuestsLinksEnabled = meetingsGuestsLinksEnabled,

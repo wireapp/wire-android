@@ -49,6 +49,9 @@ internal fun NewMeetingParticipantsRouteContent(
 ) {
     SearchUsersAndAppsScreen(
         onlySelfTeamAndDomain = true,
+        emailInvitesEnabled = newMeetingViewModel.type != NewMeetingType.MeetNow && newMeetingViewModel.state.isGuestLinkSharingEnabled,
+        selectedEmails = newMeetingViewModel.state.selectedEmails,
+        onEmailChecked = newMeetingViewModel::updateSelectedEmail,
         searchTitle = stringResource(R.string.new_meeting_participants_title),
         selectedContacts = newMeetingViewModel.state.selectedContacts,
         onContactChecked = newMeetingViewModel::updateSelectedContact,

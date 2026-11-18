@@ -31,6 +31,7 @@ import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -128,6 +129,7 @@ import com.wire.android.ui.common.bottomsheet.WireBottomSheetScaffold
 import com.wire.android.ui.common.bottomsheet.WireDragHandle
 import com.wire.android.ui.common.bottomsheet.WireSheetValue
 import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
+import com.wire.android.ui.common.clickable
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dialogs.PermissionPermanentlyDeniedDialog
 import com.wire.android.ui.common.dimensions
@@ -617,7 +619,13 @@ private fun OngoingCallContent(
                     .padding(dimensions().spacing16x)
             ) { meetingLink ->
                 meetingLink?.let {
-                    MeetingInvitationCard(meetingLink = meetingLink, onClose = onDismissMeetingInvitation)
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .clickable { onDismissMeetingInvitation() }
+                    ) {
+                        MeetingInvitationCard(meetingLink = meetingLink, onClose = onDismissMeetingInvitation)
+                    }
                 }
             }
             EmojiPickerBottomSheet(

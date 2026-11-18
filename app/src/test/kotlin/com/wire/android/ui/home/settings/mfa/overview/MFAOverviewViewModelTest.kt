@@ -24,10 +24,10 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.kalium.common.error.CoreFailure
-import com.wire.kalium.logic.feature.mfa.AuthenticatorApp
-import com.wire.kalium.logic.feature.mfa.MFAOverview
+import com.wire.kalium.logic.data.mfa.AuthenticatorApp
+import com.wire.kalium.logic.data.mfa.MFAOverview
+import com.wire.kalium.logic.data.mfa.RecoveryCodesStatus
 import com.wire.kalium.logic.feature.mfa.ObserveMFAOverviewUseCase
-import com.wire.kalium.logic.feature.mfa.RecoveryCodesStatus
 import com.wire.kalium.logic.feature.mfa.RefreshMFAOverviewResult
 import com.wire.kalium.logic.feature.mfa.RefreshMFAOverviewUseCase
 import io.mockk.coEvery

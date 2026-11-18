@@ -22,7 +22,7 @@ import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wire.kalium.logic.feature.mfa.AuthenticatorApp
+import com.wire.kalium.logic.data.mfa.AuthenticatorApp
 import com.wire.kalium.logic.feature.mfa.RenameAuthenticatorAppResult
 import com.wire.kalium.logic.feature.mfa.RenameAuthenticatorAppUseCase
 import dev.zacsweers.metro.Inject

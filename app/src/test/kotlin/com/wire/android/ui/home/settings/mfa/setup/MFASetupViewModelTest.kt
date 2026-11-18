@@ -25,10 +25,10 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.ui.home.settings.mfa.MFATestFixture
+import com.wire.kalium.logic.data.mfa.MFAEnrollment
+import com.wire.kalium.logic.data.mfa.MFAFailure
 import com.wire.kalium.logic.feature.mfa.CompleteMFASetupResult
 import com.wire.kalium.logic.feature.mfa.CompleteMFASetupUseCase
-import com.wire.kalium.logic.feature.mfa.MFAEnrollment
-import com.wire.kalium.logic.feature.mfa.MFAFailure
 import com.wire.kalium.logic.feature.mfa.StartMFASetupResult
 import com.wire.kalium.logic.feature.mfa.StartMFASetupUseCase
 import io.mockk.coEvery

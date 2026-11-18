@@ -32,8 +32,8 @@ import com.wire.android.navigation.navigation3.WireNavigation3Runtime
 import com.wire.android.navigation.navigation3.wireViewModelStoreOwner
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.home.settings.settingsViewModel
-import com.wire.kalium.logic.feature.mfa.MFAConstraints.MAX_AUTHENTICATOR_APPS
-import com.wire.kalium.logic.feature.mfa.MFAOverview
+import com.wire.kalium.logic.data.mfa.MFAConstraints.MAX_AUTHENTICATOR_APPS
+import com.wire.kalium.logic.data.mfa.MFAOverview
 import com.wire.android.ui.home.settings.mfa.authenticatorapps.add.AuthenticatorAppAddedResultType
 import com.wire.android.ui.home.settings.mfa.authenticatorapps.add.MFAAddAuthenticatorAppRoute
 import com.wire.android.ui.home.settings.mfa.authenticatorapps.edit.AuthenticatorAppRenameResultType

@@ -18,7 +18,9 @@
 
 package com.wire.android.ui.home.settings.mfa
 
-import com.wire.kalium.logic.feature.mfa.AuthenticatorApp
+import com.wire.kalium.logic.data.mfa.AuthenticatorApp
+import com.wire.kalium.logic.data.mfa.MFAEnrollment
+import com.wire.kalium.logic.data.mfa.MFAFailure
 import com.wire.kalium.logic.feature.mfa.CompleteMFASetupResult
 import com.wire.kalium.logic.feature.mfa.CompleteMFASetupUseCase
 import com.wire.kalium.logic.feature.mfa.ConfirmMFAPasswordResult
@@ -27,8 +29,6 @@ import com.wire.kalium.logic.feature.mfa.FinishAddingAuthenticatorAppResult
 import com.wire.kalium.logic.feature.mfa.FinishAddingAuthenticatorAppUseCase
 import com.wire.kalium.logic.feature.mfa.GenerateMFARecoveryCodesResult
 import com.wire.kalium.logic.feature.mfa.GenerateMFARecoveryCodesUseCase
-import com.wire.kalium.logic.feature.mfa.MFAEnrollment
-import com.wire.kalium.logic.feature.mfa.MFAFailure
 import com.wire.kalium.logic.feature.mfa.RemoveAuthenticatorAppResult
 import com.wire.kalium.logic.feature.mfa.RemoveAuthenticatorAppUseCase
 import com.wire.kalium.logic.feature.mfa.RenameAuthenticatorAppResult

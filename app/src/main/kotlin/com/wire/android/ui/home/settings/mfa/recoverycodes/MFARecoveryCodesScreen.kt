@@ -43,7 +43,7 @@ import com.wire.android.ui.common.textfield.WirePasswordTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
-import com.wire.kalium.logic.feature.mfa.RecoveryCodesStatus
+import com.wire.kalium.logic.data.mfa.RecoveryCodesStatus
 import com.wire.android.ui.home.settings.mfa.components.MFARecoveryCodesContent
 import com.wire.android.ui.home.settings.mfa.components.RecoveryCodesBackHandler
 import com.wire.android.ui.home.settings.mfa.components.rememberRecoveryCodeActions

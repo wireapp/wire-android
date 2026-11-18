@@ -24,11 +24,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.ui.home.settings.mfa.setup.MFASetupError
 import com.wire.android.ui.home.settings.mfa.setup.MFASetupStep
+import com.wire.kalium.logic.data.mfa.MFAConstraints.AUTHENTICATION_CODE_LENGTH
+import com.wire.kalium.logic.data.mfa.MFAEnrollment
+import com.wire.kalium.logic.data.mfa.MFAFailure
 import com.wire.kalium.logic.feature.mfa.FinishAddingAuthenticatorAppResult
 import com.wire.kalium.logic.feature.mfa.FinishAddingAuthenticatorAppUseCase
-import com.wire.kalium.logic.feature.mfa.MFAConstraints.AUTHENTICATION_CODE_LENGTH
-import com.wire.kalium.logic.feature.mfa.MFAEnrollment
-import com.wire.kalium.logic.feature.mfa.MFAFailure
 import com.wire.kalium.logic.feature.mfa.StartMFASetupResult
 import com.wire.kalium.logic.feature.mfa.StartMFASetupUseCase
 import com.wire.kalium.logic.feature.mfa.VerifyAuthenticatorAppCodeResult

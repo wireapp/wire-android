@@ -22,11 +22,11 @@ import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.clearText
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wire.kalium.logic.data.mfa.MFAConstraints.AUTHENTICATION_CODE_LENGTH
+import com.wire.kalium.logic.data.mfa.MFAEnrollment
+import com.wire.kalium.logic.data.mfa.MFAFailure
 import com.wire.kalium.logic.feature.mfa.CompleteMFASetupResult
 import com.wire.kalium.logic.feature.mfa.CompleteMFASetupUseCase
-import com.wire.kalium.logic.feature.mfa.MFAConstraints.AUTHENTICATION_CODE_LENGTH
-import com.wire.kalium.logic.feature.mfa.MFAEnrollment
-import com.wire.kalium.logic.feature.mfa.MFAFailure
 import com.wire.kalium.logic.feature.mfa.StartMFASetupResult
 import com.wire.kalium.logic.feature.mfa.StartMFASetupUseCase
 import com.wire.kalium.logic.feature.mfa.VerifyMFASetupCodeResult

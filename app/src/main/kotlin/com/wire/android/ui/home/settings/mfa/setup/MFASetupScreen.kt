@@ -57,8 +57,8 @@ import com.wire.android.ui.home.settings.mfa.components.MFARecoveryCodesContent
 import com.wire.android.ui.home.settings.mfa.components.RecoveryCodesBackHandler
 import com.wire.android.ui.home.settings.mfa.components.rememberAuthenticatorLinkActions
 import com.wire.android.ui.home.settings.mfa.components.rememberRecoveryCodeActions
-import com.wire.kalium.logic.feature.mfa.MFAConstraints.AUTHENTICATION_CODE_LENGTH
-import com.wire.kalium.logic.feature.mfa.MFAEnrollment
+import com.wire.kalium.logic.data.mfa.MFAConstraints.AUTHENTICATION_CODE_LENGTH
+import com.wire.kalium.logic.data.mfa.MFAEnrollment
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography

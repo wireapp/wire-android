@@ -30,7 +30,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.core.net.toUri
 import com.wire.android.R
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
-import com.wire.kalium.logic.feature.mfa.MFAEnrollment
+import com.wire.kalium.logic.data.mfa.MFAEnrollment
 import kotlinx.coroutines.launch
 
 internal data class AuthenticatorLinkActions(val open: () -> Unit, val copyKey: () -> Unit)

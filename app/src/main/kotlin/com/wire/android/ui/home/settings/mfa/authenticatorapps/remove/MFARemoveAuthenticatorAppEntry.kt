@@ -27,7 +27,7 @@ import com.wire.android.R
 import com.wire.android.navigation.navigation3.WireNavigation3Runtime
 import com.wire.android.navigation.navigation3.wireViewModelStoreOwner
 import com.wire.android.ui.home.settings.settingsViewModel
-import com.wire.kalium.logic.feature.mfa.MFAOverview
+import com.wire.kalium.logic.data.mfa.MFAOverview
 import com.wire.android.ui.home.settings.mfa.authenticatorapps.MFAAuthenticatorAppsRoute
 import com.wire.android.ui.home.settings.mfa.components.MFACredentialsScreen
 import com.wire.android.ui.home.settings.mfa.overview.MFAOverviewState

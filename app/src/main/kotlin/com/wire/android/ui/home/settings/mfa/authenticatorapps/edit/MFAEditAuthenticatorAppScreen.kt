@@ -44,9 +44,9 @@ import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.textfield.WireTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
-import com.wire.kalium.logic.feature.mfa.AuthenticatorApp
-import com.wire.kalium.logic.feature.mfa.MFAOverview
-import com.wire.kalium.logic.feature.mfa.RecoveryCodesStatus
+import com.wire.kalium.logic.data.mfa.AuthenticatorApp
+import com.wire.kalium.logic.data.mfa.MFAOverview
+import com.wire.kalium.logic.data.mfa.RecoveryCodesStatus
 import com.wire.android.ui.home.settings.mfa.authenticatorapps.AuthenticatorAppsDescription
 import com.wire.android.ui.home.settings.mfa.authenticatorapps.AuthenticatorAppsLoadError
 import com.wire.android.ui.home.settings.mfa.overview.MFAOverviewState

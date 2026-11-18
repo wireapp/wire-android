@@ -25,7 +25,7 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.ui.home.settings.mfa.MFATestFixture
-import com.wire.kalium.logic.feature.mfa.AuthenticatorApp
+import com.wire.kalium.logic.data.mfa.AuthenticatorApp
 import com.wire.kalium.logic.feature.mfa.RenameAuthenticatorAppResult
 import com.wire.kalium.logic.feature.mfa.RenameAuthenticatorAppUseCase
 import io.mockk.coEvery

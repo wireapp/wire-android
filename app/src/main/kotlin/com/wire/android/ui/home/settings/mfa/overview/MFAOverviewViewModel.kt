@@ -20,7 +20,7 @@ package com.wire.android.ui.home.settings.mfa.overview
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wire.kalium.logic.feature.mfa.MFAOverview
+import com.wire.kalium.logic.data.mfa.MFAOverview
 import com.wire.kalium.logic.feature.mfa.ObserveMFAOverviewUseCase
 import com.wire.kalium.logic.feature.mfa.RefreshMFAOverviewResult
 import com.wire.kalium.logic.feature.mfa.RefreshMFAOverviewUseCase

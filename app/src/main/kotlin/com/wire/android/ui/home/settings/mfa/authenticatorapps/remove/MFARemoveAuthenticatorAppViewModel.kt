@@ -23,7 +23,7 @@ import androidx.compose.foundation.text.input.clearText
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.ui.home.settings.mfa.components.canSubmitMFACredentials
-import com.wire.kalium.logic.feature.mfa.MFAFailure
+import com.wire.kalium.logic.data.mfa.MFAFailure
 import com.wire.kalium.logic.feature.mfa.RemoveAuthenticatorAppResult
 import com.wire.kalium.logic.feature.mfa.RemoveAuthenticatorAppUseCase
 import dev.zacsweers.metro.Inject

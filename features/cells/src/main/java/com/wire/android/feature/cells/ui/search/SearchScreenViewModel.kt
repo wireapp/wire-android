@@ -84,12 +84,6 @@ private data class FetchedNode(val node: CellNodeUi, val fetch: Int)
 /** A change made to a result while the [fetch]-th fetch was the latest. */
 private data class FetchUpdate(val update: CellNodeUpdate, val fetch: Int)
 
-/**
- * The changes the results of the [fetch]-th fetch can miss: those made since it started. Changes made before it are
- * already on the server it fetched them from, and applying them anyway would hide later changes made elsewhere.
- */
-private fun List<FetchUpdate>.missedBy(fetch: Int): List<CellNodeUpdate> = filter { it.fetch >= fetch }.map { it.update }
-
 @Suppress("TooManyFunctions")
 class SearchScreenViewModel @AssistedInject constructor(
     @Assisted private val navArgs: SearchNavArgs,
@@ -460,3 +454,11 @@ fun defaultCriteriaFor(by: SortBy): SortingCriteria = when (by) {
     SortBy.Name -> SortingCriteria.ByName.AtoZ
     SortBy.Size -> SortingCriteria.BySize.SmallestFirst
 }
+
+/**
+ * The changes the results of the [fetch]-th fetch can miss: those made since it started. Changes made before it are
+ * already on the server it fetched them from, and applying them anyway would hide later changes made elsewhere.
+ */
+private fun List<FetchUpdate>.missedBy(fetch: Int): List<CellNodeUpdate> = filter {
+    it.fetch >= fetch
+}.map { it.update }

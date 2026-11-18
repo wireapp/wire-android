@@ -48,7 +48,12 @@ import kotlinx.datetime.LocalDate
 
 /** Canned Kalium responses for MFA presentation tests. */
 internal class MFATestFixture {
-    val enrollment = MFAEnrollment("enrollment", "user@wire.example", "test-key")
+    val enrollment = MFAEnrollment(
+        id = "enrollment",
+        account = "user@wire.example",
+        setupKey = "test-key",
+        authenticatorUri = "otpauth://totp/Wire:user%40wire.example?secret=test-key&issuer=Wire",
+    )
     val codes = List(10) { "recovery-$it" }
     val app = AuthenticatorApp("phone", "Phone", LocalDate(2026, 10, 14))
     val startSetup = mockk<StartMFASetupUseCase>()

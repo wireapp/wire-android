@@ -206,7 +206,14 @@ class MFASetupViewModelTest {
         assertEquals(MFASetupError.GENERIC, viewModel.state.value.error)
         assertFalse(viewModel.state.value.isBusy)
 
-        coEvery { startSetup(any()) } returns StartMFASetupResult.Success(MFAEnrollment("id", "demo@wire.example", "secret"))
+        coEvery { startSetup(any()) } returns StartMFASetupResult.Success(
+            MFAEnrollment(
+                id = "id",
+                account = "demo@wire.example",
+                setupKey = "secret",
+                authenticatorUri = "otpauth://totp/Wire:demo%40wire.example?secret=secret&issuer=Wire",
+            ),
+        )
         viewModel.password.setTextAndPlaceCursorAtEnd("password")
         viewModel.confirmPassword()
         advanceUntilIdle()

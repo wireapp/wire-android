@@ -303,7 +303,13 @@ private fun PreviewMFASetup() = WireTheme {
     MFASetupContent(
         step = MFASetupStep.LINK_AUTHENTICATOR,
         state = MFASetupState(
-            enrollment = MFAEnrollment("demo", "demo@wire.example", "JBSWY3DPEHPK3PXP"),
+            enrollment = MFAEnrollment(
+                id = "demo",
+                account = "demo@wire.example",
+                setupKey = "JBSWY3DPEHPK3PXP",
+                authenticatorUri = "otpauth://totp/Wire:demo@wire.example?secret=JBSWY3DPEHPK3PXP&issuer=Wire" +
+                    "&algorithm=SHA1&digits=6&period=30",
+            ),
         ),
         password = remember { TextFieldState() },
         code = remember { TextFieldState() },

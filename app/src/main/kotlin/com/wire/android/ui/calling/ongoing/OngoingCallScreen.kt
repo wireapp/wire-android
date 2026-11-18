@@ -609,6 +609,9 @@ private fun OngoingCallContent(
                     onMoreClick = { emojiPickerState.show(Unit) },
                 )
             }
+            meetingInvitation?.let {
+                Box(modifier = Modifier.fillMaxSize().clickable { onDismissMeetingInvitation() })
+            }
             AnimatedContent(
                 targetState = meetingInvitation,
                 transitionSpec = {
@@ -619,13 +622,7 @@ private fun OngoingCallContent(
                     .padding(dimensions().spacing16x)
             ) { meetingLink ->
                 meetingLink?.let {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .clickable { onDismissMeetingInvitation() }
-                    ) {
-                        MeetingInvitationCard(meetingLink = meetingLink, onClose = onDismissMeetingInvitation)
-                    }
+                    MeetingInvitationCard(meetingLink = meetingLink, onClose = onDismissMeetingInvitation)
                 }
             }
             EmojiPickerBottomSheet(

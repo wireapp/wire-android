@@ -142,20 +142,6 @@ fun AllFilesScreen(
                     when (state) {
                         AllFilesTopBarState.Browsing -> Column {
                             searchBar()
-                            // Searches the server: not while listing only the files saved for offline use, like when offline.
-                            AnimatedVisibility(
-                                visible = !isOfflineOnly,
-                                enter = expandVertically(expandFrom = Alignment.Top) + fadeIn(),
-                                exit = shrinkVertically(shrinkTowards = Alignment.Top) + fadeOut(),
-                            ) {
-                                SearchTopBar(
-                                    modifier = Modifier,
-                                    isSearchActive = false,
-                                    searchBarHint = stringResource(R.string.search_label),
-                                    searchQueryTextState = rememberTextFieldState(),
-                                    onTap = { navigationActions.openSearch(sortingCriteria.toNavArg()) },
-                                )
-                            }
                             // Only shown while browsing; with fewer than two items there is nothing to select several of.
                             AnimatedVisibility(
                                 visible = showBulkSelectionHint && pagingListItems.itemCount >= 2,

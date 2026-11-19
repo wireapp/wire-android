@@ -19,6 +19,7 @@ package com.wire.android.di.metro
 
 import com.wire.android.di.CurrentAccount
 import com.wire.android.di.ImageLoadingModule
+import com.wire.android.di.MFAUseCaseModule
 import com.wire.android.di.SessionModule
 import com.wire.android.di.accountScoped.AppsModule
 import com.wire.android.di.accountScoped.AuthenticationModule
@@ -73,6 +74,7 @@ import dev.zacsweers.metrox.viewmodel.ViewModelGraph
     MetroSessionScope::class,
     bindingContainers = [
         SessionModule::class,
+        MFAUseCaseModule::class,
         AppsModule::class,
         AuthenticationModule::class,
         BackupModule::class,

@@ -104,6 +104,55 @@ class NewMeetingViewModelTest {
     }
 
     @Test
+    fun givenInitializationPending_whenFormEventsArrive_thenStateRemainsLoadingUntilReady() = runTest(dispatcher) {
+        val guestLinkSupport = CompletableDeferred<Boolean>()
+        val arrangement = Arrangement(dispatcher).withNewMeetingType(NewMeetingType.Schedule)
+        coEvery { arrangement.isMeetingsEnabledUseCase.isGuestLinkSharingEnabled() } coAnswers { guestLinkSupport.await() }
+        val (_, viewModel) = arrangeViewModel(arrangement)
+        assertEquals(NewMeetingState.Loading, viewModel.state)
+
+        enterTitle(viewModel, "Pending meeting")
+        viewModel.updateSelectedEmail(true, "guest@example.com")
+        viewModel.updateSelectedContact(true, CONTACT)
+        viewModel.confirmSelectedContacts()
+        viewModel.updateEndTime(Instant.parse("2026-01-01T13:00:00Z"))
+        viewModel.onGenerateRandomPassword()
+        viewModel.submitCreation()
+        runCurrent()
+
+        assertEquals(NewMeetingState.Loading, viewModel.state)
+        coVerify(exactly = 0) { arrangement.createNewMeeting(any()) }
+        guestLinkSupport.complete(true)
+        runCurrent()
+        assertTrue(viewModel.state is NewMeetingState.Ready)
+        assertEquals(emptySet<String>(), viewModel.readyState.confirmedEmails)
+        assertEquals(emptySet<Contact>(), viewModel.readyState.confirmedContacts)
+        assertTrue(viewModel.readyState.continueButtonEnabled)
+    }
+
+    @Test
+    fun givenInitializationFails_whenFormEventsArrive_thenStateRemainsErrorAndNoUpdateIsSubmitted() = runTest(dispatcher) {
+        val (arrangement, viewModel) = arrangeViewModel(
+            Arrangement(dispatcher)
+                .withNewMeetingType(NewMeetingType.Edit(CREATED_MEETING_ID))
+                .withNextUnfinishedMeetingOccurrenceFailure()
+        )
+
+        enterTitle(viewModel, "Changed title")
+        viewModel.passwordTextState.setTextAndPlaceCursorAtEnd("Password1!")
+        viewModel.updateSelectedEmail(true, "guest@example.com")
+        viewModel.confirmSelectedContacts()
+        viewModel.dismissCreationError()
+        viewModel.submitUpdate()
+        viewModel.retryUpdateConversationName(CONVERSATION_ID)
+        runCurrent()
+
+        assertEquals(NewMeetingState.Error, viewModel.state)
+        coVerify(exactly = 0) { arrangement.updateMeeting(any(), any()) }
+        coVerify(exactly = 0) { arrangement.renameConversationUseCase(any(), any()) }
+    }
+
+    @Test
     fun givenEmailRejectedBySharedValidator_whenSelecting_thenItIsNotAdded() = runTest(dispatcher) {
         val arrangement = Arrangement(dispatcher).withNewMeetingType(NewMeetingType.Schedule)
         every { arrangement.validateEmail("person@example.com") } returns false
@@ -111,7 +160,7 @@ class NewMeetingViewModelTest {
 
         viewModel.updateSelectedEmail(true, " person@example.com ")
 
-        assertEquals(emptySet<String>(), viewModel.state.selectedEmails)
+        assertEquals(emptySet<String>(), viewModel.readyState.selectedEmails)
         verify(exactly = 1) { arrangement.validateEmail("person@example.com") }
     }
 
@@ -121,17 +170,17 @@ class NewMeetingViewModelTest {
         viewModel.updateSelectedEmail(true, "invalid")
         viewModel.updateSelectedEmail(true, " person@example.com ")
         viewModel.updateSelectedEmail(true, "PERSON@EXAMPLE.COM")
-        assertEquals(setOf("person@example.com"), viewModel.state.selectedEmails)
-        assertEquals(emptySet<String>(), viewModel.state.confirmedEmails)
+        assertEquals(setOf("person@example.com"), viewModel.readyState.selectedEmails)
+        assertEquals(emptySet<String>(), viewModel.readyState.confirmedEmails)
 
         viewModel.confirmSelectedContacts()
         viewModel.updateSelectedEmail(false, "person@example.com")
-        assertEquals(emptySet<String>(), viewModel.state.selectedEmails)
+        assertEquals(emptySet<String>(), viewModel.readyState.selectedEmails)
         viewModel.resetSelectedContacts()
-        assertEquals(setOf("person@example.com"), viewModel.state.selectedEmails)
+        assertEquals(setOf("person@example.com"), viewModel.readyState.selectedEmails)
         viewModel.updateSelectedEmail(false, "person@example.com")
         viewModel.confirmSelectedContacts()
-        assertEquals(emptySet<String>(), viewModel.state.confirmedEmails)
+        assertEquals(emptySet<String>(), viewModel.readyState.confirmedEmails)
     }
 
     @Test
@@ -139,8 +188,48 @@ class NewMeetingViewModelTest {
         val (_, viewModel) = arrangeViewModel(Arrangement(dispatcher).withNewMeetingType(NewMeetingType.MeetNow))
         viewModel.updateSelectedEmail(true, "person@example.com")
         viewModel.confirmSelectedContacts()
-        assertEquals(emptySet<String>(), viewModel.state.selectedEmails)
-        assertEquals(emptySet<String>(), viewModel.state.confirmedEmails)
+        assertEquals(emptySet<String>(), viewModel.readyState.selectedEmails)
+        assertEquals(emptySet<String>(), viewModel.readyState.confirmedEmails)
+    }
+
+    @Test
+    fun givenMeetNowWithPreviousTimeError_whenCreating_thenGeneratedTimesAreTreatedAsValid() = runTest(dispatcher) {
+        val (arrangement, viewModel) = arrangeViewModel(
+            Arrangement(dispatcher)
+                .withNewMeetingType(NewMeetingType.MeetNow)
+                .withCreateMeetingResult(CreateNewMeetingUseCase.Result.Success(CONVERSATION_ID, CREATED_MEETING_ID))
+        )
+        enterTitle(viewModel, "Quick meeting")
+        viewModel.updateEndTime(viewModel.readyState.startTime - 1.hours)
+        val previousError = NewMeetingState.TimeError.EndTimeBeforeStartTimeError
+        assertEquals(previousError, viewModel.readyState.endTimeError)
+
+        viewModel.submitCreation()
+        runCurrent()
+
+        coVerify(exactly = 1) {
+            arrangement.createNewMeeting(
+                match { it.startTime == arrangement.currentTimeProvider() && it.endTime == it.startTime + 1.hours }
+            )
+        }
+        assertEquals(previousError, viewModel.readyState.endTimeError)
+    }
+
+    @Test
+    fun givenImmediateMeeting_whenEditing_thenEmailInviteesCannotBeAdded() = runTest(dispatcher) {
+        val occurrence = MEETING_OCCURRENCE.copy(meeting = MEETING_OCCURRENCE.meeting.copy(type = Meeting.Type.IMMEDIATE))
+        val (_, viewModel) = arrangeViewModel(
+            Arrangement(dispatcher)
+                .withNewMeetingType(NewMeetingType.Edit(CREATED_MEETING_ID))
+                .withNextUnfinishedMeetingOccurrence(occurrence)
+        )
+
+        viewModel.updateSelectedEmail(true, "person@example.com")
+        viewModel.confirmSelectedContacts()
+
+        assertEquals(Meeting.Type.IMMEDIATE, viewModel.readyState.meetingType)
+        assertEquals(emptySet<String>(), viewModel.readyState.confirmedEmails)
+        assertFalse(viewModel.readyState.continueButtonEnabled)
     }
 
     @Test
@@ -154,13 +243,13 @@ class NewMeetingViewModelTest {
                 .withNextUnfinishedMeetingOccurrence(occurrence)
                 .withUpdateMeetingResult(CREATED_MEETING_ID, UpdateMeetingUseCase.Result.Success)
         )
-        assertTrue(viewModel.state.isGuestLinkSharingEnabled)
-        assertEquals(setOf("existing@example.com"), viewModel.state.confirmedEmails)
-        assertFalse(viewModel.state.continueButtonEnabled)
+        assertTrue(viewModel.readyState.isGuestLinkSharingEnabled)
+        assertEquals(setOf("existing@example.com"), viewModel.readyState.confirmedEmails)
+        assertFalse(viewModel.readyState.continueButtonEnabled)
         viewModel.updateSelectedEmail(false, "existing@example.com")
         viewModel.updateSelectedEmail(true, "new@example.com")
         viewModel.confirmSelectedContacts()
-        assertTrue(viewModel.state.continueButtonEnabled)
+        assertTrue(viewModel.readyState.continueButtonEnabled)
         viewModel.submitUpdate()
         advanceUntilIdle()
         coVerify { arrangement.updateMeeting(CREATED_MEETING_ID, match { it.invitedEmails == listOf("new@example.com") }) }
@@ -180,16 +269,16 @@ class NewMeetingViewModelTest {
                 .withUpdateMeetingResult(CREATED_MEETING_ID, UpdateMeetingUseCase.Result.Success)
         )
 
-        assertFalse(viewModel.state.continueButtonEnabled)
+        assertFalse(viewModel.readyState.continueButtonEnabled)
         viewModel.updateSelectedContact(false, existingContact)
         viewModel.updateSelectedContact(true, replacement)
-        assertFalse(viewModel.state.continueButtonEnabled)
+        assertFalse(viewModel.readyState.continueButtonEnabled)
         viewModel.confirmSelectedContacts()
 
-        assertTrue(viewModel.state.continueButtonEnabled)
+        assertTrue(viewModel.readyState.continueButtonEnabled)
         assertEquals(MEETING_OCCURRENCE.meeting.title, viewModel.titleTextState.text.toString())
-        assertEquals(MEETING_OCCURRENCE.occurrenceStartTime, viewModel.state.startTime)
-        assertEquals(MEETING_OCCURRENCE.occurrenceEndTime, viewModel.state.endTime)
+        assertEquals(MEETING_OCCURRENCE.occurrenceStartTime, viewModel.readyState.startTime)
+        assertEquals(MEETING_OCCURRENCE.occurrenceEndTime, viewModel.readyState.endTime)
         viewModel.submitUpdate()
         advanceUntilIdle()
         coVerify {
@@ -214,8 +303,8 @@ class NewMeetingViewModelTest {
         viewModel.updateSelectedContact(true, CONTACT)
         viewModel.confirmSelectedContacts()
 
-        assertFalse(viewModel.state.continueButtonEnabled)
-        assertEquals(NewMeetingState.TitleError.TitleExceedsLimitError, viewModel.state.titleError)
+        assertFalse(viewModel.readyState.continueButtonEnabled)
+        assertEquals(NewMeetingState.TitleError.TitleExceedsLimitError, viewModel.readyState.titleError)
     }
 
     @Test
@@ -227,12 +316,12 @@ class NewMeetingViewModelTest {
         )
         val group = SearchGroup(ConversationId("group", "wire.com"), "Group", setOf(CONTACT))
 
-        assertFalse(viewModel.state.continueButtonEnabled)
+        assertFalse(viewModel.readyState.continueButtonEnabled)
         viewModel.updateSelectedGroup(true, group)
         viewModel.confirmSelectedContacts()
 
-        assertTrue(viewModel.state.continueButtonEnabled)
-        assertEquals(setOf(CONTACT), viewModel.state.confirmedContacts)
+        assertTrue(viewModel.readyState.continueButtonEnabled)
+        assertEquals(setOf(CONTACT), viewModel.readyState.confirmedContacts)
     }
 
     @Test
@@ -244,13 +333,13 @@ class NewMeetingViewModelTest {
         )
         advanceUntilIdle()
 
-        assertFalse(viewModel.state.continueButtonEnabled)
+        assertFalse(viewModel.readyState.continueButtonEnabled)
         viewModel.confirmSelectedContacts()
-        assertFalse(viewModel.state.continueButtonEnabled)
+        assertFalse(viewModel.readyState.continueButtonEnabled)
         viewModel.submitUpdate()
         advanceUntilIdle()
 
-        assertFalse(viewModel.state.continueButtonEnabled)
+        assertFalse(viewModel.readyState.continueButtonEnabled)
         coVerify(exactly = 0) { arrangement.updateMeeting(any(), any()) }
     }
 
@@ -267,21 +356,21 @@ class NewMeetingViewModelTest {
         val originalRecurrence = MEETING_OCCURRENCE.meeting.recurrence?.toRepeatingInterval()
 
         enterTitle(viewModel, "$originalTitle changed")
-        assertTrue(viewModel.state.continueButtonEnabled)
+        assertTrue(viewModel.readyState.continueButtonEnabled)
         enterTitle(viewModel, originalTitle)
-        assertFalse(viewModel.state.continueButtonEnabled)
+        assertFalse(viewModel.readyState.continueButtonEnabled)
         viewModel.updateStartTime(originalStart + 1.hours)
-        assertTrue(viewModel.state.continueButtonEnabled)
+        assertTrue(viewModel.readyState.continueButtonEnabled)
         viewModel.updateStartTime(originalStart)
-        assertFalse(viewModel.state.continueButtonEnabled)
+        assertFalse(viewModel.readyState.continueButtonEnabled)
         viewModel.updateEndTime(originalEnd + 1.hours)
-        assertTrue(viewModel.state.continueButtonEnabled)
+        assertTrue(viewModel.readyState.continueButtonEnabled)
         viewModel.updateEndTime(originalEnd)
-        assertFalse(viewModel.state.continueButtonEnabled)
+        assertFalse(viewModel.readyState.continueButtonEnabled)
         viewModel.updateRepeatingInterval(null)
-        assertTrue(viewModel.state.continueButtonEnabled)
+        assertTrue(viewModel.readyState.continueButtonEnabled)
         viewModel.updateRepeatingInterval(originalRecurrence)
-        assertFalse(viewModel.state.continueButtonEnabled)
+        assertFalse(viewModel.readyState.continueButtonEnabled)
     }
 
     @Test
@@ -299,22 +388,22 @@ class NewMeetingViewModelTest {
 
         viewModel.updateSelectedContact(true, added)
         viewModel.resetSelectedContacts()
-        assertFalse(viewModel.state.continueButtonEnabled)
+        assertFalse(viewModel.readyState.continueButtonEnabled)
         viewModel.updateSelectedGroup(true, sameMembersGroup)
         viewModel.confirmSelectedContacts()
-        assertFalse(viewModel.state.continueButtonEnabled)
+        assertFalse(viewModel.readyState.continueButtonEnabled)
         viewModel.updateSelectedContact(true, added)
         viewModel.confirmSelectedContacts()
-        assertTrue(viewModel.state.continueButtonEnabled)
+        assertTrue(viewModel.readyState.continueButtonEnabled)
         viewModel.updateSelectedContact(false, added)
         viewModel.confirmSelectedContacts()
-        assertFalse(viewModel.state.continueButtonEnabled)
+        assertFalse(viewModel.readyState.continueButtonEnabled)
         viewModel.updateSelectedContact(false, CONTACT)
         viewModel.confirmSelectedContacts()
-        assertTrue(viewModel.state.continueButtonEnabled)
+        assertTrue(viewModel.readyState.continueButtonEnabled)
         viewModel.updateSelectedContact(true, CONTACT.copy(name = "Updated display name"))
         viewModel.confirmSelectedContacts()
-        assertFalse(viewModel.state.continueButtonEnabled)
+        assertFalse(viewModel.readyState.continueButtonEnabled)
     }
 
     @Test
@@ -328,22 +417,22 @@ class NewMeetingViewModelTest {
                 .withNextUnfinishedMeetingOccurrence(occurrence)
         )
 
-        assertFalse(viewModel.state.continueButtonEnabled)
+        assertFalse(viewModel.readyState.continueButtonEnabled)
         viewModel.updateSelectedEmail(true, "added@example.com")
         viewModel.resetSelectedContacts()
-        assertFalse(viewModel.state.continueButtonEnabled)
+        assertFalse(viewModel.readyState.continueButtonEnabled)
         viewModel.updateSelectedEmail(false, "first@example.com")
         viewModel.confirmSelectedContacts()
-        assertTrue(viewModel.state.continueButtonEnabled)
+        assertTrue(viewModel.readyState.continueButtonEnabled)
         viewModel.updateSelectedEmail(true, "FIRST@example.com")
         viewModel.confirmSelectedContacts()
-        assertFalse(viewModel.state.continueButtonEnabled)
+        assertFalse(viewModel.readyState.continueButtonEnabled)
         viewModel.updateSelectedEmail(true, "added@example.com")
         viewModel.confirmSelectedContacts()
-        assertTrue(viewModel.state.continueButtonEnabled)
+        assertTrue(viewModel.readyState.continueButtonEnabled)
         viewModel.updateSelectedEmail(false, "added@example.com")
         viewModel.confirmSelectedContacts()
-        assertFalse(viewModel.state.continueButtonEnabled)
+        assertFalse(viewModel.readyState.continueButtonEnabled)
     }
 
     @Test
@@ -356,14 +445,14 @@ class NewMeetingViewModelTest {
 
         viewModel.updateSelectedContact(true, CONTACT)
         viewModel.confirmSelectedContacts()
-        assertTrue(viewModel.state.continueButtonEnabled)
-        viewModel.updateEndTime(viewModel.state.startTime - 1.hours)
-        assertFalse(viewModel.state.continueButtonEnabled)
+        assertTrue(viewModel.readyState.continueButtonEnabled)
+        viewModel.updateEndTime(viewModel.readyState.startTime - 1.hours)
+        assertFalse(viewModel.readyState.continueButtonEnabled)
         viewModel.updateEndTime(MEETING_OCCURRENCE.occurrenceEndTime)
-        assertTrue(viewModel.state.continueButtonEnabled)
+        assertTrue(viewModel.readyState.continueButtonEnabled)
         viewModel.updateSelectedContact(false, CONTACT)
         viewModel.confirmSelectedContacts()
-        assertFalse(viewModel.state.continueButtonEnabled)
+        assertFalse(viewModel.readyState.continueButtonEnabled)
     }
 
     @Test
@@ -394,13 +483,17 @@ class NewMeetingViewModelTest {
             )
 
             assertEquals(type, viewModel.type)
-            assertEquals(currentTime + 1.hours, viewModel.state.startTime) // next full hour
-            assertEquals(currentTime + 2.hours, viewModel.state.endTime) // start time + 1 hour
-            assertFalse(viewModel.state.continueButtonEnabled)
-            assertNull(viewModel.state.titleError)
-            assertNull(viewModel.state.startTimeError)
-            assertNull(viewModel.state.endTimeError)
-            assertEquals(MEETING_TIME_ZONE_ID, viewModel.state.tzid)
+            assertEquals(
+                if (type == NewMeetingType.MeetNow) Meeting.Type.IMMEDIATE else Meeting.Type.SCHEDULED,
+                viewModel.readyState.meetingType
+            )
+            assertEquals(currentTime + 1.hours, viewModel.readyState.startTime) // next full hour
+            assertEquals(currentTime + 2.hours, viewModel.readyState.endTime) // start time + 1 hour
+            assertFalse(viewModel.readyState.continueButtonEnabled)
+            assertNull(viewModel.readyState.titleError)
+            assertNull(viewModel.readyState.startTimeError)
+            assertNull(viewModel.readyState.endTimeError)
+            assertEquals(MEETING_TIME_ZONE_ID, viewModel.readyState.tzid)
         }
     }
 
@@ -413,17 +506,17 @@ class NewMeetingViewModelTest {
 
             viewModel.updateSelectedContact(selected = true, contact = contact)
             viewModel.updateSelectedContact(selected = true, contact = otherContact)
-            assertEquals(setOf(contact, otherContact), viewModel.state.selectedContacts.toSet())
-            assertEquals(emptySet<Contact>(), viewModel.state.confirmedContacts.toSet())
+            assertEquals(setOf(contact, otherContact), viewModel.readyState.selectedContacts.toSet())
+            assertEquals(emptySet<Contact>(), viewModel.readyState.confirmedContacts.toSet())
 
             viewModel.confirmSelectedContacts()
-            assertEquals(setOf(contact, otherContact), viewModel.state.confirmedContacts.toSet())
+            assertEquals(setOf(contact, otherContact), viewModel.readyState.confirmedContacts.toSet())
 
             viewModel.updateSelectedContact(selected = false, contact = otherContact)
-            assertEquals(setOf(contact), viewModel.state.selectedContacts.toSet())
+            assertEquals(setOf(contact), viewModel.readyState.selectedContacts.toSet())
 
             viewModel.resetSelectedContacts()
-            assertEquals(setOf(contact, otherContact), viewModel.state.selectedContacts.toSet())
+            assertEquals(setOf(contact, otherContact), viewModel.readyState.selectedContacts.toSet())
         }
     }
 
@@ -440,15 +533,15 @@ class NewMeetingViewModelTest {
             viewModel.updateSelectedGroup(true, secondGroup)
             viewModel.updateSelectedGroup(false, firstGroup)
 
-            assertEquals(setOf(shared), viewModel.state.selectedContacts.toSet())
-            assertEquals(setOf(secondGroup), viewModel.state.selectedGroups.toSet())
+            assertEquals(setOf(shared), viewModel.readyState.selectedContacts.toSet())
+            assertEquals(setOf(secondGroup), viewModel.readyState.selectedGroups.toSet())
 
             viewModel.confirmSelectedContacts()
             viewModel.updateSelectedGroup(false, secondGroup)
             viewModel.resetSelectedContacts()
 
-            assertEquals(setOf(shared), viewModel.state.selectedContacts.toSet())
-            assertEquals(setOf(secondGroup), viewModel.state.selectedGroups.toSet())
+            assertEquals(setOf(shared), viewModel.readyState.selectedContacts.toSet())
+            assertEquals(setOf(secondGroup), viewModel.readyState.selectedGroups.toSet())
         }
     }
 
@@ -467,9 +560,9 @@ class NewMeetingViewModelTest {
             viewModel.resetSelectedContacts()
             viewModel.updateSelectedGroup(false, group)
 
-            assertEquals(setOf(contact), viewModel.state.selectedContacts.toSet())
-            assertEquals(setOf(contact), viewModel.state.selectedIndividualContacts.toSet())
-            assertEquals(emptySet<SearchGroup>(), viewModel.state.selectedGroups.toSet())
+            assertEquals(setOf(contact), viewModel.readyState.selectedContacts.toSet())
+            assertEquals(setOf(contact), viewModel.readyState.selectedIndividualContacts.toSet())
+            assertEquals(emptySet<SearchGroup>(), viewModel.readyState.selectedGroups.toSet())
         }
     }
 
@@ -492,9 +585,9 @@ class NewMeetingViewModelTest {
             // The picker may hold newer contact details for the same person.
             viewModel.updateSelectedContact(false, shared.copy(name = "Updated name"))
 
-            assertEquals(setOf(individual, firstOnly, secondOnly, unrelated), viewModel.state.selectedContacts.toSet())
-            assertEquals(setOf(individual, firstOnly, secondOnly), viewModel.state.selectedIndividualContacts.toSet())
-            assertEquals(setOf(unrelatedGroup), viewModel.state.selectedGroups.toSet())
+            assertEquals(setOf(individual, firstOnly, secondOnly, unrelated), viewModel.readyState.selectedContacts.toSet())
+            assertEquals(setOf(individual, firstOnly, secondOnly), viewModel.readyState.selectedIndividualContacts.toSet())
+            assertEquals(setOf(unrelatedGroup), viewModel.readyState.selectedGroups.toSet())
         }
     }
 
@@ -510,16 +603,16 @@ class NewMeetingViewModelTest {
 
             viewModel.updateSelectedContact(false, removed)
             viewModel.resetSelectedContacts()
-            assertEquals(setOf(group), viewModel.state.selectedGroups.toSet())
-            assertEquals(setOf(removed, remaining), viewModel.state.selectedContacts.toSet())
+            assertEquals(setOf(group), viewModel.readyState.selectedGroups.toSet())
+            assertEquals(setOf(removed, remaining), viewModel.readyState.selectedContacts.toSet())
 
             viewModel.updateSelectedContact(false, removed)
             viewModel.confirmSelectedContacts()
             viewModel.updateSelectedGroup(true, group)
             viewModel.resetSelectedContacts()
-            assertEquals(emptySet<SearchGroup>(), viewModel.state.selectedGroups.toSet())
-            assertEquals(setOf(remaining), viewModel.state.selectedContacts.toSet())
-            assertEquals(setOf(remaining), viewModel.state.confirmedContacts.toSet())
+            assertEquals(emptySet<SearchGroup>(), viewModel.readyState.selectedGroups.toSet())
+            assertEquals(setOf(remaining), viewModel.readyState.selectedContacts.toSet())
+            assertEquals(setOf(remaining), viewModel.readyState.confirmedContacts.toSet())
         }
     }
 
@@ -529,7 +622,7 @@ class NewMeetingViewModelTest {
 
         viewModel.updateRepeatingInterval(MeetingItem.RepeatingInterval.Supported.first())
 
-        assertEquals(MeetingItem.RepeatingInterval.Supported.first(), viewModel.state.repeatingInterval)
+        assertEquals(MeetingItem.RepeatingInterval.Supported.first(), viewModel.readyState.repeatingInterval)
     }
 
     @Test
@@ -537,8 +630,8 @@ class NewMeetingViewModelTest {
         withCreationTypes { type ->
             val (_, viewModel) = arrangeViewModel(Arrangement(dispatcher).withNewMeetingType(type))
 
-            assertNull(viewModel.state.titleError)
-            assertFalse(viewModel.state.continueButtonEnabled)
+            assertNull(viewModel.readyState.titleError)
+            assertFalse(viewModel.readyState.continueButtonEnabled)
         }
     }
 
@@ -549,8 +642,8 @@ class NewMeetingViewModelTest {
 
             enterTitle(viewModel, "Weekly sync")
 
-            assertNull(viewModel.state.titleError)
-            assertEquals(true, viewModel.state.continueButtonEnabled)
+            assertNull(viewModel.readyState.titleError)
+            assertEquals(true, viewModel.readyState.continueButtonEnabled)
         }
     }
 
@@ -562,8 +655,8 @@ class NewMeetingViewModelTest {
             enterTitle(viewModel, "Weekly sync")
             enterTitle(viewModel, "")
 
-            assertEquals(NewMeetingState.TitleError.TitleEmptyError, viewModel.state.titleError)
-            assertFalse(viewModel.state.continueButtonEnabled)
+            assertEquals(NewMeetingState.TitleError.TitleEmptyError, viewModel.readyState.titleError)
+            assertFalse(viewModel.readyState.continueButtonEnabled)
         }
     }
 
@@ -574,8 +667,8 @@ class NewMeetingViewModelTest {
 
             enterTitle(viewModel, "a".repeat(NewMeetingViewModel.MEETING_NAME_MAX_COUNT + 1))
 
-            assertEquals(NewMeetingState.TitleError.TitleExceedsLimitError, viewModel.state.titleError)
-            assertFalse(viewModel.state.continueButtonEnabled)
+            assertEquals(NewMeetingState.TitleError.TitleExceedsLimitError, viewModel.readyState.titleError)
+            assertFalse(viewModel.readyState.continueButtonEnabled)
         }
     }
 
@@ -592,8 +685,8 @@ class NewMeetingViewModelTest {
         viewModel.updateStartTime(currentTime - 1.hours)
         advanceUntilIdle()
 
-        assertEquals(NewMeetingState.TimeError.StartTimeInPastError, viewModel.state.startTimeError)
-        assertFalse(viewModel.state.continueButtonEnabled)
+        assertEquals(NewMeetingState.TimeError.StartTimeInPastError, viewModel.readyState.startTimeError)
+        assertFalse(viewModel.readyState.continueButtonEnabled)
     }
 
     @Test
@@ -608,8 +701,8 @@ class NewMeetingViewModelTest {
 
         viewModel.updateStartTime(newStartTime)
 
-        assertEquals(newStartTime, viewModel.state.startTime)
-        assertEquals(newStartTime + 1.hours, viewModel.state.endTime)
+        assertEquals(newStartTime, viewModel.readyState.startTime)
+        assertEquals(newStartTime + 1.hours, viewModel.readyState.endTime)
     }
 
     @Test
@@ -626,9 +719,9 @@ class NewMeetingViewModelTest {
 
         viewModel.updateStartTime(newStartTime)
 
-        assertEquals(newStartTime, viewModel.state.startTime)
-        assertEquals(latestEndTime, viewModel.state.endTime)
-        assertNull(viewModel.state.endTimeError)
+        assertEquals(newStartTime, viewModel.readyState.startTime)
+        assertEquals(latestEndTime, viewModel.readyState.endTime)
+        assertNull(viewModel.readyState.endTimeError)
     }
 
     @Test
@@ -644,8 +737,8 @@ class NewMeetingViewModelTest {
         viewModel.updateEndTime(currentTime - 1.hours)
         advanceUntilIdle()
 
-        assertEquals(NewMeetingState.TimeError.EndTimeInPastError, viewModel.state.endTimeError)
-        assertFalse(viewModel.state.continueButtonEnabled)
+        assertEquals(NewMeetingState.TimeError.EndTimeInPastError, viewModel.readyState.endTimeError)
+        assertFalse(viewModel.readyState.continueButtonEnabled)
     }
 
     @Test
@@ -669,9 +762,9 @@ class NewMeetingViewModelTest {
                 coVerify(exactly = 0) { arrangement.createNewMeeting(any()) }
                 coVerify(exactly = 0) { arrangement.updateMeeting(any(), any()) }
                 expectNoEvents()
-                assertEquals(NewMeetingState.TimeError.StartTimeInPastError, viewModel.state.startTimeError)
-                assertEquals(NewMeetingState.TimeError.EndTimeInPastError, viewModel.state.endTimeError)
-                assertFalse(viewModel.state.continueButtonEnabled)
+                assertEquals(NewMeetingState.TimeError.StartTimeInPastError, viewModel.readyState.startTimeError)
+                assertEquals(NewMeetingState.TimeError.EndTimeInPastError, viewModel.readyState.endTimeError)
+                assertFalse(viewModel.readyState.continueButtonEnabled)
             }
         }
 
@@ -689,8 +782,8 @@ class NewMeetingViewModelTest {
         viewModel.updateEndTime(currentTime + 1.hours)
         advanceUntilIdle()
 
-        assertEquals(NewMeetingState.TimeError.EndTimeBeforeStartTimeError, viewModel.state.endTimeError)
-        assertFalse(viewModel.state.continueButtonEnabled)
+        assertEquals(NewMeetingState.TimeError.EndTimeBeforeStartTimeError, viewModel.readyState.endTimeError)
+        assertFalse(viewModel.readyState.continueButtonEnabled)
     }
 
     @Test
@@ -709,9 +802,9 @@ class NewMeetingViewModelTest {
         viewModel.updateEndTime(currentTime + 3.hours)
         advanceUntilIdle()
 
-        assertNull(viewModel.state.startTimeError)
-        assertNull(viewModel.state.endTimeError)
-        assertEquals(true, viewModel.state.continueButtonEnabled)
+        assertNull(viewModel.readyState.startTimeError)
+        assertNull(viewModel.readyState.endTimeError)
+        assertEquals(true, viewModel.readyState.continueButtonEnabled)
     }
 
     @Test
@@ -744,10 +837,10 @@ class NewMeetingViewModelTest {
                     )
                 )
             }
-            assertEquals(currentTime, viewModel.state.startTime)
-            assertEquals(currentTime + 1.hours, viewModel.state.endTime)
-            assertFalse(viewModel.state.isSubmitting)
-            assertNull(viewModel.state.submitError)
+            assertEquals(currentTime, viewModel.readyState.startTime)
+            assertEquals(currentTime + 1.hours, viewModel.readyState.endTime)
+            assertFalse(viewModel.readyState.isSubmitting)
+            assertNull(viewModel.readyState.submitError)
             assertEquals(NewMeetingViewActions.Success(NewMeetingResult.MeetNow(CREATED_MEETING_ID, createdConversationId)), awaitItem())
             expectNoEvents()
         }
@@ -777,8 +870,8 @@ class NewMeetingViewModelTest {
             viewModel.submitCreation()
             advanceUntilIdle()
             coVerify(exactly = 1) { arrangement.createNewMeeting(createMeeting) }
-            assertFalse(viewModel.state.isSubmitting)
-            assertNull(viewModel.state.submitError)
+            assertFalse(viewModel.readyState.isSubmitting)
+            assertNull(viewModel.readyState.submitError)
             assertEquals(NewMeetingViewActions.Success(NewMeetingResult.Scheduled(CREATED_MEETING_ID)), awaitItem())
             expectNoEvents()
         }
@@ -838,9 +931,9 @@ class NewMeetingViewModelTest {
 
                 coVerify(exactly = 1) { arrangement.createNewMeeting(any()) }
                 expectNoEvents()
-                assertFalse(viewModel.state.isSubmitting)
-                assertEquals(true, viewModel.state.continueButtonEnabled)
-                assertEquals(NewMeetingState.SubmitError.Other, viewModel.state.submitError)
+                assertFalse(viewModel.readyState.isSubmitting)
+                assertEquals(true, viewModel.readyState.continueButtonEnabled)
+                assertEquals(NewMeetingState.SubmitError.Other, viewModel.readyState.submitError)
             }
         }
     }
@@ -915,8 +1008,8 @@ class NewMeetingViewModelTest {
             advanceUntilIdle()
             coVerify(exactly = 1) { arrangement.updateMeeting(editType.id, updateMeeting) }
             verify(exactly = 0) { arrangement.validatePassword(any()) }
-            assertFalse(viewModel.state.isSubmitting)
-            assertNull(viewModel.state.submitError)
+            assertFalse(viewModel.readyState.isSubmitting)
+            assertNull(viewModel.readyState.submitError)
             assertEquals(NewMeetingViewActions.Success(NewMeetingResult.Updated), awaitItem())
             cancelAndConsumeRemainingEvents()
         }
@@ -936,7 +1029,7 @@ class NewMeetingViewModelTest {
         )
 
         advanceUntilIdle()
-        assertEquals(Meeting.Type.IMMEDIATE, viewModel.state.meetingType)
+        assertEquals(Meeting.Type.IMMEDIATE, viewModel.readyState.meetingType)
         enterTitle(viewModel, "Updated immediate meeting")
 
         viewModel.submitUpdate()
@@ -989,10 +1082,10 @@ class NewMeetingViewModelTest {
                 advanceUntilIdle()
 
                 coVerify(exactly = 1) { arrangement.updateMeeting(editType.id, updateMeeting) }
-                assertNull(viewModel.state.startTimeError)
-                assertNull(viewModel.state.endTimeError)
-                assertFalse(viewModel.state.isSubmitting)
-                assertNull(viewModel.state.submitError)
+                assertNull(viewModel.readyState.startTimeError)
+                assertNull(viewModel.readyState.endTimeError)
+                assertFalse(viewModel.readyState.isSubmitting)
+                assertNull(viewModel.readyState.submitError)
                 assertEquals(NewMeetingViewActions.Success(NewMeetingResult.Updated), awaitItem())
                 cancelAndConsumeRemainingEvents()
             }
@@ -1026,9 +1119,9 @@ class NewMeetingViewModelTest {
 
             coVerify(exactly = 1) { arrangement.updateMeeting(editType.id, any()) }
             expectNoEvents()
-            assertFalse(viewModel.state.isSubmitting)
-            assertEquals(true, viewModel.state.continueButtonEnabled)
-            assertEquals(NewMeetingState.SubmitError.Other, viewModel.state.submitError)
+            assertFalse(viewModel.readyState.isSubmitting)
+            assertEquals(true, viewModel.readyState.continueButtonEnabled)
+            assertEquals(NewMeetingState.SubmitError.Other, viewModel.readyState.submitError)
         }
     }
 
@@ -1063,11 +1156,11 @@ class NewMeetingViewModelTest {
 
             coVerify(exactly = 1) { arrangement.updateMeeting(editType.id, any()) }
             expectNoEvents()
-            assertFalse(viewModel.state.isSubmitting)
-            assertEquals(true, viewModel.state.continueButtonEnabled)
+            assertFalse(viewModel.readyState.isSubmitting)
+            assertEquals(true, viewModel.readyState.continueButtonEnabled)
             assertEquals(
                 NewMeetingState.SubmitError.UpdateConversationNameFailure(nextOccurrence.meeting.conversationId),
-                viewModel.state.submitError
+                viewModel.readyState.submitError
             )
         }
     }
@@ -1105,11 +1198,11 @@ class NewMeetingViewModelTest {
 
                 coVerify(exactly = 1) { arrangement.updateMeeting(editType.id, any()) }
                 expectNoEvents()
-                assertFalse(viewModel.state.isSubmitting)
-                assertEquals(true, viewModel.state.continueButtonEnabled)
+                assertFalse(viewModel.readyState.isSubmitting)
+                assertEquals(true, viewModel.readyState.continueButtonEnabled)
                 assertEquals(
                     NewMeetingState.SubmitError.UpdateConversationNameFailure(failedConversationId),
-                    viewModel.state.submitError
+                    viewModel.readyState.submitError
                 )
             }
         }
@@ -1134,7 +1227,7 @@ class NewMeetingViewModelTest {
                     conversationName = "Weekly sync"
                 )
             }
-            assertNull(viewModel.state.submitError)
+            assertNull(viewModel.readyState.submitError)
             assertEquals(NewMeetingViewActions.Success(NewMeetingResult.Updated), awaitItem())
             cancelAndConsumeRemainingEvents()
         }
@@ -1166,7 +1259,7 @@ class NewMeetingViewModelTest {
                     )
                 }
                 expectNoEvents()
-                assertEquals(NewMeetingState.SubmitError.UpdateConversationNameFailure(conversationId), viewModel.state.submitError)
+                assertEquals(NewMeetingState.SubmitError.UpdateConversationNameFailure(conversationId), viewModel.readyState.submitError)
             }
         }
 
@@ -1182,8 +1275,8 @@ class NewMeetingViewModelTest {
                 coVerify(exactly = 0) { arrangement.createNewMeeting(any()) }
                 coVerify(exactly = 0) { arrangement.updateMeeting(any(), any()) }
                 expectNoEvents()
-                assertEquals(NewMeetingState.TitleError.TitleEmptyError, viewModel.state.titleError)
-                assertFalse(viewModel.state.continueButtonEnabled)
+                assertEquals(NewMeetingState.TitleError.TitleEmptyError, viewModel.readyState.titleError)
+                assertFalse(viewModel.readyState.continueButtonEnabled)
             }
         }
     }
@@ -1207,8 +1300,8 @@ class NewMeetingViewModelTest {
             coVerify(exactly = 0) { arrangement.createNewMeeting(any()) }
             coVerify(exactly = 0) { arrangement.updateMeeting(any(), any()) }
             expectNoEvents()
-            assertEquals(NewMeetingState.TimeError.StartTimeInPastError, viewModel.state.startTimeError)
-            assertFalse(viewModel.state.continueButtonEnabled)
+            assertEquals(NewMeetingState.TimeError.StartTimeInPastError, viewModel.readyState.startTimeError)
+            assertFalse(viewModel.readyState.continueButtonEnabled)
         }
     }
 
@@ -1235,11 +1328,11 @@ class NewMeetingViewModelTest {
         coVerify(exactly = 1) { arrangement.getNextUnfinishedMeetingOccurrence(editType.id, currentTime) }
         assertEquals(editType, viewModel.type)
         assertEquals(nextOccurrence.meeting.title, viewModel.titleTextState.text.toString())
-        assertEquals(nextOccurrence.occurrenceStartTime, viewModel.state.startTime)
-        assertEquals(nextOccurrence.occurrenceEndTime, viewModel.state.endTime)
-        assertEquals(nextOccurrence.meeting.recurrence?.frequency, viewModel.state.repeatingInterval?.frequency)
-        assertEquals(nextOccurrence.meeting.recurrence?.interval?.toInt(), viewModel.state.repeatingInterval?.interval)
-        assertEquals(NewMeetingState.InitialLoadingState.Loaded, viewModel.state.initialLoading)
+        assertEquals(nextOccurrence.occurrenceStartTime, viewModel.readyState.startTime)
+        assertEquals(nextOccurrence.occurrenceEndTime, viewModel.readyState.endTime)
+        assertEquals(nextOccurrence.meeting.recurrence?.frequency, viewModel.readyState.repeatingInterval?.frequency)
+        assertEquals(nextOccurrence.meeting.recurrence?.interval?.toInt(), viewModel.readyState.repeatingInterval?.interval)
+        assertTrue(viewModel.state is NewMeetingState.Ready)
     }
 
     @Suppress("UnusedFlow")
@@ -1267,9 +1360,9 @@ class NewMeetingViewModelTest {
             )
 
             coVerify(exactly = 1) { arrangement.observeConversationMembers(MEETING_OCCURRENCE.meeting.conversationId) }
-            assertEquals(setOf(firstContact, secondContact), viewModel.state.selectedContacts.toSet())
-            assertEquals(setOf(firstContact, secondContact), viewModel.state.confirmedContacts.toSet())
-            assertEquals(NewMeetingState.InitialLoadingState.Loaded, viewModel.state.initialLoading)
+            assertEquals(setOf(firstContact, secondContact), viewModel.readyState.selectedContacts.toSet())
+            assertEquals(setOf(firstContact, secondContact), viewModel.readyState.confirmedContacts.toSet())
+            assertTrue(viewModel.state is NewMeetingState.Ready)
         }
 
     @Test
@@ -1286,9 +1379,9 @@ class NewMeetingViewModelTest {
         coVerify(exactly = 1) { arrangement.getNextUnfinishedMeetingOccurrence(editType.id, currentTime) }
         assertEquals(editType, viewModel.type)
         assertEquals("", viewModel.titleTextState.text.toString())
-        assertEquals(currentTime + 1.hours, viewModel.state.startTime)
-        assertEquals(currentTime + 2.hours, viewModel.state.endTime)
-        assertEquals(NewMeetingState.InitialLoadingState.Loaded, viewModel.state.initialLoading)
+        assertEquals(currentTime + 1.hours, viewModel.readyState.startTime)
+        assertEquals(currentTime + 2.hours, viewModel.readyState.endTime)
+        assertTrue(viewModel.state is NewMeetingState.Ready)
     }
 
     @Test
@@ -1303,7 +1396,7 @@ class NewMeetingViewModelTest {
         )
 
         coVerify(exactly = 1) { arrangement.getNextUnfinishedMeetingOccurrence(editType.id, currentTime) }
-        assertEquals(NewMeetingState.InitialLoadingState.Error, viewModel.state.initialLoading)
+        assertEquals(NewMeetingState.Error, viewModel.state)
     }
 
     @Test
@@ -1362,8 +1455,8 @@ class NewMeetingViewModelTest {
             )
 
             coVerify(exactly = 1) { arrangement.getNextUnfinishedMeetingOccurrence(editType.id, currentTime) }
-            assertEquals(meetingTimeZoneId, viewModel.state.tzid)
-            assertEquals(NewMeetingState.InitialLoadingState.Loaded, viewModel.state.initialLoading)
+            assertEquals(meetingTimeZoneId, viewModel.readyState.tzid)
+            assertTrue(viewModel.state is NewMeetingState.Ready)
         }
 
     @Test
@@ -1491,7 +1584,7 @@ class NewMeetingViewModelTest {
 
             verify(exactly = 0) { arrangement.validatePassword(any()) }
             coVerify(exactly = 1) { arrangement.createNewMeeting(match { it.password == null && it.type == expectedType }) }
-            assertFalse(viewModel.state.hasPasswordError)
+            assertFalse(viewModel.readyState.hasPasswordError)
         }
     }
 
@@ -1517,7 +1610,7 @@ class NewMeetingViewModelTest {
             verify(exactly = 1) { arrangement.validatePassword(password) }
             coVerify(exactly = 1) { arrangement.createNewMeeting(match { it.password == password && it.type == expectedType }) }
             assertEquals(password, viewModel.confirmPasswordTextState.text.toString())
-            assertFalse(viewModel.state.hasPasswordError)
+            assertFalse(viewModel.readyState.hasPasswordError)
         }
     }
 
@@ -1537,11 +1630,11 @@ class NewMeetingViewModelTest {
             viewModel.submitCreation()
             advanceUntilIdle()
             enterTitle(viewModel, "Updated title")
-            viewModel.updateEndTime(viewModel.state.endTime + 1.hours)
+            viewModel.updateEndTime(viewModel.readyState.endTime + 1.hours)
 
-            assertEquals(true, viewModel.state.invalidPassword)
-            assertFalse(viewModel.state.passwordsDoNotMatch)
-            assertFalse(viewModel.state.continueButtonEnabled)
+            assertEquals(true, viewModel.readyState.invalidPassword)
+            assertFalse(viewModel.readyState.passwordsDoNotMatch)
+            assertFalse(viewModel.readyState.continueButtonEnabled)
             coVerify(exactly = 0) { arrangement.createNewMeeting(any()) }
         }
     }
@@ -1564,8 +1657,8 @@ class NewMeetingViewModelTest {
             viewModel.passwordTextState.setTextAndPlaceCursorAtEnd("")
             advanceUntilIdle()
 
-            assertFalse(viewModel.state.invalidPassword)
-            assertEquals(true, viewModel.state.continueButtonEnabled)
+            assertFalse(viewModel.readyState.invalidPassword)
+            assertEquals(true, viewModel.readyState.continueButtonEnabled)
             viewModel.submitCreation()
             advanceUntilIdle()
             verify(exactly = 1) { arrangement.validatePassword(any()) }
@@ -1598,7 +1691,7 @@ class NewMeetingViewModelTest {
             verify(exactly = 1) { arrangement.generatePassword(minLength = 8, maxLength = 8) }
             verify(exactly = 1) { arrangement.validatePassword(password) }
             coVerify(exactly = 1) { arrangement.createNewMeeting(match { it.password == password && it.type == expectedType }) }
-            assertFalse(viewModel.state.hasPasswordError)
+            assertFalse(viewModel.readyState.hasPasswordError)
         }
     }
 
@@ -1621,27 +1714,27 @@ class NewMeetingViewModelTest {
 
             viewModel.submitCreation()
             advanceUntilIdle()
-            assertEquals(true, viewModel.state.invalidPassword)
-            assertFalse(viewModel.state.continueButtonEnabled)
+            assertEquals(true, viewModel.readyState.invalidPassword)
+            assertFalse(viewModel.readyState.continueButtonEnabled)
 
             viewModel.passwordTextState.setTextAndPlaceCursorAtEnd("still invalid")
             advanceUntilIdle()
 
-            assertFalse(viewModel.state.hasPasswordError)
-            assertEquals(true, viewModel.state.continueButtonEnabled)
+            assertFalse(viewModel.readyState.hasPasswordError)
+            assertEquals(true, viewModel.readyState.continueButtonEnabled)
             verify(exactly = 1) { arrangement.validatePassword(any()) }
             viewModel.submitCreation()
             advanceUntilIdle()
-            assertEquals(true, viewModel.state.invalidPassword)
-            assertFalse(viewModel.state.continueButtonEnabled)
+            assertEquals(true, viewModel.readyState.invalidPassword)
+            assertFalse(viewModel.readyState.continueButtonEnabled)
             coVerify(exactly = 0) { arrangement.createNewMeeting(any()) }
 
             viewModel.passwordTextState.setTextAndPlaceCursorAtEnd(password)
             viewModel.confirmPasswordTextState.setTextAndPlaceCursorAtEnd(password)
             advanceUntilIdle()
 
-            assertFalse(viewModel.state.hasPasswordError)
-            assertEquals(true, viewModel.state.continueButtonEnabled)
+            assertFalse(viewModel.readyState.hasPasswordError)
+            assertEquals(true, viewModel.readyState.continueButtonEnabled)
             viewModel.submitCreation()
             advanceUntilIdle()
             coVerify(exactly = 1) { arrangement.createNewMeeting(match { it.password == password }) }
@@ -1679,8 +1772,8 @@ class NewMeetingViewModelTest {
                 viewModel.submitCreation()
                 advanceUntilIdle()
 
-                assertFalse(viewModel.state.isGuestLinkSharingEnabled)
-                assertFalse(viewModel.state.invalidPassword)
+                assertFalse(viewModel.readyState.isGuestLinkSharingEnabled)
+                assertFalse(viewModel.readyState.invalidPassword)
                 verify(exactly = 0) { arrangement.generatePassword(any(), any()) }
                 verify(exactly = 0) { arrangement.validatePassword(any()) }
                 coVerify(exactly = 1) { arrangement.createNewMeeting(match { it.password == null }) }
@@ -1698,8 +1791,8 @@ class NewMeetingViewModelTest {
                     .withNewMeetingType(type)
                 .withCreateMeetingResult(CreateNewMeetingUseCase.Result.Success(CONVERSATION_ID, CREATED_MEETING_ID))
             )
-            assertEquals(true, viewModel.state.isGuestLinkSharingEnabled)
-            assertEquals(NewMeetingState.InitialLoadingState.Loaded, viewModel.state.initialLoading)
+            assertEquals(true, viewModel.readyState.isGuestLinkSharingEnabled)
+            assertTrue(viewModel.state is NewMeetingState.Ready)
             arrangement.withGuestLinkSharingEnabled(false)
             enterTitle(viewModel, "Weekly sync")
             viewModel.passwordTextState.setTextAndPlaceCursorAtEnd(password)
@@ -1709,7 +1802,7 @@ class NewMeetingViewModelTest {
             viewModel.submitCreation()
             advanceUntilIdle()
 
-            assertEquals(true, viewModel.state.isGuestLinkSharingEnabled)
+            assertEquals(true, viewModel.readyState.isGuestLinkSharingEnabled)
             coVerify(exactly = 1) { arrangement.isMeetingsEnabledUseCase.isGuestLinkSharingEnabled() }
             coVerify(exactly = 1) { arrangement.createNewMeeting(match { it.password == password }) }
         }
@@ -1733,11 +1826,11 @@ class NewMeetingViewModelTest {
                 viewModel.submitCreation()
                 advanceUntilIdle()
                 enterTitle(viewModel, "Updated title")
-                viewModel.updateEndTime(viewModel.state.endTime + 1.hours)
+                viewModel.updateEndTime(viewModel.readyState.endTime + 1.hours)
 
-                assertEquals(true, viewModel.state.passwordsDoNotMatch)
-                assertFalse(viewModel.state.invalidPassword)
-                assertFalse(viewModel.state.continueButtonEnabled)
+                assertEquals(true, viewModel.readyState.passwordsDoNotMatch)
+                assertFalse(viewModel.readyState.invalidPassword)
+                assertFalse(viewModel.readyState.continueButtonEnabled)
                 coVerify(exactly = 0) { arrangement.createNewMeeting(any()) }
             }
         }
@@ -1758,13 +1851,13 @@ class NewMeetingViewModelTest {
             advanceUntilIdle()
             viewModel.submitCreation()
             advanceUntilIdle()
-            assertEquals(true, viewModel.state.passwordsDoNotMatch)
+            assertEquals(true, viewModel.readyState.passwordsDoNotMatch)
 
             viewModel.confirmPasswordTextState.setTextAndPlaceCursorAtEnd(password)
             advanceUntilIdle()
 
-            assertFalse(viewModel.state.passwordsDoNotMatch)
-            assertEquals(true, viewModel.state.continueButtonEnabled)
+            assertFalse(viewModel.readyState.passwordsDoNotMatch)
+            assertEquals(true, viewModel.readyState.continueButtonEnabled)
             viewModel.submitCreation()
             advanceUntilIdle()
             coVerify(exactly = 1) { arrangement.createNewMeeting(match { it.password == password }) }
@@ -1786,7 +1879,7 @@ class NewMeetingViewModelTest {
             viewModel.submitCreation()
             advanceUntilIdle()
 
-            assertFalse(viewModel.state.hasPasswordError)
+            assertFalse(viewModel.readyState.hasPasswordError)
             verify(exactly = 0) { arrangement.validatePassword(any()) }
             coVerify(exactly = 1) { arrangement.createNewMeeting(match { it.password == null }) }
         }
@@ -1805,23 +1898,23 @@ class NewMeetingViewModelTest {
 
         viewModel.submitUpdate()
         runCurrent()
-        assertTrue(viewModel.state.isSubmitting)
-        assertFalse(viewModel.state.continueButtonEnabled)
+        assertTrue(viewModel.readyState.isSubmitting)
+        assertFalse(viewModel.readyState.continueButtonEnabled)
         viewModel.updateSelectedContact(true, CONTACT)
         viewModel.confirmSelectedContacts()
-        assertFalse(viewModel.state.continueButtonEnabled)
+        assertFalse(viewModel.readyState.continueButtonEnabled)
         viewModel.submitUpdate()
         runCurrent()
         coVerify(exactly = 1) { arrangement.updateMeeting(CREATED_MEETING_ID, any()) }
 
         updateResult.complete(UpdateMeetingUseCase.Result.Failure.Other)
         runCurrent()
-        assertFalse(viewModel.state.isSubmitting)
-        assertTrue(viewModel.state.continueButtonEnabled)
+        assertFalse(viewModel.readyState.isSubmitting)
+        assertTrue(viewModel.readyState.continueButtonEnabled)
         viewModel.updateSelectedEmail(false, "added@example.com")
         viewModel.updateSelectedContact(false, CONTACT)
         viewModel.confirmSelectedContacts()
-        assertFalse(viewModel.state.continueButtonEnabled)
+        assertFalse(viewModel.readyState.continueButtonEnabled)
     }
 
     @Test
@@ -1838,20 +1931,20 @@ class NewMeetingViewModelTest {
             viewModel.submitCreation()
             runCurrent()
 
-            assertEquals(true, viewModel.state.isSubmitting)
-            assertFalse(viewModel.state.continueButtonEnabled)
+            assertEquals(true, viewModel.readyState.isSubmitting)
+            assertFalse(viewModel.readyState.continueButtonEnabled)
             enterTitle(viewModel, "Updated title")
-            assertFalse(viewModel.state.continueButtonEnabled)
-            viewModel.updateStartTime(viewModel.state.startTime + 1.hours)
-            assertFalse(viewModel.state.continueButtonEnabled)
-            viewModel.updateEndTime(viewModel.state.endTime + 1.hours)
-            assertFalse(viewModel.state.continueButtonEnabled)
+            assertFalse(viewModel.readyState.continueButtonEnabled)
+            viewModel.updateStartTime(viewModel.readyState.startTime + 1.hours)
+            assertFalse(viewModel.readyState.continueButtonEnabled)
+            viewModel.updateEndTime(viewModel.readyState.endTime + 1.hours)
+            assertFalse(viewModel.readyState.continueButtonEnabled)
             viewModel.passwordTextState.setTextAndPlaceCursorAtEnd("ValidPassword1!")
             runCurrent()
-            assertFalse(viewModel.state.continueButtonEnabled)
+            assertFalse(viewModel.readyState.continueButtonEnabled)
             viewModel.confirmPasswordTextState.setTextAndPlaceCursorAtEnd("ValidPassword1!")
             runCurrent()
-            assertFalse(viewModel.state.continueButtonEnabled)
+            assertFalse(viewModel.readyState.continueButtonEnabled)
 
             viewModel.submitCreation()
             runCurrent()
@@ -1860,9 +1953,9 @@ class NewMeetingViewModelTest {
             creationResult.complete(CreateNewMeetingUseCase.Result.Failure)
             runCurrent()
 
-            assertFalse(viewModel.state.isSubmitting)
-            assertEquals(NewMeetingState.SubmitError.Other, viewModel.state.submitError)
-            assertEquals(true, viewModel.state.continueButtonEnabled)
+            assertFalse(viewModel.readyState.isSubmitting)
+            assertEquals(NewMeetingState.SubmitError.Other, viewModel.readyState.submitError)
+            assertEquals(true, viewModel.readyState.continueButtonEnabled)
         }
     }
 
@@ -1879,39 +1972,42 @@ class NewMeetingViewModelTest {
             viewModel.submitCreation()
             runCurrent()
 
-            assertEquals(true, viewModel.state.isSubmitting)
-            viewModel.updateStartTime(viewModel.state.startTime + 1.hours)
+            assertEquals(true, viewModel.readyState.isSubmitting)
+            viewModel.updateStartTime(viewModel.readyState.startTime + 1.hours)
 
             enterTitle(viewModel, "x".repeat(NewMeetingViewModel.MEETING_NAME_MAX_COUNT + 1))
-            viewModel.updateEndTime(viewModel.state.startTime + 2.hours)
+            viewModel.updateEndTime(viewModel.readyState.startTime + 2.hours)
             viewModel.passwordTextState.setTextAndPlaceCursorAtEnd("ValidPassword1!")
             viewModel.confirmPasswordTextState.setTextAndPlaceCursorAtEnd("ValidPassword1!")
             runCurrent()
 
-            assertEquals(NewMeetingState.TitleError.TitleExceedsLimitError, viewModel.state.titleError)
-            assertFalse(viewModel.state.continueButtonEnabled)
-            viewModel.updateEndTime(viewModel.state.startTime - 1.minutes)
+            assertEquals(NewMeetingState.TitleError.TitleExceedsLimitError, viewModel.readyState.titleError)
+            assertFalse(viewModel.readyState.continueButtonEnabled)
+            viewModel.updateEndTime(viewModel.readyState.startTime - 1.minutes)
             enterTitle(viewModel, "Updated title")
             viewModel.passwordTextState.setTextAndPlaceCursorAtEnd("DifferentPassword1!")
             viewModel.confirmPasswordTextState.setTextAndPlaceCursorAtEnd("DifferentPassword1!")
             runCurrent()
 
-            assertNull(viewModel.state.titleError)
-            assertEquals(NewMeetingState.TimeError.EndTimeBeforeStartTimeError, viewModel.state.endTimeError)
-            assertFalse(viewModel.state.continueButtonEnabled)
+            assertNull(viewModel.readyState.titleError)
+            assertEquals(NewMeetingState.TimeError.EndTimeBeforeStartTimeError, viewModel.readyState.endTimeError)
+            assertFalse(viewModel.readyState.continueButtonEnabled)
             creationResult.complete(CreateNewMeetingUseCase.Result.Failure)
             runCurrent()
 
-            assertFalse(viewModel.state.isSubmitting)
-            assertEquals(NewMeetingState.SubmitError.Other, viewModel.state.submitError)
-            assertEquals(NewMeetingState.TimeError.EndTimeBeforeStartTimeError, viewModel.state.endTimeError)
-            assertFalse(viewModel.state.continueButtonEnabled)
-            viewModel.updateEndTime(viewModel.state.startTime + 1.hours)
+            assertFalse(viewModel.readyState.isSubmitting)
+            assertEquals(NewMeetingState.SubmitError.Other, viewModel.readyState.submitError)
+            assertEquals(NewMeetingState.TimeError.EndTimeBeforeStartTimeError, viewModel.readyState.endTimeError)
+            assertFalse(viewModel.readyState.continueButtonEnabled)
+            viewModel.updateEndTime(viewModel.readyState.startTime + 1.hours)
 
-            assertNull(viewModel.state.endTimeError)
-            assertEquals(true, viewModel.state.continueButtonEnabled)
+            assertNull(viewModel.readyState.endTimeError)
+            assertEquals(true, viewModel.readyState.continueButtonEnabled)
         }
     }
+
+    private val NewMeetingViewModel.readyState: NewMeetingState.Ready
+        get() = state as NewMeetingState.Ready
 
     private inline fun withCreationTypes(block: (NewMeetingType) -> Unit) =
         listOf(NewMeetingType.MeetNow, NewMeetingType.Schedule).forEach(block)

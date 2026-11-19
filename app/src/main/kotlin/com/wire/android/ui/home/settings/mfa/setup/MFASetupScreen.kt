@@ -21,6 +21,7 @@ package com.wire.android.ui.home.settings.mfa.setup
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -213,7 +214,7 @@ private fun SetupContinueButton(
 }
 
 @Composable
-private fun SetupHeading(step: MFASetupStep) {
+private fun ColumnScope.SetupHeading(step: MFASetupStep) {
     if (step != MFASetupStep.CONFIRM_PASSWORD) {
         SetupProgressLabel(step)
     }

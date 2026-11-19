@@ -63,7 +63,6 @@ internal fun MFARemoveAuthenticatorAppEntry(
         heading = app?.let { stringResource(R.string.mfa_remove_app_heading, it.name) }
             ?: stringResource(R.string.mfa_remove_app),
         description = stringResource(R.string.mfa_remove_app_description),
-        confirmLabel = stringResource(R.string.label_remove),
         password = viewModel.password,
         code = viewModel.code,
         isBusy = state.isBusy || state.isCompleted,

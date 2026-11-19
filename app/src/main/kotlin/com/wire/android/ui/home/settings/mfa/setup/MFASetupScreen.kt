@@ -57,7 +57,6 @@ import com.wire.android.ui.home.settings.mfa.components.MFARecoveryCodesContent
 import com.wire.android.ui.home.settings.mfa.components.RecoveryCodesBackHandler
 import com.wire.android.ui.home.settings.mfa.components.rememberAuthenticatorLinkActions
 import com.wire.android.ui.home.settings.mfa.components.rememberRecoveryCodeActions
-import com.wire.kalium.logic.data.mfa.MFAConstraints.AUTHENTICATION_CODE_LENGTH
 import com.wire.kalium.logic.data.mfa.MFAEnrollment
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
@@ -137,7 +136,7 @@ internal fun MFASetupContent(
             )
         },
         bottomBar = {
-            SetupContinueButton(step, state, password, code, name, onContinue)
+            SetupContinueButton(step, state, password, name, onContinue)
         }
     ) { padding ->
         Column(
@@ -181,6 +180,7 @@ internal fun MFASetupContent(
                     code = code,
                     isBusy = state.isBusy,
                     isInvalid = state.error == MFASetupError.INVALID_CODE,
+                    onCodeComplete = onContinue,
                 )
                 MFASetupStep.RECOVERY_CODES -> MFARecoveryCodesContent(
                     codes = state.recoveryCodes,
@@ -206,13 +206,12 @@ private fun SetupContinueButton(
     step: MFASetupStep,
     state: MFASetupState,
     password: TextFieldState,
-    code: TextFieldState,
     name: TextFieldState,
     onContinue: () -> Unit,
 ) {
+    if (step == MFASetupStep.VERIFY_CODE) return
     val enabled = !state.isBusy && when (step) {
         MFASetupStep.CONFIRM_PASSWORD -> password.text.isNotBlank()
-        MFASetupStep.VERIFY_CODE -> code.text.length == AUTHENTICATION_CODE_LENGTH
         MFASetupStep.RECOVERY_CODES -> state.recoveryCodesSaved && state.recoveryCodes.isNotEmpty()
         MFASetupStep.NAME_APP -> name.text.isNotBlank()
         else -> state.enrollment != null
@@ -220,7 +219,6 @@ private fun SetupContinueButton(
     WirePrimaryButton(
         text = stringResource(
             when (step) {
-                MFASetupStep.VERIFY_CODE -> R.string.mfa_verify
                 MFASetupStep.RECOVERY_CODES -> R.string.mfa_finish_setup
                 MFASetupStep.NAME_APP -> R.string.mfa_add_app
                 else -> R.string.label_continue

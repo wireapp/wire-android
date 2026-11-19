@@ -30,8 +30,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import com.wire.android.ui.common.button.WireButtonState
-import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.textfield.WirePasswordTextField
@@ -46,7 +44,6 @@ internal fun MFACredentialsScreen(
     title: String,
     heading: String,
     description: String,
-    confirmLabel: String,
     password: TextFieldState,
     code: TextFieldState,
     isBusy: Boolean,
@@ -63,16 +60,6 @@ internal fun MFACredentialsScreen(
                 title = title,
                 onNavigationPressed = onBack,
                 elevation = dimensions().spacing0x,
-            )
-        },
-        bottomBar = {
-            val enabled = !isBusy && actionAvailable && canSubmitMFACredentials(password.text, code.text)
-            WirePrimaryButton(
-                text = confirmLabel,
-                onClick = onConfirm,
-                state = if (enabled) WireButtonState.Error else WireButtonState.Disabled,
-                loading = isBusy,
-                modifier = Modifier.padding(dimensions().spacing16x),
             )
         }
     ) { padding ->
@@ -91,7 +78,13 @@ internal fun MFACredentialsScreen(
             )
             val fieldState = if (isBusy) WireTextFieldState.Disabled else WireTextFieldState.Default
             WirePasswordTextField(textState = password, state = fieldState)
-            MFACodeInput(code = code, isBusy = isBusy, isInvalid = isCodeInvalid)
+            MFACodeInput(
+                code = code,
+                isBusy = isBusy,
+                isInvalid = isCodeInvalid,
+                canSubmit = actionAvailable && password.text.isNotBlank(),
+                onCodeComplete = onConfirm,
+            )
             errorText?.let { error ->
                 Text(
                     text = error,

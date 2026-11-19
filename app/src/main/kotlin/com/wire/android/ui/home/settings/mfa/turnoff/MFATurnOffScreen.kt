@@ -39,7 +39,6 @@ internal fun MFATurnOffScreen(
         title = stringResource(R.string.mfa_turn_off_title),
         heading = stringResource(R.string.mfa_turn_off_heading),
         description = stringResource(R.string.mfa_turn_off_description),
-        confirmLabel = stringResource(R.string.mfa_turn_off),
         password = password,
         code = code,
         isBusy = state.isBusy,

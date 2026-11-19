@@ -1,0 +1,16 @@
+Neu
+Drive: Mehrere Dateien oder Ordner zeitgleich verschieben oder löschen
+
+Verbessert
+„Warten auf Netzwerk“ wird nur bei Netzwerkproblemen angezeigt
+
+Barrierefreiheit:
+Tastaturfokus
+Drive: Berechtigungen
+
+Behoben
+App geschlossen, als Bildschirmfreigabe beendet wurde
+„Screenshots verhindern” nicht geräteübergreifend synchronisiert
+Nach Abmelden und Löschen der Daten waren Einträge im Cache
+Profilnamen in Gruppen falsch angezeigt
+Synchronisieren der Kontaktliste

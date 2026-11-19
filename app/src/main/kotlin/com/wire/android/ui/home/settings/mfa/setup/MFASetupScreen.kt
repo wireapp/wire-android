@@ -266,21 +266,51 @@ private fun SetupDescription(text: String) {
 
 @PreviewMultipleThemes
 @Composable
-private fun PreviewMFASetup() = WireTheme {
+private fun PreviewMFASetupConfirmPassword() = MFASetupPreviewContent(MFASetupStep.CONFIRM_PASSWORD)
+
+@PreviewMultipleThemes
+@Composable
+private fun PreviewMFASetupLinkAuthenticator() = MFASetupPreviewContent(MFASetupStep.LINK_AUTHENTICATOR)
+
+@PreviewMultipleThemes
+@Composable
+private fun PreviewMFASetupManualKey() = MFASetupPreviewContent(MFASetupStep.MANUAL_KEY)
+
+@PreviewMultipleThemes
+@Composable
+private fun PreviewMFASetupVerifyCode() = MFASetupPreviewContent(MFASetupStep.VERIFY_CODE)
+
+@PreviewMultipleThemes
+@Composable
+private fun PreviewMFASetupRecoveryCodes() = MFASetupPreviewContent(MFASetupStep.RECOVERY_CODES)
+
+@Composable
+private fun MFASetupPreviewContent(step: MFASetupStep) = WireTheme {
+    val enrollment = remember {
+        MFAEnrollment(
+            id = "demo",
+            account = "demo@wire.example",
+            setupKey = "JBSWY3DPEHPK3PXP",
+            authenticatorUri = "otpauth://totp/Wire:demo@wire.example?secret=JBSWY3DPEHPK3PXP&issuer=Wire" +
+                "&algorithm=SHA1&digits=6&period=30",
+        )
+    }
+    val recoveryCodes = remember { List(10) { "ABCD-${1234 + it}" } }
     MFASetupContent(
-        step = MFASetupStep.LINK_AUTHENTICATOR,
+        step = step,
         state = MFASetupState(
-            enrollment = MFAEnrollment(
-                id = "demo",
-                account = "demo@wire.example",
-                setupKey = "JBSWY3DPEHPK3PXP",
-                authenticatorUri = "otpauth://totp/Wire:demo@wire.example?secret=JBSWY3DPEHPK3PXP&issuer=Wire" +
-                    "&algorithm=SHA1&digits=6&period=30",
-            ),
+            enrollment = if (step == MFASetupStep.CONFIRM_PASSWORD) null else enrollment,
+            recoveryCodes = if (step == MFASetupStep.RECOVERY_CODES) recoveryCodes else emptyList(),
         ),
         password = remember { TextFieldState() },
         code = remember { TextFieldState() },
-        onBack = {}, onContinue = {}, onOpenAuthenticator = {}, onManualKey = {}, onCopyKey = {},
-        onCopyCodes = {}, onDownloadCodes = {}, onCodesSaved = {},
+        onBack = {},
+        onContinue = {},
+        onOpenAuthenticator = {},
+        onManualKey = {},
+        onCopyKey = {},
+        onCopyCodes = {},
+        onDownloadCodes = {},
+        onCodesSaved = {},
     )
 }

@@ -1,0 +1,16 @@
+New
+Drive: Select multiple files or folders and move or delete them at once
+
+Improvements
+"Waiting for network" shows only for real network problems
+
+Accessibility:
+Keyboard focus
+Drive: Permissions
+
+Fixes
+App closed when the screen sharing closed
+Censor screenshots option was not synced across devices
+Remaining items in cache after logout and data deletion
+Profile names in groups were not shown correctly
+Issue syncing contact list with new team members

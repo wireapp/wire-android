@@ -47,11 +47,29 @@ private fun com.wire.android.feature.meetings.ui.NewMeetingParticipantsNavigatio
     - actions: UNKNOWN (interface or non-final class; concrete implementation unknown)
 
 @Composable
+private fun com.wire.android.feature.meetings.ui.create.ClearInputIconButton(state: androidx.compose.foundation.text.input.TextFieldState): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - state: STABLE (marked @Stable or @Immutable)
+
+@Composable
 internal fun com.wire.android.feature.meetings.ui.create.FailedToLoadEditMeetingDataError(navigateBack: kotlin.Function0<kotlin.Unit>): kotlin.Unit
   skippable: true
   restartable: true
   params:
     - navigateBack: STABLE (function type)
+
+@Composable
+private fun com.wire.android.feature.meetings.ui.create.MeetingPasswordInput(passwordState: androidx.compose.foundation.text.input.TextFieldState, confirmPasswordState: androidx.compose.foundation.text.input.TextFieldState, invalidPassword: kotlin.Boolean, passwordsDoNotMatch: kotlin.Boolean, onGenerateRandomPassword: kotlin.Function0<kotlin.Unit>): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - passwordState: STABLE (marked @Stable or @Immutable)
+    - confirmPasswordState: STABLE (marked @Stable or @Immutable)
+    - invalidPassword: STABLE (primitive type)
+    - passwordsDoNotMatch: STABLE (primitive type)
+    - onGenerateRandomPassword: STABLE (function type)
 
 @Composable
 public fun com.wire.android.feature.meetings.ui.create.NewMeetingContent(state: com.wire.android.feature.meetings.ui.create.NewMeetingState, titleState: androidx.compose.foundation.text.input.TextFieldState, passwordState: androidx.compose.foundation.text.input.TextFieldState, confirmPasswordState: androidx.compose.foundation.text.input.TextFieldState, type: com.wire.android.feature.meetings.ui.create.NewMeetingType, modifier: androidx.compose.ui.Modifier, onGenerateRandomPassword: kotlin.Function0<kotlin.Unit>, onBackPressed: kotlin.Function0<kotlin.Unit>, onParticipantsClicked: kotlin.Function0<kotlin.Unit>, onCreateClicked: kotlin.Function0<kotlin.Unit>, onUpdateClicked: kotlin.Function0<kotlin.Unit>, onStartTimeChanged: kotlin.Function1<@[ParameterName(name = \, onEndTimeChanged: kotlin.Function1<@[ParameterName(name = \, onRepeatingIntervalChanged: kotlin.Function1<@[ParameterName(name = \): kotlin.Unit
@@ -100,17 +118,6 @@ private fun com.wire.android.feature.meetings.ui.create.ParticipantsInput(partic
   params:
     - participants: STABLE (known stable type)
     - onClick: STABLE (function type)
-
-@Composable
-private fun com.wire.android.feature.meetings.ui.create.PasswordInput(passwordState: androidx.compose.foundation.text.input.TextFieldState, confirmPasswordState: androidx.compose.foundation.text.input.TextFieldState, invalidPassword: kotlin.Boolean, passwordsDoNotMatch: kotlin.Boolean, onGenerateRandomPassword: kotlin.Function0<kotlin.Unit>): kotlin.Unit
-  skippable: true
-  restartable: true
-  params:
-    - passwordState: STABLE (marked @Stable or @Immutable)
-    - confirmPasswordState: STABLE (marked @Stable or @Immutable)
-    - invalidPassword: STABLE (primitive type)
-    - passwordsDoNotMatch: STABLE (primitive type)
-    - onGenerateRandomPassword: STABLE (function type)
 
 @Composable
 private fun com.wire.android.feature.meetings.ui.create.RepeatingIntervalDropDown(repeatingInterval: com.wire.android.feature.meetings.model.MeetingItem.RepeatingInterval?, onRepeatingIntervalChanged: kotlin.Function1<com.wire.android.feature.meetings.model.MeetingItem.RepeatingInterval?, kotlin.Unit>): kotlin.Unit

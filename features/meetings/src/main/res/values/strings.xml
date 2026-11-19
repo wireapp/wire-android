@@ -132,9 +132,10 @@
     <string name="meeting_share_link_unavailable">The meeting link is unavailable.</string>
     <string name="meeting_share_copy_link">Copy Link</string>
     <string name="meeting_share_link_copied">Link copied to clipboard</string>
-    <string name="new_meeting_password_input_label">Optional: set a password on the meeting link</string>
+    <string name="new_meeting_password_input_label">Set password</string>
     <string name="new_meeting_password_input_placeholder">Enter password</string>
-    <string name="new_meeting_password_description">Make sure to share the password with your guests.</string>
+    <string name="new_meeting_password_info">Set a password on the meeting link (optional).</string>
+    <string name="new_meeting_password_copy_info">Copy this password before creating the link. You won\'t be able to view it again.</string>
     <string name="new_meeting_password_error">Use at least 8 characters, with one lowercase letter, one capital letter, a number, and a special character.</string>
     <string name="new_meeting_confirm_password_input_label">Confirm password</string>
     <string name="new_meeting_confirm_password_input_placeholder">Re-enter password</string>

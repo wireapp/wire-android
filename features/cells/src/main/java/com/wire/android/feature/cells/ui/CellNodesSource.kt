@@ -110,6 +110,8 @@ class CellNodesSource @Inject constructor(
                 when (entry) {
                     is OfflineListingEntry.FolderEntry -> entry.toCellNodeUi()
                     is OfflineListingEntry.FileEntry -> entry.info.toOfflineUiModel(
+                        conversationName = entry.info.conversationId?.let { getConversationName(it) },
+                        userName = entry.info.owner.ifEmpty { null }?.let { getUserName(it) },
                         openLoadState = openLoadStates[entry.info.id],
                         downloadProgress = downloadStates.progresses.downloadProgressOf(entry.info.id),
                     )

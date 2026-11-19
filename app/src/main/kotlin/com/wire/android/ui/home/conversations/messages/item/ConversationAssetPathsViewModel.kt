@@ -26,6 +26,7 @@ import com.wire.kalium.logic.data.asset.AssetTransferStatus
 import com.wire.kalium.logic.data.asset.AssetTransferStatus.DOWNLOAD_IN_PROGRESS
 import com.wire.kalium.logic.data.asset.AssetTransferStatus.FAILED_UPLOAD
 import com.wire.kalium.logic.data.asset.AssetTransferStatus.NOT_DOWNLOADED
+import com.wire.kalium.logic.data.asset.AssetTransferStatus.SAVED_EXTERNALLY
 import com.wire.kalium.logic.data.asset.AssetTransferStatus.SAVED_INTERNALLY
 import com.wire.kalium.logic.data.asset.AssetTransferStatus.UPLOADED
 import com.wire.kalium.logic.data.id.ConversationId
@@ -107,7 +108,7 @@ class ConversationAssetPathsViewModelImpl @Inject constructor(
 
 internal fun AssetTransferStatus.shouldResolveAsset(downloadIfNeeded: Boolean) =
     if (downloadIfNeeded) {
-        this in setOf(NOT_DOWNLOADED, DOWNLOAD_IN_PROGRESS, SAVED_INTERNALLY, UPLOADED, FAILED_UPLOAD)
+        this in setOf(NOT_DOWNLOADED, DOWNLOAD_IN_PROGRESS, SAVED_INTERNALLY, SAVED_EXTERNALLY, UPLOADED, FAILED_UPLOAD)
     } else {
-        this in setOf(SAVED_INTERNALLY, UPLOADED, FAILED_UPLOAD)
+        this in setOf(SAVED_INTERNALLY, SAVED_EXTERNALLY, UPLOADED, FAILED_UPLOAD)
     }

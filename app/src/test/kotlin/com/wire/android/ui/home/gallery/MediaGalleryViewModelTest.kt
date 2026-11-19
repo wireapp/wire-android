@@ -410,6 +410,23 @@ class MediaGalleryViewModelTest {
     }
 
     @Test
+    fun givenMenuShown_whenMenuIntentHandled_thenMenuItemsClearedAndCanBeShownAgain() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withNavArgs(messageOptionsEnabled = false, isEphemeral = false)
+            .withConversationDetails(mockedConversationDetails())
+            .arrange()
+
+        viewModel.onOptionsClick()
+        viewModel.onMenuIntent(MenuIntent.Delete)
+
+        assertTrue(viewModel.mediaGalleryViewState.menuItems.isEmpty())
+
+        viewModel.onOptionsClick()
+
+        assertTrue(viewModel.mediaGalleryViewState.menuItems.isNotEmpty())
+    }
+
+    @Test
     fun givenMessageMenuOptionsDisabledAndEphemeral_whenShowingMenu_thenCorrectMenuItemsShown() = runTest {
         val (_, viewModel) = Arrangement()
             .withNavArgs(messageOptionsEnabled = false, isEphemeral = true)

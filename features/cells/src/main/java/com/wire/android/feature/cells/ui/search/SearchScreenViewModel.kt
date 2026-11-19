@@ -111,8 +111,6 @@ private val notLoading = LoadStates(
     append = LoadState.NotLoading(true),
 )
 
-private fun List<FetchUpdate>.missedBy(fetch: Int): List<CellNodeUpdate> = filter { it.fetch >= fetch }.map { it.update }
-
 @Suppress("TooManyFunctions", "LongParameterList")
 class SearchScreenViewModel @AssistedInject constructor(
     @Assisted private val navArgs: SearchNavArgs,
@@ -543,3 +541,11 @@ fun defaultCriteriaFor(by: SortBy): SortingCriteria = when (by) {
     SortBy.Name -> SortingCriteria.ByName.AtoZ
     SortBy.Size -> SortingCriteria.BySize.SmallestFirst
 }
+
+/**
+ * The changes the results of the [fetch]-th fetch can miss: those made since it started. Changes made before it are
+ * already on the server it fetched them from, and applying them anyway would hide later changes made elsewhere.
+ */
+private fun List<FetchUpdate>.missedBy(fetch: Int): List<CellNodeUpdate> = filter {
+    it.fetch >= fetch
+}.map { it.update }

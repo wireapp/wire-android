@@ -137,36 +137,13 @@ internal fun MFASetupContent(
         ) {
             SetupHeading(step)
             when (step) {
-                MFASetupStep.CONFIRM_PASSWORD -> {
-                    WirePasswordTextField(
-                        textState = password,
-                        state = if (state.isBusy) WireTextFieldState.Disabled else WireTextFieldState.Default,
-                    )
-                }
-                MFASetupStep.LINK_AUTHENTICATOR -> {
-                    WireSecondaryButton(
-                        text = stringResource(R.string.mfa_open_authenticator),
-                        onClick = onOpenAuthenticator,
-                    )
-                    state.enrollment?.let { enrollment ->
-                        val qrDescription = stringResource(R.string.mfa_qr_description)
-                        QrCodeView(
-                            data = enrollment.authenticatorUri,
-                            dotShape = DotShape.Square,
-                            modifier = Modifier.align(Alignment.CenterHorizontally).size(180.dp).background(Color.White)
-                                .semantics { contentDescription = qrDescription },
-                        )
-                    }
-                    WireSecondaryButton(text = stringResource(R.string.mfa_manual_key), onClick = onManualKey)
-                }
-                MFASetupStep.MANUAL_KEY -> {
-                    state.enrollment?.let { enrollment ->
-                        Text(enrollment.account, style = MaterialTheme.wireTypography.body01)
-                        Text(enrollment.setupKey, style = MaterialTheme.wireTypography.body01, fontFamily = FontFamily.Monospace)
-                        SetupDescription(stringResource(R.string.mfa_key_type))
-                        WireSecondaryButton(text = stringResource(R.string.mfa_copy_key), onClick = onCopyKey)
-                    }
-                }
+                MFASetupStep.CONFIRM_PASSWORD -> ConfirmPasswordContent(password = password, isBusy = state.isBusy)
+                MFASetupStep.LINK_AUTHENTICATOR -> LinkAuthenticatorContent(
+                    enrollment = state.enrollment,
+                    onOpenAuthenticator = onOpenAuthenticator,
+                    onManualKey = onManualKey,
+                )
+                MFASetupStep.MANUAL_KEY -> ManualKeyContent(enrollment = state.enrollment, onCopyKey = onCopyKey)
                 MFASetupStep.VERIFY_CODE -> MFACodeInput(
                     code = code,
                     isBusy = state.isBusy,
@@ -183,6 +160,46 @@ internal fun MFASetupContent(
             }
             state.error?.let { SetupError(it) }
         }
+    }
+}
+
+@Composable
+private fun ConfirmPasswordContent(password: TextFieldState, isBusy: Boolean) {
+    WirePasswordTextField(
+        textState = password,
+        state = if (isBusy) WireTextFieldState.Disabled else WireTextFieldState.Default,
+    )
+}
+
+@Composable
+private fun ColumnScope.LinkAuthenticatorContent(
+    enrollment: MFAEnrollment?,
+    onOpenAuthenticator: () -> Unit,
+    onManualKey: () -> Unit,
+) {
+    WireSecondaryButton(
+        text = stringResource(R.string.mfa_open_authenticator),
+        onClick = onOpenAuthenticator,
+    )
+    enrollment?.let {
+        val qrDescription = stringResource(R.string.mfa_qr_description)
+        QrCodeView(
+            data = it.authenticatorUri,
+            dotShape = DotShape.Square,
+            modifier = Modifier.align(Alignment.CenterHorizontally).size(180.dp).background(Color.White)
+                .semantics { contentDescription = qrDescription },
+        )
+    }
+    WireSecondaryButton(text = stringResource(R.string.mfa_manual_key), onClick = onManualKey)
+}
+
+@Composable
+private fun ColumnScope.ManualKeyContent(enrollment: MFAEnrollment?, onCopyKey: () -> Unit) {
+    enrollment?.let {
+        Text(it.account, style = MaterialTheme.wireTypography.body01)
+        Text(it.setupKey, style = MaterialTheme.wireTypography.body01, fontFamily = FontFamily.Monospace)
+        SetupDescription(stringResource(R.string.mfa_key_type))
+        WireSecondaryButton(text = stringResource(R.string.mfa_copy_key), onClick = onCopyKey)
     }
 }
 
@@ -264,53 +281,60 @@ private fun SetupDescription(text: String) {
     Text(text, style = MaterialTheme.wireTypography.body01, color = MaterialTheme.wireColorScheme.secondaryText)
 }
 
-@PreviewMultipleThemes
-@Composable
-private fun PreviewMFASetupConfirmPassword() = MFASetupPreviewContent(MFASetupStep.CONFIRM_PASSWORD)
+private object MFASetupPreviews {
+    @JvmStatic
+    @PreviewMultipleThemes
+    @Composable
+    private fun PreviewMFASetupConfirmPassword() = MFASetupPreviewContent(MFASetupStep.CONFIRM_PASSWORD)
 
-@PreviewMultipleThemes
-@Composable
-private fun PreviewMFASetupLinkAuthenticator() = MFASetupPreviewContent(MFASetupStep.LINK_AUTHENTICATOR)
+    @JvmStatic
+    @PreviewMultipleThemes
+    @Composable
+    private fun PreviewMFASetupLinkAuthenticator() = MFASetupPreviewContent(MFASetupStep.LINK_AUTHENTICATOR)
 
-@PreviewMultipleThemes
-@Composable
-private fun PreviewMFASetupManualKey() = MFASetupPreviewContent(MFASetupStep.MANUAL_KEY)
+    @JvmStatic
+    @PreviewMultipleThemes
+    @Composable
+    private fun PreviewMFASetupManualKey() = MFASetupPreviewContent(MFASetupStep.MANUAL_KEY)
 
-@PreviewMultipleThemes
-@Composable
-private fun PreviewMFASetupVerifyCode() = MFASetupPreviewContent(MFASetupStep.VERIFY_CODE)
+    @JvmStatic
+    @PreviewMultipleThemes
+    @Composable
+    private fun PreviewMFASetupVerifyCode() = MFASetupPreviewContent(MFASetupStep.VERIFY_CODE)
 
-@PreviewMultipleThemes
-@Composable
-private fun PreviewMFASetupRecoveryCodes() = MFASetupPreviewContent(MFASetupStep.RECOVERY_CODES)
+    @JvmStatic
+    @PreviewMultipleThemes
+    @Composable
+    private fun PreviewMFASetupRecoveryCodes() = MFASetupPreviewContent(MFASetupStep.RECOVERY_CODES)
 
-@Composable
-private fun MFASetupPreviewContent(step: MFASetupStep) = WireTheme {
-    val enrollment = remember {
-        MFAEnrollment(
-            id = "demo",
-            account = "demo@wire.example",
-            setupKey = "JBSWY3DPEHPK3PXP",
-            authenticatorUri = "otpauth://totp/Wire:demo@wire.example?secret=JBSWY3DPEHPK3PXP&issuer=Wire" +
-                "&algorithm=SHA1&digits=6&period=30",
+    @Composable
+    private fun MFASetupPreviewContent(step: MFASetupStep) = WireTheme {
+        val enrollment = remember {
+            MFAEnrollment(
+                id = "demo",
+                account = "demo@wire.example",
+                setupKey = "JBSWY3DPEHPK3PXP",
+                authenticatorUri = "otpauth://totp/Wire:demo@wire.example?secret=JBSWY3DPEHPK3PXP&issuer=Wire" +
+                    "&algorithm=SHA1&digits=6&period=30",
+            )
+        }
+        val recoveryCodes = remember { List(10) { "ABCD-${1234 + it}" } }
+        MFASetupContent(
+            step = step,
+            state = MFASetupState(
+                enrollment = if (step == MFASetupStep.CONFIRM_PASSWORD) null else enrollment,
+                recoveryCodes = if (step == MFASetupStep.RECOVERY_CODES) recoveryCodes else emptyList(),
+            ),
+            password = remember { TextFieldState() },
+            code = remember { TextFieldState() },
+            onBack = {},
+            onContinue = {},
+            onOpenAuthenticator = {},
+            onManualKey = {},
+            onCopyKey = {},
+            onCopyCodes = {},
+            onDownloadCodes = {},
+            onCodesSaved = {},
         )
     }
-    val recoveryCodes = remember { List(10) { "ABCD-${1234 + it}" } }
-    MFASetupContent(
-        step = step,
-        state = MFASetupState(
-            enrollment = if (step == MFASetupStep.CONFIRM_PASSWORD) null else enrollment,
-            recoveryCodes = if (step == MFASetupStep.RECOVERY_CODES) recoveryCodes else emptyList(),
-        ),
-        password = remember { TextFieldState() },
-        code = remember { TextFieldState() },
-        onBack = {},
-        onContinue = {},
-        onOpenAuthenticator = {},
-        onManualKey = {},
-        onCopyKey = {},
-        onCopyCodes = {},
-        onDownloadCodes = {},
-        onCodesSaved = {},
-    )
 }

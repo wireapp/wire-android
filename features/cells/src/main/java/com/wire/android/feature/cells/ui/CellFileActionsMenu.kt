@@ -34,6 +34,10 @@ class CellFileActionsMenu @Inject constructor(
     @Named("drivePermissionsEnabled") val drivePermissionsEnabled: Boolean,
     @Named("driveOfflineEnabled") private val driveOfflineEnabled: Boolean,
 ) {
+    /**
+     * @param isOfflineOnly whether only the files saved for offline use are listed: the actions changing the node on the
+     * server are left out, see [SERVER_ACTIONS].
+     */
     internal fun buildMenu(
         cellNode: CellNodeUi,
         isRecycleBin: Boolean,
@@ -42,6 +46,28 @@ class CellFileActionsMenu @Inject constructor(
         isSearching: Boolean,
         isCollaboraEnabled: Boolean,
         isOnline: Boolean = true,
+        isOfflineOnly: Boolean = false,
+    ): List<NodeMenuItem> {
+        val menu = buildFullMenu(
+            cellNode = cellNode,
+            isRecycleBin = isRecycleBin,
+            isConversationFiles = isConversationFiles,
+            isAllFiles = isAllFiles,
+            isSearching = isSearching,
+            isCollaboraEnabled = isCollaboraEnabled,
+            isOnline = isOnline,
+        )
+        return if (isOfflineOnly) menu.filterNot { it.action in SERVER_ACTIONS } else menu
+    }
+
+    private fun buildFullMenu(
+        cellNode: CellNodeUi,
+        isRecycleBin: Boolean,
+        isConversationFiles: Boolean,
+        isAllFiles: Boolean,
+        isSearching: Boolean,
+        isCollaboraEnabled: Boolean,
+        isOnline: Boolean,
     ): List<NodeMenuItem> {
         if (offlineFilesEnabled && !isOnline) {
             return buildList {
@@ -190,6 +216,17 @@ class CellFileActionsMenu @Inject constructor(
                 NodeMenuItem(NodeBottomSheetAction.RENAME),
                 NodeMenuItem(NodeBottomSheetAction.DELETE),
             ),
+        )
+    }
+
+    private companion object {
+        // Delete, rename, move to folder, share via link, add or remove tags.
+        val SERVER_ACTIONS = setOf(
+            NodeBottomSheetAction.DELETE,
+            NodeBottomSheetAction.RENAME,
+            NodeBottomSheetAction.MOVE,
+            NodeBottomSheetAction.PUBLIC_LINK,
+            NodeBottomSheetAction.ADD_REMOVE_TAGS,
         )
     }
 

@@ -23,6 +23,7 @@ import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import androidx.paging.map
 import com.wire.android.feature.cells.ui.model.CellNodeUi
+import com.wire.android.feature.cells.ui.model.OpenLoadState
 import com.wire.android.feature.cells.ui.model.toUiModel
 import com.wire.android.feature.cells.ui.offline.SessionOfflineDownloads
 import com.wire.android.feature.cells.ui.search.sort.SortingCriteria
@@ -35,6 +36,7 @@ import com.wire.kalium.cells.domain.usecase.GetPaginatedFilesFlowUseCase
 import com.wire.kalium.cells.domain.usecase.GetUserNameUseCase
 import com.wire.kalium.cells.domain.usecase.IsAtLeastOneCellAvailableUseCase
 import com.wire.kalium.cells.domain.usecase.offline.ObserveOfflineFilesUseCase
+import com.wire.kalium.cells.domain.usecase.offline.OfflineFileInfo
 import com.wire.kalium.common.functional.fold
 import dev.zacsweers.metro.Inject
 import kotlinx.coroutines.CoroutineScope
@@ -107,9 +109,7 @@ class CellNodesSource @Inject constructor(
             data = entries.map { entry ->
                 when (entry) {
                     is OfflineListingEntry.FolderEntry -> entry.toCellNodeUi()
-                    is OfflineListingEntry.FileEntry -> entry.info.toCellNodeUi(
-                        conversationName = entry.info.conversationId?.let { getConversationName(it) },
-                        userName = entry.info.owner.ifEmpty { null }?.let { getUserName(it) },
+                    is OfflineListingEntry.FileEntry -> entry.info.toOfflineUiModel(
                         openLoadState = openLoadStates[entry.info.id],
                         downloadProgress = downloadStates.progresses.downloadProgressOf(entry.info.id),
                     )
@@ -118,6 +118,20 @@ class CellNodesSource @Inject constructor(
             sourceLoadStates = notLoadingStates,
         )
     }
+
+    /** The files saved for offline use matching [search], see [matching]. */
+    internal fun offlineSearchResults(search: OfflineSearch): Flow<List<CellNodeUi.File>> =
+        observeOfflineFiles().map { files -> files.matching(search).map { it.toOfflineUiModel() } }
+
+    private suspend fun OfflineFileInfo.toOfflineUiModel(
+        openLoadState: OpenLoadState? = null,
+        downloadProgress: Float? = null,
+    ): CellNodeUi.File = toCellNodeUi(
+        conversationName = conversationId?.let { getConversationName(it) },
+        userName = owner.ifEmpty { null }?.let { getUserName(it) },
+        openLoadState = openLoadState,
+        downloadProgress = downloadProgress,
+    )
 
     /** Whether something in the folder at [currentPath] is saved for offline use, see [buildOfflineListing]. */
     internal fun hasOfflineFiles(currentPath: String?): Flow<Boolean> =

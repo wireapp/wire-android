@@ -19,6 +19,8 @@ package com.wire.android.ui.common
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.LocalLifecycleOwner
@@ -62,9 +64,12 @@ open class ActionsViewModel<T> : ViewModel(), ActionsManager<T> {
 @Composable
 fun <T> HandleActions(actionsFlow: Flow<T>, onAction: (T) -> Unit) {
     val lifecycle = LocalLifecycleOwner.current.lifecycle
+    // The collection outlives recompositions: always hand actions to the latest lambda, not to the one of the first
+    // composition, which would act on the state captured back then.
+    val currentOnAction by rememberUpdatedState(onAction)
     LaunchedEffect(Unit) {
         lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
-            actionsFlow.collect(onAction)
+            actionsFlow.collect { currentOnAction(it) }
         }
     }
 }

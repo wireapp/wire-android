@@ -93,7 +93,7 @@ internal fun buildOfflineListing(
 /**
  * Path of this file relative to the folder at [currentPath], or null when it is not stored in it.
  */
-private fun OfflineFileInfo.relativePathIn(currentPath: String): String? {
+internal fun OfflineFileInfo.relativePathIn(currentPath: String): String? {
     val remotePath = remotePath
         ?: return name.takeIf { currentPath == conversationId }
 

@@ -8,6 +8,11 @@ on:
         required: false
         type: string
         default: '[]'
+      parallel-build:
+        description: "Run build alongside quality checks"
+        required: false
+        type: boolean
+        default: false
       enable-deployment:
         description: "Enable deployment after successful build"
         required: false
@@ -227,7 +232,7 @@ jobs:
   # Build matrix job - only runs if all quality checks pass
   build:
     name: "Build ${{ matrix.flavor }}-${{ matrix.variant }}"
-    if: inputs.build-config != '[]'
+    if: inputs.build-config != '[]' && !inputs.parallel-build
     env:
       WIRE_RELEASE_VERSION: ${{ inputs.release-version }}
     needs: [ workflow-security, lint, style, compose-stability, ui-tests, unit-tests ]
@@ -237,15 +242,18 @@ jobs:
       matrix:
         include: ${{ fromJson(inputs.build-config) }}
     
-    steps:
-      - name: Quality gates passed - starting build
+    steps: &build_steps
+      - name: ${{ inputs.parallel-build && 'Starting build' || 'Quality gates passed - starting build' }}
         env:
+          PARALLEL_BUILD: ${{ inputs.parallel-build }}
           BUILD_FLAVOR: ${{ matrix.flavor }}
           BUILD_VARIANT: ${{ matrix.variant }}
         run: |
-          echo "## Build Starting" >> $GITHUB_STEP_SUMMARY
-          echo "✅ Quality gates passed successfully" >> $GITHUB_STEP_SUMMARY
-          echo "🚀 Building ${BUILD_FLAVOR}${BUILD_VARIANT}..." >> $GITHUB_STEP_SUMMARY
+          echo "## Build Starting" >> "$GITHUB_STEP_SUMMARY"
+          if [[ "$PARALLEL_BUILD" != "true" ]]; then
+            echo "✅ Quality gates passed successfully" >> "$GITHUB_STEP_SUMMARY"
+          fi
+          echo "🚀 Building ${BUILD_FLAVOR}${BUILD_VARIANT}..." >> "$GITHUB_STEP_SUMMARY"
 
       - name: Checkout
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
@@ -484,10 +492,30 @@ jobs:
             echo "- \`$(basename "$file")\`" >> $GITHUB_STEP_SUMMARY
           done
 
+  build-parallel:
+    name: "Build ${{ matrix.flavor }}-${{ matrix.variant }}"
+    if: inputs.build-config != '[]' && inputs.parallel-build
+    env:
+      WIRE_RELEASE_VERSION: ${{ inputs.release-version }}
+    needs: [workflow-security]
+    runs-on: warp-ubuntu-2404-x64-8x
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJson(inputs.build-config) }}
+    steps: *build_steps
+
   # Deploy job (conditional)
   deploy:
-    needs: build
-    if: inputs.enable-deployment == true && inputs.build-config != '[]'
+    needs: [workflow-security, lint, style, compose-stability, ui-tests, unit-tests, build, build-parallel]
+    if: >-
+      ${{ !cancelled() && inputs.enable-deployment && inputs.build-config != '[]' &&
+          needs.workflow-security.result == 'success' && needs.lint.result == 'success' &&
+          needs.style.result == 'success' && needs.compose-stability.result == 'success' &&
+          needs.ui-tests.result == 'success' && needs.unit-tests.result == 'success' &&
+          ((!inputs.parallel-build && needs.build.result == 'success' && needs.build-parallel.result == 'skipped') ||
+           (inputs.parallel-build && needs.build-parallel.result == 'success' && needs.build.result == 'skipped')) }}
     permissions:
       contents: write # required by called deploy.yml workflow
       actions: read # required by called deploy.yml workflow

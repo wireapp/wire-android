@@ -434,13 +434,17 @@ def _rollout(value):
 
 
 def _deploy_label(name):
-    """Return the deploy target of a `deploy (<target>, ...)` job name, or None for any other job."""
+    """Return the target of a delivery job (`deploy (<target>, ...)` or `Publish ...`), or None for any other job."""
+    if name.startswith("Publish "):
+        return name
     match = _DEPLOY_JOB.fullmatch(name)
     if not match:
         return None
     args = match.group(1).split(", ")
     if args[0] == "google-play" and len(args) == 5:
         return "google-play %s %s %s" % (args[2], _rollout(args[3]), args[4])
+    if args[0] == "google-play" and len(args) == 4:
+        return "google-play %s %s" % (args[2], args[3])
     return args[0]
 
 

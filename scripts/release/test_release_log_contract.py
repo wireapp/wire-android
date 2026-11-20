@@ -274,7 +274,7 @@ class BuildFieldsTest(unittest.TestCase):
             "releaseVersion": "4.38.0", "kind": "Beta 2", "result": MARK["passed"], "runUrl": run_url(1001),
             "commit": "7be41d0", "apkName": "wire-beta-release.apk", "apkSha256": BETA_APK,
             "buildRunUrl": "",
-            "deploy": "",
+            "deploy": "Publish beta prerelease \u2705",
             "tests": "Regression: not required", "gaps": "none",
             "eventId": "beta:wireapp/wire-android:1001:1"})
 
@@ -449,6 +449,15 @@ class ResultAndDeployTest(unittest.TestCase):
             with self.subTest(rollout=rollout):
                 name = "deploy (google-play, com.wire, production, %s, inProgress)" % rollout
                 self.assertEqual(deploy_of((name, "success")), "google-play production %s inProgress \u2705" % shown)
+
+    def test_a_beta_shows_its_play_track_and_its_github_prerelease(self):
+        self.assertEqual(deploy_of(("Validate beta tag", "success"), ("Build Beta-Release", "success"),
+                                   ("deploy (s3)", "success"),
+                                   ("deploy (google-play, com.wire.android.internal, Wire Employees, completed)",
+                                    "success"),
+                                   ("Publish beta prerelease", "success")),
+                         "s3 ✅ · google-play Wire Employees completed ✅ · "
+                         "Publish beta prerelease ✅")
 
     def test_google_play_with_other_arguments_shows_only_its_label(self):
         self.assertEqual(deploy_of(("deploy (google-play, com.wire)", "failure")), "google-play \u274c")

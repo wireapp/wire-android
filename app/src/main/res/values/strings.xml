@@ -1281,7 +1281,6 @@
     <string name="mfa_download_codes">Download recovery codes</string>
     <string name="mfa_codes_saved">I have saved my recovery codes</string>
     <string name="mfa_finish_setup">Finish setup</string>
-    <string name="mfa_password_required">Enter your password to continue.</string>
     <string name="mfa_invalid_code">Invalid code. Try again.</string>
     <string name="mfa_setup_error">Unable to complete this step. Please try again.</string>
     <string name="mfa_copied">Copied to clipboard</string>

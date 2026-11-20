@@ -81,6 +81,7 @@ internal fun MFASetupScreen(
         state = state,
         password = viewModel.password,
         code = viewModel.code,
+        isPasswordValid = viewModel.isPasswordValid,
         onBack = onBack,
         onContinue = {
             when (step) {
@@ -106,6 +107,7 @@ internal fun MFASetupContent(
     state: MFASetupState,
     password: TextFieldState,
     code: TextFieldState,
+    isPasswordValid: Boolean,
     onBack: () -> Unit,
     onContinue: () -> Unit,
     onOpenAuthenticator: () -> Unit,
@@ -127,7 +129,7 @@ internal fun MFASetupContent(
             )
         },
         bottomBar = {
-            SetupContinueButton(step, state, password, onContinue)
+            SetupContinueButton(step, state, isPasswordValid, onContinue)
         }
     ) { padding ->
         Column(
@@ -207,12 +209,12 @@ private fun ColumnScope.ManualKeyContent(enrollment: MFAEnrollment?, onCopyKey: 
 private fun SetupContinueButton(
     step: MFASetupStep,
     state: MFASetupState,
-    password: TextFieldState,
+    isPasswordValid: Boolean,
     onContinue: () -> Unit,
 ) {
     if (step == MFASetupStep.VERIFY_CODE) return
     val enabled = !state.isBusy && when (step) {
-        MFASetupStep.CONFIRM_PASSWORD -> password.text.isNotBlank()
+        MFASetupStep.CONFIRM_PASSWORD -> isPasswordValid
         MFASetupStep.RECOVERY_CODES -> state.recoveryCodesSaved && state.recoveryCodes.isNotEmpty()
         else -> state.enrollment != null
     }
@@ -266,7 +268,6 @@ private fun SetupError(error: MFASetupError) {
     Text(
         text = stringResource(
             when (error) {
-                MFASetupError.PASSWORD_REQUIRED -> R.string.mfa_password_required
                 MFASetupError.INVALID_CODE -> R.string.mfa_invalid_code
                 MFASetupError.GENERIC -> R.string.mfa_setup_error
             }
@@ -319,14 +320,16 @@ private object MFASetupPreviews {
             )
         }
         val recoveryCodes = remember { List(10) { "ABCD-${1234 + it}" } }
+        val password = remember { TextFieldState() }
         MFASetupContent(
             step = step,
             state = MFASetupState(
                 enrollment = if (step == MFASetupStep.CONFIRM_PASSWORD) null else enrollment,
                 recoveryCodes = if (step == MFASetupStep.RECOVERY_CODES) recoveryCodes else emptyList(),
             ),
-            password = remember { TextFieldState() },
+            password = password,
             code = remember { TextFieldState() },
+            isPasswordValid = password.text.isNotBlank(),
             onBack = {},
             onContinue = {},
             onOpenAuthenticator = {},

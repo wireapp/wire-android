@@ -59,6 +59,39 @@ class MFASetupViewModelTest {
     }
 
     @Test
+    fun `blank passwords are invalid and confirmation silently ignores them`() = runTest {
+        val startSetup = mockk<StartMFASetupUseCase>()
+        val viewModel = createViewModel(startSetup = startSetup)
+
+        for (password in listOf("", " \t\n")) {
+            viewModel.password.setTextAndPlaceCursorAtEnd(password)
+            assertFalse(viewModel.isPasswordValid)
+
+            viewModel.confirmPassword()
+            advanceUntilIdle()
+
+            assertEquals(MFASetupState(), viewModel.state.value)
+        }
+        coVerify(exactly = 0) { startSetup(any()) }
+    }
+
+    @Test
+    fun `valid passwords retain surrounding whitespace when submitted to Kalium`() = runTest {
+        val fixture = MFATestFixture()
+        val viewModel = createViewModel(startSetup = fixture.startSetup)
+        val password = " password "
+        viewModel.password.setTextAndPlaceCursorAtEnd(password)
+        assertTrue(viewModel.isPasswordValid)
+
+        viewModel.confirmPassword()
+        assertFalse(viewModel.isPasswordValid)
+        advanceUntilIdle()
+
+        coVerify(exactly = 1) { fixture.startSetup(password) }
+        assertNotNull(viewModel.state.value.enrollment)
+    }
+
+    @Test
     fun `setup requires verification and acknowledgement before it can finish`() = runTest {
         val viewModel = createViewModel()
         viewModel.finishSetup("Android phone")

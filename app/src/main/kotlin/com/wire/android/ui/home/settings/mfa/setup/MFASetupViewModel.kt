@@ -39,7 +39,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-enum class MFASetupError { PASSWORD_REQUIRED, INVALID_CODE, GENERIC }
+enum class MFASetupError { INVALID_CODE, GENERIC }
 
 data class MFASetupState(
     val enrollment: MFAEnrollment? = null,
@@ -62,17 +62,16 @@ class MFASetupViewModel @Inject constructor(
     // Plain in-memory field state: these values must not be restored from saved state.
     val password = TextFieldState()
     val code = TextFieldState()
+    val isPasswordValid: Boolean
+        get() = password.text.isNotBlank()
+
     private val _state = MutableStateFlow(MFASetupState())
     val state = _state.asStateFlow()
     private var operationJob: Job? = null
 
     fun confirmPassword() {
-        if (_state.value.isBusy) return
+        if (_state.value.isBusy || !isPasswordValid) return
         val enteredPassword = password.text.toString()
-        if (enteredPassword.isBlank()) {
-            _state.update { it.copy(error = MFASetupError.PASSWORD_REQUIRED) }
-            return
-        }
         password.clearText()
         perform {
             // Going back through confirmation must not create a second enrollment.

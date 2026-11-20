@@ -121,6 +121,7 @@ private fun AddAuthenticatorAppScreen(
         state = MFASetupState(enrollment = state.enrollment, isBusy = state.isBusy, error = state.error),
         password = viewModel.password,
         code = viewModel.code,
+        isPasswordValid = viewModel.password.text.isNotBlank(),
         name = viewModel.name,
         isAddingAuthenticator = true,
         onBack = onBack,

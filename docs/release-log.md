@@ -28,7 +28,7 @@ A manual production regression run joins it through the `QA Android Prod Regress
 | `apkName`, `apkSha256` | The final signed APK, after signing lineage. |
 | `buildRunUrl` | The matched build run, for a regression only. |
 | `deploy` | Build events only. Each delivery target and its result: Production reads `google-play production 10% inProgress ✅ · s3 ✅ · github-release ✅`, Beta reads `s3 ✅ · google-play Wire Employees completed ✅ · Publish beta prerelease ✅`. Any other release job shows only when it did not succeed, for example `Build Prod-Compatrelease ❌`. Marks: ✅ success, ❌ failure, timed out, or startup failure, ⏹️ cancelled, ⏭️ skipped, ❔ anything else or unknown. Empty when every job succeeded and none was a delivery target. |
-| `tests` | Test counts, selector, and report link, for a regression only. The report link appears only when it is this run's report, see [How the reporter attributes a regression](#how-the-reporter-attributes-a-regression). A test that failed first and passed on a rerun shows as `N passed on rerun`. |
+| `tests` | Test counts, selector, and report link, for a regression only. A full run adds `testiny https://app.testiny.io/AN/testruns/tr/<id>`, the link to its Testiny run, so QA does not copy it by hand. A deflake entry and an entry from an older record carry no Testiny link: the deflake entry names its source run, which carries it. The report link appears only when it is this run's report, see [How the reporter attributes a regression](#how-the-reporter-attributes-a-regression). A test that failed first and passed on a rerun shows as `N passed on rerun`. |
 | `gaps` | `none`, or the items from [Gaps](#gaps) that apply, separated by `; `. |
 | `eventId` | The event identity, `<kind>:<repository>:<run id>:<attempt>`. A replay carries the same value. |
 
@@ -67,7 +67,7 @@ The QA execution job adds two steps after the test summary and before cleanup: `
 The record holds:
 
 - The SHA-256 of the downloaded APK files, under the APK names from the download step. A run that cannot read an APK records no digest and appears as unmatched.
-- The suite, the `TAGS` selector, the mode (`full` or `deflake`), the retry count, the report link, and the test counts.
+- The suite, the `TAGS` selector, the mode (`full` or `deflake`), the retry count, the report link, the Testiny run ID, and the test counts. The normal job takes the Testiny run ID from `prepare_testiny_run.py`. A deflake run records none, because it reports into the Testiny run of its source run. Records from an older exporter have no Testiny run ID and read as none.
 - The tests commit. For a deflake run, this is the restored test revision.
 - A fingerprint of the deflake bundle this run wrote, and for a deflake run, the fingerprint of the bundle it used.
 

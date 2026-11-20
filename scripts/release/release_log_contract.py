@@ -92,8 +92,8 @@ def _filename(value, name):
         raise ValueError(name + " must be a file name without path segments")
 
 
-def _exact_keys(record, keys, name):
-    if set(record) != set(keys):
+def _exact_keys(record, keys, name, optional=()):
+    if set(record) - set(optional) != set(keys):
         raise ValueError(name + " fields do not match the schema")
 
 
@@ -166,7 +166,8 @@ def _results(results, mode):
 
 
 def _regression(record):
-    _exact_keys(record, _REGRESSION, "regression")
+    # Records from an older exporter lack testiny_run_id and read as null.
+    _exact_keys(record, _REGRESSION, "regression", optional=("testiny_run_id",))
     _identity(record)
     _pattern(record["test_source_sha"], SHA, "test_source_sha")
     if record["flavor"] != "production":
@@ -197,6 +198,8 @@ def _regression(record):
     _results(record["results"], mode)
     if record["report_url"] is not None:
         _https_url(record["report_url"], "report_url")
+    if record.get("testiny_run_id") is not None:
+        _positive_int(record["testiny_run_id"], "testiny_run_id")
 
 
 _RECORD_KINDS = {"context": _context, "build": _build, "regression": _regression}
@@ -218,6 +221,7 @@ CONCLUSIONS = ("success", "failure", "cancelled", "timed_out", "skipped", "neutr
                "startup_failure", "stale")
 UNMATCHED = "unmatched"
 FIELD_LIMIT = 1000
+TESTINY_RUN_URL = "https://app.testiny.io/AN/testruns/tr/%d"
 
 _VERSION = re.compile(r"(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)")
 _PAYLOAD = ("schema_version", "release_version", "event_id", "kind", "evidence")
@@ -410,6 +414,8 @@ def _tests(kind, qa, conclusion):
             gaps.append(gap(TESTS_INCOMPLETE, "No tests were executed"))
     parts.append("selector " + _plain(qa["selector"]))
     parts.append("report " + _link(qa["report_url"]) if qa["report_url"] else "report unavailable")
+    if qa.get("testiny_run_id"):
+        parts.append("testiny " + TESTINY_RUN_URL % qa["testiny_run_id"])
     if qa["mode"] == "deflake":
         parts.append("not a full regression")
         parts.append("source run %d" % qa["source_qa_run_id"])

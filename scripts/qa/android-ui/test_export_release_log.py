@@ -124,6 +124,15 @@ class RegressionRecordTest(TemporaryFiles):
         self.assertEqual(record["results"], {key: None for key in contract.RESULT_KEYS})
         self.assertIsNone(record["report_url"])
 
+    def test_the_testiny_run_id_is_recorded_only_when_it_is_a_positive_integer(self):
+        for text, expected in [("4711", 4711), ("", None), ("abc", None), ("0", None), ("-3", None),
+                               ("12.5", None), ("1 2", None)]:
+            with self.subTest(text=text):
+                record = export.regression_record(
+                    full_context(), self.new_apk, self.old_apk, RESULTS, None, export._testiny_run_id(text))
+                contract.validate_record(record)
+                self.assertEqual(record["testiny_run_id"], expected)
+
     def test_missing_selected_tests_stay_in_the_record(self):
         results = dict(RESULTS, passed=415, failed=0, missing=3)
         self.assertEqual(self.record(results=results)["results"], results)
@@ -437,6 +446,13 @@ class CommandLineTest(TemporaryFiles):
         record = contract.read_json(output)
         contract.validate_record(record)
         self.assertEqual(record["results"]["passed_on_rerun"], 2)
+
+    def test_the_testiny_run_id_is_written_and_a_bad_one_never_fails_the_export(self):
+        for text, expected in [("4711", 4711), ("", None), ("oops", None), ("0", None), ("-3", None)]:
+            with self.subTest(text=text):
+                status, output, _ = self.run_main(TESTINY_RUN_ID=text)
+                self.assertEqual(status, 0)
+                self.assertEqual(contract.read_json(output)["testiny_run_id"], expected)
 
     def test_an_ineligible_run_writes_nothing_and_succeeds(self):
         for change in [dict(GITHUB_EVENT_NAME="schedule"), dict(GITHUB_WORKFLOW_REF=REGRESSION_REF),

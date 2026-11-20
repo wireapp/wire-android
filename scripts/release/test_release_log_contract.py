@@ -99,6 +99,20 @@ class ValidateRecordTest(unittest.TestCase):
             with self.subTest(url=value):
                 self.assertRejected("regression", lambda r: r.update(report_url=value))
 
+    def test_the_testiny_run_id_is_optional_and_a_positive_integer_or_null(self):
+        for name in ["regression", "regression_deflake"]:
+            for value in [None, 1, 4711]:
+                with self.subTest(name=name, value=value):
+                    record = copy.deepcopy(load(name))
+                    record["testiny_run_id"] = value
+                    contract.validate_record(record)
+            for value in [0, -1, True, False, "12", 1.5]:
+                with self.subTest(name=name, value=value):
+                    self.assertRejected(name, lambda r: r.update(testiny_run_id=value))
+        self.assertNotIn("testiny_run_id", load("regression"))
+        self.assertRejected("build", lambda r: r.update(testiny_run_id=1))
+        self.assertRejected("regression", lambda r: r.update(testiny_run_ids=1))
+
     def test_build_flavor_and_apks_are_constrained(self):
         self.assertRejected("build", lambda r: r.update(flavor="Dev"))
         self.assertRejected("build", lambda r: r.update(apks=[]))
@@ -298,6 +312,19 @@ class BuildFieldsTest(unittest.TestCase):
         self.assertEqual(fields["tests"], "412 passed, 6 failed, 3 skipped, 0 missing, 2 passed on rerun; "
                                           "selector @RC; report https://example.com/allure/1520")
         self.assertEqual(fields["gaps"], "none")
+
+    def test_a_regression_with_a_testiny_run_links_it_after_the_report(self):
+        payload = load("payload_regression")
+        payload["evidence"]["qa"]["testiny_run_id"] = 4711
+        self.assertEqual(contract.build_fields(payload)["tests"],
+                         "412 passed, 6 failed, 3 skipped, 0 missing, 2 passed on rerun; "
+                         "selector @RC; report https://example.com/allure/1520; "
+                         "testiny https://app.testiny.io/AN/testruns/tr/4711")
+        payload["evidence"]["qa"]["testiny_run_id"] = None
+        self.assertNotIn("testiny", contract.build_fields(payload)["tests"])
+
+    def test_a_deflake_without_a_testiny_run_shows_no_link(self):
+        self.assertNotIn("testiny", contract.build_fields(load("payload_deflake"))["tests"])
 
     def test_deflake_never_claims_a_full_regression(self):
         fields = contract.build_fields(load("payload_deflake"))

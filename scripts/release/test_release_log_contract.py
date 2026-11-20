@@ -187,7 +187,7 @@ class SkipMarkerTest(unittest.TestCase):
 
 PAYLOADS = ["payload_beta", "payload_failed_build", "payload_regression", "payload_deflake", "payload_unmatched"]
 FIELD_NAMES = {"releaseVersion", "kind", "result", "runUrl", "commit", "apkName", "apkSha256", "buildRunUrl",
-               "deploy", "tests", "gaps", "eventId"}
+               "deploy", "tests", "gaps", "eventId", "jiraUrl"}
 BETA_APK = "5c2091ab" * 8
 PROD_APK = "d7330f18" * 8
 
@@ -282,6 +282,10 @@ class ValidatePayloadTest(unittest.TestCase):
         self.assertRejected("payload_regression", lambda p: p["evidence"]["origin"].update(sha=None))
 
 
+JIRA_4_38 = ("https://wearezeta.atlassian.net/issues?jql=project%3DWPB%20AND%20fixVersion%3D%22Android%204.38.0%22"
+             "%20AND%20status%20NOT%20IN%20(Done%2Crejected)")
+
+
 class BuildFieldsTest(unittest.TestCase):
     def test_beta_fields_state_that_regression_is_not_required(self):
         self.assertEqual(contract.build_fields(load("payload_beta")), {
@@ -290,7 +294,8 @@ class BuildFieldsTest(unittest.TestCase):
             "buildRunUrl": "",
             "deploy": "Publish beta prerelease \u2705",
             "tests": "Regression: not required", "gaps": "none",
-            "eventId": "beta:wireapp/wire-android:1001:1"})
+            "eventId": "beta:wireapp/wire-android:1001:1",
+            "jiraUrl": JIRA_4_38})
 
     def test_a_failed_build_without_an_apk_reports_its_gap(self):
         fields = contract.build_fields(load("payload_failed_build"))
@@ -722,6 +727,29 @@ class EventIdFieldTest(unittest.TestCase):
         value = contract.build_fields(payload)["eventId"]
         for banned in ["::", "<", ">", "{{", "`", "\n"]:
             self.assertNotIn(banned, value)
+
+
+class JiraUrlFieldTest(unittest.TestCase):
+    def test_the_url_lists_the_open_tickets_of_the_release_unchanged(self):
+        payload = load("payload_regression")
+        payload["release_version"] = "4.39.0"
+        self.assertEqual(contract.build_fields(payload)["jiraUrl"],
+                         "https://wearezeta.atlassian.net/issues?jql=project%3DWPB%20AND%20fixVersion%3D%22Android%204.39.0%22"
+                         "%20AND%20status%20NOT%20IN%20(Done%2Crejected)")
+
+    def test_the_unmatched_page_has_no_url(self):
+        self.assertEqual(contract.build_fields(load("payload_unmatched"))["jiraUrl"], "")
+
+    def test_every_kind_carries_the_url(self):
+        for name in PAYLOADS:
+            with self.subTest(name=name):
+                payload = load(name)
+                url = contract.build_fields(payload)["jiraUrl"]
+                if payload["release_version"] == "unmatched":
+                    self.assertEqual(url, "")
+                else:
+                    self.assertEqual(url, JIRA_4_38.replace("4.38.0", payload["release_version"]))
+        self.assertEqual({load(name)["kind"] for name in PAYLOADS}, {"beta", "production", "regression"})
 
 
 class HostileRegressionTextTest(unittest.TestCase):

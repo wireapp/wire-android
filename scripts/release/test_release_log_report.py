@@ -2165,7 +2165,7 @@ class DeflakeAncestryTest(unittest.TestCase):
 
 
 class PublishCarriesTheEventIdTest(unittest.TestCase):
-    def test_the_twelve_fields_are_the_contract(self):
+    def test_the_thirteen_fields_are_the_contract(self):
         self.assertIn("eventId", sample_fields())
         self.assertEqual(set(sample_fields()), set(contract.FIELD_NAMES))
         with self.assertRaises(ValueError):

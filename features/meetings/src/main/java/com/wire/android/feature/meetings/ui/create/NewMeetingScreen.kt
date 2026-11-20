@@ -207,7 +207,7 @@ fun NewMeetingContent(
                 )
                 if (type !is NewMeetingType.Edit && state.isGuestLinkSharingEnabled) {
                     VerticalSpace.x24()
-                    PasswordInput(
+                    MeetingPasswordInput(
                         passwordState = passwordState,
                         confirmPasswordState = confirmPasswordState,
                         passwordsDoNotMatch = state.passwordsDoNotMatch,
@@ -273,17 +273,19 @@ fun NewMeetingContent(
 }
 
 @Composable
-private fun PasswordInput(
+internal fun MeetingPasswordInput(
     passwordState: TextFieldState,
     confirmPasswordState: TextFieldState,
     invalidPassword: Boolean,
     passwordsDoNotMatch: Boolean,
     onGenerateRandomPassword: () -> Unit,
+    readOnly: Boolean = false,
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
     Column(modifier = Modifier.fillMaxWidth()) {
         WirePasswordTextField(
             textState = passwordState,
+            readOnly = readOnly,
             labelText = stringResource(R.string.new_meeting_password_input_label),
             placeholderText = stringResource(R.string.new_meeting_password_input_placeholder),
             descriptionText = stringResource(R.string.new_meeting_password_error),
@@ -299,6 +301,7 @@ private fun PasswordInput(
         VerticalSpace.x16()
         WirePasswordTextField(
             textState = confirmPasswordState,
+            readOnly = readOnly,
             labelText = stringResource(R.string.new_meeting_confirm_password_input_label),
             placeholderText = stringResource(R.string.new_meeting_confirm_password_input_placeholder),
             trailingIcon = { ClearInputIconButton(state = confirmPasswordState) },
@@ -317,7 +320,7 @@ private fun PasswordInput(
             horizontalArrangement = Arrangement.SpaceBetween,
         ) {
             CopyPasswordButton(password = passwordState.text.toString())
-            GeneratePasswordButton(onClick = onGenerateRandomPassword)
+            GeneratePasswordButton(onClick = { if (!readOnly) onGenerateRandomPassword() })
         }
         VerticalSpace.x8()
         Text(

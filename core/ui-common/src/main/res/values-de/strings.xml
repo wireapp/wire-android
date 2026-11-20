@@ -118,4 +118,6 @@
     <string name="app_permission_dialog_title">App-Berechtigungen</string>
     <string name="app_permission_dialog_settings_positive_button">Einstellungen</string>
     <string name="app_permission_dialog_settings_negative_button">Nicht jetzt</string>
+    <string name="onboarding_pending">Tritt einem Team bei</string>
+    <string name="onboarding_pending_description">Sobald alles eingerichtet ist, können Sie mit dem Team-Mitglied kommunizieren.</string>
 </resources>

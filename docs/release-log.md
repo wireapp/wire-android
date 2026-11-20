@@ -108,7 +108,7 @@ Create the environment before the first run. If the workflow names an environmen
    - `RELEASE_LOG_WEBHOOK_URL`
    - `RELEASE_LOG_WEBHOOK_TOKEN`, sent as the `X-Automation-Webhook-Token` header.
 3. Add the repository variable `RELEASE_LOG_PUBLICATION_ENABLED`. Set it to `false`.
-4. Add the repository variable `RELEASE_LOG_REPORT_PAGES_URL`. Set it to the `html_url` of the GitHub Pages site of the repository that holds the QA reports, with no trailing path. Without it, no report link reaches the page.
+4. Add the environment variable `RELEASE_LOG_REPORT_PAGES_URL` to `release-log`. Set it to the `html_url` of the GitHub Pages site of the repository that holds the QA reports, with no trailing path. Without it, no report link reaches the page.
 
 The job runs only on the default branch, so a manual run from another branch does nothing.
 

@@ -120,12 +120,12 @@ app/version.txt
 *~
 \#*#
 /secrets.json
-# Claude Code: ignore the folder's contents, but share the beta-release skill.
+# Claude Code: ignore the folder's contents, but share the android-release skill.
 # The skill link has no trailing slash on purpose. Git sees a symlink as a file.
 /.claude/*
 !/.claude/skills/
 /.claude/skills/*
-!/.claude/skills/beta-release
+!/.claude/skills/android-release
 
 # Ignore Allure test result artifacts
 allure-results/
@@ -136,5 +136,5 @@ CLAUDE.md
 /.agents/*
 !/.agents/skills/
 /.agents/skills/*
-!/.agents/skills/beta-release/
-!/.agents/skills/beta-release/**
+!/.agents/skills/android-release/
+!/.agents/skills/android-release/**

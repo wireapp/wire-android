@@ -1506,7 +1506,7 @@ class WireDriveDownloadsAndOfflineTests : BaseUiTest() {
     @TestCaseId("TC-12260")
     @Category("regression", "RC", "wireDrive", "wireDriveDownloadsAndOffline")
     @Test
-    fun givenMemberIsSavingLargePdfOffline_whenNetworkInterruptsDownloadAndMemberRetriesOnline_thenFailureLeavesNoOfflineCopyAndRetrySavesEveryPage() {
+    fun givenMemberIsSavingLargePdfOffline_whenConnectionIsLostAndRestored_thenDownloadResumesAutomaticallyAndSavesEveryPage() {
         step("Given TeamOwner creates team OfflineRetry") {
             backendSetupHelper.createTeamOwnerByAlias(
                 "user1Name",
@@ -1579,8 +1579,8 @@ class WireDriveDownloadsAndOfflineTests : BaseUiTest() {
         }
         step("Then Shared Drive shows the unopened PDF exactly once") {
             pages.wireDrivePage.apply {
+                assertFileVisibleOnce(fileName, timeout = UiWaitUtils.VERY_LONG_TIMEOUT)
                 assertSharedDriveVisible()
-                assertFileVisibleOnce(fileName, timeout = UiWaitUtils.SHORT_TIMEOUT)
             }
         }
         val expectedPages = mutableListOf<File>()
@@ -1615,12 +1615,8 @@ class WireDriveDownloadsAndOfflineTests : BaseUiTest() {
         step("Then the PDF is still downloading for offline access") {
             pages.wireDrivePage.assertOfflineDownloadInProgress(fileName)
         }
-        step("When Member1 interrupts the active download by disabling Wi-Fi, Wire reports Action failed") {
-            UiWaitUtils.assertToastDisplayed(
-                text = "Action failed.",
-                trigger = { pages.commonAppPage.disableWifi() },
-                timeout = UiWaitUtils.VERY_LONG_TIMEOUT
-            )
+        step("When Member1 interrupts the active download by disabling Wi-Fi") {
+            pages.commonAppPage.disableWifi()
         }
         step("Then the device is offline and the incomplete PDF is not offered as a saved offline file") {
             pages.commonAppPage.assertDeviceHasNoNetworkConnection()
@@ -1629,33 +1625,24 @@ class WireDriveDownloadsAndOfflineTests : BaseUiTest() {
                 assertFileNotVisible(fileName)
             }
         }
-        step("When Member1 restores the original Wi-Fi and mobile-data settings") {
+        step("When Member1 restores connectivity without retrying Make available offline") {
             pages.commonAppPage.apply {
                 if (originalWifiEnabled) enableWifiAndScanForNetworks()
                 if (originalMobileDataEnabled) enableMobileData()
             }
         }
-        step("Then the device is online and the same Shared Drive shows the PDF again") {
+        step("Then the offline download finishes automatically after reconnection") {
+            pages.commonAppPage.assertDeviceHasNetworkConnection()
+            pages.wireDrivePage.waitForOfflineDownloadToFinish(fileName)
+        }
+        step("Then the device is online and the same Shared Drive shows the saved PDF exactly once") {
             pages.commonAppPage.assertDeviceHasNetworkConnection()
             pages.wireDrivePage.assertFileVisibleOnce(fileName, timeout = UiWaitUtils.SHORT_TIMEOUT)
         }
-        step("When Member1 opens the PDF's three-dot menu") {
+        step("When Member1 opens the PDF's three-dot menu after automatic resumption") {
             pages.wireDrivePage.tapFileMenu(fileName)
         }
-        step("Then the failed attempt has not been marked saved and Make available offline is enabled") {
-            pages.wireDrivePage.assertMakeAvailableOfflineOptionEnabled()
-        }
-        step("When Member1 retries Make available offline, Wire confirms the file was saved") {
-            UiWaitUtils.assertToastDisplayed(
-                text = "File saved for offline use",
-                trigger = { pages.wireDrivePage.tapMakeAvailableOfflineOption() },
-                timeout = UiWaitUtils.VERY_LONG_TIMEOUT
-            )
-        }
-        step("When Member1 opens the PDF's three-dot menu after the successful retry") {
-            pages.wireDrivePage.tapFileMenu(fileName)
-        }
-        step("Then Remove offline access confirms that the retry saved the PDF") {
+        step("Then Remove offline access confirms that automatic resumption saved the PDF") {
             pages.wireDrivePage.assertRemoveOfflineAccessOptionVisible()
         }
         step("When Member1 closes the PDF's three-dot menu and disconnects again") {

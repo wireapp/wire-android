@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import math
 import re
 
 _TAG = re.compile(r"v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(?:-beta\.([1-9][0-9]*))?")
@@ -416,6 +417,47 @@ def _tests(kind, qa, conclusion):
     return "; ".join(parts), gaps
 
 
+RESULT_MARKS = {"passed": "\u2705 passed", "failed": "\u274c failed", "partial": "\u26a0\ufe0f partial",
+                "cancelled": "\u23f9\ufe0f cancelled"}
+CONCLUSION_MARKS = {"success": "\u2705", "failure": "\u274c", "timed_out": "\u274c", "startup_failure": "\u274c",
+                    "cancelled": "\u23f9\ufe0f", "skipped": "\u23ed\ufe0f"}
+_UNKNOWN_MARK = "\u2754"
+_DEPLOY_JOB = re.compile(r"deploy \((.*)\)")
+
+
+def _rollout(value):
+    try:
+        number = float(value)
+    except ValueError:
+        return value
+    return "%g%%" % round(number * 100, 2) if math.isfinite(number) else value
+
+
+def _deploy_label(name):
+    """Return the deploy target of a `deploy (<target>, ...)` job name, or None for any other job."""
+    match = _DEPLOY_JOB.fullmatch(name)
+    if not match:
+        return None
+    args = match.group(1).split(", ")
+    if args[0] == "google-play" and len(args) == 5:
+        return "google-play %s %s %s" % (args[2], _rollout(args[3]), args[4])
+    return args[0]
+
+
+def _deploy(jobs):
+    """One short entry per deploy target, plus any other release job that did not succeed."""
+    parts = []
+    for job in jobs:
+        name = _plain(job["name"])
+        mark = CONCLUSION_MARKS.get(job["conclusion"], _UNKNOWN_MARK)
+        label = _deploy_label(name)
+        if label is not None:
+            parts.append("%s %s" % (label, mark))
+        elif job["conclusion"] != "success":
+            parts.append("%s %s" % (name, mark))
+    return " \u00b7 ".join(parts)
+
+
 def _result(conclusion, qa, gaps):
     if conclusion == "cancelled":
         return "cancelled"
@@ -443,12 +485,11 @@ def build_fields(payload):
     else:
         apks = build["apks"] if build is not None else []
         commit = source["sha"][:7] if source["sha"] else ""
-        deploy = "; ".join("%s: %s" % (_plain(job["name"]), job["conclusion"] or "unknown")
-                           for job in evidence["jobs"])
+        deploy = _deploy(evidence["jobs"])
     fields = {
         "releaseVersion": payload["release_version"],
         "kind": _label(kind, source, qa),
-        "result": _result(evidence["conclusion"], qa, gaps),
+        "result": RESULT_MARKS[_result(evidence["conclusion"], qa, gaps)],
         "runUrl": _link(source["url"]),
         "commit": commit,
         "apkName": ", ".join(_plain(apk["filename"]).replace(",", "_") for apk in apks),

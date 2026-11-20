@@ -16,6 +16,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 import release_log_contract as contract
 
+MARK = {"passed": "\u2705 passed", "failed": "\u274c failed", "partial": "\u26a0\ufe0f partial",
+        "cancelled": "\u23f9\ufe0f cancelled"}
 FIXTURES = Path(__file__).resolve().parent / "fixtures" / "release-log"
 
 
@@ -269,25 +271,25 @@ class ValidatePayloadTest(unittest.TestCase):
 class BuildFieldsTest(unittest.TestCase):
     def test_beta_fields_state_that_regression_is_not_required(self):
         self.assertEqual(contract.build_fields(load("payload_beta")), {
-            "releaseVersion": "4.38.0", "kind": "Beta 2", "result": "passed", "runUrl": run_url(1001),
+            "releaseVersion": "4.38.0", "kind": "Beta 2", "result": MARK["passed"], "runUrl": run_url(1001),
             "commit": "7be41d0", "apkName": "wire-beta-release.apk", "apkSha256": BETA_APK,
             "buildRunUrl": "",
-            "deploy": "Validate beta tag: success; Build Beta-Release: success; Publish beta prerelease: success",
+            "deploy": "",
             "tests": "Regression: not required", "gaps": "none",
             "eventId": "beta:wireapp/wire-android:1001:1"})
 
     def test_a_failed_build_without_an_apk_reports_its_gap(self):
         fields = contract.build_fields(load("payload_failed_build"))
         self.assertEqual(fields["kind"], "Production")
-        self.assertEqual(fields["result"], "failed")
+        self.assertEqual(fields["result"], MARK["failed"])
         self.assertEqual((fields["apkName"], fields["apkSha256"], fields["tests"]), ("", "", ""))
-        self.assertEqual(fields["deploy"], "Build Prod-Compatrelease: failure")
+        self.assertEqual(fields["deploy"], "Build Prod-Compatrelease \u274c")
         self.assertEqual(fields["gaps"], "none")
 
     def test_regression_fields_link_the_matched_build_and_the_report(self):
         fields = contract.build_fields(load("payload_regression"))
         self.assertEqual(fields["kind"], "Regression")
-        self.assertEqual(fields["result"], "failed")
+        self.assertEqual(fields["result"], MARK["failed"])
         self.assertEqual(fields["runUrl"], run_url(1520))
         self.assertEqual(fields["commit"], "9f3c2a1")
         self.assertEqual((fields["apkName"], fields["apkSha256"]), ("wire-prod-compatrelease.apk", PROD_APK))
@@ -300,7 +302,7 @@ class BuildFieldsTest(unittest.TestCase):
     def test_deflake_never_claims_a_full_regression(self):
         fields = contract.build_fields(load("payload_deflake"))
         self.assertEqual(fields["kind"], "Deflake")
-        self.assertEqual(fields["result"], "passed")
+        self.assertEqual(fields["result"], MARK["passed"])
         self.assertEqual(fields["tests"], "6 passed, 0 failed, 0 skipped, 0 missing; selector @RC; "
                                           "report https://example.com/allure/1600; "
                                           "not a full regression; source run 1520")
@@ -310,7 +312,7 @@ class BuildFieldsTest(unittest.TestCase):
         payload["evidence"]["qa"]["results"].update(passed=418, failed=0)
         fields = contract.build_fields(payload)
         self.assertEqual(fields["releaseVersion"], "unmatched")
-        self.assertEqual((fields["result"], fields["buildRunUrl"]), ("passed", ""))
+        self.assertEqual((fields["result"], fields["buildRunUrl"]), (MARK["passed"], ""))
         self.assertEqual(fields["gaps"], "Not attached to a build")
 
     def test_the_commit_of_a_regression_is_the_matched_build_commit_and_empty_when_unmatched(self):
@@ -327,13 +329,13 @@ class BuildFieldsTest(unittest.TestCase):
                 payload = load("payload_beta")
                 payload["evidence"]["gaps"] = [gap(code)]
                 fields = contract.build_fields(payload)
-                self.assertEqual((fields["result"], fields["gaps"]), ("partial", code))
+                self.assertEqual((fields["result"], fields["gaps"]), (MARK["partial"], code))
         for code in PASSING:
             with self.subTest(code=code):
                 payload = load("payload_beta")
                 payload["evidence"]["gaps"] = [gap(code)]
                 fields = contract.build_fields(payload)
-                self.assertEqual(fields["result"], "passed")
+                self.assertEqual(fields["result"], MARK["passed"])
                 self.assertEqual(fields["gaps"], code or "none")
 
     def test_a_deploy_only_rerun_reads_by_its_conclusion_with_the_earlier_attempt_code(self):
@@ -342,7 +344,7 @@ class BuildFieldsTest(unittest.TestCase):
                 payload = load("payload_beta")
                 payload["evidence"].update(conclusion=conclusion, gaps=[gap("Earlier attempt")])
                 fields = contract.build_fields(payload)
-                self.assertEqual((fields["result"], fields["gaps"]), (result, "Earlier attempt"))
+                self.assertEqual((fields["result"], fields["gaps"]), (MARK[result], "Earlier attempt"))
 
     def test_the_page_lists_each_code_once_in_first_seen_order(self):
         payload = load("payload_beta")
@@ -353,13 +355,13 @@ class BuildFieldsTest(unittest.TestCase):
     def test_a_failed_test_outranks_every_gap(self):
         payload = load("payload_regression")
         payload["evidence"]["gaps"] = [gap("Evidence missing")]
-        self.assertEqual(contract.build_fields(payload)["result"], "failed")
+        self.assertEqual(contract.build_fields(payload)["result"], MARK["failed"])
 
     def test_cancelled_runs_report_cancelled(self):
         payload = load("payload_regression")
         payload["evidence"].update(conclusion="cancelled", qa=None, gaps=[gap("Evidence missing")])
         fields = contract.build_fields(payload)
-        self.assertEqual((fields["result"], fields["tests"], fields["apkName"]), ("cancelled", "", ""))
+        self.assertEqual((fields["result"], fields["tests"], fields["apkName"]), (MARK["cancelled"], "", ""))
         self.assertEqual(fields["gaps"], "Evidence missing")
 
     def test_timed_out_and_startup_failure_runs_report_failed(self):
@@ -367,7 +369,7 @@ class BuildFieldsTest(unittest.TestCase):
             with self.subTest(conclusion=conclusion):
                 payload = load("payload_beta")
                 payload["evidence"]["conclusion"] = conclusion
-                self.assertEqual(contract.build_fields(payload)["result"], "failed")
+                self.assertEqual(contract.build_fields(payload)["result"], MARK["failed"])
 
     def test_missing_or_empty_results_are_incomplete_never_a_pass(self):
         for change in [dict(passed=None, failed=None, skipped=None, missing=None, selected=None, total=None),
@@ -376,7 +378,7 @@ class BuildFieldsTest(unittest.TestCase):
                 payload = load("payload_regression")
                 payload["evidence"]["qa"]["results"].update(change)
                 fields = contract.build_fields(payload)
-                self.assertEqual(fields["result"], "partial")
+                self.assertEqual(fields["result"], MARK["partial"])
                 self.assertEqual(fields["gaps"], "Tests incomplete")
                 self.assertIn("results unavailable", fields["tests"])
 
@@ -385,13 +387,13 @@ class BuildFieldsTest(unittest.TestCase):
         payload["evidence"]["qa"]["results"].update(passed=415, failed=0, skipped=3, missing=3,
                                                     selected=421, total=421)
         fields = contract.build_fields(payload)
-        self.assertEqual(fields["result"], "partial")
+        self.assertEqual(fields["result"], MARK["partial"])
         self.assertEqual(fields["gaps"], "Tests incomplete")
 
     def test_a_successful_build_with_gaps_is_partial(self):
         payload = load("payload_beta")
         payload["evidence"]["gaps"] = [gap("Evidence missing", "Google Play outcome unknown")]
-        self.assertEqual(contract.build_fields(payload)["result"], "partial")
+        self.assertEqual(contract.build_fields(payload)["result"], MARK["partial"])
 
     def test_fields_are_always_the_same_strings(self):
         for name in PAYLOADS:
@@ -422,6 +424,52 @@ HOSTILE_TEXT = [
 ALLOWED_TEXT = set("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 ._()+,@/-")
 
 
+def deploy_of(*jobs):
+    payload = load("payload_beta")
+    payload["evidence"]["jobs"] = [{"name": name, "conclusion": conclusion} for name, conclusion in jobs]
+    return contract.build_fields(payload)["deploy"]
+
+
+class ResultAndDeployTest(unittest.TestCase):
+    def test_each_result_word_carries_its_mark(self):
+        for conclusion, expected in [("success", "\u2705 passed"), ("failure", "\u274c failed"),
+                                     ("cancelled", "\u23f9\ufe0f cancelled"), ("skipped", "\u26a0\ufe0f partial")]:
+            with self.subTest(conclusion=conclusion):
+                payload = load("payload_beta")
+                payload["evidence"]["conclusion"] = conclusion
+                self.assertEqual(contract.build_fields(payload)["result"], expected)
+
+    def test_a_deploy_entry_has_the_target_then_its_mark(self):
+        self.assertEqual(deploy_of(("deploy (s3)", "success"), ("deploy (s3)", "failure"),
+                                   ("deploy (github-release, app/build/outputs/version.txt)", "cancelled")),
+                         "s3 \u2705 \u00b7 s3 \u274c \u00b7 github-release \u23f9\ufe0f")
+
+    def test_google_play_shows_track_rollout_and_status(self):
+        for rollout, shown in [("0.1", "10%"), ("1.0", "100%"), ("0.25", "25%"), ("half", "half")]:
+            with self.subTest(rollout=rollout):
+                name = "deploy (google-play, com.wire, production, %s, inProgress)" % rollout
+                self.assertEqual(deploy_of((name, "success")), "google-play production %s inProgress \u2705" % shown)
+
+    def test_google_play_with_other_arguments_shows_only_its_label(self):
+        self.assertEqual(deploy_of(("deploy (google-play, com.wire)", "failure")), "google-play \u274c")
+
+    def test_a_failed_release_job_is_shown_and_a_successful_one_is_hidden(self):
+        self.assertEqual(deploy_of(("validate-release", "success"), ("Build Prod-Compatrelease", "failure"),
+                                   ("deploy (s3)", "success")), "Build Prod-Compatrelease \u274c \u00b7 s3 \u2705")
+        self.assertEqual(deploy_of(("validate-release", "success"), ("Build Prod-Compatrelease", "success")), "")
+
+    def test_each_conclusion_has_its_mark_and_an_unknown_one_reads_as_unknown(self):
+        for conclusion, mark in [("success", "\u2705"), ("failure", "\u274c"), ("timed_out", "\u274c"),
+                                 ("startup_failure", "\u274c"), ("cancelled", "\u23f9\ufe0f"),
+                                 ("skipped", "\u23ed\ufe0f"), ("neutral", "\u2754"), (None, "\u2754")]:
+            with self.subTest(conclusion=conclusion):
+                self.assertEqual(deploy_of(("deploy (s3)", conclusion)), "s3 " + mark)
+                self.assertEqual(deploy_of(("Publish", conclusion)), "" if conclusion == "success" else "Publish " + mark)
+
+    def test_no_jobs_leave_the_field_empty(self):
+        self.assertEqual(deploy_of(), "")
+
+
 class HostileTextTest(unittest.TestCase):
     def assertPlain(self, text):
         self.assertLessEqual(set(text), ALLOWED_TEXT, text)
@@ -439,9 +487,9 @@ class HostileTextTest(unittest.TestCase):
                 payload = load("payload_beta")
                 payload["evidence"]["jobs"] = [{"name": hostile, "conclusion": "failure"}]
                 deploy = contract.build_fields(payload)["deploy"]
-                self.assertEqual(deploy.count(": failure"), 1)
+                self.assertEqual(deploy.count("\u274c"), 1)
                 self.assertEqual(deploy.count(";"), 0)
-                self.assertPlain(deploy.replace(": failure", ""))
+                self.assertPlain(deploy.replace("\u274c", "").strip())
 
     def test_selectors_and_report_links_stay_plain(self):
         for hostile in HOSTILE_TEXT:
@@ -600,14 +648,14 @@ class RegressionCountsTest(unittest.TestCase):
     def test_a_run_that_executed_nothing_is_never_a_pass(self):
         fields = self.fields(passed=0, failed=0, skipped=421, missing=0, selected=421, total=421,
                            passed_on_rerun=0)
-        self.assertEqual(fields["result"], "partial")
+        self.assertEqual(fields["result"], MARK["partial"])
         self.assertEqual(fields["gaps"], "Tests incomplete")
         self.assertIn("0 passed, 0 failed, 421 skipped, 0 missing", fields["tests"])
 
     def test_a_run_with_only_missing_results_is_never_a_pass(self):
         fields = self.fields(passed=0, failed=0, skipped=0, missing=5, selected=5, total=5,
                            passed_on_rerun=0)
-        self.assertEqual(fields["result"], "partial")
+        self.assertEqual(fields["result"], MARK["partial"])
         self.assertEqual(fields["gaps"], "Tests incomplete")
 
     def test_a_flaky_pass_shows_the_rerun_count(self):
@@ -675,14 +723,14 @@ class ReviewFindingsTest(unittest.TestCase):
                 payload = load(name)
                 payload["evidence"]["qa"] = None
                 fields = contract.build_fields(payload)
-                self.assertEqual(fields["result"], "partial")
+                self.assertEqual(fields["result"], MARK["partial"])
                 self.assertEqual(fields["gaps"], "Evidence missing")
                 self.assertEqual(fields["tests"], "results unavailable")
 
     def test_a_cancelled_regression_without_its_record_stays_cancelled(self):
         payload = load("payload_regression")
         payload["evidence"].update(conclusion="cancelled", qa=None)
-        self.assertEqual(contract.build_fields(payload)["result"], "cancelled")
+        self.assertEqual(contract.build_fields(payload)["result"], MARK["cancelled"])
 
     def test_unhashable_record_kinds_raise_value_error(self):
         for kind in [[], {}, ["context"]]:

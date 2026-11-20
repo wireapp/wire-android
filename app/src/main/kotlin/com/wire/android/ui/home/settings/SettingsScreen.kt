@@ -107,6 +107,9 @@ fun SettingsScreenContent(
     onAppLockSwitchChanged: (Boolean) -> Unit
 ) {
     val featureVisibilityFlags = LocalFeatureVisibilityFlags.current
+    val mfaStatus = settingsState.isMFAEnabled?.let { enabled ->
+        stringResource(if (enabled) R.string.label_on else R.string.label_off)
+    }
 
     with(featureVisibilityFlags) {
         LazyColumn(
@@ -127,10 +130,11 @@ fun SettingsScreenContent(
                     }
                 },
                 trailingText = { settingsItem ->
-                    if (settingsItem is SettingsItem.YourAccount) {
-                        return@sectionWithElements settingsState.userName
+                    when (settingsItem) {
+                        SettingsItem.YourAccount -> settingsState.userName
+                        SettingsItem.MFA -> mfaStatus
+                        else -> null
                     }
-                    return@sectionWithElements null
                 },
                 onItemClicked = onItemClicked
             )

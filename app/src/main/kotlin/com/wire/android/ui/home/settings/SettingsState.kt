@@ -21,4 +21,5 @@ data class SettingsState(
     val isAppLockEditable: Boolean = false,
     val isAppLockEnabled: Boolean = false,
     val userName: String = "",
+    val isMFAEnabled: Boolean? = null,
 )

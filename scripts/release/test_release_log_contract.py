@@ -282,8 +282,7 @@ class ValidatePayloadTest(unittest.TestCase):
         self.assertRejected("payload_regression", lambda p: p["evidence"]["origin"].update(sha=None))
 
 
-JIRA_4_38 = ("https://wearezeta.atlassian.net/issues?jql=project%3DWPB%20AND%20fixVersion%3D%22Android%204.38.0%22"
-             "%20AND%20status%20NOT%20IN%20(Done%2Crejected)")
+JIRA_4_38 = "https://wearezeta.atlassian.net/issues?jql=project%3DWPB%20AND%20fixVersion%3D%22Android%204.38.0%22"
 
 
 class BuildFieldsTest(unittest.TestCase):
@@ -730,12 +729,11 @@ class EventIdFieldTest(unittest.TestCase):
 
 
 class JiraUrlFieldTest(unittest.TestCase):
-    def test_the_url_lists_the_open_tickets_of_the_release_unchanged(self):
+    def test_the_url_lists_every_ticket_of_the_release_unchanged(self):
         payload = load("payload_regression")
         payload["release_version"] = "4.39.0"
         self.assertEqual(contract.build_fields(payload)["jiraUrl"],
-                         "https://wearezeta.atlassian.net/issues?jql=project%3DWPB%20AND%20fixVersion%3D%22Android%204.39.0%22"
-                         "%20AND%20status%20NOT%20IN%20(Done%2Crejected)")
+                         "https://wearezeta.atlassian.net/issues?jql=project%3DWPB%20AND%20fixVersion%3D%22Android%204.39.0%22")
 
     def test_the_unmatched_page_has_no_url(self):
         self.assertEqual(contract.build_fields(load("payload_unmatched"))["jiraUrl"], "")

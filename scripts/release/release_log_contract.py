@@ -221,8 +221,7 @@ CONCLUSIONS = ("success", "failure", "cancelled", "timed_out", "skipped", "neutr
                "startup_failure", "stale")
 UNMATCHED = "unmatched"
 FIELD_LIMIT = 1000
-JIRA_OPEN_TICKETS_URL = ("https://wearezeta.atlassian.net/issues?jql=project%3DWPB%20AND%20fixVersion%3D%22Android%20{version}%22"
-                        "%20AND%20status%20NOT%20IN%20(Done%2Crejected)")
+JIRA_TICKETS_URL = "https://wearezeta.atlassian.net/issues?jql=project%3DWPB%20AND%20fixVersion%3D%22Android%20{version}%22"
 TESTINY_RUN_URL = "https://app.testiny.io/AN/testruns/tr/%d"
 
 _VERSION = re.compile(r"(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)")
@@ -511,7 +510,7 @@ def build_fields(payload):
         "gaps": "; ".join(codes) if codes else "none",
         "eventId": payload["event_id"],
         "jiraUrl": ("" if payload["release_version"] == UNMATCHED
-                    else JIRA_OPEN_TICKETS_URL.format(version=payload["release_version"])),
+                    else JIRA_TICKETS_URL.format(version=payload["release_version"])),
     }
     return {name: _clean(value) for name, value in fields.items()}
 

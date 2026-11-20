@@ -69,9 +69,11 @@ import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.util.CustomTabsHelper
 import com.wire.android.util.SupportPage
 import com.wire.android.util.supportUrlResource
+import com.wire.android.util.AppsUtil
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.data.conversation.CreateConversationParam
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.user.SupportedProtocol
 import com.wire.kalium.logic.feature.featureConfig.AppsAllowedProtocol
 import com.wire.kalium.logic.feature.featureConfig.AppsAllowedResult
 
@@ -231,7 +233,7 @@ private fun GroupOptionState.GroupOptionsScreenMainContent(
                 }
             }
             AllowGuestsOptions(groupMetadataState.isChannel, onAllowGuestChanged)
-            if (isTeamAllowedToUseApps is AppsAllowedResult.Enabled) {
+            if (isAppsAvailable) {
                 AllowAppsOptions(onAllowServicesChanged)
             }
             if (groupMetadataState.groupProtocol != CreateConversationParam.Protocol.MLS || mlsReadReceiptsEnabled) {
@@ -474,9 +476,19 @@ private fun PreviewGroupOptionScreen(
     channelsHistoryOptionsEnabled: Boolean = BuildConfig.CHANNELS_HISTORY_OPTIONS_ENABLED,
     mlsReadReceiptsEnabled: Boolean = BuildConfig.MLS_READ_RECEIPTS_ENABLED,
     withAppsEnabled: AppsAllowedResult = AppsAllowedResult.Enabled(protocol = AppsAllowedProtocol.MLS),
+    withWhitelistedServices: Boolean = false,
 ) = WireTheme {
+    val isAppsAvailable = withAppsEnabled is AppsAllowedResult.Enabled &&
+        when (groupMetadataState.groupProtocol) {
+            CreateConversationParam.Protocol.PROTEUS -> withWhitelistedServices
+            CreateConversationParam.Protocol.MLS -> AppsUtil.isAppsAllowed(withAppsEnabled, conversationProtocol = null)
+        }
     GroupOptionScreenContent(
-        groupOptionState = GroupOptionState(isTeamAllowedToUseApps = withAppsEnabled),
+        groupOptionState = GroupOptionState(
+            isTeamAllowedToUseApps = withAppsEnabled,
+            isAppsAvailable = isAppsAvailable,
+            isAllowAppsEnabled = isAppsAvailable,
+        ),
         createGroupState = CreateGroupState.Default,
         groupMetadataState = groupMetadataState,
         onAccessClicked = {},
@@ -548,7 +560,7 @@ fun PreviewGroupOptionScreen_AppsEnabled_Group() = PreviewGroupOptionScreen(
         groupProtocol = CreateConversationParam.Protocol.MLS,
     ),
     mlsReadReceiptsEnabled = false,
-    withAppsEnabled = AppsAllowedResult.Disabled
+    withAppsEnabled = AppsAllowedResult.Enabled(protocol = AppsAllowedProtocol.MLS)
 )
 
 @Composable
@@ -571,4 +583,35 @@ fun PreviewGroupOptionScreen_AppsEnabled_Channel() = PreviewGroupOptionScreen(
     ),
     mlsReadReceiptsEnabled = false,
     withAppsEnabled = AppsAllowedResult.Enabled(protocol = AppsAllowedProtocol.MLS)
+)
+
+@Composable
+@PreviewMultipleThemes
+fun PreviewGroupOptionScreen_AppsDisabled_MixedTeamMlsGroup() = PreviewGroupOptionScreen(
+    groupMetadataState = GroupMetadataState(
+        isChannel = false,
+        groupProtocol = CreateConversationParam.Protocol.MLS,
+    ),
+    withAppsEnabled = AppsAllowedResult.Enabled(AppsAllowedProtocol.MIXED(SupportedProtocol.PROTEUS))
+)
+
+@Composable
+@PreviewMultipleThemes
+fun PreviewGroupOptionScreen_AppsDisabled_ProteusWithoutServices() = PreviewGroupOptionScreen(
+    groupMetadataState = GroupMetadataState(
+        isChannel = false,
+        groupProtocol = CreateConversationParam.Protocol.PROTEUS,
+    ),
+    withAppsEnabled = AppsAllowedResult.Enabled(AppsAllowedProtocol.PROTEUS),
+)
+
+@Composable
+@PreviewMultipleThemes
+fun PreviewGroupOptionScreen_AppsEnabled_ProteusWithServices() = PreviewGroupOptionScreen(
+    groupMetadataState = GroupMetadataState(
+        isChannel = false,
+        groupProtocol = CreateConversationParam.Protocol.PROTEUS,
+    ),
+    withAppsEnabled = AppsAllowedResult.Enabled(AppsAllowedProtocol.PROTEUS),
+    withWhitelistedServices = true,
 )

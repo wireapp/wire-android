@@ -35,11 +35,14 @@ import com.wire.kalium.logic.feature.conversation.UpdateConversationAccessRoleUs
 import com.wire.kalium.logic.feature.conversation.apps.ChangeAccessForAppsInConversationUseCase
 import com.wire.kalium.logic.feature.featureConfig.AppsAllowedResult
 import com.wire.kalium.logic.feature.featureConfig.ObserveIsAppsAllowedForUsageUseCase
+import com.wire.kalium.logic.feature.service.HasWhitelistedServicesUseCase
 import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
 import dev.zacsweers.metro.Assisted
 import dev.zacsweers.metro.AssistedFactory
 import dev.zacsweers.metro.AssistedInject
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterIsInstance
@@ -60,6 +63,7 @@ class UpdateAppsAccessViewModel @AssistedInject constructor(
     private val selfUser: ObserveSelfUserUseCase,
     private val changeAccessForAppsInConversation: ChangeAccessForAppsInConversationUseCase,
     @Assisted navigationArgs: UpdateAppsAccessNavArgs,
+    private val hasWhitelistedServices: HasWhitelistedServicesUseCase,
 ) : ViewModel() {
     @AssistedFactory
     interface Factory {
@@ -68,6 +72,12 @@ class UpdateAppsAccessViewModel @AssistedInject constructor(
 
     private val conversationId: QualifiedID = navigationArgs.conversationId
     private var currentConversation: Conversation? = null
+    private var canSelfManageApps = false
+
+    private class WhitelistRequest
+
+    private val whitelistRequest = MutableStateFlow<WhitelistRequest?>(null)
+    private val hasLegacyBots = MutableStateFlow(false)
     private val currentAccessParams = navigationArgs.updateAppsAccessParams
     val shouldUseNewAppsUi: Boolean = currentAccessParams.shouldUseNewAppsUi
 
@@ -81,6 +91,15 @@ class UpdateAppsAccessViewModel @AssistedInject constructor(
     )
 
     init {
+        viewModelScope.launch {
+            whitelistRequest.collectLatest { request ->
+                if (request == null) return@collectLatest
+                val available = hasWhitelistedServices()
+                if (whitelistRequest.value === request) {
+                    hasLegacyBots.value = available
+                }
+            }
+        }
         observeConversationDetails()
     }
 
@@ -103,76 +122,90 @@ class UpdateAppsAccessViewModel @AssistedInject constructor(
                 observeIsAppsAllowedForUsage(),
                 conversationDetailsFlow,
                 isSelfAdminFlow,
-                selfUser()
-            ) { isAppsAllowedResult, conversationDetails, isSelfAnAdmin, selfUser ->
-                CombineFour(isAppsAllowedResult, conversationDetails, isSelfAnAdmin, selfUser)
-            }.collect { (isAppsAllowedResult, conversationDetails, isSelfAnAdmin, selfUser) ->
-                currentConversation = conversationDetails.conversation
-                val isTeamAdmin = selfUser.userType.isTeamAdmin()
-                val isSelfInConversationTeam = selfUser.teamId == conversationDetails.conversation.teamId
-                val isSelfChannelTeamAdmin =
-                    (conversationDetails is ConversationDetails.Group.Channel && isTeamAdmin && isSelfInConversationTeam)
-                val canSelfPerformAdminActions = isSelfAnAdmin || isSelfChannelTeamAdmin
-
-                // WPB-21835: Apps availability logic controlled by feature flag
-                val isAppAccessAllowed = computeAppsEnabledStatus(conversationDetails, isAppsAllowedResult)
-                val isUpdatingAppAccessAllowed =
-                    computeAppsAllowedStatus(canSelfPerformAdminActions, conversationDetails, isAppsAllowedResult)
-
-                updateAppsAccessState = updateAppsAccessState.copy(
-                    isUpdatingAppAccessAllowed = isUpdatingAppAccessAllowed,
-                    isAppAccessAllowed = isAppAccessAllowed,
-                    isLoadingAppsOption = false,
-                    shouldShowDisableAppsConfirmationDialog = false
-                )
-            }
+                selfUser(),
+                hasLegacyBots,
+            ) { isAppsAllowedResult, conversationDetails, isSelfAnAdmin, selfUser, legacyAppsAvailable ->
+                AppsAccessInputs(isAppsAllowedResult, conversationDetails, isSelfAnAdmin, selfUser, legacyAppsAvailable)
+            }.collect(::onAppsAccessInputs)
         }
     }
 
-    /**
-     * Determine apps visibility based on feature flag and team settings
-     * Or just should be protocol based in case of current logic
-     */
-    private fun computeAppsEnabledStatus(
-        conversationDetails: ConversationDetails,
-        appsAllowedResult: AppsAllowedResult
-    ) = conversationDetails.conversation.isServicesAllowed() &&
-        isServicesSupportedForConversation(conversationDetails.conversation.protocol, appsAllowedResult)
+    @Suppress("DestructuringDeclarationWithTooManyEntries")
+    private fun onAppsAccessInputs(inputs: AppsAccessInputs) {
+        val (isAppsAllowedResult, conversationDetails, isSelfAnAdmin, selfUser, legacyAppsAvailable) = inputs
+        currentConversation = conversationDetails.conversation
+        val isTeamAdmin = selfUser.userType.isTeamAdmin()
+        val isSelfInConversationTeam = selfUser.teamId == conversationDetails.conversation.teamId
+        val isSelfChannelTeamAdmin =
+            (conversationDetails is ConversationDetails.Group.Channel && isTeamAdmin && isSelfInConversationTeam)
+        val canSelfPerformAdminActions = isSelfAnAdmin || isSelfChannelTeamAdmin
 
-    /**
-     * Determine apps visibility based on feature flag and team settings
-     * Or just should be protocol based in case of current logic
-     */
-    private fun computeAppsAllowedStatus(
-        canSelfPerformAdminActions: Boolean,
-        conversationDetails: ConversationDetails,
-        appsAllowedResult: AppsAllowedResult
-    ) = canSelfPerformAdminActions &&
-        isServicesSupportedForConversation(conversationDetails.conversation.protocol, appsAllowedResult)
-
-    private fun isServicesSupportedForConversation(
-        protocolInfo: Conversation.ProtocolInfo,
-        appsAllowedResult: AppsAllowedResult
-    ) = appsAllowedResult is AppsAllowedResult.Enabled &&
-        when (protocolInfo) {
-            is Conversation.ProtocolInfo.MLS -> AppsUtil.isAppsAllowed(appsAllowedResult, protocolInfo)
-            is Conversation.ProtocolInfo.Proteus -> true
-            is Conversation.ProtocolInfo.Mixed -> AppsUtil.isAppsAllowed(appsAllowedResult, protocolInfo)
+        val isProteus = conversationDetails.conversation.protocol is Conversation.ProtocolInfo.Proteus
+        canSelfManageApps = canSelfPerformAdminActions &&
+            (!isProteus || (selfUser.teamId != null && isSelfInConversationTeam))
+        checkLegacyBots(isProteus && canSelfManageApps)
+        val isAppAccessAllowed = if (isProteus) {
+            conversationDetails.conversation.isServicesAllowed()
+        } else {
+            conversationDetails.conversation.isServicesAllowed() &&
+                AppsUtil.isAppsAllowed(isAppsAllowedResult, conversationDetails.conversation.protocol)
         }
+        val isUpdatingAppAccessAllowed = if (isProteus) {
+            canSelfManageApps && (isAppAccessAllowed || legacyAppsAvailable)
+        } else {
+            canSelfPerformAdminActions &&
+                AppsUtil.isAppsAllowed(isAppsAllowedResult, conversationDetails.conversation.protocol)
+        }
+        updateObservedAccessState(isAppAccessAllowed, isUpdatingAppAccessAllowed)
+    }
 
-    private data class CombineFour(
+    private fun updateObservedAccessState(isAppAccessAllowed: Boolean, isUpdatingAppAccessAllowed: Boolean) {
+        val wasConfirming = updateAppsAccessState.shouldShowDisableAppsConfirmationDialog
+        val keepConfirmation = wasConfirming && isUpdatingAppAccessAllowed
+        updateAppsAccessState = updateAppsAccessState.copy(
+            isUpdatingAppAccessAllowed = isUpdatingAppAccessAllowed,
+            isAppAccessAllowed = if (keepConfirmation) updateAppsAccessState.isAppAccessAllowed else isAppAccessAllowed,
+            shouldShowDisableAppsConfirmationDialog = keepConfirmation,
+            isLoadingAppsOption = updateAppsAccessState.isLoadingAppsOption && (!wasConfirming || keepConfirmation),
+        )
+    }
+
+    private fun checkLegacyBots(canCheckWhitelist: Boolean) {
+        if (!canCheckWhitelist) {
+            whitelistRequest.value = null
+            hasLegacyBots.value = false
+        } else if (whitelistRequest.value == null) {
+            whitelistRequest.value = WhitelistRequest()
+        }
+    }
+
+    private data class AppsAccessInputs(
         val appsAllowedResult: AppsAllowedResult,
         val conversationDetails: ConversationDetails,
         val isSelfAnAdmin: Boolean,
-        val selfUser: SelfUser
+        val selfUser: SelfUser,
+        val legacyAppsAvailable: Boolean,
     )
 
     fun onAppsAccessUpdate(shouldEnableAppsAccess: Boolean) {
-        if (currentConversation == null) return
+        if (updateAppsAccessState.isLoadingAppsOption || !isAppsAccessChangeAllowed(shouldEnableAppsAccess)) return
         updateState(updateAppsAccessState.copy(isLoadingAppsOption = true, isAppAccessAllowed = shouldEnableAppsAccess))
         when (shouldEnableAppsAccess) {
             true -> updateAppsAccessRemotely(true)
             false -> updateState(updateAppsAccessState.copy(shouldShowDisableAppsConfirmationDialog = true))
+        }
+    }
+
+    private fun isAppsAccessChangeAllowed(enable: Boolean): Boolean {
+        val conversation = currentConversation ?: return false
+        return if (conversation.protocol is Conversation.ProtocolInfo.Proteus) {
+            canSelfManageApps && if (enable) {
+                hasLegacyBots.value
+            } else {
+                conversation.isServicesAllowed()
+            }
+        } else {
+            updateAppsAccessState.isUpdatingAppAccessAllowed
         }
     }
 
@@ -196,13 +229,30 @@ class UpdateAppsAccessViewModel @AssistedInject constructor(
                         )
                     )
 
-                is UpdateConversationAccessRoleUseCase.Result.Success -> updateState(
-                    updateAppsAccessState.copy(
-                        isAppAccessAllowed = shouldEnableAppsAccess,
-                        hasErrorOnUpdateAppAccess = false,
-                        isLoadingAppsOption = false,
+                is UpdateConversationAccessRoleUseCase.Result.Success -> {
+                    val latestConversation = currentConversation
+                    if (latestConversation?.id == conversation.id && latestConversation.protocol is Conversation.ProtocolInfo.Proteus) {
+                        currentConversation = latestConversation.copy(
+                            accessRole = if (shouldEnableAppsAccess) {
+                                (latestConversation.accessRole + Conversation.AccessRole.SERVICE).distinct()
+                            } else {
+                                latestConversation.accessRole - Conversation.AccessRole.SERVICE
+                            }
+                        )
+                    }
+                    updateState(
+                        updateAppsAccessState.copy(
+                            isAppAccessAllowed = shouldEnableAppsAccess,
+                            isUpdatingAppAccessAllowed = if (conversation.protocol is Conversation.ProtocolInfo.Proteus) {
+                                isAppsAccessChangeAllowed(!shouldEnableAppsAccess)
+                            } else {
+                                updateAppsAccessState.isUpdatingAppAccessAllowed
+                            },
+                            hasErrorOnUpdateAppAccess = false,
+                            isLoadingAppsOption = false,
+                        )
                     )
-                )
+                }
             }
         }
     }
@@ -222,7 +272,7 @@ class UpdateAppsAccessViewModel @AssistedInject constructor(
     }
 
     fun onServiceDialogConfirm() {
-        if (currentConversation == null) return
+        if (!updateAppsAccessState.shouldShowDisableAppsConfirmationDialog || !isAppsAccessChangeAllowed(false)) return
         updateState(updateAppsAccessState.copy(shouldShowDisableAppsConfirmationDialog = false, isLoadingAppsOption = true))
         updateAppsAccessRemotely(false)
     }
@@ -232,7 +282,11 @@ class UpdateAppsAccessViewModel @AssistedInject constructor(
             updateAppsAccessState.copy(
                 isLoadingAppsOption = false,
                 shouldShowDisableAppsConfirmationDialog = false,
-                isAppAccessAllowed = !updateAppsAccessState.isAppAccessAllowed
+                isAppAccessAllowed = if (currentConversation?.protocol is Conversation.ProtocolInfo.Proteus) {
+                    currentConversation?.isServicesAllowed() == true
+                } else {
+                    !updateAppsAccessState.isAppAccessAllowed
+                }
             )
         )
     }

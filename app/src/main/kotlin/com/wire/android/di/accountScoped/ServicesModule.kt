@@ -23,6 +23,7 @@ import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.featureConfig.ObserveIsAppsAllowedForUsageUseCase
 import com.wire.kalium.logic.feature.service.GetServiceByIdUseCase
+import com.wire.kalium.logic.feature.service.HasWhitelistedServicesUseCase
 import com.wire.kalium.logic.feature.service.ObserveAllServicesUseCase
 import com.wire.kalium.logic.feature.service.ObserveIsServiceMemberUseCase
 import com.wire.kalium.logic.feature.service.SearchServicesByNameUseCase
@@ -51,6 +52,10 @@ class ServicesModule {
     @Provides
     fun provideObserveAllServicesUseCase(serviceScope: ServiceScope): ObserveAllServicesUseCase =
         serviceScope.observeAllServices
+
+    @Provides
+    fun provideHasWhitelistedServicesUseCase(serviceScope: ServiceScope): HasWhitelistedServicesUseCase =
+        serviceScope.hasWhitelistedServices
 
     @Provides
     fun provideSyncServicesUseCase(serviceScope: ServiceScope): SyncServicesUseCase =

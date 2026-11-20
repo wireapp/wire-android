@@ -42,6 +42,7 @@ import com.wire.kalium.logic.data.user.type.isExternal
 import com.wire.kalium.logic.data.user.type.isFederated
 import com.wire.kalium.logic.data.user.type.isRegularTeamMember
 import com.wire.kalium.logic.data.user.type.isTeamAdmin
+import com.wire.kalium.logic.feature.service.HasWhitelistedServicesUseCase
 import com.wire.kalium.logic.feature.client.IsWireCellsEnabledUseCase
 import com.wire.kalium.logic.feature.conversation.ConversationUpdateReceiptModeResult
 import com.wire.kalium.logic.feature.conversation.MigrateConversationToMLSUseCase
@@ -64,6 +65,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterIsInstance
@@ -92,6 +94,7 @@ class GroupConversationDetailsViewModel @AssistedInject constructor(
     private val isWireCellsEnabled: IsWireCellsEnabledUseCase,
     private val getFeatureConfig: GetFeatureConfigUseCase,
     private val migrateConversationToMLS: MigrateConversationToMLSUseCase,
+    private val hasWhitelistedServices: HasWhitelistedServicesUseCase,
 ) : ActionsViewModel<GroupConversationDetailsViewAction>(),
     GroupConversationParticipantsManager by GroupConversationParticipantsManagerImpl(
         conversationId = navigationArgs.conversationId,
@@ -110,10 +113,24 @@ class GroupConversationDetailsViewModel @AssistedInject constructor(
 
     private val _isFetchingInitialData: MutableStateFlow<Boolean> = MutableStateFlow(true)
     val isFetchingInitialData: MutableStateFlow<Boolean> = _isFetchingInitialData
+
+    private class WhitelistRequest
+
+    private val whitelistRequest = MutableStateFlow<WhitelistRequest?>(null)
+    private val hasLegacyBots = MutableStateFlow(false)
     private val isMlsMigrationEnabled = MutableStateFlow(false)
     private var protocolTapCount = 0
 
     init {
+        viewModelScope.launch {
+            whitelistRequest.collectLatest { request ->
+                if (request == null) return@collectLatest
+                val available = hasWhitelistedServices()
+                if (whitelistRequest.value === request) {
+                    hasLegacyBots.value = available
+                }
+            }
+        }
         loadMlsMigrationFeatureFlag()
         observeConversationDetails()
     }
@@ -160,13 +177,16 @@ class GroupConversationDetailsViewModel @AssistedInject constructor(
                 .flowOn(dispatcher.io())
                 .shareIn(this, SharingStarted.WhileSubscribed(), 1)
 
+            val detailsWithAppsAvailability = combine(groupDetailsFlow, hasLegacyBots) { details, available ->
+                details to available
+            }
             combine(
-                groupDetailsFlow,
+                detailsWithAppsAvailability,
                 selfWithTeamFlow,
                 appsAllowedResultFlow,
                 observeSelfDeletionTimerSettingsForConversation(conversationId, considerSelfUserSettings = false),
                 isMlsMigrationEnabled,
-            ) { groupDetails, (selfUser, selfTeam), appsAllowedResult, selfDeletionTimer, isMlsMigrationEnabled ->
+            ) { (groupDetails, legacyAppsAvailable), (selfUser, selfTeam), appsAllowedResult, selfDeletionTimer, isMlsMigrationEnabled ->
                 val selfType = selfUser.userType
                 val isSelfInTeamThatOwnsConversation = selfTeam?.id != null && selfTeam.id == groupDetails.conversation.teamId?.value
                 val isSelfExternalMember = selfUser.userType.isExternal()
@@ -200,9 +220,17 @@ class GroupConversationDetailsViewModel @AssistedInject constructor(
                         else -> false
                     }
 
+                val isProteus = groupDetails.conversation.protocol is Conversation.ProtocolInfo.Proteus
+                checkLegacyBots(isProteus && canSelfPerformAdminTasks && isSelfInTeamThatOwnsConversation)
                 val shouldUseNewAppsUi = computeShouldUseNewAppsUi(groupDetails, appsAllowedResult)
                 val isUpdatingAppsAllowedForConversation =
-                    computeAppsAllowedStatus(canSelfPerformAdminTasks, isSelfInTeamThatOwnsConversation, groupDetails, appsAllowedResult)
+                    computeAppsAllowedStatus(
+                        canSelfPerformAdminTasks,
+                        isSelfInTeamThatOwnsConversation,
+                        groupDetails,
+                        appsAllowedResult,
+                        legacyAppsAvailable
+                    )
 
                 _isFetchingInitialData.value = false
 
@@ -226,6 +254,8 @@ class GroupConversationDetailsViewModel @AssistedInject constructor(
                         isUpdatingGuestAllowed = canSelfPerformAdminTasks && isSelfInTeamThatOwnsConversation,
                         isUpdatingChannelAccessAllowed = canSelfPerformAdminTasks && isSelfInTeamThatOwnsConversation,
                         isAppsAllowed = groupDetails.conversation.isServicesAllowed(),
+                        isAppsVisible = !isProteus || groupDetails.conversation.isServicesAllowed() ||
+                            isUpdatingAppsAllowedForConversation,
                         shouldUseNewAppsUi = shouldUseNewAppsUi,
                         isUpdatingAppsAllowed = isUpdatingAppsAllowedForConversation,
                         isUpdatingReadReceiptAllowed = canSelfPerformAdminTasks && groupDetails.conversation.isTeamGroup(),
@@ -255,6 +285,15 @@ class GroupConversationDetailsViewModel @AssistedInject constructor(
         }
     }
 
+    private fun checkLegacyBots(canCheckWhitelist: Boolean) {
+        if (!canCheckWhitelist) {
+            whitelistRequest.value = null
+            hasLegacyBots.value = false
+        } else if (whitelistRequest.value == null) {
+            whitelistRequest.value = WhitelistRequest()
+        }
+    }
+
     /**
      * Determine apps visibility based on feature flag and team settings
      * Or just should be protocol based in case of current logic
@@ -263,10 +302,16 @@ class GroupConversationDetailsViewModel @AssistedInject constructor(
         canSelfPerformAdminTasks: Boolean,
         isSelfInTeamThatOwnsConversation: Boolean,
         groupDetails: ConversationDetails.Group,
-        appsAllowedResult: AppsAllowedResult
+        appsAllowedResult: AppsAllowedResult,
+        legacyAppsAvailable: Boolean,
     ) = canSelfPerformAdminTasks &&
             isSelfInTeamThatOwnsConversation &&
-            isServicesSupportedForConversation(groupDetails.conversation.protocol, appsAllowedResult)
+            if (groupDetails.conversation.protocol is Conversation.ProtocolInfo.Proteus) {
+                groupDetails.conversation.isServicesAllowed() ||
+                    legacyAppsAvailable
+            } else {
+                isServicesSupportedForConversation(groupDetails.conversation.protocol, appsAllowedResult)
+            }
 
     private fun isServicesSupportedForConversation(
         protocolInfo: Conversation.ProtocolInfo,

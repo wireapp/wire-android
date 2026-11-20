@@ -157,7 +157,7 @@ fun GroupConversationSettings(
                             ),
                         )
                     }
-                    add {
+                    addIf(state.isAppsVisible) {
                         GroupConversationOptionsItem(
                             title = stringResource(id = R.string.conversation_options_services_label),
                             subtitle = stringResource(id = R.string.conversation_details_apps_description),
@@ -565,5 +565,27 @@ fun PreviewMemberChannel() = PreviewGroupConversationOptions(
         channelAccessType = ChannelAccessType.PRIVATE,
         protocolInfo = ProtocolInfoMLS,
         mlsEnabled = true,
+    ),
+)
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewProteusAppsHiddenWithoutServices() = PreviewGroupConversationOptions(
+    state = StateAdmin.copy(
+        protocolInfo = Conversation.ProtocolInfo.Proteus,
+        isAppsAllowed = false,
+        isAppsVisible = false,
+        isUpdatingAppsAllowed = false,
+    ),
+)
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewProteusAppsOnWithoutServices() = PreviewGroupConversationOptions(
+    state = StateAdmin.copy(
+        protocolInfo = Conversation.ProtocolInfo.Proteus,
+        isAppsAllowed = true,
+        isAppsVisible = true,
+        isUpdatingAppsAllowed = true,
     ),
 )

@@ -72,11 +72,11 @@ internal fun NewConversationSearchPeopleRouteScreen(
                     shouldShowChannelPromotion = false,
                     isUserAllowedToCreateChannels = newConversationViewModel.isChannelCreationPossible,
                     onCreateNewRegularGroup = {
-                        newConversationViewModel.setIsChannel(false)
+                        newConversationViewModel.startGroupCreation(isChannel = false)
                         onStartGroupOrChannel()
                     },
                     onCreateNewChannel = {
-                        newConversationViewModel.setIsChannel(true)
+                        newConversationViewModel.startGroupCreation(isChannel = true)
                         onStartGroupOrChannel()
                     },
                     firstVisibleButtonModifier = Modifier.focusRequester(focusRequester),

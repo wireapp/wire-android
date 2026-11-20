@@ -191,6 +191,7 @@ permissions:
 jobs:
   # Validate user inputs and derive selectors.
   validate-and-resolve-inputs:
+    timeout-minutes: 5
     name: Validate + resolve run inputs
     runs-on: ubuntu-latest
     permissions:

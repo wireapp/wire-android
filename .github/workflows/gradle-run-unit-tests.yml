@@ -18,6 +18,7 @@ env:
 
 jobs:
   coverage:
+    timeout-minutes: 30
     env:
       GRADLE_OPTS: '-Dorg.gradle.jvmargs="-XX:MaxMetaspaceSize=2g -Xmx4G"'
     runs-on: warp-ubuntu-2404-x64-8x

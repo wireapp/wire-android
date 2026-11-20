@@ -22,13 +22,13 @@ A manual production regression run joins it through the `QA Android Prod Regress
 | --- | --- |
 | `releaseVersion` | Bare version, for example `4.38.0`. |
 | `kind` | `Beta N`, `Production`, `Regression`, or `Deflake`. |
-| `result` | `passed`, `failed`, `cancelled`, or `partial`. |
+| `result` | A mark and a word: `✅ passed`, `❌ failed`, `⚠️ partial`, or `⏹️ cancelled`. The mark shows at a glance whether the build can ship. |
 | `runUrl` | The run and attempt on GitHub. |
 | `commit` | Short application SHA of the run. For a regression, the commit of the matched production build, empty when none matches. |
 | `apkName`, `apkSha256` | The final signed APK, after signing lineage. |
 | `buildRunUrl` | The matched build run, for a regression only. |
-| `deploy` | The result of each release job. |
-| `tests` | Test counts, selector, and report link, for a regression only. A test that failed first and passed on a rerun shows as `N passed on rerun`. |
+| `deploy` | Build events only. Each deploy target and its result, for example `google-play production 10% inProgress ✅ · s3 ✅ · github-release ✅`. Any other release job shows only when it did not succeed, for example `Build Prod-Compatrelease ❌`. Marks: ✅ success, ❌ failure, timed out, or startup failure, ⏹️ cancelled, ⏭️ skipped, ❔ anything else or unknown. Empty when every job succeeded and none was a deploy target. |
+| `tests` | Test counts, selector, and report link, for a regression only. The report link appears only when it is this run's report, see [How the reporter attributes a regression](#how-the-reporter-attributes-a-regression). A test that failed first and passed on a rerun shows as `N passed on rerun`. |
 | `gaps` | `none`, or the items from [Gaps](#gaps) that apply, separated by `; `. |
 | `eventId` | The event identity, `<kind>:<repository>:<run id>:<attempt>`. A replay carries the same value. |
 
@@ -79,7 +79,7 @@ To write the record by hand from the QA step environment, run `make release-log/
 
 ## How the reporter attributes a regression
 
-The reporter reads the QA record of the run and checks it against the GitHub run: repository, run ID, attempt, and workflow. It does not require the tests commit to equal the run commit. It ignores artifacts of other attempts. It treats the record as data and drops a report link that is not on the repository's GitHub Pages site.
+The reporter reads the QA record of the run and checks it against the GitHub run: repository, run ID, attempt, and workflow. It does not require the tests commit to equal the run commit. It ignores artifacts of other attempts. It treats the record as data. It keeps the report link only when it equals `<RELEASE_LOG_REPORT_PAGES_URL>/runs/<run id>-<attempt>/`, with the run ID and attempt of the regression record itself. A link to another run, another host, or another path is dropped, and so is every link when the variable is unset or not an https URL. The dropped link leaves a note in the job summary that says which case applied.
 
 It then looks for the production build that made the tested APK. It lists the production runs from the 90 days before the regression and reads each attempt's build record. It needs exactly one build with the same APK file name and SHA-256. The digest proves the bytes are the same, so the version label never refuses a match; the label can differ from the release tag and its build number is not the version code. The word `latest` and the tests commit never identify the APK.
 
@@ -108,8 +108,11 @@ Create the environment before the first run. If the workflow names an environmen
    - `RELEASE_LOG_WEBHOOK_URL`
    - `RELEASE_LOG_WEBHOOK_TOKEN`, sent as the `X-Automation-Webhook-Token` header.
 3. Add the repository variable `RELEASE_LOG_PUBLICATION_ENABLED`. Set it to `false`.
+4. Add the repository variable `RELEASE_LOG_REPORT_PAGES_URL`. Set it to the `html_url` of the GitHub Pages site of the repository that holds the QA reports, with no trailing path. Without it, no report link reaches the page.
 
 The job runs only on the default branch, so a manual run from another branch does nothing.
+
+The Confluence rule needs no change for the mark or the shorter `deploy` text. Change it only if it branches on the exact `result` word, because the field now starts with a mark.
 
 Publication stays off until the variable is exactly `true`. While it is off, the workflow still builds each entry and shows it in the job summary. It sends nothing. Never paste the URL or token in a ticket, chat, or log.
 

@@ -409,8 +409,7 @@ def _tests(kind, qa, conclusion):
         if not results["passed"] + results["failed"]:
             gaps.append(gap(TESTS_INCOMPLETE, "No tests were executed"))
     parts.append("selector " + _plain(qa["selector"]))
-    if qa["report_url"]:
-        parts.append("report " + _link(qa["report_url"]))
+    parts.append("report " + _link(qa["report_url"]) if qa["report_url"] else "report unavailable")
     if qa["mode"] == "deflake":
         parts.append("not a full regression")
         parts.append("source run %d" % qa["source_qa_run_id"])

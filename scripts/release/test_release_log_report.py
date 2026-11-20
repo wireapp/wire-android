@@ -1484,7 +1484,8 @@ class CollectRegressionTest(unittest.TestCase):
             with self.subTest(url=url):
                 payload = collect_regression(reg_world(qa_record(report_url=url)))
                 fields = contract.build_fields(payload)
-                self.assertNotIn("report", fields["tests"])
+                self.assertTrue(fields["tests"].endswith("; report unavailable"))
+                self.assertNotIn("http", fields["tests"])
                 self.assertIn("not the report of this run", details(payload))
                 self.assertNotIn("Evidence missing", fields["gaps"])
         payload = collect_regression(reg_world(qa_record(report_url=None)))
@@ -1494,7 +1495,7 @@ class CollectRegressionTest(unittest.TestCase):
         for pages in (None, "http://example-reports.pages.github.io/", "example-reports.pages.github.io"):
             with self.subTest(pages=pages):
                 payload = collect_regression(reg_world(), pages=pages)
-                self.assertNotIn("report", contract.build_fields(payload)["tests"])
+                self.assertTrue(contract.build_fields(payload)["tests"].endswith("; report unavailable"))
                 self.assertIn("RELEASE_LOG_REPORT_PAGES_URL is not set", details(payload))
 
     def test_a_run_with_no_executed_tests_is_partial_not_a_pass(self):

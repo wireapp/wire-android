@@ -307,6 +307,13 @@ class BuildFieldsTest(unittest.TestCase):
                                           "report https://example.com/allure/1600; "
                                           "not a full regression; source run 1520")
 
+    def test_a_regression_without_a_report_link_says_the_report_is_unavailable(self):
+        payload = load("payload_regression")
+        payload["evidence"]["qa"]["report_url"] = None
+        self.assertEqual(contract.build_fields(payload)["tests"],
+                         "412 passed, 6 failed, 3 skipped, 0 missing, 2 passed on rerun; "
+                         "selector @RC; report unavailable")
+
     def test_an_unmatched_passing_regression_stays_passed_with_the_not_attached_code(self):
         payload = load("payload_unmatched")
         payload["evidence"]["qa"]["results"].update(passed=418, failed=0)

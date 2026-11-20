@@ -39,7 +39,7 @@ import com.wire.android.search.R
 import com.wire.android.search.users.SearchUiState
 import com.wire.android.search.widget.SearchFailureBox
 import com.wire.android.ui.common.progress.CenteredCircularProgressBarIndicator
-import com.wire.android.ui.home.conversations.search.EmptySearchQueryScreen
+import com.wire.android.search.users.EmptySearchQueryScreen
 import com.wire.android.ui.common.rowitem.CollapsingSectionHeader
 import com.wire.android.ui.home.conversationslist.common.ConversationItemTemplate
 import com.wire.android.ui.home.conversationslist.common.ConversationItemSelectionMode

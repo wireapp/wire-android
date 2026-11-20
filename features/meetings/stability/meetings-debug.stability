@@ -47,6 +47,13 @@ private fun com.wire.android.feature.meetings.ui.NewMeetingParticipantsNavigatio
     - actions: UNKNOWN (interface or non-final class; concrete implementation unknown)
 
 @Composable
+private fun com.wire.android.feature.meetings.ui.create.ClearInputIconButton(state: androidx.compose.foundation.text.input.TextFieldState): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - state: STABLE (marked @Stable or @Immutable)
+
+@Composable
 internal fun com.wire.android.feature.meetings.ui.create.FailedToLoadEditMeetingDataError(navigateBack: kotlin.Function0<kotlin.Unit>): kotlin.Unit
   skippable: true
   restartable: true
@@ -94,11 +101,12 @@ internal fun com.wire.android.feature.meetings.ui.create.NewMeetingParticipantsR
     - onOpenUserProfile: STABLE (function type)
 
 @Composable
-private fun com.wire.android.feature.meetings.ui.create.ParticipantsInput(participants: kotlinx.collections.immutable.ImmutableSet<com.wire.android.model.Contact>, onClick: kotlin.Function0<kotlin.Unit>): kotlin.Unit
+private fun com.wire.android.feature.meetings.ui.create.ParticipantsInput(participants: kotlinx.collections.immutable.ImmutableSet<com.wire.android.model.Contact>, emails: kotlin.collections.Set<kotlin.String>, onClick: kotlin.Function0<kotlin.Unit>): kotlin.Unit
   skippable: true
   restartable: true
   params:
     - participants: STABLE (known stable type)
+    - emails: RUNTIME (requires runtime check)
     - onClick: STABLE (function type)
 
 @Composable

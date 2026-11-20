@@ -794,6 +794,41 @@ class CellFileActionsMenuTest {
             )
         }
 
+    @Test
+    fun `GIVEN ConversationFiles context AND offline only filter WHEN building menu THEN server actions are removed`() =
+        runTest {
+            // WHEN
+            val items = buildMenu(
+                fileNode = folderNode.copy(isViewerOnly = false),
+                isConversationFiles = true,
+                isOfflineOnly = true,
+            )
+
+            // THEN
+            assertEquals(listOf(NodeBottomSheetAction.OPEN), items)
+        }
+
+    @Test
+    fun `GIVEN AllFiles context AND offline only filter WHEN building menu THEN share via link is removed`() =
+        runTest {
+            // WHEN
+            val items = buildMenu(
+                fileNode = fileNode.copy(isAvailableOffline = true),
+                isAllFiles = true,
+                isOfflineOnly = true,
+            )
+
+            // THEN
+            assertEquals(
+                listOf(
+                    NodeBottomSheetAction.OPEN,
+                    NodeBottomSheetAction.SHARE,
+                    NodeBottomSheetAction.REMOVE_OFFLINE_ACCESS,
+                ),
+                items
+            )
+        }
+
     private fun actionsMenu(
         withCollaboraIntegration: Boolean = false,
         offlineFilesEnabled: Boolean = true,
@@ -819,6 +854,7 @@ class CellFileActionsMenuTest {
         isSearching: Boolean = false,
         isCollaboraEnabled: Boolean = false,
         isOnline: Boolean = true,
+        isOfflineOnly: Boolean = false,
     ): List<NodeBottomSheetAction> =
         buildMenuItems(
             fileNode = fileNode,
@@ -831,6 +867,7 @@ class CellFileActionsMenuTest {
             isSearching = isSearching,
             isCollaboraEnabled = isCollaboraEnabled,
             isOnline = isOnline,
+            isOfflineOnly = isOfflineOnly,
         ).map { it.action }
 
     @Suppress("LongParameterList")
@@ -845,6 +882,7 @@ class CellFileActionsMenuTest {
         isSearching: Boolean = false,
         isCollaboraEnabled: Boolean = false,
         isOnline: Boolean = true,
+        isOfflineOnly: Boolean = false,
     ): List<NodeMenuItem> =
         CellFileActionsMenu(
             featureFlags = KaliumConfigs(
@@ -853,7 +891,16 @@ class CellFileActionsMenuTest {
             offlineFilesEnabled = offlineFilesEnabled,
             drivePermissionsEnabled = true,
             driveOfflineEnabled = driveOfflineEnabled,
-        ).buildMenu(fileNode, isRecycleBin, isConversationFiles, isAllFiles, isSearching, isCollaboraEnabled, isOnline)
+        ).buildMenu(
+            cellNode = fileNode,
+            isRecycleBin = isRecycleBin,
+            isConversationFiles = isConversationFiles,
+            isAllFiles = isAllFiles,
+            isSearching = isSearching,
+            isCollaboraEnabled = isCollaboraEnabled,
+            isOnline = isOnline,
+            isOfflineOnly = isOfflineOnly,
+        )
 
     private companion object {
         val fileNode = CellNodeUi.File(

@@ -75,6 +75,7 @@ internal fun SearchRoute.toScreenArgs() = SearchNavArgs(
     },
     parentRoute,
     sortCriteria,
+    isOfflineOnly,
 )
 
 internal fun PublicLinkExpirationResult.toNavigation3() =

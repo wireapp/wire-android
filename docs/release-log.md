@@ -31,11 +31,11 @@ A manual production regression run joins it through the `QA Android Prod Regress
 | `tests` | Test counts, selector, and report link, for a regression only. A full run adds `testiny https://app.testiny.io/AN/testruns/tr/<id>`, the link to its Testiny run, so QA does not copy it by hand. A deflake entry and an entry from an older record carry no Testiny link: the deflake entry names its source run, which carries it. The report link appears only when it is this run's report, see [How the reporter attributes a regression](#how-the-reporter-attributes-a-regression). A test that failed first and passed on a rerun shows as `N passed on rerun`. |
 | `gaps` | `none`, or the items from [Gaps](#gaps) that apply, separated by `; `. |
 | `eventId` | The event identity, `<kind>:<repository>:<run id>:<attempt>`. A replay carries the same value. |
-| `jiraUrl` | The open tickets of `Android <version>` in Jira. Empty on the unmatched page. |
+| `jiraUrl` | Every ticket of `Android <version>` in Jira. Empty on the unmatched page. |
 
 `eventId` is the twelfth field. Add it to the webhook rule's field list and show it in the entry, so a replay is easy to spot on the page. The rule needs this change before the reporter sends the field.
 
-`jiraUrl` is the thirteenth field. The rule shows it as the Markdown link `[open tickets](<jiraUrl>)`, typed as plain text, because the rule cannot build a URL from a smart value itself.
+`jiraUrl` is the thirteenth field. The rule shows it as the Markdown link `[tickets](<jiraUrl>)`, typed as plain text, because the rule cannot build a URL from a smart value itself.
 
 A missing result is never a pass. A run with no executed test, or with more selected tests than counted tests, is never a pass either. A run whose evidence file is missing still gets an entry that says so.
 

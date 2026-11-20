@@ -580,9 +580,14 @@ def _qa_gap(reason, attempt, qa_ran):
     return contract.gap(contract.EVIDENCE_MISSING, "Regression evidence export " + reason.value), True
 
 
-def _pages_prefix(repository):
-    owner, name = repository.split("/")
-    return "https://%s.github.io/%s/" % (owner.lower(), name)
+def _report_link_note(qa):
+    """Return why the record's report link is not trusted, or None when it is this run's report."""
+    base = os.environ.get("RELEASE_LOG_REPORT_PAGES_URL", "").strip().rstrip("/")
+    if not base.startswith("https://"):
+        return "Report link dropped: RELEASE_LOG_REPORT_PAGES_URL is not set to an https URL"
+    if qa["report_url"] != "%s/runs/%d-%d/" % (base, qa["run_id"], qa["run_attempt"]):
+        return "Report link dropped: it is not the report of this run and attempt on the reporting Pages site"
+    return None
 
 
 def _regression_version(origin_version, qa):
@@ -646,9 +651,10 @@ def _assemble_regression(api, repository, run, path, all_jobs, artifacts, defaul
         gap, failed = _qa_gap(reason, attempt, qa_ran)
         gaps.append(gap)
         incomplete |= failed
-    if qa is not None and qa["report_url"] and not qa["report_url"].startswith(_pages_prefix(repository)):
+    note = _report_link_note(qa) if qa is not None and qa["report_url"] else None
+    if note:
         qa = dict(qa, report_url=None)
-        gaps.append(contract.gap(None, "Report link is not on the repository pages site"))
+        gaps.append(contract.gap(None, note))
     origin, version = _attribute(api, repository, run, qa, gaps, default_branch)
     payload = {
         "schema_version": contract.SCHEMA_VERSION,

@@ -1119,14 +1119,14 @@ class CommandLineTest(unittest.TestCase):
 
     def test_the_summary_lists_each_gap_detail_after_the_fields(self):
         payload = fixture("payload_unmatched")
-        payload["evidence"]["gaps"].append(contract.gap(None, "Report link is not on the repository pages site"))
+        payload["evidence"]["gaps"].append(contract.gap(None, "Report link dropped: it is not the report of this run"))
         text = self.summary_of(payload)
         head, details_section = text.split("### Details\n\n")
         self.assertTrue(head.startswith("### Release log entry\n\n````json\n"))
         self.assertTrue(head.rstrip().endswith("````"))
         self.assertEqual(details_section.splitlines(), [
             "- Not attached to a build: No production build from the preceding 90 days has this APK digest and file name",
-            "- note: Report link is not on the repository pages site"])
+            "- note: Report link dropped: it is not the report of this run"])
 
     def test_the_summary_has_no_details_section_without_gaps(self):
         passing = fixture("payload_beta")
@@ -1153,7 +1153,7 @@ PROD_BUILD_PATH = ".github/workflows/build-production.yml"
 TEST_SHA = "0123456789abcdef0123456789abcdef01234567"
 APK_NAME = "wire-prod-compatrelease.apk"
 APK_SHA = "d7330f18" * 8
-PAGES = "https://wireapp.github.io/wire-android/qa-prod-tests/"
+PAGES = "https://example-reports.pages.github.io/"
 FINGERPRINT = "11aa22bb" * 8
 SECOND_FINGERPRINT = "33cc44dd" * 8
 QA_NOW = "2026-11-09T10:00:00Z"
@@ -1161,7 +1161,7 @@ QA_NOW = "2026-11-09T10:00:00Z"
 
 def qa_record(run_id=1520, attempt=1, **changes):
     record = fixture("regression")
-    record.update(run_id=run_id, run_attempt=attempt, report_url=PAGES + "run-%d/" % run_id)
+    record.update(run_id=run_id, run_attempt=attempt, report_url=PAGES + "runs/%d-%d/" % (run_id, attempt))
     record.update(changes)
     return record
 
@@ -1169,7 +1169,7 @@ def qa_record(run_id=1520, attempt=1, **changes):
 def deflake_record(run_id=1600, attempt=1, source=(1520, 1), **changes):
     record = fixture("regression_deflake")
     record.update(run_id=run_id, run_attempt=attempt, source_qa_run_id=source[0], source_qa_run_attempt=source[1],
-                  report_url=PAGES + "run-%d/" % run_id, source_deflake_bundle_sha256=FINGERPRINT)
+                  report_url=PAGES + "runs/%d-%d/" % (run_id, attempt), source_deflake_bundle_sha256=FINGERPRINT)
     record.update(changes)
     return record
 
@@ -1280,8 +1280,12 @@ def reg_world(record=None, jobs=None, production=True, **run_changes):
     return api
 
 
-def collect_regression(api, run_id=1520, attempt=1):
-    return report.collect_event(REPO, run_id, attempt, api=api)
+def collect_regression(api, run_id=1520, attempt=1, pages=PAGES):
+    environment = {"RELEASE_LOG_REPORT_PAGES_URL": pages} if pages else {}
+    with patch.dict(os.environ, environment):
+        if not pages:
+            os.environ.pop("RELEASE_LOG_REPORT_PAGES_URL", None)
+        return report.collect_event(REPO, run_id, attempt, api=api)
 
 
 class CollectRegressionTest(unittest.TestCase):
@@ -1466,18 +1470,32 @@ class CollectRegressionTest(unittest.TestCase):
             collect_regression(api)
         self.assertIn("Evidence missing", codes(caught.exception.partial))
 
-    def test_report_links_outside_the_repository_pages_are_dropped(self):
-        for url in ["https://example.com/allure/1520", "https://evil.github.io/wire-android/x/",
-                    "https://wireapp.github.io/other-repo/x/", "https://wireapp.github.io.evil.com/wire-android/x/",
-                    "https://wireapp.github.io/wire-android"]:
+    def test_the_report_link_of_this_run_and_attempt_is_kept(self):
+        for pages in (PAGES, PAGES.rstrip("/")):
+            with self.subTest(pages=pages):
+                payload = collect_regression(reg_world(), pages=pages)
+                self.assertEqual(payload["evidence"]["gaps"], [])
+                self.assertIn("report " + PAGES + "runs/1520-1/", contract.build_fields(payload)["tests"])
+
+    def test_report_links_that_are_not_this_runs_report_are_dropped(self):
+        for url in [PAGES + "runs/1521-1/", PAGES + "runs/1520-2/", PAGES + "runs/1520-1", PAGES + "runs/1520-1/x/",
+                    "https://other-reports.pages.github.io/runs/1520-1/", "https://example.com/allure/1520",
+                    "https://example-reports.pages.github.io.evil.com/runs/1520-1/"]:
             with self.subTest(url=url):
                 payload = collect_regression(reg_world(qa_record(report_url=url)))
-                self.assertIsNone(payload["evidence"]["qa"]["report_url"])
-                self.assertIn(None, codes(payload))
-                self.assertNotIn("report", contract.build_fields(payload)["tests"])
-                self.assertNotIn("Evidence missing", contract.build_fields(payload)["gaps"])
+                fields = contract.build_fields(payload)
+                self.assertNotIn("report", fields["tests"])
+                self.assertIn("not the report of this run", details(payload))
+                self.assertNotIn("Evidence missing", fields["gaps"])
         payload = collect_regression(reg_world(qa_record(report_url=None)))
         self.assertEqual(payload["evidence"]["gaps"], [])
+
+    def test_a_report_link_is_dropped_when_the_pages_variable_is_unset_or_not_https(self):
+        for pages in (None, "http://example-reports.pages.github.io/", "example-reports.pages.github.io"):
+            with self.subTest(pages=pages):
+                payload = collect_regression(reg_world(), pages=pages)
+                self.assertNotIn("report", contract.build_fields(payload)["tests"])
+                self.assertIn("RELEASE_LOG_REPORT_PAGES_URL is not set", details(payload))
 
     def test_a_run_with_no_executed_tests_is_partial_not_a_pass(self):
         record = qa_record(results={"passed": 0, "failed": 0, "skipped": 421, "missing": 0, "selected": 421,

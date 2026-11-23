@@ -29,7 +29,7 @@ import com.wire.android.ui.authentication.login.email.LoginEmailViewModel
 import com.wire.android.ui.authentication.login.mfa.MFALoginScreen
 import com.wire.android.ui.authentication.login.mfa.MFALoginMethod
 import com.wire.android.ui.authentication.login.mfa.MFALoginMethodScreen
-import com.wire.android.ui.authentication.login.mfa.MFALoginRecoveryPlaceholderScreen
+import com.wire.android.ui.authentication.login.mfa.MFALoginRecoveryCodeScreen
 import com.wire.android.ui.authentication.loginEmailViewModel
 import com.wire.android.ui.authentication.newLoginViewModel
 import com.wire.android.ui.authentication.welcome.WelcomeRouteScreen
@@ -384,11 +384,16 @@ private fun MFALoginNavigation3Entry(
     val isCurrentRoute = router.isCurrentRoute(route)
     var isNavigatingBack by remember { mutableStateOf(false) }
     val navigateBack: () -> Unit = {
-        if (!isNavigatingBack && router.isCurrentRoute(route)) {
+        val isRecoverySubmitting = route.step == MFALoginStep.RECOVERY_CODE &&
+            (viewModel.isVerifyingMFACode || viewModel.loginState.flowState == LoginState.Loading)
+        if (!isNavigatingBack && router.isCurrentRoute(route) && !isRecoverySubmitting) {
             isNavigatingBack = true
             scope.launch {
                 if (route.step == MFALoginStep.CODE) {
                     viewModel.cancelMFALogin()
+                }
+                if (route.step == MFALoginStep.RECOVERY_CODE) {
+                    viewModel.clearMFARecoveryCode()
                 }
                 router.backOrElse(actions::exitAuthentication)
             }
@@ -422,7 +427,14 @@ private fun MFALoginNavigation3Entry(
                 onMethodSelected = { selectMFALoginMethod(route, it, viewModel, router, actions) },
                 onBack = navigateBack,
             )
-            MFALoginStep.RECOVERY_CODE -> MFALoginRecoveryPlaceholderScreen(onBack = navigateBack)
+            MFALoginStep.RECOVERY_CODE -> MFALoginRecoveryCodeScreen(
+                code = viewModel.mfaRecoveryCodeTextState,
+                isBusy = isBusy,
+                isCodeInvalid = viewModel.isMFARecoveryCodeInvalid,
+                canSubmit = canSubmit && viewModel.isMFARecoveryCodeValid,
+                onConfirm = viewModel::verifyMFARecoveryCode,
+                onBack = navigateBack,
+            )
         }
     }
 }
@@ -483,10 +495,13 @@ private fun selectMFALoginMethod(
                 router.backOrElse(actions::exitAuthentication)
             }
         }
-        MFALoginMethod.RecoveryCode -> router.navigate(
-            AuthenticationNavigationTransition.MFA_METHODS_TO_RECOVERY,
-            route.copy(step = MFALoginStep.RECOVERY_CODE, entryId = WireNavEntryId.random()),
-        )
+        MFALoginMethod.RecoveryCode -> {
+            viewModel.clearMFARecoveryCode()
+            router.navigate(
+                AuthenticationNavigationTransition.MFA_METHODS_TO_RECOVERY,
+                route.copy(step = MFALoginStep.RECOVERY_CODE, entryId = WireNavEntryId.random()),
+            )
+        }
     }
 }
 

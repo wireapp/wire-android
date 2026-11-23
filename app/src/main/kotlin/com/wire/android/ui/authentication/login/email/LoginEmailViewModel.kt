@@ -157,10 +157,13 @@ class LoginEmailViewModel(
     var autoLoginWhenFullCodeEntered: Boolean = true
 
     val mfaCodeTextState = TextFieldState()
+    val mfaRecoveryCodeTextState = TextFieldState()
     internal val mfaLoginMethods: List<MFALoginMethod> = mockMFALoginMethods
     internal var selectedMFAAuthenticator by mutableStateOf<MFALoginMethod.Authenticator?>(null)
         private set
     var isMFACodeInvalid by mutableStateOf(false)
+        private set
+    var isMFARecoveryCodeInvalid by mutableStateOf(false)
         private set
     var isVerifyingMFACode by mutableStateOf(false)
         private set
@@ -171,6 +174,8 @@ class LoginEmailViewModel(
         get() = pendingMFAVerification != null
     val canVerifyMFACode: Boolean
         get() = pendingMFAVerification?.isActive == true
+    val isMFARecoveryCodeValid: Boolean
+        get() = mfaRecoveryCodeTextState.text.isNotBlank()
 
     @VisibleForTesting
     internal val loginJobData = MutableStateFlow<LoginJobData?>(null)
@@ -436,25 +441,46 @@ class LoginEmailViewModel(
         selectedMFAAuthenticator = method
         mfaCodeTextState.clearText()
         isMFACodeInvalid = false
+        clearMFARecoveryCode()
         return true
     }
 
     fun verifyMFACode() {
-        val verification = pendingMFAVerification ?: return
-        if (!verification.isActive || isVerifyingMFACode) return
+        if (!canVerifyMFACode || isVerifyingMFACode) return
         val code = mfaCodeTextState.text.toString()
         if (code.length != AUTHENTICATION_CODE_LENGTH || code.any { it !in '0'..'9' }) return
         mfaCodeTextState.clearText()
         isMFACodeInvalid = false
+        verifyMFA(code == MOCK_MFA_CODE) { isMFACodeInvalid = true }
+    }
+
+    fun verifyMFARecoveryCode() {
+        if (!canVerifyMFACode || isVerifyingMFACode || !isMFARecoveryCodeValid) return
+        val code = mfaRecoveryCodeTextState.text.toString().trim()
+        isMFARecoveryCodeInvalid = false
+        verifyMFA(code.equals(MOCK_MFA_RECOVERY_CODE, ignoreCase = true)) { isMFARecoveryCodeInvalid = true }
+    }
+
+    internal fun clearMFARecoveryCode() {
+        mfaRecoveryCodeTextState.clearText()
+        isMFARecoveryCodeInvalid = false
+    }
+
+    private fun verifyMFA(matchesMockCode: Boolean, onInvalidCode: () -> Unit) {
+        val verification = pendingMFAVerification ?: return
+        if (!verification.isActive || isVerifyingMFACode) return
         isVerifyingMFACode = true
         mfaVerificationJob = viewModelScope.launch {
             try {
                 // Temporary Android-only verification until the backend contract is settled.
                 delay(MFA_VERIFICATION_DELAY_MILLIS)
-                if (code == MOCK_MFA_CODE) {
+                if (matchesMockCode) {
+                    mfaCodeTextState.clearText()
+                    clearMFARecoveryCode()
+                    updateEmailFlowState(LoginState.Loading)
                     verification.complete(Unit)
                 } else {
-                    isMFACodeInvalid = true
+                    onInvalidCode()
                 }
             } finally {
                 isVerifyingMFACode = false
@@ -474,6 +500,7 @@ class LoginEmailViewModel(
         pendingMFAVerification?.cancel()
         pendingMFAVerification = null
         mfaCodeTextState.clearText()
+        clearMFARecoveryCode()
         selectedMFAAuthenticator = null
         isMFACodeInvalid = false
         isVerifyingMFACode = false
@@ -484,6 +511,7 @@ class LoginEmailViewModel(
         pendingMFAVerification?.cancel()
         pendingMFAVerification = null
         mfaCodeTextState.clearText()
+        clearMFARecoveryCode()
         super.onCleared()
     }
 
@@ -632,6 +660,7 @@ class LoginEmailViewModel(
         const val USER_IDENTIFIER_SAVED_STATE_KEY = "user_identifier"
         const val RESEND_TIMER_DELAY = 300L
         private const val MOCK_MFA_CODE = "111111"
+        private const val MOCK_MFA_RECOVERY_CODE = "abcd-1234-efgh-5678"
         private const val MFA_VERIFICATION_DELAY_MILLIS = 500L
     }
 }

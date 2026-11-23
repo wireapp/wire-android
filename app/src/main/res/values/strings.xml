@@ -1324,6 +1324,10 @@
     <string name="mfa_login_choose_method_title">Choose how to verify</string>
     <string name="mfa_login_method_recovery_code">Recovery code</string>
     <string name="mfa_login_method_recovery_code_description">One of the codes you saved</string>
+    <string name="mfa_login_recovery_code_title">Enter a recovery code</string>
+    <string name="mfa_login_recovery_code_description">Use one of the recovery codes you saved when you set up two-factor authentication.</string>
+    <string name="mfa_login_invalid_recovery_code">Invalid recovery code. Try again.</string>
+    <string name="mfa_login_recovery_submit">Log in</string>
     <string name="mfa_verify">Verify</string>
     <string name="mfa_codes_title">Save your recovery codes</string>
     <string name="mfa_codes_description">If you lose your authenticator app, use a recovery code to log in. Each code works once.</string>

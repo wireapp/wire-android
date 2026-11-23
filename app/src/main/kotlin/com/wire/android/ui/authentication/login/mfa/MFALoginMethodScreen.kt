@@ -19,10 +19,7 @@
 package com.wire.android.ui.authentication.login.mfa
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -36,7 +33,6 @@ import androidx.compose.ui.res.stringResource
 import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.ui.authentication.login.WireAuthBackgroundLayout
-import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.preview.EdgeToEdgePreview
 import com.wire.android.ui.common.rowitem.RowItemTemplate
 import com.wire.android.ui.newauthentication.login.NewAuthContainer
@@ -101,12 +97,6 @@ private fun MFALoginMethodRow(method: MFALoginMethod, isEnabled: Boolean, onClic
         },
         clickable = Clickable(enabled = isEnabled, onClick = onClick),
     )
-}
-
-@Composable
-internal fun MFALoginRecoveryPlaceholderScreen(onBack: () -> Unit) {
-    BackHandler(onBack = onBack)
-    Box(modifier = Modifier.fillMaxSize().background(colorsScheme().background).testTag("mfaLoginRecoveryPlaceholder"))
 }
 
 @PreviewMultipleThemes

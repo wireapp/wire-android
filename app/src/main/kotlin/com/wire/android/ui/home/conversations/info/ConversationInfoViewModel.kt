@@ -136,7 +136,8 @@ class ConversationInfoViewModel @AssistedInject constructor(
         }
 
         val detailsData = getConversationDetailsData(conversationDetails)
-        val wireCellEnabled = isWireCellFeatureEnabled()
+        val isDriveConversation = (conversationDetails as? ConversationDetails.Group)?.wireCell != null
+        val isDriveFeatureEnabled = isWireCellFeatureEnabled()
 
         conversationInfoViewState = conversationInfoViewState.copy(
             conversationName = getConversationName(conversationDetails, isConversationUnavailable),
@@ -149,7 +150,9 @@ class ConversationInfoViewModel @AssistedInject constructor(
             proteusVerificationStatus = conversationDetails.conversation.proteusVerificationStatus,
             legalHoldStatus = conversationDetails.conversation.legalHoldStatus,
             accentId = getAccentId(conversationDetails),
-            isWireCellEnabled = wireCellEnabled && (conversationDetails as? ConversationDetails.Group)?.wireCell != null,
+            // Existing drive content stays reachable after Drive is offboarded, only read-only.
+            isWireCellEnabled = isDriveConversation,
+            isDriveOffboarded = isDriveConversation && !isDriveFeatureEnabled,
             initialLoadingState = InitialLoadingState.LOADED,
         )
     }

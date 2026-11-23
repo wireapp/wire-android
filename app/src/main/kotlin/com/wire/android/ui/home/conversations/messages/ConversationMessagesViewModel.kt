@@ -58,7 +58,6 @@ import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.MessageAssetResult
 import com.wire.kalium.logic.feature.asset.ObserveAssetStatusesUseCase
 import com.wire.kalium.logic.feature.asset.UpdateAssetMessageTransferStatusUseCase
-import com.wire.kalium.logic.feature.client.IsWireCellsEnabledUseCase
 import com.wire.kalium.logic.feature.conversation.ClearUsersTypingEventsUseCase
 import com.wire.kalium.logic.feature.conversation.GetConversationUnreadEventsCountUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
@@ -115,7 +114,6 @@ class ConversationMessagesViewModel @AssistedInject constructor(
     private val clearUsersTypingEvents: ClearUsersTypingEventsUseCase,
     private val getSearchedConversationMessagePosition: GetSearchedConversationMessagePositionUseCase,
     private val deleteMessage: DeleteMessageUseCase,
-    private val isWireCellFeatureEnabled: IsWireCellsEnabledUseCase,
     private val networkStateObserver: NetworkStateObserver,
 ) : ViewModel() {
 
@@ -304,8 +302,7 @@ class ConversationMessagesViewModel @AssistedInject constructor(
             .flowOn(dispatchers.io())
             .collect { conversationDetailsResult ->
                 if (conversationDetailsResult is ObserveConversationDetailsUseCase.Result.Success) {
-                    isCellEnabledForConversation = isWireCellFeatureEnabled() &&
-                            conversationDetailsResult.conversationDetails.isWireCellEnabled()
+                    isCellEnabledForConversation = conversationDetailsResult.conversationDetails.isWireCellEnabled()
                     val lastUnreadInstant = conversationDetailsResult.conversationDetails.conversation.lastReadDate
                     conversationViewState = conversationViewState.copy(
                         firstUnreadInstant = lastUnreadInstant,

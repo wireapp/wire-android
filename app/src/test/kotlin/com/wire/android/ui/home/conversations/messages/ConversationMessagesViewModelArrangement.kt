@@ -44,7 +44,6 @@ import com.wire.kalium.logic.feature.asset.MessageAssetResult
 import com.wire.kalium.logic.feature.asset.ObserveAssetStatusesUseCase
 import com.wire.kalium.logic.feature.asset.UpdateAssetMessageTransferStatusUseCase
 import com.wire.kalium.logic.feature.asset.UpdateTransferStatusResult
-import com.wire.kalium.logic.feature.client.IsWireCellsEnabledUseCase
 import com.wire.kalium.logic.feature.conversation.ClearUsersTypingEventsUseCase
 import com.wire.kalium.logic.feature.conversation.GetConversationUnreadEventsCountUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
@@ -122,9 +121,6 @@ class ConversationMessagesViewModelArrangement {
     lateinit var deleteMessage: DeleteMessageUseCase
 
     @MockK
-    lateinit var isWireCellFeatureEnabled: IsWireCellsEnabledUseCase
-
-    @MockK
     lateinit var networkStateObserver: NetworkStateObserver
 
     private var navArgs = ConversationNavArgs(conversationId = conversationId)
@@ -147,7 +143,6 @@ class ConversationMessagesViewModelArrangement {
             clearUsersTypingEvents,
             getSearchedConversationMessagePosition,
             deleteMessage,
-            isWireCellFeatureEnabled,
             networkStateObserver,
         )
     }
@@ -171,7 +166,6 @@ class ConversationMessagesViewModelArrangement {
 
         coEvery { conversationAudioMessagePlayer.audioSpeed } returns flowOf(AudioSpeed.NORMAL)
         coEvery { conversationAudioMessagePlayer.playingAudioMessageFlow } returns flowOf(PlayingAudioMessage.None)
-        coEvery { isWireCellFeatureEnabled() } returns false
     }
 
     fun withSuccessfulViewModelInit() = apply {
@@ -278,7 +272,6 @@ class ConversationMessagesViewModelArrangement {
     }
 
     fun withWireCellEnabled() = apply {
-        coEvery { isWireCellFeatureEnabled() } returns true
         coEvery { observeConversationDetails(any()) } returns flowOf(
             ObserveConversationDetailsUseCase.Result.Success(
                 ConversationDetails.Group.Regular(

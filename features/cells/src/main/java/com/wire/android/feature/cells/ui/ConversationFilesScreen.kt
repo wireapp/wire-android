@@ -84,6 +84,7 @@ import com.wire.android.navigation.transition.LocalSharedTransitionScope
 import com.wire.android.navigation.transition.SHARED_ELEMENT_SEARCH_INPUT_KEY
 import com.wire.android.navigation.transition.SHARED_ELEMENT_TOP_APP_BAR_KEY
 import com.wire.android.ui.common.MoreOptionIcon
+import com.wire.android.ui.common.banner.DriveOffboardedBanner
 import com.wire.android.ui.common.banner.ViewerAccessBanner
 import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
 import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
@@ -170,6 +171,7 @@ internal fun ConversationFilesRouteScreen(
         onSortOrderClicked = viewModel::setSorting,
         showViewerAccessBanner = viewModel.showViewerAccessBanner.collectAsState().value,
         isSelfUserViewerOnly = viewModel.isSelfUserViewerOnly.collectAsState().value,
+        isDriveOffboarded = viewModel.isDriveOffboarded.collectAsState().value,
         driveDirectUploadEnabled = viewModel.driveDirectUploadEnabled,
         onViewerAccessBannerCloseClick = viewModel::onViewerAccessBannerDismissed,
         showBulkSelectionHint = viewModel.showBulkSelectionHint.collectAsState().value,
@@ -221,6 +223,7 @@ internal fun ConversationFilesScreenContent(
     onSortOrderClicked: (SortingCriteria) -> Unit = {},
     showViewerAccessBanner: Boolean = false,
     isSelfUserViewerOnly: Boolean = false,
+    isDriveOffboarded: Boolean = false,
     driveDirectUploadEnabled: Boolean = false,
     onViewerAccessBannerCloseClick: () -> Unit = {},
     showBulkSelectionHint: Boolean = false,
@@ -464,7 +467,9 @@ internal fun ConversationFilesScreenContent(
                     }
 
                     if (isOnline) {
-                        if (showViewerAccessBanner) {
+                        if (isDriveOffboarded) {
+                            DriveOffboardedBanner()
+                        } else if (showViewerAccessBanner) {
                             ViewerAccessBanner(onCloseClick = onViewerAccessBannerCloseClick)
                         }
 
@@ -547,6 +552,7 @@ internal fun ConversationFilesScreenContent(
                     actionsFlow = actions,
                     pagingListItems = pagingListItems,
                     sendIntent = sendIntent,
+                    showItemMenu = !isDriveOffboarded,
                     menuState = menu,
                     isSearchResult = isSearchResult,
                     isRestoreInProgress = isRestoreInProgress,

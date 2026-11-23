@@ -32,6 +32,7 @@ import io.mockk.coEvery
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -135,6 +136,7 @@ class HomeDrawerViewModelTest {
 
             // Then
             assertFalse(viewModel.hasRegularItem(HomeDestination.Meetings))
+            assertFalse(viewModel.drawerState.isMeetingsEnabled)
         }
 
     @Test
@@ -150,6 +152,29 @@ class HomeDrawerViewModelTest {
 
         // Then
         assertTrue(viewModel.hasRegularItem(HomeDestination.Meetings))
+        assertTrue(viewModel.drawerState.isMeetingsEnabled)
+    }
+
+    @Test
+    fun `given meetings flag changes, then update meetings availability without recreating the view model`() = runTest {
+        val meetingsEnabled = MutableStateFlow(false)
+        val (arrangement, viewModel) = Arrangement().apply {
+            coEvery { observeIsWireMeetingsEnabled() } returns meetingsEnabled
+        }.arrange()
+
+        arrangement.unreadArchivedConversationsCountChannel.send(0L)
+        advanceUntilIdle()
+        assertFalse(viewModel.drawerState.isMeetingsEnabled)
+
+        meetingsEnabled.value = true
+        advanceUntilIdle()
+        assertTrue(viewModel.drawerState.isMeetingsEnabled)
+        assertTrue(viewModel.hasRegularItem(HomeDestination.Meetings))
+
+        meetingsEnabled.value = false
+        advanceUntilIdle()
+        assertFalse(viewModel.drawerState.isMeetingsEnabled)
+        assertFalse(viewModel.hasRegularItem(HomeDestination.Meetings))
     }
 
     private fun HomeDrawerViewModel.drawerItems(): List<DrawerUiItem> =

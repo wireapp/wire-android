@@ -111,6 +111,7 @@ fun HomeContent(
             content = {
                 HomeScaffold(
                     homeState = homeState,
+                    isMeetingsEnabled = homeDrawerState.isMeetingsEnabled,
                     state = remember(homeStateHolder) { HomeScaffoldState(homeStateHolder) },
                     drawerState = drawerState,
                     focusRequesters = HomeScaffoldFocusRequesters(

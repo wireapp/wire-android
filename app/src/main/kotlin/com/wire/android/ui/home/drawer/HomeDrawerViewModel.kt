@@ -71,7 +71,7 @@ class HomeDrawerViewModel @Inject constructor(
                 observeArchivedUnreadConversationsCount.value.invoke(),
                 observeTeamManagementUrlForUser(),
             ) { wireCellsEnabled, wireMeetingsEnabled, unreadArchiveConversationsCount, teamManagementUrl ->
-                buildList {
+                val items = buildList {
                     add(DrawerUiItem.RegularItem(destination = HomeDestination.Conversations))
                     if (wireCellsEnabled) {
                         add(DrawerUiItem.RegularItem(destination = HomeDestination.Cells))
@@ -98,8 +98,9 @@ class HomeDrawerViewModel @Inject constructor(
                     }
                     add(DrawerUiItem.RegularItem(destination = HomeDestination.Support))
                 }
+                HomeDrawerState(items = items, isMeetingsEnabled = wireMeetingsEnabled)
             }.collect {
-                drawerState = drawerState.copy(items = it)
+                drawerState = it
             }
         }
     }

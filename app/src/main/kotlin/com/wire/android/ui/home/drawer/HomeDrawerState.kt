@@ -19,6 +19,7 @@
 package com.wire.android.ui.home.drawer
 
 data class HomeDrawerState(
+    val isMeetingsEnabled: Boolean = false,
     /**
      * The items to be displayed in the drawer [Pair] of "top" and "bottom" items.
      */

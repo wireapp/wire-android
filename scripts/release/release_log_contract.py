@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import math
 import re
 
 _TAG = re.compile(r"v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(?:-beta\.([1-9][0-9]*))?")
@@ -91,8 +92,8 @@ def _filename(value, name):
         raise ValueError(name + " must be a file name without path segments")
 
 
-def _exact_keys(record, keys, name):
-    if set(record) != set(keys):
+def _exact_keys(record, keys, name, optional=()):
+    if set(record) - set(optional) != set(keys):
         raise ValueError(name + " fields do not match the schema")
 
 
@@ -165,7 +166,8 @@ def _results(results, mode):
 
 
 def _regression(record):
-    _exact_keys(record, _REGRESSION, "regression")
+    # Records from an older exporter lack testiny_run_id and read as null.
+    _exact_keys(record, _REGRESSION, "regression", optional=("testiny_run_id",))
     _identity(record)
     _pattern(record["test_source_sha"], SHA, "test_source_sha")
     if record["flavor"] != "production":
@@ -196,6 +198,8 @@ def _regression(record):
     _results(record["results"], mode)
     if record["report_url"] is not None:
         _https_url(record["report_url"], "report_url")
+    if record.get("testiny_run_id") is not None:
+        _positive_int(record["testiny_run_id"], "testiny_run_id")
 
 
 _RECORD_KINDS = {"context": _context, "build": _build, "regression": _regression}
@@ -212,11 +216,13 @@ def validate_record(record):
 
 KINDS = ("beta", "production", "regression")
 FIELD_NAMES = ("releaseVersion", "kind", "result", "runUrl", "commit", "apkName", "apkSha256", "buildRunUrl",
-               "deploy", "tests", "gaps", "eventId")
+               "deploy", "tests", "gaps", "eventId", "jiraUrl")
 CONCLUSIONS = ("success", "failure", "cancelled", "timed_out", "skipped", "neutral", "action_required",
                "startup_failure", "stale")
 UNMATCHED = "unmatched"
 FIELD_LIMIT = 1000
+JIRA_TICKETS_URL = "https://wearezeta.atlassian.net/issues?jql=project%3DWPB%20AND%20fixVersion%3D%22Android%20{version}%22"
+TESTINY_RUN_URL = "https://app.testiny.io/AN/testruns/tr/%d"
 
 _VERSION = re.compile(r"(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)")
 _PAYLOAD = ("schema_version", "release_version", "event_id", "kind", "evidence")
@@ -408,12 +414,58 @@ def _tests(kind, qa, conclusion):
         if not results["passed"] + results["failed"]:
             gaps.append(gap(TESTS_INCOMPLETE, "No tests were executed"))
     parts.append("selector " + _plain(qa["selector"]))
-    if qa["report_url"]:
-        parts.append("report " + _link(qa["report_url"]))
+    parts.append("report " + _link(qa["report_url"]) if qa["report_url"] else "report unavailable")
+    if qa.get("testiny_run_id"):
+        parts.append("testiny " + TESTINY_RUN_URL % qa["testiny_run_id"])
     if qa["mode"] == "deflake":
         parts.append("not a full regression")
         parts.append("source run %d" % qa["source_qa_run_id"])
     return "; ".join(parts), gaps
+
+
+RESULT_MARKS = {"passed": "\u2705 passed", "failed": "\u274c failed", "partial": "\u26a0\ufe0f partial",
+                "cancelled": "\u23f9\ufe0f cancelled"}
+CONCLUSION_MARKS = {"success": "\u2705", "failure": "\u274c", "timed_out": "\u274c", "startup_failure": "\u274c",
+                    "cancelled": "\u23f9\ufe0f", "skipped": "\u23ed\ufe0f"}
+_UNKNOWN_MARK = "\u2754"
+_DEPLOY_JOB = re.compile(r"deploy \((.*)\)")
+
+
+def _rollout(value):
+    try:
+        number = float(value)
+    except ValueError:
+        return value
+    return "%g%%" % round(number * 100, 2) if math.isfinite(number) else value
+
+
+def _deploy_label(name):
+    """Return the target of a delivery job (`deploy (<target>, ...)` or `Publish ...`), or None for any other job."""
+    if name.startswith("Publish "):
+        return name
+    match = _DEPLOY_JOB.fullmatch(name)
+    if not match:
+        return None
+    args = match.group(1).split(", ")
+    if args[0] == "google-play" and len(args) == 5:
+        return "google-play %s %s %s" % (args[2], _rollout(args[3]), args[4])
+    if args[0] == "google-play" and len(args) == 4:
+        return "google-play %s %s" % (args[2], args[3])
+    return args[0]
+
+
+def _deploy(jobs):
+    """One short entry per deploy target, plus any other release job that did not succeed."""
+    parts = []
+    for job in jobs:
+        name = _plain(job["name"])
+        mark = CONCLUSION_MARKS.get(job["conclusion"], _UNKNOWN_MARK)
+        label = _deploy_label(name)
+        if label is not None:
+            parts.append("%s %s" % (label, mark))
+        elif job["conclusion"] != "success":
+            parts.append("%s %s" % (name, mark))
+    return " \u00b7 ".join(parts)
 
 
 def _result(conclusion, qa, gaps):
@@ -443,12 +495,11 @@ def build_fields(payload):
     else:
         apks = build["apks"] if build is not None else []
         commit = source["sha"][:7] if source["sha"] else ""
-        deploy = "; ".join("%s: %s" % (_plain(job["name"]), job["conclusion"] or "unknown")
-                           for job in evidence["jobs"])
+        deploy = _deploy(evidence["jobs"])
     fields = {
         "releaseVersion": payload["release_version"],
         "kind": _label(kind, source, qa),
-        "result": _result(evidence["conclusion"], qa, gaps),
+        "result": RESULT_MARKS[_result(evidence["conclusion"], qa, gaps)],
         "runUrl": _link(source["url"]),
         "commit": commit,
         "apkName": ", ".join(_plain(apk["filename"]).replace(",", "_") for apk in apks),
@@ -458,6 +509,8 @@ def build_fields(payload):
         "tests": tests,
         "gaps": "; ".join(codes) if codes else "none",
         "eventId": payload["event_id"],
+        "jiraUrl": ("" if payload["release_version"] == UNMATCHED
+                    else JIRA_TICKETS_URL.format(version=payload["release_version"])),
     }
     return {name: _clean(value) for name, value in fields.items()}
 

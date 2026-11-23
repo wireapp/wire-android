@@ -89,6 +89,7 @@ def main() -> None:
         # Pass the resolved title to instrumentation so every device uses the same run.
         with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as output:
             output.write(f"testinyRunName<<{delimiter}\n{name}\n{delimiter}\n")
+            output.write(f"testinyRunId={run_id}\n")
         print(f"Testiny run {run_id} is ready.")
     except (KeyError, TypeError, OSError, json.JSONDecodeError):
         raise SystemExit("ERROR: Testiny preparation failed: check runtime secrets and CI configuration.") from None

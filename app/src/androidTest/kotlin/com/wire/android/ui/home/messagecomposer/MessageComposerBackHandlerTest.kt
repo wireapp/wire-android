@@ -22,7 +22,10 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.platform.LocalFocusManager
@@ -43,7 +46,25 @@ class MessageComposerBackHandlerTest {
 
     @Test
     fun givenExpandedComposer_whenPressingSystemBack_thenComposerCollapses() {
+        showComposer(expanded = true)
+
+        composeTestRule.onNodeWithTag(COMPOSER_BACK_STATE_TAG).assertTextEquals("expanded")
+        pressBack()
+        composeTestRule.onNodeWithTag(COMPOSER_BACK_STATE_TAG).assertTextEquals("collapsed")
+    }
+
+    @Test
+    fun givenCollapsedComposerWithFocusFlag_whenPressingSystemBack_thenConversationCloses() {
+        showComposer(expanded = false)
+
+        composeTestRule.onNodeWithTag(COMPOSER_BACK_STATE_TAG).assertTextEquals("collapsed")
+        pressBack()
+        composeTestRule.onNodeWithTag(COMPOSER_BACK_STATE_TAG).assertTextEquals("conversation list")
+    }
+
+    private fun showComposer(expanded: Boolean) {
         composeTestRule.setContent {
+            var returnedToConversationList by remember { mutableStateOf(false) }
             val focusManager = LocalFocusManager.current
             val focusRequester = remember { FocusRequester() }
             val stateHolder = remember(focusManager) {
@@ -56,24 +77,25 @@ class MessageComposerBackHandlerTest {
             }
 
             LaunchedEffect(stateHolder) {
-                stateHolder.inputFocused = true
-                stateHolder.toggleInputSize()
+                // Closing the message menu sets this flag even when the keyboard stays hidden.
+                stateHolder.setFocused()
+                if (expanded) stateHolder.toggleInputSize()
             }
 
-            BackHandler(stateHolder.inputFocused) {
-                stateHolder.collapseComposer(AdditionalOptionSubMenuState.Default)
+            BackHandler {
+                returnedToConversationList = true
             }
+            MessageComposerCollapseBackHandler(stateHolder, AdditionalOptionSubMenuState.Default, isImeVisible = false)
 
             Text(
-                text = if (stateHolder.isTextExpanded) "expanded" else "collapsed",
-                modifier = Modifier.testTag(COMPOSER_BACK_STATE_TAG)
+                text = when {
+                    returnedToConversationList -> "conversation list"
+                    stateHolder.isTextExpanded -> "expanded"
+                    else -> "collapsed"
+                },
+                modifier = Modifier.testTag(COMPOSER_BACK_STATE_TAG),
             )
         }
-
-        composeTestRule.onNodeWithTag(COMPOSER_BACK_STATE_TAG).assertTextEquals("expanded")
-        pressBack()
-        composeTestRule.waitForIdle()
-        composeTestRule.onNodeWithTag(COMPOSER_BACK_STATE_TAG).assertTextEquals("collapsed")
     }
 }
 

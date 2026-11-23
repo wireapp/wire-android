@@ -98,6 +98,7 @@ import com.wire.android.ui.home.conversations.model.UriAsset
 import com.wire.android.ui.home.messagecomposer.state.AdditionalOptionSubMenuState
 import com.wire.android.ui.home.messagecomposer.state.InputType
 import com.wire.android.ui.home.messagecomposer.state.MessageComposerStateHolder
+import com.wire.android.ui.home.messagecomposer.state.MessageCompositionInputStateHolder
 import com.wire.android.util.isImage
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.message.SelfDeletionTimer
@@ -567,13 +568,29 @@ fun EnabledMessageComposer(
             BackHandler(inputStateHolder.inputType is InputType.Editing) {
                 cancelEdit()
             }
-            BackHandler(isImeVisible || inputStateHolder.inputFocused) {
-                inputStateHolder.collapseComposer(additionalOptionStateHolder.additionalOptionsSubMenuState)
-            }
+            MessageComposerCollapseBackHandler(
+                inputStateHolder = inputStateHolder,
+                additionalOptionsSubMenuState = additionalOptionStateHolder.additionalOptionsSubMenuState,
+                isImeVisible = isImeVisible,
+            )
             BackHandler(hasMentionSuggestions) {
                 closeMentionSuggestions()
             }
         }
+    }
+}
+
+@Composable
+internal fun MessageComposerCollapseBackHandler(
+    inputStateHolder: MessageCompositionInputStateHolder,
+    additionalOptionsSubMenuState: AdditionalOptionSubMenuState,
+    isImeVisible: Boolean,
+) {
+    val canCollapseComposer = inputStateHolder.isTextExpanded &&
+        additionalOptionsSubMenuState != AdditionalOptionSubMenuState.RecordAudio
+    // Dismissing the message menu can mark the input focused while the keyboard stays hidden.
+    BackHandler(isImeVisible || canCollapseComposer) {
+        inputStateHolder.collapseComposer(additionalOptionsSubMenuState)
     }
 }
 

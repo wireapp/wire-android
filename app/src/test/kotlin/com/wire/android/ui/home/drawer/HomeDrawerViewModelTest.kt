@@ -17,19 +17,23 @@
  */
 package com.wire.android.ui.home.drawer
 
+import androidx.paging.PagingData
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.framework.TestUser
 import com.wire.android.navigation.HomeDestination
+import com.wire.kalium.logic.data.meeting.MeetingOccurrence
 import com.wire.kalium.logic.data.user.type.UserType
 import com.wire.kalium.logic.data.user.type.UserTypeInfo
 import com.wire.kalium.logic.feature.client.IsWireCellsEnabledUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveArchivedUnreadConversationsCountUseCase
+import com.wire.kalium.logic.feature.meeting.GetPaginatedMeetingOccurrencesUseCase
 import com.wire.kalium.logic.feature.server.GetTeamUrlUseCase
 import com.wire.kalium.logic.feature.user.ObserveIsMeetingsEnabledUseCase
 import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.impl.annotations.MockK
+import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -177,6 +181,45 @@ class HomeDrawerViewModelTest {
         assertFalse(viewModel.hasRegularItem(HomeDestination.Meetings))
     }
 
+    @Test
+    fun `given meetings disabled, when meetings arrive and are removed, then update menu visibility and keep creation disabled`() = runTest {
+        val meetings = MutableStateFlow(PagingData.empty<MeetingOccurrence>())
+        val (arrangement, viewModel) = Arrangement().apply {
+            coEvery { getPaginatedMeetingOccurrences(any(), any(), any()) } returns meetings
+        }.arrange()
+
+        arrangement.unreadArchivedConversationsCountChannel.send(0L)
+        advanceUntilIdle()
+        assertFalse(viewModel.hasRegularItem(HomeDestination.Meetings))
+
+        meetings.value = PagingData.from(listOf(mockk<MeetingOccurrence>()))
+        advanceUntilIdle()
+        assertTrue(viewModel.hasRegularItem(HomeDestination.Meetings))
+        assertFalse(viewModel.drawerState.isMeetingsEnabled)
+
+        meetings.value = PagingData.empty()
+        advanceUntilIdle()
+        assertFalse(viewModel.hasRegularItem(HomeDestination.Meetings))
+        assertFalse(viewModel.drawerState.isMeetingsEnabled)
+    }
+
+    @Test
+    fun `given meetings enabled, when last meeting is removed, then keep menu visible`() = runTest {
+        val meetings = MutableStateFlow(PagingData.from(listOf(mockk<MeetingOccurrence>())))
+        val (arrangement, viewModel) = Arrangement().withWireMeetingsEnabled(true).apply {
+            coEvery { getPaginatedMeetingOccurrences(any(), any(), any()) } returns meetings
+        }.arrange()
+
+        arrangement.unreadArchivedConversationsCountChannel.send(0L)
+        advanceUntilIdle()
+        assertTrue(viewModel.hasRegularItem(HomeDestination.Meetings))
+
+        meetings.value = PagingData.empty()
+        advanceUntilIdle()
+        assertTrue(viewModel.hasRegularItem(HomeDestination.Meetings))
+        assertTrue(viewModel.drawerState.isMeetingsEnabled)
+    }
+
     private fun HomeDrawerViewModel.drawerItems(): List<DrawerUiItem> =
         listOf(drawerState.items.first, drawerState.items.second).flatten()
 
@@ -200,6 +243,9 @@ class HomeDrawerViewModelTest {
         lateinit var observeIsWireMeetingsEnabled: ObserveIsMeetingsEnabledUseCase
 
         @MockK
+        lateinit var getPaginatedMeetingOccurrences: GetPaginatedMeetingOccurrencesUseCase
+
+        @MockK
         lateinit var getTeamUrlUseCase: GetTeamUrlUseCase
 
         val unreadArchivedConversationsCountChannel = Channel<Long>(capacity = Channel.UNLIMITED)
@@ -209,6 +255,7 @@ class HomeDrawerViewModelTest {
             coEvery { observeArchivedUnreadConversationsCount() } returns unreadArchivedConversationsCountChannel.consumeAsFlow()
             coEvery { isWireCellsEnabled() } returns false
             coEvery { observeIsWireMeetingsEnabled() } returns flowOf(false)
+            coEvery { getPaginatedMeetingOccurrences(any(), any(), any()) } returns flowOf(PagingData.empty())
             withSelfUserType()
             coEvery { getTeamUrlUseCase() } returns TEAM_URL
         }
@@ -230,7 +277,8 @@ class HomeDrawerViewModelTest {
             observeSelfUser = observeSelfUserUseCase,
             getTeamUrl = getTeamUrlUseCase,
             isWireCellsEnabled = isWireCellsEnabled,
-            observeIsWireMeetingsEnabled = observeIsWireMeetingsEnabled
+            observeIsWireMeetingsEnabled = observeIsWireMeetingsEnabled,
+            getPaginatedMeetingOccurrences = getPaginatedMeetingOccurrences,
         )
 
         companion object {

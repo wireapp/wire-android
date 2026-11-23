@@ -23,17 +23,25 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.paging.PagingConfig
+import androidx.paging.PagingDataEvent
+import androidx.paging.PagingDataPresenter
 import com.wire.android.navigation.HomeDestination
 import com.wire.android.util.EMPTY
+import com.wire.kalium.logic.data.meeting.MeetingOccurrence
 import com.wire.kalium.logic.data.user.type.isTeamAdmin
 import com.wire.kalium.logic.feature.client.IsWireCellsEnabledUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveArchivedUnreadConversationsCountUseCase
+import com.wire.kalium.logic.feature.meeting.GetPaginatedMeetingOccurrencesUseCase
 import com.wire.kalium.logic.feature.server.GetTeamUrlUseCase
 import com.wire.kalium.logic.feature.user.ObserveIsMeetingsEnabledUseCase
 import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
 import dev.zacsweers.metro.Inject
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.channelFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
@@ -45,6 +53,7 @@ class HomeDrawerViewModel @Inject constructor(
     private val getTeamUrl: GetTeamUrlUseCase,
     private val isWireCellsEnabled: IsWireCellsEnabledUseCase,
     private val observeIsWireMeetingsEnabled: ObserveIsMeetingsEnabledUseCase,
+    private val getPaginatedMeetingOccurrences: GetPaginatedMeetingOccurrencesUseCase,
 ) : ViewModel() {
     var drawerState by mutableStateOf(HomeDrawerState())
         private set
@@ -70,13 +79,14 @@ class HomeDrawerViewModel @Inject constructor(
                 observeIsWireMeetingsEnabled(),
                 observeArchivedUnreadConversationsCount.value.invoke(),
                 observeTeamManagementUrlForUser(),
-            ) { wireCellsEnabled, wireMeetingsEnabled, unreadArchiveConversationsCount, teamManagementUrl ->
+                observeHasMeetings(),
+            ) { wireCellsEnabled, wireMeetingsEnabled, unreadArchiveConversationsCount, teamManagementUrl, hasMeetings ->
                 val items = buildList {
                     add(DrawerUiItem.RegularItem(destination = HomeDestination.Conversations))
                     if (wireCellsEnabled) {
                         add(DrawerUiItem.RegularItem(destination = HomeDestination.Cells))
                     }
-                    if (wireMeetingsEnabled) {
+                    if (wireMeetingsEnabled || hasMeetings) {
                         add(DrawerUiItem.RegularItem(destination = HomeDestination.Meetings))
                     }
                     add(
@@ -104,6 +114,19 @@ class HomeDrawerViewModel @Inject constructor(
             }
         }
     }
+
+    private fun observeHasMeetings(): Flow<Boolean> = channelFlow {
+        send(false)
+        val presenter = object : PagingDataPresenter<MeetingOccurrence>() {
+            override suspend fun presentPagingDataEvent(event: PagingDataEvent<MeetingOccurrence>) {
+                send(snapshot().items.isNotEmpty())
+            }
+        }
+        getPaginatedMeetingOccurrences(
+            pagingConfig = PagingConfig(pageSize = 1, initialLoadSize = 1, enablePlaceholders = false),
+            startingOffset = 0L,
+        ).collectLatest(presenter::collectFrom)
+    }.distinctUntilChanged()
 }
 
 /**

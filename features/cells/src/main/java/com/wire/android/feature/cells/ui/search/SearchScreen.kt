@@ -190,7 +190,7 @@ internal fun SearchRouteScreen(
                 pagingListItems = lazyItems,
                 sendIntent = { cellViewModel.sendIntent(it) },
                 menuState = cellViewModel.menu,
-                showItemMenu = !cellViewModel.isDriveOffboarded.collectAsState().value,
+                showItemMenu = cellViewModel.showItemMenu.collectAsState().value,
                 isSearchResult = true,
                 sortBy = uiState.sortingCriteria.by,
                 isRestoreInProgress = cellViewModel.isRestoreInProgress.collectAsState().value,

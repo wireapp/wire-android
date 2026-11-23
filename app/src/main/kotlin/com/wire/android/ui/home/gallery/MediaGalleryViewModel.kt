@@ -42,6 +42,7 @@ import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.message.CellAssetContent
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.MessageAssetResult.Success
+import com.wire.kalium.logic.feature.client.IsWireCellsEnabledUseCase
 import com.wire.kalium.logic.feature.conversation.IsSelfUserViewerOnConversationUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
@@ -68,6 +69,7 @@ class MediaGalleryViewModel @AssistedInject constructor(
     private val getAttachment: GetMessageAttachmentUseCase,
     private val getCellNode: GetCellFileUseCase,
     private val isSelfUserViewerOnConversation: IsSelfUserViewerOnConversationUseCase,
+    private val isWireCellsEnabled: IsWireCellsEnabledUseCase,
 ) : ActionsViewModel<MediaGalleryAction>() {
 
     @AssistedFactory
@@ -103,7 +105,9 @@ class MediaGalleryViewModel @AssistedInject constructor(
 
     private fun getViewerAccess() = viewModelScope.launch {
         val isViewerOnly = isSelfUserViewerOnConversation(conversationId)
-        updateState { it.copy(viewerAccess = !isViewerOnly) }
+        // Once the team's Drive is offboarded, drive files are read-only for everyone.
+        val isDriveOffboarded = cellAssetId != null && !isWireCellsEnabled()
+        updateState { it.copy(viewerAccess = !isViewerOnly || isDriveOffboarded) }
     }
 
     private fun setupImageAsset() = viewModelScope.launch {

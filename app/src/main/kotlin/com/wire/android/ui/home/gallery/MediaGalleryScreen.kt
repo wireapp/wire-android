@@ -76,7 +76,6 @@ import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.SnackBarMessageHandler
 import com.wire.android.util.openDownloadFolder
 
-@OptIn(ExperimentalCoilApi::class)
 @Composable
 internal fun MediaGalleryRouteScreen(
     mediaGalleryViewModel: MediaGalleryViewModel,

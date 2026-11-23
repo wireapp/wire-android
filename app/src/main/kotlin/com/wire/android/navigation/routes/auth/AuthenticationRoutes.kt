@@ -155,6 +155,7 @@ data class NewLoginVerificationCodeRoute(
 data class MFALoginRoute(
     override val flowId: String,
     override val entryId: WireNavEntryId = WireNavEntryId.random(),
+    val args: AuthenticationLoginArguments = AuthenticationLoginArguments(),
 ) : AuthenticationRoute {
     override val routeId: String
         get() = "app/mfa_login_screen"

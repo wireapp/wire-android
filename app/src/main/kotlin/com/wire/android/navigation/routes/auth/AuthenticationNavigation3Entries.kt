@@ -12,6 +12,11 @@ package com.wire.android.navigation.routes.auth
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import com.wire.android.navigation.navigation3.WireEntryPresentation
 import com.wire.android.navigation.navigation3.WireEntryProviderInstaller
 import com.wire.android.navigation.navigation3.wireEntry
@@ -39,6 +44,7 @@ import com.wire.kalium.logic.data.user.UserId
 import com.wire.navigation.WireBackStackMode
 import com.wire.navigation.WireSessionId
 import com.wire.navigation.WireViewModelOwner
+import kotlinx.coroutines.launch
 
 /**
  * Cross-batch operations emitted by the first authentication entries.
@@ -112,8 +118,8 @@ internal fun authenticationNavigation3Entries(
     wireEntry<NewLoginVerificationCodeRoute>(presentation = WireEntryPresentation.Slide) { route ->
         NewLoginVerificationCodeNavigation3Entry(route, actions, router)
     }
-    wireEntry<MFALoginRoute>(presentation = WireEntryPresentation.Slide) {
-        MFALoginScreen(onBack = { router.backOrElse(actions::exitAuthentication) })
+    wireEntry<MFALoginRoute>(presentation = WireEntryPresentation.Slide) { route ->
+        MFALoginNavigation3Entry(route, actions, router)
     }
 }
 
@@ -178,7 +184,7 @@ private fun LoginNavigation3Entry(
         if (viewModel.loginState.flowState == LoginState.MFARequired) {
             val accepted = router.navigate(
                 AuthenticationNavigationTransition.LOGIN_TO_MFA,
-                MFALoginRoute(flowId = route.flowId),
+                MFALoginRoute(flowId = route.flowId, args = route.args),
             )
             if (accepted) {
                 viewModel.clearLoginErrors()
@@ -257,7 +263,7 @@ private fun NewLoginPasswordNavigation3Entry(
             when (action) {
                 NewLoginPasswordScreenAction.MFARequired -> router.navigate(
                     AuthenticationNavigationTransition.LOGIN_TO_MFA,
-                    MFALoginRoute(flowId = route.flowId),
+                    MFALoginRoute(flowId = route.flowId, args = route.args),
                 )
 
                 is NewLoginPasswordScreenAction.Success -> router.completeLogin(
@@ -327,7 +333,8 @@ private fun NewLoginVerificationCodeNavigation3Entry(
         when (action) {
             NewLoginPasswordScreenAction.MFARequired -> router.navigate(
                 AuthenticationNavigationTransition.LOGIN_TO_MFA,
-                MFALoginRoute(flowId = route.flowId),
+                MFALoginRoute(flowId = route.flowId, args = route.args),
+                mode = WireBackStackMode.REMOVE_CURRENT,
             )
 
             is NewLoginPasswordScreenAction.Success -> router.completeLogin(
@@ -359,6 +366,63 @@ private fun NewLoginVerificationCodeNavigation3Entry(
         canNavigateBack = router.canNavigateBack,
         onNavigateBack = { router.backOrElse(actions::exitAuthentication) },
     )
+}
+
+@Composable
+private fun MFALoginNavigation3Entry(
+    route: MFALoginRoute,
+    actions: AuthenticationNavigation3Actions,
+    router: AuthenticationNavigation3Router,
+) {
+    val flowOwner = wireViewModelStoreOwner(WireViewModelOwner.Flow(route.flowId))
+    val viewModel = loginEmailViewModel(route.args.toLegacy(), flowOwner)
+    val scope = rememberCoroutineScope()
+    var isNavigatingBack by remember { mutableStateOf(false) }
+    val navigateBack: () -> Unit = {
+        if (!isNavigatingBack) {
+            isNavigatingBack = true
+            scope.launch {
+                viewModel.cancelMFALogin()
+                router.backOrElse(actions::exitAuthentication)
+            }
+        }
+    }
+    LaunchedEffect(viewModel.hasPendingMFALogin) {
+        if (!viewModel.hasPendingMFALogin) {
+            navigateBack()
+        }
+    }
+    if (viewModel.hasPendingMFALogin) {
+        LoginStateNavigationAndDialogs(viewModel) { action ->
+            when (action) {
+                is NewLoginPasswordScreenAction.Success -> router.completeLogin(
+                    eventId = route.terminalLoginEventId(),
+                    completion = when {
+                        action.isE2EIRequired -> AuthenticationLoginCompletion.E2EIEnrollment(action.userId.toSessionId())
+                        action.initialSyncCompleted -> AuthenticationLoginCompletion.Home(action.userId.toSessionId())
+                        else -> AuthenticationLoginCompletion.InitialSync(action.userId.toSessionId())
+                    },
+                )
+                is NewLoginPasswordScreenAction.RemoveDevice -> router.completeLogin(
+                    route.terminalLoginEventId(),
+                    AuthenticationLoginCompletion.RemoveDevice(action.userId.toSessionId()),
+                )
+                NewLoginPasswordScreenAction.Canceled -> {
+                    navigateBack()
+                    true
+                }
+                else -> false
+            }
+        }
+        MFALoginScreen(
+            code = viewModel.mfaCodeTextState,
+            isBusy = viewModel.isVerifyingMFACode || viewModel.loginState.flowState == LoginState.Loading || isNavigatingBack,
+            isCodeInvalid = viewModel.isMFACodeInvalid,
+            canSubmit = viewModel.canVerifyMFACode && !isNavigatingBack,
+            onCodeComplete = viewModel::verifyMFACode,
+            onBack = navigateBack,
+        )
+    }
 }
 
 private fun handleNewLoginAction(

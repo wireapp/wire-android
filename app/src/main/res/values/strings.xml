@@ -1317,6 +1317,9 @@
     <string name="mfa_code_title">Enter the 6-digit code</string>
     <string name="mfa_code_description">Enter the code your authenticator app shows for Wire. Codes refresh every 30 seconds.</string>
     <string name="mfa_code_label">Authentication code</string>
+    <string name="mfa_login_code_title">Enter your authentication code</string>
+    <string name="mfa_login_code_description">Open your authenticator app and enter the 6-digit code for Wire.</string>
+    <string name="mfa_login_use_another_method">Use another method</string>
     <string name="mfa_verify">Verify</string>
     <string name="mfa_codes_title">Save your recovery codes</string>
     <string name="mfa_codes_description">If you lose your authenticator app, use a recovery code to log in. Each code works once.</string>

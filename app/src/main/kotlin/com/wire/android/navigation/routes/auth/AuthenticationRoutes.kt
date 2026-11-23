@@ -152,13 +152,25 @@ data class NewLoginVerificationCodeRoute(
 }
 
 @Serializable
+enum class MFALoginStep {
+    CODE,
+    METHODS,
+    RECOVERY_CODE,
+}
+
+@Serializable
 data class MFALoginRoute(
     override val flowId: String,
     override val entryId: WireNavEntryId = WireNavEntryId.random(),
     val args: AuthenticationLoginArguments = AuthenticationLoginArguments(),
+    val step: MFALoginStep = MFALoginStep.CODE,
 ) : AuthenticationRoute {
     override val routeId: String
-        get() = "app/mfa_login_screen"
+        get() = when (step) {
+            MFALoginStep.CODE -> "app/mfa_login_screen"
+            MFALoginStep.METHODS -> "app/mfa_login_methods_screen"
+            MFALoginStep.RECOVERY_CODE -> "app/mfa_login_recovery_code_screen"
+        }
 
     init {
         require(flowId.isNotBlank()) { "An MFA login flow id cannot be blank" }

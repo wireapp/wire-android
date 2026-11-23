@@ -53,6 +53,8 @@ internal fun MFALoginScreen(
     canSubmit: Boolean,
     onCodeComplete: () -> Unit,
     onBack: () -> Unit,
+    onUseAnotherMethod: () -> Unit,
+    authenticatorName: String? = null,
 ) {
     BackHandler(onBack = onBack)
     NewAuthContainer(
@@ -60,7 +62,13 @@ internal fun MFALoginScreen(
             NewAuthHeader(
                 title = {
                     NewAuthTitle(title = stringResource(R.string.mfa_login_code_title))
-                    NewAuthSubtitle(title = stringResource(R.string.mfa_login_code_description))
+                    NewAuthSubtitle(
+                        title = if (authenticatorName != null) {
+                            stringResource(R.string.mfa_login_named_authenticator_description, authenticatorName)
+                        } else {
+                            stringResource(R.string.mfa_login_code_description)
+                        }
+                    )
                 },
                 canNavigateBack = true,
                 onNavigateBack = onBack,
@@ -87,8 +95,8 @@ internal fun MFALoginScreen(
                 )
             }
             TextButton(
-                enabled = false,
-                onClick = {},
+                enabled = canSubmit && !isBusy,
+                onClick = onUseAnotherMethod,
                 modifier = Modifier.fillMaxWidth(),
             ) {
                 Text(text = stringResource(R.string.mfa_login_use_another_method))
@@ -109,6 +117,7 @@ private fun PreviewMFALoginCodeScreen() = WireTheme {
                 canSubmit = true,
                 onCodeComplete = {},
                 onBack = {},
+                onUseAnotherMethod = {},
             )
         }
     }

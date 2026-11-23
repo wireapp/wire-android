@@ -42,6 +42,8 @@ import com.wire.android.ui.authentication.login.LoginViewModelExtension
 import com.wire.android.ui.authentication.login.PreFilledUserIdentifierType
 import com.wire.android.ui.authentication.login.SavedStateLoginSavedInputStore
 import com.wire.android.ui.authentication.login.isProxyAuthRequired
+import com.wire.android.ui.authentication.login.mfa.MFALoginMethod
+import com.wire.android.ui.authentication.login.mfa.mockMFALoginMethods
 import com.wire.android.ui.authentication.login.toLoginError
 import com.wire.android.ui.authentication.verificationcode.VerificationCodeState
 import com.wire.android.ui.common.textfield.textAsFlow
@@ -155,6 +157,9 @@ class LoginEmailViewModel(
     var autoLoginWhenFullCodeEntered: Boolean = true
 
     val mfaCodeTextState = TextFieldState()
+    internal val mfaLoginMethods: List<MFALoginMethod> = mockMFALoginMethods
+    internal var selectedMFAAuthenticator by mutableStateOf<MFALoginMethod.Authenticator?>(null)
+        private set
     var isMFACodeInvalid by mutableStateOf(false)
         private set
     var isVerifyingMFACode by mutableStateOf(false)
@@ -426,6 +431,14 @@ class LoginEmailViewModel(
         }
     }
 
+    internal fun selectMFAAuthenticator(method: MFALoginMethod.Authenticator): Boolean {
+        if (!canVerifyMFACode || isVerifyingMFACode || method !in mfaLoginMethods) return false
+        selectedMFAAuthenticator = method
+        mfaCodeTextState.clearText()
+        isMFACodeInvalid = false
+        return true
+    }
+
     fun verifyMFACode() {
         val verification = pendingMFAVerification ?: return
         if (!verification.isActive || isVerifyingMFACode) return
@@ -461,6 +474,7 @@ class LoginEmailViewModel(
         pendingMFAVerification?.cancel()
         pendingMFAVerification = null
         mfaCodeTextState.clearText()
+        selectedMFAAuthenticator = null
         isMFACodeInvalid = false
         isVerifyingMFACode = false
     }

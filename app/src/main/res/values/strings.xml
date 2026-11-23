@@ -1320,6 +1320,10 @@
     <string name="mfa_login_code_title">Enter your authentication code</string>
     <string name="mfa_login_code_description">Open your authenticator app and enter the 6-digit code for Wire.</string>
     <string name="mfa_login_use_another_method">Use another method</string>
+    <string name="mfa_login_named_authenticator_description">Open the authenticator app on %1$s and enter the 6-digit code for Wire.</string>
+    <string name="mfa_login_choose_method_title">Choose how to verify</string>
+    <string name="mfa_login_method_recovery_code">Recovery code</string>
+    <string name="mfa_login_method_recovery_code_description">One of the codes you saved</string>
     <string name="mfa_verify">Verify</string>
     <string name="mfa_codes_title">Save your recovery codes</string>
     <string name="mfa_codes_description">If you lose your authenticator app, use a recovery code to log in. Each code works once.</string>

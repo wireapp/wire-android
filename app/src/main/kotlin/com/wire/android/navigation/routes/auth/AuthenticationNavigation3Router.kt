@@ -39,6 +39,8 @@ internal enum class AuthenticationNavigationTransition {
     WELCOME_TO_ACCOUNT_DATA,
     LOGIN_TO_PASSWORD,
     LOGIN_TO_MFA,
+    MFA_CODE_TO_METHODS,
+    MFA_METHODS_TO_RECOVERY,
     LOGIN_RESTART_CUSTOM_BACKEND,
     LOGIN_FALLBACK_TO_LEGACY,
     PASSWORD_TO_VERIFICATION,
@@ -321,6 +323,8 @@ internal class AuthenticationNavigation3Router(
 
     val canNavigateBack: Boolean
         get() = runtime.navigator.routes.size > 1
+
+    fun isCurrentRoute(route: WireRoute): Boolean = runtime.navigator.currentRoute?.entryId == route.entryId
 }
 
 internal fun List<WireRoute>.hasActiveAuthenticationFlow(): Boolean =

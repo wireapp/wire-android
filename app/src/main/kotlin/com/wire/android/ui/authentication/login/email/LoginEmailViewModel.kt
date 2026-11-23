@@ -27,6 +27,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
+import com.wire.android.BuildConfig
 import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.di.ClientScopeProvider
@@ -247,13 +248,15 @@ class LoginEmailViewModel(
             loginEnabled = userIdentifierTextState.text.isNotEmpty()
                     && passwordTextState.text.isNotEmpty()
                     && (!serverConfig.isProxyAuthRequired || proxyFieldsNotEmpty)
-                    && flowState !is LoginState.Loading,
+                    && flowState !is LoginState.Loading
+                    && flowState !is LoginState.MFARequired,
             showInvalidCredentialsError = showInvalidCredentialsError
         )
     }
 
     private fun LoginState.canBeResetByCredentialChange(): Boolean = when (this) {
         LoginState.Loading,
+        LoginState.MFARequired,
         LoginState.Canceled,
         is LoginState.Success,
         is LoginState.Error.TooManyDevicesError -> false
@@ -315,6 +318,12 @@ class LoginEmailViewModel(
                     return@launch
                 }
                 secondFactorVerificationCodeState = secondFactorVerificationCodeState.copy(isCodeInputNecessary = false)
+
+                // Temporary spike: simulate totp-required until the backend login contract is settled.
+                if (BuildConfig.MULTI_FACTOR_AUTHENTICATION_ENABLED) {
+                    updateEmailFlowState(LoginState.MFARequired)
+                    return@launch
+                }
 
                 val storedUserId = withContext(dispatchers.io()) {
                     addAuthenticatedUser(

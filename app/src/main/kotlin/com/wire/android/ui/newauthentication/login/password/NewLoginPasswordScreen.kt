@@ -98,6 +98,7 @@ internal sealed interface NewLoginPasswordScreenAction {
 
     data class RemoveDevice(val userId: UserId) : NewLoginPasswordScreenAction
     data object Canceled : NewLoginPasswordScreenAction
+    data object MFARequired : NewLoginPasswordScreenAction
     data class VerificationRequired(val navArgs: LoginNavArgs) : NewLoginPasswordScreenAction
     data class CreateAccountSelector(
         val serverConfig: ServerConfig.Links,
@@ -418,6 +419,14 @@ internal fun LoginStateNavigationAndDialogs(
     val emailAlreadyInUseClaimedDomainDialogState = rememberVisibilityState<DomainClaimedByOrg.Claimed>()
     val handleLoginStateNavigation: (LoginState) -> Boolean = {
         when (it) {
+            LoginState.MFARequired -> {
+                val accepted = onAction(NewLoginPasswordScreenAction.MFARequired)
+                if (accepted) {
+                    viewModel.clearLoginErrors()
+                }
+                accepted
+            }
+
             is LoginState.Success -> {
                 onAction(
                     NewLoginPasswordScreenAction.Success(

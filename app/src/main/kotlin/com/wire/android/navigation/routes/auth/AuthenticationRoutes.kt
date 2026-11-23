@@ -152,6 +152,19 @@ data class NewLoginVerificationCodeRoute(
 }
 
 @Serializable
+data class MFALoginRoute(
+    override val flowId: String,
+    override val entryId: WireNavEntryId = WireNavEntryId.random(),
+) : AuthenticationRoute {
+    override val routeId: String
+        get() = "app/mfa_login_screen"
+
+    init {
+        require(flowId.isNotBlank()) { "An MFA login flow id cannot be blank" }
+    }
+}
+
+@Serializable
 data class AuthenticationLoginArguments(
     val userHandle: AuthenticationPrefilledUserIdentifier? = null,
     val ssoLoginResult: AuthenticationSsoLoginResult? = null,

@@ -17,6 +17,8 @@
  */
 package com.wire.android.feature.cells.ui.tags
 
+import com.wire.android.feature.cells.ui.CellNodeChangeEvents
+import com.wire.android.feature.cells.ui.CellNodeUpdate
 import androidx.compose.foundation.text.input.setTextAndSelectAll
 import app.cash.turbine.test
 import com.wire.android.feature.cells.ui.movetofolder.MoveToFolderViewModelTest.Companion.UUID
@@ -204,6 +206,22 @@ class AddRemoveTagsViewModelTest {
     }
 
     @Test
+    fun `given updateNodeTagsUseCase success, when updateTags is called, then the lists showing the node are told its new tags`() =
+        runTest {
+            val (arrangement, viewModel) = Arrangement()
+                .withGetAllTagsUseCaseReturning(Either.Right(setOf("kotlin")))
+                .withUpdateNodeTagsUseCaseReturning(Either.Right(Unit))
+                .arrange()
+
+            arrangement.nodeChangeEvents.nodeUpdates.test {
+                viewModel.addTag("kotlin")
+                viewModel.updateTags()
+
+                assertEquals(CellNodeUpdate.TagsChanged(UUID, listOf("kotlin")), awaitItem())
+            }
+        }
+
+    @Test
     fun `given removeNodeTagsUseCase fails, when updateTags is called, then failure is sent`() = runTest {
         val (_, viewModel) = Arrangement()
             .withGetAllTagsUseCaseReturning(Either.Right(setOf()))
@@ -291,6 +309,8 @@ class AddRemoveTagsViewModelTest {
 
     private class Arrangement {
 
+        val nodeChangeEvents = CellNodeChangeEvents()
+
         @MockK
         lateinit var getAllTagsUseCase: GetAllTagsUseCase
 
@@ -324,6 +344,7 @@ class AddRemoveTagsViewModelTest {
                 getAllTagsUseCase = getAllTagsUseCase,
                 updateNodeTagsUseCase = updateNodeTagsUseCase,
                 removeNodeTagsUseCase = removeNodeTagsUseCase,
+                nodeChangeEvents = nodeChangeEvents,
             )
             return this to viewModel
         }

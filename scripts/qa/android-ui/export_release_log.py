@@ -95,7 +95,15 @@ def _count_results(results):
     return counts
 
 
-def regression_record(context, apk_path, old_apk_path, results, report_url):
+def _testiny_run_id(text):
+    """A malformed id is no evidence. The export never fails on it."""
+    try:
+        return contract.parse_positive(text, "TESTINY_RUN_ID")
+    except ValueError:
+        return None
+
+
+def regression_record(context, apk_path, old_apk_path, results, report_url, testiny_run_id=None):
     """Return the regression record, or None when this run is not a production regression."""
     if not _eligible(context):
         return None
@@ -121,6 +129,7 @@ def regression_record(context, apk_path, old_apk_path, results, report_url):
         "retry_count": context["retry_count"],
         "results": _count_results(results),
         "report_url": report_url or None,
+        "testiny_run_id": testiny_run_id,
         "next_deflake_bundle_sha256": context["next_deflake_bundle_sha256"],
         "source_deflake_bundle_sha256": context["source_deflake_bundle_sha256"],
     }
@@ -261,7 +270,8 @@ def _command(arguments):
     new_path = _env(environ, "NEW_APK_PATH")
     old_path = _env(environ, "OLD_APK_PATH")
     record = regression_record(context, new_path or None, old_path or None, results_from_env(environ),
-                               _env(environ, "ALLURE_REPORT_URL") or None)
+                               _env(environ, "ALLURE_REPORT_URL") or None,
+                               _testiny_run_id(_env(environ, "TESTINY_RUN_ID")))
     if record is None:
         print("Release log: not a production regression, no record written")
         skip_output = _env(environ, "RELEASE_LOG_SKIP_OUTPUT")

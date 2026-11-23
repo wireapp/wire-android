@@ -335,11 +335,11 @@ internal fun com.wire.android.feature.meetings.ui.list.MeetingRemindersCard(modi
     - modifier: STABLE (marked @Stable or @Immutable)
 
 @Composable
-private fun com.wire.android.feature.meetings.ui.list.MeetingStartingInPrimaryBodyText(startTime: kotlin.time.Instant): kotlin.Unit
+private fun com.wire.android.feature.meetings.ui.list.MeetingStartingInPrimaryBodyText(status: com.wire.android.feature.meetings.model.MeetingItem.Status.Scheduled): kotlin.Unit
   skippable: true
   restartable: true
   params:
-    - startTime: STABLE (stability configuration file type)
+    - status: STABLE (marked @Stable or @Immutable)
 
 @Composable
 private fun com.wire.android.feature.meetings.ui.list.MeetingTimeInfoRow(status: com.wire.android.feature.meetings.model.MeetingItem.Status, repeatingInterval: com.wire.android.feature.meetings.model.MeetingItem.RepeatingInterval?, displayTimeZone: kotlinx.datetime.TimeZone): kotlin.Unit
@@ -380,12 +380,13 @@ internal fun com.wire.android.feature.meetings.ui.list.VideoCallIcon(tint: andro
     - modifier: STABLE (marked @Stable or @Immutable)
 
 @Composable
-private fun com.wire.android.feature.meetings.ui.list.getDateHeaderString(time: kotlin.time.Instant, displayTimeZone: kotlinx.datetime.TimeZone): kotlin.String
+private fun com.wire.android.feature.meetings.ui.list.getDateHeaderString(time: kotlin.time.Instant, displayTimeZone: kotlinx.datetime.TimeZone, relativeDay: com.wire.android.feature.meetings.model.MeetingHeader.RelativeDay): kotlin.String
   skippable: false
   restartable: false
   params:
     - time: STABLE (stability configuration file type)
     - displayTimeZone: STABLE (stability configuration file type)
+    - relativeDay: STABLE (class with no mutable properties)
 
 @Composable
 private fun com.wire.android.feature.meetings.ui.list.isLoading(): kotlin.Boolean

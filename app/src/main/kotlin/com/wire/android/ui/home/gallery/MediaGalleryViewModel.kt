@@ -259,6 +259,8 @@ class MediaGalleryViewModel @AssistedInject constructor(
     }
 
     fun onMenuIntent(menuIntent: MenuIntent) {
+        // the sheet is already hidden at this point, clear the items so the options can be opened again
+        onOptionsDismissed()
         when (menuIntent) {
             is MenuIntent.React -> sendAction(
                 MediaGalleryAction.React(

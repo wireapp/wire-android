@@ -403,6 +403,11 @@ class ConversationAudioMessagePlayer
     }
 
     private suspend fun resumeOrPause(conversationId: ConversationId, messageId: String) {
+        val currentPlayingState = audioMessageStateHistory[MessageIdWrapper(conversationId, messageId)]?.audioMediaPlayingState
+        if (currentPlayingState == AudioMediaPlayingState.Fetching || currentPlayingState == AudioMediaPlayingState.SuccessfulFetching) {
+            return
+        }
+
         if (audioMediaPlayer.isPlaying) {
             pause(conversationId, messageId)
             audioFocusHelper.abandon()

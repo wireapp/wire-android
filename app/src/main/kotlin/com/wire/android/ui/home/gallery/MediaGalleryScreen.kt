@@ -177,7 +177,6 @@ internal fun MediaGalleryRouteScreen(
             MediaGalleryAction.Download -> { onSaveImageWriteStorageRequest.launch() }
             is MediaGalleryAction.SharePublicLink -> {
                 onOpenPublicLink(action.assetId, action.assetName, action.publicLinkId)
-                mediaGalleryViewModel.onOptionsDismissed()
             }
 
             MediaGalleryAction.ShowError -> showErrorMessage(context)

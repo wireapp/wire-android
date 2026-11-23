@@ -50,6 +50,7 @@ import com.wire.android.ui.common.dialogs.CustomServerDetailsDialogState
 import com.wire.android.ui.common.dialogs.CustomServerDialogState
 import com.wire.android.ui.common.dialogs.CustomServerNoNetworkDialogState
 import com.wire.android.ui.joinConversation.JoinConversationViaCodeState
+import com.wire.android.ui.joinMeeting.MeetingJoinLink
 import com.wire.android.ui.sharing.sharingUris
 import com.wire.android.ui.sharing.shouldRejectSharingIntent
 import com.wire.android.ui.theme.Accent
@@ -110,10 +111,10 @@ import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlin.time.Instant
 import kotlinx.serialization.json.Json
 import java.io.InputStream
 import java.io.InputStreamReader
+import kotlin.time.Instant
 
 @Suppress("LongParameterList", "TooManyFunctions", "LargeClass")
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -490,6 +491,7 @@ class WireActivityViewModel @Inject constructor(
                 is DeepLinkResult.CustomServerConfig -> onCustomServerConfig(result.url, result.loginType)
                 is DeepLinkResult.SwitchAccountFailure.OngoingCall -> sendAction(ShowToast(R.string.cant_switch_account_in_call))
                 is DeepLinkResult.SwitchAccountFailure.Unknown -> appLogger.e("unknown deeplink failure")
+                is DeepLinkResult.JoinMeeting -> onMeetingInviteDeepLink(result)
                 is DeepLinkResult.JoinConversation -> onConversationInviteDeepLink(
                     result.code,
                     result.key,
@@ -885,6 +887,35 @@ class WireActivityViewModel @Inject constructor(
         is CurrentScreen.AuthRelated,
         is CurrentScreen.SomeOther -> true
     }
+
+    fun onJoinMeetingFlowCompleted(link: MeetingJoinLink, joined: Boolean) {
+        if (globalAppState.meetingJoinLink != link) return
+        updateGlobalAppState { it.copy(meetingJoinLink = null) }
+        if (joined) {
+            viewModelScope.launch {
+                val sessionId = link.targetSessionId ?: currentValidUserId() ?: return@launch
+                if (currentValidUserId() == sessionId) {
+                    sendAction(OpenMeetings(DeepLinkResult.OpenMeetings(sessionId)))
+                    sendAction(ShowToast(R.string.join_meeting_success))
+                }
+            }
+        }
+    }
+
+    private suspend fun onMeetingInviteDeepLink(link: DeepLinkResult.JoinMeeting) {
+        val sessionId = currentValidUserId() ?: return
+        if (link.targetSessionId != null && link.targetSessionId != sessionId) return
+        updateGlobalAppState {
+            it.copy(
+                meetingJoinLink = MeetingJoinLink(
+                    code = link.code,
+                    key = link.key,
+                    domain = link.domain,
+                    targetSessionId = sessionId,
+                )
+            )
+        }
+    }
 }
 
 sealed class CurrentSessionErrorState {
@@ -956,6 +987,7 @@ data class GlobalAppState(
     val isSessionTransitionInProgress: Boolean = false,
     val sessionTransitionReason: SessionTransitionReason? = null,
     val pendingRemovedClientRecovery: PendingRemovedClientRecovery? = null,
+    val meetingJoinLink: MeetingJoinLink? = null,
 )
 
 data class PendingRemovedClientRecovery(

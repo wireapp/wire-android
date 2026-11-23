@@ -133,6 +133,10 @@
                     android:scheme="wire" />
 
                 <data
+                    android:host="meeting-join"
+                    android:scheme="wire" />
+
+                <data
                     android:host="conversation-join"
                     android:scheme="wire" />
 

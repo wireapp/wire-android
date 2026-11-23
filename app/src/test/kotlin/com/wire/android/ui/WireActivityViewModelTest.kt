@@ -40,8 +40,8 @@ import com.wire.android.di.ObserveSelfUserUseCaseProvider
 import com.wire.android.di.ObserveSyncStateUseCaseProvider
 import com.wire.android.emm.ManagedConfigurationsManager
 import com.wire.android.feature.AccountSwitchUseCase
-import com.wire.android.feature.SwitchAccountParam
 import com.wire.android.feature.SwitchAccountActions
+import com.wire.android.feature.SwitchAccountParam
 import com.wire.android.feature.SwitchAccountResult
 import com.wire.android.framework.TestClient
 import com.wire.android.framework.TestUser
@@ -53,6 +53,7 @@ import com.wire.android.ui.common.dialogs.CustomServerDetailsDialogState
 import com.wire.android.ui.common.dialogs.CustomServerNoNetworkDialogState
 import com.wire.android.ui.common.topappbar.CommonTopAppBarViewModelTest
 import com.wire.android.ui.joinConversation.JoinConversationViaCodeState
+import com.wire.android.ui.joinMeeting.MeetingJoinLink
 import com.wire.android.ui.theme.ThemeOption
 import com.wire.android.util.CurrentScreen
 import com.wire.android.util.CurrentScreenManager
@@ -118,10 +119,10 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withContext
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertInstanceOf
 import org.junit.jupiter.api.Assertions.assertTrue
-import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -442,6 +443,103 @@ class WireActivityViewModelTest {
             .arrange()
 
         assertEquals(true, viewModel.globalAppState.updateAppDialog)
+    }
+
+    @Test
+    fun givenMeetingLinkWithoutSession_whenHandling_thenDoNotShowMeetingDialog() = runTest {
+        val link = DeepLinkResult.JoinMeeting("code", "key", "domain", TEST_ACCOUNT_INFO.userId)
+        val (_, viewModel) = Arrangement().withNoCurrentSession().withDeepLinkResult(link).arrange()
+
+        viewModel.handleDeepLink(mockedIntent())
+        advanceUntilIdle()
+
+        assertEquals(null, viewModel.globalAppState.meetingJoinLink)
+    }
+
+    @Test
+    fun givenMeetingLinkForDifferentSession_whenHandling_thenDoNotShowMeetingDialog() = runTest {
+        val otherAccount = TEST_ACCOUNT_INFO.userId.copy(value = "another-user")
+        val link = DeepLinkResult.JoinMeeting("code", "key", "domain", otherAccount)
+        val (_, viewModel) = Arrangement().withSomeCurrentSession().withDeepLinkResult(link).arrange()
+
+        viewModel.handleDeepLink(mockedIntent())
+        advanceUntilIdle()
+
+        assertEquals(null, viewModel.globalAppState.meetingJoinLink)
+    }
+
+    @Test
+    fun givenMeetingLinkWithoutTargetSession_whenHandling_thenUseValidatedCurrentSession() = runTest {
+        val link = DeepLinkResult.JoinMeeting("code", "key", "domain")
+        val (_, viewModel) = Arrangement().withSomeCurrentSession().withDeepLinkResult(link).arrange()
+
+        viewModel.handleDeepLink(mockedIntent())
+        advanceUntilIdle()
+
+        assertEquals(TEST_ACCOUNT_INFO.userId, viewModel.globalAppState.meetingJoinLink?.targetSessionId)
+    }
+
+    @Test
+    fun givenMeetingLink_whenHandling_thenStorePendingLinkWithoutJoining() = runTest {
+        val link = DeepLinkResult.JoinMeeting("code", "key", "domain", TEST_ACCOUNT_INFO.userId)
+        val (_, viewModel) = Arrangement().withSomeCurrentSession().withDeepLinkResult(link).arrange()
+
+        viewModel.handleDeepLink(mockedIntent())
+        advanceUntilIdle()
+
+        val expected = MeetingJoinLink(
+            code = link.code,
+            key = link.key,
+            domain = link.domain,
+            targetSessionId = link.targetSessionId,
+        )
+        assertEquals(expected, viewModel.globalAppState.meetingJoinLink)
+    }
+
+    @Test
+    fun givenCancelledMeetingJoin_whenCompleting_thenClearPendingLinkWithoutNavigation() = runTest {
+        val link = DeepLinkResult.JoinMeeting("code", "key", "domain", TEST_ACCOUNT_INFO.userId)
+        val (_, viewModel) = Arrangement().withSomeCurrentSession().withDeepLinkResult(link).arrange()
+        viewModel.handleDeepLink(mockedIntent())
+        advanceUntilIdle()
+
+        val state = requireNotNull(viewModel.globalAppState.meetingJoinLink)
+        viewModel.actions.test {
+            viewModel.onJoinMeetingFlowCompleted(state, false)
+            assertEquals(null, viewModel.globalAppState.meetingJoinLink)
+            expectNoEvents()
+        }
+    }
+
+    @Test
+    fun givenSuccessfulMeetingJoin_whenCompleting_thenOpenMeetingListAndShowSuccessToast() = runTest {
+        val link = DeepLinkResult.JoinMeeting("code", "key", "domain", TEST_ACCOUNT_INFO.userId)
+        val (_, viewModel) = Arrangement().withSomeCurrentSession().withDeepLinkResult(link).arrange()
+        viewModel.handleDeepLink(mockedIntent())
+        advanceUntilIdle()
+
+        val state = requireNotNull(viewModel.globalAppState.meetingJoinLink)
+        viewModel.actions.test {
+            viewModel.onJoinMeetingFlowCompleted(state, true)
+            assertEquals(OpenMeetings(DeepLinkResult.OpenMeetings(TEST_ACCOUNT_INFO.userId)), awaitItem())
+            assertEquals(ShowToast(R.string.join_meeting_success), awaitItem())
+            assertEquals(null, viewModel.globalAppState.meetingJoinLink)
+        }
+    }
+
+    @Test
+    fun givenDifferentPendingMeetingLink_whenOldFlowCompletes_thenIgnoreOldResult() = runTest {
+        val link = DeepLinkResult.JoinMeeting("new-code", "key", "domain", TEST_ACCOUNT_INFO.userId)
+        val (_, viewModel) = Arrangement().withSomeCurrentSession().withDeepLinkResult(link).arrange()
+        viewModel.handleDeepLink(mockedIntent())
+        advanceUntilIdle()
+
+        val state = requireNotNull(viewModel.globalAppState.meetingJoinLink)
+        viewModel.actions.test {
+            viewModel.onJoinMeetingFlowCompleted(state.copy(code = "old-code"), true)
+            assertEquals(state, viewModel.globalAppState.meetingJoinLink)
+            expectNoEvents()
+        }
     }
 
     @Test

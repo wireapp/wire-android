@@ -34,11 +34,11 @@ import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.id.toQualifiedID
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
+import dev.zacsweers.metro.AppScope
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.SingleIn
 import kotlinx.coroutines.flow.first
 import kotlinx.serialization.Serializable
-import dev.zacsweers.metro.Inject
-import dev.zacsweers.metro.AppScope
-import dev.zacsweers.metro.SingleIn
 
 sealed class DeepLinkResult {
     data object Unknown : DeepLinkResult()
@@ -93,6 +93,13 @@ sealed class DeepLinkResult {
         data object OngoingCall : SwitchAccountFailure()
         data object Unknown : SwitchAccountFailure()
     }
+
+    data class JoinMeeting(
+        val code: String,
+        val key: String,
+        val domain: String,
+        val targetSessionId: QualifiedID? = null,
+    ) : DeepLinkResult()
 }
 
 @Suppress("TooManyFunctions")
@@ -177,6 +184,7 @@ class DeepLinkProcessor @Inject constructor(
                 getOpenDriveFilesDeepLinkResult(uri, switchedAccount, targetSessionId)
             OTHER_USER_PROFILE_DEEPLINK_HOST ->
                 getOpenOtherUserProfileDeepLinkResult(uri, switchedAccount, targetSessionId)
+            JOIN_MEETING_DEEPLINK_HOST -> getJoinMeetingDeepLinkResult(uri, targetSessionId)
             JOIN_CONVERSATION_DEEPLINK_HOST ->
                 getJoinConversationDeepLinkResult(uri, switchedAccount, targetSessionId)
             OPEN_USER_PROFILE_DEEPLINK_HOST ->
@@ -303,6 +311,13 @@ class DeepLinkProcessor @Inject constructor(
         return DeepLinkResult.JoinConversation(code, key, domain, switchedAccount, targetSessionId)
     }
 
+    private fun getJoinMeetingDeepLinkResult(uri: Uri, targetSessionId: QualifiedID?): DeepLinkResult {
+        val code = uri.getQueryParameter(JOIN_CONVERSATION_CODE_PARAM)?.takeIf { it.isNotBlank() }
+        val key = uri.getQueryParameter(JOIN_CONVERSATION_KEY_PARAM)?.takeIf { it.isNotBlank() }
+        val domain = uri.getQueryParameter(JOIN_CONVERSATION_DOMAIN_PARAM)?.takeIf { it.isNotBlank() }
+        if (code == null || key == null || domain == null) return DeepLinkResult.Unknown
+        return DeepLinkResult.JoinMeeting(code, key, domain, targetSessionId)
+    }
     companion object {
         const val DEEP_LINK_SCHEME = "wire"
         const val E2EI_DEEPLINK_HOST = "e2ei"
@@ -322,6 +337,7 @@ class DeepLinkProcessor @Inject constructor(
         const val DRIVE_FILES_DEEPLINK_HOST = "drive-files"
         const val OTHER_USER_PROFILE_DEEPLINK_HOST = "other-user-profile"
         const val MIGRATION_LOGIN_HOST = "migration-login"
+        const val JOIN_MEETING_DEEPLINK_HOST = "meeting-join"
         const val JOIN_CONVERSATION_DEEPLINK_HOST = "conversation-join"
         const val JOIN_CONVERSATION_CODE_PARAM = "code"
         const val JOIN_CONVERSATION_KEY_PARAM = "key"

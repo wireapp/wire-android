@@ -27,9 +27,10 @@ import com.wire.kalium.logic.feature.meeting.DeleteMeetingForMeUseCase
 import com.wire.kalium.logic.feature.meeting.EnsureMeetingIsMLSEstablishedUseCase
 import com.wire.kalium.logic.feature.meeting.GetNextUnfinishedMeetingOccurrenceUseCase
 import com.wire.kalium.logic.feature.meeting.GetPaginatedMeetingOccurrencesUseCase
+import com.wire.kalium.logic.feature.meeting.JoinMeetingViaCodeUseCase
 import com.wire.kalium.logic.feature.meeting.MeetingScope
-import com.wire.kalium.logic.feature.meeting.ObserveMeetingUseCase
 import com.wire.kalium.logic.feature.meeting.ObserveMeetingOccurrenceUseCase
+import com.wire.kalium.logic.feature.meeting.ObserveMeetingUseCase
 import com.wire.kalium.logic.feature.meeting.SyncMeetingsUseCase
 import dev.zacsweers.metro.BindingContainer
 import dev.zacsweers.metro.Provides
@@ -83,4 +84,7 @@ class MeetingModule {
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount accountId: UserId,
     ): SyncMeetingsUseCase = coreLogic.getSessionScope(accountId).syncMeetingsUseCase
+
+    @Provides
+    fun provideJoinMeetingViaCodeUseCase(meetingScope: MeetingScope): JoinMeetingViaCodeUseCase = meetingScope.joinMeetingViaCode
 }

@@ -50,6 +50,49 @@ import org.junit.jupiter.api.Test
 class DeepLinkProcessorTest {
 
     @Test
+    fun givenMeetingJoinLink_whenProcessing_thenResolveLinkAndValidatedSession() = runTest {
+        for (userId in listOf(CURRENT_USER_ID, OTHER_USER_ID)) {
+            val (arrangement, processor) = Arrangement()
+                .withConversationDeepLink(userId)
+                .withCurrentSessionSuccess(CURRENT_USER_ID)
+                .arrange()
+            every { arrangement.uri.host } returns DeepLinkProcessor.JOIN_MEETING_DEEPLINK_HOST
+            every { arrangement.uri.getQueryParameter("code") } returns "-8YMw_E0l2yjxJKPC9z-"
+            every { arrangement.uri.getQueryParameter("key") } returns "50vzsjQnAYn6jnhQX0i2"
+            every { arrangement.uri.getQueryParameter("domain") } returns "anta.wire.link"
+
+            val expected = DeepLinkResult.JoinMeeting("-8YMw_E0l2yjxJKPC9z-", "50vzsjQnAYn6jnhQX0i2", "anta.wire.link", userId)
+            assertEquals(expected, processor(arrangement.uri))
+        }
+    }
+
+    @Test
+    fun givenMissingOrBlankMeetingJoinArgument_whenProcessing_thenRejectLink() = runTest {
+        for (missing in listOf("key", "code", "domain")) {
+            for (value in listOf(null, "", " ")) {
+                val (arrangement, processor) = Arrangement()
+                    .withConversationDeepLink()
+                    .withCurrentSessionSuccess()
+                    .arrange()
+                every { arrangement.uri.host } returns DeepLinkProcessor.JOIN_MEETING_DEEPLINK_HOST
+                for (parameter in listOf("key", "code", "domain")) {
+                    every { arrangement.uri.getQueryParameter(parameter) } returns if (parameter == missing) value else "valid"
+                }
+                assertEquals(DeepLinkResult.Unknown, processor(arrangement.uri))
+            }
+        }
+    }
+
+    @Test
+    fun givenMeetingJoinLinkWithoutSession_whenProcessing_thenRequireAuthentication() = runTest {
+        val (arrangement, processor) = Arrangement()
+            .withCurrentSession(CurrentSessionResult.Failure.SessionNotFound)
+            .arrange()
+        every { arrangement.uri.host } returns DeepLinkProcessor.JOIN_MEETING_DEEPLINK_HOST
+        assertEquals(DeepLinkResult.AuthorizationNeeded, processor(arrangement.uri))
+    }
+
+    @Test
     fun givenMeetingsLinkForOtherAccount_whenProcessing_thenSwitchAndOpenMeetings() = runTest {
         val (arrangement, processor) = Arrangement()
             .withConversationDeepLink(OTHER_USER_ID)

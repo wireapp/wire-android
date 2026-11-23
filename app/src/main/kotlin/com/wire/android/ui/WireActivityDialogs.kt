@@ -34,8 +34,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -61,8 +63,8 @@ import com.wire.android.ui.common.dialogs.CustomServerNoNetworkDialog
 import com.wire.android.ui.common.dialogs.CustomServerNoNetworkDialogState
 import com.wire.android.ui.common.dialogs.MaxAccountAllowedDialogContent
 import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.common.wireDialogPropertiesBuilder
 import com.wire.android.ui.common.visbility.rememberVisibilityState
+import com.wire.android.ui.common.wireDialogPropertiesBuilder
 import com.wire.android.ui.e2eiEnrollment.GetE2EICertificateUI
 import com.wire.android.ui.home.E2EICertificateRevokedDialog
 import com.wire.android.ui.home.E2EIRequiredDialog
@@ -74,6 +76,10 @@ import com.wire.android.ui.joinConversation.JoinConversationViaCodeState
 import com.wire.android.ui.joinConversation.JoinConversationViaCodeViewModel
 import com.wire.android.ui.joinConversation.JoinConversationViaDeepLinkDialog
 import com.wire.android.ui.joinConversation.JoinConversationViaInviteLinkError
+import com.wire.android.ui.joinMeeting.JoinMeetingDialogState
+import com.wire.android.ui.joinMeeting.JoinMeetingViaCodeViewModel
+import com.wire.android.ui.joinMeeting.JoinMeetingViaDeepLinkDialog
+import com.wire.android.ui.joinMeeting.MeetingJoinLink
 import com.wire.android.ui.legalhold.dialog.deactivated.LegalHoldDeactivatedDialog
 import com.wire.android.ui.legalhold.dialog.deactivated.LegalHoldDeactivatedState
 import com.wire.android.ui.legalhold.dialog.requested.LegalHoldRequestedDialog
@@ -89,10 +95,11 @@ import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
-import kotlin.time.Instant
 import com.wire.kalium.logic.feature.conversation.CheckConversationInviteCodeUseCase
-import java.text.NumberFormat
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
+import java.text.NumberFormat
+import kotlin.time.Instant
 
 /**
  * Navigation- and Activity-neutral effects emitted by the global dialog layer.
@@ -274,6 +281,11 @@ internal fun WireActivityDialogs(
             }
 
             UpdateAppDialog(viewModel.globalAppState.updateAppDialog, actions.updateApp)
+            JoinMeetingDialog(
+                link = viewModel.globalAppState.meetingJoinLink,
+                onFlowCompleted = viewModel::onJoinMeetingFlowCompleted,
+                viewModel = activityViewModels.joinMeetingViaCodeViewModel,
+            )
             JoinConversationDialog(
                 joinedDialogState = viewModel.globalAppState.conversationJoinedDialog,
                 openConversation = actions.openJoinedConversation,
@@ -495,6 +507,37 @@ fun JoinConversationDialog(
                     viewModel = viewModel,
                 )
             }
+        }
+    }
+}
+
+/** Starts joining silently; a visible dialog is only needed for passwords and errors. */
+@Composable
+fun JoinMeetingDialog(
+    link: MeetingJoinLink?,
+    onFlowCompleted: (MeetingJoinLink, Boolean) -> Unit,
+    viewModel: JoinMeetingViaCodeViewModel = joinMeetingViaCodeViewModel(),
+) {
+    LaunchedEffect(viewModel, link) {
+        if (link == null) viewModel.reset() else viewModel.startJoining(link)
+    }
+    link?.let { meetingLink ->
+        key(meetingLink) {
+            val coroutineScope = rememberCoroutineScope()
+            val onComplete: (Boolean) -> Unit = { joined ->
+                viewModel.reset()
+                onFlowCompleted(meetingLink, joined)
+            }
+            LaunchedEffect(viewModel.state) {
+                if (viewModel.state == JoinMeetingDialogState.Success) onComplete(true)
+            }
+            JoinMeetingViaDeepLinkDialog(
+                state = viewModel.state,
+                passwordTextState = viewModel.passwordTextState,
+                onJoin = { coroutineScope.launch { viewModel.submitPassword(meetingLink) } },
+                onRetry = { coroutineScope.launch { viewModel.retryJoining(meetingLink) } },
+                onDismiss = { onComplete(false) },
+            )
         }
     }
 }

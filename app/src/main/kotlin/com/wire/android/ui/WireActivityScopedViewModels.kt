@@ -24,9 +24,10 @@ import com.wire.android.di.metro.wireMetroViewModel
 import com.wire.android.ui.common.commonTopAppBarViewModel
 import com.wire.android.ui.common.topappbar.CommonTopAppBarParams
 import com.wire.android.ui.common.topappbar.CommonTopAppBarViewModel
-import com.wire.android.ui.home.sync.FeatureFlagNotificationViewModel
 import com.wire.android.ui.e2eiEnrollment.GetE2EICertificateViewModel
+import com.wire.android.ui.home.sync.FeatureFlagNotificationViewModel
 import com.wire.android.ui.joinConversation.JoinConversationViaCodeViewModel
+import com.wire.android.ui.joinMeeting.JoinMeetingViaCodeViewModel
 import com.wire.android.ui.legalhold.dialog.deactivated.LegalHoldDeactivatedViewModel
 import com.wire.android.ui.legalhold.dialog.requested.LegalHoldRequestedViewModel
 
@@ -45,6 +46,7 @@ internal data class WireActivityScopedViewModels(
     val legalHoldDeactivatedViewModel: LegalHoldDeactivatedViewModel,
     val getE2EICertificateViewModel: GetE2EICertificateViewModel,
     val joinConversationViaCodeViewModel: JoinConversationViaCodeViewModel,
+    val joinMeetingViaCodeViewModel: JoinMeetingViaCodeViewModel,
 )
 
 @Composable
@@ -66,4 +68,5 @@ internal fun wireActivityScopedViewModels(
         legalHoldDeactivatedViewModel = wireMetroViewModel(owner = owner),
         getE2EICertificateViewModel = wireMetroViewModel(owner = owner),
         joinConversationViaCodeViewModel = wireMetroViewModel(owner = owner),
+        joinMeetingViaCodeViewModel = wireMetroViewModel(owner = owner),
     )

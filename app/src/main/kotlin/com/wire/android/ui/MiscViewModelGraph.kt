@@ -27,6 +27,7 @@ import com.wire.android.ui.e2eiEnrollment.E2EIEnrollmentViewModel
 import com.wire.android.ui.e2eiEnrollment.GetE2EICertificateViewModel
 import com.wire.android.ui.initialsync.InitialSyncViewModel
 import com.wire.android.ui.joinConversation.JoinConversationViaCodeViewModel
+import com.wire.android.ui.joinMeeting.JoinMeetingViaCodeViewModel
 import com.wire.android.ui.legalhold.dialog.requested.LegalHoldRequestedViewModel
 import com.wire.android.ui.sharing.ImportMediaAuthenticatedViewModel
 
@@ -68,4 +69,10 @@ fun importMediaAuthenticatedViewModel(): ImportMediaAuthenticatedViewModel =
 fun joinConversationViaCodeViewModel(
     owner: ViewModelStoreOwner = checkNotNull(LocalViewModelStoreOwner.current),
 ): JoinConversationViaCodeViewModel =
+    miscViewModel(owner)
+
+@Composable
+fun joinMeetingViaCodeViewModel(
+    owner: ViewModelStoreOwner = checkNotNull(LocalViewModelStoreOwner.current),
+): JoinMeetingViaCodeViewModel =
     miscViewModel(owner)

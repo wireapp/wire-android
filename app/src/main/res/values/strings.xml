@@ -1110,23 +1110,23 @@
     </plurals>
     <string name="notification_drive_upload_action_cancel_all">Cancel all</string>
     <string name="notification_drive_upload_action_retry">Retry</string>
-    <string name="notification_offline_download_preparing_title">Saving files for offline use…</string>
+    <string name="notification_offline_download_preparing_title">Making files available offline…</string>
     <plurals name="notification_offline_download_title">
-        <item quantity="one">Saving %1$d file for offline use</item>
-        <item quantity="other">Saving %1$d files for offline use</item>
+        <item quantity="one">Making %1$d file available offline</item>
+        <item quantity="other">Making %1$d files available offline</item>
     </plurals>
-    <string name="notification_offline_download_progress_text">%1$d of %2$d saved</string>
-    <string name="notification_offline_download_waiting_for_network_text">Paused, waiting for connection · %1$d of %2$d saved</string>
+    <string name="notification_offline_download_progress_text">%1$d of %2$d available offline</string>
+    <string name="notification_offline_download_waiting_for_network_text">Paused, waiting for connection · %1$d of %2$d available offline</string>
     <string name="notification_offline_download_action_cancel">Cancel</string>
-    <string name="notification_offline_download_complete_title">Saved for offline use</string>
+    <string name="notification_offline_download_complete_title">Available for offline use</string>
     <plurals name="notification_offline_download_complete_text">
-        <item quantity="one">%1$d file saved for offline use</item>
-        <item quantity="other">%1$d files saved for offline use</item>
+        <item quantity="one">%1$d file available for offline use</item>
+        <item quantity="other">%1$d files available for offline use</item>
     </plurals>
-    <string name="notification_offline_download_partial_title">%1$d of %2$d files saved for offline use</string>
+    <string name="notification_offline_download_partial_title">%1$d of %2$d files available offline</string>
     <plurals name="notification_offline_download_failed_text">
-        <item quantity="one">%1$d file couldn\'t be saved</item>
-        <item quantity="other">%1$d files couldn\'t be saved</item>
+        <item quantity="one">%1$d file couldn\'t be saved for offline use</item>
+        <item quantity="other">%1$d files couldn\'t be saved for offline use</item>
     </plurals>
     <string name="notification_offline_download_no_storage_title">Not enough storage</string>
     <!-- Calling-->

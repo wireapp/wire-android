@@ -107,12 +107,10 @@ class AudioMediaRecorder @Inject constructor(
         recordingJob = scope.launch { writeAudioDataToFile() }
         true
     } catch (e: IllegalStateException) {
-        e.printStackTrace()
-        appLogger.e("[RecordAudio] startRecording: IllegalStateException - ${e.message}")
+        appLogger.e("[RecordAudio] startRecording: IllegalStateException - ${e.message}", throwable = e)
         false
     } catch (e: IOException) {
-        e.printStackTrace()
-        appLogger.e("[RecordAudio] startRecording: IOException - ${e.message}")
+        appLogger.e("[RecordAudio] startRecording: IOException - ${e.message}", throwable = e)
         false
     }
 
@@ -211,8 +209,7 @@ class AudioMediaRecorder @Inject constructor(
                         }
                 }
             } catch (e: IOException) {
-                e.printStackTrace()
-                appLogger.e("[RecordAudio] writeAudioDataToFile: IOException - ${e.message}")
+                appLogger.e("[RecordAudio] writeAudioDataToFile: IOException - ${e.message}", throwable = e)
             }
         }
     }

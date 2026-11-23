@@ -22,6 +22,7 @@ import android.os.Parcelable
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.unit.Density
+import com.wire.android.appLogger
 import dev.ahmedmourad.bundlizer.Bundlizer
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.parcelize.Parcelize
@@ -57,7 +58,7 @@ inline fun <reified T : Any> WireModalSheetState.Companion.saver(
                         try {
                             SavedData.Expanded(Bundlizer.bundle(T::class.serializer(), currentValue.value))
                         } catch (e: Exception) {
-                            e.printStackTrace()
+                            appLogger.e("Failed to bundle modal sheet state: ${e.message}", throwable = e)
                             SavedData.Hidden // hidden because key cannot be serialized to Bundle properly
                         }
 
@@ -87,7 +88,7 @@ inline fun <reified T : Any> WireModalSheetState.Companion.saver(
                         try {
                             WireSheetValue.Expanded(Bundlizer.unbundle(T::class.serializer(), savedValue.value))
                         } catch (e: Exception) {
-                            e.printStackTrace()
+                            appLogger.e("Failed to unbundle modal sheet state: ${e.message}", throwable = e)
                             WireSheetValue.Hidden // hidden because value cannot be deserialized from Bundle properly
                         }
 

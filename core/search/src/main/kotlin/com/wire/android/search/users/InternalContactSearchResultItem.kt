@@ -18,7 +18,6 @@
 
 package com.wire.android.ui.home.conversations.search
 
-import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
@@ -33,6 +32,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.disabled
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
+import com.wire.android.appLogger
 import com.wire.android.model.Clickable
 import com.wire.android.model.ItemActionType
 import com.wire.android.model.UserAvatarData
@@ -210,16 +210,14 @@ fun ExternalContactSearchResultItem(
                         }
 
                         ConnectionState.MISSING_LEGALHOLD_CONSENT -> {
-                            Log.e(
-                                "ExternalContactSearchResultItem",
-                                "Unhandled ConnectionState.MISSING_LEGALHOLD_CONSENT in ExternalContactSearchResultItem"
+                            appLogger.e(
+                                "[ExternalContactSearchResultItem] Unhandled ConnectionState.MISSING_LEGALHOLD_CONSENT"
                             )
                         }
 
                         ConnectionState.ACCEPTED -> {
-                            Log.e(
-                                "ExternalContactSearchResultItem",
-                                "ConnectionState.ACCEPTED should not appear in ExternalContactSearchResultItem"
+                            appLogger.e(
+                                "[ExternalContactSearchResultItem] ConnectionState.ACCEPTED should not appear"
                             )
                         }
                     }

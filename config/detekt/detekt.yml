@@ -497,12 +497,42 @@ style:
         comments: [ 'TODO:', 'FIXME:', 'STOPSHIP:' ]
         allowedPatterns: ''
     ForbiddenImport:
-        active: false
-        imports: [ ]
+        active: true
+        imports:
+            - value: 'android.util.Log'
+              reason: 'Use appLogger so log output goes through the shared writers.'
+            - value: 'co.touchlab.kermit.*'
+              reason: 'Use appLogger so log output goes through the shared writers.'
         forbiddenPatterns: ''
+        excludes: &rawLoggingExcludes
+            # writer code: it is the sink the other code logs into
+            - '**/util/logging/**'
+            # writer for the Datadog flavors (private and public)
+            - '**/util/DataDogLogger.kt'
+            # sets up the writers, and traces startup and crashes before the logger exists
+            - '**/WireApplication.kt'
+            # traces startup before the logger is guaranteed to be set up, like WireApplication
+            - '**/ui/WireActivity.kt'
+            # core:analytics-enabled cannot reach appLogger (it lives in core:ui-common); needs a dependency decision
+            - '**/feature/analytics/AnonymousAnalyticsManagerImpl.kt'
+            - '**/feature/analytics/AnonymousAnalyticsRecorderImpl.kt'
+            # test source sets log to the test runner on purpose
+            - '**/test/**'
+            - '**/androidTest/**'
+            - '**/sharedTest/**'
+            - '**/testFixtures/**'
+            # test support code and UI test suites log to the test runner on purpose
+            - '**/tests/**'
+            # Gradle build logic runs in the build, not in the app, and has no appLogger
+            - '**/build-logic/**'
     ForbiddenMethodCall:
-        active: false
-        methods: [ ]
+        active: true
+        methods:
+            - value: 'kotlin.io.println'
+              reason: 'Use appLogger instead of printing to stdout.'
+            - value: 'kotlin.Throwable.printStackTrace'
+              reason: 'Pass the exception to appLogger as the throwable instead of printing the stack trace.'
+        excludes: *rawLoggingExcludes
     ForbiddenVoid:
         active: false
         ignoreOverridden: false

@@ -440,7 +440,7 @@ fun printMarkdownNodeTree(node: MarkdownNode?, indentLevel: Int = 0) {
         is MarkdownNode.Inline.Break -> "${indent}Break"
         is MarkdownNode.Unsupported -> "${indent}Unsupported"
     }
-    println(printLog)
+    appLogger.d(printLog)
 
     node.children.forEach { printMarkdownNodeTree(it, indentLevel + 1) }
 }

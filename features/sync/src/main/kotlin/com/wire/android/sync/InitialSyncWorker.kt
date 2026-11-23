@@ -18,12 +18,12 @@
 package com.wire.android.sync
 
 import android.content.Context
-import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.work.CoroutineWorker
 import androidx.work.Data
 import androidx.work.ForegroundInfo
 import androidx.work.WorkerParameters
+import com.wire.android.appLogger
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.feature.sync.R
 import com.wire.android.notification.NotificationChannelsManager
@@ -51,15 +51,15 @@ class InitialSyncWorker @AssistedInject constructor(
     private val workId: WorkId? = parameters.getWorkId()
 
     override suspend fun doWork(): Result = if (workId == null) {
-        Log.e("InitialSyncWorker", "WorkId is null, cannot start monitoring work.")
+        appLogger.e("[InitialSyncWorker] WorkId is null, cannot start monitoring work.")
         Result.failure()
     } else {
-        Log.i("InitialSyncWorker", "Starting InitialSyncWorker.")
+        appLogger.i("[InitialSyncWorker] Starting InitialSyncWorker.")
         val result = coreLogic.globalScope {
             session.allSessions()
         }
         if (result !is GetAllSessionsResult.Success) {
-            Log.e("InitialSyncWorker", "Failure to get active sessions. Not waiting for Sync.")
+            appLogger.e("[InitialSyncWorker] Failure to get active sessions. Not waiting for Sync.")
             Result.failure()
         } else {
             coroutineScope {
@@ -67,17 +67,17 @@ class InitialSyncWorker @AssistedInject constructor(
                     launch {
                         coreLogic.sessionScope(session.userId) {
                             syncExecutor.request {
-                                Log.i("InitialSyncWorker", "Waiting for Initial Sync for user '${session.userId}' to finish.")
+                                appLogger.i("[InitialSyncWorker] Waiting for Initial Sync for user '${session.userId}' to finish.")
                                 longWork.observeWorkStatus(workId).takeWhile {
                                     it !is Work.Status.Complete
                                 }.collect()
-                                Log.i("InitialSyncWorker", "Initial Sync for user '${session.userId}' complete.")
+                                appLogger.i("[InitialSyncWorker] Initial Sync for user '${session.userId}' complete.")
                             }
                         }
                     }
                 }
             }
-            Log.i("InitialSyncWorker", "Initial Sync complete for all users")
+            appLogger.i("[InitialSyncWorker] Initial Sync complete for all users")
             Result.success()
         }
     }

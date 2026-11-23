@@ -17,6 +17,9 @@
  */
 package com.wire.android.ui.home.conversations.model.messagetypes.multipart
 
+import co.touchlab.kermit.LogWriter
+import co.touchlab.kermit.Severity
+import com.wire.android.appLogger
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.feature.cells.domain.model.AttachmentFileType
 import com.wire.android.feature.cells.ui.CellFileLocalPathCache
@@ -40,6 +43,8 @@ import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.message.CellAssetContent
 import com.wire.kalium.logic.feature.conversation.IsSelfUserViewerOnConversationUseCase
 import com.wire.kalium.logic.featureFlags.KaliumConfigs
+import com.wire.kalium.logger.KaliumLogLevel
+import com.wire.kalium.logger.KaliumLogger
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -52,7 +57,10 @@ import kotlinx.coroutines.test.runTest
 import okio.Path.Companion.toPath
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -62,6 +70,22 @@ typealias OpenPdfCallback = (attachment: MultipartAttachmentUi, pdfPreviewUrl: S
 
 @ExtendWith(CoroutineTestExtension::class)
 class MultipartAttachmentsViewModelTest {
+
+    private val originalAppLogger = appLogger
+    private val logWriter = RecordingLogWriter()
+
+    @BeforeEach
+    fun captureAppLogger() {
+        appLogger = KaliumLogger(
+            config = KaliumLogger.Config(initialLevel = KaliumLogLevel.DEBUG, initialLogWriterList = listOf(logWriter)),
+            tag = "MultipartAttachmentsViewModelTest",
+        )
+    }
+
+    @AfterEach
+    fun restoreAppLogger() {
+        appLogger = originalAppLogger
+    }
 
     @Test
     fun `with multiple media attachments when mapped the attachments are grouped correctly`() = runTest {
@@ -544,6 +568,78 @@ class MultipartAttachmentsViewModelTest {
         verify(exactly = 0) { openInPdfViewer.invoke(any(), any()) }
     }
 
+    @Test
+    fun `with local file that fails to open when clicked then the error is logged without the local path`() = runTest {
+        val (arrangement, viewModel) = Arrangement().arrange()
+        arrangement.withOpenFailure()
+
+        viewModel.onClick(
+            attachment = testAttachmentUi.copy(
+                mimeType = "application/zip",
+                assetType = AttachmentFileType.ARCHIVE,
+                localPath = LOCAL_PATH,
+            ),
+            openInImageViewer = { },
+            openInVideoPlayer = { },
+            openInAudioPlayer = { },
+            openInPdfViewer = { _, _ -> },
+        )
+
+        logWriter.assertErrorLoggedWithout(LOCAL_PATH)
+    }
+
+    @Test
+    fun `with downloaded file that fails to open when clicked then the error is logged without the local path`() = runTest {
+        val (arrangement, viewModel) = Arrangement().arrange()
+        arrangement.withOpenFailure()
+        val attachment = testAttachmentUi.copy(mimeType = "application/zip", assetType = AttachmentFileType.ARCHIVE)
+        arrangement.sharedPathCache.setOpenLoadState(attachment.uuid, OpenLoadState.Ready(LOCAL_PATH.toPath()))
+
+        viewModel.onClick(attachment, mockk(), mockk(), mockk(), mockk())
+
+        logWriter.assertErrorLoggedWithout(LOCAL_PATH)
+    }
+
+    @Test
+    fun `with url that fails to open when clicked then the error is logged without the preview url`() = runTest {
+        val (arrangement, viewModel) = Arrangement().arrange()
+        arrangement.withOpenFailure()
+
+        // The mime type is not an image, so the attachment is not routed to the internal image viewer.
+        viewModel.onClick(
+            attachment = testAttachmentUi.copy(
+                mimeType = "application/octet-stream",
+                assetType = AttachmentFileType.IMAGE,
+                contentUrl = "https://cells.wire.com/content?presigned=CONTENT_SECRET",
+                previewUrl = PREVIEW_URL,
+            ),
+            openInImageViewer = { },
+            openInVideoPlayer = { },
+            openInAudioPlayer = { },
+            openInPdfViewer = { _, _ -> },
+        )
+
+        logWriter.assertErrorLoggedWithout(PREVIEW_URL, "CONTENT_SECRET")
+    }
+
+    private fun RecordingLogWriter.assertErrorLoggedWithout(vararg sensitive: String) {
+        val errors = entries.filter { it.severity == Severity.Error }
+        assertTrue(errors.isNotEmpty(), "expected an error to be logged")
+        sensitive.forEach { value ->
+            entries.forEach { assertFalse(it.message.contains(value), "log leaks $value: ${it.message}") }
+        }
+    }
+
+    private class RecordingLogWriter : LogWriter() {
+        data class Entry(val severity: Severity, val message: String)
+
+        val entries = mutableListOf<Entry>()
+
+        override fun log(severity: Severity, message: String, tag: String, throwable: Throwable?) {
+            entries += Entry(severity, message)
+        }
+    }
+
     // TODO: Refresh asset tests (part of refresh update PR)
 
     private class Arrangement {
@@ -606,6 +702,12 @@ class MultipartAttachmentsViewModelTest {
             pdfRenditionUrl = null
         }
 
+        /** Makes the external app launch fail, which invokes the `onError` callback of [FileManager]. */
+        fun withOpenFailure() = apply {
+            every { fileManager.openWithExternalApp(any(), any(), any(), any()) } answers { lastArg<() -> Unit>().invoke() }
+            every { fileManager.openUrlWithExternalApp(any(), any(), any()) } answers { lastArg<() -> Unit>().invoke() }
+        }
+
         fun arrange(): Pair<Arrangement, MultipartAttachmentsViewModel> {
             coEvery { refreshHelper.refresh(any()) } returns Unit
             coEvery { fileManager.openWithExternalApp(any(), any(), any(), any()) } returns Unit
@@ -651,6 +753,8 @@ class MultipartAttachmentsViewModelTest {
     }
 
     private companion object {
+        const val LOCAL_PATH = "/data/user/0/com.wire/files/secret-folder/private-report.zip"
+        const val PREVIEW_URL = "https://cells.wire.com/preview.png?presigned=PREVIEW_SECRET"
         const val EDITOR_URL = "https://collabora.wire.com/edit"
         const val PDF_RENDITION_URL = "https://cells.wire.com/previews/document.pdf?presigned=true"
         val testConversationId = ConversationId("test-conversation-id", "test-domain")

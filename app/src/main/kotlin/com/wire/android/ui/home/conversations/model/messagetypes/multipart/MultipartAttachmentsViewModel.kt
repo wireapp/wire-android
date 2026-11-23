@@ -265,7 +265,7 @@ class MultipartAttachmentsViewModelImpl @AssistedInject constructor(
             assetName = attachment.fileName ?: "",
             mimeType = attachment.mimeType
         ) {
-            appLogger.e("Failed to open: ${attachment.localPath}", tag = "MultipartAttachmentsViewModel")
+            appLogger.e("Failed to open local attachment, type: ${attachment.assetType}", tag = "MultipartAttachmentsViewModel")
             _openAttachmentErrorEvent.trySend(Unit)
         }
     }
@@ -276,7 +276,7 @@ class MultipartAttachmentsViewModelImpl @AssistedInject constructor(
             assetName = attachment.fileName ?: "",
             mimeType = attachment.mimeType
         ) {
-            appLogger.e("Failed to open file at path: $localPath", tag = "MultipartAttachmentsViewModel")
+            appLogger.e("Failed to open downloaded attachment, type: ${attachment.assetType}", tag = "MultipartAttachmentsViewModel")
             _openAttachmentErrorEvent.trySend(Unit)
         }
     }
@@ -286,7 +286,7 @@ class MultipartAttachmentsViewModelImpl @AssistedInject constructor(
             url = attachment.contentUrl ?: error("No preview URL"),
             mimeType = attachment.mimeType
         ) {
-            appLogger.e("Failed to open: ${attachment.previewUrl}", tag = "MultipartAttachmentsViewModel")
+            appLogger.e("Failed to open attachment by url, type: ${attachment.assetType}", tag = "MultipartAttachmentsViewModel")
             _openAttachmentErrorEvent.trySend(Unit)
         }
     }

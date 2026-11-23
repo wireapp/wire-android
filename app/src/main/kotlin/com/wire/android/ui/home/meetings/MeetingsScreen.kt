@@ -55,7 +55,6 @@ import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.home.HomeShellState
 import com.wire.android.ui.home.conversations.call.HandleActions
 import com.wire.android.ui.home.conversations.call.HandleJoinOrStartCallScreenDialogs
-import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.navigation.WireNavResult
 import com.wire.navigation.WireNavResultRequestId
 import com.wire.navigation.WireSessionId
@@ -112,22 +111,19 @@ internal fun MeetingsScreen(
     AllMeetingsScreen(
         lazyListState = homeShellState.lazyListStateFor(HomeDestination.Meetings),
         contentPadding = PaddingValues(bottom = dimensions().spacing80x), // to ensure last item is not obscured by FAB
-        startCall = { conversationId ->
-            viewModel.callManager.startCallIfPossible(
-                conversationId = conversationId,
-                conversationType = Conversation.Type.Group.Regular,
-                shouldCheckParticipantCount = false, // since this is a meeting, we don't need to check participant count
-            )
+        startCall = { conversationId, meetingId ->
+            viewModel.startCallIfPossible(conversationId, meetingId)
         },
-        joinCall = { conversationId ->
-            viewModel.callManager.joinOngoingCall(conversationId = conversationId)
+        joinCall = { conversationId, meetingId ->
+            viewModel.joinOngoingCall(conversationId, meetingId)
         },
-        returnToCall = { conversationId ->
+        returnToCall = { conversationId, meetingId ->
             context.startActivity(
                 getOngoingCallIntent(
                     context = context,
                     conversationId = conversationId.toString(),
                     userId = viewModel.callManager.currentAccount.toString(),
+                    meetingId = meetingId,
                 )
             )
         },

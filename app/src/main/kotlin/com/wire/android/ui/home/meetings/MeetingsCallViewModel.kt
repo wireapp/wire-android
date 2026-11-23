@@ -77,21 +77,21 @@ class MeetingsCallViewModel @Inject constructor(
         observeSelf = observeSelf,
     )
 
-    fun joinOngoingCall(conversationId: ConversationId) {
+    fun joinOngoingCall(conversationId: ConversationId, meetingId: MeetingId) {
         viewModelScope.launch {
             ensureMLSEstablished(conversationId) {
-                callManager.joinOngoingCall(conversationId)
+                callManager.joinOngoingCall(conversationId, meetingId)
             }
         }
     }
 
-    fun startCallIfPossible(conversationId: ConversationId, createdMeetingId: MeetingId? = null) {
+    fun startCallIfPossible(conversationId: ConversationId, meetingId: MeetingId) {
         viewModelScope.launch {
             ensureMLSEstablished(conversationId) {
                 callManager.startCallIfPossible(
                     conversationId = conversationId,
                     conversationType = Conversation.Type.Group.Meeting,
-                    createdMeetingId = createdMeetingId,
+                    meetingId = meetingId,
                     shouldCheckParticipantCount = false, // since this is a meeting, we don't need to check participant count
                 )
             }

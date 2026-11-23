@@ -28,7 +28,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
 import com.wire.android.navigation.style.TransitionAnimationType
 import com.wire.android.ui.calling.CallActivity.Companion.EXTRA_CONVERSATION_ID
-import com.wire.android.ui.calling.CallActivity.Companion.EXTRA_CREATED_MEETING_ID
+import com.wire.android.ui.calling.CallActivity.Companion.EXTRA_MEETING_ID
 import com.wire.android.ui.calling.CallActivity.Companion.EXTRA_SCREEN_TYPE
 import com.wire.android.ui.calling.CallActivity.Companion.EXTRA_SHOULD_ANSWER_CALL
 import com.wire.android.ui.calling.CallActivity.Companion.EXTRA_USER_ID
@@ -70,7 +70,7 @@ class StartingCallActivity : CallActivity() {
                             this@StartingCallActivity,
                             request.conversationId.toString(),
                             request.userId.toString(),
-                            createdMeetingId = request.createdMeetingId,
+                            meetingId = request.meetingId,
                         ).run {
                             this@StartingCallActivity.startActivity(this)
                         }
@@ -88,6 +88,7 @@ class StartingCallActivity : CallActivity() {
                                 this@StartingCallActivity,
                                 request.conversationId.toString(),
                                 request.userId.toString(),
+                                meetingId = request.meetingId,
                             )
                         )
                         this@StartingCallActivity.finishAndRemoveTask()
@@ -117,13 +118,13 @@ fun getOutgoingCallIntent(
     context: Context,
     conversationId: String,
     userId: String,
-    createdMeetingId: MeetingId? = null,
+    meetingId: MeetingId? = null,
 ) = Intent(context, StartingCallActivity::class.java).apply {
     addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
     putExtra(EXTRA_USER_ID, userId)
     putExtra(EXTRA_CONVERSATION_ID, conversationId)
     putExtra(EXTRA_SCREEN_TYPE, StartingCallScreenType.Outgoing.name)
-    putExtra(EXTRA_CREATED_MEETING_ID, createdMeetingId?.toString())
+    putExtra(EXTRA_MEETING_ID, meetingId?.toString())
 }
 
 fun getIncomingCallIntent(

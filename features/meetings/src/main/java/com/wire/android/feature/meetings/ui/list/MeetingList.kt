@@ -53,6 +53,7 @@ import com.wire.android.ui.common.rowitem.LoadingListContent
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.ui.collectAsLazyPagingItemsWithLifecycle
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.id.MeetingId
 import kotlinx.datetime.TimeZone
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -63,9 +64,9 @@ fun MeetingList(
     contentPadding: PaddingValues = PaddingValues(),
     lazyListState: LazyListState = rememberLazyListState(),
     openMeetingOptions: (occurrenceId: String) -> Unit = {},
-    startCall: (conversationId: ConversationId) -> Unit = {},
-    joinCall: (conversationId: ConversationId) -> Unit = {},
-    returnToCall: (conversationId: ConversationId) -> Unit = {},
+    startCall: (conversationId: ConversationId, meetingId: MeetingId) -> Unit = { _, _ -> },
+    joinCall: (conversationId: ConversationId, meetingId: MeetingId) -> Unit = { _, _ -> },
+    returnToCall: (conversationId: ConversationId, meetingId: MeetingId) -> Unit = { _, _ -> },
 ) {
     val meetingListViewModel: MeetingListViewModel = when {
         LocalInspectionMode.current -> remember(type) { MeetingListViewModelPreview(type = type) }
@@ -125,9 +126,9 @@ private fun MeetingItemsList(
     lazyListState: LazyListState,
     contentPadding: PaddingValues,
     openMeetingOptions: (occurrenceId: String) -> Unit,
-    startCall: (conversationId: ConversationId) -> Unit,
-    joinCall: (conversationId: ConversationId) -> Unit,
-    returnToCall: (conversationId: ConversationId) -> Unit,
+    startCall: (conversationId: ConversationId, meetingId: MeetingId) -> Unit,
+    joinCall: (conversationId: ConversationId, meetingId: MeetingId) -> Unit,
+    returnToCall: (conversationId: ConversationId, meetingId: MeetingId) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     LazyColumn(

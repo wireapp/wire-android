@@ -21,7 +21,7 @@ data class CallActivityRequest(
     val conversationId: ConversationId,
     val screen: CallActivityScreen,
     val shouldAnswerCall: Boolean,
-    val createdMeetingId: MeetingId? = null,
+    val meetingId: MeetingId? = null,
 )
 
 sealed interface CallActivityScreen {
@@ -46,7 +46,7 @@ internal fun Intent.toCallActivityRequest(
 ): CallActivityRequest? {
     val userId = getStringExtra(CallActivity.EXTRA_USER_ID)
     val conversationId = getStringExtra(CallActivity.EXTRA_CONVERSATION_ID)
-    val createdMeetingId = getStringExtra(CallActivity.EXTRA_CREATED_MEETING_ID)
+    val meetingId = getStringExtra(CallActivity.EXTRA_MEETING_ID)
     val screen = when (destination) {
         CallActivityDestination.STARTING -> getStringExtra(CallActivity.EXTRA_SCREEN_TYPE)
             ?.let(StartingCallScreenType::byName)
@@ -64,7 +64,7 @@ internal fun Intent.toCallActivityRequest(
                 conversationId = qualifiedIdMapper.fromStringToQualifiedID(conversationId),
                 screen = screen,
                 shouldAnswerCall = getBooleanExtra(CallActivity.EXTRA_SHOULD_ANSWER_CALL, false),
-                createdMeetingId = createdMeetingId?.let { qualifiedIdMapper.fromStringToQualifiedID(it) },
+                meetingId = meetingId?.let { qualifiedIdMapper.fromStringToQualifiedID(it) },
             )
         }.getOrNull()
     }

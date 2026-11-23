@@ -1773,12 +1773,12 @@ private fun com.wire.android.ui.calling.ongoing.OngoingCallContent(callState: co
     - initialShowInCallReactionsPanel: STABLE (primitive type)
 
 @Composable
-public fun com.wire.android.ui.calling.ongoing.OngoingCallScreen(conversationId: com.wire.kalium.logic.data.id.QualifiedID, createdMeetingId: com.wire.kalium.logic.data.id.QualifiedID?, ongoingCallViewModel: com.wire.android.ui.calling.ongoing.OngoingCallViewModel, sharedCallingViewModel: com.wire.android.ui.calling.common.SharedCallingViewModel): kotlin.Unit
+public fun com.wire.android.ui.calling.ongoing.OngoingCallScreen(conversationId: com.wire.kalium.logic.data.id.QualifiedID, meetingId: com.wire.kalium.logic.data.id.QualifiedID?, ongoingCallViewModel: com.wire.android.ui.calling.ongoing.OngoingCallViewModel, sharedCallingViewModel: com.wire.android.ui.calling.common.SharedCallingViewModel): kotlin.Unit
   skippable: true
   restartable: true
   params:
     - conversationId: STABLE (stability configuration file type)
-    - createdMeetingId: STABLE (stability configuration file type)
+    - meetingId: STABLE (stability configuration file type)
     - ongoingCallViewModel: UNSTABLE (has mutable properties or unstable members)
     - sharedCallingViewModel: UNSTABLE (has mutable properties or unstable members)
 
@@ -2292,12 +2292,12 @@ private fun com.wire.android.ui.calling.ongoing.toast.styledText(stringResId: ko
     - formatArgs: STABLE (String is immutable)
 
 @Composable
-public fun com.wire.android.ui.calling.ongoingCallViewModel(conversationId: com.wire.kalium.logic.data.id.QualifiedID, createdMeetingId: com.wire.kalium.logic.data.id.QualifiedID?): com.wire.android.ui.calling.ongoing.OngoingCallViewModel
+public fun com.wire.android.ui.calling.ongoingCallViewModel(conversationId: com.wire.kalium.logic.data.id.QualifiedID, meetingId: com.wire.kalium.logic.data.id.QualifiedID?): com.wire.android.ui.calling.ongoing.OngoingCallViewModel
   skippable: false
   restartable: false
   params:
     - conversationId: STABLE (stability configuration file type)
-    - createdMeetingId: STABLE (stability configuration file type)
+    - meetingId: STABLE (stability configuration file type)
 
 @Composable
 private fun com.wire.android.ui.calling.outgoing.OutgoingCallContent(callState: com.wire.android.ui.calling.model.CallState, toggleMute: kotlin.Function0<kotlin.Unit>, toggleSpeaker: kotlin.Function0<kotlin.Unit>, toggleVideo: kotlin.Function0<kotlin.Unit>, onHangUpCall: kotlin.Function0<kotlin.Unit>, onVideoPreviewCreated: kotlin.Function1<@[ParameterName(name = \, onSelfClearVideoPreview: kotlin.Function0<kotlin.Unit>, onCameraPermissionPermanentlyDenied: kotlin.Function0<kotlin.Unit>, onMinimiseScreen: kotlin.Function0<kotlin.Unit>): kotlin.Unit

@@ -166,8 +166,8 @@ import com.wire.android.ui.common.R as commonR
 @Composable
 fun OngoingCallScreen(
     conversationId: ConversationId,
-    createdMeetingId: MeetingId? = null,
-    ongoingCallViewModel: OngoingCallViewModel = ongoingCallViewModel(conversationId, createdMeetingId),
+    meetingId: MeetingId? = null,
+    ongoingCallViewModel: OngoingCallViewModel = ongoingCallViewModel(conversationId, meetingId),
     sharedCallingViewModel: SharedCallingViewModel = sharedCallingViewModel(conversationId)
 ) {
     val scope = rememberCoroutineScope()
@@ -264,7 +264,7 @@ fun OngoingCallScreen(
         othersVideosDisabled = ongoingCallViewModel.state.othersVideosDisabled,
         toasts = ongoingCallViewModel.toasts.values.toSet(),
         onToastClick = ongoingCallViewModel::dismissToast,
-        meetingInvitation = ongoingCallViewModel.state.meetingLink,
+        meetingInvitation = ongoingCallViewModel.state.meetingLink.takeIf { ongoingCallViewModel.state.meetingLinkCardVisible },
         onDismissMeetingInvitation = ongoingCallViewModel::dismissMeetingInvitation,
     )
     ObserveRotation(sharedCallingViewModel::setUIRotation)

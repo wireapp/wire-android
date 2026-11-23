@@ -83,6 +83,11 @@ class QaExportStepsTest(unittest.TestCase):
         self.assertIn("DEFLAKE_BUNDLE_DIR: ${{ runner.temp }}/deflake-input-next\n", deflake)
         self.assertIn("needs.validate-and-resolve-inputs.outputs.resolvedRerunFailedCount", deflake)
 
+    def test_only_the_normal_job_exports_the_testiny_run_id(self):
+        normal = step_block(job_block(self.text, "run-android-ui-tests"), EXPORT_STEP)
+        self.assertIn("TESTINY_RUN_ID: ${{ steps.prepare_testiny.outputs.testinyRunId }}", normal)
+        self.assertNotIn("TESTINY_RUN_ID", job_block(self.text, "run-manual-deflake"))
+
     def test_the_export_runs_the_make_wrapper_and_writes_outside_the_workspace(self):
         for name, _, job in self.jobs():
             with self.subTest(job=name):

@@ -440,8 +440,9 @@ internal fun ConversationFilesScreenContent(
                         }
                     )
 
+                    // Searches the server: not while listing only the files saved for offline use, like when offline.
                     AnimatedVisibility(
-                        visible = isOnline && !isSelectionMode,
+                        visible = isOnline && !isOfflineOnly && !isSelectionMode,
                         enter = expandVertically(expandFrom = Alignment.Top) + fadeIn(),
                         exit = shrinkVertically(shrinkTowards = Alignment.Top) + fadeOut(),
                     ) {

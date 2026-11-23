@@ -17,6 +17,8 @@
  */
 package com.wire.android.feature.cells.ui.publiclink
 
+import com.wire.android.feature.cells.ui.CellNodeChangeEvents
+import com.wire.android.feature.cells.ui.CellNodeUpdate
 import app.cash.turbine.test
 import com.wire.android.feature.cells.util.FileHelper
 import com.wire.kalium.cells.domain.model.PublicLink
@@ -139,6 +141,22 @@ class PublicLinkViewModelTest {
     }
 
     @Test
+    fun `given public link available and loaded when disable confirmed then the lists showing the node are told it has no link anymore`() =
+        runTest {
+            val (arrangement, viewModel) = Arrangement()
+                .withPublicLink()
+                .withLoadSuccess()
+                .withDeleteSuccess()
+                .arrange()
+
+            arrangement.nodeChangeEvents.nodeUpdates.test {
+                viewModel.onConfirmRemoval(true)
+
+                assertEquals(CellNodeUpdate.PublicLinkChanged("assetId", publicLinkId = null), awaitItem())
+            }
+        }
+
+    @Test
     fun `given public link available and loaded when delete fails then error is emitted`() = runTest {
         val (_, viewModel) = Arrangement()
             .withPublicLink()
@@ -171,6 +189,20 @@ class PublicLinkViewModelTest {
     }
 
     @Test
+    fun `given public link not available when enabled then the lists showing the node are told its new link`() = runTest {
+        val (arrangement, viewModel) = Arrangement()
+            .withoutPublicLink()
+            .withCreateSuccess()
+            .arrange()
+
+        arrangement.nodeChangeEvents.nodeUpdates.test {
+            viewModel.onEnabledClick()
+
+            assertEquals(CellNodeUpdate.PublicLinkChanged("assetId", publicLinkId = "linkUuid"), awaitItem())
+        }
+    }
+
+    @Test
     fun `given public link not available when create fails then error is emitted`() = runTest {
         val (_, viewModel) = Arrangement()
             .withoutPublicLink()
@@ -196,6 +228,8 @@ class PublicLinkViewModelTest {
     }
 
     private class Arrangement {
+
+        val nodeChangeEvents = CellNodeChangeEvents()
 
         @MockK
         lateinit var createPublicLinkUseCase: CreatePublicLinkUseCase
@@ -254,6 +288,7 @@ class PublicLinkViewModelTest {
                 getPublicLinkUseCase = getPublicLinkUseCase,
                 deletePublicLinkUseCase = deletePublicLinkUseCase,
                 fileHelper = fileHelper,
+                nodeChangeEvents = nodeChangeEvents,
             )
         }
     }

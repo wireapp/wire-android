@@ -12,6 +12,7 @@ permissions:
 
 jobs:
   validate-kalium-ref:
+    timeout-minutes: 15
     runs-on: ubuntu-latest
 
     steps:

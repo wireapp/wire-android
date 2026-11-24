@@ -6,8 +6,11 @@ on:
   pull_request_review_comment:
     types: [created]
 
+permissions: {}
+
 jobs:
   claude-review:
+    timeout-minutes: 60
     # Only run when the comment contains the trigger phrase,
     # and when the commenter is a maintainer/team member,
     # and when it's on a pull request (not an issue)

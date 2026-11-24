@@ -100,6 +100,7 @@ concurrency:
 
 jobs:
   event-file:
+    timeout-minutes: 5
     name: Upload event file
     runs-on: ubuntu-latest
     steps:
@@ -111,6 +112,7 @@ jobs:
           retention-days: 7
 
   workflow-security:
+    timeout-minutes: 5
     name: Workflow security analysis
     runs-on: ubuntu-latest
     permissions:
@@ -147,6 +149,7 @@ jobs:
 
   # Inline simple quality check jobs for better check names
   lint:
+    timeout-minutes: 30
     name: Lint
     needs: [workflow-security]
     runs-on: warp-ubuntu-2404-x64-8x
@@ -169,6 +172,7 @@ jobs:
           rm -f ~/.gradle/caches/modules-2/gc.properties
 
   style:
+    timeout-minutes: 15
     name: Style
     needs: [workflow-security]
     runs-on: warp-ubuntu-2404-x64-2x
@@ -191,6 +195,7 @@ jobs:
           rm -f ~/.gradle/caches/modules-2/gc.properties
 
   compose-stability:
+    timeout-minutes: 15
     name: Compose Stability
     needs: [workflow-security]
     runs-on: warp-ubuntu-2404-x64-8x
@@ -231,6 +236,7 @@ jobs:
 
   # Build matrix job - only runs if all quality checks pass
   build:
+    timeout-minutes: 45
     name: "Build ${{ matrix.flavor }}-${{ matrix.variant }}"
     if: inputs.build-config != '[]' && !inputs.parallel-build
     env:

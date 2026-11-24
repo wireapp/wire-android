@@ -17,6 +17,7 @@ permissions: {}
 
 jobs:
     test-results:
+        timeout-minutes: 5
         name: Publish Test Results
         runs-on: ubuntu-latest
         if: github.event.workflow_run.conclusion != 'skipped'

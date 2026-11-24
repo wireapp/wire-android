@@ -3,6 +3,7 @@ name: Deploy ADR Docs
 on:
   push:
     branches: [ 'develop' ]
+    paths: [ 'docs/**' ]
   pull_request:
     types: [ opened, synchronize ]
     paths: [ 'docs/adr/**' ]
@@ -16,6 +17,7 @@ env:
 
 jobs:
   publish:
+    timeout-minutes: 10
     runs-on: ubuntu-latest
     steps:
       - name: Checkout project

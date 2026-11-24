@@ -74,6 +74,7 @@
     <string name="generate_password_button_text">Сгенерировать пароль</string>
     <string name="label_ok">OK</string>
     <string name="label_cancel">Отмена</string>
+    <string name="label_close">Закрыть</string>
     <string name="label_no_selected_date">Дата не выбрана</string>
     <string name="content_description_check">Отметка</string>
     <string name="content_description_open_user_profile_label">открыть профиль</string>
@@ -134,4 +135,5 @@
     <string name="app_permission_dialog_settings_negative_button">Не сейчас</string>
     <string name="copy_password_button_text">Скопировать пароль</string>
     <string name="password_copied">Пароль скопирован в буфер обмена</string>
+    <string name="onboarding_pending">Ожидание ознакомления</string>
 </resources>

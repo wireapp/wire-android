@@ -21,7 +21,6 @@ package com.wire.android.ui.calling.ongoing.participantsview
 
 import android.view.View
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
-import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.FrameLayout
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
@@ -33,9 +32,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.sizeIn
@@ -111,7 +108,7 @@ fun ParticipantTile(
     othersVideosDisabled: Boolean,
     modifier: Modifier = Modifier,
     shouldFillSelfUserCameraPreview: Boolean = false,
-    shouldFillOthersVideoPreview: Boolean = false,
+    shouldFillOthersVideoPreview: Boolean = true,
     isZoomingEnabled: Boolean = false,
     recentReaction: String? = null,
     inCallReactionsEnabled: Boolean = BuildConfig.CALL_REACTIONS_ENABLED,
@@ -125,7 +122,7 @@ fun ParticipantTile(
         val maxAvatarSize = dimensions().onGoingCallUserAvatarSize
         val activeSpeakerBorderPadding = dimensions().spacing6x
 
-        Box(modifier = Modifier.fillMaxHeight()) {
+        Box(modifier = Modifier.fillMaxSize()) {
             val shouldRenderVideo = when {
                 participantTitleState.isSelfUser -> isSelfUserCameraOn // for self user render video when self camera is on
                 participantTitleState.isSharingScreen -> true // if sharing screen, always render the shared screen
@@ -356,7 +353,7 @@ private fun OthersVideoRenderer(
     var offsetY by remember { mutableStateOf(0f) }
 
     val context = LocalContext.current
-    val rendererFillColor = (darkColorsScheme().error.value shr 32).toLong()
+    val rendererFillColor = (darkColorsScheme().surfaceContainer.value shr 32).toLong()
 
     val videoRenderer = remember {
         VideoRenderer(
@@ -365,7 +362,7 @@ private fun OthersVideoRenderer(
             clientId,
             false
         ).apply {
-            layoutParams = FrameLayout.LayoutParams(WRAP_CONTENT, MATCH_PARENT)
+            layoutParams = FrameLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT)
             setFillColor(rendererFillColor)
             setShouldFill(shouldFill)
         }
@@ -375,7 +372,7 @@ private fun OthersVideoRenderer(
 
     AndroidView(
         modifier = Modifier
-            .fillMaxHeight()
+            .fillMaxSize()
             .onSizeChanged {
                 size = it
             }

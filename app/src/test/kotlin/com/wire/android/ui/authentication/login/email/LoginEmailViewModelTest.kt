@@ -947,7 +947,7 @@ class LoginEmailViewModelTest {
         assertEquals(false, viewModel.isMFARecoveryCodeInvalid)
         assertEquals(true, viewModel.canVerifyMFACode)
 
-        viewModel.mfaRecoveryCodeTextState.setTextAndPlaceCursorAtEnd("  ABCD-1234-EFGH-5678  ")
+        viewModel.mfaRecoveryCodeTextState.setTextAndPlaceCursorAtEnd("  AAAA-AAAA-AAAA-AAAA  ")
         viewModel.verifyMFARecoveryCode()
         viewModel.verifyMFARecoveryCode()
         advanceUntilIdle()

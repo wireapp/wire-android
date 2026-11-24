@@ -661,7 +661,7 @@ class LoginEmailViewModel(
         const val USER_IDENTIFIER_SAVED_STATE_KEY = "user_identifier"
         const val RESEND_TIMER_DELAY = 300L
         private const val MOCK_MFA_CODE = "111111"
-        private const val MOCK_MFA_RECOVERY_CODE = "abcd-1234-efgh-5678"
+        private const val MOCK_MFA_RECOVERY_CODE = "aaaa-aaaa-aaaa-aaaa"
         private const val MFA_VERIFICATION_DELAY_MILLIS = 500L
     }
 }

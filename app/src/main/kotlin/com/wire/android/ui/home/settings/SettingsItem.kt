@@ -192,6 +192,11 @@ sealed class SettingsItem(open val id: String, open val title: UIText) {
         title = UIText.StringResource(R.string.backup_and_restore_screen_title),
     )
 
+    data object MFA : DirectionItem(
+        id = "multi_factor_authentication",
+        title = UIText.StringResource(R.string.settings_mfa_label),
+    )
+
     data object Support : DirectionItem(
         id = "other_support",
         title = UIText.StringResource(R.string.support_screen_title),

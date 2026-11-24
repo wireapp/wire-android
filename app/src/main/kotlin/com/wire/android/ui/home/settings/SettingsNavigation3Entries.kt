@@ -31,6 +31,12 @@ import com.wire.android.ui.home.settings.appearance.CustomizationScreen
 import com.wire.android.ui.home.settings.appsettings.AppSettingsScreen
 import com.wire.android.ui.home.settings.appsettings.networkSettings.NetworkSettingsScreen
 import com.wire.android.ui.home.settings.backup.BackupAndRestoreScreen
+import com.wire.android.ui.home.settings.mfa.authenticatorapps.add.AuthenticatorAppAddedResultType
+import com.wire.android.ui.home.settings.mfa.authenticatorapps.edit.AuthenticatorAppRenameResultType
+import com.wire.android.ui.home.settings.mfa.mfaNavigation3Entries
+import com.wire.android.ui.home.settings.mfa.recoverycodes.MFARecoveryCodesResultType
+import com.wire.android.ui.home.settings.mfa.setup.MFASetupResultType
+import com.wire.android.ui.home.settings.mfa.turnoff.MFATurnOffResultType
 import com.wire.android.ui.home.settings.privacy.PrivacySettingsConfigScreen
 import com.wire.navigation.SessionRoute
 import com.wire.navigation.WireNavigationCommand
@@ -80,7 +86,14 @@ internal interface SettingsNavigation3Actions {
  */
 internal object SettingsNavigation3Contribution {
     val resultTypes: List<WireNavigation3ResultType<*>> =
-        listOf(SettingsAccountUpdateNavigation3ResultType)
+        listOf(
+            SettingsAccountUpdateNavigation3ResultType,
+            MFASetupResultType,
+            MFARecoveryCodesResultType,
+            MFATurnOffResultType,
+            AuthenticatorAppRenameResultType,
+            AuthenticatorAppAddedResultType,
+        )
 
     fun entryProviderInstallers(
         runtime: WireNavigation3Runtime,
@@ -89,6 +102,7 @@ internal object SettingsNavigation3Contribution {
         listOf(
             settingsNavigation3Entries(runtime, actions),
             settingsAccountNavigation3Entries(runtime, actions),
+            mfaNavigation3Entries(runtime, actions::exitSettings),
         )
 }
 
@@ -182,6 +196,7 @@ internal fun SettingsItem.DirectionItem.toNavigation3Target(
                 SettingsItem.Customization,
                 SettingsItem.NetworkSettings,
                 SettingsItem.PrivacySettings,
+                SettingsItem.MFA,
                 SettingsItem.Licenses,
                 SettingsItem.Dependencies,
                 SettingsItem.BackupAndRestore,

@@ -1,0 +1,70 @@
+/*
+ * Wire
+ * Copyright (C) 2026 Wire Swiss GmbH
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see http://www.gnu.org/licenses/.
+ */
+
+package com.wire.android.ui.home.settings.mfa.turnoff
+
+import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.ui.res.stringResource
+import com.wire.android.R
+import com.wire.android.ui.home.settings.mfa.components.MFACredentialsScreen
+import com.wire.android.ui.theme.WireTheme
+import com.wire.android.util.ui.PreviewMultipleThemes
+
+@Composable
+internal fun MFATurnOffScreen(
+    state: MFATurnOffState,
+    password: TextFieldState,
+    code: TextFieldState,
+    onBack: () -> Unit,
+    onTurnOff: () -> Unit,
+) {
+    MFACredentialsScreen(
+        title = stringResource(R.string.mfa_turn_off_title),
+        heading = stringResource(R.string.mfa_turn_off_heading),
+        description = stringResource(R.string.mfa_turn_off_description),
+        password = password,
+        code = code,
+        isBusy = state.isBusy,
+        actionAvailable = !state.isCompleted,
+        errorText = state.error?.let {
+            stringResource(
+                when (it) {
+                    MFATurnOffError.INVALID_CODE -> R.string.mfa_invalid_code
+                    MFATurnOffError.GENERIC -> R.string.mfa_setup_error
+                }
+            )
+        },
+        onBack = onBack,
+        onConfirm = onTurnOff,
+        isCodeInvalid = state.error == MFATurnOffError.INVALID_CODE,
+    )
+}
+
+@PreviewMultipleThemes
+@Composable
+private fun PreviewMFATurnOff() = WireTheme {
+    MFATurnOffScreen(
+        state = MFATurnOffState(),
+        password = remember { TextFieldState() },
+        code = remember { TextFieldState() },
+        onBack = {},
+        onTurnOff = {},
+    )
+}

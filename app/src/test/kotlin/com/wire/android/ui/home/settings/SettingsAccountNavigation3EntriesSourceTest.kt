@@ -36,7 +36,7 @@ class SettingsAccountNavigation3EntriesSourceTest {
 
         val contribution = sourceFile("SettingsNavigation3Entries.kt").readText()
         assertTrue(contribution.contains("settingsAccountNavigation3Entries(runtime, actions)"))
-        assertTrue(contribution.contains("listOf(SettingsAccountUpdateNavigation3ResultType)"))
+        assertTrue(SettingsNavigation3Contribution.resultTypes.contains(SettingsAccountUpdateNavigation3ResultType))
     }
 
     @Test

@@ -21,12 +21,17 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wire.android.BuildConfig
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.logging.LogFileWriter
+import com.wire.kalium.logic.data.mfa.MFAOverview
 import com.wire.kalium.logic.feature.featureConfig.ObserveIsAppLockEditableUseCase
+import com.wire.kalium.logic.feature.mfa.ObserveMFAOverviewUseCase
+import com.wire.kalium.logic.feature.mfa.RefreshMFAOverviewUseCase
 import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
 import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
@@ -40,6 +45,8 @@ class SettingsViewModel @Inject constructor(
     private val getSelf: ObserveSelfUserUseCase,
     private val dispatchers: DispatcherProvider,
     private val logFileWriter: LogFileWriter,
+    private val observeMFAOverview: ObserveMFAOverviewUseCase,
+    private val refreshMFAOverview: RefreshMFAOverviewUseCase,
 ) : ViewModel() {
     var state by mutableStateOf(SettingsState())
         private set
@@ -50,7 +57,7 @@ class SettingsViewModel @Inject constructor(
                 globalDataStore.isAppLockPasscodeSetFlow()
             ) {
                 isAppLockEditable, isAppLockEnabled ->
-                SettingsState(
+                state.copy(
                     isAppLockEditable = isAppLockEditable,
                     isAppLockEnabled = isAppLockEnabled
                 )
@@ -58,6 +65,9 @@ class SettingsViewModel @Inject constructor(
         }
         viewModelScope.launch {
             fetchSelfUser()
+        }
+        if (BuildConfig.MULTI_FACTOR_AUTHENTICATION_ENABLED) {
+            observeMFASettings()
         }
     }
     fun disableAppLock() {
@@ -68,6 +78,30 @@ class SettingsViewModel @Inject constructor(
 
     fun flushLogs(): Deferred<Unit> = viewModelScope.async {
         logFileWriter.forceFlush()
+    }
+
+    @Suppress("TooGenericExceptionCaught")
+    private fun observeMFASettings() {
+        viewModelScope.launch {
+            observeMFAOverview().collect { overview ->
+                state = state.copy(
+                    isMFAEnabled = when (overview) {
+                        null -> null
+                        MFAOverview.Disabled -> false
+                        is MFAOverview.Enabled -> true
+                    }
+                )
+            }
+        }
+        viewModelScope.launch {
+            try {
+                refreshMFAOverview()
+            } catch (cancelled: CancellationException) {
+                throw cancelled
+            } catch (_: Exception) {
+                // Keep the last known status, or no badge if the status has not loaded yet.
+            }
+        }
     }
 
     private suspend fun fetchSelfUser() {

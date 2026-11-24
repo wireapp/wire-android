@@ -294,6 +294,7 @@ internal fun ConversationFilesScreenContent(
     )
 
     val isFabVisible = when {
+        !isOnline -> false
         isSelectionMode -> false
         isSelfUserViewerOnly -> false
         pagingListItems.isLoading() -> false

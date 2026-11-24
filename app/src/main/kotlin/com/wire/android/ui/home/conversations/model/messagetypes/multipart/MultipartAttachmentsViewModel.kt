@@ -300,7 +300,7 @@ class MultipartAttachmentsViewModelImpl @AssistedInject constructor(
                 openFileAtPath(localPath, attachment)
             },
             onError = { error ->
-                appLogger.e("Download failed for ${attachment.uuid}: $error", tag = "MultipartAttachmentsViewModel")
+                appLogger.e("Download failed, type: ${attachment.assetType}, error: $error", tag = "MultipartAttachmentsViewModel")
                 _openAttachmentErrorEvent.trySend(Unit)
             },
         )

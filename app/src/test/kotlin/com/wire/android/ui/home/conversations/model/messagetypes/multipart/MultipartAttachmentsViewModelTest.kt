@@ -22,6 +22,7 @@ import co.touchlab.kermit.Severity
 import com.wire.android.appLogger
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.feature.cells.domain.model.AttachmentFileType
+import com.wire.android.feature.cells.ui.CellError
 import com.wire.android.feature.cells.ui.CellFileLocalPathCache
 import com.wire.android.feature.cells.ui.OpenFileDownloadController
 import com.wire.android.feature.cells.ui.edit.OnlineEditor
@@ -620,6 +621,29 @@ class MultipartAttachmentsViewModelTest {
         )
 
         logWriter.assertErrorLoggedWithout(PREVIEW_URL, "CONTENT_SECRET")
+    }
+
+    @Test
+    fun `with download that fails when clicked then the error is logged without the attachment id`() = runTest {
+        val (arrangement, viewModel) = Arrangement().arrange()
+        every { arrangement.openFileDownloadController.start(any(), any(), any(), any()) } answers {
+            arg<(CellError) -> Unit>(3).invoke(CellError.DOWNLOAD_FAILED)
+        }
+
+        viewModel.onClick(
+            attachment = testAttachmentUi.copy(
+                uuid = "SECRET_ATTACHMENT_ID",
+                mimeType = "application/zip",
+                assetType = AttachmentFileType.ARCHIVE,
+                contentUrl = "content/url",
+            ),
+            openInImageViewer = { },
+            openInVideoPlayer = { },
+            openInAudioPlayer = { },
+            openInPdfViewer = { _, _ -> },
+        )
+
+        logWriter.assertErrorLoggedWithout("SECRET_ATTACHMENT_ID")
     }
 
     private fun RecordingLogWriter.assertErrorLoggedWithout(vararg sensitive: String) {

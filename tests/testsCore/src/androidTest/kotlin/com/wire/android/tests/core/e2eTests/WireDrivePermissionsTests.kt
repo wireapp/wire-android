@@ -1410,7 +1410,7 @@ class WireDrivePermissionsTests : BaseUiTest() {
     @TestCaseId("TC-12791")
     @Category("regression", "RC", "wireDrive", "wireDrivePermissions")
     @Test
-    fun givenSharedDriveContainsFilesBeforeGuestJoins_whenGuestIsAddedThenRemoved_thenGuestGainsViewerAccessAndLosesOnlineFileAccess() {
+    fun givenSharedDriveContainsFilesBeforeGuestMemberJoins_whenGuestMemberIsAddedThenRemoved_thenGuestMemberGainsViewerAccessAndLosesOnlineFileAccess() {
         step("Given TeamOwner creates team MembershipPermissions") {
             backendSetupHelper.createTeamOwnerByAlias(
                 "user1Name",
@@ -1446,29 +1446,41 @@ class WireDrivePermissionsTests : BaseUiTest() {
             }
         }
 
-        step("And Guest is a personal user with a unique username outside MembershipPermissions") {
-            clientUserManager.createPersonalUsersByAliases(listOf("user4Name"), backendClient)
-            runBlocking {
-                backendSetupHelper.usersSetUniqueUsername("user4Name")
-            }
+        step("And GuestTeamOwner creates a separate team OutsideMembership") {
+            backendSetupHelper.createTeamOwnerByAlias(
+                "user3Name",
+                "OutsideMembership",
+                "en_US",
+                true,
+                backendClient,
+                context
+            )
         }
-        val guest = clientUserManager.findUserByNameOrNameAlias("user4Name")
+        step("And GuestTeamOwner configures MLS for OutsideMembership") {
+            backendSetupHelper.userConfiguresMLSForTeam("user3Name", "OutsideMembership", backendClient)
+        }
+        step("And GuestTeamOwner adds GuestMember to OutsideMembership with role Member") {
+            backendSetupHelper.userXAddsUsersToTeam(
+                "user3Name",
+                "user4Name",
+                "OutsideMembership",
+                TeamRoles.Member,
+                backendClient,
+                context,
+                true
+            )
+        }
+        val guestMember = clientUserManager.findUserByNameOrNameAlias("user4Name")
 
-        step("And TeamOwner connects to Guest") {
+        step("And TeamOwner connects to GuestMember") {
             backendSetupHelper.userIsConnectedTo("user1Name", "user4Name")
         }
 
-        step("And MLS devices are registered for TeamOwner, Member1 and Guest") {
+        step("And MLS devices are registered for TeamOwner, Member1 and GuestMember") {
             val participantAliases = listOf("user1Name", "user2Name", "user4Name")
             testServiceHelper.apply {
                 participantAliases.forEach { alias -> addDevice(alias, null, "Device1") }
             }
-        }
-
-        step("And I sign in as Guest and complete the login prompts") {
-            clientUserManager.setSelfUser(guest)
-            pages.registrationPage.assertEmailWelcomePage()
-            loginToStagingAs(guest)
         }
 
         step("And TeamOwner creates MembershipPermissions Conversation with Member1 and Shared Drive enabled") {
@@ -1485,9 +1497,9 @@ class WireDrivePermissionsTests : BaseUiTest() {
         val suffix = UUID.randomUUID().toString().take(8)
         val existingPdf = "BeforeJoining-$suffix.pdf"
         val unopenedPdf = "UnopenedBeforeRemoval-$suffix.pdf"
-        step("And TeamOwner sends two PDF files before Guest joins MembershipPermissions Conversation") {
+        step("And TeamOwner sends two PDF files before GuestMember joins MembershipPermissions Conversation") {
             listOf(existingPdf, unopenedPdf).forEach { fileName ->
-                val pdfUri = createPdfInDeviceDownloadsFolder(fileName, "Shared before Guest joined")
+                val pdfUri = createPdfInDeviceDownloadsFolder(fileName, "Shared before GuestMember joined")
                 deviceDownloads.add(pdfUri)
                 testServiceHelper.contactSendsLocalPdfConversation(
                     context,
@@ -1499,58 +1511,63 @@ class WireDrivePermissionsTests : BaseUiTest() {
                 )
             }
         }
-        step("When TeamOwner adds Guest to MembershipPermissions Conversation through Device1") {
+        step("When TeamOwner adds GuestMember to MembershipPermissions Conversation through Device1") {
             testServiceHelper.userXAddedContactsToGroupChat("user1Name", "user4Name", "MembershipPermissions", "Device1")
         }
-        step("And Guest opens Shared Drive from MembershipPermissions Conversation details") {
+        step("And GuestMember signs in after joining MembershipPermissions Conversation and completes the login prompts") {
+            clientUserManager.setSelfUser(guestMember)
+            pages.registrationPage.assertEmailWelcomePage()
+            loginToStagingAs(guestMember)
+        }
+        step("And GuestMember opens Shared Drive from MembershipPermissions Conversation details") {
             pages.conversationListPage.clickGroupConversation("MembershipPermissions")
             pages.conversationViewPage.clickOnGroupConversationDetails("MembershipPermissions")
             pages.groupConversationDetailsPage.tapSharedDriveButton()
         }
-        step("Then Guest has Viewer access to both PDFs shared before joining") {
+        step("Then GuestMember has Viewer access to both PDFs shared before joining") {
             pages.wireDrivePage.apply {
                 assertViewerAccessBannerVisible("Viewer access: you can’t upload or edit files.")
                 assertFileVisibleOnce(existingPdf, timeout = UiWaitUtils.VERY_LONG_TIMEOUT)
                 assertFileVisibleOnce(unopenedPdf)
             }
         }
-        step("When Guest opens the first PDF shared before joining") {
+        step("When GuestMember opens the first PDF shared before joining") {
             pages.wireDrivePage.openFile(existingPdf)
         }
-        step("Then Guest sees the correct PDF filename and a rendered page") {
+        step("Then GuestMember sees the correct PDF filename and a rendered page") {
             pages.pdfViewerPage.assertPdfPreviewVisible(existingPdf)
         }
-        step("When Guest returns to Shared Drive and TeamOwner removes Guest through Device1") {
+        step("When GuestMember returns to Shared Drive and TeamOwner removes GuestMember through Device1") {
             pages.pdfViewerPage.navigateBack()
             testServiceHelper.userRemovesUserFromGroupConversation("user1Name", "user4Name", "MembershipPermissions", "Device1")
         }
-        step("And the device can still reach the backend after Guest is removed") {
+        step("And the device can still reach the backend after GuestMember is removed") {
             runBlocking { backendClient.getTeam(teamOwner) }
         }
-        step("When Guest tries to open the previously unopened PDF, Wire reports that the item is no longer available") {
+        step("When GuestMember tries to open the previously unopened PDF, Wire reports that the item is no longer available") {
             UiWaitUtils.assertToastDisplayed(
                 text = "This item is no longer available. It may have been deleted or moved.",
                 trigger = { pages.wireDrivePage.openFile(unopenedPdf) },
                 timeout = UiWaitUtils.LONG_TIMEOUT
             )
         }
-        step("Then Guest remains in Shared Drive with the Viewer banner and the unavailable PDF is absent") {
+        step("Then GuestMember remains in Shared Drive with the Viewer banner and the unavailable PDF is absent") {
             pages.wireDrivePage.apply {
                 assertViewerAccessBannerVisible("Viewer access: you can’t upload or edit files.")
                 assertFileNotVisible(unopenedPdf)
             }
         }
-        step("When Guest leaves Shared Drive and returns to MembershipPermissions Conversation") {
+        step("When GuestMember leaves Shared Drive and returns to MembershipPermissions Conversation") {
             pages.wireDrivePage.navigateBack()
             pages.groupConversationDetailsPage.tapBackButton()
         }
-        step("Then MembershipPermissions Conversation shows Guest was removed") {
+        step("Then MembershipPermissions Conversation shows GuestMember was removed") {
             pages.conversationViewPage.assertSystemMessageVisible("removed you")
         }
-        step("When Guest taps MembershipPermissions Conversation's header after removal") {
+        step("When GuestMember taps MembershipPermissions Conversation's header after removal") {
             pages.conversationViewPage.tapGroupConversationHeader("MembershipPermissions")
         }
-        step("Then Conversation details are disabled, preventing Guest from reopening Shared Drive through them") {
+        step("Then Conversation details are disabled, preventing GuestMember from reopening Shared Drive through them") {
             pages.conversationViewPage.assertGroupConversationDetailsDisabled("MembershipPermissions")
         }
     }

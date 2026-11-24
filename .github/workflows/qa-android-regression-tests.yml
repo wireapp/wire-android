@@ -668,6 +668,8 @@ jobs:
       - name: Transfer evidence and publish private Allure report
         id: publish_allure_report
         if: always()
+        # The private report is a convenience link; its failure must not turn a passing test run red.
+        continue-on-error: true
         timeout-minutes: 20
         env:
           GH_TOKEN: ${{ secrets.ANDROID_BOB_GH_TOKEN }}
@@ -1116,6 +1118,8 @@ jobs:
       - name: Transfer evidence and publish private Allure report
         id: publish_allure_report
         if: always()
+        # The private report is a convenience link; its failure must not turn a passing test run red.
+        continue-on-error: true
         timeout-minutes: 20
         env:
           GH_TOKEN: ${{ secrets.ANDROID_BOB_GH_TOKEN }}

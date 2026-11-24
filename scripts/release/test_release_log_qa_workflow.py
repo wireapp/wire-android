@@ -47,6 +47,12 @@ class QaExportStepsTest(unittest.TestCase):
                     block = step_block(job, step)
                     self.assertIn("continue-on-error: true", block)
 
+    def test_the_private_report_handoff_never_gates_the_run(self):
+        for name, _, job in self.jobs():
+            with self.subTest(job=name):
+                block = step_block(job, "Transfer evidence and publish private Allure report")
+                self.assertIn("continue-on-error: true", block)
+
     def test_they_run_after_failed_tests_but_not_after_cancellation(self):
         for name, _, job in self.jobs():
             for step in (EXPORT_STEP, UPLOAD_STEP):

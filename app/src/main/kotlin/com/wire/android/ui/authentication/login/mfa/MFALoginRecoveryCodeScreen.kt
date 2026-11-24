@@ -101,6 +101,11 @@ internal fun MFALoginRecoveryCodeScreen(
                     modifier = Modifier.testTag("mfaLoginInvalidRecoveryCode"),
                 )
             }
+            Text(
+                text = stringResource(R.string.mfa_login_recovery_code_help),
+                style = MaterialTheme.wireTypography.body01,
+                color = MaterialTheme.wireColorScheme.secondaryText,
+            )
             LoginButton(
                 loading = isBusy,
                 enabled = canSubmit,

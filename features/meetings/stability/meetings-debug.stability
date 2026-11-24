@@ -47,6 +47,13 @@ private fun com.wire.android.feature.meetings.ui.NewMeetingParticipantsNavigatio
     - actions: UNKNOWN (interface or non-final class; concrete implementation unknown)
 
 @Composable
+private fun com.wire.android.feature.meetings.ui.create.ClearInputIconButton(state: androidx.compose.foundation.text.input.TextFieldState): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - state: STABLE (marked @Stable or @Immutable)
+
+@Composable
 internal fun com.wire.android.feature.meetings.ui.create.FailedToLoadEditMeetingDataError(navigateBack: kotlin.Function0<kotlin.Unit>): kotlin.Unit
   skippable: true
   restartable: true

@@ -36,6 +36,7 @@ class CellViewerAccess @Inject constructor(
      * Only the files of a conversation have access restrictions. Offboarded drive files are always read-only;
      * otherwise viewer access applies only with drive permissions enabled.
      */
+    @Suppress("ReturnCount")
     suspend fun isViewerOnly(context: CellScreenContext): Boolean {
         if (isDriveOffboarded(context)) return true
         val conversationId = context.rootConversationId

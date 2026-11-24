@@ -36,9 +36,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
-import coil3.annotation.ExperimentalCoilApi
 import com.wire.android.R
-import com.wire.android.ui.common.R as commonR
 import com.wire.android.ui.common.HandleActions
 import com.wire.android.ui.common.bottomsheet.WireMenuModalSheetContent
 import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
@@ -51,30 +49,30 @@ import com.wire.android.ui.common.dialogs.PermissionPermanentlyDeniedDialog
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.progress.WireCircularProgressIndicator
 import com.wire.android.ui.common.scaffold.WireScaffold
-import com.wire.android.ui.theme.wireTypography
 import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.edit.DeleteItemMenuOption
 import com.wire.android.ui.edit.DownloadAssetExternallyOption
 import com.wire.android.ui.edit.MessageDetailsMenuOption
 import com.wire.android.ui.edit.ReactionOption
 import com.wire.android.ui.edit.ReplyMessageOption
-import com.wire.android.ui.edit.ShareAssetMenuOption
 import com.wire.android.ui.edit.ShareAssetExternallyMenuOption
+import com.wire.android.ui.edit.ShareAssetMenuOption
 import com.wire.android.ui.edit.ShareAssetViaWireMenuOption
 import com.wire.android.ui.edit.SharePublicLinkMenuOption
 import com.wire.android.ui.home.conversations.MediaGallerySnackbarMessages
 import com.wire.android.ui.home.conversations.PermissionPermanentlyDeniedDialogState
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialog
-import com.wire.android.ui.home.conversations.mediaGalleryViewModel
 import com.wire.android.ui.home.conversations.mock.mockedPrivateAsset
 import com.wire.android.ui.theme.WireTheme
-import com.wire.android.util.permission.rememberWriteStoragePermissionFlow
+import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.fileShareUri
+import com.wire.android.util.openDownloadFolder
+import com.wire.android.util.permission.rememberWriteStoragePermissionFlow
 import com.wire.android.util.startFileShareIntent
 import com.wire.android.util.supportsTrustedWireShareCaller
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.android.util.ui.SnackBarMessageHandler
-import com.wire.android.util.openDownloadFolder
+import com.wire.android.ui.common.R as commonR
 
 @Composable
 internal fun MediaGalleryRouteScreen(

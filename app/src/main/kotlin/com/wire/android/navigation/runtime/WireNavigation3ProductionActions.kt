@@ -167,6 +167,7 @@ internal class WireNavigation3ProductionActions(
                     previewUrl = it.previewUrl,
                     contentHash = it.contentHash,
                     fileName = it.name,
+                    fileUuid = it.uuid,
                 )
             )
         },

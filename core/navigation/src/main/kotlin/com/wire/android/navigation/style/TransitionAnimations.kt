@@ -21,9 +21,11 @@ package com.wire.android.navigation.style
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.core.FiniteAnimationSpec
+import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.VisibilityThreshold
 import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
@@ -40,6 +42,14 @@ private val fadeAnimationSpec: FiniteAnimationSpec<Float> = spring(
 private val slideAnimationSpec: FiniteAnimationSpec<IntOffset> = spring(
     stiffness = Spring.StiffnessMediumLow,
     visibilityThreshold = IntOffset.Companion.VisibilityThreshold,
+)
+private val dropDownAnimationSpec: FiniteAnimationSpec<IntOffset> = tween(
+    durationMillis = 700,
+    easing = FastOutSlowInEasing,
+)
+private val dropDownFadeAnimationSpec: FiniteAnimationSpec<Float> = tween(
+    durationMillis = 500,
+    easing = FastOutSlowInEasing,
 )
 
 /**
@@ -99,6 +109,32 @@ internal fun shrinkOutFromView(): ExitTransition {
 }
 
 /**
+ * Animation that brings content down from just above the app bar, adding a fade in effect.
+ */
+@Suppress("MagicNumber")
+internal fun dropDownIntoView(): EnterTransition {
+    return slideInVertically(
+        animationSpec = dropDownAnimationSpec,
+        initialOffsetY = { fullHeight -> -fullHeight / 16 },
+    ) + fadeIn(
+        animationSpec = dropDownFadeAnimationSpec,
+    )
+}
+
+/**
+ * Animation that returns content just above the app bar, adding a fade out effect.
+ */
+@Suppress("MagicNumber")
+internal fun slideOutToTop(): ExitTransition {
+    return slideOutVertically(
+        animationSpec = dropDownAnimationSpec,
+        targetOffsetY = { fullHeight -> -fullHeight / 16 },
+    ) + fadeOut(
+        animationSpec = dropDownFadeAnimationSpec,
+    )
+}
+
+/**
  * Animation that allows a transition that shows the content using fade in effect
  */
 @PackagePrivate
@@ -138,6 +174,12 @@ enum class TransitionAnimationType(
         exitTransition = fadeOutFromView(),
         popEnterTransition = fadeInToView(),
         popExitTransition = shrinkOutFromView(),
+    ),
+    DROP_DOWN(
+        enterTransition = dropDownIntoView(),
+        exitTransition = fadeOutFromView(),
+        popEnterTransition = fadeInToView(),
+        popExitTransition = slideOutToTop(),
     ),
     NONE(
         enterTransition = EnterTransition.None,

@@ -244,6 +244,7 @@ internal fun CellsNavigation3RouteScreen(
             previewUrl = route.previewUrl,
             contentHash = route.contentHash,
             fileName = route.fileName,
+            sharedElementKey = route.fileUuid,
             onNavigateBack = navigateBack,
         )
 
@@ -408,6 +409,7 @@ private class Navigation3CellsFilesNavigation(
                     file.previewUrl,
                     file.contentHash,
                     file.name,
+                    file.uuid,
                 )
             )
         )

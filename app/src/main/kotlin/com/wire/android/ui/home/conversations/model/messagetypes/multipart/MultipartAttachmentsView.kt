@@ -74,6 +74,7 @@ fun MultipartAttachmentsView(
     onVideoAttachmentClick: (localPath: String?, contentUrl: String?, fileName: String?) -> Unit,
     onAudioAttachmentClick: (localPath: String?, contentUrl: String?, fileName: String?) -> Unit,
     onPdfAttachmentClick: (PdfDocumentSource) -> Unit,
+    sharedElementKey: (String) -> String? = { null },
     modifier: Modifier = Modifier,
     viewModel: MultipartAttachmentsViewModel = when {
         LocalInspectionMode.current -> MultipartAttachmentsViewModelPreview
@@ -130,6 +131,7 @@ fun MultipartAttachmentsView(
             item = uiModel,
             messageStyle = messageStyle,
             onClick = { handleClick(uiModel) },
+            sharedElementKey = sharedElementKey(uiModel.uuid),
         )
     } else {
         val groups = viewModel.mapAttachments(
@@ -149,6 +151,7 @@ fun MultipartAttachmentsView(
                             attachments = group.attachments,
                             messageStyle = messageStyle,
                             onClick = handleClick,
+                            sharedElementKey = sharedElementKey,
                         )
 
                     is MultipartAttachmentsViewModel.MultipartAttachmentGroup.Files ->
@@ -156,6 +159,7 @@ fun MultipartAttachmentsView(
                             attachments = group.attachments,
                             messageStyle = messageStyle,
                             onClick = handleClick,
+                            sharedElementKey = sharedElementKey,
                         )
                 }
             }
@@ -200,6 +204,7 @@ private fun AttachmentsList(
     attachments: List<MultipartAttachmentUi>,
     messageStyle: MessageStyle,
     onClick: (MultipartAttachmentUi) -> Unit,
+    sharedElementKey: (String) -> String?,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -211,6 +216,7 @@ private fun AttachmentsList(
                 messageStyle = messageStyle,
                 showWithPreview = true,
                 onClick = { onClick(it) },
+                sharedElementKey = sharedElementKey(it.uuid),
                 modifier = modifier,
             )
         }
@@ -222,6 +228,7 @@ private fun AttachmentsGrid(
     attachments: List<MultipartAttachmentUi>,
     messageStyle: MessageStyle,
     onClick: (MultipartAttachmentUi) -> Unit,
+    sharedElementKey: (String) -> String?,
     modifier: Modifier = Modifier,
 ) {
     LazyVerticalGrid(
@@ -238,6 +245,7 @@ private fun AttachmentsGrid(
                 item = item,
                 messageStyle = messageStyle,
                 onClick = { onClick(item) },
+                sharedElementKey = sharedElementKey(item.uuid),
             )
         }
     }

@@ -42,6 +42,7 @@ import com.wire.android.ui.home.conversations.messages.item.isBubble
 import com.wire.android.ui.home.conversations.model.messagetypes.image.VisualMediaParams
 import com.wire.android.ui.home.conversations.model.messagetypes.multipart.previewAvailable
 import com.wire.android.ui.home.conversations.model.messagetypes.multipart.previewImageModel
+import com.wire.android.ui.home.gallery.mediaGallerySharedElement
 import com.wire.kalium.logic.data.asset.AssetTransferStatus
 import com.wire.kalium.logic.data.message.height
 import com.wire.kalium.logic.data.message.width
@@ -49,7 +50,8 @@ import com.wire.kalium.logic.data.message.width
 @Composable
 internal fun ImageAssetPreview(
     item: MultipartAttachmentUi,
-    messageStyle: MessageStyle
+    messageStyle: MessageStyle,
+    sharedElementKey: String? = null,
 ) {
 
     val imageSize = VisualMediaParams(
@@ -72,7 +74,9 @@ internal fun ImageAssetPreview(
         } else if (item.previewAvailable()) {
             // Image preview
             AsyncImage(
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .mediaGallerySharedElement(sharedElementKey),
                 model = item.previewImageModel(),
                 contentDescription = null,
                 contentScale = if (messageStyle.isBubble()) ContentScale.Crop else ContentScale.Fit

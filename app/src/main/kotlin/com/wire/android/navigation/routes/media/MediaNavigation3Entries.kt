@@ -29,6 +29,7 @@ import com.wire.android.ui.home.conversations.mediaGalleryViewModel
 import com.wire.android.ui.home.gallery.MediaGalleryActionType
 import com.wire.android.ui.home.gallery.MediaGalleryNavBackArgs
 import com.wire.android.ui.home.gallery.MediaGalleryRouteScreen
+import com.wire.android.ui.home.gallery.mediaGalleryImageSharedElementKey
 import com.wire.android.ui.home.featureFlagNotificationViewModel
 import com.wire.android.ui.importMediaAuthenticatedViewModel
 import com.wire.android.ui.sharing.ImportMediaAuthenticatedContent
@@ -114,7 +115,7 @@ internal fun mediaNavigation3Entries(
             }
         }
     }
-    wireEntry<MediaGalleryRoute>(presentation = WireEntryPresentation.PopUp) { route ->
+    wireEntry<MediaGalleryRoute>(presentation = WireEntryPresentation.DropDown) { route ->
         MediaGalleryNavigation3Entry(route, runtime, actions)
     }
     wireEntry<VideoPlayerRoute>(presentation = WireEntryPresentation.PopUp) { route ->
@@ -198,7 +199,8 @@ private fun MediaGalleryNavigation3Entry(
 ) {
     MediaGalleryRouteScreen(
         mediaGalleryViewModel(route.toViewModelArgs()),
-        runtime.navigator::goBack,
+        sharedElementKey = mediaGalleryImageSharedElementKey(route.messageId, route.cellAssetId),
+        onNavigateBack = runtime.navigator::goBack,
         onResult = { result ->
             val typed = result.toNavigationResult()
             if (!runtime.completeCurrentAndPop(

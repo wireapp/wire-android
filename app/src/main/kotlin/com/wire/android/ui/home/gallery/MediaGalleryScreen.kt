@@ -80,6 +80,7 @@ import com.wire.android.util.openDownloadFolder
 @Composable
 internal fun MediaGalleryRouteScreen(
     mediaGalleryViewModel: MediaGalleryViewModel,
+    sharedElementKey: String? = null,
     onNavigateBack: () -> Unit,
     onResult: (MediaGalleryNavBackArgs) -> Unit,
     onOpenPublicLink: (String, String, String?) -> Unit,
@@ -118,6 +119,7 @@ internal fun MediaGalleryRouteScreen(
 
     MediaGalleryContent(
         state = viewModelState,
+        sharedElementKey = sharedElementKey,
         onCloseClick = onNavigateBack,
         onOptionsClick = mediaGalleryViewModel::onOptionsClick,
         onRetryClick = mediaGalleryViewModel::retryLoadingAsset,
@@ -192,6 +194,7 @@ fun showErrorMessage(context: Context) {
 @Composable
 private fun MediaGalleryContent(
     state: MediaGalleryViewState,
+    sharedElementKey: String? = null,
     onCloseClick: () -> Unit,
     onOptionsClick: () -> Unit,
     onRetryClick: () -> Unit,
@@ -227,6 +230,7 @@ private fun MediaGalleryContent(
                         image = assetState.image,
                         contentDescription = stringResource(R.string.content_description_image_message),
                         onRenderFailed = onAssetRenderFailed,
+                        modifier = Modifier.mediaGallerySharedElement(sharedElementKey),
                     )
 
                     MediaGalleryAssetState.Failure -> MediaGalleryLoadFailure(onRetryClick = onRetryClick)
@@ -325,6 +329,7 @@ fun PreviewMediaGalleryScreen() = WireTheme {
             assetState = MediaGalleryAssetState.Loaded(MediaGalleryImage.PrivateAsset(mockedPrivateAsset())),
             screenTitle = "Media Gallery",
         ),
+        sharedElementKey = null,
         onCloseClick = {},
         onOptionsClick = {},
         onRetryClick = {},

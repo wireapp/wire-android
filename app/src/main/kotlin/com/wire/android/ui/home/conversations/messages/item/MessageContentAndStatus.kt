@@ -48,6 +48,7 @@ import com.wire.android.ui.home.conversations.model.MessageImage
 import com.wire.android.ui.home.conversations.model.MessageSenderId
 import com.wire.android.ui.home.conversations.model.MessageSource
 import com.wire.android.ui.home.conversations.model.UIMessage
+import com.wire.android.ui.home.gallery.mediaGalleryImageSharedElementKey
 import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.ui.home.conversations.model.UIMessageContent.PartialDeliverable
 import com.wire.android.ui.home.conversations.model.UIQuotedMessage
@@ -198,7 +199,8 @@ private fun MessageContent(
                 transferStatus = assetStatus ?: AssetTransferStatus.NOT_DOWNLOADED,
                 onImageClick = onImageClick,
                 messageStyle = messageStyle,
-                assetPath = localAssetPath?.toPath(normalize = true)
+                assetPath = localAssetPath?.toPath(normalize = true),
+                sharedElementKey = mediaGalleryImageSharedElementKey(messageId, null),
             )
         }
 
@@ -473,6 +475,9 @@ private fun MessageContent(
                     onVideoAttachmentClick = onMultipartVideoClick,
                     onAudioAttachmentClick = onMultipartAudioClick,
                     onPdfAttachmentClick = onMultipartPdfClick,
+                    sharedElementKey = { attachmentId ->
+                        mediaGalleryImageSharedElementKey(message.header.messageId, attachmentId)
+                    },
                 )
             }
 

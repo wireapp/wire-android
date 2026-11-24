@@ -87,6 +87,7 @@ import com.wire.android.feature.cells.ui.model.CellNodeUi
 import com.wire.android.feature.cells.ui.model.OpenLoadState
 import com.wire.android.feature.cells.ui.model.isOfflineDownloadPending
 import com.wire.android.feature.cells.ui.model.pausedDownloadProgress
+import com.wire.android.feature.cells.ui.imageviewer.cellImageViewerSharedElement
 import com.wire.android.feature.cells.ui.search.sort.SortBy
 import com.wire.android.feature.cells.ui.util.PreviewMultipleThemes
 import com.wire.android.ui.common.chip.WireDisplayChipWithOverFlow
@@ -536,6 +537,7 @@ internal fun FileIconPreview(cell: CellNodeUi.File, showViewerOnlyIcon: Boolean 
             AsyncImage(
                 modifier = Modifier
                     .size(dimensions().spacing40x)
+                    .cellImageViewerSharedElement(cell.uuid)
                     .clip(RoundedCornerShape(dimensions().spacing4x))
                     .background(
                         color = colorsScheme().outline,

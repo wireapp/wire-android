@@ -68,6 +68,8 @@ class KaliumConfigsModule {
             blockCrossBackendLogin = BuildConfig.BLOCK_CROSS_BACKEND_LOGIN,
             linkPreviewEnabled = BuildConfig.LINK_PREVIEW_ENABLED,
             drivePermissionsEnabled = BuildConfig.DRIVE_PERMISSIONS_ENABLED,
+            // MLS read receipts are sent as targeted MLS messages, so they are enabled together.
+            targetedAndTransientMLSMessagesEnabled = BuildConfig.MLS_READ_RECEIPTS_ENABLED,
         )
     }
 }

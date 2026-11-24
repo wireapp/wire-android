@@ -20,6 +20,7 @@ package com.wire.android.mapper
 
 import com.wire.android.model.NameBasedAvatar
 import com.wire.android.model.UserAvatarData
+import com.wire.android.R
 import com.wire.android.ui.common.R as commonR
 import com.wire.android.ui.home.conversations.findUser
 import com.wire.android.ui.home.conversations.model.ExpirationStatus
@@ -49,6 +50,10 @@ import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.data.user.type.UserTypeInfo
 import dev.zacsweers.metro.Inject
+import kotlin.time.Duration.Companion.days
+import kotlin.time.Duration.Companion.hours
+import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Instant
 
 class MessageMapper @Inject constructor(
     private val userTypeMapper: UserTypeMapper,
@@ -109,7 +114,8 @@ class MessageMapper @Inject constructor(
                     header = provideMessageHeader(sender, message),
                     messageFooter = footer,
                     userAvatarData = getUserAvatarData(sender),
-                    linkPreviews = if (message is Message.Regular) message.linkPreviews else emptyList()
+                    linkPreviews = if (message is Message.Regular) message.linkPreviews else emptyList(),
+                    writingDelayLabel = (message as? Message.Regular)?.writingDelayLabel()
                 )
 
             is UIMessageContent.SystemMessage ->
@@ -224,4 +230,21 @@ class MessageMapper @Inject constructor(
             is OtherUser -> sender.connectionStatus
             is SelfUser, null -> null
         }
+}
+
+internal fun Message.Regular.writingDelayLabel(): UIText? {
+    when (status) {
+        Message.Status.Sent, Message.Status.Delivered, is Message.Status.Read -> Unit
+        else -> return null
+    }
+
+    val writtenAt = clientCreatedAtMillis?.let(Instant::fromEpochMilliseconds) ?: return null
+    val delay = date - writtenAt
+    val (resource, count) = when {
+        delay >= 1.days -> R.plurals.message_written_days_earlier to delay.inWholeDays
+        delay >= 1.hours -> R.plurals.message_written_hours_earlier to delay.inWholeHours
+        delay >= 1.minutes -> R.plurals.message_written_minutes_earlier to delay.inWholeMinutes
+        else -> return null
+    }
+    return UIText.PluralResource(resource, count.coerceAtMost(Int.MAX_VALUE.toLong()).toInt(), count)
 }

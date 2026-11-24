@@ -61,6 +61,7 @@ fun MessageContentItem(
     useSmallBottomPadding: Boolean = false,
     selfDeletionTimerState: SelfDeletionTimerHelper.SelfDeletionTimerState = SelfDeletionTimerHelper.SelfDeletionTimerState.NotExpirable,
     innerPadding: PaddingValues = PaddingValues(),
+    showLegacyTimestamp: Boolean = false,
 ) {
 
     with(message) {
@@ -143,7 +144,8 @@ fun MessageContentItem(
                     }
                 )
             }
-            if (shouldShowBottomLabels(
+            val showWritingDelay = !decryptionFailed && writingDelayLabel != null && (messageStyle.isBubble() || showLegacyTimestamp)
+            if (showWritingDelay || shouldShowBottomLabels(
                     messageStyle = messageStyle,
                     messageStatus = header.messageStatus,
                     useSmallBottomPadding = useSmallBottomPadding,
@@ -157,7 +159,7 @@ fun MessageContentItem(
                     modifier = Modifier
                         .padding(innerPadding)
                         .applyIf(hasAssetParams) { fillMaxWidth() },
-                    horizontalArrangement = if (source == MessageSource.Self) Arrangement.End else Arrangement.Start,
+                    horizontalArrangement = if (messageStyle.isBubble() && source == MessageSource.Self) Arrangement.End else Arrangement.Start,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     MessageSmallLabel(
@@ -165,18 +167,13 @@ fun MessageContentItem(
                         messageStyle = messageStyle
                     )
 
-                    if (header.messageStatus.editStatus is MessageEditStatus.Edited) {
-                        HorizontalSpace.x8()
-                        MessageSmallLabel(
-                            text = "•",
-                            messageStyle = messageStyle
-                        )
-                        HorizontalSpace.x8()
-                        MessageSmallLabel(
-                            text = stringResource(R.string.label_message_status_edited),
-                            messageStyle = messageStyle
-                        )
+                    if (messageStyle.isBubble() && header.messageStatus.editStatus is MessageEditStatus.Edited) {
+                        MessageMetadataLabel(stringResource(R.string.label_message_status_edited), messageStyle)
                     }
+
+                    writingDelayLabel?.let { MessageMetadataLabel(it.asString(), messageStyle) }
+
+                    if (!messageStyle.isBubble()) return@Row
 
                     MessageBubbleExpireFooter(
                         messageStyle = messageStyle,
@@ -196,7 +193,7 @@ fun MessageContentItem(
                         HorizontalSpace.x12()
                     }
                 }
-                if (useSmallBottomPadding) {
+                if (messageStyle.isBubble() && useSmallBottomPadding) {
                     VerticalSpace.x4()
                 }
             }

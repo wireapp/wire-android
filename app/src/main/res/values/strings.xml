@@ -2034,4 +2034,16 @@ In group conversations, the group admin can overwrite this setting.</string>
     </plurals>
     <string name="startup_account_limit_logout">Log out of this account</string>
     <string name="startup_account_limit_later">Later</string>
+    <plurals name="message_written_minutes_earlier">
+        <item quantity="one">Written %1$d min earlier</item>
+        <item quantity="other">Written %1$d min earlier</item>
+    </plurals>
+    <plurals name="message_written_hours_earlier">
+        <item quantity="one">Written %1$d hr earlier</item>
+        <item quantity="other">Written %1$d hr earlier</item>
+    </plurals>
+    <plurals name="message_written_days_earlier">
+        <item quantity="one">Written %1$d day earlier</item>
+        <item quantity="other">Written %1$d days earlier</item>
+    </plurals>
 </resources>

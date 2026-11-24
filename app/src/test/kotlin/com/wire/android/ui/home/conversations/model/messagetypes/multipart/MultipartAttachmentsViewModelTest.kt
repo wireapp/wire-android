@@ -59,7 +59,6 @@ import okio.Path.Companion.toPath
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -586,7 +585,7 @@ class MultipartAttachmentsViewModelTest {
             openInPdfViewer = { _, _ -> },
         )
 
-        logWriter.assertErrorLoggedWithout(LOCAL_PATH)
+        logWriter.assertOnlyErrorLogged("Failed to open local attachment, type: ARCHIVE")
     }
 
     @Test
@@ -598,7 +597,7 @@ class MultipartAttachmentsViewModelTest {
 
         viewModel.onClick(attachment, mockk(), mockk(), mockk(), mockk())
 
-        logWriter.assertErrorLoggedWithout(LOCAL_PATH)
+        logWriter.assertOnlyErrorLogged("Failed to open downloaded attachment, type: ARCHIVE")
     }
 
     @Test
@@ -620,7 +619,7 @@ class MultipartAttachmentsViewModelTest {
             openInPdfViewer = { _, _ -> },
         )
 
-        logWriter.assertErrorLoggedWithout(PREVIEW_URL, "CONTENT_SECRET")
+        logWriter.assertOnlyErrorLogged("Failed to open attachment by url, type: IMAGE")
     }
 
     @Test
@@ -643,15 +642,12 @@ class MultipartAttachmentsViewModelTest {
             openInPdfViewer = { _, _ -> },
         )
 
-        logWriter.assertErrorLoggedWithout("SECRET_ATTACHMENT_ID")
+        logWriter.assertOnlyErrorLogged("Download failed, type: ARCHIVE, error: DOWNLOAD_FAILED")
     }
 
-    private fun RecordingLogWriter.assertErrorLoggedWithout(vararg sensitive: String) {
-        val errors = entries.filter { it.severity == Severity.Error }
-        assertTrue(errors.isNotEmpty(), "expected an error to be logged")
-        sensitive.forEach { value ->
-            entries.forEach { assertFalse(it.message.contains(value), "log leaks $value: ${it.message}") }
-        }
+    // Exact match, so any value added to the message (path, url, id, file name) fails the test.
+    private fun RecordingLogWriter.assertOnlyErrorLogged(expected: String) {
+        assertEquals(listOf(RecordingLogWriter.Entry(Severity.Error, expected)), entries)
     }
 
     private class RecordingLogWriter : LogWriter() {

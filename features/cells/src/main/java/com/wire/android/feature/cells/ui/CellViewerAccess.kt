@@ -46,6 +46,7 @@ class CellViewerAccess @Inject constructor(
 
     /** Whether the files shown belong to a drive conversation of a team that no longer has Drive. */
     suspend fun isDriveOffboarded(context: CellScreenContext): Boolean {
+        if (!featureFlags.driveOffboardingEnabled) return false
         val conversationId = context.rootConversationId?.takeIf { context.isConversationFiles } ?: return false
         return !isWireCellsEnabled() &&
                 isWireCellsEnabledForConversation(qualifiedIdMapper.fromStringToQualifiedID(conversationId))

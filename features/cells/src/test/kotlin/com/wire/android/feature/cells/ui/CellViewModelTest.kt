@@ -2357,6 +2357,7 @@ class CellViewModelTest {
                 offlineFilesEnabled = true,
                 inAppImageViewerEnabled = inAppImageViewerEnabled,
                 drivePermissionsEnabled = true,
+                driveOffboardingEnabled = true,
                 driveDirectUploadEnabled = true,
                 driveBulkActionsEnabled = true,
                 driveOfflineEnabled = true,

@@ -49,6 +49,7 @@ import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
 import dev.zacsweers.metro.Assisted
 import dev.zacsweers.metro.AssistedFactory
 import dev.zacsweers.metro.AssistedInject
+import dev.zacsweers.metro.Named
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.filterIsInstance
@@ -70,6 +71,7 @@ class MediaGalleryViewModel @AssistedInject constructor(
     private val getCellNode: GetCellFileUseCase,
     private val isSelfUserViewerOnConversation: IsSelfUserViewerOnConversationUseCase,
     private val isWireCellsEnabled: IsWireCellsEnabledUseCase,
+    @Named("driveOffboardingEnabled") private val driveOffboardingEnabled: Boolean,
 ) : ActionsViewModel<MediaGalleryAction>() {
 
     @AssistedFactory
@@ -106,7 +108,7 @@ class MediaGalleryViewModel @AssistedInject constructor(
     private fun getViewerAccess() = viewModelScope.launch {
         val isViewerOnly = isSelfUserViewerOnConversation(conversationId)
         // Once the team's Drive is offboarded, drive files are read-only for everyone.
-        val isDriveOffboarded = cellAssetId != null && !isWireCellsEnabled()
+        val isDriveOffboarded = driveOffboardingEnabled && cellAssetId != null && !isWireCellsEnabled()
         updateState { it.copy(viewerAccess = !isViewerOnly || isDriveOffboarded) }
     }
 

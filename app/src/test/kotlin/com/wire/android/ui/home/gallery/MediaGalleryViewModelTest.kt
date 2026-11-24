@@ -742,6 +742,7 @@ class MediaGalleryViewModelTest {
             getCellFile,
             isSelfUserViewerOnConversation,
             isWireCellsEnabled,
+            driveOffboardingEnabled = true,
         )
     }
 

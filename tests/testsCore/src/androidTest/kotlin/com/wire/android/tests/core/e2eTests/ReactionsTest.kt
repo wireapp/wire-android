@@ -863,16 +863,16 @@ class ReactionsTest : BaseUiTest() {
 
         step("And I open ReactHere! and scroll to the bottom") {
             pages.conversationListPage.clickGroupConversation("ReactHere!")
-            pages.conversationViewPage.scrollToBottomOfConversationScreen()
+            pages.conversationViewPage.scrollToLatestMessages()
         }
 
-        step("And I send message That is a lot of messages") {
+        step("And I send message That is a lot of messages, close the keyboard and see it in the conversation") {
             pages.conversationViewPage.apply {
                 typeMessageInInputField("That is a lot of messages")
                 clickSendButton()
+                closeKeyboardIfOpened()
                 assertSentMessageIsVisibleInCurrentConversation("That is a lot of messages")
             }
-            closeKeyboardIfOpened()
         }
 
         step("And Member1 sends message Yes! via Device1") {
@@ -885,10 +885,10 @@ class ReactionsTest : BaseUiTest() {
             pages.conversationViewPage.assertReceivedMessageIsVisibleInCurrentConversation("Yes!")
         }
 
-        step("When I scroll to the top and return to the bottom") {
+        step("When I scroll to earlier messages and return to the latest messages") {
             pages.conversationViewPage.apply {
-                scrollToTopOfConversationScreen()
-                scrollToBottomOfConversationScreen()
+                scrollToEarlierMessages()
+                scrollToLatestMessages()
             }
         }
 

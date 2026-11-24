@@ -82,7 +82,7 @@ fun MeetingInvitationCard(meetingLink: MeetingLink, modifier: Modifier = Modifie
                 modifier = Modifier.padding(horizontal = dimensions().spacing16x)
             ) {
                 MeetingLinkSurface(link = meetingLink.url, maxLines = 1)
-                MeetingLinkCopyButton(link = meetingLink.url, onLinkCopied = onClose, modifier = Modifier.fillMaxWidth())
+                MeetingLinkCopyButton(link = meetingLink.url, modifier = Modifier.fillMaxWidth())
             }
         }
     }

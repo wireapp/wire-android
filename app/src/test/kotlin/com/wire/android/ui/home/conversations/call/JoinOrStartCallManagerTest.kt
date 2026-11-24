@@ -66,18 +66,18 @@ import org.junit.jupiter.api.extension.ExtendWith
 class JoinOrStartCallManagerTest {
 
     @Test
-    fun `meeting invitation survives verification confirmation before starting call`() = runTest {
+    fun `meeting ID survives verification confirmation before starting call`() = runTest {
         val (arrangement, manager) = Arrangement().withDegradedConversationNotified(false).arrange()
         val invitation = MeetingId("created-meeting", "wire.test")
         manager.actions.test {
             manager.startCallIfPossible(conversationId, Conversation.Type.Group.Meeting, false, invitation)
             advanceUntilIdle()
             val dialog = assertIs<JoinOrStartCallScreenDialogType.VerificationDegraded>(manager.joinOrStartCallViewState.dialogType)
-            assertEquals(invitation, dialog.createdMeetingId)
+            assertEquals(invitation, dialog.meetingId)
             expectNoEvents()
 
             arrangement.withDegradedConversationNotified(true)
-            manager.startCallAfterDegradedVerification(dialog.conversationId, dialog.conversationType, dialog.createdMeetingId)
+            manager.startCallAfterDegradedVerification(dialog.conversationId, dialog.conversationType, dialog.meetingId)
             advanceUntilIdle()
 
             assertEquals(JoinOrStartCallViewActions.InitiatedCall(conversationId, currentAccount, invitation), awaitItem())
@@ -85,7 +85,7 @@ class JoinOrStartCallManagerTest {
     }
 
     @Test
-    fun `meeting invitation is also passed when opening an established call`() = runTest {
+    fun `meeting ID is also passed when opening an established call`() = runTest {
         val (_, manager) = Arrangement()
             .withIsConferenceCallingEnabled(ConferenceCallingResult.Disabled.Established)
             .arrange()
@@ -95,6 +95,27 @@ class JoinOrStartCallManagerTest {
             advanceUntilIdle()
 
             assertEquals(JoinOrStartCallViewActions.JoinedCall(conversationId, currentAccount, invitation), awaitItem())
+        }
+    }
+
+    @Test
+    fun `meeting ID survives joining another meeting after ending an established call`() = runTest {
+        val (_, manager) = Arrangement()
+            .withObserveEstablishedCallsFlow(flowOf(listOf(establishedCall)))
+            .arrange()
+        val meetingId = MeetingId("meeting", "wire.test")
+
+        manager.actions.test {
+            manager.joinOngoingCall(conversationId, meetingId)
+            advanceUntilIdle()
+            val dialog = assertIs<JoinOrStartCallScreenDialogType.JoinAnyway>(manager.joinOrStartCallViewState.dialogType)
+            assertEquals(meetingId, dialog.meetingId)
+            expectNoEvents()
+
+            manager.joinAnyway(dialog.conversationId, dialog.meetingId)
+            advanceUntilIdle()
+
+            assertEquals(JoinOrStartCallViewActions.JoinedCall(conversationId, currentAccount, meetingId), awaitItem())
         }
     }
 

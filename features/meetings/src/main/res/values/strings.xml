@@ -142,4 +142,7 @@
     <string name="meeting_creation_confirmation_description">Share this link to invite participants.</string>
     <string name="meeting_invite_guests_title">Invite guests via link</string>
     <string name="meeting_invite_guests_close_content_description">Close guest link card</string>
+    <string name="meeting_reminders_card_title">Meeting reminders</string>
+    <string name="meeting_reminders_card_description">To join meetings on time, allow reminders for Wire in your system settings on your device.</string>
+    <string name="meeting_reminders_card_settings">Open Device Settings</string>
 </resources>

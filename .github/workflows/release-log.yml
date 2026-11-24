@@ -50,6 +50,7 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
           RUN_ID: ${{ github.event.workflow_run.id || inputs.run_id }}
           RUN_ATTEMPT: ${{ github.event.workflow_run.run_attempt || inputs.run_attempt }}
+          RELEASE_LOG_REPORT_PAGES_URL: ${{ vars.RELEASE_LOG_REPORT_PAGES_URL }}
         run: |
           set -euo pipefail
           [[ "$RUN_ID" =~ ^[1-9][0-9]*$ && "$RUN_ATTEMPT" =~ ^[1-9][0-9]*$ ]] || { echo "Invalid run ID or attempt"; exit 1; }

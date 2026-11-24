@@ -53,6 +53,10 @@ enum class FeatureConfigs(val value: String, val configType: ConfigType) {
     TEAM_APP_LOCK_TIMEOUT("team_app_lock_timeout", ConfigType.INT),
     ENABLE_CROSSPLATFORM_BACKUP("enable_crossplatform_backup", ConfigType.BOOLEAN),
     ENABLE_NEW_REGISTRATION("enable_new_registration", ConfigType.BOOLEAN),
+    /**
+     * Enables read receipts in MLS group conversations: shows the read receipt options, and enables targeted and
+     * transient MLS messages in Kalium so that read receipts are sent only to the sender of the read messages.
+     */
     MLS_READ_RECEIPTS_ENABLED("mls_read_receipts_enabled", ConfigType.BOOLEAN),
     EMM_SUPPORT_ENABLED("emm_support_enabled", ConfigType.BOOLEAN),
 

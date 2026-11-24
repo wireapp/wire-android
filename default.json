@@ -45,7 +45,8 @@
             "drive_bulk_restore_enabled": true,
             "meetings_guests_links_enabled": true,
             "everyone_mention_enabled": true,
-            "multi_factor_authentication_enabled": true
+            "multi_factor_authentication_enabled": true,
+            "mls_read_receipts_enabled": true
         },
         "beta": {
             "application_id": "com.wire.android.internal",

@@ -499,6 +499,10 @@ class SearchTests : BaseUiTest() {
             backendSetupHelper.setSearchVisibilityInbound("user2Name", "SearchDisabled", false)
         }
 
+        step("And User user2Name registers MLS device Device1") {
+            testServiceHelper.addDevice("user2Name", null, "Device1")
+        }
+
         loginToStagingAs(member1)
 
         step("And I tap on start a new conversation button") {
@@ -762,6 +766,10 @@ class SearchTests : BaseUiTest() {
 
         step("And User user2Name is me") {
             clientUserManager.setSelfUser(personalUser)
+        }
+
+        step("And User user1Name registers MLS device Device1") {
+            testServiceHelper.addDevice("user1Name", null, "Device1")
         }
 
         loginToStagingAs(personalUser)

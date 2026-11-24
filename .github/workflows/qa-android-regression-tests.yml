@@ -732,6 +732,7 @@ jobs:
           TESTS_SELECTED: ${{ steps.summarize_allure_results.outputs.selected }}
           TESTS_TOTAL: ${{ steps.summarize_allure_results.outputs.total }}
           ALLURE_REPORT_URL: ${{ steps.publish_allure_report.outputs.allure_report_url }}
+          TESTINY_RUN_ID: ${{ steps.prepare_testiny.outputs.testinyRunId }}
         run: make qa-ui-report cmd=export-qa-release-log
 
       - name: Upload release log QA record

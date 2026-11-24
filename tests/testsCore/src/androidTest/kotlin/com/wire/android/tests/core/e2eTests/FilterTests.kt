@@ -1018,12 +1018,13 @@ class FilterTests : BaseUiTest() {
             }
         }
 
-        step("And I wait until I am fully logged in and decline share data alert") {
+        step("And I complete login, decline share data, and wait for the Wire service notification to disappear") {
             pages.registrationPage.apply {
                 waitUntilLoginFlowIsCompleted()
                 clickAllowNotificationButton()
                 clickDeclineShareDataAlert()
             }
+            pages.conversationListPage.waitUntilWireServiceNotificationDisappears()
         }
     }
 }

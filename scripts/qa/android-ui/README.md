@@ -216,6 +216,10 @@ or republished by this change; run a new normal suite after rollout to establish
 a private deflake source. Previous public reports, logs and artifacts are not
 removed or rewritten automatically.
 
+The handoff step is non-blocking (`continue-on-error: true`). If the receiver
+workflow fails, the step fails with an error and a summary line, but the job keeps
+the test result. The Wire notification and release log record omit the report link.
+
 ### Rollout configuration
 
 1. Merge the reporting repository's publishing workflow first.

@@ -321,6 +321,37 @@ class CollectFailuresTest(unittest.TestCase):
         self.assertEqual(contract.build_fields(payload)["gaps"], "Earlier attempt")
         self.assertEqual(contract.build_fields(payload)["result"], MARK["passed"])
 
+    def test_jobs_carried_over_from_an_earlier_attempt_did_not_run_in_this_one(self):
+        carried = dict(started_at="2026-11-24T09:05:10Z")
+        ran = dict(started_at="2026-11-24T10:13:12Z")
+        jobs = [dict(job("Export release log context"), **carried), dict(job("Validate beta tag"), **carried),
+                dict(job("build / Build Beta-Release"), **carried), dict(job("Publish beta prerelease"), **ran)]
+        run = run_metadata(run_attempt=2, run_started_at="2026-11-24T10:04:03Z")
+        payload = collect(FakeApi(run=run, jobs=jobs, artifacts=good_artifacts(1), refs=TAG_REFS), attempt=2)
+        self.assertEqual(codes(payload), ["Earlier attempt", "Earlier attempt"])
+
+    def test_the_attempt_decides_which_listed_jobs_ran(self):
+        old, new, none = "2026-11-24T09:05:10Z", "2026-11-24T10:13:12Z", None
+        at = lambda started: [dict(entry, started_at=started) for entry in release_jobs()]
+        for label, attempt, started, artifacts, expected in [
+                ("first attempt", 1, new, good_artifacts(1), []),
+                ("full rerun", 2, new, good_artifacts(2), []),
+                ("second rerun reusing the first attempt", 3, old, good_artifacts(1),
+                 ["Earlier attempt", "Earlier attempt"]),
+                ("job without a start time counts as ran", 2, none, good_artifacts(1)[:0],
+                 ["Evidence missing", "Evidence missing"]),
+                ("context ran in this attempt without its record", 2, new, good_artifacts(1),
+                 ["Evidence missing", "Evidence missing"])]:
+            with self.subTest(label):
+                run = run_metadata(run_attempt=attempt, run_started_at="2026-11-24T10:04:03Z")
+                api = FakeApi(run=run, jobs=at(started), artifacts=artifacts, refs=TAG_REFS)
+                if "Evidence missing" in expected:
+                    with self.assertRaises(report.CollectionError) as caught:
+                        collect(api, attempt=attempt)
+                    self.assertEqual(codes(caught.exception.partial), expected)
+                else:
+                    self.assertEqual(codes(collect(api, attempt=attempt)), expected)
+
     def test_release_jobs_are_reported_by_their_own_results(self):
         api = FakeApi(run=run_metadata(conclusion="failure"), jobs=release_jobs(publish="failure"),
                       artifacts=good_artifacts())
@@ -1322,6 +1353,14 @@ class CollectRegressionTest(unittest.TestCase):
         self.assertIsNone(payload["evidence"]["origin"])
         self.assertIn(contract.NOT_ATTACHED, codes(payload))
 
+    def test_a_qa_job_reused_from_an_earlier_attempt_does_not_make_the_missing_record_a_gap(self):
+        api = reg_world(qa_record(attempt=1), run_started_at="2026-11-09T09:00:00Z")
+        api.add_run(qa_run(attempt=2, run_started_at="2026-11-09T10:00:00Z"),
+                    [dict(entry, started_at="2026-11-09T09:30:00Z") for entry in qa_jobs()])
+        payload = collect_regression(api, attempt=2)
+        self.assertIn(contract.EARLIER_ATTEMPT, codes(payload))
+        self.assertNotIn(contract.EVIDENCE_MISSING, codes(payload))
+
     def test_only_manual_production_regression_runs_are_eligible(self):
         for change in [dict(path=".github/workflows/qa-android-regression-tests.yml@refs/heads/develop"),
                        dict(path=".github/workflows/qa-android-beta-tests.yml@refs/heads/develop")]:
@@ -1772,6 +1811,17 @@ class ProductionEnumerationTest(unittest.TestCase):
         self.assertEqual(codes(payload), [None])
         self.assertIn("a production build record is missing", details(payload))
         self.assertEqual(contract.build_fields(payload)["gaps"], "none")
+
+    def test_a_build_job_reused_from_an_earlier_attempt_is_not_a_missing_record(self):
+        reused = [dict(entry, started_at="2026-10-20T09:00:00Z") for entry in EXPORTER_JOBS]
+        api = reg_world(production=False)
+        api.production.append(prod_run(attempt=2))
+        api.add_run(prod_run(attempt=1), [])
+        api.add_run(prod_run(attempt=2, run_started_at="2026-10-20T10:00:00Z"), reused)
+        api.add_artifact(1400, "release-log-build-Prod-1400-1", prod_build(1400, 1))
+        payload = collect_regression(api)
+        self.assertEqual(payload["evidence"]["origin"]["run_attempt"], 1)
+        self.assertEqual(payload["evidence"]["gaps"], [])
 
     def test_a_missing_record_of_a_run_with_the_exporter_that_is_the_only_candidate_is_not_attached(self):
         api = reg_world(production=False)

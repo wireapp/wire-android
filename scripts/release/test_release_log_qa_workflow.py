@@ -47,6 +47,12 @@ class QaExportStepsTest(unittest.TestCase):
                     block = step_block(job, step)
                     self.assertIn("continue-on-error: true", block)
 
+    def test_the_private_report_handoff_never_gates_the_run(self):
+        for name, _, job in self.jobs():
+            with self.subTest(job=name):
+                block = step_block(job, "Transfer evidence and publish private Allure report")
+                self.assertIn("continue-on-error: true", block)
+
     def test_they_run_after_failed_tests_but_not_after_cancellation(self):
         for name, _, job in self.jobs():
             for step in (EXPORT_STEP, UPLOAD_STEP):
@@ -99,7 +105,7 @@ class QaExportStepsTest(unittest.TestCase):
         for name, _, job in self.jobs():
             with self.subTest(job=name):
                 block = step_block(job, UPLOAD_STEP)
-                self.assertIn(UPLOAD, block)
+                self.assertRegex(block, UPLOAD)
                 self.assertIn("name: release-log-qa-${{ github.run_id }}-${{ github.run_attempt }}", block)
                 self.assertIn("path: ${{ runner.temp }}/release-log-qa/evidence.json", block)
                 self.assertIn("retention-days: 90", block)
@@ -116,7 +122,7 @@ class QaExportStepsTest(unittest.TestCase):
         export = step_block(deflake, EXPORT_STEP)
         self.assertIn("RELEASE_LOG_SKIP_OUTPUT: ${{ runner.temp }}/release-log-qa-skip/skip.json", export)
         block = step_block(deflake, SKIP_UPLOAD_STEP)
-        self.assertIn(UPLOAD, block)
+        self.assertRegex(block, UPLOAD)
         self.assertIn("name: release-log-qa-skip-${{ github.run_id }}-${{ github.run_attempt }}", block)
         self.assertIn("path: ${{ runner.temp }}/release-log-qa-skip/skip.json", block)
         self.assertIn("retention-days: 90", block)
@@ -136,16 +142,17 @@ class QaExportStepsTest(unittest.TestCase):
 
     def test_test_execution_and_deflake_artifact_selection_are_untouched(self):
         deflake = job_block(self.text, "run-manual-deflake")
-        download = step_block(deflake, "Download deflake input artifact")
-        self.assertIn("run_id: ${{ needs.validate-and-resolve-inputs.outputs.sourceRunId }}", download)
-        self.assertIn("name: android-ui-test-deflake-input", download)
-        self.assertIn("path: ${{ runner.temp }}/deflake-input", download)
-        run = step_block(deflake, "Run failed tests from deflake artifact")
+        checkout = step_block(deflake, "Check out private deflake inputs")
+        self.assertIn("reports/${{ needs.validate-and-resolve-inputs.outputs.sourceRunId }}-", checkout)
+        self.assertIn("sparse-checkout: incoming/deflake-input", checkout)
+        copy = step_block(deflake, "Copy private deflake inputs")
+        self.assertIn('"$RUNNER_TEMP/deflake-input/"', copy)
+        run = step_block(deflake, "Run failed tests from private deflake bundle")
         self.assertIn("make qa-ui-run", run)
         self.assertIn("INITIAL_FAILED_TESTS_FILE: ${{ steps.validate_deflake_input.outputs.failedTestsFile }}", run)
         for job_name in EXECUTION_JOBS:
-            upload = step_block(job_block(self.text, job_name), "Upload deflake input artifact")
-            self.assertIn("name: android-ui-test-deflake-input", upload)
+            prepare = step_block(job_block(self.text, job_name), "Prepare private deflake input bundle")
+            self.assertIn("DEFLAKE_BUNDLE_DIR: ${{ runner.temp }}/deflake-input", prepare)
         normal = step_block(job_block(self.text, "run-android-ui-tests"), "Run UI tests (auto-rerun failed tests)")
         self.assertIn("RERUN_FAILED_COUNT: ${{ needs.validate-and-resolve-inputs.outputs.resolvedRerunFailedCount }}",
                       normal)
@@ -192,7 +199,7 @@ class EarlySkipMarkerJobTest(unittest.TestCase):
     def test_the_job_writes_the_marker_with_the_make_target_and_uploads_it_for_90_days(self):
         self.assertIn("run: make release-log/qa-skip output=", self.job)
         self.assertNotIn("run_id", self.job.split("run: make", 1)[1].splitlines()[0])
-        self.assertIn(UPLOAD, self.job)
+        self.assertRegex(self.job, UPLOAD)
         self.assertEqual(artifact_names(self.job), ["release-log-qa-skip-${{ github.run_id }}-${{ github.run_attempt }}"])
         self.assertIn("retention-days: 90", self.job)
         self.assertIn("if-no-files-found: ignore", self.job)

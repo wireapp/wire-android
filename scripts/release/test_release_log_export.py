@@ -354,7 +354,7 @@ class CommandLineTest(unittest.TestCase):
 
 ROOT = Path(__file__).resolve().parents[2]
 WORKFLOWS = ROOT / ".github" / "workflows"
-UPLOAD = "actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a"
+UPLOAD = re.compile(r"uses: actions/upload-artifact@[0-9a-f]{40}\b")
 
 
 def workflow(name):
@@ -399,7 +399,7 @@ class BetaWorkflowStructureTest(unittest.TestCase):
     def test_the_context_job_exports_one_retained_evidence_file(self):
         self.assertIn("make release-log/context", self.context_job)
         upload = step_block(self.context_job, "Upload release context")
-        self.assertIn(UPLOAD, upload)
+        self.assertRegex(upload, UPLOAD)
         self.assertIn("name: release-log-context-${{ github.run_id }}-${{ github.run_attempt }}", upload)
         self.assertIn("path: release-log/evidence.json", upload)
         self.assertIn("retention-days: 90", upload)
@@ -442,7 +442,7 @@ class UnifiedWorkflowStructureTest(unittest.TestCase):
 
     def test_the_build_evidence_is_one_retained_file_per_attempt(self):
         upload = step_block(self.build, "Upload release log build evidence")
-        self.assertIn(UPLOAD, upload)
+        self.assertRegex(upload, UPLOAD)
         self.assertIn("name: release-log-build-${{ matrix.flavor }}-${{ github.run_id }}-${{ github.run_attempt }}", upload)
         self.assertIn("path: release-log/evidence.json", upload)
         self.assertIn("retention-days: 90", upload)
@@ -499,7 +499,7 @@ class ProductionWorkflowStructureTest(unittest.TestCase):
         checkout = step_block(self.context_job, "Checkout tagged commit")
         self.assertIn("persist-credentials: false", checkout)
         upload = step_block(self.context_job, "Upload release context")
-        self.assertIn(UPLOAD, upload)
+        self.assertRegex(upload, UPLOAD)
         self.assertIn("name: release-log-context-${{ github.run_id }}-${{ github.run_attempt }}", upload)
         self.assertIn("path: release-log/evidence.json", upload)
         self.assertIn("retention-days: 90", upload)

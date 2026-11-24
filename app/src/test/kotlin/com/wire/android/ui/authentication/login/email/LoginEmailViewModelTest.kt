@@ -37,6 +37,7 @@ import com.wire.android.ui.authentication.login.LoginNavArgs
 import com.wire.android.ui.authentication.login.LoginPasswordPath
 import com.wire.android.ui.authentication.login.LoginSavedInputStore
 import com.wire.android.ui.authentication.login.LoginState
+import com.wire.android.ui.authentication.login.mfa.MFALoginMethod
 import com.wire.android.util.EMPTY
 import com.wire.android.util.newServerConfig
 import com.wire.android.util.ui.CountdownTimer
@@ -79,6 +80,7 @@ import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.awaitCancellation
@@ -96,7 +98,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 @Suppress("LargeClass")
 class LoginEmailViewModelTest {
 
-    private val dispatcherProvider = TestDispatcherProvider(StandardTestDispatcher())
+    private val dispatcherProvider by lazy { TestDispatcherProvider(StandardTestDispatcher()) }
 
     private fun runTest(test: suspend TestScope.() -> Unit) = runTest(dispatcherProvider.main(), testBody = test)
 
@@ -859,6 +861,161 @@ class LoginEmailViewModelTest {
             loginViewModel.loginState.flowState.shouldBeInstanceOf<LoginState.Success>()
         }
 
+    @Test
+    fun `MFA is required only after the initial login succeeds and before a session is stored`() = runTest {
+        val response = CompletableDeferred<AuthenticationResult>()
+        val (arrangement, viewModel) = Arrangement().withSuccessfulLogin().arrange(isMFAEnabled = true)
+        coEvery { arrangement.loginUseCase(any(), any(), any(), any(), any()) } coAnswers { response.await() }
+
+        viewModel.login()
+        advanceUntilIdle()
+        assertEquals(LoginState.Loading, viewModel.loginState.flowState)
+        assertEquals(false, viewModel.hasPendingMFALogin)
+
+        response.complete(AuthenticationResult.Success(AUTH_TOKEN, SSO_ID, MANAGED_BY, SERVER_CONFIG.id, null))
+        advanceUntilIdle()
+
+        assertEquals(LoginState.MFARequired, viewModel.loginState.flowState)
+        assertEquals(true, viewModel.hasPendingMFALogin)
+        coVerify(exactly = 0) { arrangement.addAuthenticatedUserUseCase(any(), any()) }
+        coVerify(exactly = 0) { arrangement.getOrRegisterClientUseCase(any()) }
+        viewModel.cancelMFALogin()
+    }
+
+    @Test
+    fun `MFA enabled preserves credential failures without creating a challenge`() = runTest {
+        val (arrangement, viewModel) = Arrangement()
+            .withLoginReturning(AuthenticationResult.Failure.InvalidCredentials.InvalidPasswordIdentityCombination)
+            .arrange(isMFAEnabled = true)
+
+        viewModel.login()
+        advanceUntilIdle()
+
+        assertEquals(LoginState.Error.DialogError.InvalidCredentialsError, viewModel.loginState.flowState)
+        assertEquals(false, viewModel.hasPendingMFALogin)
+        coVerify(exactly = 0) { arrangement.addAuthenticatedUserUseCase(any(), any()) }
+    }
+
+    @Test
+    fun `invalid authenticator code can be retried and success resumes login exactly once`() = runTest {
+        val (arrangement, viewModel) = Arrangement().withSuccessfulLogin().arrange(isMFAEnabled = true)
+        viewModel.login()
+        advanceUntilIdle()
+
+        viewModel.mfaCodeTextState.setTextAndPlaceCursorAtEnd("000000")
+        viewModel.verifyMFACode()
+        assertEquals(true, viewModel.isVerifyingMFACode)
+        advanceUntilIdle()
+        assertEquals(true, viewModel.isMFACodeInvalid)
+        assertEquals(true, viewModel.canVerifyMFACode)
+        coVerify(exactly = 0) { arrangement.addAuthenticatedUserUseCase(any(), any()) }
+
+        viewModel.mfaCodeTextState.setTextAndPlaceCursorAtEnd("111111")
+        viewModel.verifyMFACode()
+        viewModel.verifyMFACode()
+        advanceUntilIdle()
+
+        viewModel.loginState.flowState.shouldBeInstanceOf<LoginState.Success>()
+        assertEquals(false, viewModel.canVerifyMFACode)
+        assertEquals(false, viewModel.isMFACodeInvalid)
+        coVerify(exactly = 1) { arrangement.loginUseCase(any(), any(), any(), any(), any()) }
+        coVerify(exactly = 1) { arrangement.addAuthenticatedUserUseCase(any(), any()) }
+        coVerify(exactly = 1) { arrangement.getOrRegisterClientUseCase(any()) }
+    }
+
+    @Test
+    fun `recovery code rejects blank and invalid entries then accepts a normalized retry`() = runTest {
+        val (arrangement, viewModel) = Arrangement().withSuccessfulLogin().arrange(isMFAEnabled = true)
+        viewModel.login()
+        advanceUntilIdle()
+
+        viewModel.mfaRecoveryCodeTextState.setTextAndPlaceCursorAtEnd(" \t ")
+        assertEquals(false, viewModel.isMFARecoveryCodeValid)
+        viewModel.verifyMFARecoveryCode()
+        advanceUntilIdle()
+        assertEquals(false, viewModel.isMFARecoveryCodeInvalid)
+        assertEquals(LoginState.MFARequired, viewModel.loginState.flowState)
+
+        viewModel.mfaRecoveryCodeTextState.setTextAndPlaceCursorAtEnd("invalid-code")
+        viewModel.verifyMFARecoveryCode()
+        advanceUntilIdle()
+        assertEquals(true, viewModel.isMFARecoveryCodeInvalid)
+        coVerify(exactly = 0) { arrangement.addAuthenticatedUserUseCase(any(), any()) }
+
+        viewModel.clearMFARecoveryCode()
+        assertEquals("", viewModel.mfaRecoveryCodeTextState.text.toString())
+        assertEquals(false, viewModel.isMFARecoveryCodeInvalid)
+        assertEquals(true, viewModel.canVerifyMFACode)
+
+        viewModel.mfaRecoveryCodeTextState.setTextAndPlaceCursorAtEnd("  ABCD-1234-EFGH-5678  ")
+        viewModel.verifyMFARecoveryCode()
+        viewModel.verifyMFARecoveryCode()
+        advanceUntilIdle()
+
+        viewModel.loginState.flowState.shouldBeInstanceOf<LoginState.Success>()
+        assertEquals("", viewModel.mfaRecoveryCodeTextState.text.toString())
+        assertEquals(false, viewModel.isMFARecoveryCodeInvalid)
+        coVerify(exactly = 1) { arrangement.loginUseCase(any(), any(), any(), any(), any()) }
+        coVerify(exactly = 1) { arrangement.addAuthenticatedUserUseCase(any(), any()) }
+        coVerify(exactly = 1) { arrangement.getOrRegisterClientUseCase(any()) }
+    }
+
+    @Test
+    fun `selecting an authenticator clears previous code errors and preserves the login challenge`() = runTest {
+        val (arrangement, viewModel) = Arrangement().withSuccessfulLogin().arrange(isMFAEnabled = true)
+        val method = viewModel.mfaLoginMethods.filterIsInstance<MFALoginMethod.Authenticator>().last()
+        viewModel.login()
+        advanceUntilIdle()
+        viewModel.mfaCodeTextState.setTextAndPlaceCursorAtEnd("000000")
+        viewModel.verifyMFACode()
+        assertEquals(false, viewModel.selectMFAAuthenticator(method))
+        advanceUntilIdle()
+        assertEquals(true, viewModel.isMFACodeInvalid)
+        viewModel.mfaCodeTextState.setTextAndPlaceCursorAtEnd("123")
+        viewModel.mfaRecoveryCodeTextState.setTextAndPlaceCursorAtEnd("invalid-code")
+        viewModel.verifyMFARecoveryCode()
+        advanceUntilIdle()
+        assertEquals(true, viewModel.isMFARecoveryCodeInvalid)
+
+        assertEquals(true, viewModel.selectMFAAuthenticator(method))
+
+        assertEquals(method, viewModel.selectedMFAAuthenticator)
+        assertEquals("", viewModel.mfaCodeTextState.text.toString())
+        assertEquals("", viewModel.mfaRecoveryCodeTextState.text.toString())
+        assertEquals(false, viewModel.isMFACodeInvalid)
+        assertEquals(false, viewModel.isMFARecoveryCodeInvalid)
+        assertEquals(true, viewModel.canVerifyMFACode)
+        coVerify(exactly = 1) { arrangement.loginUseCase(any(), any(), any(), any(), any()) }
+        coVerify(exactly = 0) { arrangement.addAuthenticatedUserUseCase(any(), any()) }
+        viewModel.cancelMFALogin()
+    }
+
+    @Test
+    fun `canceling during MFA verification cannot store a session and a new login creates a fresh challenge`() = runTest {
+        val (arrangement, viewModel) = Arrangement().withSuccessfulLogin().arrange(isMFAEnabled = true)
+        viewModel.login()
+        advanceUntilIdle()
+        viewModel.mfaCodeTextState.setTextAndPlaceCursorAtEnd("111111")
+        viewModel.verifyMFACode()
+
+        viewModel.cancelMFALogin()
+        advanceUntilIdle()
+
+        assertEquals(LoginState.Default, viewModel.loginState.flowState)
+        assertEquals(false, viewModel.hasPendingMFALogin)
+        assertEquals(false, viewModel.isVerifyingMFACode)
+        assertEquals("", viewModel.mfaCodeTextState.text.toString())
+        coVerify(exactly = 0) { arrangement.addAuthenticatedUserUseCase(any(), any()) }
+        coVerify(exactly = 0) { arrangement.getOrRegisterClientUseCase(any()) }
+
+        viewModel.login()
+        advanceUntilIdle()
+        assertEquals(LoginState.MFARequired, viewModel.loginState.flowState)
+        assertEquals(true, viewModel.canVerifyMFACode)
+        coVerify(exactly = 2) { arrangement.loginUseCase(any(), any(), any(), any(), any()) }
+        viewModel.cancelMFALogin()
+    }
+
     inner class Arrangement {
 
         @MockK
@@ -944,7 +1101,7 @@ class LoginEmailViewModelTest {
             coEvery { countdownTimer.start(any(), any(), any()) } returns Unit
         }
 
-        fun arrange() = this to LoginEmailViewModel(
+        fun arrange(isMFAEnabled: Boolean = false) = this to LoginEmailViewModel(
             LoginNavArgs(loginPasswordPath = LoginPasswordPath(newServerConfig(1).links)),
             addAuthenticatedUserUseCase,
             clientScopeProviderFactory,
@@ -955,7 +1112,17 @@ class LoginEmailViewModelTest {
             dispatcherProvider,
             ServerConfig.STAGING,
             false,
+            isMFAEnabled = isMFAEnabled,
         ).also { it.autoLoginWhenFullCodeEntered = true }
+
+        fun withSuccessfulLogin() = withLoginReturning(
+            AuthenticationResult.Success(AUTH_TOKEN, SSO_ID, MANAGED_BY, SERVER_CONFIG.id, null)
+        )
+            .withAddAuthenticatedUserReturning(AddAuthenticatedUserUseCase.Result.Success(USER_ID))
+            .withValidateEmailReturning(true)
+            .withPersistEmailReturning(PersistSelfUserEmailResult.Success)
+            .withGetOrRegisterClientReturning(RegisterClientResult.Success(CLIENT))
+            .withInitialSyncCompletedReturning(true)
 
         fun withLoginReturning(result: AuthenticationResult) = apply {
             coEvery {

@@ -12,11 +12,6 @@ package com.wire.android.navigation.routes.auth
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import com.wire.android.navigation.navigation3.WireEntryPresentation
 import com.wire.android.navigation.navigation3.WireEntryProviderInstaller
 import com.wire.android.navigation.navigation3.wireEntry
@@ -26,10 +21,6 @@ import com.wire.android.ui.authentication.login.LoginPasswordPath
 import com.wire.android.ui.authentication.login.LoginRouteScreen
 import com.wire.android.ui.authentication.login.LoginState
 import com.wire.android.ui.authentication.login.email.LoginEmailViewModel
-import com.wire.android.ui.authentication.login.mfa.MFALoginScreen
-import com.wire.android.ui.authentication.login.mfa.MFALoginMethod
-import com.wire.android.ui.authentication.login.mfa.MFALoginMethodScreen
-import com.wire.android.ui.authentication.login.mfa.MFALoginRecoveryCodeScreen
 import com.wire.android.ui.authentication.loginEmailViewModel
 import com.wire.android.ui.authentication.newLoginViewModel
 import com.wire.android.ui.authentication.welcome.WelcomeRouteScreen
@@ -45,10 +36,8 @@ import com.wire.android.ui.newauthentication.welcome.NewWelcomeEmptyStartScreen
 import com.wire.android.ui.newauthentication.welcome.WelcomeChooserScreen
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.navigation.WireBackStackMode
-import com.wire.navigation.WireNavEntryId
 import com.wire.navigation.WireSessionId
 import com.wire.navigation.WireViewModelOwner
-import kotlinx.coroutines.launch
 
 /**
  * Cross-batch operations emitted by the first authentication entries.
@@ -370,139 +359,6 @@ private fun NewLoginVerificationCodeNavigation3Entry(
         canNavigateBack = router.canNavigateBack,
         onNavigateBack = { router.backOrElse(actions::exitAuthentication) },
     )
-}
-
-@Composable
-private fun MFALoginNavigation3Entry(
-    route: MFALoginRoute,
-    actions: AuthenticationNavigation3Actions,
-    router: AuthenticationNavigation3Router,
-) {
-    val flowOwner = wireViewModelStoreOwner(WireViewModelOwner.Flow(route.flowId))
-    val viewModel = loginEmailViewModel(route.args.toLegacy(), flowOwner)
-    val scope = rememberCoroutineScope()
-    val isCurrentRoute = router.isCurrentRoute(route)
-    var isNavigatingBack by remember { mutableStateOf(false) }
-    val navigateBack: () -> Unit = {
-        val isRecoverySubmitting = route.step == MFALoginStep.RECOVERY_CODE &&
-            (viewModel.isVerifyingMFACode || viewModel.loginState.flowState == LoginState.Loading)
-        if (!isNavigatingBack && router.isCurrentRoute(route) && !isRecoverySubmitting) {
-            isNavigatingBack = true
-            scope.launch {
-                if (route.step == MFALoginStep.CODE) {
-                    viewModel.cancelMFALogin()
-                }
-                if (route.step == MFALoginStep.RECOVERY_CODE) {
-                    viewModel.clearMFARecoveryCode()
-                }
-                router.backOrElse(actions::exitAuthentication)
-            }
-        }
-    }
-    LaunchedEffect(viewModel.hasPendingMFALogin, isCurrentRoute) {
-        if (!viewModel.hasPendingMFALogin && isCurrentRoute) {
-            navigateBack()
-        }
-    }
-    if (viewModel.hasPendingMFALogin) {
-        if (isCurrentRoute) {
-            MFALoginStateNavigation(viewModel, route, router, navigateBack)
-        }
-        val isBusy = viewModel.isVerifyingMFACode || viewModel.loginState.flowState == LoginState.Loading || isNavigatingBack
-        val canSubmit = viewModel.canVerifyMFACode && !isNavigatingBack && isCurrentRoute
-        when (route.step) {
-            MFALoginStep.CODE -> MFALoginScreen(
-                code = viewModel.mfaCodeTextState,
-                isBusy = isBusy,
-                isCodeInvalid = viewModel.isMFACodeInvalid,
-                canSubmit = canSubmit,
-                onCodeComplete = viewModel::verifyMFACode,
-                onBack = navigateBack,
-                onUseAnotherMethod = { openMFALoginMethods(route, viewModel, router) },
-                authenticatorName = viewModel.selectedMFAAuthenticator?.name,
-            )
-            MFALoginStep.METHODS -> MFALoginMethodScreen(
-                methods = viewModel.mfaLoginMethods,
-                isEnabled = canSubmit && !isBusy,
-                onMethodSelected = { selectMFALoginMethod(route, it, viewModel, router, actions) },
-                onBack = navigateBack,
-            )
-            MFALoginStep.RECOVERY_CODE -> MFALoginRecoveryCodeScreen(
-                code = viewModel.mfaRecoveryCodeTextState,
-                isBusy = isBusy,
-                isCodeInvalid = viewModel.isMFARecoveryCodeInvalid,
-                canSubmit = canSubmit && viewModel.isMFARecoveryCodeValid,
-                onConfirm = viewModel::verifyMFARecoveryCode,
-                onBack = navigateBack,
-            )
-        }
-    }
-}
-
-@Composable
-private fun MFALoginStateNavigation(
-    viewModel: LoginEmailViewModel,
-    route: MFALoginRoute,
-    router: AuthenticationNavigation3Router,
-    onBack: () -> Unit,
-) {
-    LoginStateNavigationAndDialogs(viewModel) { action ->
-        when (action) {
-            is NewLoginPasswordScreenAction.Success -> router.completeLogin(
-                eventId = route.terminalLoginEventId(),
-                completion = when {
-                    action.isE2EIRequired -> AuthenticationLoginCompletion.E2EIEnrollment(action.userId.toSessionId())
-                    action.initialSyncCompleted -> AuthenticationLoginCompletion.Home(action.userId.toSessionId())
-                    else -> AuthenticationLoginCompletion.InitialSync(action.userId.toSessionId())
-                },
-            )
-            is NewLoginPasswordScreenAction.RemoveDevice -> router.completeLogin(
-                route.terminalLoginEventId(),
-                AuthenticationLoginCompletion.RemoveDevice(action.userId.toSessionId()),
-            )
-            NewLoginPasswordScreenAction.Canceled -> {
-                onBack()
-                true
-            }
-            else -> false
-        }
-    }
-}
-
-private fun openMFALoginMethods(
-    route: MFALoginRoute,
-    viewModel: LoginEmailViewModel,
-    router: AuthenticationNavigation3Router,
-) {
-    if (!router.isCurrentRoute(route) || !viewModel.canVerifyMFACode || viewModel.isVerifyingMFACode) return
-    router.navigate(
-        AuthenticationNavigationTransition.MFA_CODE_TO_METHODS,
-        route.copy(step = MFALoginStep.METHODS, entryId = WireNavEntryId.random()),
-    )
-}
-
-private fun selectMFALoginMethod(
-    route: MFALoginRoute,
-    method: MFALoginMethod,
-    viewModel: LoginEmailViewModel,
-    router: AuthenticationNavigation3Router,
-    actions: AuthenticationNavigation3Actions,
-) {
-    if (!router.isCurrentRoute(route) || !viewModel.canVerifyMFACode || viewModel.isVerifyingMFACode) return
-    when (method) {
-        is MFALoginMethod.Authenticator -> {
-            if (viewModel.selectMFAAuthenticator(method)) {
-                router.backOrElse(actions::exitAuthentication)
-            }
-        }
-        MFALoginMethod.RecoveryCode -> {
-            viewModel.clearMFARecoveryCode()
-            router.navigate(
-                AuthenticationNavigationTransition.MFA_METHODS_TO_RECOVERY,
-                route.copy(step = MFALoginStep.RECOVERY_CODE, entryId = WireNavEntryId.random()),
-            )
-        }
-    }
 }
 
 private fun handleNewLoginAction(

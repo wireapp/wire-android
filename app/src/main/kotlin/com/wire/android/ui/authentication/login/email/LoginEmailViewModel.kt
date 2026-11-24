@@ -104,6 +104,7 @@ class LoginEmailViewModel(
     isDefaultBackendConfigured: Boolean = true,
     private val getServerConfigUseCase: Lazy<GetServerConfigUseCase>? = null,
     private val globalDataStore: Lazy<GlobalDataStore>? = null,
+    private val isMFAEnabled: Boolean = BuildConfig.MULTI_FACTOR_AUTHENTICATION_ENABLED,
 ) : LoginViewModel(
     loginNavArgs,
     clientScopeProviderFactory,
@@ -347,7 +348,7 @@ class LoginEmailViewModel(
                 secondFactorVerificationCodeState = secondFactorVerificationCodeState.copy(isCodeInputNecessary = false)
 
                 // Temporary spike: simulate totp-required until the backend login contract is settled.
-                if (BuildConfig.MULTI_FACTOR_AUTHENTICATION_ENABLED) {
+                if (isMFAEnabled) {
                     val verification = CompletableDeferred<Unit>()
                     pendingMFAVerification = verification
                     updateEmailFlowState(LoginState.MFARequired)

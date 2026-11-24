@@ -77,6 +77,7 @@ class AuthenticationNavigation3RouterSourceTest {
             "app/src/main/kotlin/com/wire/android/navigation/routes/auth/AuthenticationNavigation3Router.kt"
         val authenticationProviderSources = listOf(
             "app/src/main/kotlin/com/wire/android/navigation/routes/auth/AuthenticationNavigation3Entries.kt",
+            "app/src/main/kotlin/com/wire/android/navigation/routes/auth/MFALoginNavigation3Entry.kt",
             "app/src/main/kotlin/com/wire/android/navigation/routes/auth/CreateAccountNavigation3Entries.kt",
             "app/src/main/kotlin/com/wire/android/ui/settings/devices/DeviceE2EINavigation3Entries.kt",
         )

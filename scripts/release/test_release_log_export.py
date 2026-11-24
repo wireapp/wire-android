@@ -456,9 +456,10 @@ class UnifiedWorkflowStructureTest(unittest.TestCase):
             self.assertNotIn(banned, run)
         self.assertNotIn("${{", run)
 
-    def test_deployment_and_binary_retention_are_unchanged(self):
-        self.assertNotIn("release-log", job_block(self.unified, "deploy"))
-        self.assertIn("needs: build", job_block(self.unified, "deploy"))
+    def test_release_log_does_not_change_deployment_or_binary_retention(self):
+        deploy = job_block(self.unified, "deploy")
+        self.assertNotIn("release-log", deploy)
+        self.assertRegex(deploy, r"needs: \[[^\n]*\bbuild, build-parallel\]")
         upload = step_block(self.build, "Upload build artifacts")
         self.assertIn("retention-days: 7", upload)
         self.assertNotIn("release-log", upload)

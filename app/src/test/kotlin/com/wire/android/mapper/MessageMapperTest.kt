@@ -18,6 +18,7 @@
 
 package com.wire.android.mapper
 
+import com.wire.android.R
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.framework.TestMessage
 import com.wire.android.framework.TestUser
@@ -56,6 +57,20 @@ import kotlin.time.Duration.Companion.days
 @OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(CoroutineTestExtension::class)
 class MessageMapperTest {
+
+    @Test
+    fun writingDelayLabelUsesTheGapBetweenWritingAndSending() {
+        val message = TestMessage.TEXT_MESSAGE.copy(status = Message.Status.Sent, clientCreatedAtMillis = 1_000)
+        fun labelAt(delayMillis: Long) = message.copy(date = Instant.fromEpochMilliseconds(1_000 + delayMillis)).writingDelayLabel()
+
+        assertEquals(UIText.PluralResource(R.plurals.message_written_minutes_earlier, 5, 5L), labelAt(300_001))
+        assertEquals(UIText.PluralResource(R.plurals.message_written_minutes_earlier, 59, 59L), labelAt(3_599_999))
+        assertEquals(UIText.PluralResource(R.plurals.message_written_hours_earlier, 1, 1L), labelAt(3_600_000))
+        assertEquals(UIText.PluralResource(R.plurals.message_written_days_earlier, 1, 1L), labelAt(86_400_000))
+        assertEquals(null, labelAt(-1))
+        assertEquals(null, message.copy(status = Message.Status.Pending).writingDelayLabel())
+        assertEquals(null, message.copy(clientCreatedAtMillis = null).writingDelayLabel())
+    }
 
     @Test
     fun givenMessagesList_whenGettingMemberIdList_thenReturnCorrectList() = runTest {

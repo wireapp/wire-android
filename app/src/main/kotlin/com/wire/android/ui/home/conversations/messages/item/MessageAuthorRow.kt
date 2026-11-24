@@ -30,17 +30,20 @@ import com.wire.android.ui.common.LegalHoldIndicator
 import com.wire.android.ui.common.UserBadge
 import com.wire.android.ui.common.applyIf
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.spacers.HorizontalSpace
 import com.wire.android.ui.common.typography
 import com.wire.android.ui.home.conversations.model.MessageHeader
 import com.wire.android.ui.theme.Accent
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.ui.UIText
 
 @Composable
 fun MessageAuthorRow(
     messageHeader: MessageHeader,
     messageStyle: MessageStyle,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    writingDelayLabel: UIText? = null,
 ) {
     with(messageHeader) {
         Row(
@@ -75,6 +78,7 @@ fun MessageAuthorRow(
                     messageStyle = messageStyle,
                     modifier = Modifier.padding(start = dimensions().spacing6x)
                 )
+                writingDelayLabel?.let { MessageMetadataLabel(it.asString(), messageStyle) }
             }
         }
     }
@@ -114,4 +118,12 @@ fun MessageSmallLabel(
         maxLines = 1,
         modifier = modifier.alpha(messageStyle.alpha())
     )
+}
+
+@Composable
+internal fun MessageMetadataLabel(text: String, messageStyle: MessageStyle) {
+    HorizontalSpace.x8()
+    MessageSmallLabel(text = "•", messageStyle = messageStyle)
+    HorizontalSpace.x8()
+    MessageSmallLabel(text = text, messageStyle = messageStyle)
 }

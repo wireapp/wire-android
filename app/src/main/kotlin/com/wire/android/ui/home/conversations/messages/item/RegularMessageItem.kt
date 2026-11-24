@@ -208,6 +208,7 @@ fun RegularMessageItem(
                         MessageAuthorRow(
                             messageHeader = message.header,
                             messageStyle = messageStyle,
+                            writingDelayLabel = message.writingDelayLabel.takeUnless { message.isDeleted },
                             modifier = Modifier
                                 .padding(top = dimensions().avatarClickablePadding, bottom = dimensions().spacing4x)
                         )
@@ -259,7 +260,8 @@ fun RegularMessageItem(
                         failureInteractionAvailable = failureInteractionAvailable,
                         useSmallBottomPadding = useSmallBottomPadding,
                         selfDeletionTimerState = selfDeletionTimerState,
-                        messageStyle = messageStyle
+                        messageStyle = messageStyle,
+                        showLegacyTimestamp = !showAuthor
                     )
                 }
             )

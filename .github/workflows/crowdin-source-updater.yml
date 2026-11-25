@@ -12,8 +12,13 @@ concurrency:
     group: ${{ github.workflow }}-${{ github.ref }}
     cancel-in-progress: true
 
+permissions: {}
+
 jobs:
     synchronize-with-crowdin:
+        timeout-minutes: 10
+        permissions:
+            contents: read
         runs-on: ubuntu-latest
 
         env:
@@ -23,6 +28,8 @@ jobs:
         steps:
             -   name: Checkout
                 uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+                with:
+                    persist-credentials: false
 
             -   name: "Exit if the branch is not default 'develop'"
                 env:

@@ -189,6 +189,10 @@ class SelfDeletingMessagesTests : BaseUiTest() {
             )
         }
 
+        step("And I close the keyboard if it is open") {
+            closeKeyboardIfOpened()
+        }
+
         step("Then I see message I do not see the message anymore. in the conversation") {
             pages.conversationViewPage.assertReceivedMessageIsVisibleInCurrentConversation(
                 "I do not see the message anymore."
@@ -315,6 +319,10 @@ class SelfDeletingMessagesTests : BaseUiTest() {
                 "Device1",
                 "SelfDeleting"
             )
+        }
+
+        step("And I close the keyboard if it is open") {
+            closeKeyboardIfOpened()
         }
 
         step("Then I see message I cannot see the message anymore. in the conversation") {

@@ -76,7 +76,8 @@ data class PdfViewerPage(private val device: UiDevice) {
         val visible = UiWaitUtils.retryUntilTimeout(UiWaitUtils.MEDIUM_TIMEOUT) {
             val list = device.findObject(By.scrollable(true)) ?: return@retryUntilTimeout false
             val page = device.findObject(By.desc("Page $pageNumber"))?.visibleBounds
-            if (page != null && page.height() >= (page.width() * 4f / 3f).roundToInt()) {
+            // Android's integer page bounds can differ from the scaled aspect ratio by one pixel.
+            if (page != null && page.height() >= (page.width() * 4f / 3f).roundToInt() - 1) {
                 true
             } else {
                 val viewport = list.visibleBounds

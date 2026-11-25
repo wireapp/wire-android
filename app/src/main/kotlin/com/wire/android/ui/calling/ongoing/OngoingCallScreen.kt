@@ -31,6 +31,7 @@ import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -165,8 +166,8 @@ import com.wire.android.ui.common.R as commonR
 @Composable
 fun OngoingCallScreen(
     conversationId: ConversationId,
-    createdMeetingId: MeetingId? = null,
-    ongoingCallViewModel: OngoingCallViewModel = ongoingCallViewModel(conversationId, createdMeetingId),
+    meetingId: MeetingId? = null,
+    ongoingCallViewModel: OngoingCallViewModel = ongoingCallViewModel(conversationId, meetingId),
     sharedCallingViewModel: SharedCallingViewModel = sharedCallingViewModel(conversationId)
 ) {
     val scope = rememberCoroutineScope()
@@ -263,7 +264,7 @@ fun OngoingCallScreen(
         othersVideosDisabled = ongoingCallViewModel.state.othersVideosDisabled,
         toasts = ongoingCallViewModel.toasts.values.toSet(),
         onToastClick = ongoingCallViewModel::dismissToast,
-        meetingInvitation = ongoingCallViewModel.state.meetingLink,
+        meetingInvitation = ongoingCallViewModel.state.meetingLink.takeIf { ongoingCallViewModel.state.meetingLinkCardVisible },
         onDismissMeetingInvitation = ongoingCallViewModel::dismissMeetingInvitation,
     )
     ObserveRotation(sharedCallingViewModel::setUIRotation)
@@ -606,6 +607,9 @@ private fun OngoingCallContent(
                     onReactionClick = onReactionClick,
                     onMoreClick = { emojiPickerState.show(Unit) },
                 )
+            }
+            meetingInvitation?.let {
+                Box(modifier = Modifier.fillMaxSize().clickable { onDismissMeetingInvitation() })
             }
             AnimatedContent(
                 targetState = meetingInvitation,

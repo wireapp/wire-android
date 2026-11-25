@@ -9,8 +9,12 @@ on:
         type: boolean
         default: false
 
+permissions: {}
+
 jobs:
   health-check:
+    permissions:
+      contents: read
     name: Health check (qa-runner-01)
     concurrency:
       group: qa-android-ui-tests-office-runner

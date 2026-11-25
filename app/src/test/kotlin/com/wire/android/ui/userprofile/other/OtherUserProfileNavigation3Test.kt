@@ -17,7 +17,6 @@ import com.wire.navigation.WireSessionId
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Test
 
 class OtherUserProfileNavigation3Test {
@@ -83,9 +82,10 @@ class OtherUserProfileNavigation3Test {
     }
 
     @Test
-    fun givenBlankIgnoredRequestUserName_whenCreatingResult_thenItIsRejected() {
-        assertThrows(IllegalArgumentException::class.java) {
-            ConnectionRequestIgnoredResult("")
-        }
+    fun givenBlankIgnoredRequestUserName_whenCreatingAndSerializing_thenResultIsAccepted() {
+        val result = ConnectionRequestIgnoredResult("")
+
+        assertEquals("", result.userName)
+        assertEquals(result, Json.decodeFromString<ConnectionRequestIgnoredResult>(Json.encodeToString(result)))
     }
 }

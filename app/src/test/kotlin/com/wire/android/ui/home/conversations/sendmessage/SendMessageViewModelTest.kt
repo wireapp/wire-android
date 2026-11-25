@@ -1174,6 +1174,24 @@ class SendMessageViewModelTest {
         }
     }
 
+    @Test
+    fun givenDriveIsOffboarded_whenPendingBundlesArrive_thenNothingIsSentOrPosted() = runTest {
+        val assetBundle = AssetBundle(
+            key = "key", mimeType = "text/plain", dataPath = "some-data-path".toPath(),
+            dataSize = 1L, fileName = "file.txt", assetType = AttachmentType.GENERIC_FILE
+        )
+        val (arrangement, _) = SendMessageViewModelArrangement()
+            .withSuccessfulViewModelInit()
+            .withPendingAssetBundle(assetBundle)
+            .withDriveOffboarded()
+            .withCellsEnabledForConversation(true)
+            .arrange()
+        advanceUntilIdle()
+
+        coVerify(exactly = 0) { arrangement.sharedState.postBundles(any()) }
+        coVerify(exactly = 0) { arrangement.sendAssetMessage(any()) }
+    }
+
     companion object {
         val conversationId: ConversationId = ConversationId("some-dummy-value", "some.dummy.domain")
     }

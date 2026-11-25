@@ -33,6 +33,7 @@ import com.wire.android.ui.home.conversations.usecase.GetConversationsFromSearch
 import com.wire.android.ui.home.conversations.usecase.HandleUriAssetUseCase
 import com.wire.kalium.logic.data.asset.AttachmentType
 import com.wire.kalium.logic.data.message.SelfDeletionTimer
+import com.wire.kalium.logic.feature.client.IsWireCellsEnabledUseCase
 import com.wire.kalium.logic.feature.selfDeletingMessages.ObserveSelfDeletionTimerSettingsForConversationUseCase
 import com.wire.kalium.logic.feature.selfDeletingMessages.PersistNewSelfDeletionTimerUseCase
 import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
@@ -131,6 +132,28 @@ class ImportMediaAuthenticatedViewModelTest {
                 listOf(TestConversationItem.VIEWER_ONLY_GROUP.conversationId),
                 viewModel.importMediaState.selectedConversationItem
             )
+        }
+
+    @Test
+    fun `given team drive is offboarded, when clicking a drive conversation, then do not select it`() =
+        runTest(dispatcherProvider.main()) {
+            val (_, viewModel) = Arrangement(driveOffboarded = true).arrange()
+
+            viewModel.onConversationClicked(TestConversationItem.GROUP.copy(isDriveConversation = true))
+            advanceUntilIdle()
+
+            assertTrue(viewModel.importMediaState.selectedConversationItem.isEmpty())
+        }
+
+    @Test
+    fun `given team drive is offboarded, when clicking a regular group, then select it`() =
+        runTest(dispatcherProvider.main()) {
+            val (_, viewModel) = Arrangement(driveOffboarded = true).arrange()
+
+            viewModel.onConversationClicked(TestConversationItem.GROUP)
+            advanceUntilIdle()
+
+            assertEquals(listOf(TestConversationItem.GROUP.conversationId), viewModel.importMediaState.selectedConversationItem)
         }
 
     @Test
@@ -521,7 +544,10 @@ class ImportMediaAuthenticatedViewModelTest {
         assetType = AttachmentType.GENERIC_FILE
     )
 
-    inner class Arrangement(private val drivePermissionsEnabled: Boolean = false) {
+    inner class Arrangement(
+        private val drivePermissionsEnabled: Boolean = false,
+        private val driveOffboarded: Boolean = false,
+    ) {
         val context = mockk<Context> {
             every { packageName } returns "com.wire.android"
         }
@@ -534,6 +560,9 @@ class ImportMediaAuthenticatedViewModelTest {
 
         @MockK
         lateinit var handleUriAssetUseCase: HandleUriAssetUseCase
+
+        @MockK
+        lateinit var isWireCellsEnabled: IsWireCellsEnabledUseCase
 
         @MockK
         lateinit var persistNewSelfDeletionTimerUseCase: PersistNewSelfDeletionTimerUseCase
@@ -554,6 +583,7 @@ class ImportMediaAuthenticatedViewModelTest {
             coEvery {
                 observeSelfDeletionSettingsForConversation(any(), any())
             } returns flowOf(SelfDeletionTimer.Disabled)
+            coEvery { isWireCellsEnabled() } returns !driveOffboarded
             mockUri()
         }
 
@@ -574,6 +604,8 @@ class ImportMediaAuthenticatedViewModelTest {
             observeSelfDeletionSettingsForConversation = observeSelfDeletionSettingsForConversation,
             dispatchers = dispatcherProvider,
             drivePermissionsEnabled = drivePermissionsEnabled,
+            isWireCellsEnabled = isWireCellsEnabled,
+            driveOffboardingEnabled = true,
         )
     }
 }

@@ -56,6 +56,9 @@ sealed interface ConversationItem : ConversationItemType {
      */
     val isSelfUserViewerOnly: Boolean get() = false
 
+    /** True when the conversation has a shared drive (Wire Cell). */
+    val isDriveConversation: Boolean get() = false
+
     val isTeamConversation get() = teamId != null
 
     @Serializable
@@ -86,6 +89,7 @@ sealed interface ConversationItem : ConversationItemType {
             override val proteusVerificationStatus: Conversation.VerificationStatus,
             override val hasNewActivitiesToShow: Boolean = false,
             override val isSelfUserViewerOnly: Boolean = false,
+            override val isDriveConversation: Boolean = false,
         ) : Group
 
         @Serializable
@@ -108,6 +112,7 @@ sealed interface ConversationItem : ConversationItemType {
             override val proteusVerificationStatus: Conversation.VerificationStatus,
             override val hasNewActivitiesToShow: Boolean = false,
             override val isSelfUserViewerOnly: Boolean = false,
+            override val isDriveConversation: Boolean = false,
             val isPrivate: Boolean,
         ) : Group
     }

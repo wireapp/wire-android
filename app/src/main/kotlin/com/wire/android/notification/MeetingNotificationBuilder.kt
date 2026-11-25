@@ -28,7 +28,6 @@ import com.wire.kalium.logic.data.meeting.MeetingReminder
 import com.wire.kalium.logic.data.notification.LocalNotification
 import com.wire.kalium.logic.data.user.UserId
 import dev.zacsweers.metro.Inject
-import kotlinx.datetime.yearsUntil
 import java.time.ZoneId
 import kotlin.time.Instant
 import kotlin.time.toJavaInstant

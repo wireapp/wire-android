@@ -112,7 +112,7 @@ class WireNotificationManagerTest {
                 .arrange()
             manager.observeNotificationsAndCallsWhileRunning(listOf(TEST_AUTH_TOKEN.userId), this)
             runCurrent()
-            verify { arrangement.meetingNotificationManager.handleNotifications(listOf(invite), TEST_AUTH_TOKEN.userId) }
+            coVerify { arrangement.meetingNotificationManager.handleNotifications(listOf(invite), TEST_AUTH_TOKEN.userId) }
             coVerify { arrangement.messageNotificationManager.handleNotification(listOf(message), TEST_AUTH_TOKEN.userId, any()) }
             coVerify(exactly = 1) { arrangement.getNotificationsUseCase() }
         }
@@ -135,7 +135,7 @@ class WireNotificationManagerTest {
         manager.fetchAndShowNotificationsOnce(TEST_AUTH_TOKEN.userId.value)
         runCurrent()
         assertEquals(0, events.subscriptionCount.value)
-        verify(exactly = 1) {
+        coVerify(exactly = 1) {
             arrangement.meetingNotificationManager.handleNotifications(listOf(invite), TEST_AUTH_TOKEN.userId)
         }
     }
@@ -164,7 +164,7 @@ class WireNotificationManagerTest {
             manager.fetchAndShowNotificationsOnce(TEST_AUTH_TOKEN.userId.value)
             runCurrent()
             assertEquals(1, events.subscriptionCount.value)
-            verify(exactly = 1) {
+            coVerify(exactly = 1) {
                 arrangement.meetingNotificationManager.handleNotifications(listOf(invite), TEST_AUTH_TOKEN.userId)
             }
             manager.stopObservingOnLogout(TEST_AUTH_TOKEN.userId)
@@ -193,16 +193,16 @@ class WireNotificationManagerTest {
 
             events.emit(meetingInvite())
             runCurrent()
-            verify(exactly = 0) { arrangement.meetingNotificationManager.handleNotifications(any(), any()) }
+            coVerify(exactly = 0) { arrangement.meetingNotificationManager.handleNotifications(any(), any()) }
             security.emit(E2EIRequiredResult.NotRequired)
             runCurrent()
-            verify(exactly = 1) { arrangement.meetingNotificationManager.handleNotifications(any(), any()) }
+            coVerify(exactly = 1) { arrangement.meetingNotificationManager.handleNotifications(any(), any()) }
 
             security.emit(E2EIRequiredResult.NoGracePeriod.Create)
             runCurrent()
             events.emit(meetingInvite())
             runCurrent()
-            verify(exactly = 1) { arrangement.meetingNotificationManager.handleNotifications(any(), any()) }
+            coVerify(exactly = 1) { arrangement.meetingNotificationManager.handleNotifications(any(), any()) }
             coVerify(exactly = 2) { arrangement.observeE2EIRequired() }
 
             manager.stopObservingOnLogout(TestUser.SELF_USER.id)
@@ -243,7 +243,7 @@ class WireNotificationManagerTest {
                 .arrange()
             manager.observeNotificationsAndCallsWhileRunning(listOf(TestUser.SELF_USER.id), this)
             runCurrent()
-            verify { arrangement.meetingNotificationManager.handleNotifications(listOf(invite), TestUser.SELF_USER.id) }
+            coVerify { arrangement.meetingNotificationManager.handleNotifications(listOf(invite), TestUser.SELF_USER.id) }
         }
 
     @Test
@@ -268,7 +268,7 @@ class WireNotificationManagerTest {
                 .arrange()
             manager.observeNotificationsAndCallsWhileRunning(listOf(TestUser.SELF_USER.id), this)
             runCurrent()
-            verify(exactly = 0) { arrangement.meetingNotificationManager.handleNotifications(any(), any()) }
+            coVerify(exactly = 0) { arrangement.meetingNotificationManager.handleNotifications(any(), any()) }
         }
 
     @Test

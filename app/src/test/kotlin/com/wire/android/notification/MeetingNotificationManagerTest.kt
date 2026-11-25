@@ -25,13 +25,21 @@ import android.content.Context
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.test.core.app.ApplicationProvider
+import com.wire.android.framework.TestUser
+import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.meeting.MeetingReminder
 import com.wire.kalium.logic.data.notification.LocalNotification
 import com.wire.kalium.logic.data.notification.LocalNotificationMessageAuthor
+import com.wire.kalium.logic.data.user.UserAvailabilityStatus
+import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.UserSessionScope
+import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.test.runTest
 import kotlin.time.Instant
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -45,7 +53,7 @@ class MeetingNotificationManagerTest {
     @Test
     fun givenAccount_whenCreatingChannels_thenCreateMeetingsInAccountGroup() {
         val (arrangement, _) = Arrangement().arrange()
-        val user = com.wire.android.framework.TestUser.SELF_USER
+        val user = TestUser.SELF_USER
         NotificationChannelsManager(arrangement.context, arrangement.compat).createUserNotificationChannels(listOf(user))
         val channel = arrangement.platform.getNotificationChannel(NotificationConstants.getMeetingsChannelId(user.id))
         assertEquals("Meetings", channel.name)
@@ -54,7 +62,7 @@ class MeetingNotificationManagerTest {
     }
 
     @Test
-    fun givenDeniedNotificationPermission_whenPosting_thenDoNotBuildOrPostInvitation() {
+    fun givenDeniedNotificationPermission_whenPosting_thenDoNotBuildOrPostInvitation() = runTest {
         val (arrangement, manager) = Arrangement()
             .withDeniedNotificationPermission()
             .arrange()
@@ -64,7 +72,7 @@ class MeetingNotificationManagerTest {
     }
 
     @Test
-    fun givenRepeatedInvitesForTwoAccounts_whenPostingAndLoggingOut_thenKeepAccountsAndOtherNotificationsSeparate() {
+    fun givenRepeatedInvitesForTwoAccounts_whenPostingAndLoggingOut_thenKeepAccountsAndOtherNotificationsSeparate() = runTest {
         val (arrangement, manager) = Arrangement()
             .withGrantedNotificationPermission()
             .withBuiltNotifications()
@@ -83,7 +91,7 @@ class MeetingNotificationManagerTest {
     }
 
     @Test
-    fun givenDifferentEventsForOneMeeting_whenPosting_thenKeepEachEventAndUpdateRedelivery() {
+    fun givenDifferentEventsForOneMeeting_whenPosting_thenKeepEachEventAndUpdateRedelivery() = runTest {
         val (arrangement, manager) = Arrangement()
             .withGrantedNotificationPermission()
             .withBuiltNotifications()
@@ -107,7 +115,7 @@ class MeetingNotificationManagerTest {
     }
 
     @Test
-    fun givenReminder_whenPosting_thenUseMeetingNotificationIdentityAndCleanup() {
+    fun givenReminder_whenPosting_thenUseMeetingNotificationIdentityAndCleanup() = runTest {
         val (arrangement, manager) = Arrangement()
             .withGrantedNotificationPermission()
             .withBuiltNotifications()
@@ -133,7 +141,7 @@ class MeetingNotificationManagerTest {
     }
 
     @Test
-    fun givenDeniedNotificationPermission_whenPostingReminder_thenDoNotBuildOrPost() {
+    fun givenDeniedNotificationPermission_whenPostingReminder_thenDoNotBuildOrPost() = runTest {
         val (arrangement, manager) = Arrangement()
             .withDeniedNotificationPermission()
             .arrange()
@@ -145,11 +153,98 @@ class MeetingNotificationManagerTest {
         assertEquals(0, arrangement.platform.activeNotifications.size)
     }
 
+    @Test
+    fun givenAwayAccount_whenPostingEventsAndReminders_thenSuppressOnlyThatAccount() = runTest {
+        assertNotificationsSuppressedOnlyForAccount(UserAvailabilityStatus.AWAY)
+    }
+
+    @Test
+    fun givenBusyAccount_whenPostingEventsAndReminders_thenSuppressOnlyThatAccount() = runTest {
+        assertNotificationsSuppressedOnlyForAccount(UserAvailabilityStatus.BUSY)
+    }
+
+    private suspend fun assertNotificationsSuppressedOnlyForAccount(status: UserAvailabilityStatus) {
+        val (arrangement, manager) = Arrangement()
+            .withGrantedNotificationPermission()
+            .withBuiltNotifications()
+            .withStatus(user1, status)
+            .arrange()
+        val reminder = MeetingReminder("occurrence", invite.meetingId, invite.conversationId, invite.meetingTitle, invite.startTime)
+
+        val events = listOf(
+            invite,
+            LocalNotification.Meeting.Update(
+                "update",
+                invite.meetingId,
+                invite.conversationId,
+                invite.meetingTitle,
+                invite.author,
+                invite.time,
+                invite.startTime,
+                invite.endTime,
+            ),
+            LocalNotification.Meeting.Cancel(
+                "cancel",
+                invite.meetingId,
+                invite.conversationId,
+                invite.meetingTitle,
+                invite.author,
+                invite.time,
+            ),
+        )
+        manager.handleNotifications(events, user1)
+        manager.showReminder(reminder, user1)
+
+        verify(exactly = 0) { arrangement.builder.build(any(), any()) }
+        verify(exactly = 0) { arrangement.builder.buildReminder(any(), any()) }
+        assertEquals(0, arrangement.platform.activeNotifications.size)
+
+        manager.handleNotifications(events, user2)
+        manager.showReminder(reminder, user2)
+        assertEquals(4, arrangement.platform.activeNotifications.size)
+    }
+
+    @Test
+    fun givenStatusChanges_whenPostingEventsAndReminders_thenCheckCurrentStatus() = runTest {
+        val (arrangement, manager) = Arrangement()
+            .withGrantedNotificationPermission()
+            .withBuiltNotifications()
+            .arrange()
+        val reminder = MeetingReminder("occurrence", invite.meetingId, invite.conversationId, invite.meetingTitle, invite.startTime)
+        val expectedNotificationCounts = listOf(
+            UserAvailabilityStatus.AVAILABLE to 2,
+            UserAvailabilityStatus.AWAY to 0,
+            UserAvailabilityStatus.BUSY to 0,
+            UserAvailabilityStatus.NONE to 2,
+        )
+        for ((status, expectedCount) in expectedNotificationCounts) {
+            arrangement.withStatus(user1, status)
+            manager.handleNotifications(listOf(invite), user1)
+            manager.showReminder(reminder, user1)
+            assertEquals(expectedCount, arrangement.platform.activeNotifications.size)
+            manager.hideAllNotificationsForUser(user1)
+        }
+    }
+
     private class Arrangement {
         val context = ApplicationProvider.getApplicationContext<Application>()
         val platform = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         val compat = NotificationManagerCompat.from(context)
         val builder = mockk<MeetingNotificationBuilder>()
+        private val coreLogic = mockk<CoreLogic>()
+
+        init {
+            every { coreLogic.getSessionScope(any()) } returns mockk<UserSessionScope>(relaxed = true).also { session ->
+                coEvery { session.users.observeSelfUser() } returns flowOf(TestUser.SELF_USER)
+            }
+        }
+
+        fun withStatus(userId: UserId, status: UserAvailabilityStatus) = apply {
+            val session = mockk<UserSessionScope>(relaxed = true)
+            every { coreLogic.getSessionScope(userId) } returns session
+            coEvery { session.users.observeSelfUser() } returns flowOf(TestUser.SELF_USER.copy(availabilityStatus = status))
+        }
+
         fun withGrantedNotificationPermission() = apply {
             org.robolectric.Shadows.shadowOf(context).grantPermissions(android.Manifest.permission.POST_NOTIFICATIONS)
         }
@@ -172,7 +267,7 @@ class MeetingNotificationManagerTest {
         fun withUnrelatedNotification() = apply {
             compat.notify("unrelated", 1, Notification())
         }
-        fun arrange() = this to MeetingNotificationManager(context, platform, compat, builder)
+        fun arrange() = this to MeetingNotificationManager(context, platform, compat, builder, coreLogic)
     }
 
     private val user1 = QualifiedID("first", "example.com")

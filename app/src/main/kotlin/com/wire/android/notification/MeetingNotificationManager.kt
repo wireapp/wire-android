@@ -25,12 +25,16 @@ import android.content.pm.PackageManager
 import android.os.Build
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
+import com.wire.android.di.KaliumCoreLogic
+import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.meeting.MeetingReminder
 import com.wire.kalium.logic.data.notification.LocalNotification
+import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.UserId
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
+import kotlinx.coroutines.flow.first
 
 @SingleIn(AppScope::class)
 class MeetingNotificationManager @Inject constructor(
@@ -38,8 +42,11 @@ class MeetingNotificationManager @Inject constructor(
     private val notificationManager: NotificationManager,
     private val notificationManagerCompat: NotificationManagerCompat,
     private val builder: MeetingNotificationBuilder,
+    @KaliumCoreLogic private val coreLogic: CoreLogic,
 ) {
-    fun handleNotifications(notifications: List<LocalNotification.Meeting>, userId: UserId) {
+    suspend fun handleNotifications(notifications: List<LocalNotification.Meeting>, userId: UserId) {
+        if (notifications.isEmpty() || isSuppressedByStatus(userId)) return
+
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU ||
             ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED
         ) {
@@ -53,7 +60,9 @@ class MeetingNotificationManager @Inject constructor(
         }
     }
 
-    fun showReminder(reminder: MeetingReminder, userId: UserId) {
+    suspend fun showReminder(reminder: MeetingReminder, userId: UserId) {
+        if (isSuppressedByStatus(userId)) return
+
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU ||
             ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED
         ) {
@@ -63,6 +72,11 @@ class MeetingNotificationManager @Inject constructor(
                 builder.buildReminder(reminder, userId),
             )
         }
+    }
+
+    private suspend fun isSuppressedByStatus(userId: UserId): Boolean {
+        val status = coreLogic.getSessionScope(userId).users.observeSelfUser().first().availabilityStatus
+        return status == UserAvailabilityStatus.AWAY || status == UserAvailabilityStatus.BUSY
     }
 
     fun hideAllNotificationsForUser(userId: UserId) = hideMatching(NotificationConstants.getMeetingsGroupKey(userId))

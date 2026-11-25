@@ -323,10 +323,10 @@ class RegistrationPage(private val device: UiDevice) {
         return this
     }
 
-    fun waitUntilLoginFlowIsCompleted(): RegistrationPage {
+    fun waitUntilLoginFlowIsCompleted(loginButtonTimeout: Duration = 15.seconds): RegistrationPage {
         val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
         try {
-            waitUntilElementGone(device, loginButtonGoneSelector, timeout = 15.seconds)
+            waitUntilElementGone(device, loginButtonGoneSelector, timeout = loginButtonTimeout)
             waitUntilElementGone(device, settingUpWireGoneSelector, timeout = 35.seconds)
         } catch (e: AssertionError) {
             throw AssertionError(

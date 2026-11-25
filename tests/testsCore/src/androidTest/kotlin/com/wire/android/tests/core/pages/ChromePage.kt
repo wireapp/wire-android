@@ -36,6 +36,15 @@ data class ChromePage(private val device: UiDevice) {
         textContains = "Access all files shared across conversations (Drive)"
     )
 
+    fun tapOpenInAppOnProfileLinkPage(): ChromePage {
+        UiWaitUtils.waitElement(
+            UiSelectorParams(text = "You have been invited to view a user profile in Wire"),
+            timeout = UiWaitUtils.VERY_LONG_TIMEOUT
+        )
+        UiWaitUtils.waitElement(UiSelectorParams(text = "Open in App")).click()
+        return this
+    }
+
     fun clickUseWithoutAccount(): ChromePage {
         UiWaitUtils.waitElement(useWithoutAccountLocator).click()
         return this

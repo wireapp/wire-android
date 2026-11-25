@@ -1,3 +1,4 @@
 <resources>
     <string name="pdf_test_receiver" translatable="false">PDF Test Receiver</string>
+    <string name="profile_test_receiver" translatable="false">Profile Test Receiver</string>
 </resources>

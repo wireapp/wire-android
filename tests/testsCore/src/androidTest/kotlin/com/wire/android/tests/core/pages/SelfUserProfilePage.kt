@@ -50,6 +50,11 @@ data class SelfUserProfilePage(private val device: UiDevice) {
 
     private fun availabilityStatus(status: String) = UiSelectorParams(text = status)
 
+    fun tapShareProfileLinkButton(): SelfUserProfilePage {
+        UiWaitUtils.waitElement(UiSelectorParams(description = "Share Profile Link")).click()
+        return this
+    }
+
     fun iSeeUserProfilePage(timeout: Duration = 30.seconds): SelfUserProfilePage {
         UiWaitUtils.waitAnyVisible(
             selectors = listOf(userProfilePageTitle, logoutButton),

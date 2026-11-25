@@ -55,6 +55,8 @@ class AllPages(val device: UiDevice) {
     val createNewGroupPage = CreateNewGroupPage(device)
 
     val selfUserProfilePage = SelfUserProfilePage(device)
+    val profileQrCodePage = ProfileQrCodePage(device)
+    val profileShareReceiverPage = ProfileShareReceiverPage(device)
     val callingPage = CallingPage(device)
 
     val wireDrivePage = WireDrivePage(device)

@@ -67,6 +67,7 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.disabled
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.text
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.rememberTextMeasurer
@@ -220,9 +221,9 @@ fun NewMeetingContent(
                     participants = state.confirmedContacts,
                     onClick = onParticipantsClicked,
                 )
-                if (type == NewMeetingType.Schedule && state.isGuestLinkSharingEnabled) {
+                if (type !is NewMeetingType.Edit && state.isGuestLinkSharingEnabled) {
                     VerticalSpace.x24()
-                    PasswordInput(
+                    MeetingPasswordInput(
                         passwordState = passwordState,
                         confirmPasswordState = confirmPasswordState,
                         passwordsDoNotMatch = state.passwordsDoNotMatch,
@@ -308,7 +309,7 @@ fun NewMeetingContent(
 }
 
 @Composable
-private fun PasswordInput(
+private fun MeetingPasswordInput(
     passwordState: TextFieldState,
     confirmPasswordState: TextFieldState,
     invalidPassword: Boolean,
@@ -317,6 +318,29 @@ private fun PasswordInput(
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
     Column(modifier = Modifier.fillMaxWidth()) {
+        VerticalSpace.x12()
+        Text(
+            text = stringResource(R.string.new_meeting_password_info),
+            style = typography().label04.copy(textAlign = TextAlign.Start),
+            color = colorsScheme().secondaryText,
+            fontWeight = FontWeight.Normal,
+        )
+        VerticalSpace.x2()
+        Text(
+            text = stringResource(R.string.new_meeting_password_copy_info),
+            style = typography().label04.copy(textAlign = TextAlign.Start),
+            color = colorsScheme().secondaryText,
+            fontWeight = FontWeight.Medium,
+        )
+        VerticalSpace.x8()
+        FlowRow(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(dimensions().spacing16x),
+        ) {
+            GeneratePasswordButton(onClick = onGenerateRandomPassword)
+            CopyPasswordButton(password = passwordState.text.toString())
+        }
+        VerticalSpace.x8()
         WirePasswordTextField(
             textState = passwordState,
             labelText = stringResource(R.string.new_meeting_password_input_label),
@@ -347,19 +371,6 @@ private fun PasswordInput(
             testTag = "meetingConfirmPasswordInput",
         )
         VerticalSpace.x8()
-        FlowRow(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-        ) {
-            CopyPasswordButton(password = passwordState.text.toString())
-            GeneratePasswordButton(onClick = onGenerateRandomPassword)
-        }
-        VerticalSpace.x8()
-        Text(
-            text = stringResource(R.string.new_meeting_password_description),
-            style = typography().body01,
-            color = colorsScheme().secondaryText,
-        )
     }
 }
 

@@ -567,8 +567,12 @@ fun EnabledMessageComposer(
             BackHandler(inputStateHolder.inputType is InputType.Editing) {
                 cancelEdit()
             }
-            BackHandler(isImeVisible || inputStateHolder.inputFocused) {
-                inputStateHolder.collapseComposer(additionalOptionStateHolder.additionalOptionsSubMenuState)
+            val additionalOptionsSubMenuState = additionalOptionStateHolder.additionalOptionsSubMenuState
+            val canCollapseComposer = inputStateHolder.isTextExpanded &&
+                additionalOptionsSubMenuState != AdditionalOptionSubMenuState.RecordAudio
+            // Dismissing the message menu can mark the input focused while the keyboard stays hidden.
+            BackHandler(isImeVisible || canCollapseComposer) {
+                inputStateHolder.collapseComposer(additionalOptionsSubMenuState)
             }
             BackHandler(hasMentionSuggestions) {
                 closeMentionSuggestions()

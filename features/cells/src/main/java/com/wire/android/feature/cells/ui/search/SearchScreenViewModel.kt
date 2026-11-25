@@ -25,6 +25,9 @@ import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import androidx.paging.map
 import com.wire.android.feature.cells.ui.CellFileLocalPathCache
+import com.wire.android.feature.cells.ui.CellNodeChangeEvents
+import com.wire.android.feature.cells.ui.CellNodeUpdate
+import com.wire.android.feature.cells.ui.applyTo
 import com.wire.android.feature.cells.ui.downloadProgressOf
 import com.wire.android.feature.cells.ui.model.CellNodeUi
 import com.wire.android.feature.cells.ui.model.toUiModel
@@ -69,9 +72,17 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.atomic.AtomicInteger
 import kotlin.time.Duration.Companion.milliseconds
 
 private const val SEARCH_DEBOUNCE_MILLIS = 200L
+
+/** A result as fetched from the server, by the [fetch]-th fetch. */
+private data class FetchedNode(val node: CellNodeUi, val fetch: Int)
+
+/** A change made to a result while the [fetch]-th fetch was the latest. */
+private data class FetchUpdate(val update: CellNodeUpdate, val fetch: Int)
 
 @Suppress("TooManyFunctions")
 class SearchScreenViewModel @AssistedInject constructor(
@@ -83,6 +94,7 @@ class SearchScreenViewModel @AssistedInject constructor(
     private val sharedPathCache: CellFileLocalPathCache,
     private val offlineDownloads: SessionOfflineDownloads,
     private val observeOfflineFiles: ObserveOfflineFilesUseCase,
+    private val nodeChangeEvents: CellNodeChangeEvents,
 ) : ViewModel() {
 
     @AssistedFactory
@@ -123,6 +135,15 @@ class SearchScreenViewModel @AssistedInject constructor(
 
     private val queryFlow = MutableStateFlow("")
 
+    // Numbers the fetches of results from the server, so that each result only gets the changes its fetch can miss.
+    private val fetchCount = AtomicInteger(0)
+
+    // Changes made to the results shown, applied on top of them, along with the fetch running when each was made.
+    private val resultUpdates = MutableStateFlow<List<FetchUpdate>>(emptyList())
+
+    // Filled as result pages load, possibly off the main thread.
+    private val shownUuids: MutableSet<String> = ConcurrentHashMap.newKeySet()
+
     private val debouncedQueryFlow: Flow<String> = queryFlow
         .debounce(SEARCH_DEBOUNCE_MILLIS.milliseconds)
         .distinctUntilChanged()
@@ -146,7 +167,8 @@ class SearchScreenViewModel @AssistedInject constructor(
 
     val cellNodesFlow: Flow<PagingData<CellNodeUi>> =
         combine(
-            searchParamsFlow.flatMapLatest<SearchParams, PagingData<CellNodeUi>> { params: SearchParams ->
+            searchParamsFlow.flatMapLatest<SearchParams, PagingData<FetchedNode>> { params: SearchParams ->
+                val fetch = startFetch()
                 val hasFilters = params.sortingCriteria != inheritedSortingCriteria ||
                         params.query.isNotEmpty() ||
                         params.tagIds.isNotEmpty() ||
@@ -184,19 +206,23 @@ class SearchScreenViewModel @AssistedInject constructor(
                     isRecursive = params.query.isNotEmpty()
                 ).map { pagingData: PagingData<Node> ->
                     pagingData.map { node: Node ->
-                        when (node) {
+                        val uiNode = when (node) {
                             is Node.Folder -> node.toUiModel()
                             is Node.File -> node.toUiModel()
                         }
+                        shownUuids.add(uiNode.uuid)
+                        FetchedNode(uiNode, fetch)
                     }
                 }
             }.cachedIn(viewModelScope),
             sharedPathCache.openLoadStates,
             offlineDownloads.states,
             observeOfflineFiles(),
-        ) { pagingData, openLoadStates, downloadStates, offlineFiles ->
+            resultUpdates,
+        ) { pagingData, openLoadStates, downloadStates, offlineFiles, updates ->
             val offlineUuids = offlineFiles.map { it.id }.toSet()
-            pagingData.map { node ->
+            pagingData.map { fetchedNode ->
+                val node = updates.missedBy(fetchedNode.fetch).applyTo(fetchedNode.node)
                 if (node is CellNodeUi.File) {
                     node.withSessionState(
                         openLoadState = openLoadStates[node.uuid],
@@ -230,6 +256,24 @@ class SearchScreenViewModel @AssistedInject constructor(
     init {
         loadTags()
         loadOwners()
+        updateResultsUpdatedElsewhere()
+    }
+
+    // The changes are known: no need to load the results again for them.
+    private fun updateResultsUpdatedElsewhere() = viewModelScope.launch {
+        nodeChangeEvents.nodeUpdates.collect { update ->
+            if (update.uuid in shownUuids) resultUpdates.update { it + FetchUpdate(update, fetch = fetchCount.get()) }
+        }
+    }
+
+    /**
+     * Starts a new fetch of results, and forgets the changes nothing needs anymore: the results shown until the new ones
+     * arrive, from the previous fetch, only need the changes made since that one started.
+     */
+    private fun startFetch(): Int {
+        val fetch = fetchCount.incrementAndGet()
+        resultUpdates.update { updates -> updates.filter { it.fetch >= fetch - 1 } }
+        return fetch
     }
 
     internal fun loadTags() = viewModelScope.launch {
@@ -410,3 +454,11 @@ fun defaultCriteriaFor(by: SortBy): SortingCriteria = when (by) {
     SortBy.Name -> SortingCriteria.ByName.AtoZ
     SortBy.Size -> SortingCriteria.BySize.SmallestFirst
 }
+
+/**
+ * The changes the results of the [fetch]-th fetch can miss: those made since it started. Changes made before it are
+ * already on the server it fetched them from, and applying them anyway would hide later changes made elsewhere.
+ */
+private fun List<FetchUpdate>.missedBy(fetch: Int): List<CellNodeUpdate> = filter {
+    it.fetch >= fetch
+}.map { it.update }

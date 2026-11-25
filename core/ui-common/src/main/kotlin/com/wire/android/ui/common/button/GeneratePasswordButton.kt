@@ -17,23 +17,24 @@
  */
 package com.wire.android.ui.common.button
 
-import android.content.ClipData
-import android.content.ClipboardManager
 import android.widget.Toast
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.DpSize
+import com.wire.android.ui.common.R
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.wireTypography
-import com.wire.android.ui.common.R
 
 @Composable
 fun GeneratePasswordButton(
@@ -50,7 +51,7 @@ fun GeneratePasswordButton(
         textStyle = MaterialTheme.wireTypography.button03,
         leadingIcon = {
             Icon(
-                modifier = Modifier.padding(end = dimensions().corner4x),
+                modifier = Modifier.padding(end = dimensions().corner4x).size(dimensions().spacing12x),
                 painter = painterResource(id = R.drawable.ic_shield_holo),
                 contentDescription = null,
                 tint = colorsScheme().onSecondaryButtonEnabled
@@ -68,11 +69,11 @@ fun CopyPasswordButton(
 ) {
     val context = LocalContext.current
     val copiedMessage = stringResource(R.string.password_copied)
-    val label = stringResource(R.string.login_password_label)
+    val clipboardManager = LocalClipboardManager.current
     WireSecondaryButton(
         modifier = modifier,
         onClick = {
-            context.getSystemService(ClipboardManager::class.java).setPrimaryClip(ClipData.newPlainText(label, password))
+            clipboardManager.setText(AnnotatedString(password))
             Toast.makeText(context, copiedMessage, Toast.LENGTH_SHORT).show()
         },
         minSize = DpSize(dimensions().spacing32x, dimensions().spacing16x),
@@ -81,7 +82,7 @@ fun CopyPasswordButton(
         textStyle = MaterialTheme.wireTypography.button03,
         leadingIcon = {
             Icon(
-                modifier = Modifier.padding(end = dimensions().corner4x),
+                modifier = Modifier.padding(end = dimensions().corner4x).size(dimensions().spacing12x),
                 painter = painterResource(R.drawable.ic_copy),
                 contentDescription = null,
             )

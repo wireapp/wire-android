@@ -44,7 +44,8 @@ class SessionOfflineDownloads internal constructor(
     internal fun availableStorageBytes(): Long = account.availableStorageBytes()
 
     /** @see AccountOfflineDownloads.download */
-    internal fun download(files: List<CellNodeUi.File>): Long? = account.download(files)
+    internal fun download(files: List<CellNodeUi.File>, onRequestCreated: (requestId: Long) -> Unit) =
+        account.download(files, onRequestCreated)
 
     internal fun cancel(uuid: String) = account.cancel(uuid)
 }

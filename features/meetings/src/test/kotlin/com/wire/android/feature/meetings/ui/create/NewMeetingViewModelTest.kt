@@ -23,6 +23,7 @@ import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.SnapshotExtension
 import com.wire.android.feature.meetings.mapper.toRepeatingInterval
 import com.wire.android.feature.meetings.model.MeetingItem
+import com.wire.android.feature.meetings.ui.NewMeetingResult
 import com.wire.android.framework.TestUser
 import com.wire.android.mapper.ContactMapper
 import com.wire.android.model.Contact
@@ -35,15 +36,15 @@ import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.MemberDetails
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.MeetingId
+import com.wire.kalium.logic.data.meeting.CreateMeeting
 import com.wire.kalium.logic.data.meeting.Meeting
 import com.wire.kalium.logic.data.meeting.MeetingOccurrence
-import com.wire.kalium.logic.data.meeting.CreateMeeting
 import com.wire.kalium.logic.data.meeting.UpdateMeeting
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.data.user.UserId
-import com.wire.kalium.logic.feature.auth.ValidatePasswordUseCase
 import com.wire.kalium.logic.feature.auth.ValidatePasswordResult
+import com.wire.kalium.logic.feature.auth.ValidatePasswordUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationMembersUseCase
 import com.wire.kalium.logic.feature.conversation.RenameConversationUseCase
 import com.wire.kalium.logic.feature.conversation.RenamingResult
@@ -55,10 +56,10 @@ import com.wire.kalium.logic.util.RandomPassword
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
-import io.mockk.verify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
-import kotlin.time.Duration.Companion.hours
+import io.mockk.verify
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
@@ -70,7 +71,6 @@ import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
-import kotlin.time.Instant
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toInstant
@@ -82,6 +82,9 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import kotlin.time.Duration.Companion.hours
+import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Instant
 
 @Suppress("LargeClass")
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -100,136 +103,148 @@ class NewMeetingViewModelTest {
     }
 
     @Test
-    fun givenScheduleTypeAndCurrentTime_whenViewModelIsCreated_thenStateIsInitialized() = runTest(dispatcher) {
-        val currentTime = Instant.parse("2026-01-01T12:00:00Z")
-        val (_, viewModel) = arrangeViewModel(
-            Arrangement(dispatcher)
-                .withNewMeetingType(NewMeetingType.Schedule)
-                .withCurrentTimeProvider { currentTime }
-        )
+    fun givenCreationTypeAndCurrentTime_whenViewModelIsCreated_thenStateIsInitialized() = runTest(dispatcher) {
+        withCreationTypes { type ->
+            val currentTime = Instant.parse("2026-01-01T12:00:00Z")
+            val (_, viewModel) = arrangeViewModel(
+                Arrangement(dispatcher)
+                    .withNewMeetingType(type)
+                    .withCurrentTimeProvider { currentTime }
+            )
 
-        assertEquals(NewMeetingType.Schedule, viewModel.type)
-        assertEquals(currentTime + 1.hours, viewModel.state.startTime) // next full hour
-        assertEquals(currentTime + 2.hours, viewModel.state.endTime) // start time + 1 hour
-        assertFalse(viewModel.state.continueButtonEnabled)
-        assertNull(viewModel.state.titleError)
-        assertNull(viewModel.state.startTimeError)
-        assertNull(viewModel.state.endTimeError)
-        assertEquals(MEETING_TIME_ZONE_ID, viewModel.state.tzid)
+            assertEquals(type, viewModel.type)
+            assertEquals(currentTime + 1.hours, viewModel.state.startTime) // next full hour
+            assertEquals(currentTime + 2.hours, viewModel.state.endTime) // start time + 1 hour
+            assertFalse(viewModel.state.continueButtonEnabled)
+            assertNull(viewModel.state.titleError)
+            assertNull(viewModel.state.startTimeError)
+            assertNull(viewModel.state.endTimeError)
+            assertEquals(MEETING_TIME_ZONE_ID, viewModel.state.tzid)
+        }
     }
 
     @Test
     fun givenSelectedContacts_whenContactsAreConfirmedAndReset_thenStateKeepsConfirmedContacts() = runTest(dispatcher) {
-        val contact = contact("contact-1")
-        val otherContact = contact("contact-2")
-        val (_, viewModel) = arrangeViewModel()
+        withCreationTypes { type ->
+            val contact = contact("contact-1")
+            val otherContact = contact("contact-2")
+            val (_, viewModel) = arrangeViewModel(Arrangement(dispatcher).withNewMeetingType(type))
 
-        viewModel.updateSelectedContact(selected = true, contact = contact)
-        viewModel.updateSelectedContact(selected = true, contact = otherContact)
-        assertEquals(setOf(contact, otherContact), viewModel.state.selectedContacts.toSet())
-        assertEquals(emptySet<Contact>(), viewModel.state.confirmedContacts.toSet())
+            viewModel.updateSelectedContact(selected = true, contact = contact)
+            viewModel.updateSelectedContact(selected = true, contact = otherContact)
+            assertEquals(setOf(contact, otherContact), viewModel.state.selectedContacts.toSet())
+            assertEquals(emptySet<Contact>(), viewModel.state.confirmedContacts.toSet())
 
-        viewModel.confirmSelectedContacts()
-        assertEquals(setOf(contact, otherContact), viewModel.state.confirmedContacts.toSet())
+            viewModel.confirmSelectedContacts()
+            assertEquals(setOf(contact, otherContact), viewModel.state.confirmedContacts.toSet())
 
-        viewModel.updateSelectedContact(selected = false, contact = otherContact)
-        assertEquals(setOf(contact), viewModel.state.selectedContacts.toSet())
+            viewModel.updateSelectedContact(selected = false, contact = otherContact)
+            assertEquals(setOf(contact), viewModel.state.selectedContacts.toSet())
 
-        viewModel.resetSelectedContacts()
-        assertEquals(setOf(contact, otherContact), viewModel.state.selectedContacts.toSet())
+            viewModel.resetSelectedContacts()
+            assertEquals(setOf(contact, otherContact), viewModel.state.selectedContacts.toSet())
+        }
     }
 
     @Test
     fun givenOverlappingGroups_whenOneIsRemoved_thenMembersFromTheOtherRemain() = runTest(dispatcher) {
-        val (_, viewModel) = arrangeViewModel()
-        val shared = contact("shared")
-        val firstOnly = contact("first-only")
-        val firstGroup = SearchGroup(ConversationId("first", "wire.com"), "First", setOf(shared, firstOnly))
-        val secondGroup = SearchGroup(ConversationId("second", "wire.com"), "Second", setOf(shared))
+        withCreationTypes { type ->
+            val (_, viewModel) = arrangeViewModel(Arrangement(dispatcher).withNewMeetingType(type))
+            val shared = contact("shared")
+            val firstOnly = contact("first-only")
+            val firstGroup = SearchGroup(ConversationId("first", "wire.com"), "First", setOf(shared, firstOnly))
+            val secondGroup = SearchGroup(ConversationId("second", "wire.com"), "Second", setOf(shared))
 
-        viewModel.updateSelectedGroup(true, firstGroup)
-        viewModel.updateSelectedGroup(true, secondGroup)
-        viewModel.updateSelectedGroup(false, firstGroup)
+            viewModel.updateSelectedGroup(true, firstGroup)
+            viewModel.updateSelectedGroup(true, secondGroup)
+            viewModel.updateSelectedGroup(false, firstGroup)
 
-        assertEquals(setOf(shared), viewModel.state.selectedContacts.toSet())
-        assertEquals(setOf(secondGroup), viewModel.state.selectedGroups.toSet())
+            assertEquals(setOf(shared), viewModel.state.selectedContacts.toSet())
+            assertEquals(setOf(secondGroup), viewModel.state.selectedGroups.toSet())
 
-        viewModel.confirmSelectedContacts()
-        viewModel.updateSelectedGroup(false, secondGroup)
-        viewModel.resetSelectedContacts()
+            viewModel.confirmSelectedContacts()
+            viewModel.updateSelectedGroup(false, secondGroup)
+            viewModel.resetSelectedContacts()
 
-        assertEquals(setOf(shared), viewModel.state.selectedContacts.toSet())
-        assertEquals(setOf(secondGroup), viewModel.state.selectedGroups.toSet())
+            assertEquals(setOf(shared), viewModel.state.selectedContacts.toSet())
+            assertEquals(setOf(secondGroup), viewModel.state.selectedGroups.toSet())
+        }
     }
 
     @Test
     fun givenIndividualAndGroupSelection_whenResetAndGroupRemoved_thenIndividualSelectionRemains() = runTest(dispatcher) {
-        val (_, viewModel) = arrangeViewModel()
-        val contact = contact("shared")
-        val group = SearchGroup(ConversationId("group", "wire.com"), "Group", setOf(contact))
+        withCreationTypes { type ->
+            val (_, viewModel) = arrangeViewModel(Arrangement(dispatcher).withNewMeetingType(type))
+            val contact = contact("shared")
+            val group = SearchGroup(ConversationId("group", "wire.com"), "Group", setOf(contact))
 
-        viewModel.updateSelectedContact(true, contact)
-        viewModel.updateSelectedGroup(true, group)
-        viewModel.confirmSelectedContacts()
-        viewModel.updateSelectedContact(false, contact)
-        viewModel.updateSelectedGroup(false, group)
-        viewModel.resetSelectedContacts()
-        viewModel.updateSelectedGroup(false, group)
+            viewModel.updateSelectedContact(true, contact)
+            viewModel.updateSelectedGroup(true, group)
+            viewModel.confirmSelectedContacts()
+            viewModel.updateSelectedContact(false, contact)
+            viewModel.updateSelectedGroup(false, group)
+            viewModel.resetSelectedContacts()
+            viewModel.updateSelectedGroup(false, group)
 
-        assertEquals(setOf(contact), viewModel.state.selectedContacts.toSet())
-        assertEquals(setOf(contact), viewModel.state.selectedIndividualContacts.toSet())
-        assertEquals(emptySet<SearchGroup>(), viewModel.state.selectedGroups.toSet())
+            assertEquals(setOf(contact), viewModel.state.selectedContacts.toSet())
+            assertEquals(setOf(contact), viewModel.state.selectedIndividualContacts.toSet())
+            assertEquals(emptySet<SearchGroup>(), viewModel.state.selectedGroups.toSet())
+        }
     }
 
     @Test
     fun givenOverlappingSelectedGroups_whenMemberIsDeselected_thenOthersRemainAsIndividualSelections() = runTest(dispatcher) {
-        val (_, viewModel) = arrangeViewModel()
-        val shared = contact("shared")
-        val firstOnly = contact("first-only")
-        val secondOnly = contact("second-only")
-        val unrelated = contact("unrelated")
-        val individual = contact("individual")
-        val firstGroup = SearchGroup(ConversationId("first", "wire.com"), "First", setOf(shared, firstOnly))
-        val secondGroup = SearchGroup(ConversationId("second", "wire.com"), "Second", setOf(shared, secondOnly))
-        val unrelatedGroup = SearchGroup(ConversationId("unrelated", "wire.com"), "Unrelated", setOf(unrelated))
-        viewModel.updateSelectedContact(true, individual)
-        viewModel.updateSelectedContact(true, shared)
-        listOf(firstGroup, secondGroup, unrelatedGroup).forEach { viewModel.updateSelectedGroup(true, it) }
+        withCreationTypes { type ->
+            val (_, viewModel) = arrangeViewModel(Arrangement(dispatcher).withNewMeetingType(type))
+            val shared = contact("shared")
+            val firstOnly = contact("first-only")
+            val secondOnly = contact("second-only")
+            val unrelated = contact("unrelated")
+            val individual = contact("individual")
+            val firstGroup = SearchGroup(ConversationId("first", "wire.com"), "First", setOf(shared, firstOnly))
+            val secondGroup = SearchGroup(ConversationId("second", "wire.com"), "Second", setOf(shared, secondOnly))
+            val unrelatedGroup = SearchGroup(ConversationId("unrelated", "wire.com"), "Unrelated", setOf(unrelated))
+            viewModel.updateSelectedContact(true, individual)
+            viewModel.updateSelectedContact(true, shared)
+            listOf(firstGroup, secondGroup, unrelatedGroup).forEach { viewModel.updateSelectedGroup(true, it) }
 
-        // The picker may hold newer contact details for the same person.
-        viewModel.updateSelectedContact(false, shared.copy(name = "Updated name"))
+            // The picker may hold newer contact details for the same person.
+            viewModel.updateSelectedContact(false, shared.copy(name = "Updated name"))
 
-        assertEquals(setOf(individual, firstOnly, secondOnly, unrelated), viewModel.state.selectedContacts.toSet())
-        assertEquals(setOf(individual, firstOnly, secondOnly), viewModel.state.selectedIndividualContacts.toSet())
-        assertEquals(setOf(unrelatedGroup), viewModel.state.selectedGroups.toSet())
+            assertEquals(setOf(individual, firstOnly, secondOnly, unrelated), viewModel.state.selectedContacts.toSet())
+            assertEquals(setOf(individual, firstOnly, secondOnly), viewModel.state.selectedIndividualContacts.toSet())
+            assertEquals(setOf(unrelatedGroup), viewModel.state.selectedGroups.toSet())
+        }
     }
 
     @Test
     fun givenGroupMemberDeselected_whenSelectionIsResetOrConfirmed_thenGroupAndContactsFollowTheConfirmation() = runTest(dispatcher) {
-        val (_, viewModel) = arrangeViewModel()
-        val removed = contact("removed")
-        val remaining = contact("remaining")
-        val group = SearchGroup(ConversationId("group", "wire.com"), "Group", setOf(removed, remaining))
-        viewModel.updateSelectedGroup(true, group)
-        viewModel.confirmSelectedContacts()
+        withCreationTypes { type ->
+            val (_, viewModel) = arrangeViewModel(Arrangement(dispatcher).withNewMeetingType(type))
+            val removed = contact("removed")
+            val remaining = contact("remaining")
+            val group = SearchGroup(ConversationId("group", "wire.com"), "Group", setOf(removed, remaining))
+            viewModel.updateSelectedGroup(true, group)
+            viewModel.confirmSelectedContacts()
 
-        viewModel.updateSelectedContact(false, removed)
-        viewModel.resetSelectedContacts()
-        assertEquals(setOf(group), viewModel.state.selectedGroups.toSet())
-        assertEquals(setOf(removed, remaining), viewModel.state.selectedContacts.toSet())
+            viewModel.updateSelectedContact(false, removed)
+            viewModel.resetSelectedContacts()
+            assertEquals(setOf(group), viewModel.state.selectedGroups.toSet())
+            assertEquals(setOf(removed, remaining), viewModel.state.selectedContacts.toSet())
 
-        viewModel.updateSelectedContact(false, removed)
-        viewModel.confirmSelectedContacts()
-        viewModel.updateSelectedGroup(true, group)
-        viewModel.resetSelectedContacts()
-        assertEquals(emptySet<SearchGroup>(), viewModel.state.selectedGroups.toSet())
-        assertEquals(setOf(remaining), viewModel.state.selectedContacts.toSet())
-        assertEquals(setOf(remaining), viewModel.state.confirmedContacts.toSet())
+            viewModel.updateSelectedContact(false, removed)
+            viewModel.confirmSelectedContacts()
+            viewModel.updateSelectedGroup(true, group)
+            viewModel.resetSelectedContacts()
+            assertEquals(emptySet<SearchGroup>(), viewModel.state.selectedGroups.toSet())
+            assertEquals(setOf(remaining), viewModel.state.selectedContacts.toSet())
+            assertEquals(setOf(remaining), viewModel.state.confirmedContacts.toSet())
+        }
     }
 
     @Test
     fun givenRepeatingInterval_whenIntervalIsUpdated_thenStateIsUpdated() = runTest(dispatcher) {
-        val (_, viewModel) = arrangeViewModel()
+        val (_, viewModel) = arrangeViewModel(Arrangement(dispatcher).withNewMeetingType(NewMeetingType.Schedule))
 
         viewModel.updateRepeatingInterval(MeetingItem.RepeatingInterval.Supported.first())
 
@@ -238,47 +253,59 @@ class NewMeetingViewModelTest {
 
     @Test
     fun givenInitialEmptyTitle_whenViewModelIsCreated_thenTitleErrorIsNotShownAndContinueIsDisabled() = runTest(dispatcher) {
-        val (_, viewModel) = arrangeViewModel()
+        withCreationTypes { type ->
+            val (_, viewModel) = arrangeViewModel(Arrangement(dispatcher).withNewMeetingType(type))
 
-        assertNull(viewModel.state.titleError)
-        assertFalse(viewModel.state.continueButtonEnabled)
+            assertNull(viewModel.state.titleError)
+            assertFalse(viewModel.state.continueButtonEnabled)
+        }
     }
 
     @Test
     fun givenValidTitle_whenTitleChanges_thenContinueIsEnabled() = runTest(dispatcher) {
-        val (_, viewModel) = arrangeViewModel()
+        withCreationTypes { type ->
+            val (_, viewModel) = arrangeViewModel(Arrangement(dispatcher).withNewMeetingType(type))
 
-        enterTitle(viewModel, "Weekly sync")
+            enterTitle(viewModel, "Weekly sync")
 
-        assertNull(viewModel.state.titleError)
-        assertEquals(true, viewModel.state.continueButtonEnabled)
+            assertNull(viewModel.state.titleError)
+            assertEquals(true, viewModel.state.continueButtonEnabled)
+        }
     }
 
     @Test
     fun givenTitleIsClearedAfterInput_whenTitleChanges_thenEmptyTitleErrorIsShown() = runTest(dispatcher) {
-        val (_, viewModel) = arrangeViewModel()
+        withCreationTypes { type ->
+            val (_, viewModel) = arrangeViewModel(Arrangement(dispatcher).withNewMeetingType(type))
 
-        enterTitle(viewModel, "Weekly sync")
-        enterTitle(viewModel, "")
+            enterTitle(viewModel, "Weekly sync")
+            enterTitle(viewModel, "")
 
-        assertEquals(NewMeetingState.TitleError.TitleEmptyError, viewModel.state.titleError)
-        assertFalse(viewModel.state.continueButtonEnabled)
+            assertEquals(NewMeetingState.TitleError.TitleEmptyError, viewModel.state.titleError)
+            assertFalse(viewModel.state.continueButtonEnabled)
+        }
     }
 
     @Test
     fun givenTitleExceedsLimit_whenTitleChanges_thenTitleExceedsLimitErrorIsShown() = runTest(dispatcher) {
-        val (_, viewModel) = arrangeViewModel()
+        withCreationTypes { type ->
+            val (_, viewModel) = arrangeViewModel(Arrangement(dispatcher).withNewMeetingType(type))
 
-        enterTitle(viewModel, "a".repeat(NewMeetingViewModel.MEETING_NAME_MAX_COUNT + 1))
+            enterTitle(viewModel, "a".repeat(NewMeetingViewModel.MEETING_NAME_MAX_COUNT + 1))
 
-        assertEquals(NewMeetingState.TitleError.TitleExceedsLimitError, viewModel.state.titleError)
-        assertFalse(viewModel.state.continueButtonEnabled)
+            assertEquals(NewMeetingState.TitleError.TitleExceedsLimitError, viewModel.state.titleError)
+            assertFalse(viewModel.state.continueButtonEnabled)
+        }
     }
 
     @Test
     fun givenStartTimeInPast_whenStartTimeChanges_thenStartTimeInPastErrorIsShown() = runTest(dispatcher) {
         val currentTime = Instant.parse("2026-01-01T12:00:00Z")
-        val (_, viewModel) = arrangeViewModel(Arrangement(dispatcher).withCurrentTimeProvider { currentTime })
+        val (_, viewModel) = arrangeViewModel(
+            Arrangement(dispatcher)
+                .withNewMeetingType(NewMeetingType.Schedule)
+                .withCurrentTimeProvider { currentTime }
+        )
 
         enterTitle(viewModel, "Weekly sync")
         viewModel.updateStartTime(currentTime - 1.hours)
@@ -292,7 +319,11 @@ class NewMeetingViewModelTest {
     fun givenStartTimeChanges_whenEndTimeFitsSameDay_thenEndTimeKeepsCurrentDuration() = runTest(dispatcher) {
         val currentTime = Instant.parse("2026-01-01T12:00:00Z")
         val newStartTime = currentTime + 3.hours
-        val (_, viewModel) = arrangeViewModel(Arrangement(dispatcher).withCurrentTimeProvider { currentTime })
+        val (_, viewModel) = arrangeViewModel(
+            Arrangement(dispatcher)
+                .withNewMeetingType(NewMeetingType.Schedule)
+                .withCurrentTimeProvider { currentTime }
+        )
 
         viewModel.updateStartTime(newStartTime)
 
@@ -306,7 +337,11 @@ class NewMeetingViewModelTest {
         val currentTime = LocalDateTime(2026, 1, 1, 12, 0).toInstant(timeZone)
         val newStartTime = LocalDateTime(2026, 1, 1, 23, 30).toInstant(timeZone)
         val latestEndTime = LocalDateTime(2026, 1, 1, 23, 59).toInstant(timeZone)
-        val (_, viewModel) = arrangeViewModel(Arrangement(dispatcher).withCurrentTimeProvider { currentTime })
+        val (_, viewModel) = arrangeViewModel(
+            Arrangement(dispatcher)
+                .withNewMeetingType(NewMeetingType.Schedule)
+                .withCurrentTimeProvider { currentTime }
+        )
 
         viewModel.updateStartTime(newStartTime)
 
@@ -318,7 +353,11 @@ class NewMeetingViewModelTest {
     @Test
     fun givenEndTimeInPast_whenEndTimeChanges_thenEndTimeInPastErrorIsShown() = runTest(dispatcher) {
         val currentTime = Instant.parse("2026-01-01T12:00:00Z")
-        val (_, viewModel) = arrangeViewModel(Arrangement(dispatcher).withCurrentTimeProvider { currentTime })
+        val (_, viewModel) = arrangeViewModel(
+            Arrangement(dispatcher)
+                .withNewMeetingType(NewMeetingType.Schedule)
+                .withCurrentTimeProvider { currentTime }
+        )
 
         enterTitle(viewModel, "Weekly sync")
         viewModel.updateEndTime(currentTime - 1.hours)
@@ -358,7 +397,11 @@ class NewMeetingViewModelTest {
     @Test
     fun givenEndTimeBeforeStartTime_whenEndTimeChanges_thenEndTimeBeforeStartTimeErrorIsShown() = runTest(dispatcher) {
         val currentTime = Instant.parse("2026-01-01T12:00:00Z")
-        val (_, viewModel) = arrangeViewModel(Arrangement(dispatcher).withCurrentTimeProvider { currentTime })
+        val (_, viewModel) = arrangeViewModel(
+            Arrangement(dispatcher)
+                .withNewMeetingType(NewMeetingType.Schedule)
+                .withCurrentTimeProvider { currentTime }
+        )
 
         enterTitle(viewModel, "Weekly sync")
         viewModel.updateStartTime(currentTime + 2.hours)
@@ -372,7 +415,11 @@ class NewMeetingViewModelTest {
     @Test
     fun givenInvalidTimesBecomeValid_whenTimesChange_thenErrorsAreClearedAndContinueIsEnabled() = runTest(dispatcher) {
         val currentTime = Instant.parse("2026-01-01T12:00:00Z")
-        val (_, viewModel) = arrangeViewModel(Arrangement(dispatcher).withCurrentTimeProvider { currentTime })
+        val (_, viewModel) = arrangeViewModel(
+            Arrangement(dispatcher)
+                .withNewMeetingType(NewMeetingType.Schedule)
+                .withCurrentTimeProvider { currentTime }
+        )
 
         enterTitle(viewModel, "Weekly sync")
         viewModel.updateStartTime(currentTime + 2.hours)
@@ -394,7 +441,7 @@ class NewMeetingViewModelTest {
             Arrangement(dispatcher)
                 .withNewMeetingType(NewMeetingType.MeetNow)
                 .withCurrentTimeProvider { currentTime }
-                .withCreateMeetingResult(CreateNewMeetingUseCase.Result.Success(createdConversationId))
+                .withCreateMeetingResult(CreateNewMeetingUseCase.Result.Success(createdConversationId, CREATED_MEETING_ID))
         )
 
         enterTitle(viewModel, "  Quick sync  ")
@@ -420,7 +467,7 @@ class NewMeetingViewModelTest {
             assertEquals(currentTime + 1.hours, viewModel.state.endTime)
             assertFalse(viewModel.state.isSubmitting)
             assertNull(viewModel.state.submitError)
-            assertEquals(NewMeetingViewActions.Success(conversationIdToStartACall = createdConversationId), awaitItem())
+            assertEquals(NewMeetingViewActions.Success(NewMeetingResult.MeetNow(CREATED_MEETING_ID, createdConversationId)), awaitItem())
             expectNoEvents()
         }
     }
@@ -433,7 +480,7 @@ class NewMeetingViewModelTest {
             Arrangement(dispatcher)
                 .withNewMeetingType(NewMeetingType.Schedule)
                 .withCurrentTimeProvider { currentTime }
-                .withCreateMeetingResult(CreateNewMeetingUseCase.Result.Success(ConversationId("conversation-id", "domain")))
+                .withCreateMeetingResult(CreateNewMeetingUseCase.Result.Success(CONVERSATION_ID, CREATED_MEETING_ID))
         )
         enterTitle(viewModel, createMeeting.title)
         viewModel.updateStartTime(createMeeting.startTime)
@@ -451,30 +498,103 @@ class NewMeetingViewModelTest {
             coVerify(exactly = 1) { arrangement.createNewMeeting(createMeeting) }
             assertFalse(viewModel.state.isSubmitting)
             assertNull(viewModel.state.submitError)
-            assertEquals(NewMeetingViewActions.Success(conversationIdToStartACall = null), awaitItem())
+            assertEquals(NewMeetingViewActions.Success(NewMeetingResult.Scheduled(CREATED_MEETING_ID)), awaitItem())
+            expectNoEvents()
+        }
+    }
+
+    @Test
+    fun givenScheduledMeeting_whenCreated_thenResultCarriesMeetingId() = runTest(dispatcher) {
+        val (_, viewModel) = arrangeViewModel(
+            Arrangement(dispatcher)
+                .withNewMeetingType(NewMeetingType.Schedule)
+                .withCreateMeetingResult(CreateNewMeetingUseCase.Result.Success(CONVERSATION_ID, CREATED_MEETING_ID))
+        )
+        enterTitle(viewModel, "Planning")
+        viewModel.actions.test {
+            viewModel.submitCreation()
+            advanceUntilIdle()
+            assertEquals(
+                NewMeetingViewActions.Success(NewMeetingResult.Scheduled(CREATED_MEETING_ID)),
+                awaitItem()
+            )
+            expectNoEvents()
+        }
+    }
+
+    @Test
+    fun givenGuestLinksDisabled_whenCreated_thenConfirmationIsStillEmitted() = runTest(dispatcher) {
+        val (_, viewModel) = arrangeViewModel(
+            Arrangement(dispatcher)
+                .withNewMeetingType(NewMeetingType.Schedule)
+                .withMeetingsGuestsLinksEnabled(false)
+                .withGuestLinkSharingEnabled(false)
+                .withCreateMeetingResult(CreateNewMeetingUseCase.Result.Success(CONVERSATION_ID, CREATED_MEETING_ID))
+        )
+        enterTitle(viewModel, "Planning")
+        viewModel.actions.test {
+            viewModel.submitCreation()
+            advanceUntilIdle()
+            assertEquals(NewMeetingViewActions.Success(NewMeetingResult.Scheduled(CREATED_MEETING_ID)), awaitItem())
             expectNoEvents()
         }
     }
 
     @Test
     fun givenCreationFails_whenSubmitCreationIsCalled_thenErrorIsShownAndSuccessActionIsNotSent() = runTest(dispatcher) {
-        val (arrangement, viewModel) = arrangeViewModel(
-            Arrangement(dispatcher)
-                .withNewMeetingType(NewMeetingType.MeetNow)
-                .withCreateMeetingResult(CreateNewMeetingUseCase.Result.Failure)
-        )
+        withCreationTypes { type ->
+            val (arrangement, viewModel) = arrangeViewModel(
+                Arrangement(dispatcher)
+                    .withNewMeetingType(type)
+                    .withCreateMeetingResult(CreateNewMeetingUseCase.Result.Failure)
+            )
 
-        enterTitle(viewModel, "Weekly sync")
+            enterTitle(viewModel, "Weekly sync")
 
-        viewModel.actions.test {
+            viewModel.actions.test {
+                viewModel.submitCreation()
+                advanceUntilIdle()
+
+                coVerify(exactly = 1) { arrangement.createNewMeeting(any()) }
+                expectNoEvents()
+                assertFalse(viewModel.state.isSubmitting)
+                assertEquals(true, viewModel.state.continueButtonEnabled)
+                assertEquals(NewMeetingState.SubmitError.Other, viewModel.state.submitError)
+            }
+        }
+    }
+
+    @Test
+    fun givenConfirmedParticipants_whenSubmittingCreation_thenOnlyConfirmedContactsArePassedWithoutDuplicates() = runTest(dispatcher) {
+        withCreationTypes { type ->
+            val shared = contact("shared")
+            val other = contact("other")
+            val removed = contact("removed")
+            val unconfirmed = contact("unconfirmed")
+            val group = SearchGroup(ConversationId("group", "wire.com"), "Group", setOf(shared, other, removed))
+            val (arrangement, viewModel) = arrangeViewModel(
+                Arrangement(dispatcher)
+                    .withNewMeetingType(type)
+                    .withCreateMeetingResult(CreateNewMeetingUseCase.Result.Success(CONVERSATION_ID, CREATED_MEETING_ID))
+            )
+            enterTitle(viewModel, "  Weekly sync  ")
+            viewModel.updateSelectedContact(true, shared)
+            viewModel.updateSelectedGroup(true, group)
+            viewModel.updateSelectedContact(false, removed)
+            viewModel.confirmSelectedContacts()
+            viewModel.updateSelectedContact(true, unconfirmed)
+
             viewModel.submitCreation()
             advanceUntilIdle()
 
-            coVerify(exactly = 1) { arrangement.createNewMeeting(any()) }
-            expectNoEvents()
-            assertFalse(viewModel.state.isSubmitting)
-            assertEquals(true, viewModel.state.continueButtonEnabled)
-            assertEquals(NewMeetingState.SubmitError.Other, viewModel.state.submitError)
+            coVerify(exactly = 1) {
+                arrangement.createNewMeeting(
+                    match {
+                        it.title == "Weekly sync" && it.otherParticipants.size == 2 &&
+                                it.otherParticipants.toSet() == setOf(UserId(shared.id, shared.domain), UserId(other.id, other.domain))
+                    }
+                )
+            }
         }
     }
 
@@ -483,7 +603,7 @@ class NewMeetingViewModelTest {
         val currentTime = Instant.parse("2026-01-01T12:00:00Z")
         val contact = contact("contact-1")
         val updateMeeting = UPDATE_MEETING.copy(startTime = currentTime + 2.hours, endTime = currentTime + 3.hours)
-        val editType = NewMeetingType.Edit(MeetingId("meeting-id", "domain"))
+        val editType = NewMeetingType.Edit(CREATED_MEETING_ID)
         val nextOccurrence = MEETING_OCCURRENCE.copy(
             meeting = MEETING_OCCURRENCE.meeting.copy(
                 startTime = currentTime + 1.hours,
@@ -516,7 +636,7 @@ class NewMeetingViewModelTest {
             verify(exactly = 0) { arrangement.validatePassword(any()) }
             assertFalse(viewModel.state.isSubmitting)
             assertNull(viewModel.state.submitError)
-            assertEquals(NewMeetingViewActions.Success(), awaitItem())
+            assertEquals(NewMeetingViewActions.Success(NewMeetingResult.Updated), awaitItem())
             cancelAndConsumeRemainingEvents()
         }
     }
@@ -551,7 +671,7 @@ class NewMeetingViewModelTest {
             val currentTime = Instant.parse("2026-01-01T12:00:00Z")
             val pastStartTime = currentTime - 3.hours
             val pastEndTime = currentTime - 2.hours
-            val editType = NewMeetingType.Edit(MeetingId("meeting-id", "domain"))
+            val editType = NewMeetingType.Edit(CREATED_MEETING_ID)
             val nextOccurrence = MEETING_OCCURRENCE.copy(
                 meeting = MEETING_OCCURRENCE.meeting.copy(
                     startTime = currentTime + 1.hours,
@@ -591,7 +711,7 @@ class NewMeetingViewModelTest {
                 assertNull(viewModel.state.endTimeError)
                 assertFalse(viewModel.state.isSubmitting)
                 assertNull(viewModel.state.submitError)
-                assertEquals(NewMeetingViewActions.Success(), awaitItem())
+                assertEquals(NewMeetingViewActions.Success(NewMeetingResult.Updated), awaitItem())
                 cancelAndConsumeRemainingEvents()
             }
         }
@@ -599,7 +719,7 @@ class NewMeetingViewModelTest {
     @Test
     fun givenEditionFails_whenSubmitUpdateIsCalled_thenErrorIsShownAndSuccessActionIsNotSent() = runTest(dispatcher) {
         val currentTime = Instant.parse("2026-01-01T12:00:00Z")
-        val editType = NewMeetingType.Edit(MeetingId("meeting-id", "domain"))
+        val editType = NewMeetingType.Edit(CREATED_MEETING_ID)
         val nextOccurrence = MEETING_OCCURRENCE.copy(
             meeting = MEETING_OCCURRENCE.meeting.copy(
                 startTime = currentTime + 1.hours,
@@ -633,7 +753,7 @@ class NewMeetingViewModelTest {
     @Test
     fun givenConversationNameEditionFails_whenSubmitUpdateIsCalled_thenErrorIsShownAndSuccessActionIsNotSent() = runTest(dispatcher) {
         val currentTime = Instant.parse("2026-01-01T12:00:00Z")
-        val editType = NewMeetingType.Edit(MeetingId("meeting-id", "domain"))
+        val editType = NewMeetingType.Edit(CREATED_MEETING_ID)
         val nextOccurrence = MEETING_OCCURRENCE.copy(
             meeting = MEETING_OCCURRENCE.meeting.copy(
                 startTime = currentTime + 1.hours,
@@ -674,7 +794,7 @@ class NewMeetingViewModelTest {
     fun givenUpdateActionReturnsUpdateConversationNameFailure_whenSubmitUpdateIsCalled_thenReturnedConversationErrorIsShown() =
         runTest(dispatcher) {
             val currentTime = Instant.parse("2026-01-01T12:00:00Z")
-            val editType = NewMeetingType.Edit(MeetingId("meeting-id", "domain"))
+            val editType = NewMeetingType.Edit(CREATED_MEETING_ID)
             val nextOccurrence = MEETING_OCCURRENCE.copy(
                 meeting = MEETING_OCCURRENCE.meeting.copy(
                     startTime = currentTime + 1.hours,
@@ -733,7 +853,7 @@ class NewMeetingViewModelTest {
                 )
             }
             assertNull(viewModel.state.submitError)
-            assertEquals(NewMeetingViewActions.Success(), awaitItem())
+            assertEquals(NewMeetingViewActions.Success(NewMeetingResult.Updated), awaitItem())
             cancelAndConsumeRemainingEvents()
         }
     }
@@ -770,17 +890,19 @@ class NewMeetingViewModelTest {
 
     @Test
     fun givenInvalidTitle_whenSubmitCreationIsCalled_thenTitleErrorIsShownAndSuccessActionIsNotSent() = runTest(dispatcher) {
-        val (arrangement, viewModel) = arrangeViewModel()
+        withCreationTypes { type ->
+            val (arrangement, viewModel) = arrangeViewModel(Arrangement(dispatcher).withNewMeetingType(type))
 
-        viewModel.actions.test {
-            viewModel.submitCreation()
-            advanceUntilIdle()
+            viewModel.actions.test {
+                viewModel.submitCreation()
+                advanceUntilIdle()
 
-            coVerify(exactly = 0) { arrangement.createNewMeeting(any()) }
-            coVerify(exactly = 0) { arrangement.updateMeeting(any(), any()) }
-            expectNoEvents()
-            assertEquals(NewMeetingState.TitleError.TitleEmptyError, viewModel.state.titleError)
-            assertFalse(viewModel.state.continueButtonEnabled)
+                coVerify(exactly = 0) { arrangement.createNewMeeting(any()) }
+                coVerify(exactly = 0) { arrangement.updateMeeting(any(), any()) }
+                expectNoEvents()
+                assertEquals(NewMeetingState.TitleError.TitleEmptyError, viewModel.state.titleError)
+                assertFalse(viewModel.state.continueButtonEnabled)
+            }
         }
     }
 
@@ -871,7 +993,7 @@ class NewMeetingViewModelTest {
     @Test
     fun givenEditTypeAndNextOccurrenceDoesNotExist_whenViewModelIsCreated_thenStateStopsLoadingWithInitialTimes() = runTest(dispatcher) {
         val currentTime = Instant.parse("2026-01-01T12:00:00Z")
-        val editType = NewMeetingType.Edit(MeetingId("meeting-id", "domain"))
+        val editType = NewMeetingType.Edit(CREATED_MEETING_ID)
         val (arrangement, viewModel) = arrangeViewModel(
             Arrangement(dispatcher)
                 .withNewMeetingType(editType)
@@ -890,7 +1012,7 @@ class NewMeetingViewModelTest {
     @Test
     fun givenEditTypeAndNextOccurrenceLoadFails_whenViewModelIsCreated_thenInitialLoadingStateIsError() = runTest(dispatcher) {
         val currentTime = Instant.parse("2026-01-01T12:00:00Z")
-        val editType = NewMeetingType.Edit(MeetingId("meeting-id", "domain"))
+        val editType = NewMeetingType.Edit(CREATED_MEETING_ID)
         val (arrangement, viewModel) = arrangeViewModel(
             Arrangement(dispatcher)
                 .withNewMeetingType(editType)
@@ -904,33 +1026,40 @@ class NewMeetingViewModelTest {
 
     @Test
     fun givenLocalTimeZone_whenSubmitCreationIsCalled_thenCurrentLocalTzidIsPassed() = runTest(dispatcher) {
-        val currentTime = Instant.parse("2026-01-01T12:00:00Z")
-        val localTimeZoneID = "Europe/Berlin"
-        val createMeeting = CREATE_MEETING.copy(
-            startTime = currentTime + 2.hours,
-            endTime = currentTime + 3.hours,
-            tzid = localTimeZoneID,
-            recurrence = null,
-            otherParticipants = emptyList()
-        )
-        val (arrangement, viewModel) = arrangeViewModel(
-            Arrangement(dispatcher)
-                .withNewMeetingType(NewMeetingType.Schedule)
-                .withCurrentTimeProvider { currentTime }
-                .withCurrentTimeZone(localTimeZoneID)
-                .withCreateMeetingResult(CreateNewMeetingUseCase.Result.Success(ConversationId("conversation-id", "domain")))
-        )
-        enterTitle(viewModel, createMeeting.title)
-        viewModel.updateStartTime(createMeeting.startTime)
-        viewModel.updateEndTime(createMeeting.endTime)
+        withCreationTypes { type ->
+            val currentTime = Instant.parse("2026-01-01T12:00:00Z")
+            val localTimeZoneID = "Europe/Berlin"
+            val createMeeting = CREATE_MEETING.copy(
+                startTime = if (type == NewMeetingType.MeetNow) currentTime else currentTime + 2.hours,
+                endTime = if (type == NewMeetingType.MeetNow) currentTime + 1.hours else currentTime + 3.hours,
+                tzid = localTimeZoneID,
+                recurrence = null,
+                type = if (type == NewMeetingType.MeetNow) Meeting.Type.IMMEDIATE else Meeting.Type.SCHEDULED,
+                otherParticipants = emptyList()
+            )
+            val (arrangement, viewModel) = arrangeViewModel(
+                Arrangement(dispatcher)
+                    .withNewMeetingType(type)
+                    .withCurrentTimeProvider { currentTime }
+                    .withCurrentTimeZone(localTimeZoneID)
+                    .withCreateMeetingResult(CreateNewMeetingUseCase.Result.Success(CONVERSATION_ID, CREATED_MEETING_ID))
+            )
+            enterTitle(viewModel, createMeeting.title)
+            viewModel.updateStartTime(createMeeting.startTime)
+            viewModel.updateEndTime(createMeeting.endTime)
 
-        viewModel.actions.test {
-            viewModel.submitCreation()
-            advanceUntilIdle()
+            viewModel.actions.test {
+                viewModel.submitCreation()
+                advanceUntilIdle()
 
-            coVerify(exactly = 1) { arrangement.createNewMeeting(createMeeting) }
-            assertEquals(NewMeetingViewActions.Success(), awaitItem())
-            cancelAndConsumeRemainingEvents()
+                coVerify(exactly = 1) { arrangement.createNewMeeting(createMeeting) }
+                val expectedResult = when (type) {
+                    NewMeetingType.MeetNow -> NewMeetingResult.MeetNow(CREATED_MEETING_ID, CONVERSATION_ID)
+                    else -> NewMeetingResult.Scheduled(CREATED_MEETING_ID)
+                }
+                assertEquals(NewMeetingViewActions.Success(expectedResult), awaitItem())
+                cancelAndConsumeRemainingEvents()
+            }
         }
     }
 
@@ -986,7 +1115,7 @@ class NewMeetingViewModelTest {
                 advanceUntilIdle()
 
                 coVerify(exactly = 1) { arrangement.updateMeeting(editType.id, updateMeeting) }
-                assertEquals(NewMeetingViewActions.Success(), awaitItem())
+                assertEquals(NewMeetingViewActions.Success(NewMeetingResult.Updated), awaitItem())
                 cancelAndConsumeRemainingEvents()
             }
         }
@@ -1022,7 +1151,7 @@ class NewMeetingViewModelTest {
                 advanceUntilIdle()
 
                 coVerify(exactly = 1) { arrangement.updateMeeting(editType.id, updateMeeting) }
-                assertEquals(NewMeetingViewActions.Success(), awaitItem())
+                assertEquals(NewMeetingViewActions.Success(NewMeetingResult.Updated), awaitItem())
                 cancelAndConsumeRemainingEvents()
             }
         }
@@ -1058,210 +1187,68 @@ class NewMeetingViewModelTest {
                 advanceUntilIdle()
 
                 coVerify(exactly = 1) { arrangement.updateMeeting(editType.id, updateMeeting) }
-                assertEquals(NewMeetingViewActions.Success(), awaitItem())
+                assertEquals(NewMeetingViewActions.Success(NewMeetingResult.Updated), awaitItem())
                 cancelAndConsumeRemainingEvents()
             }
         }
 
     @Test
-    fun givenEmptySchedulePassword_whenSubmitting_thenValidationIsSkippedAndNullIsPassed() = runTest(dispatcher) {
-        val (arrangement, viewModel) = arrangeViewModel(
-            Arrangement(dispatcher)
-                .withNewMeetingType(NewMeetingType.Schedule)
-                .withCreateMeetingResult(CreateNewMeetingUseCase.Result.Success(ConversationId("meeting", "domain")))
-        )
-        enterTitle(viewModel, "Weekly sync")
-
-        viewModel.submitCreation()
-        advanceUntilIdle()
-
-        verify(exactly = 0) { arrangement.validatePassword(any()) }
-        coVerify(exactly = 1) { arrangement.createNewMeeting(match { it.password == null }) }
-        assertFalse(viewModel.state.invalidPassword)
-    }
-
-    @Test
-    fun givenValidSchedulePassword_whenSubmitting_thenExactPasswordIsPassed() = runTest(dispatcher) {
-        val password = " ValidPassword1! "
-        val (arrangement, viewModel) = arrangeViewModel(
-            Arrangement(dispatcher)
-                .withNewMeetingType(NewMeetingType.Schedule)
-                .withPasswordValidationResult(password, ValidatePasswordResult.Valid)
-                .withCreateMeetingResult(CreateNewMeetingUseCase.Result.Success(ConversationId("meeting", "domain")))
-        )
-        enterTitle(viewModel, "Weekly sync")
-        viewModel.passwordTextState.setTextAndPlaceCursorAtEnd(password)
-        viewModel.confirmPasswordTextState.setTextAndPlaceCursorAtEnd(password)
-        advanceUntilIdle()
-
-        viewModel.submitCreation()
-        advanceUntilIdle()
-
-        verify(exactly = 1) { arrangement.validatePassword(password) }
-        coVerify(exactly = 1) { arrangement.createNewMeeting(match { it.password == password }) }
-        assertFalse(viewModel.state.invalidPassword)
-    }
-
-    @Test
-    fun givenInvalidSchedulePassword_whenSubmitting_thenCreationIsBlocked() = runTest(dispatcher) {
-        val (arrangement, viewModel) = arrangeViewModel(
-            Arrangement(dispatcher)
-                .withNewMeetingType(NewMeetingType.Schedule)
-                .withPasswordValidationResult("invalid", ValidatePasswordResult.Invalid())
-        )
-        enterTitle(viewModel, "Weekly sync")
-        viewModel.passwordTextState.setTextAndPlaceCursorAtEnd("invalid")
-        advanceUntilIdle()
-
-        viewModel.submitCreation()
-        advanceUntilIdle()
-        enterTitle(viewModel, "Updated title")
-        viewModel.updateEndTime(viewModel.state.endTime + 1.hours)
-
-        assertEquals(true, viewModel.state.invalidPassword)
-        assertFalse(viewModel.state.continueButtonEnabled)
-        coVerify(exactly = 0) { arrangement.createNewMeeting(any()) }
-    }
-
-    @Test
-    fun givenInvalidSchedulePassword_whenCleared_thenErrorIsClearedAndMeetingCanBeCreatedWithoutPassword() = runTest(dispatcher) {
-        val (arrangement, viewModel) = arrangeViewModel(
-            Arrangement(dispatcher)
-                .withNewMeetingType(NewMeetingType.Schedule)
-                .withPasswordValidationResult("invalid", ValidatePasswordResult.Invalid())
-                .withCreateMeetingResult(CreateNewMeetingUseCase.Result.Success(ConversationId("meeting", "domain")))
-        )
-        enterTitle(viewModel, "Weekly sync")
-        viewModel.passwordTextState.setTextAndPlaceCursorAtEnd("invalid")
-        advanceUntilIdle()
-        viewModel.submitCreation()
-        advanceUntilIdle()
-
-        viewModel.passwordTextState.setTextAndPlaceCursorAtEnd("")
-        advanceUntilIdle()
-
-        assertFalse(viewModel.state.invalidPassword)
-        assertEquals(true, viewModel.state.continueButtonEnabled)
-        viewModel.submitCreation()
-        advanceUntilIdle()
-        verify(exactly = 1) { arrangement.validatePassword(any()) }
-        coVerify(exactly = 1) { arrangement.createNewMeeting(match { it.password == null }) }
-    }
-
-    @Test
-    fun givenScheduleType_whenGeneratingPassword_thenGeneratedPasswordIsUsedForCreation() = runTest(dispatcher) {
-        val password = "Abc123!@"
-        val (arrangement, viewModel) = arrangeViewModel(
-            Arrangement(dispatcher)
-                .withNewMeetingType(NewMeetingType.Schedule)
-                .withGeneratedPassword(password)
-                .withPasswordValidationResult(password, ValidatePasswordResult.Valid)
-                .withCreateMeetingResult(CreateNewMeetingUseCase.Result.Success(ConversationId("meeting", "domain")))
-        )
-        enterTitle(viewModel, "Weekly sync")
-
-        viewModel.onGenerateRandomPassword()
-        advanceUntilIdle()
-        assertEquals(password, viewModel.passwordTextState.text.toString())
-        assertEquals(password, viewModel.confirmPasswordTextState.text.toString())
-        viewModel.submitCreation()
-        advanceUntilIdle()
-
-        verify(exactly = 1) { arrangement.generatePassword(minLength = 8, maxLength = 8) }
-        coVerify(exactly = 1) { arrangement.createNewMeeting(match { it.password == password }) }
-    }
-
-    @Test
-    fun givenMeetNowTypeWithPassword_whenSubmitting_thenPasswordIsIgnored() = runTest(dispatcher) {
-        val (arrangement, viewModel) = arrangeViewModel(
-            Arrangement(dispatcher)
-                .withCreateMeetingResult(CreateNewMeetingUseCase.Result.Success(ConversationId("meeting", "domain")))
-        )
-        enterTitle(viewModel, "Quick sync")
-        viewModel.passwordTextState.setTextAndPlaceCursorAtEnd("invalid")
-
-        viewModel.submitCreation()
-        advanceUntilIdle()
-
-        verify(exactly = 0) { arrangement.validatePassword(any()) }
-        coVerify(exactly = 1) { arrangement.createNewMeeting(match { it.password == null }) }
-    }
-
-    @Test
-    fun givenMeetNowOrEditType_whenGeneratingPassword_thenPasswordIsNotGenerated() = runTest(dispatcher) {
-        listOf(NewMeetingType.MeetNow, NewMeetingType.Edit(MeetingId("meeting", "domain"))).forEach { type ->
-            val (arrangement, viewModel) = arrangeViewModel(Arrangement(dispatcher).withNewMeetingType(type))
-
-            viewModel.onGenerateRandomPassword()
-
-            verify(exactly = 0) { arrangement.generatePassword(any(), any()) }
-            assertEquals("", viewModel.passwordTextState.text.toString())
-        }
-    }
-
-    @Test
-    fun givenGuestLinksDisabled_whenSubmittingSchedule_thenPasswordIsIgnored() = runTest(dispatcher) {
-        listOf(false to true, true to false).forEach { (buildFlag, guestLinkSupport) ->
+    fun givenEmptyPassword_whenSubmitting_thenValidationIsSkippedAndNullIsPassed() = runTest(dispatcher) {
+        withCreationTypes { type ->
+            val expectedType = if (type == NewMeetingType.MeetNow) Meeting.Type.IMMEDIATE else Meeting.Type.SCHEDULED
             val (arrangement, viewModel) = arrangeViewModel(
                 Arrangement(dispatcher)
-                    .withNewMeetingType(NewMeetingType.Schedule)
-                    .withMeetingsGuestsLinksEnabled(buildFlag)
-                    .withGuestLinkSharingEnabled(guestLinkSupport)
-                    .withCreateMeetingResult(CreateNewMeetingUseCase.Result.Success(ConversationId("meeting", "domain")))
+                    .withNewMeetingType(type)
+                    .withCreateMeetingResult(CreateNewMeetingUseCase.Result.Success(CONVERSATION_ID, CREATED_MEETING_ID))
             )
             enterTitle(viewModel, "Weekly sync")
-            viewModel.passwordTextState.setTextAndPlaceCursorAtEnd("hidden password")
-            advanceUntilIdle()
 
-            viewModel.onGenerateRandomPassword()
             viewModel.submitCreation()
             advanceUntilIdle()
 
-            assertFalse(viewModel.state.isGuestLinkSharingEnabled)
-            assertFalse(viewModel.state.invalidPassword)
-            verify(exactly = 0) { arrangement.generatePassword(any(), any()) }
             verify(exactly = 0) { arrangement.validatePassword(any()) }
-            coVerify(exactly = 1) { arrangement.createNewMeeting(match { it.password == null }) }
+            coVerify(exactly = 1) { arrangement.createNewMeeting(match { it.password == null && it.type == expectedType }) }
+            assertFalse(viewModel.state.hasPasswordError)
         }
     }
 
     @Test
-    fun givenGuestLinksEnabledInitially_whenSubmitting_thenAvailabilityIsNotCheckedAgain() = runTest(dispatcher) {
-        val password = "ValidPassword1!"
-        val (arrangement, viewModel) = arrangeViewModel(
-            Arrangement(dispatcher)
-                .withNewMeetingType(NewMeetingType.Schedule)
-                .withPasswordValidationResult(password, ValidatePasswordResult.Valid)
-                .withCreateMeetingResult(CreateNewMeetingUseCase.Result.Success(ConversationId("meeting", "domain")))
-        )
-        assertEquals(true, viewModel.state.isGuestLinkSharingEnabled)
-        assertEquals(NewMeetingState.InitialLoadingState.Loaded, viewModel.state.initialLoading)
-        arrangement.withGuestLinkSharingEnabled(false)
-        enterTitle(viewModel, "Weekly sync")
-        viewModel.passwordTextState.setTextAndPlaceCursorAtEnd(password)
-        viewModel.confirmPasswordTextState.setTextAndPlaceCursorAtEnd(password)
-        advanceUntilIdle()
-
-        viewModel.submitCreation()
-        advanceUntilIdle()
-
-        assertEquals(true, viewModel.state.isGuestLinkSharingEnabled)
-        coVerify(exactly = 1) { arrangement.isMeetingsEnabledUseCase.isGuestLinkSharingEnabled() }
-        coVerify(exactly = 1) { arrangement.createNewMeeting(match { it.password == password }) }
-    }
-
-    @Test
-    fun givenMissingOrMismatchedConfirmation_whenSubmitting_thenCreationIsBlocked() = runTest(dispatcher) {
-        val password = "ValidPassword1!"
-        listOf("", "DifferentPassword1!").forEach { confirmation ->
+    fun givenValidPasswordWithMatchingConfirmation_whenSubmitting_thenExactPasswordIsPassed() = runTest(dispatcher) {
+        withCreationTypes { type ->
+            val password = " ValidPassword1! "
+            val expectedType = if (type == NewMeetingType.MeetNow) Meeting.Type.IMMEDIATE else Meeting.Type.SCHEDULED
             val (arrangement, viewModel) = arrangeViewModel(
                 Arrangement(dispatcher)
-                    .withNewMeetingType(NewMeetingType.Schedule)
                     .withPasswordValidationResult(password, ValidatePasswordResult.Valid)
+                    .withNewMeetingType(type)
+                    .withCreateMeetingResult(CreateNewMeetingUseCase.Result.Success(CONVERSATION_ID, CREATED_MEETING_ID))
             )
             enterTitle(viewModel, "Weekly sync")
             viewModel.passwordTextState.setTextAndPlaceCursorAtEnd(password)
-            viewModel.confirmPasswordTextState.setTextAndPlaceCursorAtEnd(confirmation)
+            viewModel.confirmPasswordTextState.setTextAndPlaceCursorAtEnd(password)
+            advanceUntilIdle()
+
+            viewModel.submitCreation()
+            advanceUntilIdle()
+
+            verify(exactly = 1) { arrangement.validatePassword(password) }
+            coVerify(exactly = 1) { arrangement.createNewMeeting(match { it.password == password && it.type == expectedType }) }
+            assertEquals(password, viewModel.confirmPasswordTextState.text.toString())
+            assertFalse(viewModel.state.hasPasswordError)
+        }
+    }
+
+    @Test
+    fun givenInvalidPassword_whenSubmitting_thenCreationIsBlocked() = runTest(dispatcher) {
+        withCreationTypes { type ->
+            val (arrangement, viewModel) = arrangeViewModel(
+                Arrangement(dispatcher)
+                    .withPasswordValidationResult("invalid", ValidatePasswordResult.Invalid())
+                    .withNewMeetingType(type)
+            )
+            enterTitle(viewModel, "Weekly sync")
+            viewModel.passwordTextState.setTextAndPlaceCursorAtEnd("invalid")
+            viewModel.confirmPasswordTextState.setTextAndPlaceCursorAtEnd("invalid")
             advanceUntilIdle()
 
             viewModel.submitCreation()
@@ -1269,56 +1256,67 @@ class NewMeetingViewModelTest {
             enterTitle(viewModel, "Updated title")
             viewModel.updateEndTime(viewModel.state.endTime + 1.hours)
 
-            assertEquals(true, viewModel.state.passwordsDoNotMatch)
-            assertFalse(viewModel.state.invalidPassword)
+            assertEquals(true, viewModel.state.invalidPassword)
+            assertFalse(viewModel.state.passwordsDoNotMatch)
             assertFalse(viewModel.state.continueButtonEnabled)
             coVerify(exactly = 0) { arrangement.createNewMeeting(any()) }
         }
     }
 
     @Test
-    fun givenMismatchedConfirmation_whenCorrected_thenErrorClearsAndCreationSucceeds() = runTest(dispatcher) {
-        val password = "ValidPassword1!"
-        val (arrangement, viewModel) = arrangeViewModel(
-            Arrangement(dispatcher)
-                .withNewMeetingType(NewMeetingType.Schedule)
-                .withPasswordValidationResult(password, ValidatePasswordResult.Valid)
-                .withCreateMeetingResult(CreateNewMeetingUseCase.Result.Success(ConversationId("meeting", "domain")))
-        )
-        enterTitle(viewModel, "Weekly sync")
-        viewModel.passwordTextState.setTextAndPlaceCursorAtEnd(password)
-        advanceUntilIdle()
-        viewModel.submitCreation()
-        advanceUntilIdle()
-        assertEquals(true, viewModel.state.passwordsDoNotMatch)
+    fun givenInvalidPassword_whenCleared_thenErrorIsClearedAndMeetingCanBeCreatedWithoutPassword() = runTest(dispatcher) {
+        withCreationTypes { type ->
+            val (arrangement, viewModel) = arrangeViewModel(
+                Arrangement(dispatcher)
+                    .withPasswordValidationResult("invalid", ValidatePasswordResult.Invalid())
+                    .withNewMeetingType(type)
+                .withCreateMeetingResult(CreateNewMeetingUseCase.Result.Success(CONVERSATION_ID, CREATED_MEETING_ID))
+            )
+            enterTitle(viewModel, "Weekly sync")
+            viewModel.passwordTextState.setTextAndPlaceCursorAtEnd("invalid")
+            advanceUntilIdle()
+            viewModel.submitCreation()
+            advanceUntilIdle()
 
-        viewModel.confirmPasswordTextState.setTextAndPlaceCursorAtEnd(password)
-        advanceUntilIdle()
+            viewModel.passwordTextState.setTextAndPlaceCursorAtEnd("")
+            advanceUntilIdle()
 
-        assertFalse(viewModel.state.passwordsDoNotMatch)
-        assertEquals(true, viewModel.state.continueButtonEnabled)
-        viewModel.submitCreation()
-        advanceUntilIdle()
-        coVerify(exactly = 1) { arrangement.createNewMeeting(match { it.password == password }) }
+            assertFalse(viewModel.state.invalidPassword)
+            assertEquals(true, viewModel.state.continueButtonEnabled)
+            viewModel.submitCreation()
+            advanceUntilIdle()
+            verify(exactly = 1) { arrangement.validatePassword(any()) }
+            coVerify(exactly = 1) { arrangement.createNewMeeting(match { it.password == null }) }
+        }
     }
 
     @Test
-    fun givenOnlyConfirmationEntered_whenSubmitting_thenPasswordRemainsOptional() = runTest(dispatcher) {
-        val (arrangement, viewModel) = arrangeViewModel(
-            Arrangement(dispatcher)
-                .withNewMeetingType(NewMeetingType.Schedule)
-                .withCreateMeetingResult(CreateNewMeetingUseCase.Result.Success(ConversationId("meeting", "domain")))
-        )
-        enterTitle(viewModel, "Weekly sync")
-        viewModel.confirmPasswordTextState.setTextAndPlaceCursorAtEnd("IgnoredPassword1!")
-        advanceUntilIdle()
+    fun givenGuestLinksEnabled_whenGeneratingPassword_thenBothFieldsUseGeneratedPasswordForCreation() = runTest(dispatcher) {
+        withCreationTypes { type ->
+            val password = "Abc123!@"
+            val expectedType = if (type == NewMeetingType.MeetNow) Meeting.Type.IMMEDIATE else Meeting.Type.SCHEDULED
+            val (arrangement, viewModel) = arrangeViewModel(
+                Arrangement(dispatcher)
+                    .withGeneratedPassword(password)
+                    .withPasswordValidationResult(password, ValidatePasswordResult.Valid)
+                    .withNewMeetingType(type)
+                .withPasswordValidationResult(password, ValidatePasswordResult.Valid)
+                .withCreateMeetingResult(CreateNewMeetingUseCase.Result.Success(CONVERSATION_ID, CREATED_MEETING_ID))
+            )
+            enterTitle(viewModel, "Weekly sync")
 
-        viewModel.submitCreation()
-        advanceUntilIdle()
+            viewModel.onGenerateRandomPassword()
+            advanceUntilIdle()
+            assertEquals(password, viewModel.passwordTextState.text.toString())
+            assertEquals(password, viewModel.confirmPasswordTextState.text.toString())
+            viewModel.submitCreation()
+            advanceUntilIdle()
 
-        assertFalse(viewModel.state.hasPasswordError)
-        verify(exactly = 0) { arrangement.validatePassword(any()) }
-        coVerify(exactly = 1) { arrangement.createNewMeeting(match { it.password == null }) }
+            verify(exactly = 1) { arrangement.generatePassword(minLength = 8, maxLength = 8) }
+            verify(exactly = 1) { arrangement.validatePassword(password) }
+            coVerify(exactly = 1) { arrangement.createNewMeeting(match { it.password == password && it.type == expectedType }) }
+            assertFalse(viewModel.state.hasPasswordError)
+        }
     }
 
     @Test
@@ -1422,6 +1420,300 @@ class NewMeetingViewModelTest {
         assertFalse(viewModel.hasUnsavedChanges())
     }
 
+    @Test
+    fun givenInvalidPassword_whenEdited_thenErrorsClearAndPasswordIsRevalidatedOnSubmission() = runTest(dispatcher) {
+        withCreationTypes { type ->
+            val password = "ValidPassword1!"
+            val (arrangement, viewModel) = arrangeViewModel(
+                Arrangement(dispatcher)
+                    .withPasswordValidationResult("invalid", ValidatePasswordResult.Invalid())
+                    .withPasswordValidationResult("still invalid", ValidatePasswordResult.Invalid())
+                    .withPasswordValidationResult(password, ValidatePasswordResult.Valid)
+                    .withNewMeetingType(type)
+                    .withCreateMeetingResult(CreateNewMeetingUseCase.Result.Success(CONVERSATION_ID, CREATED_MEETING_ID))
+            )
+            enterTitle(viewModel, "Quick sync")
+            viewModel.passwordTextState.setTextAndPlaceCursorAtEnd("invalid")
+            viewModel.confirmPasswordTextState.setTextAndPlaceCursorAtEnd("invalid")
+            advanceUntilIdle()
+
+            viewModel.submitCreation()
+            advanceUntilIdle()
+            assertEquals(true, viewModel.state.invalidPassword)
+            assertFalse(viewModel.state.continueButtonEnabled)
+
+            viewModel.passwordTextState.setTextAndPlaceCursorAtEnd("still invalid")
+            advanceUntilIdle()
+
+            assertFalse(viewModel.state.hasPasswordError)
+            assertEquals(true, viewModel.state.continueButtonEnabled)
+            verify(exactly = 1) { arrangement.validatePassword(any()) }
+            viewModel.submitCreation()
+            advanceUntilIdle()
+            assertEquals(true, viewModel.state.invalidPassword)
+            assertFalse(viewModel.state.continueButtonEnabled)
+            coVerify(exactly = 0) { arrangement.createNewMeeting(any()) }
+
+            viewModel.passwordTextState.setTextAndPlaceCursorAtEnd(password)
+            viewModel.confirmPasswordTextState.setTextAndPlaceCursorAtEnd(password)
+            advanceUntilIdle()
+
+            assertFalse(viewModel.state.hasPasswordError)
+            assertEquals(true, viewModel.state.continueButtonEnabled)
+            viewModel.submitCreation()
+            advanceUntilIdle()
+            coVerify(exactly = 1) { arrangement.createNewMeeting(match { it.password == password }) }
+        }
+    }
+
+    @Test
+    fun givenEditType_whenGeneratingPassword_thenPasswordIsNotGenerated() = runTest(dispatcher) {
+        val (arrangement, viewModel) = arrangeViewModel(
+            Arrangement(dispatcher).withNewMeetingType(NewMeetingType.Edit(MeetingId("meeting", "domain")))
+        )
+
+        viewModel.onGenerateRandomPassword()
+
+        verify(exactly = 0) { arrangement.generatePassword(any(), any()) }
+        assertEquals("", viewModel.passwordTextState.text.toString())
+    }
+
+    @Test
+    fun givenGuestLinksDisabled_whenSubmittingNewMeeting_thenPasswordIsIgnoredAndNotGenerated() = runTest(dispatcher) {
+        withCreationTypes { type ->
+            listOf(false to true, true to false).forEach { (buildFlag, guestLinkSupport) ->
+                val (arrangement, viewModel) = arrangeViewModel(
+                    Arrangement(dispatcher)
+                        .withNewMeetingType(type)
+                        .withMeetingsGuestsLinksEnabled(buildFlag)
+                        .withGuestLinkSharingEnabled(guestLinkSupport)
+                        .withCreateMeetingResult(CreateNewMeetingUseCase.Result.Success(CONVERSATION_ID, CREATED_MEETING_ID))
+                )
+                enterTitle(viewModel, "Weekly sync")
+                viewModel.passwordTextState.setTextAndPlaceCursorAtEnd("hidden password")
+                advanceUntilIdle()
+
+                viewModel.onGenerateRandomPassword()
+                viewModel.submitCreation()
+                advanceUntilIdle()
+
+                assertFalse(viewModel.state.isGuestLinkSharingEnabled)
+                assertFalse(viewModel.state.invalidPassword)
+                verify(exactly = 0) { arrangement.generatePassword(any(), any()) }
+                verify(exactly = 0) { arrangement.validatePassword(any()) }
+                coVerify(exactly = 1) { arrangement.createNewMeeting(match { it.password == null }) }
+            }
+        }
+    }
+
+    @Test
+    fun givenGuestLinksEnabledInitially_whenSubmitting_thenAvailabilityIsNotCheckedAgain() = runTest(dispatcher) {
+        withCreationTypes { type ->
+            val password = "ValidPassword1!"
+            val (arrangement, viewModel) = arrangeViewModel(
+                Arrangement(dispatcher)
+                    .withPasswordValidationResult(password, ValidatePasswordResult.Valid)
+                    .withNewMeetingType(type)
+                .withCreateMeetingResult(CreateNewMeetingUseCase.Result.Success(CONVERSATION_ID, CREATED_MEETING_ID))
+            )
+            assertEquals(true, viewModel.state.isGuestLinkSharingEnabled)
+            assertEquals(NewMeetingState.InitialLoadingState.Loaded, viewModel.state.initialLoading)
+            arrangement.withGuestLinkSharingEnabled(false)
+            enterTitle(viewModel, "Weekly sync")
+            viewModel.passwordTextState.setTextAndPlaceCursorAtEnd(password)
+            viewModel.confirmPasswordTextState.setTextAndPlaceCursorAtEnd(password)
+            advanceUntilIdle()
+
+            viewModel.submitCreation()
+            advanceUntilIdle()
+
+            assertEquals(true, viewModel.state.isGuestLinkSharingEnabled)
+            coVerify(exactly = 1) { arrangement.isMeetingsEnabledUseCase.isGuestLinkSharingEnabled() }
+            coVerify(exactly = 1) { arrangement.createNewMeeting(match { it.password == password }) }
+        }
+    }
+
+    @Test
+    fun givenMissingOrMismatchedConfirmation_whenSubmitting_thenCreationIsBlocked() = runTest(dispatcher) {
+        withCreationTypes { type ->
+            val password = "ValidPassword1!"
+            listOf("", "DifferentPassword1!").forEach { confirmation ->
+                val (arrangement, viewModel) = arrangeViewModel(
+                    Arrangement(dispatcher)
+                        .withPasswordValidationResult(password, ValidatePasswordResult.Valid)
+                        .withNewMeetingType(type)
+                )
+                enterTitle(viewModel, "Weekly sync")
+                viewModel.passwordTextState.setTextAndPlaceCursorAtEnd(password)
+                viewModel.confirmPasswordTextState.setTextAndPlaceCursorAtEnd(confirmation)
+                advanceUntilIdle()
+
+                viewModel.submitCreation()
+                advanceUntilIdle()
+                enterTitle(viewModel, "Updated title")
+                viewModel.updateEndTime(viewModel.state.endTime + 1.hours)
+
+                assertEquals(true, viewModel.state.passwordsDoNotMatch)
+                assertFalse(viewModel.state.invalidPassword)
+                assertFalse(viewModel.state.continueButtonEnabled)
+                coVerify(exactly = 0) { arrangement.createNewMeeting(any()) }
+            }
+        }
+    }
+
+    @Test
+    fun givenMismatchedConfirmation_whenCorrected_thenErrorClearsAndCreationSucceeds() = runTest(dispatcher) {
+        withCreationTypes { type ->
+            val password = "ValidPassword1!"
+            val (arrangement, viewModel) = arrangeViewModel(
+                Arrangement(dispatcher)
+                    .withPasswordValidationResult(password, ValidatePasswordResult.Valid)
+                    .withNewMeetingType(type)
+                    .withCreateMeetingResult(CreateNewMeetingUseCase.Result.Success(CONVERSATION_ID, CREATED_MEETING_ID))
+            )
+            enterTitle(viewModel, "Weekly sync")
+            viewModel.passwordTextState.setTextAndPlaceCursorAtEnd(password)
+            advanceUntilIdle()
+            viewModel.submitCreation()
+            advanceUntilIdle()
+            assertEquals(true, viewModel.state.passwordsDoNotMatch)
+
+            viewModel.confirmPasswordTextState.setTextAndPlaceCursorAtEnd(password)
+            advanceUntilIdle()
+
+            assertFalse(viewModel.state.passwordsDoNotMatch)
+            assertEquals(true, viewModel.state.continueButtonEnabled)
+            viewModel.submitCreation()
+            advanceUntilIdle()
+            coVerify(exactly = 1) { arrangement.createNewMeeting(match { it.password == password }) }
+        }
+    }
+
+    @Test
+    fun givenOnlyConfirmationEntered_whenSubmitting_thenCreationIsBlocked() = runTest(dispatcher) {
+        withCreationTypes { type ->
+            val (arrangement, viewModel) = arrangeViewModel(
+                Arrangement(dispatcher)
+                    .withNewMeetingType(type)
+                    .withCreateMeetingResult(CreateNewMeetingUseCase.Result.Success(CONVERSATION_ID, CREATED_MEETING_ID))
+            )
+            enterTitle(viewModel, "Weekly sync")
+            viewModel.confirmPasswordTextState.setTextAndPlaceCursorAtEnd("ValidPassword1!")
+            advanceUntilIdle()
+
+            viewModel.submitCreation()
+            advanceUntilIdle()
+
+            assertEquals(true, viewModel.state.passwordsDoNotMatch)
+            assertFalse(viewModel.state.invalidPassword)
+            assertFalse(viewModel.state.continueButtonEnabled)
+            verify(exactly = 0) { arrangement.validatePassword(any()) }
+            coVerify(exactly = 0) { arrangement.createNewMeeting(any()) }
+
+            viewModel.confirmPasswordTextState.setTextAndPlaceCursorAtEnd("")
+            advanceUntilIdle()
+
+            assertFalse(viewModel.state.hasPasswordError)
+            assertEquals(true, viewModel.state.continueButtonEnabled)
+            viewModel.submitCreation()
+            advanceUntilIdle()
+
+            coVerify(exactly = 1) { arrangement.createNewMeeting(match { it.password == null }) }
+        }
+    }
+
+    @Test
+    fun givenCreationInProgress_whenFieldsChange_thenContinueStaysDisabledUntilRequestFinishes() = runTest(dispatcher) {
+        withCreationTypes { type ->
+            val creationResult = CompletableDeferred<CreateNewMeetingUseCase.Result>()
+            val (arrangement, viewModel) = arrangeViewModel(
+                Arrangement(dispatcher)
+                    .withPendingCreateMeetingResult(creationResult)
+                    .withNewMeetingType(type)
+            )
+            enterTitle(viewModel, "Quick sync")
+
+            viewModel.submitCreation()
+            runCurrent()
+
+            assertEquals(true, viewModel.state.isSubmitting)
+            assertFalse(viewModel.state.continueButtonEnabled)
+            enterTitle(viewModel, "Updated title")
+            assertFalse(viewModel.state.continueButtonEnabled)
+            viewModel.updateStartTime(viewModel.state.startTime + 1.hours)
+            assertFalse(viewModel.state.continueButtonEnabled)
+            viewModel.updateEndTime(viewModel.state.endTime + 1.hours)
+            assertFalse(viewModel.state.continueButtonEnabled)
+            viewModel.passwordTextState.setTextAndPlaceCursorAtEnd("ValidPassword1!")
+            runCurrent()
+            assertFalse(viewModel.state.continueButtonEnabled)
+            viewModel.confirmPasswordTextState.setTextAndPlaceCursorAtEnd("ValidPassword1!")
+            runCurrent()
+            assertFalse(viewModel.state.continueButtonEnabled)
+
+            viewModel.submitCreation()
+            runCurrent()
+
+            coVerify(exactly = 1) { arrangement.createNewMeeting(any()) }
+            creationResult.complete(CreateNewMeetingUseCase.Result.Failure)
+            runCurrent()
+
+            assertFalse(viewModel.state.isSubmitting)
+            assertEquals(NewMeetingState.SubmitError.Other, viewModel.state.submitError)
+            assertEquals(true, viewModel.state.continueButtonEnabled)
+        }
+    }
+
+    @Test
+    fun givenCreationInProgress_whenUnrelatedFieldsChange_thenTitleAndTimeErrorsSurviveFailureUntilCorrected() = runTest(dispatcher) {
+        withCreationTypes { type ->
+            val creationResult = CompletableDeferred<CreateNewMeetingUseCase.Result>()
+            val (arrangement, viewModel) = arrangeViewModel(
+                Arrangement(dispatcher)
+                    .withPendingCreateMeetingResult(creationResult)
+                    .withNewMeetingType(type)
+            )
+            enterTitle(viewModel, "Weekly sync")
+            viewModel.submitCreation()
+            runCurrent()
+
+            assertEquals(true, viewModel.state.isSubmitting)
+            viewModel.updateStartTime(viewModel.state.startTime + 1.hours)
+
+            enterTitle(viewModel, "x".repeat(NewMeetingViewModel.MEETING_NAME_MAX_COUNT + 1))
+            viewModel.updateEndTime(viewModel.state.startTime + 2.hours)
+            viewModel.passwordTextState.setTextAndPlaceCursorAtEnd("ValidPassword1!")
+            viewModel.confirmPasswordTextState.setTextAndPlaceCursorAtEnd("ValidPassword1!")
+            runCurrent()
+
+            assertEquals(NewMeetingState.TitleError.TitleExceedsLimitError, viewModel.state.titleError)
+            assertFalse(viewModel.state.continueButtonEnabled)
+            viewModel.updateEndTime(viewModel.state.startTime - 1.minutes)
+            enterTitle(viewModel, "Updated title")
+            viewModel.passwordTextState.setTextAndPlaceCursorAtEnd("DifferentPassword1!")
+            viewModel.confirmPasswordTextState.setTextAndPlaceCursorAtEnd("DifferentPassword1!")
+            runCurrent()
+
+            assertNull(viewModel.state.titleError)
+            assertEquals(NewMeetingState.TimeError.EndTimeBeforeStartTimeError, viewModel.state.endTimeError)
+            assertFalse(viewModel.state.continueButtonEnabled)
+            creationResult.complete(CreateNewMeetingUseCase.Result.Failure)
+            runCurrent()
+
+            assertFalse(viewModel.state.isSubmitting)
+            assertEquals(NewMeetingState.SubmitError.Other, viewModel.state.submitError)
+            assertEquals(NewMeetingState.TimeError.EndTimeBeforeStartTimeError, viewModel.state.endTimeError)
+            assertFalse(viewModel.state.continueButtonEnabled)
+            viewModel.updateEndTime(viewModel.state.startTime + 1.hours)
+
+            assertNull(viewModel.state.endTimeError)
+            assertEquals(true, viewModel.state.continueButtonEnabled)
+        }
+    }
+
+    private inline fun withCreationTypes(block: (NewMeetingType) -> Unit) =
+        listOf(NewMeetingType.MeetNow, NewMeetingType.Schedule).forEach(block)
+
     private fun TestScope.arrangeViewModel(
         arrangement: Arrangement = Arrangement(dispatcher)
     ): Pair<Arrangement, NewMeetingViewModelImpl> =
@@ -1501,7 +1793,7 @@ class NewMeetingViewModelTest {
         }
 
         fun withGeneratedPassword(password: String) = apply {
-            every { generatePassword(minLength = 8, maxLength = 8) } returns password
+            every { generatePassword(minLength = any(), maxLength = any()) } returns password
         }
 
         fun withPasswordValidationResult(password: String, result: ValidatePasswordResult) = apply {
@@ -1518,6 +1810,10 @@ class NewMeetingViewModelTest {
 
         fun withCreateMeetingResult(result: CreateNewMeetingUseCase.Result) = apply {
             coEvery { createNewMeeting(any()) } returns result
+        }
+
+        fun withPendingCreateMeetingResult(result: CompletableDeferred<CreateNewMeetingUseCase.Result>) = apply {
+            coEvery { createNewMeeting(any()) } coAnswers { result.await() }
         }
 
         fun withUpdateMeetingResult(meetingId: MeetingId, result: UpdateMeetingUseCase.Result) = apply {
@@ -1563,12 +1859,14 @@ class NewMeetingViewModelTest {
         )
     }
 
+    private val CREATED_MEETING_ID = MeetingId("meeting-id", "domain")
+    val CONVERSATION_ID = ConversationId("conversation-id", "domain")
     private val MEETING_TIME_ZONE_ID = "Europe/Berlin"
     private val MEETING_OCCURRENCE = MeetingOccurrence(
         participants = emptyList(),
         meeting = Meeting(
-            meetingId = MeetingId("meeting-id", "domain"),
-            conversationId = ConversationId("conversation-id", "domain"),
+            meetingId = CREATED_MEETING_ID,
+            conversationId = CONVERSATION_ID,
             creatorId = UserId("creator-id", "domain"),
             title = "Repeating meeting",
             startTime = Instant.parse("2026-01-01T09:00:00Z"),

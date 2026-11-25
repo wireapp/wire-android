@@ -19,13 +19,15 @@ package com.wire.android.ui.home.settings.privacy
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.di.CurrentAccount
 import com.wire.android.ui.analytics.AnalyticsConfiguration
+import com.wire.android.ui.common.ActionsViewModel
 import com.wire.android.util.dispatchers.DispatcherProvider
+import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.feature.user.SelfServerConfigUseCase
@@ -61,11 +63,12 @@ class PrivacySettingsViewModel @Inject constructor(
     private val selfServerConfig: SelfServerConfigUseCase,
     userDataStoreProvider: UserDataStoreProvider,
     @CurrentAccount selfUserId: UserId,
-) : ViewModel() {
+) : ActionsViewModel<PrivacySettingsAction>() {
     private val dataStore = userDataStoreProvider.getOrCreate(selfUserId)
 
     var state by mutableStateOf(PrivacySettingsState())
         private set
+
     init {
         viewModelScope.launch {
             val shouldShowAnalyticsUsage = shouldShowAnalyticsUsage()
@@ -105,12 +108,18 @@ class PrivacySettingsViewModel @Inject constructor(
         }
         return isAnalyticsConfigurationEnabled && isValidBackend
     }
+
+    private fun sendUpdateError() {
+        sendAction(PrivacySettingsAction.ShowError(UIText.StringResource(R.string.error_no_network_message)))
+    }
+
     fun setReadReceiptsState(isEnabled: Boolean) {
         viewModelScope.launch {
             state =
                 when (withContext(dispatchers.io()) { persistReadReceiptsStatusConfig(isEnabled) }) {
                     is ReadReceiptStatusConfigResult.Failure -> {
                         appLogger.e("Something went wrong while updating read receipts config")
+                        sendUpdateError()
                         state.copy(areReadReceiptsEnabled = !isEnabled)
                     }
                     is ReadReceiptStatusConfigResult.Success -> {
@@ -126,6 +135,7 @@ class PrivacySettingsViewModel @Inject constructor(
                 when (withContext(dispatchers.io()) { persistTypingIndicatorStatusConfig(isEnabled) }) {
                     is TypingIndicatorConfigResult.Failure -> {
                         appLogger.e("Something went wrong while updating typing indicator config")
+                        sendUpdateError()
                         state.copy(isTypingIndicatorEnabled = !isEnabled)
                     }
                     is TypingIndicatorConfigResult.Success -> {
@@ -142,6 +152,7 @@ class PrivacySettingsViewModel @Inject constructor(
                 when (withContext(dispatchers.io()) { persistLinkPreviewsStatusConfig(isEnabled) }) {
                     is LinkPreviewsConfigResult.Failure -> {
                         appLogger.e("Something went wrong while updating link previews config")
+                        sendUpdateError()
                         state.copy(areLinkPreviewsEnabled = !isEnabled)
                     }
                     is LinkPreviewsConfigResult.Success -> {
@@ -154,9 +165,10 @@ class PrivacySettingsViewModel @Inject constructor(
 
     fun setScreenshotCensoringConfig(isEnabled: Boolean) {
         viewModelScope.launch {
-            when (persistScreenshotCensoringConfig(isEnabled)) {
+            when (withContext(dispatchers.io()) { persistScreenshotCensoringConfig(isEnabled) }) {
                 is PersistScreenshotCensoringConfigResult.Failure -> {
                     appLogger.e("Something went wrong while updating screenshot censoring config")
+                    sendUpdateError()
                 }
                 is PersistScreenshotCensoringConfigResult.Success -> {
                     appLogger.d("Screenshot censoring config changed")
@@ -172,4 +184,8 @@ class PrivacySettingsViewModel @Inject constructor(
             isAnalyticsUsageEnabled = enabled
         )
     }
+}
+
+sealed interface PrivacySettingsAction {
+    data class ShowError(val message: UIText) : PrivacySettingsAction
 }

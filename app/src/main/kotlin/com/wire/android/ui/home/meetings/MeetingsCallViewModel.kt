@@ -20,13 +20,13 @@ package com.wire.android.ui.home.meetings
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.di.CurrentAccount
 import com.wire.android.ui.common.visbility.VisibilityState
 import com.wire.android.ui.home.conversations.call.JoinOrStartCallManager
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.id.MeetingId
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.call.usecase.AnswerCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
@@ -38,13 +38,11 @@ import com.wire.kalium.logic.feature.meeting.EnsureMeetingIsMLSEstablishedUseCas
 import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
 import com.wire.kalium.logic.sync.ObserveSyncStateUseCase
 import dev.zacsweers.metro.Inject
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 @Suppress("LongParameterList", "TooManyFunctions")
 class MeetingsCallViewModel @Inject constructor(
     @CurrentAccount currentAccount: UserId,
-    private val globalDataStore: Lazy<GlobalDataStore>,
     private val observeEstablishedCalls: ObserveEstablishedCallsUseCase,
     private val observeParticipantsForConversation: ObserveParticipantsForConversationUseCase,
     private val answerCall: AnswerCallUseCase,
@@ -57,10 +55,6 @@ class MeetingsCallViewModel @Inject constructor(
     private val ensureMeetingIsMLSEstablished: EnsureMeetingIsMLSEstablishedUseCase,
 ) : ViewModel() {
     val notEstablishedDialogState: VisibilityState<Unit> = VisibilityState()
-
-    suspend fun isExactAlarmAccessDialogSeen(): Boolean = globalDataStore.value.isExactAlarmAccessDialogSeen().first()
-
-    suspend fun markExactAlarmAccessDialogSeen() = globalDataStore.value.setExactAlarmAccessDialogSeen(true)
 
     val callManager = JoinOrStartCallManager(
         scope = viewModelScope,
@@ -76,20 +70,21 @@ class MeetingsCallViewModel @Inject constructor(
         observeSelf = observeSelf,
     )
 
-    fun joinOngoingCall(conversationId: ConversationId) {
+    fun joinOngoingCall(conversationId: ConversationId, meetingId: MeetingId) {
         viewModelScope.launch {
             ensureMLSEstablished(conversationId) {
-                callManager.joinOngoingCall(conversationId)
+                callManager.joinOngoingCall(conversationId, meetingId)
             }
         }
     }
 
-    fun startCallIfPossible(conversationId: ConversationId) {
+    fun startCallIfPossible(conversationId: ConversationId, meetingId: MeetingId) {
         viewModelScope.launch {
             ensureMLSEstablished(conversationId) {
                 callManager.startCallIfPossible(
                     conversationId = conversationId,
                     conversationType = Conversation.Type.Group.Meeting,
+                    meetingId = meetingId,
                     shouldCheckParticipantCount = false, // since this is a meeting, we don't need to check participant count
                 )
             }

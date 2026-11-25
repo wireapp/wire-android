@@ -199,7 +199,8 @@ fun VideoMessage(
                     )
 
                 AssetTransferStatus.UPLOADED,
-                AssetTransferStatus.SAVED_INTERNALLY ->
+                AssetTransferStatus.SAVED_INTERNALLY,
+                AssetTransferStatus.SAVED_EXTERNALLY ->
                     Image(
                         modifier = Modifier.size(dimensions().spacing48x),
                         painter = painterResource(id = R.drawable.ic_play_circle_filled),

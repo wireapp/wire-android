@@ -305,44 +305,44 @@ class MeetingOptionsMenuViewModelTest {
         coEvery { arrangement.observeActiveCallsUseCase.invoke() } returns flowOf(listOf(call))
 
         viewModel.actions.test {
-            viewModel.checkCallStatusAndSendCallAction(call.conversationId)
+            viewModel.checkCallStatusAndSendCallAction(call.conversationId, MEETING_ID)
             advanceUntilIdle()
 
-            assertEquals(MeetingOptionsMenuViewAction.ReturnToCall(call.conversationId), awaitItem())
+            assertEquals(MeetingOptionsMenuViewAction.ReturnToCall(call.conversationId, MEETING_ID), awaitItem())
             cancelAndConsumeRemainingEvents()
         }
     }
 
     @Test
-    fun givenStillOngoingEstablishedCall_whenCheckingCallStatus_thenSendReturnToCallAction() = runTest(dispatcher) {
-        val call = call(CallStatus.ESTABLISHED)
+    fun givenStillOngoingCall_whenCheckingCallStatus_thenSendJoinCallAction() = runTest(dispatcher) {
+        val call = call(CallStatus.STILL_ONGOING)
         val (arrangement, viewModel) = Arrangement()
             .withObservedMeeting(meeting(MeetingOccurrence.SelfRole.Member, CURRENT_TIME + 1.hours))
             .arrange()
         coEvery { arrangement.observeActiveCallsUseCase.invoke() } returns flowOf(listOf(call))
 
         viewModel.actions.test {
-            viewModel.checkCallStatusAndSendCallAction(call.conversationId)
+            viewModel.checkCallStatusAndSendCallAction(call.conversationId, MEETING_ID)
             advanceUntilIdle()
 
-            assertEquals(MeetingOptionsMenuViewAction.ReturnToCall(call.conversationId), awaitItem())
+            assertEquals(MeetingOptionsMenuViewAction.JoinCall(call.conversationId, MEETING_ID), awaitItem())
             cancelAndConsumeRemainingEvents()
         }
     }
 
     @Test
-    fun givenOngoingEstablishedCall_whenCheckingCallStatus_thenSendReturnToCallAction() = runTest(dispatcher) {
+    fun givenNoActiveCall_whenCheckingCallStatus_thenSendStartCallAction() = runTest(dispatcher) {
         val call = call(CallStatus.ESTABLISHED)
         val (arrangement, viewModel) = Arrangement()
             .withObservedMeeting(meeting(MeetingOccurrence.SelfRole.Member, CURRENT_TIME + 1.hours))
             .arrange()
-        coEvery { arrangement.observeActiveCallsUseCase.invoke() } returns flowOf(listOf(call))
+        coEvery { arrangement.observeActiveCallsUseCase.invoke() } returns flowOf(emptyList())
 
         viewModel.actions.test {
-            viewModel.checkCallStatusAndSendCallAction(call.conversationId)
+            viewModel.checkCallStatusAndSendCallAction(call.conversationId, MEETING_ID)
             advanceUntilIdle()
 
-            assertEquals(MeetingOptionsMenuViewAction.ReturnToCall(call.conversationId), awaitItem())
+            assertEquals(MeetingOptionsMenuViewAction.StartCall(call.conversationId, MEETING_ID), awaitItem())
             cancelAndConsumeRemainingEvents()
         }
     }

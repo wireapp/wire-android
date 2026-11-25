@@ -58,10 +58,10 @@ import com.wire.android.ui.common.R as UICommonR
 fun MeetingOptionsModalSheetLayout(
     sheetState: WireModalSheetState<String>,
     editMeeting: (meetingId: MeetingId) -> Unit = {},
-    shareWithGuests: (occurrenceId: String) -> Unit = {},
-    startCall: (conversationId: ConversationId) -> Unit = {},
-    joinCall: (conversationId: ConversationId) -> Unit = {},
-    returnToCall: (conversationId: ConversationId) -> Unit = {},
+    openMeetingLink: (meetingId: MeetingId) -> Unit = {},
+    startCall: (conversationId: ConversationId, meetingId: MeetingId) -> Unit = { _, _ -> },
+    joinCall: (conversationId: ConversationId, meetingId: MeetingId) -> Unit = { _, _ -> },
+    returnToCall: (conversationId: ConversationId, meetingId: MeetingId) -> Unit = { _, _ -> },
     viewModel: MeetingOptionsMenuViewModel = when {
         LocalInspectionMode.current -> MeetingOptionsMenuViewModelPreview(CurrentTimeProvider.Preview)
         else -> meetingOptionsMenuListViewModel()
@@ -100,8 +100,8 @@ fun MeetingOptionsModalSheetLayout(
                             )
                         }
                     },
-                    onShareWithGuests = {
-                        sheetState.hide { shareWithGuests(occurrenceId) }
+                    onOpenMeetingLink = {
+                        sheetState.hide { openMeetingLink(state.meetingId) }
                     },
                     onEditMeeting = {
                         sheetState.hide {
@@ -110,7 +110,7 @@ fun MeetingOptionsModalSheetLayout(
                     },
                     onJoinNow = {
                         sheetState.hide {
-                            viewModel.checkCallStatusAndSendCallAction(state.conversationId)
+                            viewModel.checkCallStatusAndSendCallAction(state.conversationId, state.meetingId)
                         }
                     }
                 ).also {
@@ -145,13 +145,13 @@ fun MeetingOptionsModalSheetLayout(
                 snackbarHostState.showSnackbar(action.message.uiText.asString(context.resources))
             }
             is MeetingOptionsMenuViewAction.JoinCall -> sheetState.hide {
-                joinCall(action.conversationId)
+                joinCall(action.conversationId, action.meetingId)
             }
             is MeetingOptionsMenuViewAction.ReturnToCall -> sheetState.hide {
-                returnToCall(action.conversationId)
+                returnToCall(action.conversationId, action.meetingId)
             }
             is MeetingOptionsMenuViewAction.StartCall -> sheetState.hide {
-                startCall(action.conversationId)
+                startCall(action.conversationId, action.meetingId)
             }
         }
     }
@@ -161,7 +161,7 @@ fun MeetingOptionsModalSheetLayout(
 private fun MeetingOptionsModalContent(
     meetingState: MeetingOptionsMenuState.Meeting,
     onCreateConversation: () -> Unit = {},
-    onShareWithGuests: () -> Unit = {},
+    onOpenMeetingLink: () -> Unit = {},
     onEditMeeting: () -> Unit = {},
     onDeleteMeetingForMe: () -> Unit = {},
     onDeleteMeetingForEveryone: () -> Unit = {},
@@ -228,7 +228,7 @@ private fun MeetingOptionsModalContent(
                             tint = colorsScheme().onSurface,
                         )
                     },
-                    onItemClick = onShareWithGuests,
+                    onItemClick = onOpenMeetingLink,
                 )
             }
             addIf(meetingState.deleteOption == MeetingOptionsMenuState.Meeting.DeleteOption.ForMe) {

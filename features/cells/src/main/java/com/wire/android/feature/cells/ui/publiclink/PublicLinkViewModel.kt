@@ -19,6 +19,8 @@ package com.wire.android.feature.cells.ui.publiclink
 
 import androidx.lifecycle.viewModelScope
 import com.wire.android.feature.cells.R
+import com.wire.android.feature.cells.ui.CellNodeChangeEvents
+import com.wire.android.feature.cells.ui.CellNodeUpdate
 import com.wire.android.feature.cells.ui.publiclink.settings.expiration.PublicLinkExpirationResult
 import com.wire.android.feature.cells.util.FileHelper
 import com.wire.android.ui.common.ActionsViewModel
@@ -42,6 +44,7 @@ class PublicLinkViewModel @AssistedInject constructor(
     private val getPublicLinkUseCase: GetPublicLinkUseCase,
     private val deletePublicLinkUseCase: DeletePublicLinkUseCase,
     private val fileHelper: FileHelper,
+    private val nodeChangeEvents: CellNodeChangeEvents,
 ) : ActionsViewModel<PublicLinkViewAction>() {
 
     @AssistedFactory
@@ -126,6 +129,7 @@ class PublicLinkViewModel @AssistedInject constructor(
         createPublicLink(navArgs.assetId, navArgs.fileName)
             .onSuccess { link ->
                 publicLink = link
+                nodeChangeEvents.onNodeUpdated(CellNodeUpdate.PublicLinkChanged(navArgs.assetId, link.uuid))
                 _state.update {
                     it.copy(
                         isLinkAvailable = true,
@@ -169,6 +173,7 @@ class PublicLinkViewModel @AssistedInject constructor(
         deletePublicLinkUseCase(linkUuid)
             .onSuccess {
                 publicLink = null
+                nodeChangeEvents.onNodeUpdated(CellNodeUpdate.PublicLinkChanged(navArgs.assetId, publicLinkId = null))
                 _state.update {
                     it.copy(
                         isLinkAvailable = false

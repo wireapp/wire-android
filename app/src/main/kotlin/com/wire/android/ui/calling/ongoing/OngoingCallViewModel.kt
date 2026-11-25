@@ -28,6 +28,7 @@ import com.wire.android.BuildConfig
 import com.wire.android.appLogger
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.di.CurrentAccount
+import com.wire.android.feature.meetings.model.MeetingLink
 import com.wire.android.mapper.UICallParticipantMapper
 import com.wire.android.ui.calling.model.InCallReaction
 import com.wire.android.ui.calling.model.ReactionSender
@@ -49,6 +50,7 @@ import com.wire.kalium.logic.data.call.CallQualityData
 import com.wire.kalium.logic.data.call.CallResolutionQuality
 import com.wire.kalium.logic.data.call.CallingParticipantsOrderType
 import com.wire.kalium.logic.data.call.VideoState
+import com.wire.kalium.logic.data.id.MeetingId
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.user.UserId
@@ -61,6 +63,7 @@ import com.wire.kalium.logic.feature.call.usecase.SetCallQualityIntervalUseCase
 import com.wire.kalium.logic.feature.call.usecase.video.SetVideoSendStateUseCase
 import com.wire.kalium.logic.feature.client.ObserveCurrentClientIdUseCase
 import com.wire.kalium.logic.feature.incallreaction.SendInCallReactionUseCase
+import com.wire.kalium.logic.feature.meeting.ObserveMeetingUseCase
 import com.wire.kalium.network.NetworkState
 import com.wire.kalium.network.NetworkStateObserver
 import dev.zacsweers.metro.Assisted
@@ -106,11 +109,13 @@ class OngoingCallViewModel @AssistedInject constructor(
     private val observeCallModerationActions: ObserveCallModerationActionsUseCase,
     private val uiCallParticipantMapper: UICallParticipantMapper,
     private val dispatchers: DispatcherProvider,
+    private val observeMeeting: ObserveMeetingUseCase,
+    @Assisted private val meetingId: MeetingId?,
     private val currentTimeProvider: CurrentTimeProvider = CurrentTimeProvider.Default,
 ) : ViewModel() {
     @AssistedFactory
     interface Factory {
-        fun create(conversationId: ConversationId): OngoingCallViewModel
+        fun create(conversationId: ConversationId, meetingId: MeetingId?): OngoingCallViewModel
     }
 
     var state by mutableStateOf(OngoingCallState())
@@ -154,7 +159,29 @@ class OngoingCallViewModel @AssistedInject constructor(
             if (BuildConfig.CALL_REACTIONS_ENABLED) observeInCallReactions()
             observeCallQuality()
             initialShowDoubleTapToFullscreenToast()
+            observeMeetingInvitation()
         }
+    }
+
+    private fun observeMeetingInvitation() {
+        val meetingId = meetingId ?: return
+        viewModelScope.launch {
+            observeMeeting(meetingId).collect { meeting ->
+                state = state.copy(
+                    meetingLink = meeting
+                        ?.takeIf { it.creatorId == currentUserId && it.conversationId == conversationId }
+                        ?.let { MeetingLink(it.link, it.hasPassword) }
+                )
+            }
+        }
+    }
+
+    fun showMeetingInvitation() {
+        state = state.copy(meetingLinkCardVisible = true)
+    }
+
+    fun dismissMeetingInvitation() {
+        state = state.copy(meetingLinkCardVisible = false)
     }
 
     fun startSendingVideoFeed() {

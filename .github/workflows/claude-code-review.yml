@@ -6,8 +6,11 @@ on:
   pull_request_review_comment:
     types: [created]
 
+permissions: {}
+
 jobs:
   claude-review:
+    timeout-minutes: 60
     # Only run when the comment contains the trigger phrase,
     # and when the commenter is a maintainer/team member,
     # and when it's on a pull request (not an issue)
@@ -62,7 +65,7 @@ jobs:
 
       - name: Run Claude Code Review
         id: claude-review
-        uses: anthropics/claude-code-action@4fa93a88de49bbef68b10eb15aabedf28ca0e1ed # v1
+        uses: anthropics/claude-code-action@acfe7992852970efb4fee683d63d628e3e52df67 # v1
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           prompt: |

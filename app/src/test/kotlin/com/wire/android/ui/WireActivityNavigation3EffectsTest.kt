@@ -20,6 +20,7 @@ import com.wire.android.navigation.routes.media.LoggedOutImportMediaRoute
 import com.wire.android.navigation.runtime.startup.HomeRoute
 import com.wire.android.ui.home.conversations.ConversationRoute
 import com.wire.android.ui.userprofile.other.OtherUserProfileRoute
+import com.wire.android.ui.userprofile.qr.SelfQrCodeRoute
 import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.android.util.deeplink.SSOFailureCodes
 import com.wire.kalium.logic.configuration.server.ServerConfig
@@ -285,6 +286,21 @@ class WireActivityNavigation3EffectsTest {
 
         assertTrue(finishOnClose(isSharedFromWire = false))
         assertFalse(finishOnClose(isSharedFromWire = true))
+    }
+
+    @Test
+    fun givenShareProfileIsOpen_whenResolvingProfileLinkShare_thenOnlyMatchingOriginReturnsToShareProfile() {
+        val profileRoute = SelfQrCodeRoute(session, isTeamMember = false)
+        val routes = listOf(HomeRoute(session), profileRoute)
+
+        fun finishOnClose(origin: WireNavEntryId?) = assertInstanceOf(
+            AuthenticatedImportMediaRoute::class.java,
+            resolve(OnShowImportMediaScreen(profileLinkShareOrigin = origin), routes).singleCommand().destination,
+        ).finishOnClose
+
+        assertFalse(finishOnClose(profileRoute.entryId))
+        assertTrue(finishOnClose(WireNavEntryId.random()))
+        assertTrue(finishOnClose(null))
     }
 
     @Test

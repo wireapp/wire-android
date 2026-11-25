@@ -36,7 +36,11 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -60,6 +64,9 @@ import com.lightspark.composeqr.DotShape
 import com.lightspark.composeqr.QrCodeView
 import com.wire.android.R
 import com.wire.android.feature.analytics.model.AnalyticsEvent
+import com.wire.android.ui.common.WireDialog
+import com.wire.android.ui.common.WireDialogButtonProperties
+import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
@@ -69,6 +76,7 @@ import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ifNotEmpty
+import com.wire.android.util.supportsTrustedWireShareCaller
 import com.wire.android.util.ui.PreviewMultipleThemes
 import com.wire.kalium.logic.data.user.UserId
 import kotlinx.coroutines.launch
@@ -76,6 +84,8 @@ import kotlinx.coroutines.launch
 @Composable
 internal fun SelfQRCodeScreen(
     viewModel: SelfQRCodeViewModel,
+    onShareProfileLink: (String) -> Unit,
+    onShareQrViaWire: (Uri) -> Unit,
     onNavigateBack: () -> Unit,
 ) {
     if (viewModel.selfQRCodeState.hasError) {
@@ -85,7 +95,9 @@ internal fun SelfQRCodeScreen(
         viewModel.selfQRCodeState,
         viewModel::shareQRAsset,
         viewModel::trackAnalyticsEvent,
-        onNavigateBack
+        onShareProfileLink,
+        onShareQrViaWire,
+        onNavigateBack,
     )
 }
 
@@ -94,11 +106,30 @@ private fun SelfQRCodeContent(
     state: SelfQRCodeState,
     shareQRAssetClick: suspend (Bitmap) -> Uri,
     trackAnalyticsEvent: (AnalyticsEvent.QrCode.Modal) -> Unit,
+    onShareProfileLink: (String) -> Unit,
+    onShareQrViaWire: (Uri) -> Unit,
     onBackClick: () -> Unit = {}
 ) {
     val coroutineScope = rememberCoroutineScope()
     val graphicsLayer = rememberGraphicsLayer()
     val context = LocalContext.current
+    var showQrShareOptions by rememberSaveable { mutableStateOf(false) }
+
+    val shareQrCode: ((Uri) -> Unit) -> Unit = { share ->
+        trackAnalyticsEvent(AnalyticsEvent.QrCode.Modal.ShareQrCode(isTeam = state.isTeamMember))
+        coroutineScope.launch {
+            val bitmap = graphicsLayer.toImageBitmap()
+            share(shareQRAssetClick(bitmap.asAndroidBitmap()))
+        }
+    }
+
+    if (showQrShareOptions) {
+        QrShareOptionsDialog(
+            onDismiss = { showQrShareOptions = false },
+            onShareViaWire = { shareQrCode(onShareQrViaWire) },
+            onShareExternally = { shareQrCode(context::shareQRToProfile) },
+        )
+    }
 
     BackHandler {
         trackAnalyticsEvent(
@@ -204,22 +235,49 @@ private fun SelfQRCodeContent(
                 color = colorsScheme().secondaryText
             )
             Spacer(modifier = Modifier.weight(1f))
-            ShareLinkButton(state.isTeamMember, state.userAccountProfileLink, trackAnalyticsEvent)
+            ShareLinkButton(state.isTeamMember, trackAnalyticsEvent) {
+                onShareProfileLink(state.userAccountProfileLink)
+            }
             VerticalSpace.x8()
             ShareQRCodeButton {
-                trackAnalyticsEvent(
-                    AnalyticsEvent.QrCode.Modal.ShareQrCode(
-                        isTeam = state.isTeamMember
-                    )
-                )
-                coroutineScope.launch {
-                    val bitmap = graphicsLayer.toImageBitmap()
-                    val qrUri = shareQRAssetClick(bitmap.asAndroidBitmap())
-                    context.shareQRToProfile(qrUri)
+                if (supportsTrustedWireShareCaller()) {
+                    shareQrCode(context::shareQRToProfile)
+                } else {
+                    // Older Android versions cannot verify the sender of a Wire FileProvider URI.
+                    showQrShareOptions = true
                 }
             }
         }
     }
+}
+
+@Composable
+private fun QrShareOptionsDialog(
+    onDismiss: () -> Unit,
+    onShareViaWire: () -> Unit,
+    onShareExternally: () -> Unit,
+) {
+    WireDialog(
+        title = stringResource(R.string.user_profile_qr_code_share_image_link),
+        onDismiss = onDismiss,
+        optionButton1Properties = WireDialogButtonProperties(
+            text = stringResource(R.string.import_media_content_title),
+            onClick = {
+                onDismiss()
+                onShareViaWire()
+            },
+            type = WireDialogButtonType.Primary,
+        ),
+        optionButton2Properties = WireDialogButtonProperties(
+            text = stringResource(R.string.label_share),
+            onClick = {
+                onDismiss()
+                onShareExternally()
+            },
+            type = WireDialogButtonType.Secondary,
+        ),
+        buttonsHorizontalAlignment = false,
+    )
 }
 
 @SuppressLint("ComposeModifierMissing")
@@ -240,10 +298,9 @@ fun ShareQRCodeButton(shareQRAssetClick: () -> Unit) {
 @Composable
 private fun ShareLinkButton(
     isTeamMember: Boolean,
-    selfProfileUrl: String,
-    trackAnalyticsEvent: (AnalyticsEvent.QrCode.Modal) -> Unit
+    trackAnalyticsEvent: (AnalyticsEvent.QrCode.Modal) -> Unit,
+    onShareProfileLink: () -> Unit,
 ) {
-    val context = LocalContext.current
     WirePrimaryButton(
         modifier =
             Modifier
@@ -258,7 +315,7 @@ private fun ShareLinkButton(
                     isTeam = isTeamMember
                 )
             )
-            context.shareLinkToProfile(selfProfileUrl)
+            onShareProfileLink()
         }
     )
 }
@@ -276,8 +333,10 @@ fun PreviewSelfQRCodeContent() {
                 userProfileLink = "wire://user/wire.com/aaaaaaa-222-3333-4444-55555555",
                 userAccountProfileLink = "https://account.wire.com/user-profile/?id=aaaaaaa-222-3333-4444-55555555@wire.com"
             ),
-            { "".toUri() },
-            { }
+            shareQRAssetClick = { "".toUri() },
+            trackAnalyticsEvent = {},
+            onShareProfileLink = {},
+            onShareQrViaWire = {},
         )
     }
 }

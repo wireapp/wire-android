@@ -111,15 +111,23 @@ class DateAndTimeParsers private constructor() {
 
     @Suppress("TooManyFunctions")
     companion object {
+        private const val LONG_MONTH_DAY_DATE_PATTERN = "MMMMd"
+        private const val TIME_24_HOUR_PATTERN = "Hm"
+        private const val TIME_12_HOUR_PATTERN = "hm"
+        private const val MONTH_DAY_DATE_PATTERN = "MMM dd"
+        private const val MONTH_DAY_YEAR_DATE_PATTERN = "MMM dd, yyyy"
+        private const val MEETING_DATE_SHORT_PATTERN = "EEE, d MMMM"
+        private const val MEETING_DATE_SHORT_WITH_YEAR_PATTERN = "EEE, d MMMM yyyy"
+        private const val FILE_DATE_TIME_PATTERN = "yyyy-MM-dd-hh-mm-ss"
+        private const val READ_RECEIPT_DATE_TIME_PATTERN = "MMM dd yyyy,  hh:mm a"
+        private const val DURATION_MESSAGE_TIME_PATTERN = "mm:ss"
+        private const val DAY_OF_WEEK_MONTH_DAY_DATE_PATTERN = "EEEE, MMMM d"
+        private const val DAY_OF_WEEK_MONTH_DAY_YEAR_DATE_PATTERN = "EEEE, MMMM d, yyyy"
+
         private val longDateShortTimeFormat = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.LONG, FormatStyle.SHORT)
         private val shortTimeFormat = DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT)
         private val mediumDateTimeFormat = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM, FormatStyle.MEDIUM)
         private val fullDateShortTimeFormatter = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.FULL, FormatStyle.SHORT)
-        private val fileDateTimeFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd-hh-mm-ss")
-        private val readReceiptDateTimeFormat = DateTimeFormatter.ofPattern("MMM dd yyyy,  hh:mm a")
-        private val mediumOnlyDateTimeFormat = DateTimeFormatter.ofPattern("MMM dd, yyyy")
-        private val durationMessageTimeFormat = DateTimeFormatter.ofPattern("mm:ss")
-        private val dayOfWeekMonthDayDateFormat = DateTimeFormatter.ofPattern("EEEE, MMMM d")
 
         fun deviceDateTimeFormat(
             instant: Instant,
@@ -146,8 +154,8 @@ class DateAndTimeParsers private constructor() {
             zoneId: ZoneId = ZoneId.systemDefault(),
         ): String {
             val date = instant.toJavaInstant()
-            val datePattern = DateFormat.getBestDateTimePattern(locale, "MMMMd")
-            val timePattern = DateFormat.getBestDateTimePattern(locale, if (is24Hour) "Hm" else "hm")
+            val datePattern = DateFormat.getBestDateTimePattern(locale, LONG_MONTH_DAY_DATE_PATTERN)
+            val timePattern = DateFormat.getBestDateTimePattern(locale, if (is24Hour) TIME_24_HOUR_PATTERN else TIME_12_HOUR_PATTERN)
             val formattedDate = DateTimeFormatter.ofPattern(datePattern).withLocale(locale).withZone(zoneId).format(date)
             val formattedTime = DateTimeFormatter.ofPattern(timePattern).withLocale(locale).withZone(zoneId).format(date)
             return "$formattedDate, $formattedTime"
@@ -165,7 +173,7 @@ class DateAndTimeParsers private constructor() {
             locale: Locale = Locale.getDefault(),
             zoneId: ZoneId = ZoneId.systemDefault(),
         ): String {
-            val pattern = if (showYear) "MMM dd, yyyy" else "MMM dd"
+            val pattern = if (showYear) MONTH_DAY_YEAR_DATE_PATTERN else MONTH_DAY_DATE_PATTERN
             val formatter = DateTimeFormatter.ofPattern(pattern).withLocale(locale).withZone(zoneId)
             return formatter.format(instant.toJavaInstant())
         }
@@ -193,19 +201,19 @@ class DateAndTimeParsers private constructor() {
             instant: Instant,
             locale: Locale = Locale.getDefault(),
             zoneId: ZoneId = ZoneId.systemDefault(),
-        ): String = fileDateTimeFormat.withLocale(locale).withZone(zoneId).format(instant.toJavaInstant())
+        ): String = DateTimeFormatter.ofPattern(FILE_DATE_TIME_PATTERN, locale).withZone(zoneId).format(instant.toJavaInstant())
 
         fun uiReadReceiptDateTime(
             instant: Instant,
             locale: Locale = Locale.getDefault(),
             zoneId: ZoneId = ZoneId.systemDefault(),
-        ): String = readReceiptDateTimeFormat.withLocale(locale).withZone(zoneId).format(instant.toJavaInstant())
+        ): String = DateTimeFormatter.ofPattern(READ_RECEIPT_DATE_TIME_PATTERN, locale).withZone(zoneId).format(instant.toJavaInstant())
 
         fun toMediumOnlyDateTime(
             date: Date,
             locale: Locale = Locale.getDefault(),
             zoneId: ZoneId = ZoneId.systemDefault(),
-        ): String = mediumOnlyDateTimeFormat.withLocale(locale).withZone(zoneId).format(date.toInstant())
+        ): String = DateTimeFormatter.ofPattern(MONTH_DAY_YEAR_DATE_PATTERN, locale).withZone(zoneId).format(date.toInstant())
 
         fun uiMessageDateTime(
             instant: Instant,
@@ -217,26 +225,35 @@ class DateAndTimeParsers private constructor() {
             timeMs: Long,
             locale: Locale = Locale.getDefault(),
             zoneId: ZoneId = ZoneId.systemDefault(),
-        ): String = durationMessageTimeFormat.withLocale(locale).withZone(zoneId).format(java.time.Instant.ofEpochMilli(timeMs))
+        ): String = DateTimeFormatter.ofPattern(DURATION_MESSAGE_TIME_PATTERN, locale)
+            .withZone(zoneId).format(java.time.Instant.ofEpochMilli(timeMs))
 
         fun videoMessageTime(
             timeMs: Long,
             locale: Locale = Locale.getDefault(),
             zoneId: ZoneId = ZoneId.systemDefault(),
-        ): String = durationMessageTimeFormat.withLocale(locale).withZone(zoneId).format(java.time.Instant.ofEpochMilli(timeMs))
+        ): String = DateTimeFormatter.ofPattern(DURATION_MESSAGE_TIME_PATTERN, locale)
+            .withZone(zoneId).format(java.time.Instant.ofEpochMilli(timeMs))
 
         fun meetingDate(
             instant: Instant,
             locale: Locale = Locale.getDefault(),
             zoneId: ZoneId = ZoneId.systemDefault(),
-        ): String = dayOfWeekMonthDayDateFormat.withLocale(locale).withZone(zoneId).format(instant.toJavaInstant())
+            includeYear: Boolean = false,
+        ): String {
+            val pattern = if (includeYear) DAY_OF_WEEK_MONTH_DAY_YEAR_DATE_PATTERN else DAY_OF_WEEK_MONTH_DAY_DATE_PATTERN
+            return DateTimeFormatter.ofPattern(pattern, locale).withZone(zoneId).format(instant.toJavaInstant())
+        }
 
         fun meetingDateShort(
             instant: Instant,
             locale: Locale = Locale.getDefault(),
             zoneId: ZoneId = ZoneId.systemDefault(),
-        ): String = DateFormat.getBestDateTimePattern(locale, "EEE, d MMMM").let { pattern ->
-            DateTimeFormatter.ofPattern(pattern).withLocale(locale).withZone(zoneId).format(instant.toJavaInstant())
+            includeYear: Boolean = false,
+        ): String {
+            val requestedPattern = if (includeYear) MEETING_DATE_SHORT_WITH_YEAR_PATTERN else MEETING_DATE_SHORT_PATTERN
+            val pattern = DateFormat.getBestDateTimePattern(locale, requestedPattern)
+            return DateTimeFormatter.ofPattern(pattern).withLocale(locale).withZone(zoneId).format(instant.toJavaInstant())
         }
 
         fun meetingTime(
@@ -249,7 +266,8 @@ class DateAndTimeParsers private constructor() {
             timeMs: Long,
             locale: Locale = Locale.getDefault(),
             zoneId: ZoneId = ZoneId.systemDefault(),
-        ): String = dayOfWeekMonthDayDateFormat.withLocale(locale).withZone(zoneId).format(java.time.Instant.ofEpochMilli(timeMs))
+        ): String = DateTimeFormatter.ofPattern(DAY_OF_WEEK_MONTH_DAY_DATE_PATTERN, locale)
+            .withZone(zoneId).format(java.time.Instant.ofEpochMilli(timeMs))
 
         fun linkExpirationTime(
             timeMs: Long,

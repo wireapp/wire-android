@@ -34,6 +34,7 @@ import kotlin.time.Clock
 import kotlin.time.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toJavaZoneId
+import kotlinx.datetime.toLocalDateTime
 import kotlin.time.Duration.Companion.days
 
 @Composable
@@ -70,7 +71,8 @@ fun MeetingHeader(
 
 @Composable
 private fun getDateHeaderString(time: Instant, displayTimeZone: TimeZone, relativeDay: MeetingHeader.RelativeDay): String {
-    val dateString = DateAndTimeParsers.meetingDate(time, zoneId = displayTimeZone.toJavaZoneId())
+    val includeYear = time.toLocalDateTime(displayTimeZone).year != Clock.System.now().toLocalDateTime(displayTimeZone).year
+    val dateString = DateAndTimeParsers.meetingDate(time, zoneId = displayTimeZone.toJavaZoneId(), includeYear = includeYear)
     return when (relativeDay) {
         MeetingHeader.RelativeDay.Today -> stringResource(R.string.meeting_date_header_today, dateString)
         MeetingHeader.RelativeDay.Tomorrow -> stringResource(R.string.meeting_date_header_tomorrow, dateString)

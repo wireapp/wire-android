@@ -28,7 +28,10 @@ import com.wire.kalium.logic.data.meeting.MeetingReminder
 import com.wire.kalium.logic.data.notification.LocalNotification
 import com.wire.kalium.logic.data.user.UserId
 import dev.zacsweers.metro.Inject
+import kotlinx.datetime.yearsUntil
+import java.time.ZoneId
 import kotlin.time.Instant
+import kotlin.time.toJavaInstant
 
 class MeetingNotificationBuilder @Inject constructor(
     private val context: Context,
@@ -61,7 +64,9 @@ class MeetingNotificationBuilder @Inject constructor(
         val title = invite.meetingTitle
             .ifBlank { context.getString(R.string.notification_meeting_title) }
             .let { if (isOngoing) context.getString(R.string.notification_meeting_title_ongoing, it) else it }
-        val date = DateAndTimeParsers.meetingDateShort(invite.startTime)
+        val zoneId = ZoneId.systemDefault()
+        val includeYear = invite.startTime.toJavaInstant().atZone(zoneId).year != currentTime.toJavaInstant().atZone(zoneId).year
+        val date = DateAndTimeParsers.meetingDateShort(invite.startTime, zoneId = zoneId, includeYear = includeYear)
         val startTime = DateAndTimeParsers.meetingTime(invite.startTime)
         val endTime = DateAndTimeParsers.meetingTime(invite.endTime)
         val smallText = context.getString(R.string.notification_meeting_invite_short)
@@ -77,7 +82,9 @@ class MeetingNotificationBuilder @Inject constructor(
         val title = update.meetingTitle
             .ifBlank { context.getString(R.string.notification_meeting_title) }
             .let { if (isOngoing) context.getString(R.string.notification_meeting_title_ongoing, it) else it }
-        val date = DateAndTimeParsers.meetingDateShort(update.startTime)
+        val zoneId = ZoneId.systemDefault()
+        val includeYear = update.startTime.toJavaInstant().atZone(zoneId).year != currentTime.toJavaInstant().atZone(zoneId).year
+        val date = DateAndTimeParsers.meetingDateShort(update.startTime, zoneId = zoneId, includeYear = includeYear)
         val startTime = DateAndTimeParsers.meetingTime(update.startTime)
         val endTime = DateAndTimeParsers.meetingTime(update.endTime)
         val smallText = context.getString(R.string.notification_meeting_update_short)

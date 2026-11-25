@@ -471,6 +471,22 @@ data class WireDrivePage(private val device: UiDevice) {
         return this
     }
 
+    fun waitForOfflineDownloadToFinish(fileName: String): WireDrivePage {
+        UiWaitUtils.waitElement(UiSelectorParams(text = fileName), timeout = UiWaitUtils.VERY_LONG_TIMEOUT)
+        UiWaitUtils.waitUntilGoneOrThrow(
+            selector = By.clickable(true).hasDescendant(By.text(fileName)).hasDescendant(
+                By.text(
+                    java.util.regex.Pattern.compile(
+                        "Tap to cancel download|Waiting for connection\\. Tap to cancel|Waiting to download\\. Tap to cancel"
+                    )
+                )
+            ),
+            timeout = UiWaitUtils.VERY_LONG_TIMEOUT,
+            errorMessage = "Offline download for '$fileName' did not finish after reconnection"
+        )
+        return this
+    }
+
     fun tapMakeAvailableOfflineOption(): WireDrivePage {
         UiWaitUtils.waitElement(UiSelectorParams(description = "Make available offline")).click()
         return this

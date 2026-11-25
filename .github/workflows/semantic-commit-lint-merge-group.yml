@@ -4,8 +4,11 @@ on:
   merge_group:
     types: [ checks_requested ]
 
+permissions: {}
+
 jobs:
   semantic-commit-pr-title-lint-merge:
+    timeout-minutes: 5
     name: action-semantic-pull-request
     runs-on: ubuntu-latest
     steps:

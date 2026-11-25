@@ -77,6 +77,7 @@ import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.DateAndTimeParsers
 import com.wire.android.util.rememberCurrentTimeProvider
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.id.MeetingId
 import kotlinx.coroutines.delay
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toJavaZoneId
@@ -91,9 +92,9 @@ fun MeetingItem(
     modifier: Modifier = Modifier,
     displayTimeZone: TimeZone = TimeZone.currentSystemDefault(),
     openMeetingOptions: (occurrenceId: String) -> Unit = {},
-    startCall: (conversationId: ConversationId) -> Unit = {},
-    joinCall: (conversationId: ConversationId) -> Unit = {},
-    returnToCall: (conversationId: ConversationId) -> Unit = {},
+    startCall: (conversationId: ConversationId, meetingId: MeetingId) -> Unit = { _, _ -> },
+    joinCall: (conversationId: ConversationId, meetingId: MeetingId) -> Unit = { _, _ -> },
+    returnToCall: (conversationId: ConversationId, meetingId: MeetingId) -> Unit = { _, _ -> },
 ) {
     RowItemTemplate(
         modifier = modifier.padding(start = dimensions().spacing8x),
@@ -126,6 +127,7 @@ fun MeetingItem(
                 )
                 MeetingOngoingAttendingRow(
                     conversationId = meeting.conversationId,
+                    meetingId = meeting.meetingId,
                     status = meeting.status,
                     startCall = startCall,
                     joinCall = joinCall,
@@ -361,27 +363,28 @@ private fun MeetingStartingInPrimaryBodyText(status: Status.Scheduled) {
 @Composable
 private fun MeetingOngoingAttendingRow(
     conversationId: ConversationId,
+    meetingId: MeetingId,
     status: Status,
-    joinCall: (conversationId: ConversationId) -> Unit,
-    startCall: (conversationId: ConversationId) -> Unit,
-    returnToCall: (conversationId: ConversationId) -> Unit,
+    joinCall: (conversationId: ConversationId, meetingId: MeetingId) -> Unit,
+    startCall: (conversationId: ConversationId, meetingId: MeetingId) -> Unit,
+    returnToCall: (conversationId: ConversationId, meetingId: MeetingId) -> Unit,
 ) {
     Box(modifier = Modifier.heightIn(min = dimensions().spacing8x)) {
         if (status is Status.Ongoing) {
             when {
                 status.ongoingCallStatus?.isSelfUserAttending == true -> {
                     // user is attending the ongoing call, show "Attending" text with option to return to the call
-                    MeetingAttendingPrimaryBodyText(onClick = { returnToCall(conversationId) })
+                    MeetingAttendingPrimaryBodyText(onClick = { returnToCall(conversationId, meetingId) })
                 }
 
                 status.ongoingCallStatus != null -> {
                     // there is an ongoing call but the user is not attending, show option to join the call
-                    JoinMeetingPrimaryButton(onClick = { joinCall(conversationId) })
+                    JoinMeetingPrimaryButton(onClick = { joinCall(conversationId, meetingId) })
                 }
 
                 else -> {
                     // there is no ongoing call, show option to start the call
-                    JoinMeetingPrimaryButton(onClick = { startCall(conversationId) })
+                    JoinMeetingPrimaryButton(onClick = { startCall(conversationId, meetingId) })
                 }
             }
         } else if (status is Status.Scheduled) {

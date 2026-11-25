@@ -38,6 +38,7 @@ class LargeTeamTests : BaseUiTest() {
 
     private lateinit var teamOwner: ClientUser
     private lateinit var member1: ClientUser
+    private lateinit var member2: ClientUser
 
     @Before
     fun setUp() {
@@ -85,45 +86,52 @@ class LargeTeamTests : BaseUiTest() {
             clientUserManager.appendCustomUser(member1)
         }
 
-        step("And User TeamOwner is me and removes all their registered OTR clients") {
-            clientUserManager.setSelfUser(teamOwner)
-            backendClient.getBackendClientIds(teamOwner).forEach { clientId ->
-                backendClient.removeBackendClient(teamOwner, clientId)
+        step("And There is a known user Member2") {
+            member2 = ClientUser(
+                "Florencio",
+                "Larkin",
+                requiredSecret("LARGE_TEAM_MEMBER2_LOGIN_DETAILS", "USERNAME"),
+                requiredSecret("LARGE_TEAM_MEMBER2_LOGIN_DETAILS", "PASSWORD")
+            ).apply {
+                hardcoded = true
+                backendName = backendClient.name
+                nameAliases.add("user3Name")
+            }
+            clientUserManager.appendCustomUser(member2)
+        }
+
+        step("And TeamOwner, Member1 and Member2 remove all their registered OTR clients") {
+            listOf(teamOwner, member1, member2).forEach { user ->
+                backendClient.getBackendClientIds(user).forEach { clientId ->
+                    backendClient.removeBackendClient(user, clientId)
+                }
             }
         }
 
-        // step("And User Member1 adds a new device Device1 with label Device1") {
-        //     testServiceHelper.addDevice("user2Name", null, "Device1")
-        // }
-
-        step("And I see email verification Welcome Page") {
+        step("And Member1 signs in to staging and completes the login prompts") {
+            clientUserManager.setSelfUser(member1)
             pages.registrationPage.assertEmailWelcomePage()
+            loginToStagingAs(member1)
         }
 
-        step("And I open staging backend deep link") {
-            pages.loginPage.apply {
-                clickStagingDeepLink()
-                clickProceedButtonOnDeeplinkOverlay()
-                clickContinueButtonOnBackendConfigSuccess()
-            }
+        step("And I open Add account from Member1's profile") {
+            pages.conversationListPage.clickUserProfileButton()
+            pages.selfUserProfilePage.tapNewAccountButton()
         }
 
-        step("And I enter a valid email and password to sign in") {
-            pages.loginPage.apply {
-                enterTeamOwnerLoggingEmail(teamOwner.email ?: "")
-                clickLoginButton()
-                assertUserLoginScreenVisible()
-                enterTeamOwnerLoggingPassword(teamOwner.password ?: "")
-                clickLoginButton()
-            }
+        step("And Member2 signs in to staging as the second account and completes the login prompts") {
+            clientUserManager.setSelfUser(member2)
+            loginToStagingAs(member2)
         }
 
-        step("And I wait until I am fully logged in and decline share data alert") {
-            pages.registrationPage.apply {
-                waitUntilLoginFlowIsCompleted()
-                clickAllowNotificationButton()
-                clickDeclineShareDataAlert()
-            }
+        step("And I open Add account from Member2's profile") {
+            pages.conversationListPage.clickUserProfileButton()
+            pages.selfUserProfilePage.tapNewAccountButton()
+        }
+
+        step("And TeamOwner signs in to staging as the third account and completes the login prompts") {
+            clientUserManager.setSelfUser(teamOwner)
+            loginToStagingAs(teamOwner)
         }
 
         step("When I start a new conversation and tap New Group") {
@@ -208,6 +216,25 @@ class LargeTeamTests : BaseUiTest() {
         // step("Then I see the message Hi in current conversation") {
         //     pages.conversationViewPage.assertReceivedMessageIsVisibleInCurrentConversation("Hi")
         // }
+    }
+
+    // Shared app login flow: selects staging, signs in, and clears post-login prompts.
+    private fun loginToStagingAs(user: ClientUser) {
+        pages.loginPage.apply {
+            clickStagingDeepLink()
+            clickProceedButtonOnDeeplinkOverlay()
+            clickContinueButtonOnBackendConfigSuccess()
+            enterUserIdentifier(user.email.orEmpty())
+            clickLoginButton()
+            enterUserPassword(user.password.orEmpty())
+            clickLoginButton()
+        }
+        pages.registrationPage.apply {
+            waitUntilLoginFlowIsCompleted()
+            clickAllowNotificationButton()
+            clickDeclineShareDataAlert()
+        }
+        pages.conversationListPage.waitUntilWireServiceNotificationDisappears()
     }
 
     private fun requiredSecret(parentKey: String, fieldKey: String): String =

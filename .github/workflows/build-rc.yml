@@ -18,6 +18,7 @@ concurrency:
 
 jobs:
   validate-rc-tag:
+    timeout-minutes: 10
     runs-on: ubuntu-latest
     steps:
       - name: Get latest release tag
@@ -95,6 +96,7 @@ jobs:
           fi
 
   validate-config:
+    timeout-minutes: 10
     runs-on: ubuntu-latest
     steps:
       - name: Validate required variables
@@ -114,6 +116,7 @@ jobs:
           echo "✅ PROD_APP_RC_TRACK is set to: ${{ vars.PROD_APP_RC_TRACK }}"
 
   create-github-release:
+    timeout-minutes: 15
     needs: [validate-rc-tag, validate-config]
     runs-on: ubuntu-latest
     steps:

@@ -57,7 +57,6 @@ import com.wire.android.feature.cells.ui.common.LoadingScreen
 import com.wire.android.feature.cells.ui.common.WireCellErrorDialog
 import com.wire.android.feature.cells.ui.dialog.DeleteConfirmationDialog
 import com.wire.android.feature.cells.ui.dialog.NodeActionsBottomSheet
-import com.wire.android.feature.cells.ui.edit.OnlineEditor
 import com.wire.android.feature.cells.ui.model.CellNodeUi
 import com.wire.android.feature.cells.ui.movetofolder.NodeToMove
 import com.wire.android.feature.cells.ui.publiclink.PublicLinkScreenData
@@ -65,6 +64,7 @@ import com.wire.android.feature.cells.ui.recyclebin.RestoreConfirmationDialog
 import com.wire.android.feature.cells.ui.recyclebin.RestoreParentFolderConfirmationDialog
 import com.wire.android.feature.cells.ui.recyclebin.UnableToRestoreDialog
 import com.wire.android.feature.cells.ui.search.sort.SortBy
+import com.wire.android.util.CustomTabsHelper
 import com.wire.android.util.SupportPage
 import com.wire.android.ui.common.HandleActions
 import com.wire.android.ui.common.dimensions
@@ -437,8 +437,7 @@ private fun LearnMoreLink(
     @StringRes textRes: Int,
     page: SupportPage,
 ) {
-    val context = LocalContext.current.applicationContext
-    val onlineEditor = remember(context) { OnlineEditor(context) }
+    val context = LocalContext.current
 
     val url = supportUrlResource(page)
     Text(
@@ -446,7 +445,7 @@ private fun LearnMoreLink(
         style = MaterialTheme.wireTypography.body01,
         textDecoration = TextDecoration.Underline,
         modifier = Modifier.clickable {
-            onlineEditor.open(url)
+            CustomTabsHelper.launchUrl(context, url)
         },
     )
 }

@@ -32,7 +32,6 @@ import com.wire.android.feature.cells.ui.edit.OnlineEditor
 import com.wire.android.feature.cells.ui.model.CellNodeUi
 import com.wire.android.feature.cells.ui.model.NodeBottomSheetAction
 import com.wire.android.feature.cells.ui.model.OpenLoadState
-import com.wire.android.feature.cells.ui.model.pdfRenditionUrl
 import com.wire.android.feature.cells.ui.model.toUiModel
 import com.wire.android.feature.cells.ui.offline.AccountOfflineDownloads
 import com.wire.android.feature.cells.ui.offline.SessionOfflineDownloads
@@ -407,34 +406,18 @@ class CellViewModelTest {
     }
 
     @Test
-    fun `given editable document when clicked with viewer access then its pdf rendition is opened`() = runTest {
+    fun `given editable document when clicked with viewer access then the online editor is opened read-only`() = runTest {
         val (arrangement, viewModel) = Arrangement()
             .withLoadSuccess()
+            .withEditorUrl(EDITOR_URL)
             .arrange()
 
         viewModel.actions.test {
             viewModel.sendIntent(CellViewIntent.OnItemClick(editableDocument.copy(isViewerOnly = true).toUiModel()))
 
-            val action = awaitItem()
-            assertTrue(action is OpenPdfViewer)
-            assertEquals(PDF_RENDITION_URL, (action as OpenPdfViewer).file.pdfRenditionUrl())
+            expectNoEvents()
         }
-        coVerify(exactly = 0) { arrangement.getEditorUrlUseCase(any()) }
-    }
-
-    @Test
-    fun `given editable document without pdf rendition when clicked with viewer access then an error is shown`() = runTest {
-        // The backend has no rendition yet: still processing, failed, or the type is not convertible.
-        val (_, viewModel) = Arrangement()
-            .withLoadSuccess()
-            .arrange()
-        val withoutRendition = editableDocument.copy(isViewerOnly = true, pdfPreviewUrl = null)
-
-        viewModel.actions.test {
-            viewModel.sendIntent(CellViewIntent.OnItemClick(withoutRendition.toUiModel()))
-
-            assertEquals(ShowError(CellError.OTHER_ERROR), awaitItem())
-        }
+        coVerify(exactly = 1) { arrangement.onlineEditor.open(EDITOR_URL, true) }
     }
 
     @Test

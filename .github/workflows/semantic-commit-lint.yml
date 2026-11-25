@@ -4,8 +4,14 @@ on:
   pull_request_target:
     types: [ opened, edited, synchronize ]
 
+permissions: {}
+
 jobs:
   semantic-commit-pr-title-lint:
+    timeout-minutes: 5
+    permissions:
+      pull-requests: write
+      statuses: write
     runs-on: ubuntu-latest
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

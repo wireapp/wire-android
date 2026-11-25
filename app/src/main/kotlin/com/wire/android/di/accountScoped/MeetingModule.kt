@@ -86,5 +86,9 @@ class MeetingModule {
     ): SyncMeetingsUseCase = coreLogic.getSessionScope(accountId).syncMeetingsUseCase
 
     @Provides
+    fun provideRotateMeetingLinkUseCase(meetingScope: MeetingScope): com.wire.kalium.logic.feature.meeting.RotateMeetingLinkUseCase =
+        meetingScope.rotateMeetingLink
+
+    @Provides
     fun provideJoinMeetingViaCodeUseCase(meetingScope: MeetingScope): JoinMeetingViaCodeUseCase = meetingScope.joinMeetingViaCode
 }

@@ -58,12 +58,12 @@ fun outgoingCallViewModel(conversationId: ConversationId): OutgoingCallViewModel
 @Composable
 fun ongoingCallViewModel(
     conversationId: ConversationId,
-    createdMeetingId: MeetingId? = null,
+    meetingId: MeetingId? = null,
 ): OngoingCallViewModel =
     wireAssistedMetroViewModel<OngoingCallViewModel, CallingManualViewModelFactory>(
         instanceKey = "ongoing_$conversationId",
     ) { _ ->
-        ongoingCallViewModel(conversationId, createdMeetingId)
+        ongoingCallViewModel(conversationId, meetingId)
     }
 
 @Composable

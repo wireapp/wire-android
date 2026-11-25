@@ -12,6 +12,7 @@ env:
 
 jobs:
   generate-screenshots:
+    timeout-minutes: 90
     runs-on: warp-ubuntu-2404-x64-8x
 
     if: github.ref == 'refs/heads/develop'

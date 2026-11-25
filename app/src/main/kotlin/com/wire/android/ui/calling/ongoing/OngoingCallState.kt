@@ -31,6 +31,7 @@ data class OngoingCallState(
     val callQuality: CallQualityState = CallQualityState(),
     val othersVideosDisabled: Boolean = false,
     val meetingLink: MeetingLink? = null,
+    val meetingLinkCardVisible: Boolean = false,
 ) {
     sealed interface FlowState {
         object Default : FlowState

@@ -4,8 +4,11 @@ on:
   merge_group:
     types: [checks_requested]
 
+permissions: {}
+
 jobs:
   add-jira-description-merge:
+    timeout-minutes: 5
     name: add-jira-description / add-jira-description
     runs-on: ubuntu-latest
     steps:

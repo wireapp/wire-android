@@ -70,7 +70,7 @@ class MeetingScheduleTests : BaseMeetingUiTest() {
         backendClient.listMeetings(member).forEach { backendClient.deleteMeeting(it) }
     }
 
-    @TestCaseId("TC-12056", "TC-12064")
+    @TestCaseId("TC-12835", "TC-12839")
     @Category("regression", "RC", "meetings", "meetingSchedule")
     @Test
     fun givenLocalMorning_whenSchedulingValidMeeting_thenDefaultsAndSavedDetailsAreCorrect() {
@@ -89,7 +89,7 @@ class MeetingScheduleTests : BaseMeetingUiTest() {
         }
     }
 
-    @TestCaseId("TC-12058")
+    @TestCaseId("TC-12836")
     @Category("regression", "RC", "meetings", "meetingSchedule")
     @Test
     fun givenRequiredTitle_whenEnteringBoundaryValues_thenOnlyUpTo64CharactersAreAccepted() {
@@ -116,7 +116,7 @@ class MeetingScheduleTests : BaseMeetingUiTest() {
         }
     }
 
-    @TestCaseId("TC-12060")
+    @TestCaseId("TC-12837")
     @Category("regression", "RC", "meetings", "meetingSchedule")
     @Test
     fun givenEmptyAndModifiedDrafts_whenClosingOrPressingBack_thenDiscardIsConfirmedOnlyForChanges() {
@@ -150,7 +150,7 @@ class MeetingScheduleTests : BaseMeetingUiTest() {
         }
     }
 
-    @TestCaseId("TC-12063")
+    @TestCaseId("TC-12838")
     @Category("regression", "RC", "meetings", "meetingSchedule")
     @Test
     fun givenValidDraftOffline_whenSchedulingThenRetryingOnline_thenErrorPreservesDraftAndCreatesOnlyOneMeeting() {
@@ -185,7 +185,7 @@ class MeetingScheduleTests : BaseMeetingUiTest() {
         }
     }
 
-    @TestCaseId("TC-12065")
+    @TestCaseId("TC-12840")
     @Category("regression", "RC", "meetings", "meetingSchedule")
     @Test
     fun givenCustomDuration_whenChangingDateAndStartTime_thenEndDateTracksStartAndDurationIsPreserved() {
@@ -208,7 +208,7 @@ class MeetingScheduleTests : BaseMeetingUiTest() {
         }
     }
 
-    @TestCaseId("TC-12067")
+    @TestCaseId("TC-12841")
     @Category("regression", "RC", "meetings", "meetingSchedule")
     @Test
     fun givenSameDayMeeting_whenStartingLate_thenEndIsClampedTo2359AndZeroDurationIsRejected() {
@@ -240,7 +240,7 @@ class MeetingScheduleTests : BaseMeetingUiTest() {
         }
     }
 
-    @TestCaseId("TC-12068")
+    @TestCaseId("TC-12842")
     @Category("regression", "RC", "meetings", "meetingSchedule")
     @Test
     fun givenSupportedRepeatOptions_whenSchedulingEach_thenSavedRecurrenceAndOccurrenceIntervalsAreCorrect() {
@@ -293,7 +293,7 @@ class MeetingScheduleTests : BaseMeetingUiTest() {
         }
     }
 
-    @TestCaseId("TC-12069")
+    @TestCaseId("TC-12843")
     @Category("regression", "RC", "meetings", "meetingSchedule")
     @Test
     fun givenEligibleAndExternalUsers_whenSelectingAndRemovingParticipants_thenOnlyFinalEligibleSelectionIsScheduled() {
@@ -346,7 +346,7 @@ class MeetingScheduleTests : BaseMeetingUiTest() {
 
     // Android 13 introduced the per-app locale command; Android 11 and 12 skip this case.
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.TIRAMISU)
-    @TestCaseId("TC-12072")
+    @TestCaseId("TC-12844")
     @Category("regression", "RC", "meetings", "meetingSchedule")
     @Test
     fun givenGermanAndUsAppLocales_whenOpeningScheduleMeeting_thenDateUsesAppLocale() {
@@ -364,7 +364,7 @@ class MeetingScheduleTests : BaseMeetingUiTest() {
         }
     }
 
-    @TestCaseId("TC-12072")
+    @TestCaseId("TC-12844")
     @Category("regression", "RC", "meetings", "meetingSchedule")
     @Test
     fun givenExplicitAndroidTimePreferences_whenReopeningDraft_thenTimesFollow12And24HourSettings() {

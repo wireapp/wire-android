@@ -90,6 +90,20 @@ internal class MeetingsNavigation3Test {
         }
     }
 
+    @Test
+    fun `link creation has its own restorable navigation entry`() {
+        val meetingId = MeetingId("meeting", "wire.test")
+        val link = MeetingLinkRoute(Session, meetingId, MeetingLinkMode.Existing)
+        val create = CreateMeetingLinkRoute(Session, meetingId)
+        val restored = Json.decodeFromString<CreateMeetingLinkRoute>(Json.encodeToString(create))
+
+        assertEquals(create, restored)
+        assertEquals(link.sessionId, restored.sessionId)
+        assertEquals(link.meetingId, restored.meetingId)
+        assertNotEquals(link.entryId, restored.entryId)
+        assertNotEquals(link.routeId, restored.routeId)
+    }
+
     private companion object {
         val Session = WireSessionId("user", "wire.test")
     }

@@ -95,7 +95,7 @@ internal data class WireNavigation3ContributionCatalog(
  * app-lock overlays finish the registry. An entry type must be owned by exactly one contribution.
  */
 internal object WireNavigation3Contributions {
-    const val EXPECTED_ROUTE_REGISTRATION_COUNT: Int = 110
+    const val EXPECTED_ROUTE_REGISTRATION_COUNT: Int = 111
     const val EXPECTED_INSTALLER_COUNT: Int = 19
 
     fun create(

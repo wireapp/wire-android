@@ -274,12 +274,13 @@ fun NewMeetingContent(
 }
 
 @Composable
-private fun MeetingPasswordInput(
+internal fun MeetingPasswordInput(
     passwordState: TextFieldState,
     confirmPasswordState: TextFieldState,
     invalidPassword: Boolean,
     passwordsDoNotMatch: Boolean,
     onGenerateRandomPassword: () -> Unit,
+    readOnly: Boolean = false,
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
     Column(modifier = Modifier.fillMaxWidth()) {
@@ -308,6 +309,7 @@ private fun MeetingPasswordInput(
         VerticalSpace.x8()
         WirePasswordTextField(
             textState = passwordState,
+            readOnly = readOnly,
             labelText = stringResource(R.string.new_meeting_password_input_label),
             placeholderText = stringResource(R.string.new_meeting_password_input_placeholder),
             descriptionText = stringResource(R.string.new_meeting_password_error),
@@ -323,6 +325,7 @@ private fun MeetingPasswordInput(
         VerticalSpace.x16()
         WirePasswordTextField(
             textState = confirmPasswordState,
+            readOnly = readOnly,
             labelText = stringResource(R.string.new_meeting_confirm_password_input_label),
             placeholderText = stringResource(R.string.new_meeting_confirm_password_input_placeholder),
             trailingIcon = { ClearInputIconButton(state = confirmPasswordState) },

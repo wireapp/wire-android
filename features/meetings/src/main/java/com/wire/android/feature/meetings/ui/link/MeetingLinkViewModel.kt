@@ -22,12 +22,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wire.android.di.CurrentAccount
 import com.wire.android.di.metro.WireAssistedViewModelBinding
 import com.wire.android.feature.meetings.model.MeetingLink
-import com.wire.android.di.CurrentAccount
+import com.wire.android.feature.meetings.ui.MeetingsManualViewModelFactoryGroup
 import com.wire.kalium.logic.data.id.MeetingId
 import com.wire.kalium.logic.data.user.UserId
-import com.wire.android.feature.meetings.ui.MeetingsManualViewModelFactoryGroup
 import com.wire.kalium.logic.feature.meeting.ObserveMeetingUseCase
 import dev.zacsweers.metro.Assisted
 import dev.zacsweers.metro.AssistedFactory

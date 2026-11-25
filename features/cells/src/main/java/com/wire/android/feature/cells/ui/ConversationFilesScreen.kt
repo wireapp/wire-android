@@ -49,6 +49,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
@@ -305,8 +306,12 @@ internal fun ConversationFilesScreenContent(
     }
 
     val lazyListState = rememberLazyListState()
+    var hasObservedSortingCriteria by remember { mutableStateOf(false) }
     LaunchedEffect(sortingCriteria) {
-        lazyListState.animateScrollToItem(0)
+        if (hasObservedSortingCriteria) {
+            lazyListState.animateScrollToItem(0)
+        }
+        hasObservedSortingCriteria = true
     }
 
     CellsNewActionBottomSheet(

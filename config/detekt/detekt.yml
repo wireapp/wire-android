@@ -497,9 +497,30 @@ style:
         comments: [ 'TODO:', 'FIXME:', 'STOPSHIP:' ]
         allowedPatterns: ''
     ForbiddenImport:
-        active: false
-        imports: [ ]
+        active: true
+        # Log through appLogger, which owns the log data policy (docs/adr/0021-log-data-policy.md).
+        imports:
+            - value: 'android.util.Log'
+              reason: 'Log through appLogger (com.wire.android.appLogger) instead of android.util.Log. See docs/adr/0021-log-data-policy.md.'
+            - value: 'android.util.Log.*'
+              reason: 'Log through appLogger (com.wire.android.appLogger) instead of android.util.Log. See docs/adr/0021-log-data-policy.md.'
+            - value: 'co.touchlab.kermit.*'
+              reason: 'Log through appLogger (com.wire.android.appLogger) instead of Kermit directly. See docs/adr/0021-log-data-policy.md.'
         forbiddenPatterns: ''
+        excludes:
+            # Test code logs to the test runner on purpose; tests/ is the e2e framework (androidTest + support classes).
+            - '**/test/**'
+            - '**/androidTest/**'
+            - '**/tests/**'
+            # Logging plumbing: the Kermit LogWriter implementations are the sink behind appLogger.
+            - '**/app/src/main/kotlin/com/wire/android/util/logging/LogFileWriter*.kt'
+            - '**/app/src/private/kotlin/com/wire/android/util/DataDogLogger.kt'
+            - '**/app/src/public/kotlin/com/wire/android/util/DataDogLogger.kt'
+            # Startup traces, crash-flush and previous-exit-reason logs are info level. appLogger filters
+            # below WARN unless the user enables logging, so these would disappear. It also builds the logger config.
+            - '**/app/src/main/kotlin/com/wire/android/WireApplication.kt'
+            # Same reason: the activity half of the startup trace is info level and must reach logcat.
+            - '**/app/src/main/kotlin/com/wire/android/ui/WireActivity.kt'
     ForbiddenMethodCall:
         active: false
         methods: [ ]

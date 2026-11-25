@@ -51,7 +51,6 @@ import com.wire.kalium.logic.data.call.CallResolutionQuality
 import com.wire.kalium.logic.data.call.CallingParticipantsOrderType
 import com.wire.kalium.logic.data.call.VideoState
 import com.wire.kalium.logic.data.id.MeetingId
-import com.wire.kalium.logic.feature.meeting.ObserveMeetingUseCase
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.user.UserId
@@ -64,6 +63,7 @@ import com.wire.kalium.logic.feature.call.usecase.SetCallQualityIntervalUseCase
 import com.wire.kalium.logic.feature.call.usecase.video.SetVideoSendStateUseCase
 import com.wire.kalium.logic.feature.client.ObserveCurrentClientIdUseCase
 import com.wire.kalium.logic.feature.incallreaction.SendInCallReactionUseCase
+import com.wire.kalium.logic.feature.meeting.ObserveMeetingUseCase
 import com.wire.kalium.network.NetworkState
 import com.wire.kalium.network.NetworkStateObserver
 import dev.zacsweers.metro.Assisted
@@ -86,7 +86,6 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
-import kotlinx.coroutines.flow.takeWhile
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
 import com.wire.android.di.metro.WireAssistedViewModelBinding
@@ -111,19 +110,12 @@ class OngoingCallViewModel @AssistedInject constructor(
     private val uiCallParticipantMapper: UICallParticipantMapper,
     private val dispatchers: DispatcherProvider,
     private val observeMeeting: ObserveMeetingUseCase,
-    @Assisted private val createdMeetingId: MeetingId?,
+    @Assisted private val meetingId: MeetingId?,
     private val currentTimeProvider: CurrentTimeProvider = CurrentTimeProvider.Default,
 ) : ViewModel() {
     @AssistedFactory
     interface Factory {
-        fun create(conversationId: ConversationId, createdMeetingId: MeetingId?): OngoingCallViewModel
-    }
-
-    private var isMeetingInvitationDismissed = false
-
-    fun dismissMeetingInvitation() {
-        isMeetingInvitationDismissed = true
-        state = state.copy(meetingLink = null)
+        fun create(conversationId: ConversationId, meetingId: MeetingId?): OngoingCallViewModel
     }
 
     var state by mutableStateOf(OngoingCallState())
@@ -172,19 +164,24 @@ class OngoingCallViewModel @AssistedInject constructor(
     }
 
     private fun observeMeetingInvitation() {
-        val meetingId = createdMeetingId ?: return
-        if (isMeetingInvitationDismissed) return
+        val meetingId = meetingId ?: return
         viewModelScope.launch {
-            observeMeeting(meetingId)
-                .takeWhile { !isMeetingInvitationDismissed }
-                .collect { meeting ->
-                    state = state.copy(
-                        meetingLink = meeting
-                            ?.takeIf { it.creatorId == currentUserId && it.conversationId == conversationId }
-                            ?.let { MeetingLink(it.link, it.hasPassword) }
-                    )
-                }
+            observeMeeting(meetingId).collect { meeting ->
+                state = state.copy(
+                    meetingLink = meeting
+                        ?.takeIf { it.creatorId == currentUserId && it.conversationId == conversationId }
+                        ?.let { MeetingLink(it.link, it.hasPassword) }
+                )
+            }
         }
+    }
+
+    fun showMeetingInvitation() {
+        state = state.copy(meetingLinkCardVisible = true)
+    }
+
+    fun dismissMeetingInvitation() {
+        state = state.copy(meetingLinkCardVisible = false)
     }
 
     fun startSendingVideoFeed() {

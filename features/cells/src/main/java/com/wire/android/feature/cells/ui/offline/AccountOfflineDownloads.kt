@@ -142,15 +142,19 @@ internal class AccountOfflineDownloads(
 
     /**
      * Saves [files] for offline use. Files already downloading or queued are left out.
-     * @return the id of the request, found again in [OfflineDownloadEvent.RequestFinished]; null when nothing was left to download.
+     *
+     * @param onRequestCreated given the id of the request, found again in [OfflineDownloadEvent.RequestFinished], before
+     * any download starts: a request can settle before this function returns, e.g. when its files are already on the
+     * device. Not called when nothing was left to download.
      */
-    fun download(files: List<CellNodeUi.File>): Long? {
+    fun download(files: List<CellNodeUi.File>, onRequestCreated: (requestId: Long) -> Unit) {
         val newFiles = files
             .distinctBy { it.uuid }
             .filterNot { queue.contains(it.uuid) || controller.isDownloading(it.uuid) }
-        if (newFiles.isEmpty()) return null
+        if (newFiles.isEmpty()) return
 
         val requestId = nextRequestId.incrementAndGet()
+        onRequestCreated(requestId)
         val progress = BulkOfflineProgress(total = newFiles.size) { result ->
             _events.tryEmit(OfflineDownloadEvent.RequestFinished(requestId, result))
         }
@@ -178,7 +182,6 @@ internal class AccountOfflineDownloads(
                 )
             }
         )
-        return requestId
     }
 
     /** Cancels the download of [uuid], whether it is running or still waiting for its turn. */

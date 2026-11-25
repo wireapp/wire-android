@@ -17,6 +17,8 @@
  */
 package com.wire.android.feature.cells.ui.rename
 
+import com.wire.android.feature.cells.ui.CellNodeChangeEvents
+import com.wire.android.feature.cells.ui.CellNodeUpdate
 import app.cash.turbine.test
 import com.wire.android.feature.cells.ui.common.FileNameError
 import com.wire.kalium.cells.domain.usecase.RenameNodeFailure
@@ -70,6 +72,19 @@ class RenameNodeViewModelTest {
                 assertTrue(this is RenameNodeViewModelAction.Success)
                 coVerify(exactly = 1) { arrangement.renameNodeUseCase(eq(UUID), eq(CURRENT_PATH), eq("newFileName.txt")) }
             }
+        }
+    }
+
+    @Test
+    fun `given renameNodeUseCase success, when rename is called, then the lists showing the node are told its new name`() = runTest {
+        val (arrangement, viewModel) = Arrangement()
+            .withRenameNodeUseCaseReturning(Either.Right(Unit))
+            .arrange()
+
+        arrangement.nodeChangeEvents.nodeUpdates.test {
+            viewModel.renameNode("newFileName")
+
+            assertEquals(CellNodeUpdate.Renamed(UUID, name = "newFileName.txt", remotePath = "newFileName.txt"), awaitItem())
         }
     }
 
@@ -171,6 +186,8 @@ class RenameNodeViewModelTest {
 
     private class Arrangement {
 
+        val nodeChangeEvents = CellNodeChangeEvents()
+
         @MockK
         lateinit var renameNodeUseCase: RenameNodeUseCase
 
@@ -182,6 +199,7 @@ class RenameNodeViewModelTest {
             RenameNodeViewModel(
                 navArgs = RenameNodeNavArgs(UUID, CURRENT_PATH, false, nodeName),
                 renameNodeUseCase = renameNodeUseCase,
+                nodeChangeEvents = nodeChangeEvents,
             )
         }
 

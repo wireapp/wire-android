@@ -63,6 +63,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.role
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextAlign
@@ -205,7 +206,7 @@ fun NewMeetingContent(
                     participants = state.confirmedContacts,
                     onClick = onParticipantsClicked,
                 )
-                if (type == NewMeetingType.Schedule && state.isGuestLinkSharingEnabled) {
+                if (type !is NewMeetingType.Edit && state.isGuestLinkSharingEnabled) {
                     VerticalSpace.x24()
                     MeetingPasswordInput(
                         passwordState = passwordState,
@@ -283,6 +284,29 @@ internal fun MeetingPasswordInput(
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
     Column(modifier = Modifier.fillMaxWidth()) {
+        VerticalSpace.x12()
+        Text(
+            text = stringResource(R.string.new_meeting_password_info),
+            style = typography().label04.copy(textAlign = TextAlign.Start),
+            color = colorsScheme().secondaryText,
+            fontWeight = FontWeight.Normal,
+        )
+        VerticalSpace.x2()
+        Text(
+            text = stringResource(R.string.new_meeting_password_copy_info),
+            style = typography().label04.copy(textAlign = TextAlign.Start),
+            color = colorsScheme().secondaryText,
+            fontWeight = FontWeight.Medium,
+        )
+        VerticalSpace.x8()
+        FlowRow(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(dimensions().spacing16x),
+        ) {
+            GeneratePasswordButton(onClick = onGenerateRandomPassword)
+            CopyPasswordButton(password = passwordState.text.toString())
+        }
+        VerticalSpace.x8()
         WirePasswordTextField(
             textState = passwordState,
             readOnly = readOnly,

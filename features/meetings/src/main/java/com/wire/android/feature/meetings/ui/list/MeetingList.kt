@@ -17,6 +17,8 @@
  */
 package com.wire.android.feature.meetings.ui.list
 
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.rememberScrollState
@@ -48,6 +50,7 @@ import com.wire.android.feature.meetings.model.MeetingListItem
 import com.wire.android.feature.meetings.ui.MeetingsTabItem
 import com.wire.android.feature.meetings.ui.meetingListViewModel
 import com.wire.android.feature.meetings.ui.util.PreviewMultipleThemes
+import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.rowitem.EmptyListArrowFooter
 import com.wire.android.ui.common.rowitem.EmptyListContent
 import com.wire.android.ui.common.rowitem.LoadingListContent
@@ -55,6 +58,7 @@ import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.ui.collectAsLazyPagingItemsWithLifecycle
 import com.wire.android.util.ui.keepOnTopWhenNotScrolled
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.id.MeetingId
 import kotlinx.datetime.TimeZone
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -65,9 +69,9 @@ fun MeetingList(
     contentPadding: PaddingValues = PaddingValues(),
     lazyListState: LazyListState = rememberLazyListState(),
     openMeetingOptions: (occurrenceId: String) -> Unit = {},
-    startCall: (conversationId: ConversationId) -> Unit = {},
-    joinCall: (conversationId: ConversationId) -> Unit = {},
-    returnToCall: (conversationId: ConversationId) -> Unit = {},
+    startCall: (conversationId: ConversationId, meetingId: MeetingId) -> Unit = { _, _ -> },
+    joinCall: (conversationId: ConversationId, meetingId: MeetingId) -> Unit = { _, _ -> },
+    returnToCall: (conversationId: ConversationId, meetingId: MeetingId) -> Unit = { _, _ -> },
 ) {
     val meetingListViewModel: MeetingListViewModel = when {
         LocalInspectionMode.current -> remember(type) { MeetingListViewModelPreview(type = type) }
@@ -127,9 +131,9 @@ private fun MeetingItemsList(
     lazyListState: LazyListState,
     contentPadding: PaddingValues,
     openMeetingOptions: (occurrenceId: String) -> Unit,
-    startCall: (conversationId: ConversationId) -> Unit,
-    joinCall: (conversationId: ConversationId) -> Unit,
-    returnToCall: (conversationId: ConversationId) -> Unit,
+    startCall: (conversationId: ConversationId, meetingId: MeetingId) -> Unit,
+    joinCall: (conversationId: ConversationId, meetingId: MeetingId) -> Unit,
+    returnToCall: (conversationId: ConversationId, meetingId: MeetingId) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     LazyColumn(
@@ -137,6 +141,9 @@ private fun MeetingItemsList(
         contentPadding = contentPadding,
         modifier = modifier,
     ) {
+        item(key = "meeting_reminders", contentType = "meeting_reminders") {
+            MeetingRemindersCard(modifier = Modifier.padding(dimensions().spacing16x))
+        }
         items(
             count = lazyPagingItems.itemCount,
             key = lazyPagingItems.itemKey {
@@ -189,21 +196,27 @@ private fun MeetingItemsList(
 }
 
 @Composable
-private fun EmptyMeetingListContent(type: MeetingsTabItem, modifier: Modifier = Modifier) {
-    EmptyListContent(
-        title = when (type) {
-            MeetingsTabItem.NEXT -> stringResource(R.string.meetings_empty_title_next)
-            MeetingsTabItem.PAST -> stringResource(R.string.meetings_empty_title_past)
-        },
-        text = when (type) {
-            MeetingsTabItem.NEXT -> stringResource(R.string.meetings_empty_text_next)
-            MeetingsTabItem.PAST -> stringResource(R.string.meetings_empty_text_past)
-        },
-        footer = {
-            if (type == MeetingsTabItem.NEXT) EmptyListArrowFooter()
-        },
-        modifier = modifier,
-    )
+private fun EmptyMeetingListContent(
+    type: MeetingsTabItem,
+    modifier: Modifier = Modifier,
+) {
+    Column(modifier = modifier.fillMaxSize()) {
+        MeetingRemindersCard(modifier = Modifier.padding(dimensions().spacing16x))
+        EmptyListContent(
+            title = when (type) {
+                MeetingsTabItem.NEXT -> stringResource(R.string.meetings_empty_title_next)
+                MeetingsTabItem.PAST -> stringResource(R.string.meetings_empty_title_past)
+            },
+            text = when (type) {
+                MeetingsTabItem.NEXT -> stringResource(R.string.meetings_empty_text_next)
+                MeetingsTabItem.PAST -> stringResource(R.string.meetings_empty_text_past)
+            },
+            footer = {
+                if (type == MeetingsTabItem.NEXT) EmptyListArrowFooter()
+            },
+            modifier = Modifier.weight(1f),
+        )
+    }
 }
 
 @Composable

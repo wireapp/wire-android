@@ -27,6 +27,8 @@ import release_log_report as report
 
 FIXTURES = Path(__file__).resolve().parent / "fixtures" / "release-log"
 REPO = "wireapp/wire-android"
+MARK = {"passed": "\u2705 passed", "failed": "\u274c failed", "partial": "\u26a0\ufe0f partial",
+        "cancelled": "\u23f9\ufe0f cancelled"}
 SHA = "7be41d0c3f2a9c1e5d6b8a4f0123456789abcdef"
 OTHER_SHA = "1111111111111111111111111111111111111111"
 BETA_PATH = ".github/workflows/build-beta.yml"
@@ -159,7 +161,7 @@ class CollectBetaTest(unittest.TestCase):
             "url": "https://github.com/wireapp/wire-android/actions/runs/1001/attempts/1",
             "tag": TAG, "sha": SHA})
         fields = contract.build_fields(payload)
-        self.assertEqual((fields["kind"], fields["result"]), ("Beta 2", "passed"))
+        self.assertEqual((fields["kind"], fields["result"]), ("Beta 2", MARK["passed"]))
 
     def test_the_api_path_ref_suffix_is_stripped_before_the_workflow_check(self):
         for path in [BETA_PATH, BETA_PATH + "@refs/tags/" + TAG]:
@@ -279,7 +281,7 @@ class CollectFailuresTest(unittest.TestCase):
         contract.validate_payload(payload)
         self.assertIsNone(payload["evidence"]["build"])
         self.assertEqual(codes(payload), [None])
-        self.assertEqual(contract.build_fields(payload)["result"], "failed")
+        self.assertEqual(contract.build_fields(payload)["result"], MARK["failed"])
         self.assertEqual(contract.build_fields(payload)["gaps"], "none")
 
     def test_a_successful_producer_without_exports_is_partial_and_fails_visibly(self):
@@ -288,7 +290,7 @@ class CollectFailuresTest(unittest.TestCase):
         partial = caught.exception.partial
         contract.validate_payload(partial)
         self.assertEqual(codes(partial), ["Evidence missing"])
-        self.assertEqual(contract.build_fields(partial)["result"], "partial")
+        self.assertEqual(contract.build_fields(partial)["result"], MARK["partial"])
 
     def test_an_expired_export_is_a_gap(self):
         artifacts = [good_artifacts()[0], ("release-log-build-Beta-1001-1", evidence_zip(build_record()), True)]
@@ -305,7 +307,7 @@ class CollectFailuresTest(unittest.TestCase):
         payload = collect(FakeApi(run=run_metadata(conclusion="cancelled"), jobs=release_jobs(build="cancelled"),
                                   artifacts=[], refs=TAG_REFS))
         fields = contract.build_fields(payload)
-        self.assertEqual(fields["result"], "cancelled")
+        self.assertEqual(fields["result"], MARK["cancelled"])
         self.assertEqual(fields["gaps"], "Evidence missing")
 
     def test_a_deployment_only_rerun_does_not_relabel_an_earlier_build(self):
@@ -317,7 +319,38 @@ class CollectFailuresTest(unittest.TestCase):
         self.assertIsNone(payload["evidence"]["build"])
         self.assertEqual(codes(payload), ["Earlier attempt", "Earlier attempt"])
         self.assertEqual(contract.build_fields(payload)["gaps"], "Earlier attempt")
-        self.assertEqual(contract.build_fields(payload)["result"], "passed")
+        self.assertEqual(contract.build_fields(payload)["result"], MARK["passed"])
+
+    def test_jobs_carried_over_from_an_earlier_attempt_did_not_run_in_this_one(self):
+        carried = dict(started_at="2026-11-24T09:05:10Z")
+        ran = dict(started_at="2026-11-24T10:13:12Z")
+        jobs = [dict(job("Export release log context"), **carried), dict(job("Validate beta tag"), **carried),
+                dict(job("build / Build Beta-Release"), **carried), dict(job("Publish beta prerelease"), **ran)]
+        run = run_metadata(run_attempt=2, run_started_at="2026-11-24T10:04:03Z")
+        payload = collect(FakeApi(run=run, jobs=jobs, artifacts=good_artifacts(1), refs=TAG_REFS), attempt=2)
+        self.assertEqual(codes(payload), ["Earlier attempt", "Earlier attempt"])
+
+    def test_the_attempt_decides_which_listed_jobs_ran(self):
+        old, new, none = "2026-11-24T09:05:10Z", "2026-11-24T10:13:12Z", None
+        at = lambda started: [dict(entry, started_at=started) for entry in release_jobs()]
+        for label, attempt, started, artifacts, expected in [
+                ("first attempt", 1, new, good_artifacts(1), []),
+                ("full rerun", 2, new, good_artifacts(2), []),
+                ("second rerun reusing the first attempt", 3, old, good_artifacts(1),
+                 ["Earlier attempt", "Earlier attempt"]),
+                ("job without a start time counts as ran", 2, none, good_artifacts(1)[:0],
+                 ["Evidence missing", "Evidence missing"]),
+                ("context ran in this attempt without its record", 2, new, good_artifacts(1),
+                 ["Evidence missing", "Evidence missing"])]:
+            with self.subTest(label):
+                run = run_metadata(run_attempt=attempt, run_started_at="2026-11-24T10:04:03Z")
+                api = FakeApi(run=run, jobs=at(started), artifacts=artifacts, refs=TAG_REFS)
+                if "Evidence missing" in expected:
+                    with self.assertRaises(report.CollectionError) as caught:
+                        collect(api, attempt=attempt)
+                    self.assertEqual(codes(caught.exception.partial), expected)
+                else:
+                    self.assertEqual(codes(collect(api, attempt=attempt)), expected)
 
     def test_release_jobs_are_reported_by_their_own_results(self):
         api = FakeApi(run=run_metadata(conclusion="failure"), jobs=release_jobs(publish="failure"),
@@ -385,7 +418,7 @@ class CollectProductionTest(unittest.TestCase):
             "validate-release", "Build Prod-Compatrelease", "deploy (s3)", "deploy (github-release, app/build/outputs/version.txt)",
             "deploy (google-play, com.wire, production, 0.1, inProgress)"])
         fields = contract.build_fields(payload)
-        self.assertEqual((fields["kind"], fields["result"]), ("Production", "passed"))
+        self.assertEqual((fields["kind"], fields["result"]), ("Production", MARK["passed"]))
 
     def test_fdroid_jobs_and_the_aggregate_summary_are_not_evidence(self):
         names = [entry["name"] for entry in collect(
@@ -406,13 +439,14 @@ class CollectProductionTest(unittest.TestCase):
         results = {entry["name"]: entry["conclusion"] for entry in payload["evidence"]["jobs"]}
         self.assertEqual(results["deploy (google-play, com.wire, production, 0.1, inProgress)"], "failure")
         self.assertEqual(results["deploy (s3)"], "success")
-        self.assertIn("google-play", contract.build_fields(payload)["deploy"])
-        self.assertIn("deploy (s3): success", contract.build_fields(payload)["deploy"])
-
-    def test_the_version_file_target_name_keeps_its_path(self):
-        payload = collect(FakeApi(run=production_run(), jobs=production_jobs(), artifacts=production_artifacts()))
         deploy = contract.build_fields(payload)["deploy"]
-        self.assertIn("deploy (github-release, app/build/outputs/version.txt): success", deploy)
+        self.assertIn("google-play production 10% inProgress \u274c", deploy)
+        self.assertIn("s3 \u2705", deploy)
+
+    def test_a_production_run_reads_as_one_short_deploy_line(self):
+        payload = collect(FakeApi(run=production_run(), jobs=production_jobs(), artifacts=production_artifacts()))
+        self.assertEqual(contract.build_fields(payload)["deploy"],
+                         "s3 \u2705 \u00b7 github-release \u2705 \u00b7 google-play production 10% inProgress \u2705")
 
     def test_a_failed_validation_is_reported_with_the_original_tag(self):
         jobs = [job("validate-release", "failure"), job("build-production / Build Prod-Compatrelease", "skipped"),
@@ -421,7 +455,7 @@ class CollectProductionTest(unittest.TestCase):
         payload = collect(api)
         self.assertEqual(payload["evidence"]["source"]["tag"], PROD_TAG)
         self.assertEqual(payload["evidence"]["jobs"][0], {"name": "validate-release", "conclusion": "failure"})
-        self.assertEqual(contract.build_fields(payload)["result"], "failed")
+        self.assertEqual(contract.build_fields(payload)["result"], MARK["failed"])
 
     def test_a_failed_production_build_exports_context_and_reports_failed(self):
         jobs = production_jobs(prod="failure")
@@ -450,7 +484,7 @@ class CollectProductionTest(unittest.TestCase):
         self.assertEqual([entry["name"] for entry in payload["evidence"]["jobs"]],
                          ["deploy (google-play, com.wire, production, 0.1, inProgress)"])
         self.assertIn("Earlier attempt", codes(payload))
-        self.assertEqual(contract.build_fields(payload)["result"], "passed")
+        self.assertEqual(contract.build_fields(payload)["result"], MARK["passed"])
 
     def test_a_release_run_without_exports_takes_its_tag_from_the_verified_release_tag(self):
         api = FakeApi(run=production_run(conclusion="cancelled"),
@@ -1116,14 +1150,14 @@ class CommandLineTest(unittest.TestCase):
 
     def test_the_summary_lists_each_gap_detail_after_the_fields(self):
         payload = fixture("payload_unmatched")
-        payload["evidence"]["gaps"].append(contract.gap(None, "Report link is not on the repository pages site"))
+        payload["evidence"]["gaps"].append(contract.gap(None, "Report link dropped: it is not the report of this run"))
         text = self.summary_of(payload)
         head, details_section = text.split("### Details\n\n")
         self.assertTrue(head.startswith("### Release log entry\n\n````json\n"))
         self.assertTrue(head.rstrip().endswith("````"))
         self.assertEqual(details_section.splitlines(), [
             "- Not attached to a build: No production build from the preceding 90 days has this APK digest and file name",
-            "- note: Report link is not on the repository pages site"])
+            "- note: Report link dropped: it is not the report of this run"])
 
     def test_the_summary_has_no_details_section_without_gaps(self):
         passing = fixture("payload_beta")
@@ -1150,7 +1184,7 @@ PROD_BUILD_PATH = ".github/workflows/build-production.yml"
 TEST_SHA = "0123456789abcdef0123456789abcdef01234567"
 APK_NAME = "wire-prod-compatrelease.apk"
 APK_SHA = "d7330f18" * 8
-PAGES = "https://wireapp.github.io/wire-android/qa-prod-tests/"
+PAGES = "https://example-reports.pages.github.io/"
 FINGERPRINT = "11aa22bb" * 8
 SECOND_FINGERPRINT = "33cc44dd" * 8
 QA_NOW = "2026-11-09T10:00:00Z"
@@ -1158,7 +1192,7 @@ QA_NOW = "2026-11-09T10:00:00Z"
 
 def qa_record(run_id=1520, attempt=1, **changes):
     record = fixture("regression")
-    record.update(run_id=run_id, run_attempt=attempt, report_url=PAGES + "run-%d/" % run_id)
+    record.update(run_id=run_id, run_attempt=attempt, report_url=PAGES + "runs/%d-%d/" % (run_id, attempt))
     record.update(changes)
     return record
 
@@ -1166,7 +1200,7 @@ def qa_record(run_id=1520, attempt=1, **changes):
 def deflake_record(run_id=1600, attempt=1, source=(1520, 1), **changes):
     record = fixture("regression_deflake")
     record.update(run_id=run_id, run_attempt=attempt, source_qa_run_id=source[0], source_qa_run_attempt=source[1],
-                  report_url=PAGES + "run-%d/" % run_id, source_deflake_bundle_sha256=FINGERPRINT)
+                  report_url=PAGES + "runs/%d-%d/" % (run_id, attempt), source_deflake_bundle_sha256=FINGERPRINT)
     record.update(changes)
     return record
 
@@ -1277,8 +1311,12 @@ def reg_world(record=None, jobs=None, production=True, **run_changes):
     return api
 
 
-def collect_regression(api, run_id=1520, attempt=1):
-    return report.collect_event(REPO, run_id, attempt, api=api)
+def collect_regression(api, run_id=1520, attempt=1, pages=PAGES):
+    environment = {"RELEASE_LOG_REPORT_PAGES_URL": pages} if pages else {}
+    with patch.dict(os.environ, environment):
+        if not pages:
+            os.environ.pop("RELEASE_LOG_REPORT_PAGES_URL", None)
+        return report.collect_event(REPO, run_id, attempt, api=api)
 
 
 class CollectRegressionTest(unittest.TestCase):
@@ -1297,7 +1335,7 @@ class CollectRegressionTest(unittest.TestCase):
         self.assertEqual([entry["name"] for entry in evidence["jobs"]],
                          ["Validate + resolve run inputs", "Run QA Android Prod Regression RC"])
         fields = contract.build_fields(payload)
-        self.assertEqual((fields["kind"], fields["result"], fields["releaseVersion"]), ("Regression", "failed", "4.38.0"))
+        self.assertEqual((fields["kind"], fields["result"], fields["releaseVersion"]), ("Regression", MARK["failed"], "4.38.0"))
         self.assertEqual(fields["buildRunUrl"], "https://github.com/wireapp/wire-android/actions/runs/1400/attempts/1")
         self.assertEqual(fields["eventId"], "regression:wireapp/wire-android:1520:1")
 
@@ -1314,6 +1352,14 @@ class CollectRegressionTest(unittest.TestCase):
         payload = collect_regression(api)
         self.assertIsNone(payload["evidence"]["origin"])
         self.assertIn(contract.NOT_ATTACHED, codes(payload))
+
+    def test_a_qa_job_reused_from_an_earlier_attempt_does_not_make_the_missing_record_a_gap(self):
+        api = reg_world(qa_record(attempt=1), run_started_at="2026-11-09T09:00:00Z")
+        api.add_run(qa_run(attempt=2, run_started_at="2026-11-09T10:00:00Z"),
+                    [dict(entry, started_at="2026-11-09T09:30:00Z") for entry in qa_jobs()])
+        payload = collect_regression(api, attempt=2)
+        self.assertIn(contract.EARLIER_ATTEMPT, codes(payload))
+        self.assertNotIn(contract.EVIDENCE_MISSING, codes(payload))
 
     def test_only_manual_production_regression_runs_are_eligible(self):
         for change in [dict(path=".github/workflows/qa-android-regression-tests.yml@refs/heads/develop"),
@@ -1438,21 +1484,21 @@ class CollectRegressionTest(unittest.TestCase):
         contract.validate_payload(partial)
         self.assertEqual(partial["release_version"], "unmatched")
         self.assertIn("Evidence missing", codes(partial))
-        self.assertEqual(contract.build_fields(partial)["result"], "partial")
+        self.assertEqual(contract.build_fields(partial)["result"], MARK["partial"])
 
     def test_a_failed_run_without_an_export_is_reported_as_failed(self):
         api = reg_world(conclusion="failure", jobs=qa_jobs("failure"))
         api.artifacts[1520].clear()
         payload = collect_regression(api)
         fields = contract.build_fields(payload)
-        self.assertEqual((fields["result"], fields["releaseVersion"]), ("failed", "unmatched"))
+        self.assertEqual((fields["result"], fields["releaseVersion"]), (MARK["failed"], "unmatched"))
 
     def test_a_cancelled_run_is_unavailable_evidence(self):
         api = reg_world(conclusion="cancelled", jobs=qa_jobs("cancelled"))
         api.artifacts[1520].clear()
         payload = collect_regression(api)
         fields = contract.build_fields(payload)
-        self.assertEqual(fields["result"], "cancelled")
+        self.assertEqual(fields["result"], MARK["cancelled"])
         self.assertIn("Evidence missing", fields["gaps"])
         self.assertEqual((fields["tests"], fields["apkName"]), ("", ""))
 
@@ -1463,24 +1509,39 @@ class CollectRegressionTest(unittest.TestCase):
             collect_regression(api)
         self.assertIn("Evidence missing", codes(caught.exception.partial))
 
-    def test_report_links_outside_the_repository_pages_are_dropped(self):
-        for url in ["https://example.com/allure/1520", "https://evil.github.io/wire-android/x/",
-                    "https://wireapp.github.io/other-repo/x/", "https://wireapp.github.io.evil.com/wire-android/x/",
-                    "https://wireapp.github.io/wire-android"]:
+    def test_the_report_link_of_this_run_and_attempt_is_kept(self):
+        for pages in (PAGES, PAGES.rstrip("/")):
+            with self.subTest(pages=pages):
+                payload = collect_regression(reg_world(), pages=pages)
+                self.assertEqual(payload["evidence"]["gaps"], [])
+                self.assertIn("report " + PAGES + "runs/1520-1/", contract.build_fields(payload)["tests"])
+
+    def test_report_links_that_are_not_this_runs_report_are_dropped(self):
+        for url in [PAGES + "runs/1521-1/", PAGES + "runs/1520-2/", PAGES + "runs/1520-1", PAGES + "runs/1520-1/x/",
+                    "https://other-reports.pages.github.io/runs/1520-1/", "https://example.com/allure/1520",
+                    "https://example-reports.pages.github.io.evil.com/runs/1520-1/"]:
             with self.subTest(url=url):
                 payload = collect_regression(reg_world(qa_record(report_url=url)))
-                self.assertIsNone(payload["evidence"]["qa"]["report_url"])
-                self.assertIn(None, codes(payload))
-                self.assertNotIn("report", contract.build_fields(payload)["tests"])
-                self.assertNotIn("Evidence missing", contract.build_fields(payload)["gaps"])
+                fields = contract.build_fields(payload)
+                self.assertTrue(fields["tests"].endswith("; report unavailable"))
+                self.assertNotIn("http", fields["tests"])
+                self.assertIn("not the report of this run", details(payload))
+                self.assertNotIn("Evidence missing", fields["gaps"])
         payload = collect_regression(reg_world(qa_record(report_url=None)))
         self.assertEqual(payload["evidence"]["gaps"], [])
+
+    def test_a_report_link_is_dropped_when_the_pages_variable_is_unset_or_not_https(self):
+        for pages in (None, "http://example-reports.pages.github.io/", "example-reports.pages.github.io"):
+            with self.subTest(pages=pages):
+                payload = collect_regression(reg_world(), pages=pages)
+                self.assertTrue(contract.build_fields(payload)["tests"].endswith("; report unavailable"))
+                self.assertIn("RELEASE_LOG_REPORT_PAGES_URL is not set", details(payload))
 
     def test_a_run_with_no_executed_tests_is_partial_not_a_pass(self):
         record = qa_record(results={"passed": 0, "failed": 0, "skipped": 421, "missing": 0, "selected": 421,
                                     "total": 421, "passed_on_rerun": 0})
         fields = contract.build_fields(collect_regression(reg_world(record)))
-        self.assertEqual(fields["result"], "partial")
+        self.assertEqual(fields["result"], MARK["partial"])
         self.assertIn("Tests incomplete", fields["gaps"])
 
     def test_hostile_qa_text_cannot_forge_page_text(self):
@@ -1490,7 +1551,7 @@ class CollectRegressionTest(unittest.TestCase):
         fields = contract.build_fields(payload)
         self.assertEqual(fields["tests"].count(";"), 2)
         self.assertNotIn("; result passed", fields["tests"])
-        self.assertEqual(fields["result"], "failed")
+        self.assertEqual(fields["result"], MARK["failed"])
         self.assertEqual(fields["gaps"], "none")
 
 
@@ -1751,6 +1812,17 @@ class ProductionEnumerationTest(unittest.TestCase):
         self.assertIn("a production build record is missing", details(payload))
         self.assertEqual(contract.build_fields(payload)["gaps"], "none")
 
+    def test_a_build_job_reused_from_an_earlier_attempt_is_not_a_missing_record(self):
+        reused = [dict(entry, started_at="2026-10-20T09:00:00Z") for entry in EXPORTER_JOBS]
+        api = reg_world(production=False)
+        api.production.append(prod_run(attempt=2))
+        api.add_run(prod_run(attempt=1), [])
+        api.add_run(prod_run(attempt=2, run_started_at="2026-10-20T10:00:00Z"), reused)
+        api.add_artifact(1400, "release-log-build-Prod-1400-1", prod_build(1400, 1))
+        payload = collect_regression(api)
+        self.assertEqual(payload["evidence"]["origin"]["run_attempt"], 1)
+        self.assertEqual(payload["evidence"]["gaps"], [])
+
     def test_a_missing_record_of_a_run_with_the_exporter_that_is_the_only_candidate_is_not_attached(self):
         api = reg_world(production=False)
         api.production.append(prod_run())
@@ -1791,7 +1863,7 @@ class ProductionEnumerationTest(unittest.TestCase):
         self.assertEqual(codes(payload), [contract.NOT_ATTACHED])
         self.assertNotIn("enumerat", details(payload))
         self.assertEqual((fields["result"], fields["gaps"], fields["commit"], fields["buildRunUrl"]),
-                         ("passed", "Not attached to a build", "", ""))
+                         (MARK["passed"], "Not attached to a build", "", ""))
         for text in fields.values():
             self.assertNotIn("enumerat", text)
 
@@ -1948,7 +2020,7 @@ class UnmatchedRegressionTest(unittest.TestCase):
                                  results=passing)
         self.assertEqual(payload["release_version"], "4.39.0")
         fields = contract.build_fields(payload)
-        self.assertEqual((fields["releaseVersion"], fields["buildRunUrl"], fields["result"]), ("4.39.0", "", "passed"))
+        self.assertEqual((fields["releaseVersion"], fields["buildRunUrl"], fields["result"]), ("4.39.0", "", MARK["passed"]))
         self.assertEqual((fields["gaps"], fields["commit"]), ("Not attached to a build", ""))
 
     def test_without_a_label_the_fixed_unmatched_version_is_used(self):
@@ -1970,7 +2042,7 @@ class UnmatchedRegressionTest(unittest.TestCase):
         results = {"passed": 421, "failed": 0, "skipped": 0, "missing": 0, "selected": 421, "total": 421,
                    "passed_on_rerun": 0}
         fields = contract.build_fields(self.unmatched(results=results))
-        self.assertEqual((fields["result"], fields["gaps"]), ("passed", "Not attached to a build"))
+        self.assertEqual((fields["result"], fields["gaps"]), (MARK["passed"], "Not attached to a build"))
 
 
 class DeflakeAncestryTest(unittest.TestCase):
@@ -1994,13 +2066,13 @@ class DeflakeAncestryTest(unittest.TestCase):
         self.assertEqual(codes(payload), [contract.DEFLAKE_NOT_VERIFIED, contract.NOT_ATTACHED])
         self.assertIn(reason, details(payload))
         self.assertEqual(contract.build_fields(payload)["gaps"], "Deflake not verified; Not attached to a build")
-        self.assertEqual(contract.build_fields(payload)["result"], "partial")
+        self.assertEqual(contract.build_fields(payload)["result"], MARK["partial"])
 
     def test_a_deflake_with_a_matching_source_is_attributed_and_never_a_full_regression(self):
         payload = self.collect(self.chain())
         self.assertAttributed(payload)
         fields = contract.build_fields(payload)
-        self.assertEqual((fields["kind"], fields["result"]), ("Deflake", "passed"))
+        self.assertEqual((fields["kind"], fields["result"]), ("Deflake", MARK["passed"]))
         self.assertIn("not a full regression", fields["tests"])
         self.assertIn("source run 1520", fields["tests"])
 
@@ -2143,7 +2215,7 @@ class DeflakeAncestryTest(unittest.TestCase):
 
 
 class PublishCarriesTheEventIdTest(unittest.TestCase):
-    def test_the_twelve_fields_are_the_contract(self):
+    def test_the_thirteen_fields_are_the_contract(self):
         self.assertIn("eventId", sample_fields())
         self.assertEqual(set(sample_fields()), set(contract.FIELD_NAMES))
         with self.assertRaises(ValueError):

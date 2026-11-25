@@ -18,6 +18,7 @@ concurrency:
 
 jobs:
   validate:
+    timeout-minutes: 5
     name: Validate beta tag
     if: github.ref_type == 'tag'
     runs-on: ubuntu-latest
@@ -51,6 +52,7 @@ jobs:
           fi
 
   release-log-context:
+    timeout-minutes: 5
     name: Export release log context
     if: github.ref_type == 'tag'
     runs-on: ubuntu-latest
@@ -124,6 +126,7 @@ jobs:
       SERVICE_ACCOUNT_JSON: ${{ secrets.SERVICE_ACCOUNT_JSON }}
 
   publish:
+    timeout-minutes: 10
     name: Publish beta prerelease
     needs: build
     runs-on: ubuntu-latest

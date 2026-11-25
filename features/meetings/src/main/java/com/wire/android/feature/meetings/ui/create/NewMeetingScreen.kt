@@ -339,19 +339,6 @@ internal fun MeetingPasswordInput(
             testTag = "meetingConfirmPasswordInput",
         )
         VerticalSpace.x8()
-        FlowRow(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-        ) {
-            CopyPasswordButton(password = passwordState.text.toString())
-            GeneratePasswordButton(onClick = { if (!readOnly) onGenerateRandomPassword() })
-        }
-        VerticalSpace.x8()
-        Text(
-            text = stringResource(R.string.new_meeting_password_description),
-            style = typography().body01,
-            color = colorsScheme().secondaryText,
-        )
     }
 }
 

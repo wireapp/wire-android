@@ -1321,8 +1321,6 @@ class NewMeetingViewModelTest {
         coVerify(exactly = 1) { arrangement.createNewMeeting(match { it.password == null }) }
     }
 
-
-
     @Test
     fun givenScheduleDraft_whenFieldsAreChangedAndRestored_thenOnlyActualChangesRequireDiscard() = runTest(dispatcher) {
         val (_, viewModel) = arrangeViewModel(Arrangement(dispatcher).withNewMeetingType(NewMeetingType.Schedule))

@@ -40,9 +40,9 @@ abstract class BaseMeetingUiTest : BaseUiTest() {
         settings.synchronizeTime(backendClient)
         settings.setZone(zone)
         settings.useLocaleTimeFormat()
-        // Like the other testsCore pages, the login flow uses English UI selectors.
-        check(context.resources.configuration.locales[0].toLanguageTag() == "en-US") {
-            "Meeting UI automation starts on an en-US test device; meeting locale coverage changes and restores the app locale"
+        // English selectors also support the English regional locales used by the CI phones.
+        check(context.resources.configuration.locales[0].language == "en") {
+            "Meeting UI automation requires English UI; meeting locale coverage changes and restores the app locale"
         }
         givenTeamMemberIsLoggedIn()
     }
@@ -74,16 +74,31 @@ abstract class BaseMeetingUiTest : BaseUiTest() {
     }
 
     private fun givenTeamMemberIsLoggedIn() {
-        step("Create an MLS team with Meetings enabled and an Android invitee") {
-            backendSetupHelper.createTeamOwnerByAlias("user1Name", TEAM_NAME, "en_US", true, backendClient, context)
+        step("Given Host creates an MLS team, adds Member, enables Meetings and Member is me") {
+            backendSetupHelper.createTeamOwnerByAlias(
+                "user1Name",
+                TEAM_NAME,
+                "en_US",
+                true,
+                backendClient,
+                context
+            )
             backendSetupHelper.userConfiguresMLSForTeam("user1Name", TEAM_NAME, backendClient)
-            backendSetupHelper.userXAddsUsersToTeam("user1Name", "user2Name", TEAM_NAME, TeamRoles.Member, backendClient, context, true)
+            backendSetupHelper.userXAddsUsersToTeam(
+                "user1Name",
+                "user2Name",
+                TEAM_NAME,
+                TeamRoles.Member,
+                backendClient,
+                context,
+                true
+            )
             host = clientUserManager.findUserByNameOrNameAlias("user1Name")
             member = clientUserManager.findUserByNameOrNameAlias("user2Name")
             backendSetupHelper.userEnablesMeetingsForTeam("user1Name")
             clientUserManager.setSelfUser(member)
         }
-        step("Log in as the Android member") {
+        step("And I log in as Member on Staging, complete the login prompts and see the conversation list") {
             pages.registrationPage.assertEmailWelcomePage()
             pages.loginPage.apply {
                 clickStagingDeepLink()
@@ -100,7 +115,10 @@ abstract class BaseMeetingUiTest : BaseUiTest() {
                 clickAllowNotificationButton()
                 clickDeclineShareDataAlert()
             }
-            pages.conversationListPage.assertConversationListVisible()
+            pages.conversationListPage.apply {
+                assertConversationListVisible()
+                waitUntilWireServiceNotificationDisappears()
+            }
         }
     }
 

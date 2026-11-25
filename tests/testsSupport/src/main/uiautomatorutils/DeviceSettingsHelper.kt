@@ -30,8 +30,8 @@ class DeviceSettingsHelper(private val device: UiDevice) : AutoCloseable {
         shell("settings put global auto_time_zone 1")
     }
 
-    private val originalTime = System.currentTimeMillis()
-    private val originalElapsed = SystemClock.elapsedRealtime()
+    private var originalTime = System.currentTimeMillis()
+    private var originalElapsed = SystemClock.elapsedRealtime()
     private val originalZone = shell("getprop persist.sys.timezone")
     private val autoTime = shell("settings get global auto_time")
     private val autoZone = shell("settings get global auto_time_zone")

@@ -10,69 +10,26 @@
 package com.wire.android.tests.core.e2eTests
 
 import android.os.Build
-import androidx.test.filters.SdkSuppress
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import backendUtils.meeting.deleteMeeting
 import backendUtils.meeting.getMeeting
 import backendUtils.meeting.updateMeeting
-import backendUtils.team.TeamRoles
-import com.wire.android.tests.core.BaseUiTest
 import com.wire.android.tests.support.UiAutomatorSetup
 import com.wire.android.tests.support.tags.Category
 import com.wire.android.tests.support.tags.TestCaseId
-import org.junit.After
 import org.junit.Assert.assertEquals
-import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import service.models.Meeting
-import uiautomatorutils.DeviceSettingsHelper
-import user.utils.ClientUser
 import java.time.Instant
 import java.time.LocalDate
-import java.time.ZoneId
 import java.time.temporal.ChronoUnit
 import java.util.Locale
 import kotlin.time.Duration.Companion.seconds
 
 @RunWith(AndroidJUnit4::class)
 @Suppress("TooManyFunctions", "MagicNumber")
-class MeetingListTests : BaseUiTest() {
-    private lateinit var settings: DeviceSettingsHelper
-    private val createdMeetings = mutableListOf<Meeting>()
-    private lateinit var host: ClientUser
-    private lateinit var member: ClientUser
-    private var hostServiceStarted = false
-    private val zone = ZoneId.of("Europe/Berlin")
-
-    @Before
-    fun setUp() {
-        initCommonTestHelpers()
-        device = UiAutomatorSetup.start(UiAutomatorSetup.APP_ALPHA)
-        settings = DeviceSettingsHelper(device)
-        settings.setZone(zone)
-        settings.useLocaleTimeFormat()
-        // English selectors also support the English regional locales used by the CI phones.
-        check(context.resources.configuration.locales[0].language == "en") {
-            "Meeting UI automation requires English UI; TC-12051 changes and restores the app locale"
-        }
-        givenTeamMemberIsLoggedIn()
-    }
-
-    @After
-    fun restoreDeviceAndRemoveMeetings() {
-        try {
-            if (::settings.isInitialized) settings.close()
-        } finally {
-            try {
-                removeCreatedMeetings()
-            } finally {
-                if (hostServiceStarted) testServiceHelper.testServiceClient.cleanUp()
-            }
-        }
-    }
-
+class MeetingListTests : BaseMeetingUiTest() {
     @TestCaseId("TC-12041")
     @Category("regression", "RC", "meetings")
     @Test
@@ -267,7 +224,7 @@ class MeetingListTests : BaseUiTest() {
             createMeeting("ML-Locale", start)
         }
         step("When I set Wire to German, open Meetings and see the German date header and 24-hour meeting time") {
-            settings.setAppLocale(UiAutomatorSetup.APP_ALPHA, Locale.GERMANY)
+            settings.setAppLocale(UiAutomatorSetup.appPackage, Locale.GERMANY)
             pages.meetingsPage.apply {
                 open(Locale.GERMANY)
                 assertMeeting(meeting, zone, Locale.GERMANY)
@@ -275,7 +232,7 @@ class MeetingListTests : BaseUiTest() {
             }
         }
         step("Then after I switch Wire to US English, the same meeting has English formatting and unchanged occurrence details") {
-            settings.setAppLocale(UiAutomatorSetup.APP_ALPHA, Locale.US)
+            settings.setAppLocale(UiAutomatorSetup.appPackage, Locale.US)
             pages.commonAppPage.restartWireApp().assertWireAppIsInForeground()
             pages.meetingsPage.apply {
                 assertMeeting(meeting, zone, Locale.US)
@@ -343,109 +300,5 @@ class MeetingListTests : BaseUiTest() {
                 assertMeeting(background, zone)
             }
         }
-    }
-
-    @Suppress("LongParameterList")
-    private fun createMeeting(
-        title: String,
-        start: Instant,
-        end: Instant = start.plusSeconds(1800),
-        zone: ZoneId = this.zone,
-        recurring: Boolean = false,
-    ): Meeting {
-        if (!hostServiceStarted) {
-            hostServiceStarted = true
-            testServiceHelper.addDevice("user1Name", null, HOST_DEVICE, retryOnFailure = false)
-        }
-        return testServiceHelper.userCreatesMeeting(
-            ownerAlias = "user1Name",
-            participantAliases = "user2Name",
-            title = title,
-            start = start,
-            end = end,
-            zone = zone,
-            recurring = recurring,
-            deviceName = HOST_DEVICE
-        ).also { createdMeetings.add(it) }
-    }
-
-    private fun removeCreatedMeetings() {
-        var failure: Throwable? = null
-        createdMeetings.toList().forEach { meeting ->
-            try {
-                backendClient.deleteMeeting(meeting)
-                createdMeetings.remove(meeting)
-            } catch (error: Exception) {
-                if (failure == null) failure = error else failure?.addSuppressed(error)
-            }
-        }
-        failure?.let { throw it }
-    }
-
-    private fun invitedMeeting(title: String, start: Instant, recurring: Boolean = false): Meeting = createMeeting(
-        title,
-        start,
-        zone = ZoneId.of("America/Los_Angeles"),
-        recurring = recurring
-    )
-
-    private fun givenTeamMemberIsLoggedIn() {
-        step("Given Host creates an MLS team, adds Member, enables Meetings and Member is me") {
-            backendSetupHelper.createTeamOwnerByAlias(
-                "user1Name",
-                TEAM_NAME,
-                "en_US",
-                true,
-                backendClient,
-                context
-            )
-            backendSetupHelper.userConfiguresMLSForTeam("user1Name", TEAM_NAME, backendClient)
-            backendSetupHelper.userXAddsUsersToTeam(
-                "user1Name",
-                "user2Name",
-                TEAM_NAME,
-                TeamRoles.Member,
-                backendClient,
-                context,
-                true
-            )
-            host = clientUserManager.findUserByNameOrNameAlias("user1Name")
-            member = clientUserManager.findUserByNameOrNameAlias("user2Name")
-            backendSetupHelper.userEnablesMeetingsForTeam("user1Name")
-            clientUserManager.setSelfUser(member)
-        }
-        step("And I log in as Member on Staging, complete the login prompts and see the conversation list") {
-            pages.registrationPage.assertEmailWelcomePage()
-            pages.loginPage.apply {
-                clickStagingDeepLink()
-                clickProceedButtonOnDeeplinkOverlay()
-                clickContinueButtonOnBackendConfigSuccess()
-                enterTeamMemberLoggingEmail(requireNotNull(member.email))
-                clickLoginButton()
-                assertUserLoginScreenVisible()
-                enterTeamMemberLoggingPassword(requireNotNull(member.password))
-                clickLoginButton()
-            }
-            pages.registrationPage.apply {
-                waitUntilLoginFlowIsCompleted()
-                clickAllowNotificationButton()
-                clickDeclineShareDataAlert()
-            }
-            pages.conversationListPage.apply {
-                assertConversationListVisible()
-                waitUntilWireServiceNotificationDisappears()
-            }
-        }
-    }
-
-    private fun <T> stepWithResult(name: String, action: () -> T): T {
-        var result: T? = null
-        step(name) { result = action() }
-        return requireNotNull(result)
-    }
-
-    private companion object {
-        const val TEAM_NAME = "Meeting automation"
-        const val HOST_DEVICE = "MeetingsHost"
     }
 }

@@ -16,6 +16,7 @@ import androidx.test.uiautomator.StaleObjectException
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.UiObject2
 import androidx.test.uiautomator.Until
+import com.wire.android.tests.support.UiAutomatorSetup
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -27,7 +28,6 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
-import java.time.format.FormatStyle
 import java.util.Locale
 import java.util.regex.Pattern
 import kotlin.math.cos
@@ -38,7 +38,7 @@ import kotlin.time.Duration.Companion.seconds
 /** Operates the real Compose form and Material date/time pickers through accessibility. */
 @Suppress("TooManyFunctions", "MagicNumber")
 class ScheduleMeetingPage(private val device: UiDevice) {
-    fun open(locale: Locale = Locale.US) {
+    fun open(locale: Locale = Locale.getDefault()) {
         description(if (locale.language == "de") "Meeting starten oder planen" else "Start or schedule a new Wire Meeting").click()
         text(if (locale.language == "de") "Meeting planen" else "Schedule a Meeting").click()
         description(if (locale.language == "de") "Ansicht neues Meeting schließen" else "Close new meeting view")
@@ -75,16 +75,16 @@ class ScheduleMeetingPage(private val device: UiDevice) {
         scheduleButton().click()
     }
 
-    fun awaitClosed(locale: Locale = Locale.US) {
+    fun awaitClosed(locale: Locale = Locale.getDefault()) {
         UiWaitUtils.waitUntilGoneOrThrow(
             UiSelectorParams(description = if (locale.language == "de") "Ansicht neues Meeting schließen" else "Close new meeting view")
-                .toBySelector(),
+                .toBySelector().pkg(UiAutomatorSetup.appPackage),
             timeout = 30.seconds,
             errorMessage = "Schedule Meeting did not close"
         )
     }
 
-    fun close(useBack: Boolean = false, locale: Locale = Locale.US) {
+    fun close(useBack: Boolean = false, locale: Locale = Locale.getDefault()) {
         closeKeyboardIfOpened()
         if (useBack) {
             device.pressBack()
@@ -108,14 +108,13 @@ class ScheduleMeetingPage(private val device: UiDevice) {
         assertScheduleEnabled(true)
     }
 
-    fun assertDateTimes(start: LocalDateTime, end: LocalDateTime, locale: Locale = Locale.US) {
+    fun assertDateTimes(start: LocalDateTime, end: LocalDateTime, locale: Locale = Locale.getDefault()) {
         val dateFormat = DateTimeFormatter.ofPattern("EEEE, MMMM d", locale)
         val is24Hour = DateFormat.is24HourFormat(InstrumentationRegistry.getInstrumentation().targetContext)
-        val timeFormat = if (is24Hour) {
-            DateTimeFormatter.ofPattern("HH:mm", locale)
-        } else {
-            DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT).withLocale(locale)
-        }
+        val timeFormat = DateTimeFormatter.ofPattern(
+            DateFormat.getBestDateTimePattern(locale, if (is24Hour) "Hm" else "hm"),
+            locale
+        )
         assertEquals("Wrong start date", start.format(dateFormat), field("start date", locale).text)
         assertEquals("Wrong end date", end.format(dateFormat), field("end date", locale).text)
         assertEquals("Wrong start time", normalizedTime(start.format(timeFormat)), normalizedTime(field("start time", locale).text))
@@ -124,7 +123,10 @@ class ScheduleMeetingPage(private val device: UiDevice) {
     }
 
     fun assertTimePreference(time: LocalTime, is24Hour: Boolean) {
-        val expected = time.format(DateTimeFormatter.ofPattern(if (is24Hour) "HH:mm" else "h:mm a", Locale.US))
+        val locale = Locale.getDefault()
+        val expected = time.format(
+            DateTimeFormatter.ofPattern(DateFormat.getBestDateTimePattern(locale, if (is24Hour) "Hm" else "hm"), locale)
+        )
         val actual = normalizedTime(field("start time").text)
         assertEquals("Time must follow Android 12/24-hour preference", expected, actual)
     }
@@ -133,8 +135,17 @@ class ScheduleMeetingPage(private val device: UiDevice) {
         field("start date").click()
         // Material's calendar grid does not expose day nodes in this build; its input mode is accessible.
         description("Switch to text input mode").click()
+        val datePattern = DateFormat.getDateFormatOrder(InstrumentationRegistry.getInstrumentation().targetContext)
+            .joinToString("") { field ->
+                when (field) {
+                    'd' -> "dd"
+                    'M' -> "MM"
+                    'y' -> "yyyy"
+                    else -> error("Unexpected date field: $field")
+                }
+            }
         UiWaitUtils.waitElement(UiSelectorParams(className = "android.widget.EditText")).text =
-            date.format(DateTimeFormatter.ofPattern("MMddyyyy", Locale.US))
+            date.format(DateTimeFormatter.ofPattern(datePattern, Locale.getDefault()))
         closeKeyboardIfOpened()
         text("OK").click()
     }
@@ -149,7 +160,7 @@ class ScheduleMeetingPage(private val device: UiDevice) {
         text(otherOption)
         text(option).click()
         UiWaitUtils.waitUntilGoneOrThrow(
-            By.text(otherOption),
+            By.pkg(UiAutomatorSetup.appPackage).text(otherOption),
             timeout = 5.seconds,
             errorMessage = "Repeat menu did not close after selecting $option"
         )
@@ -198,7 +209,7 @@ class ScheduleMeetingPage(private val device: UiDevice) {
     // Title is the form's only editable input; its placeholder is exposed as a separate accessibility node.
     private fun title() = UiWaitUtils.waitElement(UiSelectorParams(className = "android.widget.EditText"))
 
-    private fun field(name: String, locale: Locale = Locale.US): UiObject2 {
+    private fun field(name: String, locale: Locale = Locale.getDefault()): UiObject2 {
         val label = if (locale.language == "de") {
             when (name) {
                 "start date" -> "Startdatum auswählen"
@@ -212,7 +223,9 @@ class ScheduleMeetingPage(private val device: UiDevice) {
         }
         // Disabled fields still expose their value, but the shared interaction helper requires enabled nodes.
         return if (name == "end date") {
-            requireNotNull(device.wait(Until.findObject(By.desc(label)), 5000)) { "End date field was not visible: $label" }
+            requireNotNull(device.wait(Until.findObject(By.pkg(UiAutomatorSetup.appPackage).desc(label)), 5000)) {
+                "End date field was not visible: $label"
+            }
         } else {
             description(label)
         }
@@ -223,7 +236,8 @@ class ScheduleMeetingPage(private val device: UiDevice) {
         // The functional tests use 24-hour mode, so the inner dial exposes hours 13..23 directly.
         UiWaitUtils.waitElement(UiSelectorParams(description = "${time.hour} hours")).click()
         // Selecting the current hour can leave the dial in hour mode. The minute header explicitly switches it.
-        requireNotNull(device.wait(Until.findObject(By.desc(Pattern.compile("[0-9]+ minutes"))), 5000)) {
+        val minuteHeader = By.pkg(UiAutomatorSetup.appPackage).desc(Pattern.compile("[0-9]+ minutes"))
+        requireNotNull(device.wait(Until.findObject(minuteHeader), 5000)) {
             "Minute selection header was not visible"
         }.click()
         if (time.minute % 5 == 0) {
@@ -232,7 +246,8 @@ class ScheduleMeetingPage(private val device: UiDevice) {
             // The dial snaps taps to five-minute marks; dragging permits the exact 23:59 boundary.
             val thirty = description("30 minutes").visibleCenter
             // The header and dial can both expose "0 minutes"; only the lower node belongs to the dial.
-            val zero = device.findObjects(By.desc("0 minutes")).maxBy { it.visibleBounds.top }.visibleCenter
+            val zero = device.findObjects(By.pkg(UiAutomatorSetup.appPackage).desc("0 minutes"))
+                .maxBy { it.visibleBounds.top }.visibleCenter
             val centerY = (zero.y + thirty.y) / 2.0
             val radius = (thirty.y - zero.y) / 2.0
             val angle = time.minute * Math.PI / 30
@@ -244,7 +259,7 @@ class ScheduleMeetingPage(private val device: UiDevice) {
     }
 
     private fun participantRow(name: String): UiObject2 {
-        val nameSelector = By.text(name).clazz(Pattern.compile("(?!android\\.widget\\.EditText$).*"))
+        val nameSelector = By.pkg(UiAutomatorSetup.appPackage).text(name).clazz(Pattern.compile("(?!android\\.widget\\.EditText$).*"))
         var participant: UiObject2? = null
         var expandedSelection = false
         val visible = UiWaitUtils.retryUntilTimeout(10.seconds) {
@@ -297,7 +312,7 @@ class ScheduleMeetingPage(private val device: UiDevice) {
     }
 
     private fun participantIsSelected(row: UiObject2): Boolean =
-        row.isSelected || row.isChecked || row.findObject(By.checked(true)) != null
+        row.isSelected || row.isChecked || row.findObject(By.pkg(UiAutomatorSetup.appPackage).checked(true)) != null
 
     fun isScheduleEnabled(): Boolean = scheduleButton().isEnabled
 

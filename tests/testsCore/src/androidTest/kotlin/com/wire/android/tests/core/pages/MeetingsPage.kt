@@ -11,7 +11,6 @@ package com.wire.android.tests.core.pages
 
 import android.graphics.Rect
 import android.os.Build
-import android.os.SystemClock
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.Configurator
 import androidx.test.uiautomator.Direction
@@ -412,10 +411,17 @@ class MeetingsPage(private val device: UiDevice) {
 
     /** Check a rendered prefix of an unbounded series, including date spacing and duplicate cards. */
     @Suppress("LongParameterList")
-    fun assertOccurrencePrefix(meeting: Meeting, zone: ZoneId, today: LocalDate, recurrenceLabel: String, daysBetween: Int) {
+    fun assertOccurrencePrefix(
+        meeting: Meeting,
+        zone: ZoneId,
+        today: LocalDate,
+        recurrenceLabel: String,
+        daysBetween: Int,
+        locale: Locale = Locale.getDefault(),
+    ) {
         val firstDate = meeting.start.atZone(zone).toLocalDate()
         val expected = (0 until 12).flatMap { index ->
-            listOf(header(firstDate.plusDays(index.toLong() * daysBetween), today, Locale.US), meeting.title)
+            listOf(header(firstDate.plusDays(index.toLong() * daysBetween), today, locale), meeting.title)
         }
         var previousOffset = 0
         val observed = mutableSetOf<Int>()
@@ -438,7 +444,7 @@ class MeetingsPage(private val device: UiDevice) {
                         rowNodes(UiSelectorParams(description = recurrenceLabel), node).isNotEmpty()
                     }
                     assertTrue("Incorrect recurrence label: expected $recurrenceLabel", recurrenceVisible)
-                    assertTrue("Incorrect occurrence duration", timeRange(meeting, zone, Locale.US) in details)
+                    assertTrue("Incorrect occurrence duration", timeRange(meeting, zone, locale) in details)
                     checkedCards.add(start + index)
                 }
             }

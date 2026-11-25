@@ -63,6 +63,27 @@ class ConversationAssetPathsViewModelTest {
     }
 
     @Test
+    fun givenSavedExternallyStatus_whenResolveIfNeeded_thenPathIsResolved() = runTest {
+        // given
+        val expectedPath = "/local/path/image.jpg"
+        val (arrangement, viewModel) = Arrangement()
+            .withGetMessageAssetSuccess(expectedPath)
+            .arrange()
+
+        // when
+        viewModel.localAssetPath(
+            conversationId = arrangement.conversationId,
+            messageId = arrangement.messageId,
+            assetStatus = AssetTransferStatus.SAVED_EXTERNALLY,
+            downloadIfNeeded = false
+        )
+
+        // then
+        assertEquals(expectedPath, viewModel.localAssetPath(arrangement.messageId))
+        coVerify(exactly = 1) { arrangement.getMessageAsset(any(), any()) }
+    }
+
+    @Test
     fun givenNoCachedPath_whenLocalAssetPathCalledWithDownloadIfNeeded_thenPathIsResolved() = runTest {
         // given
         val expectedPath = "/local/path/image.jpg"

@@ -36,6 +36,7 @@ import org.junit.Assert
 import uiautomatorutils.UiSelectorParams
 import uiautomatorutils.UiWaitUtils
 import uiautomatorutils.UiWaitUtils.findElementOrNull
+import uiautomatorutils.UiWaitUtils.toBySelector
 import uiautomatorutils.UiWaitUtils.waitElement
 import util.decodeQRCode
 import java.time.LocalTime
@@ -683,6 +684,25 @@ data class ConversationViewPage(private val device: UiDevice) {
             false
         }
         Assert.assertTrue("File '$fileName' is not visible after scrolling through the conversation", fileVisible)
+        return this
+    }
+
+    fun scrollToEarlierMessages(): ConversationViewPage {
+        val scrollable = UiScrollable(UiSelector().scrollable(true))
+        scrollable.setAsVerticalList()
+        scrollable.flingToBeginning(10)
+        UiWaitUtils.waitElement(UiSelectorParams(description = "Scroll to end of conversation"))
+        return this
+    }
+
+    fun scrollToLatestMessages(): ConversationViewPage {
+        UiWaitUtils.waitElement(messageInputField)
+        val scrollToEnd = UiSelectorParams(description = "Scroll to end of conversation")
+        UiWaitUtils.findElementOrNull(scrollToEnd)?.click()
+        UiWaitUtils.waitUntilGoneOrThrow(
+            selector = scrollToEnd.toBySelector(),
+            errorMessage = "The conversation did not scroll to its latest messages."
+        )
         return this
     }
 

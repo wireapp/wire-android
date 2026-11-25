@@ -34,12 +34,12 @@ sealed interface JoinOrStartCallViewActions {
     data class JoinedCall(
         val conversationId: ConversationId,
         val userId: UserId,
-        val createdMeetingId: MeetingId? = null,
+        val meetingId: MeetingId? = null,
     ) : JoinOrStartCallViewActions
     data class InitiatedCall(
         val conversationId: ConversationId,
         val userId: UserId,
-        val createdMeetingId: MeetingId? = null,
+        val meetingId: MeetingId? = null,
     ) : JoinOrStartCallViewActions
 }
 
@@ -54,7 +54,7 @@ fun Flow<JoinOrStartCallViewActions>.HandleActions() {
                         context = context,
                         conversationId = action.conversationId.toString(),
                         userId = action.userId.toString(),
-                        createdMeetingId = action.createdMeetingId
+                        meetingId = action.meetingId
                     )
                 )
                 AnonymousAnalyticsManagerImpl.sendEvent(event = AnalyticsEvent.CallInitiated)
@@ -66,7 +66,7 @@ fun Flow<JoinOrStartCallViewActions>.HandleActions() {
                         context = context,
                         conversationId = action.conversationId.toString(),
                         userId = action.userId.toString(),
-                        createdMeetingId = action.createdMeetingId,
+                        meetingId = action.meetingId,
                     )
                 )
                 AnonymousAnalyticsManagerImpl.sendEvent(event = AnalyticsEvent.CallJoined)

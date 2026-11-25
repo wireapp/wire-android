@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# Beta release helper for wire-android. One entry point, one subcommand per step. Run `beta.sh help`.
+# Release helper for wire-android, betas and production. One entry point, one subcommand per step. Run `release.sh help`.
 #
-# Commands that write (cut, recut, tag, tag-kalium, worktree, cleanup) check every guard, print their plan and stop.
+# Commands that write (cut, recut, tag, tag-kalium, regression, worktree, cleanup) check every guard, print their plan and stop.
 # They write to GitHub only when --yes is the LAST argument. Get the user's approval first.
 set -euo pipefail
 
@@ -12,23 +12,27 @@ VERSION_FILE=build-logic/plugins/src/main/kotlin/AndroidCoordinates.kt
 
 usage() {
   cat <<'EOF'
-beta.sh <command> [args]            read-only
+release.sh <command> [args]            read-only
   check <ver> [<prev>]              1a/1b  versionName on develop, production tags of the previous release
   plan <ver>                        1d     Kalium pin vs tip, state of cycle branches and tags
   verify <ver>                      1d     branch pin equals Kalium branch tip, release files exist
   validate <ver>                    2      next beta number, repo variable, source validation
   changelog <ver> <n> <prev>        4      commits since the previous production release, app and Kalium
   announce <ver> <n>                4      paste-ready announcement for the pushed beta
-beta.sh <command> [args] [--yes]    outward-facing: dry run unless --yes is the last argument
+  prod-check <ver>                  P1     cycle tip, Kalium pin, release notes, free production tags
+release.sh <command> [args] [--yes]    outward-facing: dry run unless --yes is the last argument
   cut <ver> <android-sha> <kalium-sha>
   recut <ver> <new-android-sha> <new-kalium-sha> <old-android-tip> <old-kalium-tip>
   tag <ver> <n> <tip-sha>           annotated tag v<ver>-beta.<n> (signed if your signing works), pushed with your own credentials
   tag-kalium <ver> <n>              android-v<ver>-beta<n>; needs the Android tag pushed first
-  tag-kalium <ver> prod             production tag android-v<ver>, only to repair the previous release
-  worktree <ver> <topic>            local only: isolated worktree on chore/beta-<cycle>-<topic>
+  tag <ver> prod <tip-sha>          production tag v<ver>; the push publishes the release and starts Production
+  tag-kalium <ver> prod             production tag android-v<ver> at the commit v<ver> pins
+  regression <ver>                  dispatch QA Android Prod Regression RC for the build Production deployed
+  worktree <ver> <topic>            local only: isolated worktree on chore/release-<cycle>-<topic>
   cleanup <ver> <topic>             local only: remove that worktree and branch once nothing in them is unsaved
-beta.sh <command> [args]            local
+release.sh <command> [args]            local
   checks <ver>                      compile, unit tests and detekt in the worktree (slow, run in background)
+  notes <ver> <en-file> <de-file>   copy the copywriters' notes into the worktree and check the 500-character limit
 EOF
 }
 
@@ -94,7 +98,7 @@ cmd_check() {
     echo "Kalium tag missing. Production app v$prev pins:"
     gh api "repos/$KALIUM_REPO/commits/$sha" --jq '.sha + " " + (.commit.message | split("\n")[0])'
     echo "Nearby Kalium tags:"; git ls-remote --tags "$KALIUM_URL" "refs/tags/android-v${prev%.*}*" | tail -8
-    echo "Propose: beta.sh tag-kalium $prev prod"
+    echo "Propose: release.sh tag-kalium $prev prod"
     exit 3
   fi
 }
@@ -203,7 +207,7 @@ cmd_recut() {
   confirm "FORCE-move release/cycle-$cycle $olda -> $a and release/android-cycle-$cycle $oldk -> $k"
   gh api -X PATCH "repos/$ANDROID_REPO/git/refs/heads/release/cycle-$cycle" -f sha="$a" -F force=true --jq .object.sha
   gh api -X PATCH "repos/$KALIUM_REPO/git/refs/heads/release/android-cycle-$cycle" -f sha="$k" -F force=true --jq .object.sha
-  echo "If the second command failed, the pins disagree. Fix it before anything else, then run: beta.sh verify $ver"
+  echo "If the second command failed, the pins disagree. Fix it before anything else, then run: release.sh verify $ver"
 }
 
 # Say whether the tag is signed and whether the signature verifies. Never blocks the release.
@@ -219,26 +223,32 @@ report_signature() {
 }
 
 cmd_tag() {
-  local ver=${1:-} n=${2:-} expected=${3:-} cycle tag tip peeled last
-  need_ver "$ver"; need_num "$n"; need_sha "$expected"
-  cycle=$(cycle_of "$ver"); tag="v$ver-beta.$n"; root
-  require_absent "$tag already exists on the remote. Never re-push a beta tag." --tags origin "refs/tags/$tag"
-  last=$(git ls-remote --tags --refs origin "refs/tags/v$ver-beta.*" | sed -nE 's/.*-beta\.([0-9]+)$/\1/p' | sort -n | tail -1)
-  [[ $n == $(( ${last:-0} + 1 )) ]] || die "the next beta number is $(( ${last:-0} + 1 )), not $n."
+  local ver=${1:-} n=${2:-} expected=${3:-} cycle tag msg effect tip peeled last
+  need_ver "$ver"; need_sha "$expected"; cycle=$(cycle_of "$ver"); root
+  if [[ $n == prod ]]; then
+    tag="v$ver"; msg="Release of the Android client $ver"
+    effect="Generate Changelog publishes the GitHub release, which starts Production (S3, Play, F-Droid)"
+  else
+    need_num "$n"; tag="v$ver-beta.$n"; msg="Beta $ver, build $n"; effect="this starts the Beta release build"
+    last=$(git ls-remote --tags --refs origin "refs/tags/v$ver-beta.*" | sed -nE 's/.*-beta\.([0-9]+)$/\1/p' | sort -n | tail -1)
+    [[ $n == $(( ${last:-0} + 1 )) ]] || die "the next beta number is $(( ${last:-0} + 1 )), not $n."
+  fi
+  require_absent "$tag already exists on the remote. Never re-push a release tag." --tags origin "refs/tags/$tag"
   git fetch -q origin "release/cycle-$cycle"
   tip=$(git rev-parse FETCH_HEAD)
   [[ $tip == "$expected" ]] || die "branch tip is $tip, expected $expected. The branch moved. Validate again."
   [[ $(version_at FETCH_HEAD) == "$ver" ]] || die "versionName at the tip is $(version_at FETCH_HEAD), expected $ver."
+  [[ $n != prod ]] || notes_at FETCH_HEAD "$ver" || die "release notes for $ver are missing or too long at the tip. See release.sh prod-check."
   if git show-ref --verify --quiet "refs/tags/$tag"; then   # left behind by a failed push
     [[ $(git cat-file -t "refs/tags/$tag") == tag ]] || die "local tag $tag is lightweight. Inspect it. Do not delete it blindly."
     [[ $(git rev-parse "$tag^{commit}") == "$tip" ]] || die "local tag $tag points elsewhere. Inspect it. Do not delete it blindly."
   fi
-  confirm "create annotated tag $tag at $tip (signed if your git signing works, otherwise unsigned), then push it to origin with your git credentials; this starts the Beta release build"
+  confirm "create annotated tag $tag at $tip (signed if your git signing works, otherwise unsigned), then push it to origin with your git credentials; $effect"
   if ! git show-ref --verify --quiet "refs/tags/$tag"; then
     # Signing is best effort. The -c overrides stop "git tag -a" from trying to sign again when tag.gpgSign is on.
-    git tag -s "$tag" "$tip" -m "Beta $ver, build $n" || {
+    git tag -s "$tag" "$tip" -m "$msg" || {
       echo "note: could not sign the tag. Creating it unsigned."
-      git -c tag.gpgSign=false -c tag.forceSignAnnotated=false tag -a "$tag" "$tip" -m "Beta $ver, build $n"
+      git -c tag.gpgSign=false -c tag.forceSignAnnotated=false tag -a "$tag" "$tip" -m "$msg"
     }
   fi
   report_signature "$tag"
@@ -253,12 +263,12 @@ cmd_tag_kalium() {
   local ver=${1:-} n=${2:-} sha name msg existing tag_sha peeled
   need_ver "$ver"; [[ -n $n ]] || die "usage: tag-kalium <ver> <n>   or   tag-kalium <ver> prod"; root
   if [[ $n == prod ]]; then
-    # Production tag, for the previous release only. A forgotten <n> must not fall through to this.
+    # Production tag, after v<ver> is pushed, or to repair a past release. A forgotten <n> must not fall through to this.
     require_present "wire-android tag v$ver is missing. The production app was not built." --tags origin "refs/tags/v$ver"
     sha=$(pinned_kalium "refs/tags/v$ver"); name=android-v$ver; msg="Android $ver"
   else
     need_num "$n"
-    require_present "push the Android tag v$ver-beta.$n first (beta.sh tag). Kalium is tagged at the commit it pins." \
+    require_present "push the Android tag v$ver-beta.$n first (release.sh tag). Kalium is tagged at the commit it pins." \
       --tags origin "refs/tags/v$ver-beta.$n"
     sha=$(pinned_kalium "refs/tags/v$ver-beta.$n"); name=android-v$ver-beta$n; msg="Android $ver beta $n"
   fi
@@ -278,15 +288,15 @@ cmd_tag_kalium() {
 cmd_worktree() {
   local ver=${1:-} topic=${2:-} cycle main wt branch
   need_ver "$ver"; [[ $topic =~ ^[a-z0-9-]+$ ]] || die "topic must be lowercase letters, digits and dashes"
-  cycle=$(cycle_of "$ver"); root; main=$PWD; wt="$main/../wire-android-beta-$cycle"
+  cycle=$(cycle_of "$ver"); root; main=$PWD; wt="$main/../wire-android-release-$cycle"
   [[ ! -e $wt ]] || die "$wt already exists"
-  branch="chore/beta-$cycle-$topic"
+  branch="chore/release-$cycle-$topic"
   ! git show-ref --verify --quiet "refs/heads/$branch" || die "local branch $branch already exists"
   confirm "create worktree $wt on new local branch $branch from origin/release/cycle-$cycle, with the kalium submodule (local only, nothing is pushed)"
   git fetch -q origin "release/cycle-$cycle"
   git worktree add --no-track "$wt" -b "$branch" "origin/release/cycle-$cycle"   # no upstream: a bare "git push" must never reach the cycle branch
   cd "$wt"
-  git submodule update --init --reference "$main/kalium" kalium
+  git submodule update --init --depth 1 --single-branch -- kalium
   if [[ -f $main/local.properties ]]; then cp "$main/local.properties" .; fi
   echo "worktree: $wt"
 }
@@ -296,7 +306,7 @@ cmd_cleanup() {
   local ver=${1:-} topic=${2:-} cycle main wt branch wts unpushed merged
   need_ver "$ver"; [[ $topic =~ ^[a-z0-9-]+$ ]] || die "topic must be lowercase letters, digits and dashes"
   cycle=$(cycle_of "$ver"); root; main=$PWD
-  wt=$(cd "$main/.." && pwd -P)/wire-android-beta-$cycle; branch="chore/beta-$cycle-$topic"
+  wt=$(cd "$main/.." && pwd -P)/wire-android-release-$cycle; branch="chore/release-$cycle-$topic"
   [[ -d $wt ]] || die "$wt does not exist"
   wts=$(git worktree list --porcelain)
   grep -Fxq "worktree $wt" <<<"$wts" || die "$wt is not a worktree of this repository"
@@ -322,8 +332,8 @@ cmd_changelog() {
   need_ver "$ver"; need_num "$n"; need_ver "$prev"; root
   require_present "wire-android tag v$prev is missing." --tags origin "refs/tags/v$prev"
   require_present "beta tag v$ver-beta.$n is missing." --tags origin "refs/tags/v$ver-beta.$n"
-  require_present "Kalium tag android-v$prev is missing. Run: beta.sh tag-kalium $prev prod" --tags "$KALIUM_URL" "refs/tags/android-v$prev"
-  require_present "Kalium tag android-v$ver-beta$n is missing. Run: beta.sh tag-kalium $ver $n" --tags "$KALIUM_URL" "refs/tags/android-v$ver-beta$n"
+  require_present "Kalium tag android-v$prev is missing. Run: release.sh tag-kalium $prev prod" --tags "$KALIUM_URL" "refs/tags/android-v$prev"
+  require_present "Kalium tag android-v$ver-beta$n is missing. Run: release.sh tag-kalium $ver $n" --tags "$KALIUM_URL" "refs/tags/android-v$ver-beta$n"
   # --paginate follows the API's page limit, so a long range is not cut off.
   echo "== wire-android v$prev..v$ver-beta.$n"
   gh api --paginate "repos/$ANDROID_REPO/compare/v$prev...v$ver-beta.$n" --jq "$fmt"
@@ -369,11 +379,93 @@ print("suites", len(r), "tests", f("tests"), "failures", f("failures"), "errors"
   return $rc
 }
 
+NOTES_DIR=app/src/main/play/release-notes
+NOTES_LOCALES="en-US de-DE"
+NOTES_MAX=500
+
+# True when both locales have <ver>.txt at <ref>, each within the Play limit. Prints one line per locale.
+# Counts characters the way scripts/release/prepare-release-notes.sh does (Python len of the whole file).
+notes_at() { # ref ver
+  local ref=$1 ver=$2 loc n rc=0
+  for loc in $NOTES_LOCALES; do
+    if ! git cat-file -e "$ref:$NOTES_DIR/$loc/$ver.txt" 2>/dev/null; then echo "notes $loc: MISSING $NOTES_DIR/$loc/$ver.txt"; rc=1; continue; fi
+    # Callers run this inside "||", which turns set -e off here, so check the count explicitly.
+    n=$(git show "$ref:$NOTES_DIR/$loc/$ver.txt" | python3 -I -c 'import sys; print(len(sys.stdin.read()))') || n=""
+    [[ $n =~ ^[0-9]+$ ]] || { echo "notes $loc: cannot count the characters"; rc=1; continue; }
+    if [[ $n -le $NOTES_MAX ]]; then echo "notes $loc: $n/$NOTES_MAX"; else echo "notes $loc: $n/$NOTES_MAX TOO LONG"; rc=1; fi
+  done
+  return $rc
+}
+
+# Production readiness of the cycle branch tip. Read-only. Exit 1 lists every problem.
+cmd_prod_check() {
+  local ver=${1:-} cycle tip pin ktip beta bsha app kal rc=0
+  need_ver "$ver"; cycle=$(cycle_of "$ver"); root
+  git fetch -q origin "release/cycle-$cycle"
+  tip=$(git rev-parse FETCH_HEAD); pin=$(git ls-tree FETCH_HEAD kalium | awk '{print $3}')
+  ktip=$(git ls-remote --heads "$KALIUM_URL" "release/android-cycle-$cycle" | awk '{print $1}')
+  echo "tip=$tip"; echo "kalium_pin=$pin"; echo "kalium_branch_tip=$ktip"
+  echo "versionName=$(version_at FETCH_HEAD)"
+  [[ $(version_at FETCH_HEAD) == "$ver" ]] || { echo "PROBLEM: versionName at the tip is not $ver"; rc=1; }
+  [[ $pin == "$ktip" ]] || echo "note: the pin differs from the Kalium cycle branch tip. The build uses the pin."
+  beta=$(git ls-remote --tags --refs origin "refs/tags/v$ver-beta.*" | sed -nE 's#.*refs/tags/##p' | sort -V | tail -1)
+  if [[ -n $beta ]]; then
+    bsha=$(git ls-remote origin "refs/tags/$beta^{}" | awk '{print $1}')
+    echo "last beta: $beta at $bsha"
+    echo "commits on the tip since $beta (QA has not seen these in a beta):"
+    git log --oneline "$bsha..$tip"   # the cycle fetch above brought the beta commit, which is an ancestor of the tip
+  fi
+  notes_at FETCH_HEAD "$ver" || { echo "PROBLEM: land the release notes on release/cycle-$cycle first (worktree flow, release.sh notes)"; rc=1; }
+  # Assign first: a failed ls-remote then stops the script instead of reading as "free".
+  app=$(git ls-remote --tags origin "refs/tags/v$ver"); kal=$(git ls-remote --tags "$KALIUM_URL" "refs/tags/android-v$ver")
+  if [[ -n $app ]]; then echo "PROBLEM: v$ver already exists"; rc=1; else echo "v$ver: free"; fi
+  if [[ -n $kal ]]; then echo "PROBLEM: android-v$ver already exists"; rc=1; else echo "android-v$ver: free"; fi
+  return $rc
+}
+
+# Local only. Run from the worktree root. Writes the copywriters' text verbatim, then runs the repo's check.
+# The check copies each file to default.txt. That copy is generated, so it is reverted here and never committed.
+cmd_notes() {
+  local ver=${1:-} en=${2:-} de=${3:-} rc=0 loc
+  need_ver "$ver"; [[ -f $en && -f $de ]] || die "usage: notes <ver> <en-US file> <de-DE file>"
+  [[ -x ./gradlew && -d $NOTES_DIR ]] || die "run this from the worktree root"
+  [[ $(version_at HEAD) == "$ver" ]] || die "versionName at HEAD is $(version_at HEAD), expected $ver"
+  cp "$en" "$NOTES_DIR/en-US/$ver.txt"; cp "$de" "$NOTES_DIR/de-DE/$ver.txt"
+  bash scripts/release/prepare-release-notes.sh || rc=$?
+  for loc in $NOTES_LOCALES; do git checkout -q -- "$NOTES_DIR/$loc/default.txt"; done
+  git status --short -- "$NOTES_DIR"
+  [[ $rc == 0 ]] || die "the release notes check failed. Ask the copywriters for shorter text. Do not edit it yourself."
+  echo "ok notes for $ver. Commit only the two $ver.txt files."
+}
+
+# Dispatch the QA prod regression for the build that Production deployed for v<ver>.
+cmd_regression() {
+  local ver=${1:-} runs run apk build
+  need_ver "$ver"; root
+  runs=$(gh run list -R "$ANDROID_REPO" --workflow build-production.yml --limit 20 --json headBranch,status,conclusion,databaseId,url)
+  run=$(jq -r --arg t "v$ver" '[.[] | select(.headBranch == $t)][0] | "\(.databaseId) \(.status) \(.conclusion) \(.url)"' <<<"$runs")
+  [[ $run != "null null null null" ]] || die "no Production run for v$ver yet. Push the tag and wait for it."
+  echo "production run: $run"
+  [[ $(awk '{print $2, $3}' <<<"$run") == "completed success" ]] || die "Production for v$ver has not succeeded. Wait for it, or report the failure."
+  # The release carries the deployed APK. Its name holds the build number the QA workflow looks up in S3.
+  # A full re-run of Production builds a new versionCode and adds a second APK to the release. Refuse to guess.
+  apk=$(gh release view "v$ver" -R "$ANDROID_REPO" --json assets --jq '.assets[].name' | { grep -E -- "-v$ver-[0-9]+-prod-.*\.apk$" || true; })
+  [[ -n $apk ]] || die "no production APK on release v$ver"
+  [[ $(wc -l <<<"$apk") -eq 1 ]] || die "expected one production APK on v$ver, found: $(tr '\n' ' ' <<<"$apk"). Ask the user which build Play holds."
+  build=$(sed -nE "s/.*-v$ver-([0-9]+)-.*/\1/p" <<<"$apk")
+  [[ $build =~ ^[0-9]+$ ]] || die "could not read the build number from $apk"
+  echo "apk=$apk"; echo "build=$build"
+  confirm "dispatch QA Android Prod Regression RC (qa-android-prod-tests.yml) on develop with flavor=production appBuildNumber=$build"
+  gh workflow run qa-android-prod-tests.yml -R "$ANDROID_REPO" --ref develop -f flavor=production -f appBuildNumber="$build"
+  sleep 5
+  gh run list -R "$ANDROID_REPO" --workflow qa-android-prod-tests.yml --limit 1 --json databaseId,status,url --jq '.[0] | "\(.databaseId) \(.status) \(.url)"'
+}
+
 yes=0
 if [[ ${!#:-} == --yes ]]; then yes=1; set -- "${@:1:$#-1}"; fi
 cmd=${1:-help}; [[ $# -eq 0 ]] || shift
 case $cmd in
-  check|plan|verify|validate|changelog|announce|cut|recut|tag|tag-kalium|worktree|cleanup|checks) "cmd_${cmd//-/_}" "$@" ;;
+  check|plan|verify|validate|changelog|announce|cut|recut|tag|tag-kalium|worktree|cleanup|checks|prod-check|notes|regression) "cmd_${cmd//-/_}" "$@" ;;
   help|-h|--help) usage ;;
   *) usage >&2; exit 1 ;;
 esac

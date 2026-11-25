@@ -34,6 +34,8 @@ import com.wire.android.feature.meetings.ui.list.MeetingListViewModel
 import com.wire.android.feature.meetings.ui.list.MeetingListViewModelImpl
 import com.wire.android.feature.meetings.ui.options.MeetingOptionsMenuViewModel
 import com.wire.android.feature.meetings.ui.options.MeetingOptionsMenuViewModelImpl
+import com.wire.android.feature.meetings.ui.link.CreateMeetingLinkViewModel
+import com.wire.android.feature.meetings.ui.link.CreateMeetingLinkViewModelImpl
 import com.wire.android.feature.meetings.ui.link.MeetingLinkViewModel
 import com.wire.android.feature.meetings.ui.link.MeetingLinkViewModelImpl
 import com.wire.kalium.logic.data.id.MeetingId
@@ -75,4 +77,12 @@ internal fun meetingLinkViewModel(meetingId: MeetingId): MeetingLinkViewModel =
         instanceKey = "meeting_link_$meetingId",
     ) {
         meetingLinkViewModel(meetingId)
+    }
+
+@Composable
+internal fun createMeetingLinkViewModel(meetingId: MeetingId): CreateMeetingLinkViewModel =
+    wireAssistedMetroViewModelAs<CreateMeetingLinkViewModelImpl, CreateMeetingLinkViewModel, MeetingsManualViewModelFactory>(
+        instanceKey = "create_meeting_link_$meetingId",
+    ) {
+        createMeetingLinkViewModel(meetingId)
     }

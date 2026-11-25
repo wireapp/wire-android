@@ -20,6 +20,7 @@ import com.wire.android.feature.meetings.ui.create.NewMeetingParticipantsRouteCo
 import com.wire.android.feature.meetings.ui.create.NewMeetingState
 import com.wire.android.feature.meetings.ui.create.NewMeetingViewActions
 import com.wire.android.feature.meetings.ui.create.NewMeetingViewModel
+import com.wire.android.feature.meetings.ui.link.CreateMeetingLinkScreen
 import com.wire.android.feature.meetings.ui.link.MeetingLinkScreen
 import com.wire.android.navigation.navigation3.WireEntryPresentation
 import com.wire.android.navigation.navigation3.WireEntryProviderInstaller
@@ -53,7 +54,7 @@ data class MeetingParticipantId(val value: String, val domain: String) {
 }
 
 object MeetingsNavigation3Contribution {
-    const val ROUTE_REGISTRATION_COUNT: Int = 3
+    const val ROUTE_REGISTRATION_COUNT: Int = 4
     val resultTypes: List<WireNavigation3ResultType<*>> = listOf(NewMeetingNavigation3ResultType)
 
     fun entryProviderInstallers(
@@ -73,10 +74,19 @@ fun meetingsNavigation3Entries(
     wireEntry<NewMeetingParticipantsRoute>(presentation = WireEntryPresentation.PopUp) {
         NewMeetingParticipantsNavigation3Entry(it, runtime, actions)
     }
+    wireEntry<CreateMeetingLinkRoute>(presentation = WireEntryPresentation.PopUp) { route ->
+        CreateMeetingLinkScreen(
+            meetingId = route.meetingId,
+            onBack = { if (!runtime.navigator.goBack()) actions.exitMeetingFlow() },
+        )
+    }
     wireEntry<MeetingLinkRoute>(presentation = WireEntryPresentation.PopUp) { route ->
         MeetingLinkScreen(
             meetingId = route.meetingId,
             mode = route.mode,
+            onCreateNewLink = {
+                runtime.navigator.navigate(WireNavigationCommand(CreateMeetingLinkRoute(route.sessionId, route.meetingId)))
+            },
             onBack = { if (!runtime.navigator.goBack()) actions.exitMeetingFlow() },
         )
     }

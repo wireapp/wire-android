@@ -256,9 +256,11 @@ class NewMeetingViewModelImpl @AssistedInject constructor(
 
     private fun NewMeetingState.Ready.withValidatedOptionalPassword(): NewMeetingState.Ready {
         val password = optionalPassword
+        val passwordsDoNotMatch = type !is NewMeetingType.Edit && isGuestLinkSharingEnabled &&
+                password.orEmpty() != confirmPasswordTextState.text.toString()
         return copy(
             invalidPassword = password?.let { !validatePassword(it).isValid } ?: false,
-            passwordsDoNotMatch = password != null && password != confirmPasswordTextState.text.toString(),
+            passwordsDoNotMatch = passwordsDoNotMatch,
         ).withValidatedContinueButton()
     }
 

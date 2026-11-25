@@ -15,6 +15,7 @@ import com.wire.android.navigation.routes.utility.InitialSyncRoute
 import com.wire.android.navigation.runtime.WireNavigationDiagnostics
 import com.wire.android.navigation.runtime.startup.HomeRoute
 import com.wire.android.ui.home.HomeRequirement
+import com.wire.android.ui.authentication.login.mfa.RecoveryCodeLoginNotice
 import com.wire.android.ui.authentication.devices.register.RegisterDeviceRoute
 import com.wire.android.ui.authentication.devices.remove.RemoveDeviceRoute
 import com.wire.android.ui.e2eiEnrollment.E2EIEnrollmentRoute
@@ -88,6 +89,7 @@ internal sealed interface RegisterDeviceCompletion {
 internal class AuthenticationNavigation3Router(
     private val runtime: WireNavigation3Runtime,
     private val transitionLedger: AuthenticationTransitionLedger = AuthenticationTransitionLedger(),
+    private val onRecoveryCodeLogin: (RecoveryCodeLoginNotice) -> Unit = {},
 ) {
     /**
      * Opens the login root requested by an Activity intent.
@@ -182,8 +184,13 @@ internal class AuthenticationNavigation3Router(
     fun completeLogin(
         eventId: String,
         completion: AuthenticationLoginCompletion,
+        recoveryCodeNotice: RecoveryCodeLoginNotice? = null,
     ): Boolean = executeTerminalTransitionOnce(eventId, "LOGIN_TERMINAL") {
-        completeLogin(completion)
+        completeLogin(completion).also { accepted ->
+            if (accepted && recoveryCodeNotice != null) {
+                onRecoveryCodeLogin(recoveryCodeNotice)
+            }
+        }
     }
 
     fun completeRegisterDevice(

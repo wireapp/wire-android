@@ -1329,6 +1329,11 @@
     <string name="mfa_login_recovery_code_help">Lost your authenticator app and your codes? Contact your team admin.</string>
     <string name="mfa_login_invalid_recovery_code">Invalid recovery code. Try again.</string>
     <string name="mfa_login_recovery_submit">Log in</string>
+    <string name="mfa_login_manage_codes">Manage codes</string>
+    <plurals name="mfa_login_recovery_code_notice">
+        <item quantity="one">You logged in with a recovery code. %d code left.</item>
+        <item quantity="other">You logged in with a recovery code. %d codes left.</item>
+    </plurals>
     <string name="mfa_verify">Verify</string>
     <string name="mfa_codes_title">Save your recovery codes</string>
     <string name="mfa_codes_description">If you lose your authenticator app, use a recovery code to log in. Each code works once.</string>

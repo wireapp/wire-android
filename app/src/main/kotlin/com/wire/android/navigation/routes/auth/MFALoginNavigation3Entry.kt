@@ -32,6 +32,7 @@ import com.wire.android.ui.authentication.login.mfa.MFALoginMethod
 import com.wire.android.ui.authentication.login.mfa.MFALoginMethodScreen
 import com.wire.android.ui.authentication.login.mfa.MFALoginRecoveryCodeScreen
 import com.wire.android.ui.authentication.login.mfa.MFALoginScreen
+import com.wire.android.ui.authentication.login.mfa.RecoveryCodeLoginNotice
 import com.wire.android.ui.authentication.loginEmailViewModel
 import com.wire.android.ui.newauthentication.login.password.LoginStateNavigationAndDialogs
 import com.wire.android.ui.newauthentication.login.password.NewLoginPasswordScreenAction
@@ -76,7 +77,7 @@ internal fun MFALoginNavigation3Entry(
     if (viewModel.hasPendingMFALogin) {
         if (isCurrentRoute) {
             LoginStateNavigationAndDialogs(viewModel) { action ->
-                handleMFALoginAction(route, router, action, navigateBack)
+                handleMFALoginAction(route, router, action, viewModel.usedRecoveryCodeForLogin, navigateBack)
             }
         }
         MFALoginContent(route, viewModel, router, actions, isNavigatingBack, navigateBack)
@@ -126,6 +127,7 @@ private fun handleMFALoginAction(
     route: MFALoginRoute,
     router: AuthenticationNavigation3Router,
     action: NewLoginPasswordScreenAction,
+    usedRecoveryCode: Boolean,
     onBack: () -> Unit,
 ): Boolean = when (action) {
     is NewLoginPasswordScreenAction.Success -> router.completeLogin(
@@ -135,16 +137,34 @@ private fun handleMFALoginAction(
             action.initialSyncCompleted -> AuthenticationLoginCompletion.Home(action.userId.toSessionId())
             else -> AuthenticationLoginCompletion.InitialSync(action.userId.toSessionId())
         },
+        recoveryCodeNotice = recoveryCodeLoginNotice(route, action.userId, usedRecoveryCode),
     )
     is NewLoginPasswordScreenAction.RemoveDevice -> router.completeLogin(
         "${route.entryId.value}:login-terminal",
         AuthenticationLoginCompletion.RemoveDevice(action.userId.toSessionId()),
+        recoveryCodeNotice = recoveryCodeLoginNotice(route, action.userId, usedRecoveryCode),
     )
     NewLoginPasswordScreenAction.Canceled -> {
         onBack()
         true
     }
     else -> false
+}
+
+private fun recoveryCodeLoginNotice(
+    route: MFALoginRoute,
+    userId: UserId,
+    usedRecoveryCode: Boolean,
+): RecoveryCodeLoginNotice? = if (usedRecoveryCode) {
+    // Temporary metadata for the Android-only recovery-login spike.
+    RecoveryCodeLoginNotice(
+        sessionId = userId.toSessionId(),
+        loginEventId = "${route.entryId.value}:login-terminal",
+        remainingCodes = 9,
+        totalCodes = 10,
+    )
+} else {
+    null
 }
 
 private fun openMFALoginMethods(

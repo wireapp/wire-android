@@ -82,9 +82,11 @@ import com.wire.android.navigation.runtime.startup.toWireSessionId
 import com.wire.android.navigation.runtime.toKaliumUserId
 import com.wire.android.navigation.style.BackgroundType
 import com.wire.android.ui.authentication.login.WireAuthBackgroundLayout
+import com.wire.android.ui.authentication.login.mfa.MFARecoveryLoginSnackbarEffect
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.common.topappbar.CommonTopAppBarState
 import com.wire.android.ui.common.topappbar.WireTopAppBar
+import com.wire.android.ui.home.settings.mfa.recoverycodes.MFARecoveryCodesRoute
 import com.wire.android.ui.theme.ThemeOption
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.CurrentScreenManager
@@ -95,6 +97,7 @@ import com.wire.android.util.debug.FeatureVisibilityFlags
 import com.wire.android.util.debug.LocalFeatureVisibilityFlags
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.navigation.WireBackStackMode
+import com.wire.navigation.WireNavigationCommand
 import com.wire.navigation.WireRoute
 import com.wire.navigation.WireSessionId
 import com.wire.navigation.WireViewModelOwner
@@ -184,12 +187,34 @@ private fun WireActivityNavigation3ThemedHost(
         },
         onNavigationChanged = WireNavigationDiagnostics::navigation,
     )
-    val authenticationRouter = remember(runtime) {
-        AuthenticationNavigation3Router(runtime)
+    val authenticationRouter = remember(runtime, viewModel) {
+        AuthenticationNavigation3Router(runtime, onRecoveryCodeLogin = viewModel::queueRecoveryLoginNotice)
     }
     val currentRoute = runtime.navigator.currentRoute
     val currentUserId = viewModel.globalAppState.currentUserId
     val isSessionTransitionInProgress = viewModel.globalAppState.isSessionTransitionInProgress
+    val activeHomeRoute = (currentRoute as? HomeRoute)?.takeIf { it.sessionId == currentSessionProvider() }
+    MFARecoveryLoginSnackbarEffect(
+        homeEntryId = activeHomeRoute?.entryId,
+        sessionId = activeHomeRoute?.sessionId,
+        enabled = !isUserUiBlocked && !isSessionTransitionInProgress,
+        pendingNotice = viewModel::pendingRecoveryLoginNotice,
+        consumeNotice = viewModel::consumeRecoveryLoginNotice,
+        onManageCodes = { notice ->
+            val homeRoute = runtime.navigator.currentRoute as? HomeRoute
+            if (homeRoute?.sessionId == notice.sessionId && currentSessionProvider() == notice.sessionId) {
+                runtime.navigator.navigate(
+                    WireNavigationCommand(
+                        MFARecoveryCodesRoute(
+                            sessionId = notice.sessionId,
+                            remaining = notice.remainingCodes,
+                            total = notice.totalCodes,
+                        )
+                    )
+                )
+            }
+        },
+    )
     val sessionTransitionReason = viewModel.globalAppState.sessionTransitionReason
     val shouldInvalidateRetainedSessionGraph = shouldInvalidateWireActivitySessionGraph(
         isUserUiBlocked = isUserUiBlocked,

@@ -168,6 +168,8 @@ class LoginEmailViewModel(
         private set
     var isVerifyingMFACode by mutableStateOf(false)
         private set
+    internal var usedRecoveryCodeForLogin by mutableStateOf(false)
+        private set
     private var pendingMFAVerification by mutableStateOf<CompletableDeferred<Unit>?>(null)
     private var mfaVerificationJob: Job? = null
 
@@ -459,7 +461,10 @@ class LoginEmailViewModel(
         if (!canVerifyMFACode || isVerifyingMFACode || !isMFARecoveryCodeValid) return
         val code = mfaRecoveryCodeTextState.text.toString().trim()
         isMFARecoveryCodeInvalid = false
-        verifyMFA(code.equals(MOCK_MFA_RECOVERY_CODE, ignoreCase = true)) { isMFARecoveryCodeInvalid = true }
+        verifyMFA(
+            matchesMockCode = code.equals(MOCK_MFA_RECOVERY_CODE, ignoreCase = true),
+            isRecoveryCode = true,
+        ) { isMFARecoveryCodeInvalid = true }
     }
 
     internal fun clearMFARecoveryCode() {
@@ -467,7 +472,7 @@ class LoginEmailViewModel(
         isMFARecoveryCodeInvalid = false
     }
 
-    private fun verifyMFA(matchesMockCode: Boolean, onInvalidCode: () -> Unit) {
+    private fun verifyMFA(matchesMockCode: Boolean, isRecoveryCode: Boolean = false, onInvalidCode: () -> Unit) {
         val verification = pendingMFAVerification ?: return
         if (!verification.isActive || isVerifyingMFACode) return
         isVerifyingMFACode = true
@@ -476,6 +481,7 @@ class LoginEmailViewModel(
                 // Temporary Android-only verification until the backend contract is settled.
                 delay(MFA_VERIFICATION_DELAY_MILLIS)
                 if (matchesMockCode) {
+                    usedRecoveryCodeForLogin = isRecoveryCode
                     mfaCodeTextState.clearText()
                     clearMFARecoveryCode()
                     updateEmailFlowState(LoginState.Loading)
@@ -503,6 +509,7 @@ class LoginEmailViewModel(
         mfaCodeTextState.clearText()
         clearMFARecoveryCode()
         selectedMFAAuthenticator = null
+        usedRecoveryCodeForLogin = false
         isMFACodeInvalid = false
         isVerifyingMFACode = false
     }

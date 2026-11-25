@@ -45,6 +45,7 @@ import com.wire.android.navigation.LoginTypeSelector
 import com.wire.android.services.ServicesManager
 import com.wire.android.sync.MonitorSyncWorkUseCase
 import com.wire.android.ui.authentication.devices.model.displayName
+import com.wire.android.ui.authentication.login.mfa.RecoveryCodeLoginNotice
 import com.wire.android.ui.common.ActionsViewModel
 import com.wire.android.ui.common.dialogs.CustomServerDetailsDialogState
 import com.wire.android.ui.common.dialogs.CustomServerDialogState
@@ -74,6 +75,7 @@ import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.logout.LogoutReason
 import com.wire.kalium.logic.data.sync.SyncState
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.navigation.WireSessionId
 import com.wire.kalium.logic.feature.appVersioning.ObserveIfAppUpdateRequiredUseCase
 import com.wire.kalium.logic.feature.client.ClearNewClientsForUserUseCase
 import com.wire.kalium.logic.feature.client.NewClientResult
@@ -150,6 +152,28 @@ class WireActivityViewModel @Inject constructor(
     var globalAppState: GlobalAppState by mutableStateOf(GlobalAppState())
         private set
     private val globalAppStateLock = Any()
+    private var pendingRecoveryLoginNotices by mutableStateOf(emptyMap<WireSessionId, RecoveryCodeLoginNotice>())
+
+    internal fun queueRecoveryLoginNotice(notice: RecoveryCodeLoginNotice) {
+        synchronized(globalAppStateLock) {
+            pendingRecoveryLoginNotices = pendingRecoveryLoginNotices + (notice.sessionId to notice)
+        }
+    }
+
+    internal fun pendingRecoveryLoginNotice(sessionId: WireSessionId): RecoveryCodeLoginNotice? =
+        pendingRecoveryLoginNotices[sessionId]
+
+    internal fun consumeRecoveryLoginNotice(notice: RecoveryCodeLoginNotice): Boolean = synchronized(globalAppStateLock) {
+        if (pendingRecoveryLoginNotices[notice.sessionId] != notice) return@synchronized false
+        pendingRecoveryLoginNotices = pendingRecoveryLoginNotices - notice.sessionId
+        true
+    }
+
+    private fun clearRecoveryLoginNotice(userId: UserId) {
+        synchronized(globalAppStateLock) {
+            pendingRecoveryLoginNotices = pendingRecoveryLoginNotices - WireSessionId(userId.value, userId.domain)
+        }
+    }
 
     private val _observeSyncFlowState: MutableStateFlow<SyncState?> = MutableStateFlow(null)
     val observeSyncFlowState: StateFlow<SyncState?> = _observeSyncFlowState
@@ -386,6 +410,7 @@ class WireActivityViewModel @Inject constructor(
     suspend fun initialAppState(taskId: Int): InitialAppState = initialStartupSnapshot(taskId).initialAppState
 
     private suspend fun handleInvalidSession(userId: UserId, logoutReason: LogoutReason) {
+        clearRecoveryLoginNotice(userId)
         when (logoutReason) {
             LogoutReason.SELF_SOFT_LOGOUT, LogoutReason.SELF_HARD_LOGOUT -> {
                 // Self logout is handled from the Self user profile screen directly.
@@ -585,6 +610,7 @@ class WireActivityViewModel @Inject constructor(
                 it is CurrentSessionResult.Success
             }?.let {
                 val currentUserId = (it as CurrentSessionResult.Success).accountInfo.userId
+                clearRecoveryLoginNotice(currentUserId)
                 val switchResult = accountSwitch.value.invoke(SwitchAccountParam.TryToSwitchToNextAccount).also { switchResult ->
                     if (switchResult == SwitchAccountResult.NoOtherAccountToSwitch) {
                         globalDataStore.value.clearAppLockPasscode()

@@ -191,6 +191,7 @@ permissions:
 jobs:
   # Validate user inputs and derive selectors.
   validate-and-resolve-inputs:
+    timeout-minutes: 5
     name: Validate + resolve run inputs
     runs-on: ubuntu-latest
     permissions:
@@ -667,6 +668,8 @@ jobs:
       - name: Transfer evidence and publish private Allure report
         id: publish_allure_report
         if: always()
+        # The private report is a convenience link; its failure must not turn a passing test run red.
+        continue-on-error: true
         timeout-minutes: 20
         env:
           GH_TOKEN: ${{ secrets.ANDROID_BOB_GH_TOKEN }}
@@ -1115,6 +1118,8 @@ jobs:
       - name: Transfer evidence and publish private Allure report
         id: publish_allure_report
         if: always()
+        # The private report is a convenience link; its failure must not turn a passing test run red.
+        continue-on-error: true
         timeout-minutes: 20
         env:
           GH_TOKEN: ${{ secrets.ANDROID_BOB_GH_TOKEN }}

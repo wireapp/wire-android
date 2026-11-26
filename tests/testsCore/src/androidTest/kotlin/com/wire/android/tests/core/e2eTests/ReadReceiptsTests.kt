@@ -24,6 +24,7 @@ import com.wire.android.tests.support.UiAutomatorSetup
 import com.wire.android.tests.support.tags.Category
 import com.wire.android.tests.support.tags.TestCaseId
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import uiautomatorutils.UiWaitUtils
@@ -612,6 +613,7 @@ class ReadReceiptsTests : BaseUiTest() {
     @Suppress("CyclomaticComplexMethod", "LongMethod")
     @TestCaseId("TC-12574")
     @Category("regression", "RC", "readReceipts")
+    @Ignore("Blocked by backend HTTP 403: mls-receipts-not-allowed — read receipts on MLS conversations are not allowed")
     @Test
     fun givenGroupConversation_whenIReadAMessage_thenSenderSeesMyReadReceiptAlongsideOtherMembers() {
         step("Given There is a team owner TeamOwner with team ReadReceipts") {

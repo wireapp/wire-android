@@ -91,7 +91,7 @@ class WireNavigation3ContributionsTest {
         }
 
         assertEquals(WireNavigation3Contributions.EXPECTED_ROUTE_REGISTRATION_COUNT, registrationCount)
-        assertEquals(110, registrationCount)
+        assertEquals(111, registrationCount)
     }
 
     @Test

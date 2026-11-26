@@ -32,6 +32,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.ui.Modifier
@@ -55,7 +56,9 @@ import com.wire.android.ui.common.rowitem.EmptyListContent
 import com.wire.android.ui.common.rowitem.LoadingListContent
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.ui.collectAsLazyPagingItemsWithLifecycle
+import com.wire.android.util.ui.keepOnTopWhenNotScrolled
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.id.MeetingId
 import kotlinx.datetime.TimeZone
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -66,9 +69,9 @@ fun MeetingList(
     contentPadding: PaddingValues = PaddingValues(),
     lazyListState: LazyListState = rememberLazyListState(),
     openMeetingOptions: (occurrenceId: String) -> Unit = {},
-    startCall: (conversationId: ConversationId) -> Unit = {},
-    joinCall: (conversationId: ConversationId) -> Unit = {},
-    returnToCall: (conversationId: ConversationId) -> Unit = {},
+    startCall: (conversationId: ConversationId, meetingId: MeetingId) -> Unit = { _, _ -> },
+    joinCall: (conversationId: ConversationId, meetingId: MeetingId) -> Unit = { _, _ -> },
+    returnToCall: (conversationId: ConversationId, meetingId: MeetingId) -> Unit = { _, _ -> },
 ) {
     val meetingListViewModel: MeetingListViewModel = when {
         LocalInspectionMode.current -> remember(type) { MeetingListViewModelPreview(type = type) }
@@ -128,9 +131,9 @@ private fun MeetingItemsList(
     lazyListState: LazyListState,
     contentPadding: PaddingValues,
     openMeetingOptions: (occurrenceId: String) -> Unit,
-    startCall: (conversationId: ConversationId) -> Unit,
-    joinCall: (conversationId: ConversationId) -> Unit,
-    returnToCall: (conversationId: ConversationId) -> Unit,
+    startCall: (conversationId: ConversationId, meetingId: MeetingId) -> Unit,
+    joinCall: (conversationId: ConversationId, meetingId: MeetingId) -> Unit,
+    returnToCall: (conversationId: ConversationId, meetingId: MeetingId) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     LazyColumn(
@@ -185,6 +188,9 @@ private fun MeetingItemsList(
             item(key = "footer_load_more", contentType = "footer_load_more") {
                 MeetingLoadMoreFooter()
             }
+        }
+        Snapshot.withoutReadObservation {
+            keepOnTopWhenNotScrolled(lazyListState)
         }
     }
 }

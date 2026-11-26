@@ -60,9 +60,9 @@ fun AllMeetingsScreen(
     contentPadding: PaddingValues = PaddingValues(),
     tabs: ImmutableList<MeetingsTabItem> = persistentListOf(MeetingsTabItem.NEXT), // history is not available yet, only "Next" for now
     initialTab: MeetingsTabItem = MeetingsTabItem.NEXT,
-    startCall: (conversationId: ConversationId) -> Unit = {},
-    joinCall: (conversationId: ConversationId) -> Unit = {},
-    returnToCall: (conversationId: ConversationId) -> Unit = {},
+    startCall: (conversationId: ConversationId, meetingId: MeetingId) -> Unit = { _, _ -> },
+    joinCall: (conversationId: ConversationId, meetingId: MeetingId) -> Unit = { _, _ -> },
+    returnToCall: (conversationId: ConversationId, meetingId: MeetingId) -> Unit = { _, _ -> },
     editMeeting: (meetingId: MeetingId) -> Unit = {},
     openMeetingLink: (meetingId: MeetingId) -> Unit = {},
 ) {

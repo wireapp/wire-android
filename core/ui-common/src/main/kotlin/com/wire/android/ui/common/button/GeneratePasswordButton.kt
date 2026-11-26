@@ -19,6 +19,7 @@ package com.wire.android.ui.common.button
 
 import android.widget.Toast
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -50,7 +51,7 @@ fun GeneratePasswordButton(
         textStyle = MaterialTheme.wireTypography.button03,
         leadingIcon = {
             Icon(
-                modifier = Modifier.padding(end = dimensions().corner4x),
+                modifier = Modifier.padding(end = dimensions().corner4x).size(dimensions().spacing12x),
                 painter = painterResource(id = R.drawable.ic_shield_holo),
                 contentDescription = null,
                 tint = colorsScheme().onSecondaryButtonEnabled
@@ -81,7 +82,7 @@ fun CopyPasswordButton(
         textStyle = MaterialTheme.wireTypography.button03,
         leadingIcon = {
             Icon(
-                modifier = Modifier.padding(end = dimensions().corner4x),
+                modifier = Modifier.padding(end = dimensions().corner4x).size(dimensions().spacing12x),
                 painter = painterResource(R.drawable.ic_copy),
                 contentDescription = null,
             )

@@ -19,6 +19,7 @@ concurrency:
 
 jobs:
   create-tag:
+    timeout-minutes: 15
     name: Create beta tag
     runs-on: ubuntu-latest
     permissions:

@@ -266,7 +266,7 @@ class MeetingListTests : BaseUiTest() {
             createMeeting("ML-Locale", start)
         }
         step("When I set Wire to German, open Meetings and see the German date header and 24-hour meeting time") {
-            settings.setAppLocale(UiAutomatorSetup.APP_ALPHA, Locale.GERMANY)
+            settings.setAppLocale(UiAutomatorSetup.appPackage, Locale.GERMANY)
             pages.meetingsPage.apply {
                 open(Locale.GERMANY)
                 assertMeeting(meeting, zone, Locale.GERMANY)
@@ -274,7 +274,7 @@ class MeetingListTests : BaseUiTest() {
             }
         }
         step("Then after I switch Wire to US English, the same meeting has English formatting and unchanged occurrence details") {
-            settings.setAppLocale(UiAutomatorSetup.APP_ALPHA, Locale.US)
+            settings.setAppLocale(UiAutomatorSetup.appPackage, Locale.US)
             pages.commonAppPage.restartWireApp().assertWireAppIsInForeground()
             pages.meetingsPage.apply {
                 assertMeeting(meeting, zone, Locale.US)

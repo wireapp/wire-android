@@ -228,9 +228,9 @@ class NewMeetingViewModelImpl @AssistedInject constructor(
         }
 
     private fun validateOptionalPassword(): Boolean {
-        val password = optionalPassword
-        val invalidPassword = password?.let { !validatePassword(it).isValid } ?: false
-        val passwordsDoNotMatch = password != null && password != confirmPasswordTextState.text.toString()
+        val invalidPassword = optionalPassword?.let { !validatePassword(it).isValid } ?: false
+        val passwordsDoNotMatch = type !is NewMeetingType.Edit && state.isGuestLinkSharingEnabled &&
+                optionalPassword.orEmpty() != confirmPasswordTextState.text.toString()
         val passwordValid = !invalidPassword && !passwordsDoNotMatch
         state = state.copy(
             invalidPassword = invalidPassword,

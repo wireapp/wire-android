@@ -17,7 +17,6 @@
  */
 package com.wire.android.tests.core.pages
 
-import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.Rect
 import android.os.Build
@@ -30,14 +29,13 @@ import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.UiObject2
 import androidx.test.uiautomator.UiScrollable
 import androidx.test.uiautomator.UiSelector
-import com.google.zxing.ReaderException
 import junit.framework.TestCase.assertFalse
 import org.junit.Assert
 import uiautomatorutils.UiSelectorParams
 import uiautomatorutils.UiWaitUtils
 import uiautomatorutils.UiWaitUtils.findElementOrNull
 import uiautomatorutils.UiWaitUtils.waitElement
-import util.decodeQRCode
+import util.qrCodeInScreenArea
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
@@ -841,20 +839,6 @@ data class ConversationViewPage(private val device: UiDevice) {
         }
         Assert.assertTrue("The older image thumbnail does not show QR content '$expectedValue'", visible)
         return this
-    }
-
-    private fun qrCodeInScreenArea(bounds: Rect): String? {
-        val screenshot = requireNotNull(InstrumentationRegistry.getInstrumentation().uiAutomation.takeScreenshot())
-        val area = Bitmap.createBitmap(screenshot, bounds.left, bounds.top, bounds.width(), bounds.height())
-        return try {
-            decodeQRCode(area)
-        } catch (_: ReaderException) {
-            // A partially rendered QR image is not readable yet; the caller keeps polling.
-            null
-        } finally {
-            area.recycle()
-            screenshot.recycle()
-        }
     }
 
     fun assertSendButtonEnabledOnMessageComposer(): ConversationViewPage {

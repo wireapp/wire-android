@@ -381,7 +381,6 @@ class GroupVideoCall : BaseCallUiTest() {
                     tapSharingOption("Audio")
                 })
             }
-            device.pressBack()
         }
 
         step("And <Member2> sends audio file message via device Device1 to GroupVideoCall conversation") {

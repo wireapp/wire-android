@@ -19,48 +19,16 @@ package com.wire.android.tests.core.pages
 
 import android.net.Uri
 import androidx.test.platform.app.InstrumentationRegistry
-import androidx.test.uiautomator.By
-import androidx.test.uiautomator.Direction
 import androidx.test.uiautomator.UiDevice
 import com.wire.android.tests.core.fixtures.PDF_SHARE_RECEIPT
 import com.wire.android.tests.core.fixtures.sha256
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
 import uiautomatorutils.UiSelectorParams
 import uiautomatorutils.UiWaitUtils
 
 data class PdfShareReceiverPage(private val device: UiDevice) {
     fun selectFromShareSheet() {
-        // Sharing can load the PDF before Android displays its share targets.
-        UiWaitUtils.waitAnyVisible(
-            selectors = listOf(
-                UiSelectorParams(resourceId = "android:id/chooser_header"),
-                UiSelectorParams(resourceId = "miui:id/alertTitle", text = "Share")
-            ),
-            timeout = UiWaitUtils.LONG_TIMEOUT
-        ) ?: throw AssertionError("Android's PDF share sheet is not visible")
-        val receiver = By.text("PDF Test Receiver")
-        val visible = UiWaitUtils.retryUntilTimeout(UiWaitUtils.SHORT_TIMEOUT) {
-            if (!device.hasObject(receiver)) {
-                // Samsung's app row scrolls horizontally; More opens the remaining share targets.
-                val samsungApps = device.findObject(By.res("com.android.intentresolver:id/sem_chooser_recycler_ranked_app"))
-                if (samsungApps != null) {
-                    val more = samsungApps.findObject(By.text("More"))
-                    if (more != null) more.click() else samsungApps.scroll(Direction.RIGHT, 1f)
-                } else {
-                    val miuiApps = device.findObject(By.res("android.miui:id/screen_view"))
-                    if (miuiApps != null) {
-                        // MIUI puts additional share targets on the next horizontal page.
-                        miuiApps.swipe(Direction.LEFT, 1f)
-                    } else {
-                        device.findObject(By.scrollable(true))?.scroll(Direction.DOWN, 1f)
-                    }
-                }
-            }
-            device.hasObject(receiver)
-        }
-        assertTrue("PDF Test Receiver is missing from Android's share sheet", visible)
-        device.findObject(receiver).click()
+        selectShareTarget(device, "PDF Test Receiver")
     }
 
     // Compares the receiver's filename and content fingerprint with the original PDF.

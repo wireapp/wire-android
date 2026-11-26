@@ -164,21 +164,13 @@ class RemoveUserTests : BaseUiTest() {
             }
         }
 
-        step("When I open User Profile and tap Log out") {
+        step("When I open User Profile") {
             pages.conversationListPage.clickUserProfileButton()
-            pages.selfUserProfilePage.apply {
-                iSeeUserProfilePage()
-                tapLogoutButton()
-            }
+            pages.selfUserProfilePage.iSeeUserProfilePage()
         }
 
-        step("And I select the clear-data option and confirm logout") {
-            pages.selfUserProfilePage.apply {
-                iSeeClearDataOnLogOutAlert()
-                iSeeInfoTextCheckbox("Delete all your personal information and conversations on this device")
-                tapInfoTextCheckbox()
-                tapLogoutButton()
-            }
+        step("And I tap Log out, select clear data and confirm logout") {
+            pages.selfUserProfilePage.logoutWithClearedData()
         }
 
         step("And I see email verification Welcome Page") {

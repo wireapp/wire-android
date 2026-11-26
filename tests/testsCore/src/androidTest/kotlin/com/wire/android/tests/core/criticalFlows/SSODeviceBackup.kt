@@ -259,19 +259,10 @@ class SSODeviceBackup : BaseUiTest() {
             }
         }
 
-        step("When I tap logout from my self profile and see the clear data alert") {
+        step("When I open my profile, tap Log out, select clear data and confirm logout") {
             pages.selfUserProfilePage.apply {
                 iSeeUserProfilePage()
-                tapLogoutButton()
-                iSeeClearDataOnLogOutAlert()
-            }
-        }
-
-        step("And I choose to delete personal information from this device and log out") {
-            pages.selfUserProfilePage.apply {
-                iSeeInfoTextCheckbox("Delete all your personal information and conversations on this device")
-                tapInfoTextCheckbox()
-                tapLogoutButton()
+                logoutWithClearedData()
             }
         }
 

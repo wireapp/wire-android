@@ -27,10 +27,9 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import user.utils.ClientUser
-import kotlin.time.Duration.Companion.seconds
 
 @RunWith(AndroidJUnit4::class)
-class Deeplinks : BaseUiTest() {
+class DeeplinkTests : BaseUiTest() {
     private lateinit var teamOwner: ClientUser
     private lateinit var member1: ClientUser
 
@@ -120,11 +119,7 @@ class Deeplinks : BaseUiTest() {
             pages.profileQrCodePage.tapBackButton()
             pages.selfUserProfilePage.apply {
                 iSeeUserProfilePage()
-                tapLogoutButton()
-                iSeeClearDataOnLogOutAlert()
-                iSeeInfoTextCheckbox("Delete all your personal information and conversations on this device")
-                tapInfoTextCheckbox()
-                tapLogoutButton()
+                logoutWithClearedData()
             }
         }
 
@@ -269,7 +264,7 @@ class Deeplinks : BaseUiTest() {
             clickLoginButton()
         }
         pages.registrationPage.apply {
-            waitUntilLoginFlowIsCompleted(loginButtonTimeout = 35.seconds)
+            waitUntilLoginFlowIsCompleted()
             clickAllowNotificationButton()
             clickDeclineShareDataAlert()
         }

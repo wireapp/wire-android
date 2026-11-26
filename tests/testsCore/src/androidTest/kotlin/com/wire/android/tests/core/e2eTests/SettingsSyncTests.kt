@@ -30,7 +30,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import uiautomatorutils.UiWaitUtils
 import user.utils.ClientUser
-import kotlin.time.Duration.Companion.seconds
 
 @RunWith(AndroidJUnit4::class)
 class SettingsSyncTests : BaseUiTest() {
@@ -96,25 +95,14 @@ class SettingsSyncTests : BaseUiTest() {
             }
         }
 
-        step("Then all three Privacy Settings toggles are ON") {
+        step("Then typing indicators, read receipts and screenshot censoring are ON") {
             pages.settingsPage.apply {
-                assertTypingIndicatorToggleIsOn()
-                assertReadReceiptsToggleIsOn()
-                assertScreenshotCensoringToggleIsOn()
+                assertAllPrivacySettingsRemainOn()
             }
         }
 
         step("And the backend stores all three settings as enabled for TeamOwner") {
-            assertTrue(
-                "Enabled privacy settings were not saved to the backend",
-                UiWaitUtils.retryUntilTimeout(UiWaitUtils.DEFAULT_TIMEOUT) {
-                    val properties = runBlocking { backendClient.getPropertyValues(teamOwner) }
-                    // Typing indicators are enabled by deleting their disabling property.
-                    properties.optInt("WIRE_RECEIPT_MODE", -1) == 1 &&
-                        !properties.has("WIRE_TYPING_INDICATOR_MODE") &&
-                        properties.optInt("WIRE_SCREENSHOT_CENSORING_MODE", -1) == 1
-                }
-            )
+            assertEnabledPrivacySettingsOnBackend()
         }
 
         step("When I return to the conversation list and open TeamOwner's profile") {
@@ -128,11 +116,7 @@ class SettingsSyncTests : BaseUiTest() {
 
         step("And I tap Log out, select clear data and confirm logout") {
             pages.selfUserProfilePage.apply {
-                tapLogoutButton()
-                iSeeClearDataOnLogOutAlert()
-                iSeeInfoTextCheckbox("Delete all your personal information and conversations on this device")
-                tapInfoTextCheckbox()
-                tapLogoutButton()
+                logoutWithClearedData()
             }
         }
 
@@ -152,10 +136,12 @@ class SettingsSyncTests : BaseUiTest() {
 
         step("Then typing indicators, read receipts and screenshot censoring are restored as ON") {
             pages.settingsPage.apply {
-                assertTypingIndicatorToggleIsOn()
-                assertReadReceiptsToggleIsOn()
-                assertScreenshotCensoringToggleIsOn()
+                assertAllPrivacySettingsRemainOn()
             }
+        }
+
+        step("And the backend still stores all three settings as enabled for TeamOwner after login") {
+            assertEnabledPrivacySettingsOnBackend()
         }
     }
 
@@ -245,11 +231,7 @@ class SettingsSyncTests : BaseUiTest() {
 
         step("And I tap Log out, select clear data and confirm logout") {
             pages.selfUserProfilePage.apply {
-                tapLogoutButton()
-                iSeeClearDataOnLogOutAlert()
-                iSeeInfoTextCheckbox("Delete all your personal information and conversations on this device")
-                tapInfoTextCheckbox()
-                tapLogoutButton()
+                logoutWithClearedData()
             }
         }
 
@@ -277,6 +259,20 @@ class SettingsSyncTests : BaseUiTest() {
         }
     }
 
+    // Verify the same persisted values before logout and after login.
+    private fun assertEnabledPrivacySettingsOnBackend() {
+        assertTrue(
+            "Enabled privacy settings were not saved to the backend",
+            UiWaitUtils.retryUntilTimeout(UiWaitUtils.DEFAULT_TIMEOUT) {
+                val properties = runBlocking { backendClient.getPropertyValues(teamOwner) }
+                // Typing indicators are enabled by deleting their disabling property.
+                properties.optInt("WIRE_RECEIPT_MODE", -1) == 1 &&
+                    !properties.has("WIRE_TYPING_INDICATOR_MODE") &&
+                    properties.optInt("WIRE_SCREENSHOT_CENSORING_MODE", -1) == 1
+            }
+        )
+    }
+
     // Shared staging login flow, including post-login prompts and the service notification wait.
     private fun loginToStagingAs(user: ClientUser) {
         pages.loginPage.apply {
@@ -289,7 +285,7 @@ class SettingsSyncTests : BaseUiTest() {
             clickLoginButton()
         }
         pages.registrationPage.apply {
-            waitUntilLoginFlowIsCompleted(loginButtonTimeout = 35.seconds)
+            waitUntilLoginFlowIsCompleted()
             clickAllowNotificationButton()
             clickDeclineShareDataAlert()
         }

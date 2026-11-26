@@ -17,78 +17,44 @@
  */
 package com.wire.android.tests.core.pages
 
-import android.net.Uri
 import androidx.test.platform.app.InstrumentationRegistry
-import androidx.test.uiautomator.By
-import androidx.test.uiautomator.Direction
 import androidx.test.uiautomator.UiDevice
 import com.wire.android.tests.core.fixtures.PROFILE_SHARE_RECEIPT
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
 import uiautomatorutils.UiSelectorParams
 import uiautomatorutils.UiWaitUtils
+import util.profileQrLink
 
-class ProfileShareReceiverPage(private val device: UiDevice) {
-    @Suppress("MagicNumber")
-    fun selectFromShareSheet() {
-        // Wait for Android to load the available receiving apps.
-        UiWaitUtils.waitAnyVisible(
-            selectors = listOf(
-                UiSelectorParams(resourceId = "android:id/chooser_header"),
-                UiSelectorParams(resourceId = "miui:id/alertTitle", text = "Share")
-            ),
-            timeout = UiWaitUtils.LONG_TIMEOUT
-        ) ?: throw AssertionError("Android's profile share sheet is not visible")
-        val receiver = By.text("Profile Test Receiver")
-        val visible = UiWaitUtils.retryUntilTimeout(UiWaitUtils.SHORT_TIMEOUT) {
-            if (!device.hasObject(receiver)) {
-                // Samsung's app row scrolls horizontally; More opens the remaining share targets.
-                val samsungApps = device.findObject(By.res("com.android.intentresolver:id/sem_chooser_recycler_ranked_app"))
-                if (samsungApps != null) {
-                    val more = samsungApps.findObject(By.text("More"))
-                    if (more != null) more.click() else samsungApps.scroll(Direction.RIGHT, 1f)
-                } else {
-                    val miuiApps = device.findObject(By.res("android.miui:id/screen_view"))
-                    if (miuiApps != null) {
-                        // MIUI puts additional share targets on the next horizontal page.
-                        miuiApps.swipe(Direction.LEFT, 1f)
-                    } else {
-                        // Android 12's outer contentPanel includes the navigation edge; scroll only its app list.
-                        val androidApps = device.findObject(By.res("android:id/resolver_list"))
-                        if (androidApps != null) {
-                            androidApps.setGestureMargin(androidApps.visibleBounds.height() / 4)
-                            androidApps.swipe(Direction.UP, 1f, device.displayWidth)
-                        } else {
-                            device.findObject(By.scrollable(true))?.scroll(Direction.DOWN, 1f)
-                        }
-                    }
-                }
-            }
-            device.hasObject(receiver)
-        }
-        assertTrue("Profile Test Receiver is missing from Android's share sheet", visible)
-        device.findObject(receiver).click()
+data class ProfileShareReceiverPage(private val device: UiDevice) {
+    private val profileReceipt = UiSelectorParams(description = PROFILE_SHARE_RECEIPT)
+    private val shareProfileTitle = UiSelectorParams(text = "Share Profile")
+
+    fun selectFromShareSheet(): ProfileShareReceiverPage {
+        selectShareTarget(device, "Profile Test Receiver")
+        return this
     }
 
-    fun assertReceivedProfileLink(expectedLink: String) {
+    fun assertReceivedProfileLink(expectedLink: String): ProfileShareReceiverPage {
         assertReceivedContent("Profile link\n$expectedLink")
+        return this
     }
 
-    fun assertReceivedProfileQrCode(profileLink: String) {
-        val qualifiedId = requireNotNull(Uri.parse(profileLink).getQueryParameter("id"))
-        val expectedQr = "wire://user/${qualifiedId.substringAfter('@')}/${qualifiedId.substringBefore('@')}"
+    fun assertReceivedProfileQrCode(profileLink: String): ProfileShareReceiverPage {
+        val expectedQr = profileQrLink(profileLink)
         assertReceivedContent("Profile QR code\n$expectedQr")
+        return this
     }
 
     private fun assertReceivedContent(expected: String) {
-        val receipt = UiWaitUtils.waitElement(UiSelectorParams(description = PROFILE_SHARE_RECEIPT))
+        val receipt = UiWaitUtils.waitElement(profileReceipt)
         val context = InstrumentationRegistry.getInstrumentation().targetContext
         assertEquals("The profile receiver did not open", context.packageName, device.currentPackageName)
         assertEquals("The receiving app did not read the expected profile content", expected, receipt.text)
     }
 
-    fun returnToShareProfile() {
+    fun returnToShareProfile(): ProfileShareReceiverPage {
         device.pressBack()
-        UiWaitUtils.waitElement(UiSelectorParams(text = "Share Profile"))
+        UiWaitUtils.waitElement(shareProfileTitle)
+        return this
     }
 }

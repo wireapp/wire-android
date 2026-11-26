@@ -17,52 +17,54 @@
  */
 package com.wire.android.tests.core.pages
 
+import android.graphics.Rect
 import android.net.Uri
-import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
-import com.google.zxing.ReaderException
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import uiautomatorutils.UiSelectorParams
 import uiautomatorutils.UiWaitUtils
-import util.decodeQRCode
+import util.profileQrLink
+import util.qrCodeInScreenArea
 
-class ProfileQrCodePage(private val device: UiDevice) {
+data class ProfileQrCodePage(private val device: UiDevice) {
+    private val shareProfileTitle = UiSelectorParams(text = "Share Profile")
+    private val profileLinkText = UiSelectorParams(textContains = "/user-profile/?id=")
+    private val shareProfileLinkButton = UiSelectorParams(resourceId = "Share link")
+    private val shareQrCodeButton = UiSelectorParams(resourceId = "Share QR link")
+
+    private fun profileUsername(username: String) = UiSelectorParams(text = "@${username.removePrefix("@")}")
+
     fun assertProfileQrCodeAndReadLink(userId: String, username: String): String {
-        UiWaitUtils.waitElement(UiSelectorParams(text = "Share Profile"))
-        assertProfileUsername(username)
-        val link = UiWaitUtils.waitElement(UiSelectorParams(textContains = "/user-profile/?id=")).text
+        val heading = UiWaitUtils.waitElement(shareProfileTitle)
+        val handle = UiWaitUtils.waitElement(profileUsername(username))
+        val link = UiWaitUtils.waitElement(profileLinkText).text
         val qualifiedId = requireNotNull(Uri.parse(link).getQueryParameter("id"))
         assertEquals("Profile link belongs to another user", userId, qualifiedId.substringBefore('@'))
-        val expectedQr = "wire://user/${qualifiedId.substringAfter('@')}/$userId"
+        val expectedQr = profileQrLink(link)
         assertTrue(
             "Displayed QR code does not encode this user's profile",
             UiWaitUtils.retryUntilTimeout(UiWaitUtils.DEFAULT_TIMEOUT) {
-                val screenshot = requireNotNull(InstrumentationRegistry.getInstrumentation().uiAutomation.takeScreenshot())
-                try {
-                    decodeQRCode(screenshot) == expectedQr
-                } catch (_: ReaderException) {
-                    false
-                } finally {
-                    screenshot.recycle()
-                }
+                // The QR is unlabelled and rendered between the heading and the username.
+                val qrArea = Rect(0, heading.visibleBounds.bottom, device.displayWidth, handle.visibleBounds.top)
+                qrCodeInScreenArea(qrArea) == expectedQr
             }
         )
         return link
     }
 
     fun assertProfileUsername(username: String): ProfileQrCodePage {
-        UiWaitUtils.waitElement(UiSelectorParams(text = "@${username.removePrefix("@")}"))
+        UiWaitUtils.waitElement(profileUsername(username))
         return this
     }
 
     fun tapShareProfileLinkButton(): ProfileQrCodePage {
-        UiWaitUtils.waitElement(UiSelectorParams(text = "Share Profile Link")).click()
+        UiWaitUtils.waitElement(shareProfileLinkButton).click()
         return this
     }
 
     fun tapShareQrCodeButton(): ProfileQrCodePage {
-        UiWaitUtils.waitElement(UiSelectorParams(text = "Share QR Code")).click()
+        UiWaitUtils.waitElement(shareQrCodeButton).click()
         return this
     }
 

@@ -206,6 +206,24 @@ data class SettingsPage(private val device: UiDevice) {
         return this
     }
 
+    @Suppress("MagicNumber")
+    fun assertAllPrivacySettingsRemainOn(): SettingsPage {
+        var consecutiveMatches = 0
+        assertTrue(
+            "Privacy settings did not remain ON across three consecutive checks",
+            UiWaitUtils.retryUntilTimeout(UiWaitUtils.DEFAULT_TIMEOUT, pollingInterval = 1.seconds) {
+                val allOn = listOf("Typing indicator", "Send read receipts", "Censor screenshots").all { label ->
+                    val state = device.findObject(UiSelector().text(label)).getFromParent(toggleOnText)
+                    state.exists() && !state.visibleBounds.isEmpty
+                }
+                // Reset if the initial ON values change while the saved settings load.
+                consecutiveMatches = if (allOn) consecutiveMatches + 1 else 0
+                consecutiveMatches >= 3
+            }
+        )
+        return this
+    }
+
     fun setReadReceiptsEnabled(enabled: Boolean): SettingsPage {
         setPrivacySettingEnabled("Send read receipts", enabled)
         return this

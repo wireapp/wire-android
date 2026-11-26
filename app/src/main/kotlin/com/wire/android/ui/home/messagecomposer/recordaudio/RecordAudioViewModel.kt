@@ -336,6 +336,8 @@ class RecordAudioViewModel @Inject constructor(
                     )
                 )
             )
+            // the ViewModel outlives the record panel, so the next open must not start in ENCODING
+            state = state.copy(buttonState = RecordAudioButtonState.ENABLED, audioState = AudioState.DEFAULT, wavesMask = null)
         }
     }
 

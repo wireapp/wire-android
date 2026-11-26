@@ -18,6 +18,7 @@
 package com.wire.android.ui.home.messagecomposer.recordaudio
 
 import android.content.Context
+import android.net.Uri
 import app.cash.turbine.test
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.TestDispatcherProvider
@@ -29,6 +30,7 @@ import com.wire.android.media.audiomessage.RecordAudioMessagePlayer
 import com.wire.android.ui.home.messagecomposer.recordaudio.RecordAudioViewModelTest.Arrangement.Companion.ASSET_SIZE_LIMIT
 import com.wire.android.util.CurrentScreen
 import com.wire.android.util.CurrentScreenManager
+import com.wire.android.util.fromNioPathToContentUri
 import com.wire.kalium.logic.data.call.Call
 import com.wire.kalium.logic.data.call.CallStatus
 import com.wire.kalium.logic.data.conversation.Conversation
@@ -44,6 +46,8 @@ import io.mockk.coVerify
 import io.mockk.coVerifyOrder
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.mockkStatic
+import io.mockk.unmockkStatic
 import io.mockk.verify
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.emptyFlow
@@ -349,6 +353,40 @@ class RecordAudioViewModelTest {
                     arrangement.audioMediaRecorder.stop()
                     arrangement.audioMediaRecorder.release()
                 }
+            }
+        }
+
+    @Test
+    fun `given user recorded an audio, when sending the recording, then the recorder is back to its initial state`() =
+        runTest {
+            // given
+            val (arrangement, viewModel) = Arrangement()
+                .withFilterEnabled(false)
+                .withMaxFileSizeNeverReached()
+                .arrange()
+            val m4aPath = arrangement.fakeKaliumFileSystem.tempFilePath("voice.m4a")
+            every { arrangement.audioMediaRecorder.m4aOutputPath } returns m4aPath
+            coEvery { arrangement.audioMediaRecorder.convertWavToM4a(any()) } returns true
+            mockkStatic("com.wire.android.util.FileUtilKt")
+            every { any<Context>().fromNioPathToContentUri(any()) } returns mockk<Uri>()
+
+            try {
+                viewModel.startRecording()
+                viewModel.stopRecording()
+
+                viewModel.actions.test {
+                    // when
+                    viewModel.sendRecording()
+
+                    // then
+                    assertEquals(true, awaitItem() is RecordAudioViewActions.Recorded)
+                    assertEquals(RecordAudioState().buttonState, viewModel.state.buttonState)
+                    assertEquals(null, viewModel.state.originalOutputFile)
+                    assertEquals(AudioState.DEFAULT, viewModel.state.audioState)
+                    assertEquals(null, viewModel.state.wavesMask)
+                }
+            } finally {
+                unmockkStatic("com.wire.android.util.FileUtilKt")
             }
         }
 

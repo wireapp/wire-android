@@ -381,6 +381,33 @@ class RecordAudioViewModelTest {
         }
 
     @Test
+    fun `given a stop is in flight, when discarding, then the recorder is still released after the stop finishes`() =
+        runTest {
+            // given
+            val stopGate = CompletableDeferred<Unit>()
+            val (arrangement, viewModel) = Arrangement()
+                .withFilterEnabled(false)
+                .withMaxFileSizeNeverReached()
+                .withFirstRecorderStopWaitingFor(stopGate)
+                .arrange()
+            viewModel.startRecording()
+            viewModel.stopRecording()
+
+            // when
+            viewModel.discardRecording()
+            stopGate.complete(Unit)
+
+            // then
+            assertEquals(RecordAudioButtonState.ENABLED, viewModel.state.buttonState)
+            coVerify(exactly = 2) { arrangement.audioMediaRecorder.stop() }
+            verify(exactly = 1) { arrangement.audioMediaRecorder.release() }
+            coVerifyOrder {
+                arrangement.audioMediaRecorder.stop()
+                arrangement.audioMediaRecorder.release()
+            }
+        }
+
+    @Test
     fun `given encoding is running, when discarding and recording again, then the new recording is not overwritten`() =
         runTest {
             // given
@@ -555,6 +582,16 @@ class RecordAudioViewModelTest {
 
         fun withEncodingWaitingFor(gate: CompletableDeferred<Unit>) = apply {
             coEvery { generateAudioFileWithEffects(any(), any(), any()) } coAnswers { gate.await() }
+        }
+
+        fun withFirstRecorderStopWaitingFor(gate: CompletableDeferred<Unit>) = apply {
+            var isFirstStop = true
+            coEvery { audioMediaRecorder.stop() } coAnswers {
+                if (isFirstStop) {
+                    isFirstStop = false
+                    gate.await()
+                }
+            }
         }
 
         fun withMaxFileSizeNeverReached() = apply {

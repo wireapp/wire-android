@@ -174,7 +174,6 @@ class RecordAudioViewModel @Inject constructor(
                 infoMessage.emit(RecordAudioInfoMessageType.UnableToRecordAudioCall.uiText)
             }
         } else {
-            encodingJob?.cancel()
             audioFocusHelper.requestExclusive()
             viewModelScope.launch(dispatchers.default()) {
                 val assetSizeLimit = getAssetSizeLimit(false)
@@ -205,16 +204,15 @@ class RecordAudioViewModel @Inject constructor(
 
             val originalFile = state.originalOutputFile ?: return@launch
             val effectsFile = state.effectsOutputFile
-            val applyEffects = state.shouldApplyEffects && effectsFile != null
             state = state.copy(
                 buttonState = RecordAudioButtonState.ENCODING,
                 audioState = state.audioState.copy(audioMediaPlayingState = AudioMediaPlayingState.Fetching)
             )
-            if (applyEffects) {
+            if (state.shouldApplyEffects && effectsFile != null) {
                 generateAudioFileWithEffects(
                     context = context,
                     originalFilePath = originalFile.path,
-                    effectsFilePath = effectsFile!!.path
+                    effectsFilePath = effectsFile.path
                 )
             }
 

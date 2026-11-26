@@ -46,6 +46,7 @@ import com.wire.kalium.logic.feature.e2ei.usecase.FetchConversationMLSVerificati
 import dev.zacsweers.metro.Assisted
 import dev.zacsweers.metro.AssistedFactory
 import dev.zacsweers.metro.AssistedInject
+import dev.zacsweers.metro.Named
 import kotlinx.coroutines.launch
 import com.wire.android.di.metro.WireAssistedViewModelBinding
 import com.wire.android.ui.home.conversations.ConversationCoreManualViewModelFactoryGroup
@@ -58,6 +59,7 @@ class ConversationInfoViewModel @AssistedInject constructor(
     private val createRegularGroup: CreateRegularGroupUseCase,
     private val fetchConversationMLSVerificationStatus: FetchConversationMLSVerificationStatusUseCase,
     private val isWireCellFeatureEnabled: IsWireCellsEnabledUseCase,
+    @Named("driveOffboardingEnabled") private val driveOffboardingEnabled: Boolean,
     @CurrentAccount private val selfUserId: UserId,
     @Assisted navigationArgs: ConversationNavArgs,
 ) : ViewModel() {
@@ -136,7 +138,9 @@ class ConversationInfoViewModel @AssistedInject constructor(
         }
 
         val detailsData = getConversationDetailsData(conversationDetails)
-        val wireCellEnabled = isWireCellFeatureEnabled()
+        val isDriveConversation = (conversationDetails as? ConversationDetails.Group)?.wireCell != null
+        val isDriveFeatureEnabled = isWireCellFeatureEnabled()
+        val isDriveOffboarded = driveOffboardingEnabled && isDriveConversation && !isDriveFeatureEnabled
 
         conversationInfoViewState = conversationInfoViewState.copy(
             conversationName = getConversationName(conversationDetails, isConversationUnavailable),
@@ -149,7 +153,9 @@ class ConversationInfoViewModel @AssistedInject constructor(
             proteusVerificationStatus = conversationDetails.conversation.proteusVerificationStatus,
             legalHoldStatus = conversationDetails.conversation.legalHoldStatus,
             accentId = getAccentId(conversationDetails),
-            isWireCellEnabled = wireCellEnabled && (conversationDetails as? ConversationDetails.Group)?.wireCell != null,
+            // Existing drive content stays reachable after Drive is offboarded, only read-only.
+            isWireCellEnabled = isDriveConversation && (isDriveFeatureEnabled || driveOffboardingEnabled),
+            isDriveOffboarded = isDriveOffboarded,
             initialLoadingState = InitialLoadingState.LOADED,
         )
     }

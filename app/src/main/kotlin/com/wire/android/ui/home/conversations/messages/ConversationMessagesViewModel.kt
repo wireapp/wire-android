@@ -73,6 +73,7 @@ import com.wire.kalium.network.NetworkStateObserver
 import dev.zacsweers.metro.Assisted
 import dev.zacsweers.metro.AssistedFactory
 import dev.zacsweers.metro.AssistedInject
+import dev.zacsweers.metro.Named
 import kotlinx.collections.immutable.toPersistentMap
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -116,6 +117,7 @@ class ConversationMessagesViewModel @AssistedInject constructor(
     private val getSearchedConversationMessagePosition: GetSearchedConversationMessagePositionUseCase,
     private val deleteMessage: DeleteMessageUseCase,
     private val isWireCellFeatureEnabled: IsWireCellsEnabledUseCase,
+    @Named("driveOffboardingEnabled") private val driveOffboardingEnabled: Boolean,
     private val networkStateObserver: NetworkStateObserver,
 ) : ViewModel() {
 
@@ -304,7 +306,7 @@ class ConversationMessagesViewModel @AssistedInject constructor(
             .flowOn(dispatchers.io())
             .collect { conversationDetailsResult ->
                 if (conversationDetailsResult is ObserveConversationDetailsUseCase.Result.Success) {
-                    isCellEnabledForConversation = isWireCellFeatureEnabled() &&
+                    isCellEnabledForConversation = (driveOffboardingEnabled || isWireCellFeatureEnabled()) &&
                             conversationDetailsResult.conversationDetails.isWireCellEnabled()
                     val lastUnreadInstant = conversationDetailsResult.conversationDetails.conversation.lastReadDate
                     conversationViewState = conversationViewState.copy(

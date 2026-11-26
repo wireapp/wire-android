@@ -47,6 +47,7 @@ internal fun List<OfflineFileInfo>.matching(search: OfflineSearch): List<Offline
         .sortedWith(search.sortingCriteria.comparator())
 
 // All files has no folders: every file is in it.
+@Suppress("ReturnCount")
 private fun OfflineFileInfo.isIn(folderPath: String?, recursive: Boolean): Boolean {
     if (folderPath == null) return true
     val relativePath = relativePathIn(folderPath) ?: return false

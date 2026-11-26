@@ -117,6 +117,7 @@ class SearchScreenViewModelTest {
         driveBulkActionsEnabled = true,
         driveOfflineEnabled = true,
         bulkRestoreEnabled = true,
+        driveOffboardingEnabled = true,
     )
 
     private fun nodesSource() = CellNodesSource(

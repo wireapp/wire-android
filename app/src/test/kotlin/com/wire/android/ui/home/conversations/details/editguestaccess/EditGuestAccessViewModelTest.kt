@@ -32,7 +32,6 @@ import com.wire.android.ui.userprofile.other.OtherUserProfileScreenViewModelTest
 import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.common.error.NetworkFailure
 import com.wire.kalium.logic.data.conversation.Conversation
-import com.wire.kalium.logic.data.user.SupportedProtocol
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.SyncConversationCodeUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationAccessRoleUseCase
@@ -42,7 +41,6 @@ import com.wire.kalium.logic.feature.conversation.guestroomlink.GenerateGuestRoo
 import com.wire.kalium.logic.feature.conversation.guestroomlink.ObserveGuestRoomLinkUseCase
 import com.wire.kalium.logic.feature.conversation.guestroomlink.RevokeGuestRoomLinkResult
 import com.wire.kalium.logic.feature.conversation.guestroomlink.RevokeGuestRoomLinkUseCase
-import com.wire.kalium.logic.feature.user.GetDefaultProtocolUseCase
 import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
 import com.wire.kalium.logic.feature.user.guestroomlink.ObserveGuestRoomLinkFeatureFlagUseCase
 import io.mockk.MockKAnnotations
@@ -60,11 +58,11 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.params.provider.ValueSource
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.params.ParameterizedTest
-import org.junit.jupiter.params.provider.EnumSource
+import org.junit.jupiter.params.provider.CsvSource
+import org.junit.jupiter.params.provider.ValueSource
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(CoroutineTestExtension::class)
@@ -231,36 +229,39 @@ class EditGuestAccessViewModelTest {
         }
 
     @ParameterizedTest
-    @EnumSource(IsServiceAllowedTestParams::class)
-    fun `isServicesAllowed test`(params: IsServiceAllowedTestParams) =
+    @CsvSource("true, true", "false, true", "true, false", "false, false")
+    fun `changing guest access in an MLS group preserves existing apps access`(enableGuests: Boolean, appsEnabled: Boolean) =
         runTest(dispatcher.default()) {
-            // given
-            val conversation =
-                TestConversation
-                    .GROUP(if (params.isMLSConversation) TestConversation.MLS_PROTOCOL_INFO else Conversation.ProtocolInfo.Proteus)
-                    .copy(
-                        accessRole = listOf(Conversation.AccessRole.EXTERNAL).run {
-                            if (params.isServiceAllowed) {
-                                plus(Conversation.AccessRole.SERVICE)
-                            } else {
-                                this
-                            }
-                        }
-                    )
-            val conversationResult = ObserveConversationDetailsUseCase.Result.Success(
-                TestConversationDetails.GROUP.copy(conversation = conversation)
+            val guestRoles = setOf(Conversation.AccessRole.GUEST, Conversation.AccessRole.NON_TEAM_MEMBER)
+            val teamRole = setOf(Conversation.AccessRole.TEAM_MEMBER)
+            val appsRoles = if (appsEnabled) setOf(Conversation.AccessRole.SERVICE) else emptySet()
+            val teamAccess = setOf(Conversation.Access.INVITE)
+            val guestAccess = setOf(Conversation.Access.CODE)
+            val initialRoles = teamRole + appsRoles + if (enableGuests) emptySet() else guestRoles
+            val initialAccess = teamAccess + if (enableGuests) emptySet() else guestAccess
+            val conversation = TestConversation.GROUP(TestConversation.MLS_PROTOCOL_INFO).copy(
+                access = initialAccess.toList(),
+                accessRole = initialRoles.toList()
             )
-            val (arrangement, editGuestAccessViewModel) = Arrangement(dispatcher)
-                .withConversationDetails(flowOf(conversationResult))
-                .withDefaultProtocol(if (params.isMLSTeam) SupportedProtocol.MLS else SupportedProtocol.PROTEUS)
-                .withConversationMembers(flowOf(ConversationParticipantsData()))
-                .arrange()
+            val details = ObserveConversationDetailsUseCase.Result.Success(TestConversationDetails.GROUP.copy(conversation = conversation))
+            val arrangement = Arrangement(dispatcher)
+                .withConversationDetails(flowOf(details))
+                .withConversationMembers(flowOf(ConversationParticipantsData(isSelfAnAdmin = true)))
+            coEvery { arrangement.updateConversationAccessRole(any(), any(), any()) } returns
+                UpdateConversationAccessRoleUseCase.Result.Success
+            val viewModel = arrangement.editGuestAccessViewModel
+            advanceUntilIdle()
+            assertEquals(!enableGuests, viewModel.editGuestAccessState.isGuestAccessAllowed)
+
+            viewModel.updateGuestAccess(enableGuests)
+            if (!enableGuests) viewModel.onGuestDialogConfirm()
             advanceUntilIdle()
 
-            // when
-
-            // then
-            assertEquals(params.expectedResult, editGuestAccessViewModel.editGuestAccessState.isServicesAccessAllowed)
+            val expectedRoles = teamRole + appsRoles + if (enableGuests) guestRoles else emptySet()
+            val expectedAccess = teamAccess + if (enableGuests) guestAccess else emptySet()
+            coVerify(exactly = 1) {
+                arrangement.updateConversationAccessRole(viewModel.conversationId, expectedRoles, expectedAccess)
+            }
         }
 
     @Test
@@ -388,9 +389,6 @@ class EditGuestAccessViewModelTest {
         lateinit var syncConversationCodeUseCase: SyncConversationCodeUseCase
 
         @MockK
-        lateinit var getDefaultProtocolUseCase: GetDefaultProtocolUseCase
-
-        @MockK
         lateinit var observeSelfUserUseCase: ObserveSelfUserUseCase
 
         val editGuestAccessViewModel: EditGuestAccessViewModel by lazy {
@@ -413,7 +411,6 @@ class EditGuestAccessViewModelTest {
                 canCreatePasswordProtectedLinks = canCreatePasswordProtectedLinks,
                 dispatcher = dispatcherProvider,
                 syncConversationCode = syncConversationCodeUseCase,
-                getDefaultProtocol = getDefaultProtocolUseCase,
                 selfUser = observeSelfUserUseCase
             )
         }
@@ -426,7 +423,6 @@ class EditGuestAccessViewModelTest {
             coEvery { observeGuestRoomLinkFeatureFlag() } returns flowOf()
             coEvery { canCreatePasswordProtectedLinks() } returns true
             coEvery { observeSelfUserUseCase() } returns flowOf(TestUser.SELF_USER)
-            coEvery { getDefaultProtocolUseCase() } returns SupportedProtocol.PROTEUS
         }
 
         fun withEnabledGuestAccess() = apply {
@@ -470,23 +466,6 @@ class EditGuestAccessViewModelTest {
             coEvery { updateConversationAccessRole(any(), any(), any()) } returns result
         }
 
-        fun withDefaultProtocol(protocol: SupportedProtocol) = apply {
-            coEvery { getDefaultProtocolUseCase() } returns protocol
-        }
-
         fun arrange() = this to editGuestAccessViewModel
-    }
-
-    enum class IsServiceAllowedTestParams(
-        val isMLSTeam: Boolean,
-        val isMLSConversation: Boolean,
-        val isServiceAllowed: Boolean,
-        val expectedResult: Boolean
-    ) {
-        MLS_TEAM(true, false, true, false),
-        MLS_CONVERSATION(false, true, true, false),
-        MLS_CONVERSATION_AND_TEAM(true, true, true, false),
-        NO_SERVICES(false, false, false, false),
-        SERVICES(false, false, true, true)
     }
 }

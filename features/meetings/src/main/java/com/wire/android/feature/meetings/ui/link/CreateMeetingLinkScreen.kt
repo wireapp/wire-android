@@ -17,7 +17,6 @@
  */
 package com.wire.android.feature.meetings.ui.link
 
-import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -34,7 +33,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import com.wire.android.feature.meetings.R
@@ -64,12 +62,9 @@ internal fun CreateMeetingLinkScreen(
     onBack: () -> Unit,
     viewModel: CreateMeetingLinkViewModel = createMeetingLinkViewModel(meetingId),
 ) {
-    val context = LocalContext.current
-    val failureMessage = stringResource(R.string.meeting_link_refresh_failed)
     HandleActions(viewModel.actions) { action ->
         when (action) {
             CreateMeetingLinkViewAction.Success -> onBack()
-            CreateMeetingLinkViewAction.Failure -> Toast.makeText(context, failureMessage, Toast.LENGTH_SHORT).show()
         }
     }
     when (val state = viewModel.state) {
@@ -117,6 +112,7 @@ private fun CreateMeetingLinkContent(
                     WirePrimaryButton(
                         text = stringResource(if (state.isSubmitting) R.string.meeting_link_creating else R.string.meeting_link_create),
                         onClick = { viewModel.onCreate() },
+                        loading = state.isSubmitting,
                         state = if (state.isSubmitting) WireButtonState.Disabled else WireButtonState.Default,
                         modifier = Modifier.weight(1f),
                         leadingIcon = {
@@ -145,6 +141,18 @@ private fun CreateMeetingLinkContent(
                 readOnly = state.isSubmitting,
             )
         }
+    }
+    if (state.submitError) {
+        WireDialog(
+            title = stringResource(R.string.meeting_link_refresh_failed_title),
+            text = stringResource(R.string.meeting_link_refresh_failed),
+            onDismiss = viewModel::onDismissError,
+            optionButton1Properties = WireDialogButtonProperties(
+                onClick = viewModel::onDismissError,
+                text = stringResource(CommonR.string.label_ok),
+                type = WireDialogButtonType.Primary,
+            ),
+        )
     }
     if (state.confirmWithoutPassword) {
         WireDialog(

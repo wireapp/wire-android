@@ -37,22 +37,28 @@ internal fun DeleteMeetingDialog(
     onDelete: (DeleteMeetingDialogState) -> Unit,
 ) {
     VisibilityState(dialogState) { state ->
-        val (titleResId, textResId) = when (state.deleteType) {
-            DeleteMeetingType.ForEveryone -> Pair(
-                R.string.delete_meeting_for_everyone_title,
-                when (state.isRecurring) {
-                    true -> R.string.delete_meeting_for_everyone_recurring_description
-                    false -> R.string.delete_meeting_for_everyone_description
-                },
-            )
+        val (titleResId, textResId) = when {
+            state.failed -> when (state.deleteType) {
+                DeleteMeetingType.ForEveryone -> R.string.delete_meeting_failure_title to R.string.delete_meeting_failure_description
+                DeleteMeetingType.ForMe -> R.string.leave_meeting_failure_title to R.string.leave_meeting_failure_description
+            }
+            else -> when (state.deleteType) {
+                DeleteMeetingType.ForEveryone -> Pair(
+                    R.string.delete_meeting_for_everyone_title,
+                    when (state.isRecurring) {
+                        true -> R.string.delete_meeting_for_everyone_recurring_description
+                        false -> R.string.delete_meeting_for_everyone_description
+                    },
+                )
 
-            DeleteMeetingType.ForMe -> Pair(
-                R.string.delete_meeting_for_me_title,
-                when (state.isRecurring) {
-                    true -> R.string.delete_meeting_for_me_recurring_description
-                    false -> R.string.delete_meeting_for_me_description
-                },
-            )
+                DeleteMeetingType.ForMe -> Pair(
+                    R.string.delete_meeting_for_me_title,
+                    when (state.isRecurring) {
+                        true -> R.string.delete_meeting_for_me_recurring_description
+                        false -> R.string.delete_meeting_for_me_description
+                    },
+                )
+            }
         }
         WireDialog(
             properties = wireDialogPropertiesBuilder(dismissOnBackPress = !state.loading, dismissOnClickOutside = !state.loading),
@@ -69,7 +75,7 @@ internal fun DeleteMeetingDialog(
                 onClick = {
                     onDelete(state)
                 },
-                text = stringResource(id = commonR.string.label_ok),
+                text = stringResource(id = if (state.failed) R.string.meetings_retry else commonR.string.label_ok),
                 type = WireDialogButtonType.Primary,
                 state = if (state.loading) WireButtonState.Disabled else WireButtonState.Error,
                 loading = state.loading
@@ -89,4 +95,5 @@ data class DeleteMeetingDialogState(
     val meetingId: MeetingId,
     val meetingTitle: String,
     val loading: Boolean = false,
+    val failed: Boolean = false,
 )

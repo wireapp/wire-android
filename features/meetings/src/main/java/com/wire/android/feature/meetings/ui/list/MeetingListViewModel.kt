@@ -130,10 +130,9 @@ class MeetingListViewModelImpl @AssistedInject constructor(
 
     private fun performSync() {
         viewModelScope.launch(dispatcher.io()) {
-            try {
-                syncMeetings()
-            } finally {
-                _loadingState.value = MeetingListLoadingState.READY
+            _loadingState.value = when (syncMeetings()) {
+                SyncMeetingsUseCase.Result.Success -> MeetingListLoadingState.READY
+                is SyncMeetingsUseCase.Result.Failure -> MeetingListLoadingState.ERROR
             }
         }
     }
@@ -255,7 +254,7 @@ private fun PagingData<MeetingItem>.insertHeaders(
         }
     }
 
-enum class MeetingListLoadingState { INITIAL_LOADING, INITIAL_SYNCING, READY, REFRESHING }
+enum class MeetingListLoadingState { INITIAL_LOADING, INITIAL_SYNCING, READY, REFRESHING, ERROR }
 
 private fun LocalDate.relativeTo(today: LocalDate): MeetingHeader.RelativeDay = when (this) {
     today -> MeetingHeader.RelativeDay.Today

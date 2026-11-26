@@ -154,4 +154,11 @@
     <string name="meeting_link_remove_password_description">No password was provided for the new link. The previous link was password-protected, but the new meeting link will not be password secured.</string>
     <string name="meeting_link_create_without_password">Create without password</string>
     <string name="meeting_link_refresh_failed">Could not create a new link. Please try again.</string>
+    <string name="meeting_link_refresh_failed_title">Could not create a new link</string>
+    <string name="meetings_list_load_error">Could not load meetings. Please try again.</string>
+    <string name="meetings_retry">Retry</string>
+    <string name="delete_meeting_failure_title">Could not delete meeting</string>
+    <string name="delete_meeting_failure_description">Something went wrong while deleting the meeting. Please try again.</string>
+    <string name="leave_meeting_failure_title">Could not leave meeting</string>
+    <string name="leave_meeting_failure_description">Something went wrong while leaving the meeting conversation. Please try again.</string>
 </resources>

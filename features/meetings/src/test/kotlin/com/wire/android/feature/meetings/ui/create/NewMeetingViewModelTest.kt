@@ -559,6 +559,13 @@ class NewMeetingViewModelTest {
                 assertFalse(viewModel.state.isSubmitting)
                 assertEquals(true, viewModel.state.continueButtonEnabled)
                 assertEquals(NewMeetingState.SubmitError.Other, viewModel.state.submitError)
+                assertEquals("Weekly sync", viewModel.titleTextState.text.toString())
+                arrangement.withCreateMeetingResult(CreateNewMeetingUseCase.Result.Success(CONVERSATION_ID, CREATED_MEETING_ID))
+                viewModel.dismissCreationError()
+                viewModel.submitCreation()
+                advanceUntilIdle()
+                coVerify(exactly = 2) { arrangement.createNewMeeting(any()) }
+                awaitItem()
             }
         }
     }
@@ -746,6 +753,13 @@ class NewMeetingViewModelTest {
             assertFalse(viewModel.state.isSubmitting)
             assertEquals(true, viewModel.state.continueButtonEnabled)
             assertEquals(NewMeetingState.SubmitError.Other, viewModel.state.submitError)
+            assertEquals("Weekly sync", viewModel.titleTextState.text.toString())
+            arrangement.withUpdateMeetingResult(editType.id, UpdateMeetingUseCase.Result.Success)
+            viewModel.dismissCreationError()
+            viewModel.submitUpdate()
+            advanceUntilIdle()
+            coVerify(exactly = 2) { arrangement.updateMeeting(editType.id, any()) }
+            assertEquals(NewMeetingViewActions.Success(NewMeetingResult.Updated), awaitItem())
         }
     }
 

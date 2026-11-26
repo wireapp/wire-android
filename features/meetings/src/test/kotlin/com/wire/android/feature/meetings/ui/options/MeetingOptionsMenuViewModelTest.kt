@@ -22,7 +22,7 @@ import com.wire.android.feature.meetings.R
 import com.wire.android.model.asSnackBarMessage
 import com.wire.android.util.CurrentTimeProvider
 import com.wire.android.util.ui.UIText
-import com.wire.kalium.common.error.CoreFailure
+import com.wire.kalium.common.error.NetworkFailure
 import com.wire.kalium.logic.data.call.Call
 import com.wire.kalium.logic.data.call.CallStatus
 import com.wire.kalium.logic.data.conversation.Conversation
@@ -224,27 +224,32 @@ class MeetingOptionsMenuViewModelTest {
     }
 
     @Test
-    fun givenFailure_whenDeletingMeetingForEveryone_thenFailureMessageIsSentAndDialogIsDismissed() = runTest(dispatcher) {
+    fun givenFailure_whenDeletingMeetingForEveryone_thenDialogAllowsRetryWithoutFailureMessage() = runTest(dispatcher) {
         val (arrangement, viewModel) = Arrangement()
             .withDeleteMeetingForEveryoneResult(
-                DeleteMeetingForEveryoneUseCase.Result.Failure(CoreFailure.Unknown(RuntimeException("delete failed")))
+                DeleteMeetingForEveryoneUseCase.Result.Failure(NetworkFailure.NoNetworkConnection(null))
             )
             .arrange()
         viewModel.deleteMeetingDialogState.show(deleteMeetingForEveryoneDialogState())
 
         viewModel.actions.test {
             viewModel.deleteMeetingForEveryone(MEETING_ID, MEETING_TITLE)
+            assertEquals(true, viewModel.deleteMeetingDialogState.savedState?.loading)
+            viewModel.deleteMeetingForEveryone(MEETING_ID, MEETING_TITLE)
             advanceUntilIdle()
 
-            coVerify(exactly = 1) { arrangement.deleteMeetingForEveryoneUseCase.invoke(MEETING_ID) }
+            coVerify(exactly = 1) { arrangement.deleteMeetingForEveryoneUseCase(MEETING_ID) }
+            assertEquals(true, viewModel.deleteMeetingDialogState.isVisible)
+            assertEquals(true, viewModel.deleteMeetingDialogState.savedState?.failed)
+            assertEquals(false, viewModel.deleteMeetingDialogState.savedState?.loading)
+            expectNoEvents()
+
+            arrangement.withDeleteMeetingForEveryoneResult(DeleteMeetingForEveryoneUseCase.Result.Success)
+            viewModel.deleteMeetingForEveryone(MEETING_ID, MEETING_TITLE)
+            advanceUntilIdle()
             assertFalse(viewModel.deleteMeetingDialogState.isVisible)
-            assertEquals(
-                MeetingOptionsMenuViewAction.Message(
-                    UIText.StringResource(R.string.meeting_deleted_failure, MEETING_TITLE).asSnackBarMessage()
-                ),
-                awaitItem()
-            )
-            cancelAndConsumeRemainingEvents()
+            coVerify(exactly = 2) { arrangement.deleteMeetingForEveryoneUseCase(MEETING_ID) }
+            awaitItem()
         }
     }
 
@@ -272,27 +277,32 @@ class MeetingOptionsMenuViewModelTest {
     }
 
     @Test
-    fun givenFailure_whenDeletingMeetingForMe_thenFailureMessageIsSentAndDialogIsDismissed() = runTest(dispatcher) {
+    fun givenFailure_whenDeletingMeetingForMe_thenDialogAllowsRetryWithoutFailureMessage() = runTest(dispatcher) {
         val (arrangement, viewModel) = Arrangement()
             .withDeleteMeetingForMeResult(
-                DeleteMeetingForMeUseCase.Result.Failure(CoreFailure.Unknown(RuntimeException("delete failed")))
+                DeleteMeetingForMeUseCase.Result.Failure(NetworkFailure.NoNetworkConnection(null))
             )
             .arrange()
         viewModel.deleteMeetingDialogState.show(deleteMeetingForMeDialogState())
 
         viewModel.actions.test {
             viewModel.deleteMeetingForMe(MEETING_ID, MEETING_TITLE)
+            assertEquals(true, viewModel.deleteMeetingDialogState.savedState?.loading)
+            viewModel.deleteMeetingForMe(MEETING_ID, MEETING_TITLE)
             advanceUntilIdle()
 
-            coVerify(exactly = 1) { arrangement.deleteMeetingForMeUseCase.invoke(MEETING_ID) }
+            coVerify(exactly = 1) { arrangement.deleteMeetingForMeUseCase(MEETING_ID) }
+            assertEquals(true, viewModel.deleteMeetingDialogState.isVisible)
+            assertEquals(true, viewModel.deleteMeetingDialogState.savedState?.failed)
+            assertEquals(false, viewModel.deleteMeetingDialogState.savedState?.loading)
+            expectNoEvents()
+
+            arrangement.withDeleteMeetingForMeResult(DeleteMeetingForMeUseCase.Result.Success)
+            viewModel.deleteMeetingForMe(MEETING_ID, MEETING_TITLE)
+            advanceUntilIdle()
             assertFalse(viewModel.deleteMeetingDialogState.isVisible)
-            assertEquals(
-                MeetingOptionsMenuViewAction.Message(
-                    UIText.StringResource(R.string.meeting_deleted_failure, MEETING_TITLE).asSnackBarMessage()
-                ),
-                awaitItem()
-            )
-            cancelAndConsumeRemainingEvents()
+            coVerify(exactly = 2) { arrangement.deleteMeetingForMeUseCase(MEETING_ID) }
+            awaitItem()
         }
     }
 

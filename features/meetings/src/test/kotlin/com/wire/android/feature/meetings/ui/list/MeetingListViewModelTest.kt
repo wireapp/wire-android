@@ -32,6 +32,7 @@ import com.wire.android.feature.meetings.ui.usecase.GetPaginatedFlowOfMeetingsUs
 import com.wire.android.feature.meetings.ui.util.SystemTimeObserver
 import com.wire.android.util.CurrentTimeProvider
 import com.wire.android.util.time.CurrentTimeZoneProvider
+import com.wire.kalium.common.error.NetworkFailure
 import com.wire.kalium.logic.data.call.Call
 import com.wire.kalium.logic.data.call.CallStatus
 import com.wire.kalium.logic.data.conversation.Conversation
@@ -509,6 +510,28 @@ class MeetingListViewModelTest {
             it.viewModel.onRefreshList()
             runCurrent()
             coVerify(exactly = 1) { arrangement.syncMeetings() }
+        }
+    }
+
+    @Test
+    fun givenSyncFailure_whenRetrying_thenErrorClearsAndSyncRunsAgain() = runTest(dispatcher) {
+        val (arrangement, scenario) = Arrangement(dispatcher).arrange()
+        coEvery { arrangement.syncMeetings() } returns
+            SyncMeetingsUseCase.Result.Failure(NetworkFailure.NoNetworkConnection(null))
+        scenario.use {
+            it.viewModel.onInitialListLoaded(shouldMakeInitialSync = true)
+            runCurrent()
+            assertEquals(MeetingListLoadingState.ERROR, it.viewModel.loadingState.value)
+            it.viewModel.onInitialListLoaded(shouldMakeInitialSync = true)
+            coVerify(exactly = 1) { arrangement.syncMeetings() }
+
+            coEvery { arrangement.syncMeetings() } returns SyncMeetingsUseCase.Result.Success
+            it.viewModel.onRefreshList()
+            it.viewModel.onRefreshList()
+            assertEquals(MeetingListLoadingState.REFRESHING, it.viewModel.loadingState.value)
+            runCurrent()
+            assertEquals(MeetingListLoadingState.READY, it.viewModel.loadingState.value)
+            coVerify(exactly = 2) { arrangement.syncMeetings() }
         }
     }
 

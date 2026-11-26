@@ -40,7 +40,9 @@ import org.junit.rules.TemporaryFolder
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
+import java.util.concurrent.CyclicBarrier
 import java.util.concurrent.atomic.AtomicInteger
+import kotlin.concurrent.thread
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 
@@ -88,6 +90,26 @@ class AudioMediaRecorderTest {
     }
 
     @Test
+    fun givenTwoThreadsStartingAtTheSameInstant_whenStartRecordingRuns_thenOnlyOneThreadReadsFromTheAudioRecord() = runBlocking {
+        repeat(CONCURRENT_START_ITERATIONS) {
+            val recorder = createRecorder()
+            recorder.setUp(assetLimitInMegabyte = 10)
+            val barrier = CyclicBarrier(2)
+            val starters = List(2) {
+                thread {
+                    barrier.await()
+                    recorder.startRecording()
+                }
+            }
+            starters.forEach { it.join() }
+            delay(CONCURRENT_START_RECORD_MS)
+            withTimeout(STOP_TIMEOUT_MS) { recorder.stop() }
+        }
+
+        assertEquals(1, maxReadersInFlight.get())
+    }
+
+    @Test
     fun givenStoppedRecorder_whenStopIsCalledAgain_thenItReturns() = runBlocking {
         val recorder = createRecorder()
         recorder.setUp(assetLimitInMegabyte = 10)
@@ -111,5 +133,7 @@ class AudioMediaRecorderTest {
         const val READ_DURATION_MS = 5L
         const val RECORD_DURATION_MS = 300L
         const val STOP_TIMEOUT_MS = 5_000L
+        const val CONCURRENT_START_ITERATIONS = 30
+        const val CONCURRENT_START_RECORD_MS = 20L
     }
 }

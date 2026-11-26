@@ -101,6 +101,9 @@ class AudioMediaRecorder @Inject constructor(
         }
     }
 
+    // Synchronized so the isActive check and the launch are one step: two callers cannot both see no writer and start two.
+    // stop() takes no lock: it cancels the job before clearing it, and a start racing a stop is the caller's sequencing.
+    @Synchronized
     fun startRecording(): Boolean = try {
         // A repeated start (double tap) keeps the running writer: a second one would split the audio of the shared AudioRecord.
         if (recordingJob?.isActive != true) {

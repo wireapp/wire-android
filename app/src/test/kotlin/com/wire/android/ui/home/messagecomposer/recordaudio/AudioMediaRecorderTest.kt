@@ -25,8 +25,10 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkConstructor
 import io.mockk.unmockkConstructor
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 import okio.Path
@@ -40,6 +42,9 @@ import org.junit.rules.TemporaryFolder
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
+import java.io.File
+import java.nio.ByteBuffer
+import java.nio.ByteOrder
 import java.util.concurrent.CyclicBarrier
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.concurrent.thread
@@ -120,6 +125,39 @@ class AudioMediaRecorderTest {
             recorder.stop()
             recorder.stop()
         }
+    }
+
+    @Test
+    fun givenRecordedAudio_whenStopped_thenWavHeaderSizesMatchTheFileSize() = runBlocking {
+        val recorder = createRecorder()
+        recorder.setUp(assetLimitInMegabyte = 10)
+        recorder.startRecording()
+        delay(RECORD_DURATION_MS)
+        withTimeout(STOP_TIMEOUT_MS) { recorder.stop() }
+
+        assertHeaderMatchesFile(recorder.originalOutputPath!!.toFile())
+    }
+
+    @Test
+    fun givenSizeLimitReachedAndNobodyCollectingTheEvent_whenStopped_thenWavHeaderSizesMatchTheFileSize() = runBlocking {
+        val recorder = createRecorder()
+        recorder.setUp(assetLimitInMegabyte = 0)
+        val collector = launch(start = CoroutineStart.UNDISPATCHED) { recorder.getMaxFileSizeReached().collect { } }
+        recorder.startRecording()
+        // Blocks this thread, so the collector cannot resume and the writer stays suspended in emit until stop() cancels it.
+        Thread.sleep(RECORD_DURATION_MS)
+        withTimeout(STOP_TIMEOUT_MS) { recorder.stop() }
+        collector.cancel()
+
+        assertHeaderMatchesFile(recorder.originalOutputPath!!.toFile())
+    }
+
+    private fun assertHeaderMatchesFile(file: File) {
+        val bytes = file.readBytes()
+        val header = ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN)
+        assertTrue(bytes.size > AudioMediaRecorder.HEADER_SIZE)
+        assertEquals(bytes.size - AudioMediaRecorder.CHUNK_ID_SIZE, header.getInt(AudioMediaRecorder.CHUNK_SIZE_OFFSET))
+        assertEquals(bytes.size - AudioMediaRecorder.HEADER_SIZE, header.getInt(AudioMediaRecorder.SUBCHUNK2_SIZE_OFFSET))
     }
 
     private fun createRecorder(): AudioMediaRecorder {

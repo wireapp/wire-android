@@ -150,6 +150,7 @@ class AudioMediaRecorder @Inject constructor(
 
     private fun updateWavHeader(filePath: Path) {
         val file = filePath.toFile()
+        if (file.length() < HEADER_SIZE) return
         val fileSize = file.length().toInt()
         val dataSize = fileSize - HEADER_SIZE
 
@@ -219,10 +220,16 @@ class AudioMediaRecorder @Inject constructor(
                             }
                         }
                 }
-                updateWavHeader(outputPath)
             } catch (e: IOException) {
                 e.printStackTrace()
                 appLogger.e("[RecordAudio] writeAudioDataToFile: IOException - ${e.message}")
+            } finally {
+                // After the sink is closed and flushed, and on every exit including cancellation, so the sizes match the file.
+                try {
+                    updateWavHeader(outputPath)
+                } catch (e: IOException) {
+                    appLogger.e("[RecordAudio] updateWavHeader: IOException - ${e.message}")
+                }
             }
         }
     }

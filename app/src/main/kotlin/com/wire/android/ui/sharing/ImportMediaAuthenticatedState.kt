@@ -36,16 +36,19 @@ data class ImportMediaAuthenticatedState(
     val conversations: Flow<PagingData<ConversationItemType>> = emptyFlow(),
     val selectedConversationItem: List<ConversationId> = persistentListOf(),
     val selfDeletingTimer: SelfDeletionTimer = SelfDeletionTimer.Enabled(null),
-    val drivePermissionsEnabled: Boolean = false
+    val drivePermissionsEnabled: Boolean = false,
+    val isDriveOffboarded: Boolean = false,
 ) {
     @Stable
     fun hasImportedContent(): Boolean = importedText?.isNotEmpty() == true || importedAssets.isNotEmpty()
 
     /**
+     * Drive conversations of a team that no longer has Drive can not receive shared files either.
      * Conversations where the self user only has viewer access to the shared drive can not receive shared files,
      * so they can not be selected as a share target when drive permissions are enabled.
      */
     @Stable
     fun isConversationSelectable(conversation: ConversationItem): Boolean =
-        !(drivePermissionsEnabled && conversation.isSelfUserViewerOnly)
+        !(drivePermissionsEnabled && conversation.isSelfUserViewerOnly) &&
+            !(isDriveOffboarded && conversation.isDriveConversation)
 }

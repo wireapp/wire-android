@@ -35,6 +35,7 @@ permissions:
 
 jobs:
   deploy:
+    timeout-minutes: 15
     strategy:
       matrix:
         target: ${{ fromJson(inputs.deployment-targets) }}
@@ -109,6 +110,7 @@ jobs:
           make_latest: false
 
   deployment-summary:
+    timeout-minutes: 5
     needs: deploy
     runs-on: ubuntu-latest
     if: always()

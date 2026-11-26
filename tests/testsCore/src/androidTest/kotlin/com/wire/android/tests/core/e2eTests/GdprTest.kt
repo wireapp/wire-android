@@ -268,6 +268,10 @@ class GdprTest : BaseUiTest() {
             }
         }
 
+        step("And I wait until the Wire service notification disappears") {
+            pages.conversationListPage.waitUntilWireServiceNotificationDisappears()
+        }
+
         step("Then I see conversation list") {
             pages.conversationListPage.assertConversationListVisible()
         }

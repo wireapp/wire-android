@@ -101,6 +101,7 @@ internal fun ConversationMessageComposer(
     showsEncryptionNotice: Boolean = false,
     isBubbleUiEnabled: Boolean = false,
     isWireCellsEnabled: Boolean = false,
+    isDriveOffboarded: Boolean = false,
     initialLoading: Boolean = false,
 ) {
     val lazyPagingMessages = messages.collectAsLazyPagingItemsWithLifecycle()
@@ -120,6 +121,7 @@ internal fun ConversationMessageComposer(
         bottomSheetVisible = bottomSheetVisible,
         messageComposerStateHolder = messageComposerStateHolder,
         attachments = attachments,
+        isDriveOffboarded = isDriveOffboarded,
         messageListContent = {
             ConversationMessageList(
                 lazyPagingMessages = lazyPagingMessages,

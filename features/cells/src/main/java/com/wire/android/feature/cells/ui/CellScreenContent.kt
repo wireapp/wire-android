@@ -97,6 +97,7 @@ internal fun CellScreenContent(
     isDeleteInProgress: Boolean,
     modifier: Modifier = Modifier,
     showViewerOnlyIcon: Boolean = false,
+    showItemMenu: Boolean = true,
     isRecycleBin: Boolean = false,
     isAllFiles: Boolean = false,
     isSearchResult: Boolean = false,
@@ -161,6 +162,7 @@ internal fun CellScreenContent(
                 onRefresh = onRefresh,
                 showConversationName = showsConversationName(isOffline, isAllFiles, isRecycleBin, isSearchResult),
                 showViewerOnlyIcon = showViewerOnlyIcon,
+                showItemMenu = showItemMenu,
                 sortBy = sortBy,
                 selectedNodeIds = selectedNodeIds,
                 onItemLongClick = if (isSelectionEnabled) {

@@ -65,15 +65,15 @@ class CallActivityRoutingTest {
 
         requireNotNull(request)
         assertEquals(CallActivityScreen.Ongoing, request.screen)
-        assertNull(request.createdMeetingId)
+        assertNull(request.meetingId)
     }
 
     @Test
-    fun givenMeetingInvitation_whenMovingFromOutgoingToOngoing_thenCreatedMeetingIdIsPreserved() {
+    fun givenMeetingCall_whenMovingFromOutgoingToOngoing_thenMeetingIdIsPreserved() {
         val context = ApplicationProvider.getApplicationContext<Application>()
-        val invitation = MeetingId("created-meeting", "wire.test")
+        val meetingId = MeetingId("created-meeting", "wire.test")
         val outgoing = requireNotNull(
-            getOutgoingCallIntent(context, CONVERSATION_ID, USER_ID, invitation)
+            getOutgoingCallIntent(context, CONVERSATION_ID, USER_ID, meetingId)
                 .toCallActivityRequest(CallActivityDestination.STARTING, mapper)
         )
         val ongoing = requireNotNull(
@@ -81,17 +81,17 @@ class CallActivityRoutingTest {
                 context,
                 outgoing.conversationId.toString(),
                 outgoing.userId.toString(),
-                createdMeetingId = outgoing.createdMeetingId,
+                meetingId = outgoing.meetingId,
             ).toCallActivityRequest(CallActivityDestination.ONGOING, mapper)
         )
 
-        assertEquals(invitation, outgoing.createdMeetingId)
-        assertEquals(invitation, ongoing.createdMeetingId)
+        assertEquals(meetingId, outgoing.meetingId)
+        assertEquals(meetingId, ongoing.meetingId)
     }
 
     @Test
-    fun givenBlankCreatedMeetingId_whenParsed_thenRequestIsRejected() {
-        val intent = baseIntent().putExtra(CallActivity.EXTRA_CREATED_MEETING_ID, " ")
+    fun givenBlankMeetingId_whenParsed_thenRequestIsRejected() {
+        val intent = baseIntent().putExtra(CallActivity.EXTRA_MEETING_ID, " ")
         assertNull(intent.toCallActivityRequest(CallActivityDestination.ONGOING, mapper))
     }
 

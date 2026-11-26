@@ -78,7 +78,8 @@ fun ConversationDetailsWithEvents.toConversationItem(
             hasNewActivitiesToShow = hasNewActivitiesToShow.withJoinableCall(hasJoinableCall),
             isFavorite = conversationDetails.isFavorite,
             folder = conversationDetails.folder,
-            isSelfUserViewerOnly = conversationDetails.isSelfUserViewerOnly(selfUserTeamId)
+            isSelfUserViewerOnly = conversationDetails.isSelfUserViewerOnly(selfUserTeamId),
+            isDriveConversation = conversationDetails.wireCell != null
         )
     }
 
@@ -106,7 +107,8 @@ fun ConversationDetailsWithEvents.toConversationItem(
             isFavorite = conversationDetails.isFavorite,
             folder = conversationDetails.folder,
             isPrivate = conversationDetails.access == Group.Channel.ChannelAccess.PRIVATE,
-            isSelfUserViewerOnly = conversationDetails.isSelfUserViewerOnly(selfUserTeamId)
+            isSelfUserViewerOnly = conversationDetails.isSelfUserViewerOnly(selfUserTeamId),
+            isDriveConversation = conversationDetails.wireCell != null
         )
     }
 

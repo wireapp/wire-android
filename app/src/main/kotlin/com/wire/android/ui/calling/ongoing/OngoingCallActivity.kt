@@ -90,7 +90,7 @@ class OngoingCallActivity : CallActivity() {
             modifier = Modifier.semantics { testTagsAsResourceId = true },
             label = TAG
         ) { conversationId ->
-            OngoingCallScreen(conversationId = conversationId, createdMeetingId = request.createdMeetingId)
+            OngoingCallScreen(conversationId = conversationId, meetingId = request.meetingId)
         }
     }
 
@@ -127,11 +127,11 @@ fun getOngoingCallIntent(
     conversationId: String,
     userId: String,
     shouldAnswerCall: Boolean = false,
-    createdMeetingId: MeetingId? = null,
+    meetingId: MeetingId? = null,
 ) = Intent(context, OngoingCallActivity::class.java).apply {
     addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
     putExtra(EXTRA_CONVERSATION_ID, conversationId)
     putExtra(EXTRA_USER_ID, userId)
     putExtra(EXTRA_SHOULD_ANSWER_CALL, shouldAnswerCall)
-    putExtra(CallActivity.EXTRA_CREATED_MEETING_ID, createdMeetingId?.toString())
+    putExtra(CallActivity.EXTRA_MEETING_ID, meetingId?.toString())
 }

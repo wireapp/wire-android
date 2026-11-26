@@ -38,6 +38,7 @@ echo "Private reporting workflow: ${private_run}" >> "$GITHUB_STEP_SUMMARY"
 if ! gh run watch "$run_id" -R "$REPORTING_REPOSITORY" --exit-status \
     > "$RUNNER_TEMP/private-report-watch.log" 2>&1; then
   echo "::error::Private reporting did not succeed. Open the private reporting workflow for details."
+  echo "Private report NOT published; see the private reporting workflow above." >> "$GITHUB_STEP_SUMMARY"
   exit 1
 fi
 report_url="${base_url%/}/runs/${report_id}/"

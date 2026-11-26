@@ -64,6 +64,7 @@ import com.wire.android.ui.common.textfield.textAsFlow
 import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.OnFileDownloaded
 import com.wire.android.ui.home.conversations.attachment.MessageAttachmentsViewModel
+import com.wire.android.ui.common.banner.DriveOffboardedBanner
 import com.wire.android.ui.home.conversations.banner.ConversationBanner
 import com.wire.android.ui.home.conversations.banner.ConversationBannerViewModel
 import com.wire.android.ui.home.conversations.call.ConversationCallViewModel
@@ -738,6 +739,10 @@ private fun ConversationScreenContent(
                             stringResource(R.string.conversation_banner_services)
                         )
                     )
+
+                    if (conversationInfoViewState.isDriveOffboarded) {
+                        DriveOffboardedBanner()
+                    }
                 }
             },
             snackbarHost = {
@@ -815,6 +820,7 @@ private fun ConversationScreenContent(
                         showsEncryptionNotice = conversationInfoViewState.showsEncryptionNotice,
                         isBubbleUiEnabled = IS_BUBBLE_UI_ENABLED,
                         isWireCellsEnabled = isWireCellsEnabled,
+                        isDriveOffboarded = conversationInfoViewState.isDriveOffboarded,
                         initialLoading = conversationInfoViewState.initialLoadingState != InitialLoadingState.LOADED,
                     )
                 }

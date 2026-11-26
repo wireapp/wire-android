@@ -148,6 +148,7 @@ class ConversationMessagesViewModelArrangement {
             getSearchedConversationMessagePosition,
             deleteMessage,
             isWireCellFeatureEnabled,
+            driveOffboardingEnabled = true,
             networkStateObserver,
         )
     }
@@ -171,7 +172,6 @@ class ConversationMessagesViewModelArrangement {
 
         coEvery { conversationAudioMessagePlayer.audioSpeed } returns flowOf(AudioSpeed.NORMAL)
         coEvery { conversationAudioMessagePlayer.playingAudioMessageFlow } returns flowOf(PlayingAudioMessage.None)
-        coEvery { isWireCellFeatureEnabled() } returns false
     }
 
     fun withSuccessfulViewModelInit() = apply {
@@ -278,7 +278,6 @@ class ConversationMessagesViewModelArrangement {
     }
 
     fun withWireCellEnabled() = apply {
-        coEvery { isWireCellFeatureEnabled() } returns true
         coEvery { observeConversationDetails(any()) } returns flowOf(
             ObserveConversationDetailsUseCase.Result.Success(
                 ConversationDetails.Group.Regular(

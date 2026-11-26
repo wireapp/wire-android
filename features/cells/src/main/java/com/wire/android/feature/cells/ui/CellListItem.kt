@@ -113,6 +113,7 @@ internal fun CellListItem(
     sortBy: SortBy = SortBy.Default,
     isSelectionMode: Boolean = false,
     isSelected: Boolean = false,
+    showItemMenu: Boolean = true,
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     var showReadyState by remember { mutableStateOf(false) }
@@ -182,7 +183,7 @@ internal fun CellListItem(
         }
 
         AnimatedVisibility(
-            visible = !isSelectionMode,
+            visible = !isSelectionMode && showItemMenu,
             enter = expandHorizontally(expandFrom = Alignment.End) + fadeIn(),
             exit = shrinkHorizontally(shrinkTowards = Alignment.End) + fadeOut(),
             label = "CellListItemMenuIcon",

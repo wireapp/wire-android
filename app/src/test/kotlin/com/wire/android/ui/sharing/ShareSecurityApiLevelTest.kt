@@ -153,6 +153,8 @@ class ShareSecurityApiLevelTest {
             persistNewSelfDeletionTimerUseCase = mockk(relaxed = true),
             observeSelfDeletionSettingsForConversation = mockk(relaxed = true),
             drivePermissionsEnabled = true,
+            isWireCellsEnabled = mockk(relaxed = true),
+            driveOffboardingEnabled = false,
             dispatchers = dispatchers,
         )
         return viewModel to handleUriAsset

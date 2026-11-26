@@ -75,6 +75,8 @@ import com.wire.kalium.common.functional.right
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.client.IsWireCellsEnabledForConversationUseCase
+import com.wire.kalium.logic.feature.client.IsWireCellsEnabledUseCase
 import com.wire.kalium.logic.feature.conversation.IsSelfUserViewerOnConversationUseCase
 import com.wire.kalium.logic.featureFlags.KaliumConfigs
 import com.wire.kalium.network.NetworkState
@@ -1132,6 +1134,18 @@ class CellViewModelTest {
     }
 
     @Test
+    fun `given the drive was offboarded then the files are read-only and flagged as offboarded`() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withConversationId("conversationId")
+            .withDriveOffboarded()
+            .arrange()
+        advanceUntilIdle()
+
+        assertTrue(viewModel.isDriveOffboarded.value)
+        assertTrue(viewModel.isSelfUserViewerOnly.value)
+    }
+
+    @Test
     fun `given the tip is shown when it is dismissed then remember it`() = runTest {
         val (arrangement, viewModel) = Arrangement()
             .withConversationId("conversationId")
@@ -2118,6 +2132,12 @@ class CellViewModelTest {
         lateinit var isSelfUserViewerOnConversation: IsSelfUserViewerOnConversationUseCase
 
         @MockK
+        lateinit var isWireCellsEnabled: IsWireCellsEnabledUseCase
+
+        @MockK
+        lateinit var isWireCellsEnabledForConversation: IsWireCellsEnabledForConversationUseCase
+
+        @MockK
         lateinit var userDataStore: UserDataStore
 
         @MockK
@@ -2145,6 +2165,8 @@ class CellViewModelTest {
             coEvery { getConversationNames(any()) } returns null
             coEvery { getUserNames(any()) } returns null
             coEvery { isSelfUserViewerOnConversation(any()) } returns true
+            coEvery { isWireCellsEnabled() } returns true
+            coEvery { isWireCellsEnabledForConversation(any()) } returns true
             // Unknown opens files as if there were no check.
             coEvery { checkCellNodeAvailability(any(), any()) } returns
                 CellNodeAvailability.Unknown(NetworkFailure.NoNetworkConnection(null))
@@ -2276,6 +2298,11 @@ class CellViewModelTest {
             coEvery { emptyRecycleBinUseCase(any()) } returns result
         }
 
+        /** The team no longer has Drive, while the conversation still is a drive one. */
+        fun withDriveOffboarded() = apply {
+            coEvery { isWireCellsEnabled() } returns false
+        }
+
         fun withViewerOnlyAccess() = apply {
             coEvery { isSelfUserViewerOnConversation(any()) } returns false
         }
@@ -2330,6 +2357,7 @@ class CellViewModelTest {
                 offlineFilesEnabled = true,
                 inAppImageViewerEnabled = inAppImageViewerEnabled,
                 drivePermissionsEnabled = true,
+                driveOffboardingEnabled = true,
                 driveDirectUploadEnabled = true,
                 driveBulkActionsEnabled = true,
                 driveOfflineEnabled = true,
@@ -2396,6 +2424,8 @@ class CellViewModelTest {
                 ),
                 viewerAccess = CellViewerAccess(
                     isSelfUserViewerOnConversation = isSelfUserViewerOnConversation,
+                    isWireCellsEnabled = isWireCellsEnabled,
+                    isWireCellsEnabledForConversation = isWireCellsEnabledForConversation,
                     qualifiedIdMapper = qualifiedIdMapper,
                     featureFlags = featureFlags,
                 ),

@@ -55,6 +55,7 @@ import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.getProviderAuthority
 import com.wire.kalium.logic.data.message.SelfDeletionTimer
 import com.wire.kalium.logic.data.message.SelfDeletionTimer.Companion.SELF_DELETION_LOG_TAG
+import com.wire.kalium.logic.feature.client.IsWireCellsEnabledUseCase
 import com.wire.kalium.logic.feature.selfDeletingMessages.ObserveSelfDeletionTimerSettingsForConversationUseCase
 import com.wire.kalium.logic.feature.selfDeletingMessages.PersistNewSelfDeletionTimerUseCase
 import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
@@ -84,6 +85,8 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
     private val observeSelfDeletionSettingsForConversation: ObserveSelfDeletionTimerSettingsForConversationUseCase,
     val dispatchers: DispatcherProvider,
     @Named("drivePermissionsEnabled") private val drivePermissionsEnabled: Boolean,
+    private val isWireCellsEnabled: IsWireCellsEnabledUseCase,
+    @Named("driveOffboardingEnabled") private val driveOffboardingEnabled: Boolean,
 ) : ViewModel() {
     val searchQueryTextState: TextFieldState = TextFieldState()
     private val conversationsFlow: Flow<PagingData<ConversationItemType>> = searchQueryTextState.textAsFlow()
@@ -108,7 +111,9 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
     var importMediaState by mutableStateOf(
         ImportMediaAuthenticatedState(
             conversations = conversationsFlow,
-            drivePermissionsEnabled = drivePermissionsEnabled
+            drivePermissionsEnabled = drivePermissionsEnabled,
+            // Pessimistic until the team Drive state is resolved, so a drive conversation is never selectable by mistake.
+            isDriveOffboarded = driveOffboardingEnabled,
         )
     )
         private set
@@ -121,6 +126,12 @@ class ImportMediaAuthenticatedViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             loadUserAvatar()
+        }
+        if (driveOffboardingEnabled) {
+            viewModelScope.launch {
+                val isOffboarded = !isWireCellsEnabled()
+                importMediaState = importMediaState.copy(isDriveOffboarded = isOffboarded)
+            }
         }
     }
 

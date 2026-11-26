@@ -38,6 +38,7 @@ import com.wire.kalium.logic.feature.asset.upload.ScheduleNewAssetMessageUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveOngoingCallsUseCase
 import com.wire.kalium.logic.feature.client.IsWireCellsEnabledForConversationUseCase
+import com.wire.kalium.logic.feature.client.IsWireCellsEnabledUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationUnderLegalHoldNotifiedUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveDegradedConversationNotifiedUseCase
 import com.wire.kalium.logic.feature.conversation.SendTypingEventUseCase
@@ -77,6 +78,7 @@ internal class SendMessageViewModelArrangement {
         mockUri()
         // Default empty values
         coEvery { observeOngoingCallsUseCase() } returns flowOf(listOf())
+        coEvery { isWireCellsEnabled() } returns true
         coEvery { observeEstablishedCallsUseCase() } returns flowOf(listOf())
         coEvery { observeSyncState() } returns flowOf(SyncState.Live)
         every { pingRinger.ping(any(), any()) } returns Unit
@@ -175,6 +177,9 @@ internal class SendMessageViewModelArrangement {
     lateinit var sharedState: MessageSharedState
 
     @MockK
+    lateinit var isWireCellsEnabled: IsWireCellsEnabledUseCase
+
+    @MockK
     lateinit var generateLinkPreview: GenerateLinkPreviewUseCase
 
     @MockK
@@ -205,6 +210,8 @@ internal class SendMessageViewModelArrangement {
             analyticsManager = analyticsManager,
             sendMultipartMessage = sendMultipartMessage,
             isWireCellsEnabledForConversation = isWireCellsEnabledForConversation,
+            isWireCellsEnabled = isWireCellsEnabled,
+            driveOffboardingEnabled = true,
             sharedState = sharedState,
             generateLinkPreview = generateLinkPreview,
             detectLinkPreviewTarget = detectLinkPreviewTarget
@@ -319,6 +326,10 @@ internal class SendMessageViewModelArrangement {
             conversationId = conversationId,
             pendingBundles = arrayListOf(*assetBundle)
         )
+    }
+
+    fun withDriveOffboarded() = apply {
+        coEvery { isWireCellsEnabled() } returns false
     }
 
     fun withCellsEnabledForConversation(result: Boolean) = apply {

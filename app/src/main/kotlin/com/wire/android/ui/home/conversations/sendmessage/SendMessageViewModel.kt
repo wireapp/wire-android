@@ -61,6 +61,7 @@ import com.wire.kalium.logic.feature.asset.upload.AssetUploadParams
 import com.wire.kalium.logic.feature.asset.upload.ScheduleNewAssetMessageResult
 import com.wire.kalium.logic.feature.asset.upload.ScheduleNewAssetMessageUseCase
 import com.wire.kalium.logic.feature.client.IsWireCellsEnabledForConversationUseCase
+import com.wire.kalium.logic.feature.client.IsWireCellsEnabledUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationUnderLegalHoldNotifiedUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveDegradedConversationNotifiedUseCase
 import com.wire.kalium.logic.feature.conversation.SendTypingEventUseCase
@@ -82,6 +83,7 @@ import com.wire.kalium.logic.data.message.mention.MessageMention
 import dev.zacsweers.metro.Assisted
 import dev.zacsweers.metro.AssistedFactory
 import dev.zacsweers.metro.AssistedInject
+import dev.zacsweers.metro.Named
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -118,6 +120,8 @@ class SendMessageViewModel @AssistedInject constructor(
     private val removeMessageDraft: RemoveMessageDraftUseCase,
     private val analyticsManager: AnonymousAnalyticsManager,
     private val isWireCellsEnabledForConversation: IsWireCellsEnabledForConversationUseCase,
+    private val isWireCellsEnabled: IsWireCellsEnabledUseCase,
+    @Named("driveOffboardingEnabled") private val driveOffboardingEnabled: Boolean,
     private val sharedState: MessageSharedState,
     private val generateLinkPreview: GenerateLinkPreviewUseCase,
     private val detectLinkPreviewTarget: DetectLinkPreviewTargetUseCase,
@@ -162,6 +166,7 @@ class SendMessageViewModel @AssistedInject constructor(
     // for regular conversations we can send them right away
     private fun handlePendingBundles(assetBundles: ArrayList<AssetBundle>) {
         viewModelScope.launch {
+            if (isDriveOffboarded(conversationId)) return@launch
             if (isWireCellsEnabledForConversation(conversationId)) {
                 sharedState.postBundles(assetBundles)
             } else {
@@ -176,6 +181,10 @@ class SendMessageViewModel @AssistedInject constructor(
             }
         }
     }
+
+    /** Once the team's Drive is offboarded, nothing may be uploaded into its drive conversations. */
+    private suspend fun isDriveOffboarded(conversationId: ConversationId): Boolean =
+        driveOffboardingEnabled && !isWireCellsEnabled() && isWireCellsEnabledForConversation(conversationId)
 
     private fun onSnackbarMessage(type: SnackBarMessage) = viewModelScope.launch {
         _infoMessage.emit(type)
@@ -268,7 +277,9 @@ class SendMessageViewModel @AssistedInject constructor(
             }
 
             is ComposableMessageBundle.AttachmentPickedBundle -> {
-                sendAttachment(messageBundle.assetBundle, messageBundle.conversationId)
+                if (!isDriveOffboarded(messageBundle.conversationId)) {
+                    sendAttachment(messageBundle.assetBundle, messageBundle.conversationId)
+                }
             }
 
             is ComposableMessageBundle.UriPickedBundle -> {
@@ -345,6 +356,12 @@ class SendMessageViewModel @AssistedInject constructor(
         conversationId: ConversationId,
         attachmentUri: UriAsset
     ) {
+        if (isDriveOffboarded(conversationId)) {
+            if (attachmentUri.isCameraCapture) {
+                fileManager.deleteCameraCapture(attachmentUri.uri)
+            }
+            return
+        }
         val handleResult = try {
             handleUriAsset.invoke(
                 uri = attachmentUri.uri,

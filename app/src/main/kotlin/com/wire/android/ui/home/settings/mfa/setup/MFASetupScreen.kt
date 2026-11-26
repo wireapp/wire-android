@@ -53,7 +53,7 @@ import com.wire.android.ui.common.textfield.WireTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
-import com.wire.android.ui.home.settings.mfa.components.MFACodeInput
+import com.wire.android.ui.common.mfa.MFACodeInput
 import com.wire.android.ui.home.settings.mfa.components.MFARecoveryCodesContent
 import com.wire.android.ui.home.settings.mfa.components.RecoveryCodesBackHandler
 import com.wire.android.ui.home.settings.mfa.components.rememberAuthenticatorLinkActions

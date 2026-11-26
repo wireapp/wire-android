@@ -1317,6 +1317,23 @@
     <string name="mfa_code_title">Enter the 6-digit code</string>
     <string name="mfa_code_description">Enter the code your authenticator app shows for Wire. Codes refresh every 30 seconds.</string>
     <string name="mfa_code_label">Authentication code</string>
+    <string name="mfa_login_code_title">Enter your authentication code</string>
+    <string name="mfa_login_code_description">Open your authenticator app and enter the 6-digit code for Wire.</string>
+    <string name="mfa_login_use_another_method">Use another method</string>
+    <string name="mfa_login_named_authenticator_description">Open the authenticator app on %1$s and enter the 6-digit code for Wire.</string>
+    <string name="mfa_login_choose_method_title">Choose how to verify</string>
+    <string name="mfa_login_method_recovery_code">Recovery code</string>
+    <string name="mfa_login_method_recovery_code_description">One of the codes you saved</string>
+    <string name="mfa_login_recovery_code_title">Enter a recovery code</string>
+    <string name="mfa_login_recovery_code_description">Use one of the recovery codes you saved when you set up two-factor authentication.</string>
+    <string name="mfa_login_recovery_code_help">Lost your authenticator app and your codes? Contact your team admin.</string>
+    <string name="mfa_login_invalid_recovery_code">Invalid recovery code. Try again.</string>
+    <string name="mfa_login_recovery_submit">Log in</string>
+    <string name="mfa_login_manage_codes">Manage codes</string>
+    <plurals name="mfa_login_recovery_code_notice">
+        <item quantity="one">You logged in with a recovery code. %d code left.</item>
+        <item quantity="other">You logged in with a recovery code. %d codes left.</item>
+    </plurals>
     <string name="mfa_verify">Verify</string>
     <string name="mfa_codes_title">Save your recovery codes</string>
     <string name="mfa_codes_description">If you lose your authenticator app, use a recovery code to log in. Each code works once.</string>

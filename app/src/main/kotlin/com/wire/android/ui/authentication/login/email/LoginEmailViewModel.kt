@@ -27,6 +27,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
+import com.wire.android.BuildConfig
 import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.di.ClientScopeProvider
@@ -41,6 +42,8 @@ import com.wire.android.ui.authentication.login.LoginViewModelExtension
 import com.wire.android.ui.authentication.login.PreFilledUserIdentifierType
 import com.wire.android.ui.authentication.login.SavedStateLoginSavedInputStore
 import com.wire.android.ui.authentication.login.isProxyAuthRequired
+import com.wire.android.ui.authentication.login.mfa.MFALoginMethod
+import com.wire.android.ui.authentication.login.mfa.mockMFALoginMethods
 import com.wire.android.ui.authentication.login.toLoginError
 import com.wire.android.ui.authentication.verificationcode.VerificationCodeState
 import com.wire.android.ui.common.textfield.textAsFlow
@@ -55,6 +58,7 @@ import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.data.auth.login.ProxyCredentials
 import com.wire.kalium.logic.data.auth.verification.VerifiableAction
 import com.wire.kalium.logic.data.logout.LogoutReason
+import com.wire.kalium.logic.data.mfa.MFAConstraints.AUTHENTICATION_CODE_LENGTH
 import com.wire.kalium.logic.data.session.StoreSessionParam
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
@@ -71,9 +75,11 @@ import dev.zacsweers.metro.Assisted
 import dev.zacsweers.metro.AssistedFactory
 import dev.zacsweers.metro.AssistedInject
 import dev.zacsweers.metro.Named
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
@@ -98,6 +104,7 @@ class LoginEmailViewModel(
     isDefaultBackendConfigured: Boolean = true,
     private val getServerConfigUseCase: Lazy<GetServerConfigUseCase>? = null,
     private val globalDataStore: Lazy<GlobalDataStore>? = null,
+    private val isMFAEnabled: Boolean = BuildConfig.MULTI_FACTOR_AUTHENTICATION_ENABLED,
 ) : LoginViewModel(
     loginNavArgs,
     clientScopeProviderFactory,
@@ -149,6 +156,29 @@ class LoginEmailViewModel(
     val secondFactorVerificationCodeTextState: TextFieldState = TextFieldState()
     var secondFactorVerificationCodeState by mutableStateOf(VerificationCodeState())
     var autoLoginWhenFullCodeEntered: Boolean = true
+
+    val mfaCodeTextState = TextFieldState()
+    val mfaRecoveryCodeTextState = TextFieldState()
+    internal val mfaLoginMethods: List<MFALoginMethod> = mockMFALoginMethods
+    internal var selectedMFAAuthenticator by mutableStateOf<MFALoginMethod.Authenticator?>(null)
+        private set
+    var isMFACodeInvalid by mutableStateOf(false)
+        private set
+    var isMFARecoveryCodeInvalid by mutableStateOf(false)
+        private set
+    var isVerifyingMFACode by mutableStateOf(false)
+        private set
+    internal var usedRecoveryCodeForLogin by mutableStateOf(false)
+        private set
+    private var pendingMFAVerification by mutableStateOf<CompletableDeferred<Unit>?>(null)
+    private var mfaVerificationJob: Job? = null
+
+    val hasPendingMFALogin: Boolean
+        get() = pendingMFAVerification != null
+    val canVerifyMFACode: Boolean
+        get() = pendingMFAVerification?.isActive == true
+    val isMFARecoveryCodeValid: Boolean
+        get() = mfaRecoveryCodeTextState.text.isNotBlank()
 
     @VisibleForTesting
     internal val loginJobData = MutableStateFlow<LoginJobData?>(null)
@@ -247,13 +277,15 @@ class LoginEmailViewModel(
             loginEnabled = userIdentifierTextState.text.isNotEmpty()
                     && passwordTextState.text.isNotEmpty()
                     && (!serverConfig.isProxyAuthRequired || proxyFieldsNotEmpty)
-                    && flowState !is LoginState.Loading,
+                    && flowState !is LoginState.Loading
+                    && flowState !is LoginState.MFARequired,
             showInvalidCredentialsError = showInvalidCredentialsError
         )
     }
 
     private fun LoginState.canBeResetByCredentialChange(): Boolean = when (this) {
         LoginState.Loading,
+        LoginState.MFARequired,
         LoginState.Canceled,
         is LoginState.Success,
         is LoginState.Error.TooManyDevicesError -> false
@@ -277,6 +309,7 @@ class LoginEmailViewModel(
             }
             // first, cancel and revert any previous login if it's still running, just to be sure
             revertLogin()
+            clearMFALogin()
             // then, start a new login job
             startLoginJob(usernameAllowed).let {
                 loginJobData.value = LoginJobData(it, previousSessionUserId)
@@ -315,6 +348,16 @@ class LoginEmailViewModel(
                     return@launch
                 }
                 secondFactorVerificationCodeState = secondFactorVerificationCodeState.copy(isCodeInputNecessary = false)
+
+                // Temporary spike: simulate totp-required until the backend login contract is settled.
+                if (isMFAEnabled) {
+                    val verification = CompletableDeferred<Unit>()
+                    pendingMFAVerification = verification
+                    updateEmailFlowState(LoginState.MFARequired)
+                    // Keep the initial response in this in-memory job, and continue only after verification.
+                    verification.await()
+                    updateEmailFlowState(LoginState.Loading)
+                }
 
                 val storedUserId = withContext(dispatchers.io()) {
                     addAuthenticatedUser(
@@ -396,6 +439,90 @@ class LoginEmailViewModel(
         }
     }
 
+    internal fun selectMFAAuthenticator(method: MFALoginMethod.Authenticator): Boolean {
+        if (!canVerifyMFACode || isVerifyingMFACode || method !in mfaLoginMethods) return false
+        selectedMFAAuthenticator = method
+        mfaCodeTextState.clearText()
+        isMFACodeInvalid = false
+        clearMFARecoveryCode()
+        return true
+    }
+
+    fun verifyMFACode() {
+        if (!canVerifyMFACode || isVerifyingMFACode) return
+        val code = mfaCodeTextState.text.toString()
+        if (code.length != AUTHENTICATION_CODE_LENGTH || code.any { it !in '0'..'9' }) return
+        mfaCodeTextState.clearText()
+        isMFACodeInvalid = false
+        verifyMFA(code == MOCK_MFA_CODE) { isMFACodeInvalid = true }
+    }
+
+    fun verifyMFARecoveryCode() {
+        if (!canVerifyMFACode || isVerifyingMFACode || !isMFARecoveryCodeValid) return
+        val code = mfaRecoveryCodeTextState.text.toString().trim()
+        isMFARecoveryCodeInvalid = false
+        verifyMFA(
+            matchesMockCode = code.equals(MOCK_MFA_RECOVERY_CODE, ignoreCase = true),
+            isRecoveryCode = true,
+        ) { isMFARecoveryCodeInvalid = true }
+    }
+
+    internal fun clearMFARecoveryCode() {
+        mfaRecoveryCodeTextState.clearText()
+        isMFARecoveryCodeInvalid = false
+    }
+
+    private fun verifyMFA(matchesMockCode: Boolean, isRecoveryCode: Boolean = false, onInvalidCode: () -> Unit) {
+        val verification = pendingMFAVerification ?: return
+        if (!verification.isActive || isVerifyingMFACode) return
+        isVerifyingMFACode = true
+        mfaVerificationJob = viewModelScope.launch {
+            try {
+                // Temporary Android-only verification until the backend contract is settled.
+                delay(MFA_VERIFICATION_DELAY_MILLIS)
+                if (matchesMockCode) {
+                    usedRecoveryCodeForLogin = isRecoveryCode
+                    mfaCodeTextState.clearText()
+                    clearMFARecoveryCode()
+                    updateEmailFlowState(LoginState.Loading)
+                    verification.complete(Unit)
+                } else {
+                    onInvalidCode()
+                }
+            } finally {
+                isVerifyingMFACode = false
+            }
+        }
+    }
+
+    suspend fun cancelMFALogin() {
+        revertLogin()
+        clearMFALogin()
+        updateEmailFlowState(LoginState.Default, showInvalidCredentialsError = false)
+    }
+
+    private suspend fun clearMFALogin() {
+        mfaVerificationJob?.cancelAndJoin()
+        mfaVerificationJob = null
+        pendingMFAVerification?.cancel()
+        pendingMFAVerification = null
+        mfaCodeTextState.clearText()
+        clearMFARecoveryCode()
+        selectedMFAAuthenticator = null
+        usedRecoveryCodeForLogin = false
+        isMFACodeInvalid = false
+        isVerifyingMFACode = false
+    }
+
+    override fun onCleared() {
+        mfaVerificationJob?.cancel()
+        pendingMFAVerification?.cancel()
+        pendingMFAVerification = null
+        mfaCodeTextState.clearText()
+        clearMFARecoveryCode()
+        super.onCleared()
+    }
+
     private suspend fun revertNewSession(loginData: LoginJobData? = loginJobData.value) {
         loginData?.newSessionUserId?.let { newSessionUserId ->
             // logout to cancel all session-related actions, remove all sensitive data and free up resources
@@ -421,6 +548,7 @@ class LoginEmailViewModel(
     fun cancelLogin() {
         viewModelScope.launch {
             revertLogin()
+            clearMFALogin()
             loginState = loginState.copy(flowState = LoginState.Canceled)
         }
     }
@@ -539,6 +667,9 @@ class LoginEmailViewModel(
     companion object {
         const val USER_IDENTIFIER_SAVED_STATE_KEY = "user_identifier"
         const val RESEND_TIMER_DELAY = 300L
+        private const val MOCK_MFA_CODE = "111111"
+        private const val MOCK_MFA_RECOVERY_CODE = "aaaa-aaaa-aaaa-aaaa"
+        private const val MFA_VERIFICATION_DELAY_MILLIS = 500L
     }
 }
 

@@ -49,6 +49,7 @@
     <string name="label_try_again">Try Again</string>
     <string name="label_done">Done</string>
     <string name="label_message_sent_failure">Message could not be sent due to connectivity issues.</string>
+    <string name="error_conversation_unavailable_on_send">This conversation may no longer be available. If it’s a group, choose Leave from the conversation menu.</string>
     <string name="label_message_edit_sent_failure">The edited message could not be sent due to connectivity issues.</string>
     <string name="label_message_sent_remotely_failure">Message could not be sent, as the backend of %s could not be reached.</string>
     <string name="label_message_edit_sent_remotely_failure">The edited message could not be sent, as the backend of %s could not be reached.</string>

@@ -48,6 +48,7 @@ import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.getAudioLengthInMs
 import com.wire.android.util.getVideoMetaData
 import com.wire.kalium.common.error.CoreFailure
+import com.wire.kalium.common.error.NetworkFailure
 import com.wire.kalium.common.functional.Either
 import com.wire.kalium.common.functional.onFailure
 import com.wire.kalium.common.functional.onSuccess
@@ -80,6 +81,8 @@ import com.wire.kalium.logic.feature.message.linkpreview.GenerateLinkPreviewUseC
 import com.wire.kalium.logic.feature.message.linkpreview.LinkPreviewTarget
 import com.wire.kalium.logic.data.message.linkpreview.MessageLinkPreview
 import com.wire.kalium.logic.data.message.mention.MessageMention
+import com.wire.kalium.network.exceptions.KaliumException
+import com.wire.kalium.network.exceptions.isConversationNotFound
 import dev.zacsweers.metro.Assisted
 import dev.zacsweers.metro.AssistedFactory
 import dev.zacsweers.metro.AssistedInject
@@ -92,6 +95,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.net.HttpURLConnection.HTTP_NOT_FOUND
 import com.wire.android.di.metro.WireAssistedViewModelBinding
 import com.wire.android.ui.home.conversations.ConversationCoreManualViewModelFactoryGroup
 
@@ -313,6 +317,7 @@ class SendMessageViewModel @AssistedInject constructor(
                         mentions = mentions.map { it.intoMessageMention() },
                         quotedMessageId = quotedMessageId
                     ).toEither()
+                        .onFailure { showConversationUnavailableIfNotFound(it) }
                         .handleLegalHoldFailureAfterSendingMessage(conversationId)
                         .handleNonAssetContributionEvent(messageBundle)
                 }
@@ -483,6 +488,13 @@ class SendMessageViewModel @AssistedInject constructor(
                 is ComposableMessageBundle.SendMultipartMessageBundle -> AnalyticsEvent.Contributed.Text
             }
             analyticsManager.sendEvent(event)
+        }
+    }
+
+    private fun showConversationUnavailableIfNotFound(failure: CoreFailure) {
+        val error = (failure as? NetworkFailure.ServerMiscommunication)?.kaliumException as? KaliumException.InvalidRequestError
+        if (error?.errorResponse?.code == HTTP_NOT_FOUND && error.isConversationNotFound()) {
+            onSnackbarMessage(ConversationSnackbarMessages.ConversationUnavailableOnSend)
         }
     }
 

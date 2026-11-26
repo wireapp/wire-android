@@ -206,6 +206,20 @@ class RecordAudioViewModel @Inject constructor(
 
             val originalFile = state.originalOutputFile ?: return@launch
             val effectsFile = state.effectsOutputFile
+            // a failed recording holds only the WAV header, and sending it would deliver a 0:00 voice note
+            if (originalFile.length() <= AudioMediaRecorder.HEADER_SIZE) {
+                appLogger.w("[$tag] -> Recording holds no audio, discarding it")
+                originalFile.toPath().deleteIfExists()
+                effectsFile?.toPath()?.deleteIfExists()
+                state = state.copy(
+                    buttonState = RecordAudioButtonState.ENABLED,
+                    audioState = AudioState.DEFAULT,
+                    originalOutputFile = null,
+                    effectsOutputFile = null
+                )
+                infoMessage.emit(RecordAudioInfoMessageType.UnableToRecordAudioError.uiText)
+                return@launch
+            }
             state = state.copy(
                 buttonState = RecordAudioButtonState.ENCODING,
                 audioState = state.audioState.copy(audioMediaPlayingState = AudioMediaPlayingState.Fetching)

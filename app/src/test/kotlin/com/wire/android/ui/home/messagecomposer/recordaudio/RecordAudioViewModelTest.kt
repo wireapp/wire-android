@@ -64,6 +64,8 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.api.io.TempDir
+import java.io.File
+import java.nio.file.Files
 
 @ExtendWith(CoroutineTestExtension::class)
 class RecordAudioViewModelTest {
@@ -605,6 +607,37 @@ class RecordAudioViewModelTest {
             }
         }
 
+    @Test
+    fun `given the recording holds no audio, when stopping the recording, then the recorder resets and an error is shown`(
+        @TempDir dir: java.nio.file.Path
+    ) =
+        runTest {
+            // given
+            val (arrangement, viewModel) = Arrangement()
+                .withFilterEnabled(true)
+                .withMaxFileSizeNeverReached()
+                .withEmptyRecording()
+                .arrange()
+            every { arrangement.fakeKaliumFileSystem.tempFilePath(any()) } answers { dir.resolve(firstArg<String>()).toOkioPath() }
+
+            viewModel.getInfoMessage().test {
+                viewModel.startRecording()
+                val recording = viewModel.state.originalOutputFile!!
+                val effects = viewModel.state.effectsOutputFile!!.also { it.createNewFile() }
+
+                // when
+                viewModel.stopRecording()
+
+                // then
+                assertEquals(RecordAudioInfoMessageType.UnableToRecordAudioError.uiText, awaitItem())
+                assertEquals(RecordAudioButtonState.ENABLED, viewModel.state.buttonState)
+                assertEquals(null, viewModel.state.originalOutputFile)
+                assertEquals(null, viewModel.state.effectsOutputFile)
+                assertEquals(false, recording.exists())
+                assertEquals(false, effects.exists())
+            }
+        }
+
     private fun clear(viewModel: RecordAudioViewModel) {
         val store = ViewModelStore()
         ViewModelProvider(
@@ -631,6 +664,8 @@ class RecordAudioViewModelTest {
         val fakeKaliumFileSystem = spyk(FakeKaliumFileSystem())
         val audioNormalizedLoudnessBuilder = mockk<AudioNormalizedLoudnessBuilder>()
         val audioFocusHelper = mockk<AudioFocusHelper>()
+        private val recordingDir = Files.createTempDirectory("record_audio_test").toFile().apply { deleteOnExit() }
+        private var recordedAudioBytes = RECORDED_AUDIO_BYTES
 
         val viewModel by lazy {
             RecordAudioViewModel(
@@ -654,12 +689,11 @@ class RecordAudioViewModelTest {
 
             coEvery { getAssetSizeLimit.invoke(false) } returns ASSET_SIZE_LIMIT
             every { audioMediaRecorder.setUp(ASSET_SIZE_LIMIT) } returns Unit
-            every { audioMediaRecorder.startRecording() } returns true
+            every { audioMediaRecorder.startRecording() } answers { writeRecording() }
             coEvery { audioMediaRecorder.stop() } returns Unit
             every { audioMediaRecorder.release() } returns Unit
             coEvery { globalDataStore.setRecordAudioEffectsCheckboxEnabled(any()) } returns Unit
-            every { audioMediaRecorder.originalOutputPath } returns fakeKaliumFileSystem
-                .tempFilePath("temp_recording.wav")
+            every { audioMediaRecorder.originalOutputPath } returns File(recordingDir, "temp_recording.wav").toOkioPath()
             coEvery { audioMediaRecorder.getMaxFileSizeReached() } returns flowOf(
                 RecordAudioDialogState.MaxFileSizeReached(
                     maxSize = ASSET_SIZE_DEFAULT_LIMIT_BYTES
@@ -693,7 +727,9 @@ class RecordAudioViewModelTest {
             )
         }
 
-        fun withStartRecordingSuccessful() = apply { every { audioMediaRecorder.startRecording() } returns true }
+        fun withStartRecordingSuccessful() = apply {
+            every { audioMediaRecorder.startRecording() } answers { writeRecording() }
+        }
         fun withStartRecordingFailed() = apply { every { audioMediaRecorder.startRecording() } returns false }
 
         fun withEncodingWaitingFor(gate: CompletableDeferred<Unit>) = apply {
@@ -710,6 +746,15 @@ class RecordAudioViewModelTest {
             }
         }
 
+        fun withEmptyRecording() = apply { recordedAudioBytes = 0 }
+
+        // the real recorder writes the WAV header, then the audio, to originalOutputPath
+        private fun writeRecording(): Boolean {
+            val recording = audioMediaRecorder.originalOutputPath!!.toFile().apply { deleteOnExit() }
+            recording.writeBytes(ByteArray(AudioMediaRecorder.HEADER_SIZE + recordedAudioBytes))
+            return true
+        }
+
         fun withMaxFileSizeNeverReached() = apply {
             every { audioMediaRecorder.getMaxFileSizeReached() } returns emptyFlow()
         }
@@ -722,6 +767,7 @@ class RecordAudioViewModelTest {
 
         companion object {
             const val ASSET_SIZE_LIMIT = 5L
+            const val RECORDED_AUDIO_BYTES = 1024
             val DUMMY_CALL = Call(
                 conversationId = ConversationId(
                     value = "conversationId",

@@ -32,6 +32,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.ui.Modifier
@@ -55,6 +56,7 @@ import com.wire.android.ui.common.rowitem.EmptyListContent
 import com.wire.android.ui.common.rowitem.LoadingListContent
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.ui.collectAsLazyPagingItemsWithLifecycle
+import com.wire.android.util.ui.keepOnTopWhenNotScrolled
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.MeetingId
 import kotlinx.datetime.TimeZone
@@ -186,6 +188,9 @@ private fun MeetingItemsList(
             item(key = "footer_load_more", contentType = "footer_load_more") {
                 MeetingLoadMoreFooter()
             }
+        }
+        Snapshot.withoutReadObservation {
+            keepOnTopWhenNotScrolled(lazyListState)
         }
     }
 }

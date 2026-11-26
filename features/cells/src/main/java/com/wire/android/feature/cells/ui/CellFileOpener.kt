@@ -70,9 +70,9 @@ class CellFileOpener @Inject constructor(
     internal fun edit(nodeUuid: String, scope: CoroutineScope, actions: CellActionSink, readOnly: Boolean = false) = scope.launch {
         getEditorUrl(nodeUuid)
             .onSuccess { url ->
-                if (url != null) onlineEditor.open(url, readOnly) else actions.sendAction(ShowEditErrorDialog(nodeUuid))
+                if (url != null) onlineEditor.open(url, readOnly) else actions.sendAction(ShowEditErrorDialog(nodeUuid, readOnly))
             }
-            .onFailure { actions.sendAction(ShowEditErrorDialog(nodeUuid)) }
+            .onFailure { actions.sendAction(ShowEditErrorDialog(nodeUuid, readOnly)) }
     }
 
     /** Opens [file] from its local copy. */

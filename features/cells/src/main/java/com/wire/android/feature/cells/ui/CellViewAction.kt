@@ -42,7 +42,7 @@ internal data class ShowNodesRestoredMessage(val restoredCount: Int) : CellViewA
 internal data object ShowRecycleBinEmptiedMessage : CellViewAction
 internal data object RefreshData : CellViewAction
 internal data class OpenFolder(val path: String, val title: String, val parentFolderUuid: String?) : CellViewAction
-internal data class ShowEditErrorDialog(val nodeUuid: String) : CellViewAction
+internal data class ShowEditErrorDialog(val nodeUuid: String, val readOnly: Boolean = false) : CellViewAction
 internal data object ShowOfflineFileSaved : CellViewAction
 internal data class ShowOfflineFilesSaved(val savedCount: Int) : CellViewAction
 internal data class ShowOfflineAccessRemoved(val removedCount: Int) : CellViewAction

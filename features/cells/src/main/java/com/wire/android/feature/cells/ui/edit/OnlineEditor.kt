@@ -19,7 +19,10 @@ package com.wire.android.feature.cells.ui.edit
 
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import com.wire.android.feature.cells.ui.CellFeatureFlags
+import com.wire.kalium.logic.data.user.UserId
+import com.wire.android.di.CurrentAccount
 import com.wire.kalium.logic.feature.client.IsWireCellsEnabledUseCase
 import dev.zacsweers.metro.Inject
 
@@ -28,16 +31,25 @@ class OnlineEditor @Inject constructor(
     private val context: Context,
     private val isWireCellsEnabled: IsWireCellsEnabledUseCase,
     private val featureFlags: CellFeatureFlags,
+    @CurrentAccount private val userId: UserId,
 ) {
 
     /** Opens read-only when asked to, and always once the team's Drive is offboarded. */
     suspend fun open(url: String, readOnly: Boolean = false) {
         val isReadOnly = readOnly || (featureFlags.driveOffboardingEnabled && !isWireCellsEnabled())
         val editorUrl = if (isReadOnly) url.asReadOnlyEditorUrl() else url
-        context.startActivity(OnlineEditorActivity.newIntent(context, editorUrl).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+        // The activity lives in the app module (it needs the app lock), so it is addressed by name.
+        val intent = Intent()
+            .setClassName(context.packageName, ACTIVITY_CLASS_NAME)
+            .setData(Uri.parse(editorUrl))
+            .putExtra(EXTRA_USER_ID, userId.toString())
+            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        context.startActivity(intent)
     }
 
     internal companion object {
+        private const val ACTIVITY_CLASS_NAME = "com.wire.android.ui.edit.OnlineEditorActivity"
+        private const val EXTRA_USER_ID = "user_id"
         private val PERMISSION_PARAM = Regex("([?&])permission=[^&#]*")
 
         fun String.asReadOnlyEditorUrl(): String =

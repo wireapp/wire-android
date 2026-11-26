@@ -15,10 +15,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
-package com.wire.android.feature.cells.ui.edit
+package com.wire.android.ui.edit
 
 import android.annotation.SuppressLint
-import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.net.Uri
@@ -28,7 +27,6 @@ import android.webkit.WebChromeClient
 import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Column
@@ -45,19 +43,29 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.viewinterop.AndroidView
+import com.wire.android.appLogger
+import com.wire.android.di.metro.wireApplicationGraph
+import com.wire.android.ui.AppLockActivity
+import com.wire.android.ui.BaseActivity
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
+import com.wire.android.ui.home.appLock.LockCodeTimeManager
 import com.wire.android.ui.theme.WireTheme
+import dev.zacsweers.metro.Inject
 
 /**
  * Shows the online document editor inside the app, below a native top bar, so the editor's own UI
  * (browser menu, share, copy link) is never exposed. Navigation is limited to the editor's own host.
  */
-class OnlineEditorActivity : ComponentActivity() {
+class OnlineEditorActivity : BaseActivity() {
+
+    @Inject
+    lateinit var lockCodeTimeManager: Lazy<LockCodeTimeManager>
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        wireApplicationGraph.inject(this)
         super.onCreate(savedInstanceState)
 
         val editorUrl = intent.dataString
@@ -73,9 +81,23 @@ class OnlineEditorActivity : ComponentActivity() {
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        if (lockCodeTimeManager.value.isAppLocked()) {
+            val userId = intent.getStringExtra(EXTRA_USER_ID)
+            if (userId == null) {
+                appLogger.e("OnlineEditor: app is locked but no user id, closing")
+                finish()
+                return
+            }
+            startActivity(
+                Intent(this, AppLockActivity::class.java).apply { putExtra(AppLockActivity.EXTRA_USER_ID, userId) }
+            )
+        }
+    }
+
     companion object {
-        fun newIntent(context: Context, url: String) =
-            Intent(context, OnlineEditorActivity::class.java).apply { data = Uri.parse(url) }
+        const val EXTRA_USER_ID = "user_id"
     }
 }
 

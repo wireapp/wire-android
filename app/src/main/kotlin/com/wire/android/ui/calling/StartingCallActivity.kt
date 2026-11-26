@@ -46,7 +46,6 @@ import com.wire.kalium.logic.data.id.MeetingId
  * @see IncomingCallScreen
  * @see OutgoingCallScreen
  */
-@OptIn(ExperimentalComposeUiApi::class)
 class StartingCallActivity : CallActivity() {
     override val destination: CallActivityDestination = CallActivityDestination.STARTING
 

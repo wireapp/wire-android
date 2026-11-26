@@ -78,16 +78,16 @@
         tools:replace="android:allowBackup,android:supportsRtl">
 
         <activity
-            android:name="com.wire.android.feature.cells.ui.edit.OnlineEditorActivity"
-            android:exported="false"
-            android:theme="@style/AppTheme" />
-
-        <activity
             android:name=".ui.AppLockActivity"
             android:exported="false"
             android:hardwareAccelerated="true"
             android:launchMode="singleTop"
             android:theme="@style/AppTheme" />
+
+        <activity
+                android:name=".ui.edit.OnlineEditorActivity"
+                android:exported="false"
+                android:theme="@style/AppTheme" />
 
         <activity
             android:name=".ui.calling.ongoing.OngoingCallActivity"

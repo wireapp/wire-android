@@ -41,6 +41,7 @@ import com.wire.android.services.PendingMessagesForegroundService
 import com.wire.android.services.PersistentWebSocketService
 import com.wire.android.services.PlayingAudioMessageService
 import com.wire.android.ui.AppLockActivity
+import com.wire.android.ui.edit.OnlineEditorActivity
 import com.wire.android.ui.WireActivity
 import com.wire.android.ui.debug.StartServiceReceiver
 import com.wire.android.ui.calling.CallActivity
@@ -82,6 +83,7 @@ interface WireApplicationGraph : ViewModelGraph {
     fun inject(application: WireApplication)
     fun inject(activity: WireActivity)
     fun inject(activity: AppLockActivity)
+    fun inject(activity: OnlineEditorActivity)
     fun inject(activity: CallActivity)
     fun inject(activity: OngoingCallActivity)
     fun inject(service: PersistentWebSocketService)

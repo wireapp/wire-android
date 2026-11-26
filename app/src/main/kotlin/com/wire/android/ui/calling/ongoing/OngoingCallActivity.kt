@@ -51,7 +51,6 @@ import dev.zacsweers.metro.Inject
  *
  * @see OngoingCallScreen
  */
-@OptIn(ExperimentalComposeUiApi::class)
 class OngoingCallActivity : CallActivity() {
     @Inject
     lateinit var servicesManager: ServicesManager

@@ -104,7 +104,7 @@ internal fun CellScreenContent(
     isOffline: Boolean = false,
     isPullToRefreshEnabled: Boolean = true,
     lazyListState: LazyListState = rememberLazyListState(),
-    retryEditNodeError: (String) -> Unit = {},
+    retryEditNodeError: (String, Boolean) -> Unit = { _, _ -> },
     showVersionHistoryScreen: (String, String) -> Unit = { _, _ -> },
     showImageViewer: (CellNodeUi.File) -> Unit = {},
     showVideoViewer: (CellNodeUi.File) -> Unit = {},
@@ -128,7 +128,7 @@ internal fun CellScreenContent(
     var restoreConfirmation by remember { mutableStateOf<CellNodeUi?>(null) }
     var showRestoreError by remember { mutableStateOf<ShowUnableToRestoreDialog?>(null) }
     var restoreParentFolderConfirmation by remember { mutableStateOf<CellNodeUi?>(null) }
-    var editNodeError by remember { mutableStateOf<String?>(null) }
+    var editNodeError by remember { mutableStateOf<ShowEditErrorDialog?>(null) }
     var menu by remember { mutableStateOf<MenuOptions?>(null) }
 
     when {
@@ -238,13 +238,13 @@ internal fun CellScreenContent(
         )
     }
 
-    editNodeError?.let { nodeUuid ->
+    editNodeError?.let { error ->
         WireCellErrorDialog(
             title = stringResource(R.string.cell_open_editor_failure_dialog_title),
             message = stringResource(R.string.cell_open_editor_failure_dialog_message),
             onResult = { tryAgain ->
                 editNodeError = null
-                if (tryAgain) retryEditNodeError(nodeUuid)
+                if (tryAgain) retryEditNodeError(error.nodeUuid, error.readOnly)
             }
         )
     }
@@ -296,7 +296,7 @@ internal fun CellScreenContent(
                 Toast.LENGTH_LONG
             ).show()
             is OpenFolder -> openFolder(action.path, action.title, action.parentFolderUuid)
-            is ShowEditErrorDialog -> editNodeError = action.nodeUuid
+            is ShowEditErrorDialog -> editNodeError = action
             is ShowOfflineFileSaved -> {
                 Toast.makeText(
                     context,

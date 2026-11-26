@@ -23,6 +23,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStore
 import app.cash.turbine.test
+import com.wire.android.assertIs
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.datastore.GlobalDataStore
@@ -50,6 +51,7 @@ import io.mockk.coVerifyOrder
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkStatic
+import io.mockk.spyk
 import io.mockk.unmockkStatic
 import io.mockk.verify
 import kotlinx.coroutines.CompletableDeferred
@@ -57,9 +59,11 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
+import okio.Path.Companion.toOkioPath
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import org.junit.jupiter.api.io.TempDir
 
 @ExtendWith(CoroutineTestExtension::class)
 class RecordAudioViewModelTest {
@@ -513,6 +517,57 @@ class RecordAudioViewModelTest {
         }
 
     @Test
+    fun `given the conversion fails and effects are off, when sending the recording, then the original wav is sent and kept`(
+        @TempDir dir: java.nio.file.Path
+    ) = runTest { assertWavFallbackSendsKeptFile(dir, applyEffects = false) }
+
+    @Test
+    fun `given the conversion fails and effects are on, when sending the recording, then the effects wav is sent and kept`(
+        @TempDir dir: java.nio.file.Path
+    ) = runTest { assertWavFallbackSendsKeptFile(dir, applyEffects = true) }
+
+    private suspend fun assertWavFallbackSendsKeptFile(dir: java.nio.file.Path, applyEffects: Boolean) {
+        // given
+        val (arrangement, viewModel) = Arrangement()
+            .withFilterEnabled(applyEffects)
+            .withMaxFileSizeNeverReached()
+            .arrange()
+        coEvery { arrangement.audioMediaRecorder.convertWavToM4a(any()) } returns false
+        every { arrangement.audioMediaRecorder.originalOutputPath } returns dir.resolve("temp_recording.wav").toOkioPath()
+        every { arrangement.fakeKaliumFileSystem.tempFilePath(any()) } answers { dir.resolve(firstArg<String>()).toOkioPath() }
+        val sentUri = mockk<Uri>()
+        val sentPaths = mutableListOf<java.nio.file.Path>()
+        mockkStatic("com.wire.android.util.FileUtilKt")
+
+        try {
+            every { any<Context>().fromNioPathToContentUri(any()) } answers {
+                sentPaths.add(secondArg())
+                sentUri
+            }
+            viewModel.startRecording()
+            viewModel.stopRecording()
+            val original = viewModel.state.originalOutputFile!!.also { it.createNewFile() }
+            val effects = viewModel.state.effectsOutputFile?.also { it.createNewFile() }
+            val (kept, dropped) = if (applyEffects) effects!! to original else original to effects
+
+            viewModel.actions.test {
+                // when
+                viewModel.sendRecording()
+
+                // then
+                val action = assertIs<RecordAudioViewActions.Recorded>(awaitItem())
+                assertEquals("audio/wav", action.uriAsset.mimeType)
+                assertEquals(sentUri, action.uriAsset.uri)
+                assertEquals(listOf(kept.toPath()), sentPaths)
+                assertEquals(true, kept.exists())
+                assertEquals(false, dropped?.exists() ?: false)
+            }
+        } finally {
+            unmockkStatic("com.wire.android.util.FileUtilKt")
+        }
+    }
+
+    @Test
     fun `given start recording succeeded, when recording audio, then recording screen is shown`() =
         runTest {
             // given
@@ -573,7 +628,7 @@ class RecordAudioViewModelTest {
         val generateAudioFileWithEffects = mockk<GenerateAudioFileWithEffectsUseCase>()
         val context = mockk<Context>()
         val dispatchers = TestDispatcherProvider()
-        val fakeKaliumFileSystem = FakeKaliumFileSystem()
+        val fakeKaliumFileSystem = spyk(FakeKaliumFileSystem())
         val audioNormalizedLoudnessBuilder = mockk<AudioNormalizedLoudnessBuilder>()
         val audioFocusHelper = mockk<AudioFocusHelper>()
 

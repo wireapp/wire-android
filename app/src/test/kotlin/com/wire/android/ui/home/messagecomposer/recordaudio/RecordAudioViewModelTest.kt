@@ -19,6 +19,9 @@ package com.wire.android.ui.home.messagecomposer.recordaudio
 
 import android.content.Context
 import android.net.Uri
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelStore
 import app.cash.turbine.test
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.TestDispatcherProvider
@@ -408,6 +411,52 @@ class RecordAudioViewModelTest {
         }
 
     @Test
+    fun `given user is recording, when the view model is cleared, then the recorder is stopped and released`() =
+        runTest {
+            // given
+            val (arrangement, viewModel) = Arrangement()
+                .withFilterEnabled(false)
+                .withMaxFileSizeNeverReached()
+                .arrange()
+            viewModel.startRecording()
+
+            // when
+            clear(viewModel)
+
+            // then
+            coVerifyOrder {
+                arrangement.audioMediaRecorder.stop()
+                arrangement.audioMediaRecorder.release()
+            }
+            verify(exactly = 1) { arrangement.audioFocusHelper.abandonExclusive() }
+        }
+
+    @Test
+    fun `given a stop is in flight, when the view model is cleared, then the recorder is still released`() =
+        runTest {
+            // given
+            val stopGate = CompletableDeferred<Unit>()
+            val (arrangement, viewModel) = Arrangement()
+                .withFilterEnabled(false)
+                .withMaxFileSizeNeverReached()
+                .withFirstRecorderStopWaitingFor(stopGate)
+                .arrange()
+            viewModel.startRecording()
+            viewModel.stopRecording()
+
+            // when
+            clear(viewModel)
+            stopGate.complete(Unit)
+
+            // then
+            verify(exactly = 1) { arrangement.audioMediaRecorder.release() }
+            coVerifyOrder {
+                arrangement.audioMediaRecorder.stop()
+                arrangement.audioMediaRecorder.release()
+            }
+        }
+
+    @Test
     fun `given encoding is running, when discarding and recording again, then the new recording is not overwritten`() =
         runTest {
             // given
@@ -500,6 +549,18 @@ class RecordAudioViewModelTest {
                 verify(exactly = 1) { arrangement.audioFocusHelper.requestExclusive() }
             }
         }
+
+    private fun clear(viewModel: RecordAudioViewModel) {
+        val store = ViewModelStore()
+        ViewModelProvider(
+            store,
+            object : ViewModelProvider.Factory {
+                @Suppress("UNCHECKED_CAST")
+                override fun <T : ViewModel> create(modelClass: Class<T>): T = viewModel as T
+            }
+        )[RecordAudioViewModel::class.java]
+        store.clear()
+    }
 
     private class Arrangement {
 

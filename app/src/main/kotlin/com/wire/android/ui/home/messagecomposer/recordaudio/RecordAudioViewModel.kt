@@ -47,7 +47,9 @@ import com.wire.kalium.logic.feature.asset.AudioNormalizedLoudnessBuilder
 import com.wire.kalium.logic.feature.asset.GetAssetSizeLimitUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import com.wire.kalium.util.DateTimeUtil
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -414,6 +416,12 @@ class RecordAudioViewModel @Inject constructor(
     override fun onCleared() {
         super.onCleared()
         recordAudioMessagePlayer.close()
+        audioFocusHelper.abandonExclusive()
+        // viewModelScope is already cancelled here, and a stop it had in flight may have skipped release(),
+        // so the recorder is stopped and released again (both are no-ops when already done) on a scope that survives
+        CoroutineScope(SupervisorJob() + dispatchers.default()).launch {
+            stopAndReleaseRecorder()
+        }
     }
 
     companion object {

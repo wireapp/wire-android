@@ -47,6 +47,8 @@ import com.wire.kalium.logic.feature.asset.AudioNormalizedLoudnessBuilder
 import com.wire.kalium.logic.feature.asset.GetAssetSizeLimitUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import com.wire.kalium.util.DateTimeUtil
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -83,6 +85,9 @@ class RecordAudioViewModel @Inject constructor(
     // stopRecording can be triggered several times at once (e.g. ON_STOP and going to background),
     // so stopping and releasing the recorder must not run concurrently
     private val stopRecorderMutex = Mutex()
+
+    // the work after the recorder stops (encoding, length, waves); discard and a new recording cancel it
+    private var encodingJob: Job? = null
 
     private val infoMessage = MutableSharedFlow<UIText>()
 
@@ -169,6 +174,7 @@ class RecordAudioViewModel @Inject constructor(
                 infoMessage.emit(RecordAudioInfoMessageType.UnableToRecordAudioCall.uiText)
             }
         } else {
+            encodingJob?.cancel()
             audioFocusHelper.requestExclusive()
             viewModelScope.launch(dispatchers.default()) {
                 val assetSizeLimit = getAssetSizeLimit(false)
@@ -193,38 +199,37 @@ class RecordAudioViewModel @Inject constructor(
 
     fun stopRecording() {
         audioFocusHelper.abandonExclusive()
-        viewModelScope.launch(dispatchers.default()) {
+        encodingJob?.cancel()
+        encodingJob = viewModelScope.launch(dispatchers.default()) {
             stopAndReleaseRecorder()
 
-            if (state.originalOutputFile != null) {
-                state = state.copy(
-                    buttonState = RecordAudioButtonState.ENCODING,
-                    audioState = state.audioState.copy(audioMediaPlayingState = AudioMediaPlayingState.Fetching)
-                )
-                if (state.shouldApplyEffects && state.effectsOutputFile != null) {
-                    generateAudioFileWithEffects(
-                        context = context,
-                        originalFilePath = state.originalOutputFile!!.path,
-                        effectsFilePath = state.effectsOutputFile!!.path
-                    )
-                }
-
-                val playableAudioFile = getPlayableAudioFile()
-                state = state.copy(
-                    buttonState = RecordAudioButtonState.READY_TO_SEND,
-                    audioState = AudioState.DEFAULT.copy(
-                        totalTimeInMs = AudioState.TotalTimeInMs.Known(
-                            playableAudioFile?.let {
-                                getAudioLengthInMs(
-                                    dataPath = it.path.toPath(),
-                                    mimeType = SUPPORTED_AUDIO_MIME_TYPE
-                                ).toInt()
-                            } ?: 0
-                        ),
-                    ),
-                    wavesMask = playableAudioFile?.let { audioNormalizedLoudnessBuilder(it.path) }?.toWavesMask() ?: listOf()
+            val originalFile = state.originalOutputFile ?: return@launch
+            val effectsFile = state.effectsOutputFile
+            val applyEffects = state.shouldApplyEffects && effectsFile != null
+            state = state.copy(
+                buttonState = RecordAudioButtonState.ENCODING,
+                audioState = state.audioState.copy(audioMediaPlayingState = AudioMediaPlayingState.Fetching)
+            )
+            if (applyEffects) {
+                generateAudioFileWithEffects(
+                    context = context,
+                    originalFilePath = originalFile.path,
+                    effectsFilePath = effectsFile!!.path
                 )
             }
+
+            val playableAudioFile = if (state.shouldApplyEffects) effectsFile else originalFile
+            val totalTimeInMs = playableAudioFile?.let {
+                getAudioLengthInMs(dataPath = it.path.toPath(), mimeType = SUPPORTED_AUDIO_MIME_TYPE).toInt()
+            } ?: 0
+            val wavesMask = playableAudioFile?.let { audioNormalizedLoudnessBuilder(it.path) }?.toWavesMask() ?: listOf()
+            // a discard or a new recording cancels this job, and must not be overwritten by it
+            ensureActive()
+            state = state.copy(
+                buttonState = RecordAudioButtonState.READY_TO_SEND,
+                audioState = AudioState.DEFAULT.copy(totalTimeInMs = AudioState.TotalTimeInMs.Known(totalTimeInMs)),
+                wavesMask = wavesMask
+            )
         }
     }
 
@@ -277,6 +282,7 @@ class RecordAudioViewModel @Inject constructor(
     }
 
     fun discardRecording() {
+        encodingJob?.cancel()
         viewModelScope.launch {
             stopAndReleaseRecorder()
             state.originalOutputFile?.toPath()?.deleteIfExists()

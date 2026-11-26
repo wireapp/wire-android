@@ -49,6 +49,7 @@ import io.mockk.mockk
 import io.mockk.mockkStatic
 import io.mockk.unmockkStatic
 import io.mockk.verify
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
@@ -357,6 +358,51 @@ class RecordAudioViewModelTest {
         }
 
     @Test
+    fun `given encoding is running, when discarding and the encoding then finishes, then the discard stays`() =
+        runTest {
+            // given
+            val encodingGate = CompletableDeferred<Unit>()
+            val (_, viewModel) = Arrangement()
+                .withFilterEnabled(true)
+                .withEncodingWaitingFor(encodingGate)
+                .arrange()
+            viewModel.startRecording()
+            viewModel.stopRecording()
+            assertEquals(RecordAudioButtonState.ENCODING, viewModel.state.buttonState)
+
+            // when
+            viewModel.discardRecording()
+            encodingGate.complete(Unit)
+
+            // then
+            assertEquals(RecordAudioButtonState.ENABLED, viewModel.state.buttonState)
+            assertEquals(null, viewModel.state.originalOutputFile)
+            assertEquals(null, viewModel.state.effectsOutputFile)
+        }
+
+    @Test
+    fun `given encoding is running, when discarding and recording again, then the new recording is not overwritten`() =
+        runTest {
+            // given
+            val encodingGate = CompletableDeferred<Unit>()
+            val (_, viewModel) = Arrangement()
+                .withFilterEnabled(true)
+                .withEncodingWaitingFor(encodingGate)
+                .arrange()
+            viewModel.startRecording()
+            viewModel.stopRecording()
+            viewModel.discardRecording()
+            viewModel.startRecording()
+            assertEquals(RecordAudioButtonState.RECORDING, viewModel.state.buttonState)
+
+            // when
+            encodingGate.complete(Unit)
+
+            // then
+            assertEquals(RecordAudioButtonState.RECORDING, viewModel.state.buttonState)
+        }
+
+    @Test
     fun `given user recorded an audio, when sending the recording, then the recorder is back to its initial state`() =
         runTest {
             // given
@@ -506,6 +552,10 @@ class RecordAudioViewModelTest {
 
         fun withStartRecordingSuccessful() = apply { every { audioMediaRecorder.startRecording() } returns true }
         fun withStartRecordingFailed() = apply { every { audioMediaRecorder.startRecording() } returns false }
+
+        fun withEncodingWaitingFor(gate: CompletableDeferred<Unit>) = apply {
+            coEvery { generateAudioFileWithEffects(any(), any(), any()) } coAnswers { gate.await() }
+        }
 
         fun withMaxFileSizeNeverReached() = apply {
             every { audioMediaRecorder.getMaxFileSizeReached() } returns emptyFlow()

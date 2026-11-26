@@ -172,22 +172,32 @@ class AudioMediaRecorderTest {
         val recorder = createRecorder()
         recorder.setUp(assetLimitInMegabyte = 10)
 
-        recorder.startRecording()
-        firstReadEntered.await()
-        val firstStop = launch(Dispatchers.IO) { recorder.stop() }
-        delay(STOP_SETTLE_MS) // firstStop is now suspended in join on the blocked writer
-        recorder.startRecording() // the old writer is cancelled but still running, so this starts a second one
-        secondReadEntered.await()
-        firstGate.countDown()
-        withTimeout(STOP_TIMEOUT_MS) { firstStop.join() }
+        try {
+            recorder.startRecording()
+            assertTrue(firstReadEntered.await(STOP_TIMEOUT_MS, TimeUnit.MILLISECONDS), "first writer never read")
+            val firstStop = launch(Dispatchers.IO) { recorder.stop() }
+            // A start is refused while the first writer is still active, and accepted once stop() has cancelled it,
+            // so repeating it until the second writer reads waits for that cancel without a fixed sleep.
+            val deadline = System.nanoTime() + TimeUnit.MILLISECONDS.toNanos(STOP_TIMEOUT_MS)
+            while (!secondReadEntered.await(START_POLL_MS, TimeUnit.MILLISECONDS) && System.nanoTime() < deadline) {
+                recorder.startRecording()
+            }
+            assertTrue(secondReadEntered.count == 0L, "second writer never started")
+            firstGate.countDown()
+            withTimeout(STOP_TIMEOUT_MS) { firstStop.join() }
 
-        val secondStop = launch(Dispatchers.IO) { recorder.stop() }
-        delay(STOP_SETTLE_MS)
-        val returnedBeforeWriterExited = secondStop.isCompleted
-        secondGate.countDown()
-        withTimeout(STOP_TIMEOUT_MS) { secondStop.join() }
+            val secondStop = launch(Dispatchers.IO) { recorder.stop() }
+            delay(STOP_SETTLE_MS)
+            // Fails safe: a slow host can only make secondStop slower to finish, so this check can pass spuriously but never fail.
+            val returnedBeforeWriterExited = secondStop.isCompleted
+            secondGate.countDown()
+            withTimeout(STOP_TIMEOUT_MS) { secondStop.join() }
 
-        assertFalse(returnedBeforeWriterExited, "stop() returned without joining the writer started during the previous stop")
+            assertFalse(returnedBeforeWriterExited, "stop() returned without joining the writer started during the previous stop")
+        } finally {
+            firstGate.countDown()
+            secondGate.countDown()
+        }
     }
 
     @Test
@@ -257,6 +267,7 @@ class AudioMediaRecorderTest {
         const val RECORD_DURATION_MS = 300L
         const val STOP_TIMEOUT_MS = 5_000L
         const val STOP_SETTLE_MS = 100L
+        const val START_POLL_MS = 10L
         const val CONCURRENT_START_ITERATIONS = 30
         const val CONCURRENT_START_RECORD_MS = 20L
     }

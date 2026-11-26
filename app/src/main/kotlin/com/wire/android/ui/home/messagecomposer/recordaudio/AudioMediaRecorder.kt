@@ -102,7 +102,7 @@ class AudioMediaRecorder @Inject constructor(
     }
 
     // Synchronized so the isActive check and the launch are one step: two callers cannot both see no writer and start two.
-    // stop() takes no lock: it cancels the job before clearing it, and a start racing a stop is the caller's sequencing.
+    // stop() takes no lock (it suspends): it clears the field only if it still holds the job it cancelled.
     @Synchronized
     fun startRecording(): Boolean = try {
         // A repeated start (double tap) keeps the running writer: a second one would split the audio of the shared AudioRecord.
@@ -181,8 +181,10 @@ class AudioMediaRecorder @Inject constructor(
         } catch (e: IllegalStateException) {
             appLogger.e("[RecordAudio] stop: IllegalStateException - ${e.message}")
         }
-        recordingJob?.cancelAndJoin()
-        recordingJob = null
+        val job = recordingJob
+        job?.cancelAndJoin()
+        // A start that landed during the join owns a newer job: clearing it would leave that writer uncancellable.
+        if (recordingJob === job) recordingJob = null
     }
 
     fun release() {

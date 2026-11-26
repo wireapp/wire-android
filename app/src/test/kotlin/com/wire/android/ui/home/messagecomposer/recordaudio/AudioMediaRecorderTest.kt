@@ -25,9 +25,11 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkConstructor
 import io.mockk.unmockkConstructor
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.future.asCompletableFuture
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
@@ -46,6 +48,7 @@ import java.io.File
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.util.concurrent.CyclicBarrier
+import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.concurrent.thread
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -139,15 +142,21 @@ class AudioMediaRecorderTest {
     }
 
     @Test
-    fun givenSizeLimitReachedAndNobodyCollectingTheEvent_whenStopped_thenWavHeaderSizesMatchTheFileSize() = runBlocking {
+    fun givenSizeLimitReachedWhileTheEventCollectorIsBlocked_whenStopped_thenWavHeaderSizesMatchTheFileSize() = runBlocking {
         val recorder = createRecorder()
         recorder.setUp(assetLimitInMegabyte = 0)
-        val collector = launch(start = CoroutineStart.UNDISPATCHED) { recorder.getMaxFileSizeReached().collect { } }
+        val limitFired = CompletableDeferred<RecordAudioDialogState>()
+        // Proves the limit fired: it receives the event on another thread while the blocked collector holds the writer in emit.
+        val probe = launch(Dispatchers.IO, start = CoroutineStart.UNDISPATCHED) {
+            recorder.getMaxFileSizeReached().collect { limitFired.complete(it) }
+        }
+        val blockedCollector = launch(start = CoroutineStart.UNDISPATCHED) { recorder.getMaxFileSizeReached().collect { } }
         recorder.startRecording()
-        // Blocks this thread, so the collector cannot resume and the writer stays suspended in emit until stop() cancels it.
-        Thread.sleep(RECORD_DURATION_MS)
+        // Blocking waits keep this thread busy, so the blocked collector cannot resume until stop() cancels the writer.
+        limitFired.asCompletableFuture().get(STOP_TIMEOUT_MS, TimeUnit.MILLISECONDS)
         withTimeout(STOP_TIMEOUT_MS) { recorder.stop() }
-        collector.cancel()
+        probe.cancel()
+        blockedCollector.cancel()
 
         assertHeaderMatchesFile(recorder.originalOutputPath!!.toFile())
     }

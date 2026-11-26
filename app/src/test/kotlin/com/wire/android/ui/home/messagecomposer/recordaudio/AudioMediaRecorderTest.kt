@@ -19,12 +19,16 @@ package com.wire.android.ui.home.messagecomposer.recordaudio
 
 import android.app.Application
 import android.media.AudioRecord
+import android.media.MediaCodec
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkConstructor
+import io.mockk.mockkStatic
 import io.mockk.unmockkConstructor
+import io.mockk.unmockkStatic
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Dispatchers
@@ -52,6 +56,8 @@ import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.concurrent.thread
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.Assertions.assertTrue
 
 @RunWith(RobolectricTestRunner::class)
@@ -161,6 +167,31 @@ class AudioMediaRecorderTest {
         assertHeaderMatchesFile(recorder.originalOutputPath!!.toFile())
     }
 
+    @Test
+    fun givenInputFileThatCannotBeRead_whenConvertingToM4a_thenItReturnsFalse() = runBlocking {
+        val recorder = createRecorder()
+        recorder.setUp(assetLimitInMegabyte = 10)
+
+        val result = recorder.convertWavToM4a(File(tempFolder.root, "missing.wav").absolutePath)
+
+        assertFalse(result)
+    }
+
+    @Test
+    fun givenConversionCancelled_whenConvertingToM4a_thenCancellationExceptionPropagates() {
+        mockkStatic(MediaCodec::class)
+        try {
+            every { MediaCodec.createEncoderByType(any()) } throws CancellationException("cancelled")
+            val wav = tempFolder.newFile("input.wav").apply { writeBytes(ByteArray(AudioMediaRecorder.HEADER_SIZE + PCM_BYTES)) }
+            val recorder = createRecorder()
+            recorder.setUp(assetLimitInMegabyte = 10)
+
+            assertThrows<CancellationException> { runBlocking { recorder.convertWavToM4a(wav.absolutePath) } }
+        } finally {
+            unmockkStatic(MediaCodec::class)
+        }
+    }
+
     private fun assertHeaderMatchesFile(file: File) {
         val bytes = file.readBytes()
         val header = ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN)
@@ -177,6 +208,7 @@ class AudioMediaRecorderTest {
     }
 
     private companion object {
+        const val PCM_BYTES = 1024
         const val READ_DURATION_MS = 5L
         const val RECORD_DURATION_MS = 300L
         const val STOP_TIMEOUT_MS = 5_000L

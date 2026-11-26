@@ -350,7 +350,7 @@ def _assemble(api, repository, run, path, kind, all_jobs, artifacts):
     run_id, attempt, conclusion = run["id"], run["run_attempt"], run["conclusion"]
     flavor = BUILD_FLAVORS[kind]
     jobs = _release_jobs(all_jobs, kind)
-    leaves = [_release_leaf(kind, entry.get("name")) or "" for entry in all_jobs if isinstance(entry, dict)]
+    leaves = [_release_leaf(kind, entry.get("name")) or "" for entry in _ran_jobs(all_jobs, run)]
     if CONTEXT_JOB not in leaves and not _has_export_evidence(artifacts, run_id):
         return None
     gaps, incomplete = [], False
@@ -402,6 +402,14 @@ def _parse_time(value):
         return datetime.strptime(value, "%Y-%m-%dT%H:%M:%SZ")
     except (TypeError, ValueError):
         return None
+
+
+def _ran_jobs(jobs, run):
+    """Return the jobs that ran in this attempt; a rerun also lists the jobs it reused, with their old start time."""
+    begun = _parse_time(run.get("run_started_at"))
+    return [entry for entry in jobs if isinstance(entry, dict)
+            and (begun is None or _parse_time(entry.get("started_at")) is None
+                 or _parse_time(entry["started_at"]) >= begun)]
 
 
 def _label_parts(label):
@@ -461,8 +469,13 @@ def _exporter_build_succeeded(api, base, attempt, problem):
     except (ApiError, CollectionError):
         problem(_UNVERIFIED_LISTING)
         return False
-    if CONTEXT_JOB not in [_release_leaf("production", entry.get("name")) for entry in jobs
-                           if isinstance(entry, dict)]:
+    try:
+        run = api.get("%s/attempts/%d" % (base, attempt)) if attempt > 1 else {}
+    except (ApiError, CollectionError):
+        problem(_UNVERIFIED_LISTING)
+        return False
+    jobs = _ran_jobs(jobs, run)
+    if CONTEXT_JOB not in [_release_leaf("production", entry.get("name")) for entry in jobs]:
         return False
     return any(entry["conclusion"] == "success" and _BUILD_JOB.match(entry["name"])
                for entry in _release_jobs(jobs, "production"))
@@ -580,9 +593,14 @@ def _qa_gap(reason, attempt, qa_ran):
     return contract.gap(contract.EVIDENCE_MISSING, "Regression evidence export " + reason.value), True
 
 
-def _pages_prefix(repository):
-    owner, name = repository.split("/")
-    return "https://%s.github.io/%s/" % (owner.lower(), name)
+def _report_link_note(qa):
+    """Return why the record's report link is not trusted, or None when it is this run's report."""
+    base = os.environ.get("RELEASE_LOG_REPORT_PAGES_URL", "").strip().rstrip("/")
+    if not base.startswith("https://"):
+        return "Report link dropped: RELEASE_LOG_REPORT_PAGES_URL is not set to an https URL"
+    if qa["report_url"] != "%s/runs/%d-%d/" % (base, qa["run_id"], qa["run_attempt"]):
+        return "Report link dropped: it is not the report of this run and attempt on the reporting Pages site"
+    return None
 
 
 def _regression_version(origin_version, qa):
@@ -637,7 +655,7 @@ def _assemble_regression(api, repository, run, path, all_jobs, artifacts, defaul
     if run.get("event") != "workflow_dispatch":
         raise CollectionError("The run is not a manual production regression")
     jobs = _release_jobs(all_jobs, "regression", _QA_JOB)
-    qa_ran = any(_QA_RUN_JOB.match(_leaf(entry.get("name"))) for entry in all_jobs if isinstance(entry, dict))
+    qa_ran = any(_QA_RUN_JOB.match(_leaf(entry.get("name"))) for entry in _ran_jobs(all_jobs, run))
     gaps, incomplete = [], False
     qa, reason = _load_export(api, artifacts, "release-log-qa-%d-%d" % (run_id, attempt), "regression", run, path)
     if reason is Export.MISSING and _is_skipped(api, artifacts, repository, run_id, attempt):
@@ -646,9 +664,10 @@ def _assemble_regression(api, repository, run, path, all_jobs, artifacts, defaul
         gap, failed = _qa_gap(reason, attempt, qa_ran)
         gaps.append(gap)
         incomplete |= failed
-    if qa is not None and qa["report_url"] and not qa["report_url"].startswith(_pages_prefix(repository)):
+    note = _report_link_note(qa) if qa is not None and qa["report_url"] else None
+    if note:
         qa = dict(qa, report_url=None)
-        gaps.append(contract.gap(None, "Report link is not on the repository pages site"))
+        gaps.append(contract.gap(None, note))
     origin, version = _attribute(api, repository, run, qa, gaps, default_branch)
     payload = {
         "schema_version": contract.SCHEMA_VERSION,

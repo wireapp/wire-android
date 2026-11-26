@@ -102,6 +102,15 @@ class CellViewModel @AssistedInject constructor(
     private val _isSelfUserViewerOnly = MutableStateFlow(false)
     internal val isSelfUserViewerOnly: StateFlow<Boolean> = _isSelfUserViewerOnly.asStateFlow()
 
+    // Null until resolved, only for conversation files: the item menu stays hidden meanwhile instead of flashing.
+    private val _isDriveOffboarded = MutableStateFlow<Boolean?>(if (screenContext.isConversationFiles) null else false)
+    internal val isDriveOffboarded: StateFlow<Boolean> = _isDriveOffboarded
+        .map { it == true }
+        .stateInScope(false)
+    internal val showItemMenu: StateFlow<Boolean> = _isDriveOffboarded
+        .map { it == false }
+        .stateInScope(!screenContext.isConversationFiles)
+
     // Show menu with actions for the selected file.
     private val _menu: MutableSharedFlow<MenuOptions> = MutableSharedFlow()
     internal val menu: SharedFlow<MenuOptions> = _menu.asSharedFlow()
@@ -187,7 +196,10 @@ class CellViewModel @AssistedInject constructor(
     init {
         offlineAccess.observeDownloads(host)
         viewModelScope.launch { fileOpener.loadConfig() }
-        viewModelScope.launch { _isSelfUserViewerOnly.value = viewerAccess.isViewerOnly(screenContext) }
+        viewModelScope.launch {
+            _isDriveOffboarded.value = viewerAccess.isDriveOffboarded(screenContext)
+            _isSelfUserViewerOnly.value = viewerAccess.isViewerOnly(screenContext)
+        }
         // A shared list is already loaded, and kept in sync, by the listing that owns it.
         if (sharedNodeList == null) {
             nodeList.load()

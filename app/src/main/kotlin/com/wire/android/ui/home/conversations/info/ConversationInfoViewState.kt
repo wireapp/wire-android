@@ -41,6 +41,7 @@ data class ConversationInfoViewState(
     val legalHoldStatus: Conversation.LegalHoldStatus = Conversation.LegalHoldStatus.UNKNOWN,
     val accentId: Int = -1,
     val isWireCellEnabled: Boolean = false,
+    val isDriveOffboarded: Boolean = false,
     val initialLoadingState: InitialLoadingState = InitialLoadingState.LOADING,
 ) {
     val showHistoryLoadingIndicator: Boolean get() = conversationType == Conversation.Type.Group.Channel

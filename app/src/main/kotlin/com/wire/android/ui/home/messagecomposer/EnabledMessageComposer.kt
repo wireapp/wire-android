@@ -127,6 +127,7 @@ fun EnabledMessageComposer(
     tempWritableVideoUri: Uri?,
     tempWritableImageUri: Uri?,
     modifier: Modifier = Modifier,
+    isDriveOffboarded: Boolean = false,
 ) {
     val context = LocalContext.current
     val density = LocalDensity.current
@@ -141,12 +142,14 @@ fun EnabledMessageComposer(
     var viewerAccessBannerDismissed by rememberSaveable { mutableStateOf(false) }
 
     with(messageComposerStateHolder) {
+        // Drive offboarding disables uploads regardless of the viewer permission.
+        val areAttachmentOptionsEnabled = !isDriveOffboarded &&
+                (messageComposerViewState.value.areAttachmentOptionsEnabled || !BuildConfig.DRIVE_PERMISSIONS_ENABLED)
         val inputStateHolder = messageCompositionInputStateHolder
         // Keep activity-result and permission launchers registered after the popup closes.
         val attachmentOptions = buildAttachmentOptionItems(
             isFileSharingEnabled = messageComposerViewState.value.isFileSharingEnabled,
-            areAttachmentOptionsEnabled = messageComposerViewState.value.areAttachmentOptionsEnabled ||
-                    !BuildConfig.DRIVE_PERMISSIONS_ENABLED,
+            areAttachmentOptionsEnabled = areAttachmentOptionsEnabled,
             tempWritableImageUri = tempWritableImageUri,
             tempWritableVideoUri = tempWritableVideoUri,
             onImagesPicked = { onImagesPicked(it, false) },
@@ -283,6 +286,7 @@ fun EnabledMessageComposer(
                         .background(color = colorsScheme().surfaceContainerLow)
                 ) {
                     val shouldShowViewerAccessBanner = !messageComposerViewState.value.areAttachmentOptionsEnabled &&
+                            !isDriveOffboarded &&
                             !viewerAccessBannerDismissed &&
                             BuildConfig.DRIVE_PERMISSIONS_ENABLED
                     if (shouldShowViewerAccessBanner) {
@@ -490,8 +494,7 @@ fun EnabledMessageComposer(
                             onCloseRichEditingButtonClicked = additionalOptionStateHolder::toAttachmentAndAdditionalOptionsMenu,
                             onDrawingModeClicked = openDrawingCanvas,
                             isFileSharingEnabled = messageComposerViewState.value.isFileSharingEnabled,
-                            areAttachmentOptionsEnabled = messageComposerViewState.value.areAttachmentOptionsEnabled ||
-                                    !BuildConfig.DRIVE_PERMISSIONS_ENABLED,
+                            areAttachmentOptionsEnabled = areAttachmentOptionsEnabled,
                             useKeyboardNavigation = isHardwareKeyboardConnected,
                         )
                     }
@@ -567,8 +570,12 @@ fun EnabledMessageComposer(
             BackHandler(inputStateHolder.inputType is InputType.Editing) {
                 cancelEdit()
             }
-            BackHandler(isImeVisible || inputStateHolder.inputFocused) {
-                inputStateHolder.collapseComposer(additionalOptionStateHolder.additionalOptionsSubMenuState)
+            val additionalOptionsSubMenuState = additionalOptionStateHolder.additionalOptionsSubMenuState
+            val canCollapseComposer = inputStateHolder.isTextExpanded &&
+                additionalOptionsSubMenuState != AdditionalOptionSubMenuState.RecordAudio
+            // Dismissing the message menu can mark the input focused while the keyboard stays hidden.
+            BackHandler(isImeVisible || canCollapseComposer) {
+                inputStateHolder.collapseComposer(additionalOptionsSubMenuState)
             }
             BackHandler(hasMentionSuggestions) {
                 closeMentionSuggestions()

@@ -99,6 +99,7 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import kotlin.time.Instant
 import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
@@ -689,16 +690,46 @@ class OngoingCallViewModelTest {
     }
 
     @Test
-    fun givenCreatedMeeting_whenLinkChanges_thenInvitationUsesLatestUrl() = runTest {
-        val arrangement = Arrangement()
-        arrangement.createdMeetingId = MeetingId("created-meeting", "wire.test")
-        arrangement.meetingFlow.value = invitationMeeting("https://wire.example/first")
+    fun givenOrdinaryCall_whenOpened_thenMeetingInvitationIsNotLoaded() = runTest {
+        val (arrangement, viewModel) = Arrangement().arrange()
+
+        assertEquals(null, viewModel.state.meetingLink)
+        assertFalse(viewModel.state.meetingLinkCardVisible)
+        coVerify(exactly = 0) { arrangement.observeMeeting(any()) }
+    }
+
+    @Test
+    fun givenMeetingCall_whenLinkChanges_thenInvitationStaysHiddenWithLatestUrl() = runTest {
+        val arrangement = Arrangement().apply {
+            meetingId = MeetingId("meeting", "wire.test")
+            meetingFlow.value = invitationMeeting("https://wire.example/first")
+        }
         val (_, viewModel) = arrangement.arrange()
         assertEquals(MeetingLink("https://wire.example/first"), viewModel.state.meetingLink)
+        assertFalse(viewModel.state.meetingLinkCardVisible)
 
         arrangement.meetingFlow.value = invitationMeeting("https://wire.example/rerolled")
         advanceUntilIdle()
+
         assertEquals(MeetingLink("https://wire.example/rerolled"), viewModel.state.meetingLink)
+        assertFalse(viewModel.state.meetingLinkCardVisible)
+    }
+
+    @Test
+    fun givenMeetingInvitation_whenShownAndLinkChanges_thenVisibleInvitationUsesLatestUrl() = runTest {
+        val arrangement = Arrangement().apply {
+            meetingId = MeetingId("meeting", "wire.test")
+            meetingFlow.value = invitationMeeting("https://wire.example/first")
+        }
+        val (_, viewModel) = arrangement.arrange()
+
+        viewModel.showMeetingInvitation()
+        assertTrue(viewModel.state.meetingLinkCardVisible)
+        arrangement.meetingFlow.value = invitationMeeting("https://wire.example/rerolled")
+        advanceUntilIdle()
+
+        assertEquals(MeetingLink("https://wire.example/rerolled"), viewModel.state.meetingLink)
+        assertTrue(viewModel.state.meetingLinkCardVisible)
 
         arrangement.meetingFlow.value = null
         advanceUntilIdle()
@@ -706,45 +737,26 @@ class OngoingCallViewModelTest {
     }
 
     @Test
-    fun givenMeetingInvitation_whenDismissed_thenLaterUpdatesDoNotReopenIt() = runTest {
-        val arrangement = Arrangement()
-        arrangement.createdMeetingId = MeetingId("created-meeting", "wire.test")
-        arrangement.meetingFlow.value = invitationMeeting("https://wire.example/first")
+    fun givenVisibleInvitation_whenDismissed_thenLinkKeepsUpdatingWithoutReopening() = runTest {
+        val arrangement = Arrangement().apply {
+            meetingId = MeetingId("meeting", "wire.test")
+            meetingFlow.value = invitationMeeting("https://wire.example/first")
+        }
         val (_, viewModel) = arrangement.arrange()
+        viewModel.showMeetingInvitation()
         val callState = viewModel.state
 
         viewModel.dismissMeetingInvitation()
+        assertEquals(callState.copy(meetingLinkCardVisible = false), viewModel.state)
         arrangement.meetingFlow.value = invitationMeeting("https://wire.example/rerolled")
         advanceUntilIdle()
 
-        assertEquals(null, viewModel.state.meetingLink)
-        assertEquals(callState.copy(meetingLink = null), viewModel.state)
-    }
+        assertEquals(MeetingLink("https://wire.example/rerolled"), viewModel.state.meetingLink)
+        assertFalse(viewModel.state.meetingLinkCardVisible)
 
-    @Test
-    fun givenDismissedInvitation_whenNewViewModelIsCreated_thenDismissalIsNotShared() = runTest {
-        val meetingId = MeetingId("created-meeting", "wire.test")
-        val meeting = invitationMeeting("https://wire.example/first")
-        val first = Arrangement().apply {
-            createdMeetingId = meetingId
-            meetingFlow.value = meeting
-        }.arrange().second
-        first.dismissMeetingInvitation()
-
-        val second = Arrangement().apply {
-            createdMeetingId = meetingId
-            meetingFlow.value = meeting
-        }.arrange().second
-
-        assertEquals(null, first.state.meetingLink)
-        assertEquals(MeetingLink("https://wire.example/first"), second.state.meetingLink)
-    }
-
-    @Test
-    fun givenOrdinaryCall_whenOpened_thenMeetingInvitationIsNotLoaded() = runTest {
-        val (arrangement, viewModel) = Arrangement().arrange()
-        assertEquals(null, viewModel.state.meetingLink)
-        coVerify(exactly = 0) { arrangement.observeMeeting(any()) }
+        viewModel.showMeetingInvitation()
+        assertEquals(MeetingLink("https://wire.example/rerolled"), viewModel.state.meetingLink)
+        assertTrue(viewModel.state.meetingLinkCardVisible)
     }
 
     private fun invitationMeeting(url: String, id: ConversationId = conversationId): Meeting = mockk {
@@ -755,7 +767,7 @@ class OngoingCallViewModelTest {
     }
 
     private inner class Arrangement {
-        var createdMeetingId: MeetingId? = null
+        var meetingId: MeetingId? = null
         val meetingFlow = MutableStateFlow<Meeting?>(null)
 
         @MockK
@@ -814,7 +826,7 @@ class OngoingCallViewModelTest {
                 uiCallParticipantMapper = UICallParticipantMapper(UserTypeMapper()),
                 networkStateObserver = networkStateObserver,
                 dispatchers = TestDispatcherProvider(dispatcher),
-                createdMeetingId = createdMeetingId,
+                meetingId = meetingId,
                 observeMeeting = observeMeeting,
                 currentTimeProvider = CurrentTimeProvider {
                     Instant.fromEpochMilliseconds(dispatcher.scheduler.currentTime)

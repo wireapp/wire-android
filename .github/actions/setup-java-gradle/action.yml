@@ -51,6 +51,7 @@ runs:
                 "${PR_BASE_REF}" == "develop" &&
                 "${PR_HEAD_REPOSITORY}" == "${REPOSITORY}" ]]; then
           enabled=true
+          read_only=true
         elif [[ "${EVENT_NAME}" == "merge_group" &&
                 "${MERGE_GROUP_BASE_REF}" == "refs/heads/develop" ]]; then
           enabled=true

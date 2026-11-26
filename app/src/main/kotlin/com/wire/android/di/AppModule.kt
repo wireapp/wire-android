@@ -135,6 +135,10 @@ object AppModule {
     fun provideDrivePermissionsEnabled(): Boolean = BuildConfig.DRIVE_PERMISSIONS_ENABLED
 
     @Provides
+    @Named("driveOffboardingEnabled")
+    fun provideDriveOffboardingEnabled(): Boolean = BuildConfig.DRIVE_OFFBOARDING_ENABLED
+
+    @Provides
     @Named("driveDirectUploadEnabled")
     fun provideDriveDirectUploadEnabled(): Boolean = BuildConfig.DRIVE_DIRECT_UPLOAD_ENABLED
 

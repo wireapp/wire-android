@@ -17,6 +17,7 @@ permissions: {}
 
 jobs:
     test-results:
+        timeout-minutes: 5
         name: Publish Test Results
         runs-on: ubuntu-latest
         if: github.event.workflow_run.conclusion != 'skipped'
@@ -34,12 +35,15 @@ jobs:
               uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
 
             - name: Download and Extract Artifacts
+              id: download
               uses: dawidd6/action-download-artifact@b6e2e70617bc3265edd6dab6c906732b2f1ae151 # v21
               with:
                   run_id: ${{ github.event.workflow_run.id }}
                   path: artifacts
+                  if_no_artifact_found: ignore
 
             - name: Publish Test Results
+              if: steps.download.outputs.found_artifact == 'true'
               uses: EnricoMi/publish-unit-test-result-action/linux@da5b7be67623cd59bbbd1a0ce4f022050a55605f # v2
               with:
                   commit: ${{ github.event.workflow_run.head_sha }}
@@ -55,6 +59,7 @@ jobs:
             - name: Install datadog-ci
               run: npm install -g @datadog/datadog-ci
             - name: "Upload results"
+              if: steps.download.outputs.found_artifact == 'true'
               env:
                   DATADOG_API_KEY: ${{ secrets.DD_API_KEY }}
                   DD_ENV: ci

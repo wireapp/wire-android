@@ -59,9 +59,9 @@ fun MeetingOptionsModalSheetLayout(
     sheetState: WireModalSheetState<String>,
     editMeeting: (meetingId: MeetingId) -> Unit = {},
     openMeetingLink: (meetingId: MeetingId) -> Unit = {},
-    startCall: (conversationId: ConversationId) -> Unit = {},
-    joinCall: (conversationId: ConversationId) -> Unit = {},
-    returnToCall: (conversationId: ConversationId) -> Unit = {},
+    startCall: (conversationId: ConversationId, meetingId: MeetingId) -> Unit = { _, _ -> },
+    joinCall: (conversationId: ConversationId, meetingId: MeetingId) -> Unit = { _, _ -> },
+    returnToCall: (conversationId: ConversationId, meetingId: MeetingId) -> Unit = { _, _ -> },
     viewModel: MeetingOptionsMenuViewModel = when {
         LocalInspectionMode.current -> MeetingOptionsMenuViewModelPreview(CurrentTimeProvider.Preview)
         else -> meetingOptionsMenuListViewModel()
@@ -110,7 +110,7 @@ fun MeetingOptionsModalSheetLayout(
                     },
                     onJoinNow = {
                         sheetState.hide {
-                            viewModel.checkCallStatusAndSendCallAction(state.conversationId)
+                            viewModel.checkCallStatusAndSendCallAction(state.conversationId, state.meetingId)
                         }
                     }
                 ).also {
@@ -145,13 +145,13 @@ fun MeetingOptionsModalSheetLayout(
                 snackbarHostState.showSnackbar(action.message.uiText.asString(context.resources))
             }
             is MeetingOptionsMenuViewAction.JoinCall -> sheetState.hide {
-                joinCall(action.conversationId)
+                joinCall(action.conversationId, action.meetingId)
             }
             is MeetingOptionsMenuViewAction.ReturnToCall -> sheetState.hide {
-                returnToCall(action.conversationId)
+                returnToCall(action.conversationId, action.meetingId)
             }
             is MeetingOptionsMenuViewAction.StartCall -> sheetState.hide {
-                startCall(action.conversationId)
+                startCall(action.conversationId, action.meetingId)
             }
         }
     }

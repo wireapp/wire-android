@@ -127,14 +127,15 @@
 
     <string name="meeting_link_title">Meeting link</string>
     <string name="meeting_share_link_description">Anyone with the link can access the meeting.</string>
-    <string name="meeting_share_link_password_protected">The link is password protected. To set a new password, generate a new link.</string>
-    <string name="meeting_share_link_not_password_protected">This link is not password protected. Make sure to share it only with the right people. To add a password, generate a new link.</string>
+    <string name="meeting_share_link_password_protected">The link is password protected. To set a new password, create a new link.</string>
+    <string name="meeting_share_link_not_password_protected">This link is not password protected. Make sure to share it only with the right people. To add a password, create a new link.</string>
     <string name="meeting_share_link_unavailable">The meeting link is unavailable.</string>
     <string name="meeting_share_copy_link">Copy Link</string>
     <string name="meeting_share_link_copied">Link copied to clipboard</string>
-    <string name="new_meeting_password_input_label">Optional: set a password on the meeting link</string>
+    <string name="new_meeting_password_input_label">Set password</string>
     <string name="new_meeting_password_input_placeholder">Enter password</string>
-    <string name="new_meeting_password_description">Make sure to share the password with your guests.</string>
+    <string name="new_meeting_password_info">Set a password for the meeting link (optional).</string>
+    <string name="new_meeting_password_copy_info">Copy this password before creating the link. You won\'t be able to view it again.</string>
     <string name="new_meeting_password_error">Use at least 8 characters, with one lowercase letter, one capital letter, a number, and a special character.</string>
     <string name="new_meeting_confirm_password_input_label">Confirm password</string>
     <string name="new_meeting_confirm_password_input_placeholder">Re-enter password</string>
@@ -142,4 +143,15 @@
     <string name="meeting_creation_confirmation_description">Share this link to invite participants.</string>
     <string name="meeting_invite_guests_title">Invite guests via link</string>
     <string name="meeting_invite_guests_close_content_description">Close guest link card</string>
+    <string name="meeting_reminders_card_title">Meeting reminders</string>
+    <string name="meeting_reminders_card_description">To join meetings on time, allow reminders for Wire in your system settings on your device.</string>
+    <string name="meeting_reminders_card_settings">Open Device Settings</string>
+    <string name="meeting_link_rotate">Create New Link</string>
+    <string name="meeting_link_create_title">Create new link</string>
+    <string name="meeting_link_create_description">Any previous link to this meetings will be revoked and a new link will be created.</string>
+    <string name="meeting_link_create">Create</string>
+    <string name="meeting_link_creating">Creating...</string>
+    <string name="meeting_link_remove_password_description">No password was provided for the new link. The previous link was password-protected, but the new meeting link will not be password secured.</string>
+    <string name="meeting_link_create_without_password">Create without password</string>
+    <string name="meeting_link_refresh_failed">Could not create a new link. Please try again.</string>
 </resources>

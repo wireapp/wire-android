@@ -71,6 +71,7 @@ class ConversationInfoViewModelArrangement {
             fetchConversationMLSVerificationStatus = fetchConversationMLSVerificationStatus,
             selfUserId = TestUser.SELF_USER_ID,
             isWireCellFeatureEnabled = isCellsEnabled,
+            driveOffboardingEnabled = true,
         )
     }
 

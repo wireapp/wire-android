@@ -59,7 +59,7 @@ interface MeetingOptionsMenuViewModel : ActionsManager<MeetingOptionsMenuViewAct
     fun observeMeetingStateFlow(occurrenceId: String): StateFlow<MeetingOptionsMenuState>
     fun deleteMeetingForEveryone(meetingId: MeetingId, meetingTitle: String)
     fun deleteMeetingForMe(meetingId: MeetingId, meetingTitle: String)
-    fun checkCallStatusAndSendCallAction(conversationId: ConversationId)
+    fun checkCallStatusAndSendCallAction(conversationId: ConversationId, meetingId: MeetingId)
 }
 
 class MeetingOptionsMenuViewModelPreview(currentTimeProvider: CurrentTimeProvider) : MeetingOptionsMenuViewModel {
@@ -78,7 +78,7 @@ class MeetingOptionsMenuViewModelPreview(currentTimeProvider: CurrentTimeProvide
 
     override fun deleteMeetingForEveryone(meetingId: MeetingId, meetingTitle: String) = Unit
     override fun deleteMeetingForMe(meetingId: MeetingId, meetingTitle: String) = Unit
-    override fun checkCallStatusAndSendCallAction(conversationId: ConversationId) = Unit
+    override fun checkCallStatusAndSendCallAction(conversationId: ConversationId, meetingId: MeetingId) = Unit
 }
 
 class MeetingOptionsMenuViewModelImpl @Inject constructor(
@@ -163,13 +163,13 @@ class MeetingOptionsMenuViewModelImpl @Inject constructor(
         }
     }
 
-    override fun checkCallStatusAndSendCallAction(conversationId: ConversationId) {
+    override fun checkCallStatusAndSendCallAction(conversationId: ConversationId, meetingId: MeetingId) {
         viewModelScope.launch {
             val call = observeActiveCallsUseCase().firstOrNull()?.firstOrNull { it.conversationId == conversationId }
             val action = when {
-                call != null && call.status.isSelfUserAttending() -> MeetingOptionsMenuViewAction.ReturnToCall(conversationId)
-                call != null -> MeetingOptionsMenuViewAction.JoinCall(conversationId)
-                else -> MeetingOptionsMenuViewAction.StartCall(conversationId)
+                call != null && call.status.isSelfUserAttending() -> MeetingOptionsMenuViewAction.ReturnToCall(conversationId, meetingId)
+                call != null -> MeetingOptionsMenuViewAction.JoinCall(conversationId, meetingId)
+                else -> MeetingOptionsMenuViewAction.StartCall(conversationId, meetingId)
             }
             sendAction(action)
         }
@@ -198,7 +198,7 @@ sealed interface MeetingOptionsMenuState {
 
 sealed interface MeetingOptionsMenuViewAction {
     data class Message(val message: SnackBarMessage) : MeetingOptionsMenuViewAction
-    data class StartCall(val conversationId: ConversationId) : MeetingOptionsMenuViewAction
-    data class JoinCall(val conversationId: ConversationId) : MeetingOptionsMenuViewAction
-    data class ReturnToCall(val conversationId: ConversationId) : MeetingOptionsMenuViewAction
+    data class StartCall(val conversationId: ConversationId, val meetingId: MeetingId) : MeetingOptionsMenuViewAction
+    data class JoinCall(val conversationId: ConversationId, val meetingId: MeetingId) : MeetingOptionsMenuViewAction
+    data class ReturnToCall(val conversationId: ConversationId, val meetingId: MeetingId) : MeetingOptionsMenuViewAction
 }

@@ -27,6 +27,7 @@ import uiautomatorutils.UiSelectorParams
 import uiautomatorutils.UiWaitUtils
 import uiautomatorutils.UiWaitUtils.toBySelector
 import user.usermanager.ClientUserManager
+import kotlin.time.Duration
 
 data class SearchPage(private val device: UiDevice) {
     private val searchFieldSearchPeople = UiSelectorParams(description = "Search people by name or username")
@@ -126,8 +127,11 @@ data class SearchPage(private val device: UiDevice) {
         return this
     }
 
-    fun tapUsernameInSearchResult(userName: String): SearchPage {
-        val userName = UiWaitUtils.waitElement(UiSelectorParams(text = userName))
+    fun tapUsernameInSearchResult(
+        userName: String,
+        timeout: Duration = UiWaitUtils.DEFAULT_TIMEOUT
+    ): SearchPage {
+        val userName = UiWaitUtils.waitElement(UiSelectorParams(text = userName), timeout = timeout)
         userName.click()
         return this
     }

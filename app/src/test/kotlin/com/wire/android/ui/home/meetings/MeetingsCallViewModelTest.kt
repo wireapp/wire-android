@@ -45,7 +45,6 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
-import io.mockk.mockk
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -67,12 +66,12 @@ class MeetingsCallViewModelTest {
             .arrange()
 
         viewModel.callManager.actions.test {
-            val createdMeetingId = MeetingId("created-meeting", "wire.test")
-            viewModel.startCallIfPossible(TestConversation.ID, createdMeetingId)
+            val meetingId = MeetingId("created-meeting", "wire.test")
+            viewModel.startCallIfPossible(TestConversation.ID, meetingId)
             advanceUntilIdle()
 
             assertEquals(
-                JoinOrStartCallViewActions.InitiatedCall(TestConversation.ID, TestUser.SELF_USER_ID, createdMeetingId),
+                JoinOrStartCallViewActions.InitiatedCall(TestConversation.ID, TestUser.SELF_USER_ID, meetingId),
                 awaitItem()
             )
             assertFalse(viewModel.notEstablishedDialogState.isVisible)
@@ -89,7 +88,7 @@ class MeetingsCallViewModelTest {
             .arrange()
 
         viewModel.callManager.actions.test {
-            viewModel.startCallIfPossible(TestConversation.ID)
+            viewModel.startCallIfPossible(TestConversation.ID, MeetingId("meeting", "wire.test"))
             advanceUntilIdle()
 
             expectNoEvents()
@@ -106,10 +105,13 @@ class MeetingsCallViewModelTest {
             .arrange()
 
         viewModel.callManager.actions.test {
-            viewModel.joinOngoingCall(TestConversation.ID)
+            viewModel.joinOngoingCall(TestConversation.ID, MeetingId("meeting", "wire.test"))
             advanceUntilIdle()
 
-            assertEquals(JoinOrStartCallViewActions.JoinedCall(TestConversation.ID, TestUser.SELF_USER_ID), awaitItem())
+            assertEquals(
+                JoinOrStartCallViewActions.JoinedCall(TestConversation.ID, TestUser.SELF_USER_ID, MeetingId("meeting", "wire.test")),
+                awaitItem()
+            )
             assertFalse(viewModel.notEstablishedDialogState.isVisible)
             coVerify(exactly = 1) { arrangement.ensureMeetingIsMLSEstablished(TestConversation.ID) }
             coVerify(exactly = 1) { arrangement.answerCall(conversationId = TestConversation.ID) }
@@ -123,7 +125,7 @@ class MeetingsCallViewModelTest {
             .arrange()
 
         viewModel.callManager.actions.test {
-            viewModel.joinOngoingCall(TestConversation.ID)
+            viewModel.joinOngoingCall(TestConversation.ID, MeetingId("meeting", "wire.test"))
             advanceUntilIdle()
 
             expectNoEvents()
@@ -186,7 +188,6 @@ class MeetingsCallViewModelTest {
         }
         fun arrange() = this to MeetingsCallViewModel(
             currentAccount = TestUser.SELF_USER_ID,
-            globalDataStore = lazy { mockk() },
             observeEstablishedCalls = observeEstablishedCalls,
             observeParticipantsForConversation = observeParticipantsForConversation,
             answerCall = answerCall,

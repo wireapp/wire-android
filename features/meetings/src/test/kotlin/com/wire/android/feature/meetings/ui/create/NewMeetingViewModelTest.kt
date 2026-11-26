@@ -1488,7 +1488,7 @@ class NewMeetingViewModelTest {
     }
 
     @Test
-    fun givenOnlyConfirmationEntered_whenSubmitting_thenPasswordRemainsOptional() = runTest(dispatcher) {
+    fun givenOnlyConfirmationEntered_whenSubmitting_thenCreationIsBlocked() = runTest(dispatcher) {
         withCreationTypes { type ->
             val (arrangement, viewModel) = arrangeViewModel(
                 Arrangement(dispatcher)
@@ -1496,14 +1496,26 @@ class NewMeetingViewModelTest {
                     .withCreateMeetingResult(CreateNewMeetingUseCase.Result.Success(CONVERSATION_ID, CREATED_MEETING_ID))
             )
             enterTitle(viewModel, "Weekly sync")
-            viewModel.confirmPasswordTextState.setTextAndPlaceCursorAtEnd("IgnoredPassword1!")
+            viewModel.confirmPasswordTextState.setTextAndPlaceCursorAtEnd("ValidPassword1!")
             advanceUntilIdle()
 
             viewModel.submitCreation()
             advanceUntilIdle()
 
-            assertFalse(viewModel.state.hasPasswordError)
+            assertEquals(true, viewModel.state.passwordsDoNotMatch)
+            assertFalse(viewModel.state.invalidPassword)
+            assertFalse(viewModel.state.continueButtonEnabled)
             verify(exactly = 0) { arrangement.validatePassword(any()) }
+            coVerify(exactly = 0) { arrangement.createNewMeeting(any()) }
+
+            viewModel.confirmPasswordTextState.setTextAndPlaceCursorAtEnd("")
+            advanceUntilIdle()
+
+            assertFalse(viewModel.state.hasPasswordError)
+            assertEquals(true, viewModel.state.continueButtonEnabled)
+            viewModel.submitCreation()
+            advanceUntilIdle()
+
             coVerify(exactly = 1) { arrangement.createNewMeeting(match { it.password == null }) }
         }
     }

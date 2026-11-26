@@ -14,6 +14,7 @@ concurrency:
 
 jobs:
   validate-release:
+    timeout-minutes: 5
     runs-on: ubuntu-latest
     # Skip if this is a pre-release (tag contains -rc, -alpha, -beta, etc.)
     # Pre-release tags should use dedicated workflows (e.g., build-rc.yml)
@@ -45,6 +46,7 @@ jobs:
           fi
 
   release-log-context:
+    timeout-minutes: 5
     name: Export release log context
     if: github.event_name == 'release' && !contains(github.event.release.tag_name, '-')
     runs-on: ubuntu-latest

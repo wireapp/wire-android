@@ -22,7 +22,6 @@ import android.media.AudioFormat
 import android.media.AudioRecord
 import android.media.MediaCodec
 import android.media.MediaCodecInfo
-import android.media.MediaExtractor
 import android.media.MediaFormat
 import android.media.MediaMuxer
 import android.media.MediaRecorder
@@ -33,6 +32,7 @@ import com.wire.android.util.fileDateTime
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import com.wire.kalium.logic.feature.asset.GetAssetSizeLimitUseCase.AssetSizeLimits.ASSET_SIZE_DEFAULT_LIMIT_BYTES
 import com.wire.kalium.util.DateTimeUtil
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -207,9 +207,9 @@ class AudioMediaRecorder @Inject constructor(
                                     break
                                 }
                             }
-                            updateWavHeader(originalOutputPath!!)
                         }
                 }
+                updateWavHeader(originalOutputPath!!)
             } catch (e: IOException) {
                 e.printStackTrace()
                 appLogger.e("[RecordAudio] writeAudioDataToFile: IOException - ${e.message}")
@@ -225,14 +225,19 @@ class AudioMediaRecorder @Inject constructor(
 
         try {
             FileInputStream(File(inputFilePath)).use { fileInputStream ->
+                val pcmChannel = fileInputStream.channel
+                val bytesPerFrame = (BITS_PER_SAMPLE / BITS_PER_BYTE) * AUDIO_CHANNELS
+                if (pcmChannel.size() < HEADER_SIZE + bytesPerFrame) {
+                    appLogger.w("[RecordAudio] convertWavToM4a: WAV has no PCM frames")
+                    return@withContext false
+                }
+                // The recorder and voice filter produce PCM WAVs with this header layout.
+                pcmChannel.position(HEADER_SIZE.toLong())
                 m4aOutputPath?.toFile()?.let { outputFile ->
                     ParcelFileDescriptor.open(
                         outputFile,
                         ParcelFileDescriptor.MODE_READ_WRITE or ParcelFileDescriptor.MODE_CREATE
                     ).use { parcelFileDescriptor ->
-
-                        val mediaExtractor = MediaExtractor()
-                        mediaExtractor.setDataSource(inputFilePath)
 
                         val format = MediaFormat.createAudioFormat(
                             MediaFormat.MIMETYPE_AUDIO_AAC,
@@ -257,7 +262,6 @@ class AudioMediaRecorder @Inject constructor(
 
                         var retryCount = 0
                         var presentationTimeUs = 0L
-                        val bytesPerSample = (BITS_PER_SAMPLE / BITS_PER_BYTE) * AUDIO_CHANNELS
 
                         while (!sawOutputEOS && retryCount < MAX_RETRY_COUNT) {
                             if (!sawInputEOS) {
@@ -266,12 +270,12 @@ class AudioMediaRecorder @Inject constructor(
                                     val inputBuffer = mediaCodec.getInputBuffer(inputBufferIndex)
                                     inputBuffer?.clear()
 
-                                    val sampleSize = fileInputStream.channel.read(inputBuffer!!)
+                                    val sampleSize = pcmChannel.read(inputBuffer!!)
                                     if (sampleSize < 0) {
                                         mediaCodec.queueInputBuffer(inputBufferIndex, 0, 0, 0, MediaCodec.BUFFER_FLAG_END_OF_STREAM)
                                         sawInputEOS = true
                                     } else {
-                                        val numSamples = sampleSize / bytesPerSample
+                                        val numSamples = sampleSize / bytesPerFrame
                                         val bufferDurationUs = (numSamples * MICROSECONDS_PER_SECOND) / SAMPLING_RATE
                                         mediaCodec.queueInputBuffer(inputBufferIndex, 0, sampleSize, presentationTimeUs, 0)
 
@@ -332,8 +336,11 @@ class AudioMediaRecorder @Inject constructor(
                     success = false
                 }
             }
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
             appLogger.e("Could not convert wav to m4a: ${e.message}", throwable = e)
+            success = false
         } finally {
             try {
                 muxer?.let { safeMuxer ->

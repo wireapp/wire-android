@@ -292,6 +292,7 @@ class RecordAudioViewModel @Inject constructor(
 
             val outputFile = state.originalOutputFile
             val effectsFile = state.effectsOutputFile
+            val inputFile = (if (state.shouldApplyEffects) effectsFile else outputFile) ?: return@launch
             val wavesMask = state.wavesMask
             state = state.copy(
                 buttonState = RecordAudioButtonState.ENCODING, audioState = AudioState.DEFAULT,
@@ -299,26 +300,14 @@ class RecordAudioViewModel @Inject constructor(
                 effectsOutputFile = null
             )
 
-            val didSucceed = if (state.shouldApplyEffects) {
-                audioMediaRecorder.convertWavToM4a(effectsFile!!.toString())
-            } else {
-                audioMediaRecorder.convertWavToM4a(outputFile!!.toString())
-            }
+            val didSucceed = audioMediaRecorder.convertWavToM4a(inputFile.path)
 
             try {
-                when {
-                    didSucceed -> {
-                        outputFile?.toPath()?.deleteIfExists()
-                        effectsFile?.toPath()?.deleteIfExists()
-                    }
-
-                    state.shouldApplyEffects -> {
-                        outputFile?.toPath()?.deleteIfExists()
-                    }
-
-                    !state.shouldApplyEffects -> {
-                        effectsFile?.toPath()?.deleteIfExists()
-                    }
+                if (didSucceed || outputFile != inputFile) {
+                    outputFile?.toPath()?.deleteIfExists()
+                }
+                if (didSucceed || effectsFile != inputFile) {
+                    effectsFile?.toPath()?.deleteIfExists()
                 }
             } catch (exception: IOException) {
                 appLogger.e("[$tag] -> Couldn't delete audio files")
@@ -329,11 +318,7 @@ class RecordAudioViewModel @Inject constructor(
                         uri = if (didSucceed) {
                             context.fromNioPathToContentUri(nioPath = audioMediaRecorder.m4aOutputPath!!.toNioPath())
                         } else {
-                            if (state.shouldApplyEffects) {
-                                context.fromNioPathToContentUri(nioPath = state.effectsOutputFile!!.toPath())
-                            } else {
-                                context.fromNioPathToContentUri(nioPath = state.originalOutputFile!!.toPath())
-                            }
+                            context.fromNioPathToContentUri(nioPath = inputFile.toPath())
                         },
                         mimeType = if (didSucceed) {
                             "audio/mp4"

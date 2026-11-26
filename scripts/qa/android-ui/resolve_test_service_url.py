@@ -52,6 +52,3 @@ if __name__ == "__main__":
         raise SystemExit(f"ERROR: {error}") from None
     with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as output:
         output.write(f"testServiceUrl={url}\n")
-    if os.environ.get("GITHUB_STEP_SUMMARY"):
-        with open(os.environ["GITHUB_STEP_SUMMARY"], "a", encoding="utf-8") as summary:
-            summary.write(f"- Test Service URL: `{url}`\n")

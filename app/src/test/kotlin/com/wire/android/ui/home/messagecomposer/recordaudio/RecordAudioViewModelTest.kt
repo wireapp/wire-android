@@ -493,10 +493,10 @@ class RecordAudioViewModelTest {
             val m4aPath = arrangement.fakeKaliumFileSystem.tempFilePath("voice.m4a")
             every { arrangement.audioMediaRecorder.m4aOutputPath } returns m4aPath
             coEvery { arrangement.audioMediaRecorder.convertWavToM4a(any()) } returns true
-            mockkStatic("com.wire.android.util.FileUtilKt")
-            every { any<Context>().fromNioPathToContentUri(any()) } returns mockk<Uri>()
 
+            mockkStatic("com.wire.android.util.FileUtilKt")
             try {
+                every { any<Context>().fromNioPathToContentUri(any()) } returns mockk<Uri>()
                 viewModel.startRecording()
                 viewModel.stopRecording()
 
@@ -505,7 +505,7 @@ class RecordAudioViewModelTest {
                     viewModel.sendRecording()
 
                     // then
-                    assertEquals(true, awaitItem() is RecordAudioViewActions.Recorded)
+                    assertIs<RecordAudioViewActions.Recorded>(awaitItem())
                     assertEquals(RecordAudioState().buttonState, viewModel.state.buttonState)
                     assertEquals(null, viewModel.state.originalOutputFile)
                     assertEquals(AudioState.DEFAULT, viewModel.state.audioState)

@@ -223,7 +223,7 @@ class RecordAudioViewModel @Inject constructor(
                 getAudioLengthInMs(dataPath = it.path.toPath(), mimeType = SUPPORTED_AUDIO_MIME_TYPE).toInt()
             } ?: 0
             val wavesMask = playableAudioFile?.let { audioNormalizedLoudnessBuilder(it.path) }?.toWavesMask() ?: listOf()
-            // a discard or a new recording cancels this job, and must not be overwritten by it
+            // a discard or another stopRecording cancels this job, and must not be overwritten by it
             ensureActive()
             state = state.copy(
                 buttonState = RecordAudioButtonState.READY_TO_SEND,

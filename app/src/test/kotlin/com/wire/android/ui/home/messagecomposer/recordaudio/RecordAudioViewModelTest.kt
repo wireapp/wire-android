@@ -41,10 +41,12 @@ import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
+import io.mockk.coVerifyOrder
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -326,6 +328,31 @@ class RecordAudioViewModelTest {
         }
 
     @Test
+    fun `given user is recording, when discarding the audio, then recorder is stopped before it is released`() =
+        runTest {
+            // given
+            val (arrangement, viewModel) = Arrangement()
+                .withFilterEnabled(false)
+                .withMaxFileSizeNeverReached()
+                .arrange()
+
+            viewModel.startRecording()
+
+            viewModel.actions.test {
+                // when
+                viewModel.discardRecording()
+
+                // then
+                assertEquals(RecordAudioViewActions.Discarded, awaitItem())
+                assertEquals(RecordAudioButtonState.ENABLED, viewModel.state.buttonState)
+                coVerifyOrder {
+                    arrangement.audioMediaRecorder.stop()
+                    arrangement.audioMediaRecorder.release()
+                }
+            }
+        }
+
+    @Test
     fun `given start recording succeeded, when recording audio, then recording screen is shown`() =
         runTest {
             // given
@@ -441,6 +468,10 @@ class RecordAudioViewModelTest {
 
         fun withStartRecordingSuccessful() = apply { every { audioMediaRecorder.startRecording() } returns true }
         fun withStartRecordingFailed() = apply { every { audioMediaRecorder.startRecording() } returns false }
+
+        fun withMaxFileSizeNeverReached() = apply {
+            every { audioMediaRecorder.getMaxFileSizeReached() } returns emptyFlow()
+        }
 
         fun withFilterEnabled(isEnabled: Boolean) = apply {
             every { globalDataStore.isRecordAudioEffectsCheckboxEnabled() } returns flowOf(isEnabled)

@@ -53,6 +53,7 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.withContext
 import okio.Path.Companion.toPath
 import java.io.File
 import java.io.IOException
@@ -193,14 +194,7 @@ class RecordAudioViewModel @Inject constructor(
     fun stopRecording() {
         audioFocusHelper.abandonExclusive()
         viewModelScope.launch(dispatchers.default()) {
-            stopRecorderMutex.withLock {
-                if (state.buttonState == RecordAudioButtonState.RECORDING) {
-                    appLogger.i("[$tag] -> Stopping audioMediaRecorder")
-                    audioMediaRecorder.stop()
-                }
-                appLogger.i("[$tag] -> Releasing audioMediaRecorder")
-                audioMediaRecorder.release()
-            }
+            stopAndReleaseRecorder()
 
             if (state.originalOutputFile != null) {
                 state = state.copy(
@@ -271,8 +265,20 @@ class RecordAudioViewModel @Inject constructor(
         )
     }
 
+    // stop() is a no-op when nothing is recording. Releasing without it leaves the writer loop running,
+    // and that loop then reads from the next recording's AudioRecord.
+    private suspend fun stopAndReleaseRecorder() = withContext(dispatchers.default()) {
+        stopRecorderMutex.withLock {
+            appLogger.i("[$tag] -> Stopping audioMediaRecorder")
+            audioMediaRecorder.stop()
+            appLogger.i("[$tag] -> Releasing audioMediaRecorder")
+            audioMediaRecorder.release()
+        }
+    }
+
     fun discardRecording() {
         viewModelScope.launch {
+            stopAndReleaseRecorder()
             state.originalOutputFile?.toPath()?.deleteIfExists()
             state.effectsOutputFile?.toPath()?.deleteIfExists()
             recordAudioMessagePlayer.stop()

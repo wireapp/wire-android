@@ -823,7 +823,7 @@ private fun com.wire.android.feature.cells.ui.formattedSize(): kotlin.String?
   params:
 
 @Composable
-internal fun com.wire.android.feature.cells.ui.imageviewer.CellImageViewerScreenContent(localPath: kotlin.String?, contentUrl: kotlin.String?, previewUrl: kotlin.String?, contentHash: kotlin.String?, fileName: kotlin.String?, onNavigateBack: kotlin.Function0<kotlin.Unit>, modifier: androidx.compose.ui.Modifier): kotlin.Unit
+internal fun com.wire.android.feature.cells.ui.imageviewer.CellImageViewerScreenContent(localPath: kotlin.String?, contentUrl: kotlin.String?, previewUrl: kotlin.String?, contentHash: kotlin.String?, fileName: kotlin.String?, sharedElementKey: kotlin.String?, onNavigateBack: kotlin.Function0<kotlin.Unit>, modifier: androidx.compose.ui.Modifier): kotlin.Unit
   skippable: true
   restartable: true
   params:
@@ -832,6 +832,7 @@ internal fun com.wire.android.feature.cells.ui.imageviewer.CellImageViewerScreen
     - previewUrl: STABLE (class with no mutable properties)
     - contentHash: STABLE (class with no mutable properties)
     - fileName: STABLE (class with no mutable properties)
+    - sharedElementKey: STABLE (class with no mutable properties)
     - onNavigateBack: STABLE (function type)
     - modifier: STABLE (marked @Stable or @Immutable)
 
@@ -846,6 +847,13 @@ public fun com.wire.android.feature.cells.ui.imageviewer.CellZoomableImage(local
     - contentHash: STABLE (class with no mutable properties)
     - contentDescription: STABLE (String is immutable)
     - modifier: STABLE (marked @Stable or @Immutable)
+
+@Composable
+internal fun com.wire.android.feature.cells.ui.imageviewer.cellImageViewerSharedElement(fileUuid: kotlin.String?): androidx.compose.ui.Modifier
+  skippable: false
+  restartable: false
+  params:
+    - fileUuid: STABLE (class with no mutable properties)
 
 @Composable
 internal fun com.wire.android.feature.cells.ui.moveToFolderViewModel(navArgs: com.wire.android.feature.cells.ui.movetofolder.MoveToFolderNavArgs): com.wire.android.feature.cells.ui.movetofolder.MoveToFolderViewModel

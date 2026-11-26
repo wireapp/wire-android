@@ -102,9 +102,16 @@ class AudioMediaRecorder @Inject constructor(
     }
 
     fun startRecording(): Boolean = try {
-        audioRecorder?.startRecording()
-        isRecording = true
-        recordingJob = scope.launch { writeAudioDataToFile() }
+        // A repeated start (double tap) keeps the running writer: a second one would split the audio of the shared AudioRecord.
+        if (recordingJob?.isActive != true) {
+            val recorder = audioRecorder
+            val outputPath = originalOutputPath
+            recorder?.startRecording()
+            isRecording = true
+            if (recorder != null && outputPath != null) {
+                recordingJob = scope.launch { writeAudioDataToFile(recorder, outputPath) }
+            }
+        }
         true
     } catch (e: IllegalStateException) {
         e.printStackTrace()
@@ -180,23 +187,23 @@ class AudioMediaRecorder @Inject constructor(
     }
 
     @Suppress("NestedBlockDepth")
-    private suspend fun writeAudioDataToFile() {
+    private suspend fun writeAudioDataToFile(recorder: AudioRecord, outputPath: Path) {
         withContext(dispatcherProvider.io()) {
             val data = ByteArray(BUFFER_SIZE)
 
             try {
-                kaliumFileSystem.sink(originalOutputPath!!).use { sink ->
+                kaliumFileSystem.sink(outputPath).use { sink ->
                     sink.buffer()
                         .use {
                             writeWavHeader(it, SAMPLING_RATE, AUDIO_CHANNELS, BITS_PER_SAMPLE)
                             while (isRecording && isActive) {
-                                val read = audioRecorder?.read(data, 0, BUFFER_SIZE) ?: 0
+                                val read = recorder.read(data, 0, BUFFER_SIZE)
                                 if (read > 0) {
                                     it.write(data, 0, read)
                                 }
 
                                 // Check if the file size exceeds the limit
-                                val currentSize = originalOutputPath!!.toFile().length()
+                                val currentSize = outputPath.toFile().length()
                                 if (currentSize > (assetLimitInMB * SIZE_OF_1MB)) {
                                     isRecording = false
                                     _maxFileSizeReached.emit(
@@ -209,7 +216,7 @@ class AudioMediaRecorder @Inject constructor(
                             }
                         }
                 }
-                updateWavHeader(originalOutputPath!!)
+                updateWavHeader(outputPath)
             } catch (e: IOException) {
                 e.printStackTrace()
                 appLogger.e("[RecordAudio] writeAudioDataToFile: IOException - ${e.message}")

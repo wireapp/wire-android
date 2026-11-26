@@ -51,6 +51,7 @@ import org.robolectric.annotation.Config
 import java.io.File
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
+import java.util.concurrent.CountDownLatch
 import java.util.concurrent.CyclicBarrier
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
@@ -148,6 +149,48 @@ class AudioMediaRecorderTest {
     }
 
     @Test
+    fun givenStartDuringStop_whenStoppedAgain_thenStopWaitsForTheNewWriter() = runBlocking {
+        val firstReadEntered = CountDownLatch(1)
+        val firstGate = CountDownLatch(1)
+        val secondReadEntered = CountDownLatch(1)
+        val secondGate = CountDownLatch(1)
+        val reads = AtomicInteger()
+        every { anyConstructed<AudioRecord>().read(any<ByteArray>(), any(), any()) } answers {
+            when (reads.incrementAndGet()) {
+                1 -> {
+                    firstReadEntered.countDown()
+                    firstGate.await()
+                }
+                2 -> {
+                    secondReadEntered.countDown()
+                    secondGate.await()
+                }
+                else -> Thread.sleep(READ_DURATION_MS)
+            }
+            thirdArg<Int>()
+        }
+        val recorder = createRecorder()
+        recorder.setUp(assetLimitInMegabyte = 10)
+
+        recorder.startRecording()
+        firstReadEntered.await()
+        val firstStop = launch(Dispatchers.IO) { recorder.stop() }
+        delay(STOP_SETTLE_MS) // firstStop is now suspended in join on the blocked writer
+        recorder.startRecording() // the old writer is cancelled but still running, so this starts a second one
+        secondReadEntered.await()
+        firstGate.countDown()
+        withTimeout(STOP_TIMEOUT_MS) { firstStop.join() }
+
+        val secondStop = launch(Dispatchers.IO) { recorder.stop() }
+        delay(STOP_SETTLE_MS)
+        val returnedBeforeWriterExited = secondStop.isCompleted
+        secondGate.countDown()
+        withTimeout(STOP_TIMEOUT_MS) { secondStop.join() }
+
+        assertFalse(returnedBeforeWriterExited, "stop() returned without joining the writer started during the previous stop")
+    }
+
+    @Test
     fun givenSizeLimitReachedWhileTheEventCollectorIsBlocked_whenStopped_thenWavHeaderSizesMatchTheFileSize() = runBlocking {
         val recorder = createRecorder()
         recorder.setUp(assetLimitInMegabyte = 0)
@@ -158,7 +201,8 @@ class AudioMediaRecorderTest {
         }
         val blockedCollector = launch(start = CoroutineStart.UNDISPATCHED) { recorder.getMaxFileSizeReached().collect { } }
         recorder.startRecording()
-        // Blocking waits keep this thread busy, so the blocked collector cannot resume until stop() cancels the writer.
+        // Proves only that the header is written on the size-limit exit path: the writer leaves its loop on the limit,
+        // and the blocked collector may resume once stop() suspends in join.
         limitFired.asCompletableFuture().get(STOP_TIMEOUT_MS, TimeUnit.MILLISECONDS)
         withTimeout(STOP_TIMEOUT_MS) { recorder.stop() }
         probe.cancel()
@@ -212,6 +256,7 @@ class AudioMediaRecorderTest {
         const val READ_DURATION_MS = 5L
         const val RECORD_DURATION_MS = 300L
         const val STOP_TIMEOUT_MS = 5_000L
+        const val STOP_SETTLE_MS = 100L
         const val CONCURRENT_START_ITERATIONS = 30
         const val CONCURRENT_START_RECORD_MS = 20L
     }

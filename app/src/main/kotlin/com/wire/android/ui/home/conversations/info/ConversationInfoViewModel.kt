@@ -39,6 +39,7 @@ import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.client.IsWireCellsEnabledUseCase
+import com.wire.kalium.logic.feature.conversation.IsSelfUserViewerOnConversationUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.createconversation.ConversationCreationResult
 import com.wire.kalium.logic.feature.conversation.createconversation.CreateRegularGroupUseCase
@@ -59,6 +60,7 @@ class ConversationInfoViewModel @AssistedInject constructor(
     private val createRegularGroup: CreateRegularGroupUseCase,
     private val fetchConversationMLSVerificationStatus: FetchConversationMLSVerificationStatusUseCase,
     private val isWireCellFeatureEnabled: IsWireCellsEnabledUseCase,
+    private val isSelfUserViewerOnConversation: IsSelfUserViewerOnConversationUseCase,
     @Named("driveOffboardingEnabled") private val driveOffboardingEnabled: Boolean,
     @CurrentAccount private val selfUserId: UserId,
     @Assisted navigationArgs: ConversationNavArgs,
@@ -140,7 +142,10 @@ class ConversationInfoViewModel @AssistedInject constructor(
         val detailsData = getConversationDetailsData(conversationDetails)
         val isDriveConversation = (conversationDetails as? ConversationDetails.Group)?.wireCell != null
         val isDriveFeatureEnabled = isWireCellFeatureEnabled()
-        val isDriveOffboarded = driveOffboardingEnabled && isDriveConversation && !isDriveFeatureEnabled
+        // The use case returns false for a guest, i.e. a user outside the team that owns the drive conversation.
+        // The self team's Drive state is irrelevant to them, so they never see the offboarding banner.
+        val isDriveOffboarded = driveOffboardingEnabled && isDriveConversation && !isDriveFeatureEnabled &&
+                isSelfUserViewerOnConversation(conversationId)
 
         conversationInfoViewState = conversationInfoViewState.copy(
             conversationName = getConversationName(conversationDetails, isConversationUnavailable),

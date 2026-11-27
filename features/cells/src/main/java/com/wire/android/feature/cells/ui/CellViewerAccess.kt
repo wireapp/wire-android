@@ -38,16 +38,27 @@ class CellViewerAccess @Inject constructor(
      */
     @Suppress("ReturnCount")
     suspend fun isViewerOnly(context: CellScreenContext): Boolean {
-        if (isDriveOffboarded(context)) return true
+        if (isTeamDriveOffboarded(context)) return true
         val conversationId = context.rootConversationId
             ?.takeIf { featureFlags.drivePermissionsEnabled && context.isConversationFiles }
         return conversationId != null &&
                 !isSelfUserViewerOnConversation(qualifiedIdMapper.fromStringToQualifiedID(conversationId))
     }
 
+    /**
+     * Whether to show the offboarding banner: the files belong to a drive conversation of the self user's own team,
+     * which no longer has Drive. A guest is still restricted by [isViewerOnly], but sees the viewer access banner instead.
+     */
+    suspend fun isDriveOffboarded(context: CellScreenContext): Boolean {
+        if (!isTeamDriveOffboarded(context)) return false
+        val conversationId = context.rootConversationId ?: return false
+        // The use case returns false for a guest, whose own team's Drive state doesn't apply to this conversation.
+        return isSelfUserViewerOnConversation(qualifiedIdMapper.fromStringToQualifiedID(conversationId))
+    }
+
     /** Whether the files shown belong to a drive conversation of a team that no longer has Drive. */
     @Suppress("ReturnCount")
-    suspend fun isDriveOffboarded(context: CellScreenContext): Boolean {
+    private suspend fun isTeamDriveOffboarded(context: CellScreenContext): Boolean {
         if (!featureFlags.driveOffboardingEnabled) return false
         val conversationId = context.rootConversationId?.takeIf { context.isConversationFiles } ?: return false
         return !isWireCellsEnabled() &&

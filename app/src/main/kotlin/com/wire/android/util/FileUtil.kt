@@ -489,14 +489,23 @@ suspend fun Context.getDependenciesVersion(): Map<String, String?> = withContext
     }
 }
 
+@Suppress("TooGenericExceptionCaught") // setDataSource throws a bare RuntimeException
 fun getAudioLengthInMs(dataPath: Path, mimeType: String): Long =
     if (isAudioMimeType(mimeType)) {
         val retriever = MediaMetadataRetriever()
-        retriever.setDataSource(dataPath.toFile().absolutePath)
-        val rawDuration = retriever
-            .extractMetadata(METADATA_KEY_DURATION)
-            ?.toLong() ?: 0L
-        rawDuration.milliseconds.inWholeMilliseconds
+        try {
+            retriever.setDataSource(dataPath.toFile().absolutePath)
+            val rawDuration = retriever
+                .extractMetadata(METADATA_KEY_DURATION)
+                ?.toLong() ?: 0L
+            rawDuration.milliseconds.inWholeMilliseconds
+        } catch (e: RuntimeException) {
+            // Unreadable or empty file, e.g. a recording cut short by a dead audioserver.
+            appLogger.e("Could not read audio length, using 0: ${e.message}")
+            0L
+        } finally {
+            retriever.release()
+        }
     } else {
         0L
     }

@@ -28,6 +28,7 @@ import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.client.IsWireCellsEnabledUseCase
+import com.wire.kalium.logic.feature.conversation.IsSelfUserViewerOnConversationUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.createconversation.ConversationCreationResult
 import com.wire.kalium.logic.feature.conversation.createconversation.CreateRegularGroupUseCase
@@ -62,6 +63,9 @@ class ConversationInfoViewModelArrangement {
     @MockK
     lateinit var isCellsEnabled: IsWireCellsEnabledUseCase
 
+    @MockK
+    lateinit var isSelfUserViewerOnConversation: IsSelfUserViewerOnConversationUseCase
+
     private val viewModel: ConversationInfoViewModel by lazy {
         ConversationInfoViewModel(
             qualifiedIdMapper = qualifiedIdMapper,
@@ -71,6 +75,7 @@ class ConversationInfoViewModelArrangement {
             fetchConversationMLSVerificationStatus = fetchConversationMLSVerificationStatus,
             selfUserId = TestUser.SELF_USER_ID,
             isWireCellFeatureEnabled = isCellsEnabled,
+            isSelfUserViewerOnConversation = isSelfUserViewerOnConversation,
             driveOffboardingEnabled = true,
         )
     }
@@ -87,6 +92,7 @@ class ConversationInfoViewModelArrangement {
         }
         coEvery { fetchConversationMLSVerificationStatus.invoke(any()) } returns Unit
         coEvery { isCellsEnabled() } returns false
+        coEvery { isSelfUserViewerOnConversation(any()) } returns true
         coEvery { createRegularGroup.retryPendingMLSGroupCreation(any()) } returns ConversationCreationResult.SyncFailure
     }
 

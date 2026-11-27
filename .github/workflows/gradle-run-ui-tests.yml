@@ -13,7 +13,7 @@ permissions:
 jobs:
   ui-tests:
     # Expose /dev/kvm for hardware-accelerated Android emulator tests.
-    runs-on: "warp-ubuntu-2404-x64-8x;nested-virtualization.enabled=true"
+    runs-on: "warp-ubuntu-2404-x64-16x;nested-virtualization.enabled=true"
     timeout-minutes: 60
     env:
       # 37.2.12 passed CI; 37.2.13 disconnects during instrumentation tests.

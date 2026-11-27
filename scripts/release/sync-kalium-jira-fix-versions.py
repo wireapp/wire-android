@@ -8,6 +8,7 @@ import json
 import os
 from pathlib import Path
 import re
+import ssl
 import subprocess
 import sys
 
@@ -85,7 +86,9 @@ def jira_request(issue, authorization, update=None):
         body = json.dumps(update).encode()
         headers["Content-Type"] = "application/json"
 
-    with closing(HTTPSConnection(JIRA_HOST, timeout=30)) as connection:
+    tls_context = ssl.create_default_context()
+    tls_context.set_alpn_protocols(["http/1.1"])
+    with closing(HTTPSConnection(JIRA_HOST, timeout=30, context=tls_context)) as connection:
         connection.request(method, path, body=body, headers=headers)
         with connection.getresponse() as response:
             if not 200 <= response.status < 300:

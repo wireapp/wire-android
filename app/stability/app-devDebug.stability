@@ -11988,31 +11988,44 @@ private fun com.wire.android.ui.userprofile.other.unverifiedDescriptionResource(
     - connectionStatus: STABLE (class with no mutable properties)
 
 @Composable
-private fun com.wire.android.ui.userprofile.qr.SelfQRCodeContent(state: com.wire.android.ui.userprofile.qr.SelfQRCodeState, shareQRAssetClick: kotlin.coroutines.SuspendFunction1<android.graphics.Bitmap, android.net.Uri>, trackAnalyticsEvent: kotlin.Function1<com.wire.android.feature.analytics.model.AnalyticsEvent.QrCode.Modal, kotlin.Unit>, onBackClick: kotlin.Function0<kotlin.Unit>): kotlin.Unit
+private fun com.wire.android.ui.userprofile.qr.QrShareOptionsDialog(onDismiss: kotlin.Function0<kotlin.Unit>, onShareViaWire: kotlin.Function0<kotlin.Unit>, onShareExternally: kotlin.Function0<kotlin.Unit>): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - onDismiss: STABLE (function type)
+    - onShareViaWire: STABLE (function type)
+    - onShareExternally: STABLE (function type)
+
+@Composable
+private fun com.wire.android.ui.userprofile.qr.SelfQRCodeContent(state: com.wire.android.ui.userprofile.qr.SelfQRCodeState, shareQRAssetClick: kotlin.coroutines.SuspendFunction1<android.graphics.Bitmap, android.net.Uri>, trackAnalyticsEvent: kotlin.Function1<com.wire.android.feature.analytics.model.AnalyticsEvent.QrCode.Modal, kotlin.Unit>, onShareProfileLink: kotlin.Function1<kotlin.String, kotlin.Unit>, onShareQrViaWire: kotlin.Function1<android.net.Uri, kotlin.Unit>, onBackClick: kotlin.Function0<kotlin.Unit>): kotlin.Unit
   skippable: true
   restartable: true
   params:
     - state: STABLE (class with no mutable properties)
     - shareQRAssetClick: UNKNOWN (interface or non-final class; concrete implementation unknown)
     - trackAnalyticsEvent: STABLE (function type)
+    - onShareProfileLink: STABLE (function type)
+    - onShareQrViaWire: STABLE (function type)
     - onBackClick: STABLE (function type)
 
 @Composable
-internal fun com.wire.android.ui.userprofile.qr.SelfQRCodeScreen(viewModel: com.wire.android.ui.userprofile.qr.SelfQRCodeViewModel, onNavigateBack: kotlin.Function0<kotlin.Unit>): kotlin.Unit
+internal fun com.wire.android.ui.userprofile.qr.SelfQRCodeScreen(viewModel: com.wire.android.ui.userprofile.qr.SelfQRCodeViewModel, onShareProfileLink: kotlin.Function1<kotlin.String, kotlin.Unit>, onShareQrViaWire: kotlin.Function1<android.net.Uri, kotlin.Unit>, onNavigateBack: kotlin.Function0<kotlin.Unit>): kotlin.Unit
   skippable: true
   restartable: true
   params:
     - viewModel: UNSTABLE (has mutable properties or unstable members)
+    - onShareProfileLink: STABLE (function type)
+    - onShareQrViaWire: STABLE (function type)
     - onNavigateBack: STABLE (function type)
 
 @Composable
-private fun com.wire.android.ui.userprofile.qr.ShareLinkButton(isTeamMember: kotlin.Boolean, selfProfileUrl: kotlin.String, trackAnalyticsEvent: kotlin.Function1<com.wire.android.feature.analytics.model.AnalyticsEvent.QrCode.Modal, kotlin.Unit>): kotlin.Unit
+private fun com.wire.android.ui.userprofile.qr.ShareLinkButton(isTeamMember: kotlin.Boolean, trackAnalyticsEvent: kotlin.Function1<com.wire.android.feature.analytics.model.AnalyticsEvent.QrCode.Modal, kotlin.Unit>, onShareProfileLink: kotlin.Function0<kotlin.Unit>): kotlin.Unit
   skippable: true
   restartable: true
   params:
     - isTeamMember: STABLE (primitive type)
-    - selfProfileUrl: STABLE (String is immutable)
     - trackAnalyticsEvent: STABLE (function type)
+    - onShareProfileLink: STABLE (function type)
 
 @Composable
 public fun com.wire.android.ui.userprofile.qr.ShareQRCodeButton(shareQRAssetClick: kotlin.Function0<kotlin.Unit>): kotlin.Unit

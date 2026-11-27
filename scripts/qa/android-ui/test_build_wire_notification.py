@@ -50,6 +50,16 @@ class BuildWireNotificationTest(unittest.TestCase):
         self.assertTrue(body.startswith("✅ android critical flows #123"))
         self.assertIn("Failed: 0,", body)
 
+    def test_reports_publication_failure_even_when_all_tests_pass(self) -> None:
+        with patch.dict(os.environ, {
+            "REPORT_TITLE": "android tests", "REPORT_PUBLICATION_OUTCOME": "failure",
+            "TESTS_FAILED": "0", "TESTS_TOTAL": "14",
+        }, clear=True):
+            body = build_body()
+        self.assertTrue(body.startswith("❌"))
+        self.assertIn("Allure report publication failed", body)
+        self.assertIn("Failed: 0,", body)
+
     def test_rejects_missing_or_blank_title(self) -> None:
         for title in (None, "", " \t\n "):
             with self.subTest(title=title):

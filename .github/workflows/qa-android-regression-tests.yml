@@ -757,6 +757,8 @@ jobs:
           RUN_NUMBER: ${{ github.run_number }}
           RESOLVED_TAGS: ${{ needs.validate-and-resolve-inputs.outputs.resolvedTags }}
           APK_NAME: ${{ env.NEW_APK_NAME }}
+          REPORT_PUBLICATION_OUTCOME: ${{ steps.publish_allure_report.outcome }}
+          PRIVATE_EVIDENCE_URL: ${{ steps.publish_allure_report.outputs.private_evidence_url }}
           ALLURE_REPORT_URL: ${{ steps.publish_allure_report.outputs.allure_report_url }}
           TESTS_PASSED: ${{ steps.summarize_allure_results.outputs.passed }}
           TESTS_FAILED: ${{ steps.summarize_allure_results.outputs.failed }}
@@ -1218,6 +1220,8 @@ jobs:
           RUN_NUMBER: ${{ github.run_number }}
           RESOLVED_TAGS: ${{ steps.validate_deflake_input.outputs.tags }}
           APK_NAME: ${{ env.NEW_APK_NAME }}
+          REPORT_PUBLICATION_OUTCOME: ${{ steps.publish_allure_report.outcome }}
+          PRIVATE_EVIDENCE_URL: ${{ steps.publish_allure_report.outputs.private_evidence_url }}
           ALLURE_REPORT_URL: ${{ steps.publish_allure_report.outputs.allure_report_url }}
           TESTS_SELECTED: ${{ steps.summarize_allure_results.outputs.selected }}
           TESTS_MISSING: ${{ steps.summarize_allure_results.outputs.missing }}

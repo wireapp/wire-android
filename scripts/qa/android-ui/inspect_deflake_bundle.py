@@ -174,7 +174,6 @@ write_output("effectiveTestinyRunName", effective_testiny_run_name)
 # shows its selected-run context without opening the artifact contents manually.
 summary_lines = [
     "### Manual Deflake Input",
-    f"- Test Service URL: `{test_service_url}`",
     f"- selected workflow name: {metadata['source_workflow_name']}",
     f"- selected workflow file: `{metadata['source_workflow_file']}`",
     f"- selected run id: {metadata['source_run_id']}",

@@ -23,6 +23,7 @@ git -C private-reports -c "user.name=${BOT_LOGIN}" \
 git -C private-reports -c credential.helper= \
   -c 'credential.helper=!gh auth git-credential' \
   push --quiet origin "reports/${report_id}"
+echo "private_evidence_url=https://github.com/${REPORTING_REPOSITORY}/tree/reports/${report_id}/incoming" >> "$GITHUB_OUTPUT"
 
 run_id=$(gh api --method POST -H 'X-GitHub-Api-Version: 2022-11-28' \
   "repos/${REPORTING_REPOSITORY}/actions/workflows/publish-android-report.yml/dispatches" \
@@ -35,8 +36,21 @@ fi
 private_run="https://github.com/${REPORTING_REPOSITORY}/actions/runs/${run_id}"
 echo "Private reporting workflow: ${private_run}" >> "$GITHUB_STEP_SUMMARY"
 # Keep receiver diagnostics out of the public Android console.
-if ! gh run watch "$run_id" -R "$REPORTING_REPOSITORY" --exit-status \
+if ! python3 scripts/qa/android-ui/wait_private_report.py "$REPORTING_REPOSITORY" "$run_id" \
     > "$RUNNER_TEMP/private-report-watch.log" 2>&1; then
+  # Preserve failure diagnostics privately before the runner's normal cleanup.
+  if (
+    cp "$RUNNER_TEMP/private-report-watch.log" private-reports/incoming/private-report-watch.log &&
+    git -C private-reports add incoming/private-report-watch.log &&
+    git -C private-reports -c "user.name=${BOT_LOGIN}" -c "user.email=${BOT_ID}+${BOT_LOGIN}@users.noreply.github.com" \
+      commit --quiet -m "ci: retain publisher diagnostics ${report_id}" &&
+    git -C private-reports -c credential.helper= -c 'credential.helper=!gh auth git-credential' \
+      push --quiet origin "reports/${report_id}"
+  ) > /dev/null 2>&1; then
+    echo "Failure diagnostics: https://github.com/${REPORTING_REPOSITORY}/blob/reports/${report_id}/incoming/private-report-watch.log" >> "$GITHUB_STEP_SUMMARY"
+  else
+    echo "::warning::Failed to preserve private publication diagnostics."
+  fi
   echo "::error::Private reporting did not succeed. Open the private reporting workflow for details."
   echo "Private report NOT published; see the private reporting workflow above." >> "$GITHUB_STEP_SUMMARY"
   exit 1

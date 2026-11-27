@@ -27,6 +27,8 @@ def resolve_status_icon() -> str:
     job_status = env("JOB_STATUS")
     if job_status == "cancelled":
         return "⚪"
+    if env("REPORT_PUBLICATION_OUTCOME") == "failure":
+        return "❌"
     if env("EMULATOR_CHECK_FAILED") == "true":
         return "❌"
 
@@ -125,6 +127,13 @@ def build_body() -> str:
         lines.append(
             f"See Allure Reports: [open report]({safe_allure_report_url})"
         )
+
+    elif env("REPORT_PUBLICATION_OUTCOME") == "failure":
+        lines.append("Allure report publication failed. See the GitHub run summary for publisher details.")
+
+    if env("PRIVATE_EVIDENCE_URL"):
+        evidence_url = escape_url_for_markdown(env("PRIVATE_EVIDENCE_URL"))
+        lines.append(f"Private evidence: [open repository]({evidence_url})")
 
     if env("RUN_MODE") == "deflake":
         result = (f"Tests selected: {env('TESTS_SELECTED') or '0'}, "

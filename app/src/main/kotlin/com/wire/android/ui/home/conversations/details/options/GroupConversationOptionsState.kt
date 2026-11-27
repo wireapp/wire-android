@@ -69,6 +69,7 @@ data class GroupConversationOptionsState(
     val loadingWireCellState: Boolean = false,
     val isWireCellFeatureEnabled: Boolean = false,
     val isWireCellEnabled: Boolean = false,
+    val isSelfUserViewerOnly: Boolean = false,
     val isSelfPartOfATeam: Boolean = false,
     val canSelfAddParticipants: Boolean = false,
     val canManuallyMigrateToMLS: Boolean = false,

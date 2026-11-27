@@ -26,6 +26,7 @@ import com.wire.android.ui.home.conversations.details.EditConversationNameRoute
 import com.wire.android.ui.home.conversations.details.EditGuestAccessRoute
 import com.wire.android.ui.home.conversations.details.EditSelfDeletingMessagesRoute
 import com.wire.android.ui.home.conversations.details.GroupConversationDetailsRoute
+import com.wire.android.ui.home.conversations.details.SharedDrivePermissionsRoute
 import com.wire.android.ui.home.conversations.details.UpdateAppsAccessRoute
 import com.wire.android.ui.home.settings.ChangeDisplayNameRoute
 import com.wire.android.ui.home.settings.ChangeEmailRoute
@@ -51,6 +52,7 @@ internal val wireNavigation3TabletDialogRouteTypes: Set<KClass<out WireRoute>> =
         ChangeEmailRoute::class,
         AvatarPickerRoute::class,
         GroupConversationDetailsRoute::class,
+        SharedDrivePermissionsRoute::class,
         EditConversationNameRoute::class,
         EditGuestAccessRoute::class,
         UpdateAppsAccessRoute::class,

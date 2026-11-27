@@ -35,6 +35,7 @@ class ConversationDetailsNavigation3SourceTest {
             "EditConversationNameRoute",
             "EditSelfDeletingMessagesRoute",
             "GroupConversationAllParticipantsRoute",
+            "SharedDrivePermissionsRoute",
             "UpdateAppsAccessRoute",
             "ChannelAccessOnUpdateRoute",
             "EditGuestAccessRoute",

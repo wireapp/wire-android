@@ -70,7 +70,9 @@ fun ConversationParticipantItem(
     clickable: Clickable,
     modifier: Modifier = Modifier,
     searchQuery: String = String.EMPTY,
-    showRightArrow: Boolean = true
+    showRightArrow: Boolean = true,
+    trailingContent: (@Composable () -> Unit)? = null,
+    showVerificationLabels: Boolean = true,
 ) {
     RowItemTemplate(
         modifier = modifier,
@@ -112,9 +114,9 @@ fun ConversationParticipantItem(
                     isDeleted = uiParticipant.isDeleted
                 )
 
-                if (uiParticipant.isMLSVerified) MLSVerifiedIcon()
-                if (uiParticipant.isProteusVerified) ProteusVerifiedIcon()
-                if (BuildConfig.DEVELOPER_FEATURES_ENABLED) {
+                if (showVerificationLabels && uiParticipant.isMLSVerified) MLSVerifiedIcon()
+                if (showVerificationLabels && uiParticipant.isProteusVerified) ProteusVerifiedIcon()
+                if (showVerificationLabels && BuildConfig.DEVELOPER_FEATURES_ENABLED) {
                     uiParticipant.supportedProtocolList.map {
                         ProtocolLabel(
                             protocolName = it.name,
@@ -143,7 +145,15 @@ fun ConversationParticipantItem(
             )
         },
         actions = {
-            if (showRightArrow) {
+            if (trailingContent != null) {
+                Box(
+                    modifier = Modifier
+                        .wrapContentWidth()
+                        .padding(end = MaterialTheme.wireDimensions.spacing8x)
+                ) {
+                    trailingContent()
+                }
+            } else if (showRightArrow) {
                 Box(
                     modifier = Modifier
                         .wrapContentWidth()

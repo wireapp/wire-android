@@ -82,6 +82,20 @@ data class GroupConversationAllParticipantsRoute(
 }
 
 @Serializable
+data class SharedDrivePermissionsRoute(
+    override val sessionId: WireSessionId,
+    override val conversationId: ConversationDetailsId,
+    val isSelfUserViewerOnly: Boolean,
+    override val entryId: WireNavEntryId = WireNavEntryId.random(),
+) : ConversationDetailsRoute {
+    override val routeId = ROUTE_ID
+
+    companion object {
+        const val ROUTE_ID = "app/shared_drive_permissions_screen"
+    }
+}
+
+@Serializable
 data class UpdateAppsAccessRoute(
     override val sessionId: WireSessionId,
     override val conversationId: ConversationDetailsId,

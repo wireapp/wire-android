@@ -1981,6 +1981,15 @@ In group conversations, the group admin can overwrite this setting.</string>
     <string name="profile_deeplink_feature_unavailable_title_alert">This feature is not available. Please contact your administrator.</string>
     <string name="conversation_options_shared_drive_label">Shared Drive</string>
     <string name="conversation_options_shared_drive_description">Permanently on for this conversation.</string>
+    <string name="shared_drive_permissions_title">Shared Drive</string>
+    <string name="shared_drive_permissions_editor_access">Editor access</string>
+    <string name="shared_drive_permissions_viewer_access">Viewer access</string>
+    <string name="shared_drive_permissions_access_header">Shared drive access</string>
+    <string name="shared_drive_permissions_editors_description">Editors can access all files feature.</string>
+    <string name="shared_drive_permissions_viewers_description">Viewers can only see files, they can’t upload, edit, manage files and folders.</string>
+    <string name="shared_drive_permissions_external_description">People outside of the team that created the conversation are Viewers by default.</string>
+    <string name="shared_drive_permissions_editor">Editor</string>
+    <string name="shared_drive_permissions_viewer">Viewer</string>
     <plurals name="reply_multiple_files">
         <item quantity="one">%1$d file</item>
         <item quantity="other">%1$d files</item>

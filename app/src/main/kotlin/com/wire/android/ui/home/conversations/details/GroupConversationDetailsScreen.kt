@@ -178,6 +178,7 @@ internal fun GroupConversationDetailsRouteScreen(
         },
         onEditSelfDeletingMessages = actions.onEditSelfDeletingMessages,
         onEditGroupName = actions.onEditGroupName,
+        onSharedDriveClicked = { actions.onSharedDriveClicked(groupOptions.isSelfUserViewerOnly) },
         isWireCellEnabled = groupOptions.isWireCellEnabled,
         onSearchConversationMessagesClick = {
             actions.onSearchConversationMessages(
@@ -216,6 +217,7 @@ internal data class GroupConversationDetailsRouteScreenActions(
     val onChannelAccess: (ChannelAccessType, ChannelAddPermissionType) -> Unit,
     val onEditSelfDeletingMessages: () -> Unit,
     val onEditGroupName: () -> Unit,
+    val onSharedDriveClicked: (Boolean) -> Unit,
     val onSearchConversationMessages: (Boolean, String) -> Unit,
     val onConversationMedia: (Boolean, String) -> Unit,
     val onMoveToFolder: (ConversationFoldersNavArgs, onMessage: (String) -> Unit) -> Unit,
@@ -244,6 +246,7 @@ private fun GroupConversationDetailsContent(
     isWireCellEnabled: Boolean,
     onSearchConversationMessagesClick: () -> Unit,
     onConversationMediaClick: () -> Unit,
+    onSharedDriveClicked: () -> Unit = {},
     viewModel: GroupConversationDetailsViewModel? = null,
     onMoveToFolder: (ConversationFoldersNavArgs) -> Unit = {},
     onLeftConversation: () -> Unit = {},
@@ -251,7 +254,7 @@ private fun GroupConversationDetailsContent(
     onPromoteAdmin: (ConversationId, List<UserId>) -> Unit = { _, _ -> },
     openConversationDebugMenu: (ConversationId) -> Unit = {},
     initialPageIndex: GroupConversationDetailsTabItem = GroupConversationDetailsTabItem.OPTIONS,
-    isScreenLoading: StateFlow<Boolean> = MutableStateFlow(false),
+    isScreenLoading: StateFlow<Boolean> = MutableStateFlow(false)
 ) {
     val scope = rememberCoroutineScope()
     val lazyListStates: List<LazyListState> = GroupConversationDetailsTabItem.entries.map { rememberLazyListState() }
@@ -411,7 +414,8 @@ private fun GroupConversationDetailsContent(
                             viewModel = requireNotNull(viewModel) {
                                 "GroupConversationDetailsContent requires GroupConversationDetailsViewModel outside preview"
                             },
-                            onEditGroupName = onEditGroupName
+                            onEditGroupName = onEditGroupName,
+                            onSharedDriveClicked = { onSharedDriveClicked() },
                         )
 
                         GroupConversationDetailsTabItem.PARTICIPANTS -> GroupConversationParticipants(

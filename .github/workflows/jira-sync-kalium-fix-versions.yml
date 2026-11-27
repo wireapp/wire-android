@@ -1,0 +1,36 @@
+name: Assign Android fix versions to Kalium tickets
+
+on:
+  push:
+    branches:
+      - develop
+      - main
+      - 'release/**'
+    paths:
+      - kalium
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  sync-fix-versions:
+    if: github.repository == 'wireapp/wire-android' && !github.event.created && !github.event.deleted
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Android at the updated ref
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: ${{ github.event.after }}
+
+      - name: Fetch the previous Android commit
+        env:
+          BEFORE_SHA: ${{ github.event.before }}
+        run: git fetch --no-tags --depth=1 origin "$BEFORE_SHA"
+
+      - name: Assign the Android fix version
+        env:
+          BEFORE_SHA: ${{ github.event.before }}
+          GH_TOKEN: ${{ github.token }}
+          JIRA_TOKEN: ${{ secrets.JIRA_TOKEN }}
+        run: python3 scripts/release/sync-kalium-jira-fix-versions.py "$BEFORE_SHA"

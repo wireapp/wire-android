@@ -21,7 +21,18 @@ jobs:
         env:
           REPO: ${{ github.repository }}
           BRANCH: ${{ github.head_ref || github.ref_name }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          CHANGED_FILES: ${{ github.event.pull_request.changed_files }}
+          GH_TOKEN: ${{ github.token }}
         run: |
+          if [[ "$CHANGED_FILES" == 1 ]]; then
+            FILES=$(gh api "repos/$REPO/pulls/$PR_NUMBER/files?per_page=2" --jq '.[].filename')
+            if [[ "$FILES" == kalium ]]; then
+              echo "Android assigns fix versions after a Kalium ref update lands."
+              exit 0
+            fi
+          fi
+
           VERSION=$(curl -s "https://raw.githubusercontent.com/${REPO}/${BRANCH}/build-logic/plugins/src/main/kotlin/AndroidCoordinates.kt" | grep 'const val versionName' | sed -E 's/.*"([^"]+)".*/\1/')
           echo "version_name=$VERSION" >> "$GITHUB_OUTPUT"
 

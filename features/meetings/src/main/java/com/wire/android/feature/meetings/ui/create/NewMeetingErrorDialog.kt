@@ -19,6 +19,9 @@ package com.wire.android.feature.meetings.ui.create
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
+import com.wire.android.model.Contact
+import com.wire.kalium.logic.feature.meeting.MeetingSaveWarning
 import com.wire.android.feature.meetings.R
 import com.wire.android.feature.meetings.ui.util.PreviewMultipleThemes
 import com.wire.android.ui.common.WireDialog
@@ -35,32 +38,22 @@ fun NewMeetingErrorDialog(
     type: NewMeetingType,
     isSubmitting: Boolean,
     onDismiss: () -> Unit,
-    onRetryUpdateConversationName: (conversationId: ConversationId) -> Unit
+    onRetryUpdateConversationName: (conversationId: ConversationId) -> Unit,
+    contacts: List<Contact> = emptyList(),
 ) {
-    // TODO: specific errors to be handled later, for now we just show single generic one
-    val (titleResId, descriptionResId) = when (error) {
-        is NewMeetingState.SubmitError.UpdateConversationNameFailure ->
-            R.string.new_meeting_edit_conversation_name_failure_title to R.string.new_meeting_edit_conversation_name_failure_description
-
-        is NewMeetingState.SubmitError.Other -> when (type) {
-            NewMeetingType.MeetNow -> R.string.new_meeting_now_failure_title to R.string.new_meeting_now_failure_description
-            NewMeetingType.Schedule -> R.string.new_meeting_schedule_failure_title to R.string.new_meeting_schedule_failure_description
-            is NewMeetingType.Edit -> R.string.new_meeting_edit_failure_title to R.string.new_meeting_edit_failure_description
-        }
+    val (titleResId, descriptionResId) = error.resources(type)
+    val warning = (error as? NewMeetingState.SubmitError.Saved)?.warning
+    val details = when (warning) {
+        is MeetingSaveWarning.AddParticipantsFailed -> meetingParticipantFailureText(warning.participants, contacts)
+        else -> AnnotatedString("")
     }
 
     WireDialog(
         title = stringResource(titleResId),
-        text = stringResource(descriptionResId),
+        text = AnnotatedString(stringResource(descriptionResId)) + details,
         onDismiss = onDismiss,
         buttonsHorizontalAlignment = false,
         optionButton1Properties = when (error) {
-            is NewMeetingState.SubmitError.Other -> WireDialogButtonProperties(
-                onClick = onDismiss,
-                text = stringResource(commonR.string.label_ok),
-                type = WireDialogButtonType.Primary,
-            )
-
             is NewMeetingState.SubmitError.UpdateConversationNameFailure -> WireDialogButtonProperties(
                 onClick = {
                     onRetryUpdateConversationName(error.conversationId)
@@ -69,6 +62,12 @@ fun NewMeetingErrorDialog(
                 type = WireDialogButtonType.Primary,
                 state = if (isSubmitting) WireButtonState.Disabled else WireButtonState.Default,
                 loading = isSubmitting,
+            )
+
+            else -> WireDialogButtonProperties(
+                onClick = onDismiss,
+                text = stringResource(commonR.string.label_ok),
+                type = WireDialogButtonType.Primary,
             )
         }
     )
@@ -84,4 +83,24 @@ private fun PreviewCreateGroupErrorDialogLackingConnection() = WireTheme {
         onDismiss = {},
         onRetryUpdateConversationName = {},
     )
+}
+
+private fun NewMeetingState.SubmitError.resources(type: NewMeetingType): Pair<Int, Int> = when (this) {
+    is NewMeetingState.SubmitError.UpdateConversationNameFailure ->
+        R.string.new_meeting_edit_conversation_name_failure_title to R.string.new_meeting_edit_conversation_name_failure_description
+
+    NewMeetingState.SubmitError.InvalidEdit -> R.string.new_meeting_edit_failure_title to R.string.new_meeting_edit_id_missing
+    is NewMeetingState.SubmitError.Saved -> when (warning) {
+        MeetingSaveWarning.ConversationSetupFailed ->
+            R.string.new_meeting_setup_failure_title to R.string.new_meeting_setup_failure_description
+        is MeetingSaveWarning.AddParticipantsFailed ->
+            R.string.new_meeting_setup_failure_title to R.string.new_meeting_add_participants_failure
+        MeetingSaveWarning.RemoveParticipantsFailed ->
+            R.string.new_meeting_edit_failure_title to R.string.new_meeting_remove_participants_failure
+    }
+    is NewMeetingState.SubmitError.Other -> when (type) {
+        NewMeetingType.MeetNow -> R.string.new_meeting_now_failure_title to R.string.new_meeting_now_failure_description
+        NewMeetingType.Schedule -> R.string.new_meeting_schedule_failure_title to R.string.new_meeting_schedule_failure_description
+        is NewMeetingType.Edit -> R.string.new_meeting_edit_failure_title to R.string.new_meeting_edit_failure_description
+    }
 }

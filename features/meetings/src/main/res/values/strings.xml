@@ -157,4 +157,41 @@
     <string name="meeting_link_remove_password_description">No password was provided for the new link. The previous link was password-protected, but the new meeting link will not be password secured.</string>
     <string name="meeting_link_create_without_password">Create without password</string>
     <string name="meeting_link_refresh_failed">Could not create a new link. Please try again.</string>
+    <string name="meeting_link_refresh_failed_title">Could not create a new link</string>
+    <string name="meetings_list_load_error">Could not load meetings. Please try again.</string>
+    <string name="meetings_retry">Retry</string>
+    <string name="delete_meeting_failure_title">Could not delete meeting</string>
+    <string name="delete_meeting_failure_description">Something went wrong while deleting the meeting. Please try again.</string>
+    <string name="leave_meeting_failure_title">Could not leave meeting</string>
+    <string name="leave_meeting_failure_description">Something went wrong while leaving the meeting conversation. Please try again.</string>
+    <string name="new_meeting_setup_failure_title">Could not finish meeting setup</string>
+    <string name="new_meeting_setup_failure_description">The meeting was saved, but something went wrong while setting up the conversation. Please try again.</string>
+    <string name="new_meeting_add_participants_failure">The meeting was saved, but some participants could not be added. Please try again.</string>
+    <string name="new_meeting_remove_participants_failure">The meeting was updated, but some participants could not be removed. Please try again.</string>
+    <string name="new_meeting_edit_id_missing">Something went wrong while updating the meeting. Please close the dialog and try again.</string>
+    <string name="delete_meeting_cleanup_failure_title">Meeting deleted</string>
+    <string name="delete_meeting_cleanup_failure_description">The meeting was deleted, but something went wrong while cleaning up the conversation locally. Please refresh the meetings list if it still appears.</string>
+    <string name="delete_meeting_not_allowed_title">Cannot delete meeting</string>
+    <string name="delete_meeting_not_allowed_description">This meeting can no longer be deleted. It may have already ended, or you may not have permission to delete it.</string>
+    <string name="meeting_participants_failed_summary">**%1$d participants** could not be added to the group.</string>
+    <string name="meeting_participant_failed_federation">**%1$s** could not be added to the group as their backend doesn\'t federate with the backends of all group participants.</string>
+    <string name="meeting_participant_failed_offline">**%1$s** could not be added to the group as the backend of **%2$s** could not be reached.</string>
+    <string name="meeting_participant_failed_unknown">**%1$s** could not be added to the group.</string>
+    <string name="meeting_participant_failed_mls">**%1$s** could not be added to the conversation. They may not have MLS-capable clients.</string>
+    <plurals name="meeting_participants_failed_federation">
+        <item quantity="one">**%2$s** could not be added to the group as their backends do not federate with each other.</item>
+        <item quantity="other">**%1$s** and **%2$s** could not be added to the group as their backends do not federate with each other.</item>
+    </plurals>
+    <plurals name="meeting_participants_failed_offline">
+        <item quantity="one">**%2$s** could not be added to the group as the backend of **%3$s** could not be reached.</item>
+        <item quantity="other">**%1$s** and **%2$s** could not be added to the group as the backend of **%3$s** could not be reached.</item>
+    </plurals>
+    <plurals name="meeting_participants_failed_unknown">
+        <item quantity="one">**%2$s** could not be added to the group.</item>
+        <item quantity="other">**%1$s** and **%2$s** could not be added to the group.</item>
+    </plurals>
+    <plurals name="meeting_participants_failed_mls">
+        <item quantity="one">**%2$s** could not be added to the conversation. They may not have MLS-capable clients.</item>
+        <item quantity="other">**%1$s** and **%2$s** could not be added to the conversation. They may not have MLS-capable clients.</item>
+    </plurals>
 </resources>

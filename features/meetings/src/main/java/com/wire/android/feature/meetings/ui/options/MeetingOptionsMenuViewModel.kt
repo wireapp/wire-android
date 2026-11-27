@@ -128,38 +128,43 @@ class MeetingOptionsMenuViewModelImpl @Inject constructor(
     }
 
     override fun deleteMeetingForEveryone(meetingId: MeetingId, meetingTitle: String) {
-        viewModelScope.launch {
-            deleteMeetingDialogState.update { it.copy(loading = true) }
-            when (deleteMeetingForEveryoneUseCase.invoke(meetingId = meetingId)) {
-                is DeleteMeetingForEveryoneUseCase.Result.Success -> {
-                    UIText.StringResource(R.string.meeting_deleted_success, meetingTitle).asSnackBarMessage()
-                }
-
-                is DeleteMeetingForEveryoneUseCase.Result.Failure -> {
-                    UIText.StringResource(R.string.meeting_deleted_failure, meetingTitle).asSnackBarMessage()
-                }
-            }.let {
-                sendAction(MeetingOptionsMenuViewAction.Message(it))
+        performDelete(meetingTitle) {
+            when (deleteMeetingForEveryoneUseCase(meetingId)) {
+                DeleteMeetingForEveryoneUseCase.Result.Success -> null
+                is DeleteMeetingForEveryoneUseCase.Result.Failure.CleanupFailed -> DeleteMeetingError.CleanupFailed
+                DeleteMeetingForEveryoneUseCase.Result.Failure.NotAllowed -> DeleteMeetingError.NotAllowed
+                is DeleteMeetingForEveryoneUseCase.Result.Failure.Other -> DeleteMeetingError.DeleteFailed
             }
-            deleteMeetingDialogState.dismiss()
         }
     }
 
     override fun deleteMeetingForMe(meetingId: MeetingId, meetingTitle: String) {
-        viewModelScope.launch {
-            deleteMeetingDialogState.update { it.copy(loading = true) }
-            when (deleteMeetingForMeUseCase.invoke(meetingId = meetingId)) {
-                is DeleteMeetingForMeUseCase.Result.Success -> {
-                    UIText.StringResource(R.string.meeting_deleted_success, meetingTitle).asSnackBarMessage()
-                }
-
-                is DeleteMeetingForMeUseCase.Result.Failure -> {
-                    UIText.StringResource(R.string.meeting_deleted_failure, meetingTitle).asSnackBarMessage()
-                }
-            }.let {
-                sendAction(MeetingOptionsMenuViewAction.Message(it))
+        performDelete(meetingTitle) {
+            when (deleteMeetingForMeUseCase(meetingId)) {
+                DeleteMeetingForMeUseCase.Result.Success -> null
+                is DeleteMeetingForMeUseCase.Result.Failure.CleanupFailed -> DeleteMeetingError.CleanupFailed
+                is DeleteMeetingForMeUseCase.Result.Failure.Other -> DeleteMeetingError.LeaveFailed
             }
-            deleteMeetingDialogState.dismiss()
+        }
+    }
+
+    private fun performDelete(meetingTitle: String, delete: suspend () -> DeleteMeetingError?) {
+        val dialogState = deleteMeetingDialogState.savedState
+        if (dialogState?.loading == true || dialogState?.error?.retryable == false) return
+        deleteMeetingDialogState.update { it.copy(loading = true, error = null) }
+        viewModelScope.launch {
+            val error = delete()
+            if (error == null) {
+                deleteMeetingDialogState.update { it.copy(loading = false) }
+                deleteMeetingDialogState.dismiss()
+                sendAction(
+                    MeetingOptionsMenuViewAction.Message(
+                        UIText.StringResource(R.string.meeting_deleted_success, meetingTitle).asSnackBarMessage()
+                    )
+                )
+            } else {
+                deleteMeetingDialogState.update { it.copy(loading = false, error = error) }
+            }
         }
     }
 

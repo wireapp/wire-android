@@ -94,7 +94,7 @@ public fun com.wire.android.feature.meetings.ui.create.NewMeetingContent(state: 
     - hasUnsavedChanges: STABLE (primitive type)
 
 @Composable
-public fun com.wire.android.feature.meetings.ui.create.NewMeetingErrorDialog(error: com.wire.android.feature.meetings.ui.create.NewMeetingState.SubmitError, type: com.wire.android.feature.meetings.ui.create.NewMeetingType, isSubmitting: kotlin.Boolean, onDismiss: kotlin.Function0<kotlin.Unit>, onRetryUpdateConversationName: kotlin.Function1<@[ParameterName(name = \): kotlin.Unit
+public fun com.wire.android.feature.meetings.ui.create.NewMeetingErrorDialog(error: com.wire.android.feature.meetings.ui.create.NewMeetingState.SubmitError, type: com.wire.android.feature.meetings.ui.create.NewMeetingType, isSubmitting: kotlin.Boolean, onDismiss: kotlin.Function0<kotlin.Unit>, onRetryUpdateConversationName: kotlin.Function1<@[ParameterName(name = \, contacts: kotlin.collections.List<com.wire.android.model.Contact>): kotlin.Unit
   skippable: true
   restartable: true
   params:
@@ -103,6 +103,7 @@ public fun com.wire.android.feature.meetings.ui.create.NewMeetingErrorDialog(err
     - isSubmitting: STABLE (primitive type)
     - onDismiss: STABLE (function type)
     - onRetryUpdateConversationName: STABLE (function type)
+    - contacts: RUNTIME (requires runtime check)
 
 @Composable
 internal fun com.wire.android.feature.meetings.ui.create.NewMeetingParticipantsRouteContent(newMeetingViewModel: com.wire.android.feature.meetings.ui.create.NewMeetingViewModel, onNavigateBack: kotlin.Function0<kotlin.Unit>, onOpenUserProfile: kotlin.Function1<com.wire.kalium.logic.data.id.QualifiedID, kotlin.Unit>): kotlin.Unit
@@ -161,6 +162,14 @@ private fun com.wire.android.feature.meetings.ui.create.TitleInput(titleState: a
     - titleState: STABLE (marked @Stable or @Immutable)
     - titleError: STABLE (marked @Stable or @Immutable)
     - readOnly: STABLE (primitive type)
+
+@Composable
+internal fun com.wire.android.feature.meetings.ui.create.meetingParticipantFailureText(participants: kotlin.collections.Map<com.wire.kalium.logic.data.id.QualifiedID, com.wire.kalium.common.error.CoreFailure>, contacts: kotlin.collections.List<com.wire.android.model.Contact>): androidx.compose.ui.text.AnnotatedString
+  skippable: false
+  restartable: false
+  params:
+    - participants: RUNTIME (requires runtime check)
+    - contacts: RUNTIME (requires runtime check)
 
 @Composable
 internal fun com.wire.android.feature.meetings.ui.createMeetingLinkViewModel(meetingId: com.wire.kalium.logic.data.id.QualifiedID): com.wire.android.feature.meetings.ui.link.CreateMeetingLinkViewModel
@@ -339,6 +348,13 @@ public fun com.wire.android.feature.meetings.ui.list.MeetingList(type: com.wire.
     - returnToCall: STABLE (function type)
 
 @Composable
+private fun com.wire.android.feature.meetings.ui.list.MeetingListErrorContent(onRetry: kotlin.Function0<kotlin.Unit>): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - onRetry: STABLE (function type)
+
+@Composable
 public fun com.wire.android.feature.meetings.ui.list.MeetingLoadMoreFooter(modifier: androidx.compose.ui.Modifier): kotlin.Unit
   skippable: true
   restartable: true
@@ -426,10 +442,11 @@ private fun com.wire.android.feature.meetings.ui.list.getDateHeaderString(time: 
     - relativeDay: STABLE (class with no mutable properties)
 
 @Composable
-private fun com.wire.android.feature.meetings.ui.list.isLoading(): kotlin.Boolean
+private fun com.wire.android.feature.meetings.ui.list.isLoading(loadingState: com.wire.android.feature.meetings.ui.list.MeetingListLoadingState): kotlin.Boolean
   skippable: false
   restartable: false
   params:
+    - loadingState: STABLE (class with no mutable properties)
 
 @Composable
 internal fun com.wire.android.feature.meetings.ui.meetingLinkViewModel(meetingId: com.wire.kalium.logic.data.id.QualifiedID): com.wire.android.feature.meetings.ui.link.MeetingLinkViewModel

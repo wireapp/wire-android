@@ -54,7 +54,7 @@ sealed interface NewMeetingType {
     }
 
     @Serializable
-    data class Edit(val id: MeetingId) : NewMeetingType {
+    data class Edit(val id: MeetingId?) : NewMeetingType {
         override val title = R.string.new_meeting_edit
         override val action = R.string.new_meeting_action_edit
         override val icon = CommonUiR.drawable.ic_calendar

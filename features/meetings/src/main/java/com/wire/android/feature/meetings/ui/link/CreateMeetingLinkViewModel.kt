@@ -50,6 +50,7 @@ interface CreateMeetingLinkViewModel : ActionsManager<CreateMeetingLinkViewActio
     val passwordTextState: TextFieldState
     val confirmPasswordTextState: TextFieldState
     fun onCreate(confirmWithoutPassword: Boolean = false)
+    fun onDismissError() {}
     fun onDismissConfirmation()
     fun onGenerateRandomPassword()
 }
@@ -90,6 +91,11 @@ class CreateMeetingLinkViewModelImpl @AssistedInject constructor(
                 }
             }
         }
+    }
+
+    override fun onDismissError() {
+        val ready = state as? CreateMeetingLinkState.Ready ?: return
+        state = ready.copy(submitError = false)
     }
 
     override fun onDismissConfirmation() {
@@ -144,13 +150,12 @@ class CreateMeetingLinkViewModelImpl @AssistedInject constructor(
     }
 
     private fun createLink(ready: CreateMeetingLinkState.Ready, password: String?) {
-        state = ready.copy(isSubmitting = true, confirmWithoutPassword = false)
+        state = ready.copy(isSubmitting = true, confirmWithoutPassword = false, submitError = false)
         viewModelScope.launch {
             when (rotateMeetingLink(meetingId, password)) {
                 is RotateMeetingLinkUseCase.Result.Failure -> {
                     (state as? CreateMeetingLinkState.Ready)?.let {
-                        state = it.copy(isSubmitting = false)
-                        sendAction(CreateMeetingLinkViewAction.Failure)
+                        state = it.copy(isSubmitting = false, submitError = true)
                     }
                 }
                 is RotateMeetingLinkUseCase.Result.Success -> sendAction(CreateMeetingLinkViewAction.Success)
@@ -165,6 +170,7 @@ sealed interface CreateMeetingLinkState {
     data class Ready(
         val meetingLink: MeetingLink,
         val isSubmitting: Boolean = false,
+        val submitError: Boolean = false,
         val confirmWithoutPassword: Boolean = false,
         val invalidPassword: Boolean = false,
         val passwordsDoNotMatch: Boolean = false,
@@ -173,5 +179,4 @@ sealed interface CreateMeetingLinkState {
 
 sealed interface CreateMeetingLinkViewAction {
     data object Success : CreateMeetingLinkViewAction
-    data object Failure : CreateMeetingLinkViewAction
 }

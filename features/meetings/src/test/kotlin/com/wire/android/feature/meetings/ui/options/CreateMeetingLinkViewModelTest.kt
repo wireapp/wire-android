@@ -163,7 +163,18 @@ class CreateMeetingLinkViewModelTest {
         response.complete(RotateMeetingLinkUseCase.Result.Failure(CoreFailure.Unknown(IllegalStateException("rotation failed"))))
         runCurrent()
         assertFalse((viewModel.state as CreateMeetingLinkState.Ready).isSubmitting)
-        assertEquals(CreateMeetingLinkViewAction.Failure, viewModel.actions.first())
+        assertTrue((viewModel.state as CreateMeetingLinkState.Ready).submitError)
+        viewModel.actions.test {
+            expectNoEvents()
+        }
+        viewModel.onDismissError()
+        assertFalse((viewModel.state as CreateMeetingLinkState.Ready).submitError)
+        coEvery { arrangement.rotateMeetingLink(any(), any()) } returns
+            RotateMeetingLinkUseCase.Result.Success(meeting("new", false))
+        viewModel.onCreate()
+        runCurrent()
+        assertEquals(CreateMeetingLinkViewAction.Success, viewModel.actions.first())
+        coVerify(exactly = 2) { arrangement.rotateMeetingLink(MEETING_ID, null) }
     }
 
     @Test

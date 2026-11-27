@@ -119,7 +119,7 @@ fun NewMeetingType.toNavigation3Type(): NewMeetingRouteType = when (this) {
 internal fun NewMeetingRouteType.toLegacyType(meetingId: MeetingId? = null): NewMeetingType = when (this) {
     NewMeetingRouteType.MEET_NOW -> NewMeetingType.MeetNow
     NewMeetingRouteType.SCHEDULE -> NewMeetingType.Schedule
-    NewMeetingRouteType.EDIT -> NewMeetingType.Edit(requireNotNull(meetingId))
+    NewMeetingRouteType.EDIT -> NewMeetingType.Edit(meetingId)
 }
 
 @Serializable

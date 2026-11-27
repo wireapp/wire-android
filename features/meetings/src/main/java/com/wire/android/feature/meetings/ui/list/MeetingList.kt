@@ -34,6 +34,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalInspectionMode
@@ -50,6 +51,7 @@ import com.wire.android.feature.meetings.model.MeetingListItem
 import com.wire.android.feature.meetings.ui.MeetingsTabItem
 import com.wire.android.feature.meetings.ui.meetingListViewModel
 import com.wire.android.feature.meetings.ui.util.PreviewMultipleThemes
+import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.rowitem.EmptyListArrowFooter
 import com.wire.android.ui.common.rowitem.EmptyListContent
@@ -80,40 +82,49 @@ fun MeetingList(
     val displayTimeZone by meetingListViewModel.displayTimeZoneFlow.collectAsStateWithLifecycle()
     val loadingState by meetingListViewModel.loadingState.collectAsStateWithLifecycle()
     val lazyPagingItems = meetingListViewModel.meetings.collectAsLazyPagingItemsWithLifecycle()
-    val showLoadingContent = lazyPagingItems.isLoading() || when (loadingState) {
-        MeetingListLoadingState.INITIAL_SYNCING -> true
-        MeetingListLoadingState.INITIAL_LOADING -> lazyPagingItems.itemCount == 0 && !lazyPagingItems.loadState.hasError
-        MeetingListLoadingState.READY, MeetingListLoadingState.REFRESHING -> false
-    }
+    val hasError = loadingState == MeetingListLoadingState.ERROR || lazyPagingItems.loadState.hasError
+    val showLoadingContent = lazyPagingItems.isLoading(loadingState)
 
     PullToRefreshBox(
         isRefreshing = loadingState == MeetingListLoadingState.REFRESHING,
         onRefresh = meetingListViewModel::onRefreshList,
         modifier = modifier,
     ) {
-        when {
-            showLoadingContent -> LoadingListContent(
-                modifier = Modifier.fillMaxSize()
-            )
+        Column(Modifier.fillMaxSize()) {
+            if (hasError) {
+                MeetingListErrorContent(
+                    onRetry = {
+                        if (loadingState == MeetingListLoadingState.ERROR) meetingListViewModel.onRefreshList()
+                        lazyPagingItems.retry()
+                    },
+                )
+            }
+            when {
+                showLoadingContent -> LoadingListContent(
+                    modifier = Modifier.fillMaxSize()
+                )
 
-            lazyPagingItems.itemCount == 0 -> EmptyMeetingListContent(
-                type = type,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .verticalScroll(rememberScrollState())
-            )
+                lazyPagingItems.itemCount == 0 && hasError -> Unit
 
-            else -> MeetingItemsList(
-                lazyPagingItems = lazyPagingItems,
-                displayTimeZone = displayTimeZone,
-                lazyListState = lazyListState,
-                contentPadding = contentPadding,
-                openMeetingOptions = openMeetingOptions,
-                startCall = startCall,
-                joinCall = joinCall,
-                returnToCall = returnToCall,
-                modifier = Modifier.fillMaxSize()
-            )
+                lazyPagingItems.itemCount == 0 -> EmptyMeetingListContent(
+                    type = type,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .verticalScroll(rememberScrollState())
+                )
+
+                else -> MeetingItemsList(
+                    lazyPagingItems = lazyPagingItems,
+                    displayTimeZone = displayTimeZone,
+                    lazyListState = lazyListState,
+                    contentPadding = contentPadding,
+                    openMeetingOptions = openMeetingOptions,
+                    startCall = startCall,
+                    joinCall = joinCall,
+                    returnToCall = returnToCall,
+                    modifier = Modifier.fillMaxSize()
+                )
+            }
         }
     }
 
@@ -121,6 +132,14 @@ fun MeetingList(
         if (lazyPagingItems.loadState.isIdle && !lazyPagingItems.loadState.hasError) {
             meetingListViewModel.onInitialListLoaded(shouldMakeInitialSync = lazyPagingItems.itemCount == 0)
         }
+    }
+}
+
+@Composable
+private fun MeetingListErrorContent(onRetry: () -> Unit) {
+    Column(Modifier.padding(dimensions().spacing16x)) {
+        Text(stringResource(R.string.meetings_list_load_error))
+        WireSecondaryButton(text = stringResource(R.string.meetings_retry), onClick = onRetry)
     }
 }
 
@@ -182,9 +201,7 @@ private fun MeetingItemsList(
                 }
             }
         }
-        val endOfPaginationReached = (lazyPagingItems.loadState.append as? LoadState.NotLoading)?.endOfPaginationReached ?: false
-        val isRefreshing = lazyPagingItems.loadState.refresh is LoadState.Loading
-        if (!endOfPaginationReached && !isRefreshing) {
+        if (lazyPagingItems.shouldShowLoadMore()) {
             item(key = "footer_load_more", contentType = "footer_load_more") {
                 MeetingLoadMoreFooter()
             }
@@ -219,13 +236,24 @@ private fun EmptyMeetingListContent(
     }
 }
 
+private fun LazyPagingItems<MeetingListItem>.shouldShowLoadMore(): Boolean {
+    val endOfPaginationReached = (loadState.append as? LoadState.NotLoading)?.endOfPaginationReached ?: false
+    return !endOfPaginationReached && loadState.refresh !is LoadState.Loading && loadState.append !is LoadState.Error
+}
+
 @Composable
-private fun LazyPagingItems<MeetingListItem>.isLoading(): Boolean {
+private fun LazyPagingItems<MeetingListItem>.isLoading(loadingState: MeetingListLoadingState): Boolean {
     var initialLoadCompleted by remember { mutableStateOf(false) }
     if (loadState.refresh !is LoadState.Loading) {
         initialLoadCompleted = true
     }
-    return !initialLoadCompleted && loadState.refresh == LoadState.Loading && itemCount == 0
+    val pagingIsLoading = !initialLoadCompleted && loadState.refresh == LoadState.Loading && itemCount == 0
+    return pagingIsLoading || when (loadingState) {
+        MeetingListLoadingState.INITIAL_SYNCING -> true
+        MeetingListLoadingState.INITIAL_LOADING -> itemCount == 0 && !loadState.hasError
+        MeetingListLoadingState.REFRESHING -> itemCount == 0
+        MeetingListLoadingState.READY, MeetingListLoadingState.ERROR -> false
+    }
 }
 
 @PreviewMultipleThemes

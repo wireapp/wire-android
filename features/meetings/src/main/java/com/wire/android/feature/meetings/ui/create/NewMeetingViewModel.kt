@@ -51,6 +51,7 @@ import com.wire.kalium.logic.feature.auth.ValidatePasswordUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationMembersUseCase
 import com.wire.kalium.logic.feature.conversation.RenameConversationUseCase
 import com.wire.kalium.logic.feature.conversation.RenamingResult
+import com.wire.kalium.logic.feature.meeting.MeetingSaveWarning
 import com.wire.kalium.logic.feature.meeting.CreateNewMeetingUseCase
 import com.wire.kalium.logic.feature.meeting.GetNextUnfinishedMeetingOccurrenceUseCase
 import com.wire.kalium.logic.feature.meeting.UpdateMeetingUseCase
@@ -155,12 +156,22 @@ class NewMeetingViewModelImpl @AssistedInject constructor(
         loadInitialData()
     }
 
+    private var saveCompleted = false
+
     private fun loadInitialData() {
         viewModelScope.launch {
             try {
                 val meetingType = navArgs.type
                 if (meetingType is NewMeetingType.Edit) {
-                    val meetingOccurrence = getNextUnfinishedMeetingOccurrence(meetingType.id, currentTimeProvider())
+                    val meetingId = meetingType.id
+                    if (meetingId == null || meetingId.value.isBlank() || meetingId.domain.isBlank()) {
+                        state = state.copy(
+                            initialLoading = InitialLoadingState.Loaded,
+                            submitError = NewMeetingState.SubmitError.InvalidEdit,
+                        )
+                        return@launch
+                    }
+                    val meetingOccurrence = getNextUnfinishedMeetingOccurrence(meetingId, currentTimeProvider())
                     if (meetingOccurrence != null) {
                         val otherContacts = observeConversationMembers(meetingOccurrence.meeting.conversationId).firstOrNull()?.let {
                             it.map { it.user }.filterIsInstance<OtherUser>().map { contactMapper.fromOtherUser(it) }.toPersistentSet()
@@ -175,6 +186,12 @@ class NewMeetingViewModelImpl @AssistedInject constructor(
                             selectedIndividualContacts = otherContacts,
                             confirmedIndividualContacts = otherContacts,
                         )
+                    } else {
+                        state = state.copy(
+                            initialLoading = InitialLoadingState.Loaded,
+                            submitError = NewMeetingState.SubmitError.InvalidEdit,
+                        )
+                        return@launch
                     }
                 }
                 initialDraftState = state
@@ -185,6 +202,8 @@ class NewMeetingViewModelImpl @AssistedInject constructor(
                             && isMeetingsEnabledUseCase.isGuestLinkSharingEnabled(),
                     initialLoading = InitialLoadingState.Loaded,
                 )
+            } catch (cancelled: kotlinx.coroutines.CancellationException) {
+                throw cancelled
             } catch (_: Exception) {
                 state = state.copy(initialLoading = InitialLoadingState.Error)
             }
@@ -344,7 +363,7 @@ class NewMeetingViewModelImpl @AssistedInject constructor(
 
     override fun submitCreation() {
         viewModelScope.launch {
-            if (state.isSubmitting) return@launch
+            if (state.isSubmitting || saveCompleted) return@launch
             val titleValid = validateTitle()
             val startAndEndTimeValid = when (type) {
                 NewMeetingType.MeetNow -> {
@@ -373,14 +392,7 @@ class NewMeetingViewModelImpl @AssistedInject constructor(
                 )
                 state = state.copy(isSubmitting = false).withValidatedContinueButton()
                 when (creationResult) {
-                    is CreateNewMeetingUseCase.Result.Success -> sendAction(
-                        NewMeetingViewActions.Success(
-                            result = when (type) {
-                                NewMeetingType.MeetNow -> NewMeetingResult.MeetNow(creationResult.meetingId, creationResult.conversationId)
-                                else -> NewMeetingResult.Scheduled(creationResult.meetingId)
-                            },
-                        )
-                    )
+                    is CreateNewMeetingUseCase.Result.Success -> handleCreationSuccess(creationResult)
 
                     is CreateNewMeetingUseCase.Result.Failure -> state = state.copy(submitError = NewMeetingState.SubmitError.Other)
                 }
@@ -388,15 +400,36 @@ class NewMeetingViewModelImpl @AssistedInject constructor(
         }
     }
 
+    private suspend fun handleCreationSuccess(result: CreateNewMeetingUseCase.Result.Success) {
+        saveCompleted = true
+        when (result) {
+            is CreateNewMeetingUseCase.Result.Success.Partial ->
+                state = state.copy(submitError = NewMeetingState.SubmitError.Saved(result.warning))
+            is CreateNewMeetingUseCase.Result.Success.Complete -> {
+                val outcome = when (type) {
+                    NewMeetingType.MeetNow -> NewMeetingResult.MeetNow(result.meetingId, result.conversationId)
+                    else -> NewMeetingResult.Scheduled(result.meetingId)
+                }
+                sendAction(NewMeetingViewActions.Success(outcome))
+            }
+        }
+    }
+
     override fun submitUpdate() {
-        val meetingType = type as? NewMeetingType.Edit ?: return
+        val meetingType = type as? NewMeetingType.Edit
+        val meetingId = meetingType?.id
+        if (meetingId == null || state.submitError == NewMeetingState.SubmitError.InvalidEdit) {
+            state = state.copy(submitError = NewMeetingState.SubmitError.InvalidEdit)
+            return
+        }
         viewModelScope.launch {
+            if (state.isSubmitting || saveCompleted) return@launch
             val titleValid = validateTitle()
             val startAndEndTimeValid = validateStartAndEndTime()
             if (titleValid && startAndEndTimeValid && !state.isSubmitting) {
                 state = state.copy(isSubmitting = true).withValidatedContinueButton()
                 val updateResult = updateMeeting(
-                    meetingId = meetingType.id,
+                    meetingId = meetingId,
                     updateMeeting = UpdateMeeting(
                         title = titleTextState.text.trim().toString(),
                         startTime = state.startTime,
@@ -409,7 +442,11 @@ class NewMeetingViewModelImpl @AssistedInject constructor(
                 )
                 state = state.copy(isSubmitting = false).withValidatedContinueButton()
                 when (updateResult) {
-                    is UpdateMeetingUseCase.Result.Success -> sendAction(NewMeetingViewActions.Success(NewMeetingResult.Updated))
+                    is UpdateMeetingUseCase.Result.Success.Complete -> sendAction(NewMeetingViewActions.Success(NewMeetingResult.Updated))
+                    is UpdateMeetingUseCase.Result.Success.Partial -> {
+                        saveCompleted = true
+                        state = state.copy(submitError = NewMeetingState.SubmitError.Saved(updateResult.warning))
+                    }
                     is UpdateMeetingUseCase.Result.Failure -> state = state.copy(
                         submitError = when (updateResult) {
                             is UpdateMeetingUseCase.Result.Failure.UpdateConversationNameFailure ->
@@ -439,7 +476,14 @@ class NewMeetingViewModelImpl @AssistedInject constructor(
     }
 
     override fun dismissCreationError() {
+        val shouldClose = state.submitError is NewMeetingState.SubmitError.Saved ||
+            state.submitError == NewMeetingState.SubmitError.InvalidEdit
         state = state.copy(submitError = null)
+        if (shouldClose) {
+            viewModelScope.launch {
+                sendAction(NewMeetingViewActions.Close)
+            }
+        }
     }
 
     override fun hasUnsavedChanges(): Boolean {
@@ -530,7 +574,9 @@ data class NewMeetingState(
 
     sealed interface SubmitError {
         data class UpdateConversationNameFailure(val conversationId: ConversationId) : SubmitError
-        data object Other : SubmitError // TODO Add more specific error types in the future
+        data class Saved(val warning: MeetingSaveWarning) : SubmitError
+        data object InvalidEdit : SubmitError
+        data object Other : SubmitError
     }
 
     companion object {
@@ -546,5 +592,6 @@ data class NewMeetingState(
 }
 
 sealed interface NewMeetingViewActions {
+    data object Close : NewMeetingViewActions
     data class Success(val result: NewMeetingResult) : NewMeetingViewActions
 }

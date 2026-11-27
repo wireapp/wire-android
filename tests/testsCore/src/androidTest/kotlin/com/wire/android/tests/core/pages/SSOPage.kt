@@ -21,6 +21,7 @@ import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.UiObject2
 import org.junit.Assert.assertTrue
+import uiautomatorutils.KeyboardUtils.closeKeyboardIfOpened
 import uiautomatorutils.UiSelectorParams
 import uiautomatorutils.UiWaitUtils
 import kotlin.time.Duration
@@ -31,6 +32,25 @@ data class SSOPage(private val device: UiDevice) {
     private val keycloakUsernameLabel = UiSelectorParams(text = "Username or email")
     private val keycloakPasswordLabel = UiSelectorParams(text = "Password")
     private val keycloakSignInButton = UiSelectorParams(text = "Sign In")
+    private val teamSettingsChangedTitle = UiSelectorParams(text = "Team Settings Changed")
+    private val setAppLockTitle = UiSelectorParams(text = "Set app lock passcode")
+    private val conversationListTitle = UiSelectorParams(text = "Conversations")
+
+    // A retained browser SSO session can return directly to Wire without another credential form.
+    fun signInToKeycloakIfRequested(email: String, password: String): SSOPage {
+        val screen = UiWaitUtils.waitFirstVisibleSelector(
+            selectors = listOf(keycloakUsernameLabel, teamSettingsChangedTitle, setAppLockTitle, conversationListTitle),
+            timeout = UiWaitUtils.VERY_LONG_TIMEOUT
+        ) ?: throw AssertionError("Neither Keycloak sign-in nor a post-login Wire screen appeared")
+        if (screen == keycloakUsernameLabel) {
+            enterKeycloakEmail(email)
+            closeKeyboardIfOpened()
+            enterKeycloakPassword(password)
+            closeKeyboardIfOpened()
+            tapKeycloakSignIn()
+        }
+        return this
+    }
 
     fun enterKeycloakEmail(email: String): SSOPage {
         val usernameField = inputFieldBelow(keycloakUsernameLabel, "Keycloak username field")

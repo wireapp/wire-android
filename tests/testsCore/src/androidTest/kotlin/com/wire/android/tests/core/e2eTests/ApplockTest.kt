@@ -17,6 +17,7 @@
  */
 package com.wire.android.tests.core.e2eTests
 
+import SSOServiceHelper
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import backendUtils.team.TeamRoles
 import com.wire.android.tests.core.BaseUiTest
@@ -24,6 +25,9 @@ import com.wire.android.tests.support.UiAutomatorSetup
 import com.wire.android.tests.support.tags.Category
 import com.wire.android.tests.support.tags.Tag
 import com.wire.android.tests.support.tags.TestCaseId
+import keycloak.KeycloakApiClient
+import kotlinx.coroutines.runBlocking
+import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -31,13 +35,16 @@ import uiautomatorutils.KeyboardUtils.closeKeyboardIfOpened
 import uiautomatorutils.UiWaitUtils
 import user.usermanager.ClientUserManager
 import user.utils.ClientUser
+import user.utils.component.getUserId
 import kotlin.time.Duration.Companion.seconds
 
 @RunWith(AndroidJUnit4::class)
+@Suppress("LargeClass")
 class ApplockTest : BaseUiTest() {
     private lateinit var appPackage: String
     private var teamOwner: ClientUser? = null
     private var member1: ClientUser? = null
+    private var keycloakApiClient: KeycloakApiClient? = null
 
     @Before
     fun setUp() {
@@ -561,6 +568,863 @@ class ApplockTest : BaseUiTest() {
                 assertLockWithPasscodeToggleCannotBeChanged()
             }
         }
+    }
+
+    @Suppress("CyclomaticComplexMethod", "LongMethod")
+    @TestCaseId("TC-12813")
+    @Category("regression", "RC", "applock")
+    @Test
+    fun givenUserEnabledAppLock_whenForgottenPasscodeIsRecoveredWithPasswordLogin_thenHistoryIsRetained() {
+
+        step("Given TeamOwner creates team AppLockRecovery on Staging") {
+            backendSetupHelper.createTeamOwnerByAlias(
+                "user1Name",
+                "AppLockRecovery",
+                "en_US",
+                true,
+                backendClient,
+                context
+            )
+        }
+        step("And TeamOwner configures MLS for AppLockRecovery") {
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "AppLockRecovery", backendClient)
+        }
+        step("And TeamOwner adds Member1 to AppLockRecovery with role Member") {
+            backendSetupHelper.userXAddsUsersToTeam(
+                "user1Name",
+                "user2Name",
+                "AppLockRecovery",
+                TeamRoles.Member,
+                backendClient,
+                context,
+                true
+            )
+        }
+        step("And MLS devices are registered for TeamOwner and Member1") {
+            testServiceHelper.addDevice("user1Name", null, "Device1")
+            testServiceHelper.addDevice("user2Name", null, "Device1")
+        }
+        step("And TeamOwner creates MLS group Conversation AppLockRecovery with Member1") {
+            testServiceHelper.userCreatesMLSGroupConversation(
+                ownerAlias = "user1Name",
+                participantAliases = "user2Name",
+                conversationName = "AppLockRecovery",
+                deviceName = "Device1"
+            )
+        }
+        step("And TeamOwner is the current user") {
+            teamOwner = clientUserManager.findUserByNameOrNameAlias("user1Name")
+            clientUserManager.setSelfUser(requireNotNull(teamOwner))
+        }
+        step("And TeamOwner logs in with a password and completes the login prompts") {
+            pages.registrationPage.assertEmailWelcomePage()
+            loginToStagingAs(requireNotNull(teamOwner))
+            pages.registrationPage.clickDeclineShareDataAlert()
+            pages.conversationListPage.assertConversationListVisible()
+        }
+        step("And TeamOwner sees Conversation AppLockRecovery in the conversation list and opens it") {
+            pages.conversationListPage.apply {
+                assertGroupConversationVisible("AppLockRecovery")
+                tapConversationNameInConversationList("AppLockRecovery")
+            }
+        }
+        step("And TeamOwner sends a message in Conversation AppLockRecovery and verifies it is visible") {
+            pages.conversationViewPage.apply {
+                typeMessageInInputField("TeamOwner history before app-lock recovery")
+                clickSendButton()
+                assertSentMessageIsVisibleInCurrentConversation("TeamOwner history before app-lock recovery")
+            }
+        }
+        step("And Member1 sends a reply that TeamOwner sees in Conversation AppLockRecovery") {
+            testServiceHelper.userSendsGenericMessageToConversation(
+                "user2Name",
+                "AppLockRecovery",
+                "Device1",
+                "Member1 history before app-lock recovery"
+            )
+            pages.conversationViewPage.assertReceivedMessageIsVisibleInCurrentConversation("Member1 history before app-lock recovery")
+        }
+        step("And TeamOwner returns to the conversation list and opens Settings from the conversation list menu") {
+            pages.conversationViewPage.tapBackButtonToCloseConversationViewPage()
+            pages.conversationListPage.apply {
+                clickConversationsMenuEntry()
+                clickSettingsButtonOnMenuEntry()
+            }
+        }
+        step("And TeamOwner verifies app lock is OFF, opens app-lock setup and sets the original passcode") {
+            pages.settingsPage.apply {
+                assertLockWithPasswordToggleIsOff()
+                turnOnLockWithPasscodeToggle()
+                assertSetUpAppLockPageVisible()
+                enterPasscode(requireNotNull(teamOwner?.password))
+                tapSetPasscodeButton()
+            }
+        }
+        step("And TeamOwner verifies app lock is ON and returns to the conversation list") {
+            pages.settingsPage.apply {
+                assertLockWithPasswordToggleIsOn()
+                clickBackButtonOnSettingsPage()
+            }
+        }
+        step("When TeamOwner cold-starts Wire and selects Forgot your passcode on the unlock screen") {
+            UiAutomatorSetup.stopApp()
+            device.executeShellCommand("monkey -p $appPackage -c android.intent.category.LAUNCHER 1")
+            pages.appLockPage.apply {
+                assertAppLockGateVisible()
+                tapUsePasscodeOnBiometricPromptIfVisible()
+                assertAppLockPageVisible()
+                tapForgotPasscodeButton()
+            }
+        }
+        step("And TeamOwner logs out from recovery with clear data unchecked") {
+            pages.appLockPage.apply {
+                tapLogoutButtonOnRecoveryScreen()
+                confirmLogoutWithoutClearingData()
+            }
+        }
+        step("And TeamOwner logs back in with the same account password") {
+            pages.registrationPage.assertEmailWelcomePage()
+            loginToStagingAs(requireNotNull(teamOwner))
+        }
+        step("Then the conversation list opens without mandatory app-lock setup and both original messages remain") {
+            pages.conversationListPage.apply {
+                assertConversationListVisible()
+                assertGroupConversationVisible("AppLockRecovery")
+                tapConversationNameInConversationList("AppLockRecovery")
+            }
+            pages.conversationViewPage.apply {
+                assertSentMessageIsVisibleInCurrentConversation("TeamOwner history before app-lock recovery")
+                assertReceivedMessageIsVisibleInCurrentConversation("Member1 history before app-lock recovery")
+                tapBackButtonToCloseConversationViewPage()
+            }
+        }
+        step("When TeamOwner opens Settings from the conversation list menu") {
+            pages.conversationListPage.apply {
+                clickConversationsMenuEntry()
+                clickSettingsButtonOnMenuEntry()
+            }
+        }
+        step("And TeamOwner verifies app lock is OFF, sets a new passcode, verifies it is ON and returns to the conversation list") {
+            pages.settingsPage.apply {
+                assertLockWithPasswordToggleIsOff()
+                turnOnLockWithPasscodeToggle()
+                assertSetUpAppLockPageVisible()
+                enterPasscode("${requireNotNull(teamOwner?.password)}!New")
+                tapSetPasscodeButton()
+                assertLockWithPasswordToggleIsOn()
+                clickBackButtonOnSettingsPage()
+            }
+        }
+        step("And TeamOwner cold-starts Wire and verifies the app-lock gate is visible") {
+            UiAutomatorSetup.stopApp()
+            device.executeShellCommand("monkey -p $appPackage -c android.intent.category.LAUNCHER 1")
+            pages.appLockPage.apply {
+                assertAppLockGateVisible()
+            }
+        }
+        step("And TeamOwner opens the passcode screen, enters the original passcode and taps Unlock") {
+            pages.appLockPage.apply {
+                tapUsePasscodeOnBiometricPromptIfVisible()
+                assertAppLockPageVisible()
+                enterPasscode(requireNotNull(teamOwner?.password))
+                tapUnlockButtonOnAppLockPage()
+            }
+        }
+        step("Then the original passcode is rejected and conversation content stays hidden") {
+            pages.appLockPage.assertWrongPasscodeErrorMessageVisible()
+            pages.conversationListPage.assertConversationListNotVisible()
+        }
+        step("When TeamOwner enters the new passcode") {
+            pages.appLockPage.apply {
+                clearPasscodeField()
+                enterPasscode("${requireNotNull(teamOwner?.password)}!New")
+                tapUnlockButtonOnAppLockPage()
+            }
+        }
+        step("Then Wire unlocks and both original messages remain in Conversation AppLockRecovery") {
+            pages.conversationListPage.apply {
+                assertConversationListVisible()
+                tapConversationNameInConversationList("AppLockRecovery")
+            }
+            pages.conversationViewPage.apply {
+                assertSentMessageIsVisibleInCurrentConversation("TeamOwner history before app-lock recovery")
+                assertReceivedMessageIsVisibleInCurrentConversation("Member1 history before app-lock recovery")
+            }
+        }
+    }
+
+    @Suppress("CyclomaticComplexMethod", "LongMethod")
+    @TestCaseId("TC-13073")
+    @Category("regression", "RC", "applock")
+    @Test
+    fun givenTeamEnforcedAppLock_whenForgottenPasscodeIsRecoveredWithPasswordLogin_thenNewPasscodeIsRequiredAndHistoryIsRetained() {
+
+        step("Given TeamOwner creates team EnforcedAppLockRecovery on Staging") {
+            backendSetupHelper.createTeamOwnerByAlias(
+                "user1Name",
+                "EnforcedAppLockRecovery",
+                "en_US",
+                true,
+                backendClient,
+                context
+            )
+        }
+        step("And TeamOwner configures MLS for EnforcedAppLockRecovery") {
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "EnforcedAppLockRecovery", backendClient)
+        }
+        step("And TeamOwner adds Member1 to EnforcedAppLockRecovery with role Member") {
+            backendSetupHelper.userXAddsUsersToTeam(
+                "user1Name",
+                "user2Name",
+                "EnforcedAppLockRecovery",
+                TeamRoles.Member,
+                backendClient,
+                context,
+                true
+            )
+        }
+        step("And MLS devices are registered for TeamOwner and Member1") {
+            testServiceHelper.addDevice("user1Name", null, "Device1")
+            testServiceHelper.addDevice("user2Name", null, "Device1")
+        }
+        step("And TeamOwner creates MLS group Conversation EnforcedAppLockRecovery with Member1") {
+            testServiceHelper.userCreatesMLSGroupConversation(
+                ownerAlias = "user1Name",
+                participantAliases = "user2Name",
+                conversationName = "EnforcedAppLockRecovery",
+                deviceName = "Device1"
+            )
+        }
+        step("And TeamOwner enforces app lock for team EnforcedAppLockRecovery with a 30-second timeout") {
+            backendSetupHelper.enableForceAppLockFeature(
+                "user1Name",
+                "EnforcedAppLockRecovery",
+                30,
+                backendClient
+            )
+        }
+        step("And TeamOwner is the current user") {
+            teamOwner = clientUserManager.findUserByNameOrNameAlias("user1Name")
+            clientUserManager.setSelfUser(requireNotNull(teamOwner))
+        }
+        step("And TeamOwner logs in with a password to the app-lock-enforced team") {
+            pages.registrationPage.assertEmailWelcomePage()
+            loginToStagingAs(requireNotNull(teamOwner))
+            pages.registrationPage.clickDeclineShareDataAlert()
+        }
+        step("And TeamOwner sees the mandatory app-lock policy alert and taps OK") {
+            pages.commonAppPage.apply {
+                assertTeamSettingsChangedAlertVisible()
+                assertTeamSettingsChangedAlertSubtextVisible(
+                    "App lock is now mandatory. Wire will lock itself after a certain time of inactivity"
+                )
+                tapOkButtonOnAlert()
+            }
+        }
+        step("Then app-lock setup is mandatory before TeamOwner can see the conversation list") {
+            pages.settingsPage.assertSetUpAppLockPageVisible()
+            pages.conversationListPage.assertConversationListNotVisible()
+        }
+        step("When TeamOwner sets the original passcode in the mandatory app-lock setup") {
+            pages.settingsPage.apply {
+                enterPasscode(requireNotNull(teamOwner?.password))
+                tapSetPasscodeButton()
+            }
+        }
+        step("And TeamOwner sees the conversation list after setting the mandatory passcode") {
+            pages.conversationListPage.assertConversationListVisible()
+        }
+        step("And TeamOwner sees Conversation EnforcedAppLockRecovery in the conversation list and opens it") {
+            pages.conversationListPage.apply {
+                assertGroupConversationVisible("EnforcedAppLockRecovery")
+                tapConversationNameInConversationList("EnforcedAppLockRecovery")
+            }
+        }
+        step("And TeamOwner sends a message in Conversation EnforcedAppLockRecovery and verifies it is visible") {
+            pages.conversationViewPage.apply {
+                typeMessageInInputField("TeamOwner history before app-lock recovery")
+                clickSendButton()
+                assertSentMessageIsVisibleInCurrentConversation("TeamOwner history before app-lock recovery")
+            }
+        }
+        step("And Member1 sends a reply that TeamOwner sees in Conversation EnforcedAppLockRecovery") {
+            testServiceHelper.userSendsGenericMessageToConversation(
+                "user2Name",
+                "EnforcedAppLockRecovery",
+                "Device1",
+                "Member1 history before app-lock recovery"
+            )
+            pages.conversationViewPage.assertReceivedMessageIsVisibleInCurrentConversation("Member1 history before app-lock recovery")
+        }
+        step("And TeamOwner returns to the conversation list and opens Settings from the conversation list menu") {
+            pages.conversationViewPage.tapBackButtonToCloseConversationViewPage()
+            pages.conversationListPage.apply {
+                clickConversationsMenuEntry()
+                clickSettingsButtonOnMenuEntry()
+            }
+        }
+        step("And TeamOwner verifies app lock is ON and cannot be changed, then returns to the conversation list") {
+            pages.settingsPage.apply {
+                assertLockWithPasswordToggleIsOn()
+                assertLockWithPasscodeToggleCannotBeChanged()
+                clickBackButtonOnSettingsPage()
+            }
+        }
+        step("When TeamOwner cold-starts Wire and selects Forgot your passcode on the unlock screen") {
+            UiAutomatorSetup.stopApp()
+            device.executeShellCommand("monkey -p $appPackage -c android.intent.category.LAUNCHER 1")
+            pages.appLockPage.apply {
+                assertAppLockGateVisible()
+                tapUsePasscodeOnBiometricPromptIfVisible()
+                assertAppLockPageVisible()
+                tapForgotPasscodeButton()
+            }
+        }
+        step("And TeamOwner logs out from recovery with clear data unchecked") {
+            pages.appLockPage.apply {
+                tapLogoutButtonOnRecoveryScreen()
+                confirmLogoutWithoutClearingData()
+            }
+        }
+        step("And TeamOwner logs back in with the same account password") {
+            pages.registrationPage.assertEmailWelcomePage()
+            loginToStagingAs(requireNotNull(teamOwner))
+        }
+        step("And TeamOwner sees the mandatory app-lock policy alert after recovery login and taps OK") {
+            pages.commonAppPage.apply {
+                assertTeamSettingsChangedAlertVisible()
+                assertTeamSettingsChangedAlertSubtextVisible(
+                    "App lock is now mandatory. Wire will lock itself after a certain time of inactivity"
+                )
+                tapOkButtonOnAlert()
+            }
+        }
+        step("Then app-lock setup is mandatory again and the conversation list is not visible") {
+            pages.settingsPage.assertSetUpAppLockPageVisible()
+            pages.conversationListPage.assertConversationListNotVisible()
+        }
+        step("When TeamOwner sets a different passcode in the mandatory app-lock setup") {
+            pages.settingsPage.apply {
+                enterPasscode("${requireNotNull(teamOwner?.password)}!New")
+                tapSetPasscodeButton()
+            }
+        }
+        step("Then TeamOwner opens Conversation EnforcedAppLockRecovery and sees both original messages") {
+            pages.conversationListPage.apply {
+                assertConversationListVisible()
+                assertGroupConversationVisible("EnforcedAppLockRecovery")
+                tapConversationNameInConversationList("EnforcedAppLockRecovery")
+            }
+            pages.conversationViewPage.apply {
+                assertSentMessageIsVisibleInCurrentConversation("TeamOwner history before app-lock recovery")
+                assertReceivedMessageIsVisibleInCurrentConversation("Member1 history before app-lock recovery")
+                tapBackButtonToCloseConversationViewPage()
+            }
+        }
+        step("And TeamOwner cold-starts Wire and verifies the app-lock gate is visible") {
+            UiAutomatorSetup.stopApp()
+            device.executeShellCommand("monkey -p $appPackage -c android.intent.category.LAUNCHER 1")
+            pages.appLockPage.apply {
+                assertAppLockGateVisible()
+            }
+        }
+        step("And TeamOwner opens the passcode screen, enters the original passcode and taps Unlock") {
+            pages.appLockPage.apply {
+                tapUsePasscodeOnBiometricPromptIfVisible()
+                assertAppLockPageVisible()
+                enterPasscode(requireNotNull(teamOwner?.password))
+                tapUnlockButtonOnAppLockPage()
+            }
+        }
+        step("Then the original passcode is rejected and conversation content stays hidden") {
+            pages.appLockPage.assertWrongPasscodeErrorMessageVisible()
+            pages.conversationListPage.assertConversationListNotVisible()
+        }
+        step("When TeamOwner enters the new passcode") {
+            pages.appLockPage.apply {
+                clearPasscodeField()
+                enterPasscode("${requireNotNull(teamOwner?.password)}!New")
+                tapUnlockButtonOnAppLockPage()
+            }
+        }
+        step("Then Wire unlocks and both original messages remain in Conversation EnforcedAppLockRecovery") {
+            pages.conversationListPage.apply {
+                assertConversationListVisible()
+                tapConversationNameInConversationList("EnforcedAppLockRecovery")
+            }
+            pages.conversationViewPage.apply {
+                assertSentMessageIsVisibleInCurrentConversation("TeamOwner history before app-lock recovery")
+                assertReceivedMessageIsVisibleInCurrentConversation("Member1 history before app-lock recovery")
+            }
+        }
+    }
+
+    @Suppress("CyclomaticComplexMethod", "LongMethod")
+    @TestCaseId("TC-13074")
+    @Category("regression", "RC", "applock")
+    @Test
+    fun givenTeamEnforcedAppLock_whenForgottenPasscodeIsRecoveredWithSsoLogin_thenNewPasscodeIsRequiredAndHistoryIsRetained() {
+
+        step("Given TeamOwner creates Keycloak SSO team EnforcedSsoAppLockRecovery on Staging") {
+            SSOServiceHelper.initialize(clientUserManager)
+            keycloakApiClient = KeycloakApiClient(backendClient)
+            runBlocking {
+                SSOServiceHelper.createKeycloakSsoTeamOwner(
+                    context,
+                    "user1Name",
+                    "EnforcedSsoAppLockRecovery",
+                    requireNotNull(keycloakApiClient)
+                )
+            }
+        }
+        step("And TeamOwner configures MLS for EnforcedSsoAppLockRecovery") {
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "EnforcedSsoAppLockRecovery", backendClient)
+        }
+        step("And TeamOwner provisions Member1 in Keycloak for SSO login") {
+            runBlocking {
+                SSOServiceHelper.addKeycloakSsoUsers("user1Name", "user2Name", requireNotNull(keycloakApiClient))
+            }
+        }
+        step("And TeamOwner enforces app lock for team EnforcedSsoAppLockRecovery with a 30-second timeout") {
+            backendSetupHelper.enableForceAppLockFeature(
+                "user1Name",
+                "EnforcedSsoAppLockRecovery",
+                30,
+                backendClient
+            )
+        }
+        step("And Member1 is the current SSO user") {
+            teamOwner = clientUserManager.findUserByNameOrNameAlias("user1Name")
+            member1 = clientUserManager.findUserByNameOrNameAlias("user2Name")
+            SSOServiceHelper.setCurrentSsoUser("user2Name")
+        }
+        step("When Member1 opens Staging SSO login and signs in through Keycloak") {
+            pages.registrationPage.assertEmailWelcomePage()
+            openStagingSsoLogin()
+            pages.ssoPage.apply {
+                waitUntilKeycloakPageLoaded()
+                enterKeycloakEmail(requireNotNull(member1?.email))
+                closeKeyboardIfOpened()
+                enterKeycloakPassword(requireNotNull(member1?.password))
+                closeKeyboardIfOpened()
+                tapKeycloakSignIn()
+            }
+        }
+        step("And Member1 sees the mandatory app-lock policy alert and taps OK") {
+            pages.commonAppPage.apply {
+                assertTeamSettingsChangedAlertVisible()
+                assertTeamSettingsChangedAlertSubtextVisible(
+                    "App lock is now mandatory. Wire will lock itself after a certain time of inactivity"
+                )
+                tapOkButtonOnAlert()
+            }
+        }
+        step("Then app-lock setup is mandatory before Member1 can see the conversation list") {
+            pages.settingsPage.assertSetUpAppLockPageVisible()
+            pages.conversationListPage.assertConversationListNotVisible()
+        }
+        step("When Member1 sets the original passcode in the mandatory app-lock setup") {
+            pages.settingsPage.apply {
+                enterPasscode(requireNotNull(member1?.password))
+                tapSetPasscodeButton()
+            }
+        }
+        step("And Member1 completes username setup and declines analytics consent") {
+            pages.registrationPage.apply {
+                assertEnterYourUserNameInfoText()
+                setUserName(requireNotNull(member1?.uniqueUsername))
+                clickConfirmButton()
+                waitUntilLoginFlowIsCompleted()
+                clickAllowNotificationButton()
+                clickDeclineShareDataAlert()
+            }
+        }
+        step("And Member1 sees the conversation list after setting the mandatory passcode") {
+            pages.conversationListPage.assertConversationListVisible()
+        }
+        step("And TeamOwner resolves Member1's Wire user ID after the first SSO login") {
+            requireNotNull(requireNotNull(member1).getUserId())
+        }
+        step("And TeamOwner registers a remote MLS device to create the Conversation and send replies") {
+            testServiceHelper.addDevice("user1Name", null, "Device1")
+        }
+        step("And TeamOwner creates MLS group Conversation EnforcedSsoAppLockRecovery with Member1") {
+            testServiceHelper.userCreatesMLSGroupConversation(
+                ownerAlias = "user1Name",
+                participantAliases = "user2Name",
+                conversationName = "EnforcedSsoAppLockRecovery",
+                deviceName = "Device1"
+            )
+        }
+        step("And Member1 sees Conversation EnforcedSsoAppLockRecovery in the conversation list and opens it") {
+            pages.conversationListPage.apply {
+                assertGroupConversationVisible("EnforcedSsoAppLockRecovery")
+                tapConversationNameInConversationList("EnforcedSsoAppLockRecovery")
+            }
+        }
+        step("And Member1 sends a message in Conversation EnforcedSsoAppLockRecovery and verifies it is visible") {
+            pages.conversationViewPage.apply {
+                typeMessageInInputField("Member1 history before app-lock recovery")
+                clickSendButton()
+                assertSentMessageIsVisibleInCurrentConversation("Member1 history before app-lock recovery")
+            }
+        }
+        step("And TeamOwner sends a reply that Member1 sees in Conversation EnforcedSsoAppLockRecovery") {
+            testServiceHelper.userSendsGenericMessageToConversation(
+                "user1Name",
+                "EnforcedSsoAppLockRecovery",
+                "Device1",
+                "TeamOwner history before app-lock recovery"
+            )
+            pages.conversationViewPage.assertReceivedMessageIsVisibleInCurrentConversation("TeamOwner history before app-lock recovery")
+        }
+        step("And Member1 returns to the conversation list and opens Settings from the conversation list menu") {
+            pages.conversationViewPage.tapBackButtonToCloseConversationViewPage()
+            pages.conversationListPage.apply {
+                clickConversationsMenuEntry()
+                clickSettingsButtonOnMenuEntry()
+            }
+        }
+        step("And Member1 verifies app lock is ON and cannot be changed, then returns to the conversation list") {
+            pages.settingsPage.apply {
+                assertLockWithPasswordToggleIsOn()
+                assertLockWithPasscodeToggleCannotBeChanged()
+                clickBackButtonOnSettingsPage()
+            }
+        }
+        step("When Member1 cold-starts Wire and selects Forgot your passcode on the unlock screen") {
+            UiAutomatorSetup.stopApp()
+            device.executeShellCommand("monkey -p $appPackage -c android.intent.category.LAUNCHER 1")
+            pages.appLockPage.apply {
+                assertAppLockGateVisible()
+                tapUsePasscodeOnBiometricPromptIfVisible()
+                assertAppLockPageVisible()
+                tapForgotPasscodeButton()
+            }
+        }
+        step("And Member1 logs out from recovery with clear data unchecked") {
+            pages.appLockPage.apply {
+                tapLogoutButtonOnRecoveryScreen()
+                confirmLogoutWithoutClearingData()
+            }
+        }
+        step("And Member1 logs back in through the same Keycloak SSO provider") {
+            pages.registrationPage.assertEmailWelcomePage()
+            openStagingSsoLogin()
+            pages.ssoPage.signInToKeycloakIfRequested(
+                requireNotNull(member1?.email),
+                requireNotNull(member1?.password)
+            )
+            pages.registrationPage.waitUntilLoginFlowIsCompleted()
+        }
+        step("And Member1 sees the mandatory app-lock policy alert after recovery login and taps OK") {
+            pages.commonAppPage.apply {
+                assertTeamSettingsChangedAlertVisible()
+                assertTeamSettingsChangedAlertSubtextVisible(
+                    "App lock is now mandatory. Wire will lock itself after a certain time of inactivity"
+                )
+                tapOkButtonOnAlert()
+            }
+        }
+        step("Then app-lock setup is mandatory again and the conversation list is not visible") {
+            pages.settingsPage.assertSetUpAppLockPageVisible()
+            pages.conversationListPage.assertConversationListNotVisible()
+        }
+        step("When Member1 sets a different passcode in the mandatory app-lock setup") {
+            pages.settingsPage.apply {
+                enterPasscode("${requireNotNull(member1?.password)}!New")
+                tapSetPasscodeButton()
+            }
+        }
+        step("Then Member1 opens Conversation EnforcedSsoAppLockRecovery and sees both original messages") {
+            pages.conversationListPage.apply {
+                assertConversationListVisible()
+                assertGroupConversationVisible("EnforcedSsoAppLockRecovery")
+                tapConversationNameInConversationList("EnforcedSsoAppLockRecovery")
+            }
+            pages.conversationViewPage.apply {
+                assertSentMessageIsVisibleInCurrentConversation("Member1 history before app-lock recovery")
+                assertReceivedMessageIsVisibleInCurrentConversation("TeamOwner history before app-lock recovery")
+                tapBackButtonToCloseConversationViewPage()
+            }
+        }
+        step("And Member1 cold-starts Wire and verifies the app-lock gate is visible") {
+            UiAutomatorSetup.stopApp()
+            device.executeShellCommand("monkey -p $appPackage -c android.intent.category.LAUNCHER 1")
+            pages.appLockPage.apply {
+                assertAppLockGateVisible()
+            }
+        }
+        step("And Member1 opens the passcode screen, enters the original passcode and taps Unlock") {
+            pages.appLockPage.apply {
+                tapUsePasscodeOnBiometricPromptIfVisible()
+                assertAppLockPageVisible()
+                enterPasscode(requireNotNull(member1?.password))
+                tapUnlockButtonOnAppLockPage()
+            }
+        }
+        step("Then the original passcode is rejected and conversation content stays hidden") {
+            pages.appLockPage.assertWrongPasscodeErrorMessageVisible()
+            pages.conversationListPage.assertConversationListNotVisible()
+        }
+        step("When Member1 enters the new passcode") {
+            pages.appLockPage.apply {
+                clearPasscodeField()
+                enterPasscode("${requireNotNull(member1?.password)}!New")
+                tapUnlockButtonOnAppLockPage()
+            }
+        }
+        step("Then Wire unlocks and both original messages remain in Conversation EnforcedSsoAppLockRecovery") {
+            pages.conversationListPage.apply {
+                assertConversationListVisible()
+                tapConversationNameInConversationList("EnforcedSsoAppLockRecovery")
+            }
+            pages.conversationViewPage.apply {
+                assertSentMessageIsVisibleInCurrentConversation("Member1 history before app-lock recovery")
+                assertReceivedMessageIsVisibleInCurrentConversation("TeamOwner history before app-lock recovery")
+            }
+        }
+    }
+
+    @Suppress("CyclomaticComplexMethod", "LongMethod")
+    @TestCaseId("TC-13075")
+    @Category("regression", "RC", "applock")
+    @Test
+    fun givenUserEnabledAppLock_whenForgottenPasscodeIsRecoveredWithSsoLogin_thenHistoryIsRetained() {
+
+        step("Given TeamOwner creates Keycloak SSO team SsoAppLockRecovery on Staging") {
+            SSOServiceHelper.initialize(clientUserManager)
+            keycloakApiClient = KeycloakApiClient(backendClient)
+            runBlocking {
+                SSOServiceHelper.createKeycloakSsoTeamOwner(
+                    context,
+                    "user1Name",
+                    "SsoAppLockRecovery",
+                    requireNotNull(keycloakApiClient)
+                )
+            }
+        }
+        step("And TeamOwner configures MLS for SsoAppLockRecovery") {
+            backendSetupHelper.userConfiguresMLSForTeam("user1Name", "SsoAppLockRecovery", backendClient)
+        }
+        step("And TeamOwner provisions Member1 in Keycloak for SSO login") {
+            runBlocking {
+                SSOServiceHelper.addKeycloakSsoUsers("user1Name", "user2Name", requireNotNull(keycloakApiClient))
+            }
+        }
+        step("And Member1 is the current SSO user") {
+            teamOwner = clientUserManager.findUserByNameOrNameAlias("user1Name")
+            member1 = clientUserManager.findUserByNameOrNameAlias("user2Name")
+            SSOServiceHelper.setCurrentSsoUser("user2Name")
+        }
+        step("When Member1 opens Staging SSO login and signs in through Keycloak") {
+            pages.registrationPage.assertEmailWelcomePage()
+            openStagingSsoLogin()
+            pages.ssoPage.apply {
+                waitUntilKeycloakPageLoaded()
+                enterKeycloakEmail(requireNotNull(member1?.email))
+                closeKeyboardIfOpened()
+                enterKeycloakPassword(requireNotNull(member1?.password))
+                closeKeyboardIfOpened()
+                tapKeycloakSignIn()
+            }
+        }
+        step("And Member1 completes username setup and declines analytics consent") {
+            pages.registrationPage.apply {
+                assertEnterYourUserNameInfoText()
+                setUserName(requireNotNull(member1?.uniqueUsername))
+                clickConfirmButton()
+                waitUntilLoginFlowIsCompleted()
+                clickAllowNotificationButton()
+                clickDeclineShareDataAlert()
+            }
+        }
+        step("Then Member1 reaches the conversation list without mandatory app-lock setup") {
+            pages.conversationListPage.assertConversationListVisible()
+        }
+        step("And TeamOwner resolves Member1's Wire user ID after the first SSO login") {
+            requireNotNull(requireNotNull(member1).getUserId())
+        }
+        step("And TeamOwner registers a remote MLS device to create the Conversation and send replies") {
+            testServiceHelper.addDevice("user1Name", null, "Device1")
+        }
+        step("And TeamOwner creates MLS group Conversation SsoAppLockRecovery with Member1") {
+            testServiceHelper.userCreatesMLSGroupConversation(
+                ownerAlias = "user1Name",
+                participantAliases = "user2Name",
+                conversationName = "SsoAppLockRecovery",
+                deviceName = "Device1"
+            )
+        }
+        step("And Member1 sees Conversation SsoAppLockRecovery in the conversation list and opens it") {
+            pages.conversationListPage.apply {
+                assertGroupConversationVisible("SsoAppLockRecovery")
+                tapConversationNameInConversationList("SsoAppLockRecovery")
+            }
+        }
+        step("And Member1 sends a message in Conversation SsoAppLockRecovery and verifies it is visible") {
+            pages.conversationViewPage.apply {
+                typeMessageInInputField("Member1 history before app-lock recovery")
+                clickSendButton()
+                assertSentMessageIsVisibleInCurrentConversation("Member1 history before app-lock recovery")
+            }
+        }
+        step("And TeamOwner sends a reply that Member1 sees in Conversation SsoAppLockRecovery") {
+            testServiceHelper.userSendsGenericMessageToConversation(
+                "user1Name",
+                "SsoAppLockRecovery",
+                "Device1",
+                "TeamOwner history before app-lock recovery"
+            )
+            pages.conversationViewPage.assertReceivedMessageIsVisibleInCurrentConversation("TeamOwner history before app-lock recovery")
+        }
+        step("And Member1 returns to the conversation list and opens Settings from the conversation list menu") {
+            pages.conversationViewPage.tapBackButtonToCloseConversationViewPage()
+            pages.conversationListPage.apply {
+                clickConversationsMenuEntry()
+                clickSettingsButtonOnMenuEntry()
+            }
+        }
+        step("And Member1 verifies app lock is OFF, opens app-lock setup and sets the original passcode") {
+            pages.settingsPage.apply {
+                assertLockWithPasswordToggleIsOff()
+                turnOnLockWithPasscodeToggle()
+                assertSetUpAppLockPageVisible()
+                enterPasscode(requireNotNull(member1?.password))
+                tapSetPasscodeButton()
+            }
+        }
+        step("And Member1 verifies app lock is ON and returns to the conversation list") {
+            pages.settingsPage.apply {
+                assertLockWithPasswordToggleIsOn()
+                clickBackButtonOnSettingsPage()
+            }
+        }
+        step("When Member1 cold-starts Wire and selects Forgot your passcode on the unlock screen") {
+            UiAutomatorSetup.stopApp()
+            device.executeShellCommand("monkey -p $appPackage -c android.intent.category.LAUNCHER 1")
+            pages.appLockPage.apply {
+                assertAppLockGateVisible()
+                tapUsePasscodeOnBiometricPromptIfVisible()
+                assertAppLockPageVisible()
+                tapForgotPasscodeButton()
+            }
+        }
+        step("And Member1 logs out from recovery with clear data unchecked") {
+            pages.appLockPage.apply {
+                tapLogoutButtonOnRecoveryScreen()
+                confirmLogoutWithoutClearingData()
+            }
+        }
+        step("And Member1 logs back in through the same Keycloak SSO provider") {
+            pages.registrationPage.assertEmailWelcomePage()
+            openStagingSsoLogin()
+            pages.ssoPage.signInToKeycloakIfRequested(
+                requireNotNull(member1?.email),
+                requireNotNull(member1?.password)
+            )
+            pages.registrationPage.waitUntilLoginFlowIsCompleted()
+        }
+        step("Then Member1 reaches the conversation list without mandatory setup and sees both original messages") {
+            pages.conversationListPage.apply {
+                assertConversationListVisible()
+                assertGroupConversationVisible("SsoAppLockRecovery")
+                tapConversationNameInConversationList("SsoAppLockRecovery")
+            }
+            pages.conversationViewPage.apply {
+                assertSentMessageIsVisibleInCurrentConversation("Member1 history before app-lock recovery")
+                assertReceivedMessageIsVisibleInCurrentConversation("TeamOwner history before app-lock recovery")
+                tapBackButtonToCloseConversationViewPage()
+            }
+        }
+        step("When Member1 opens Settings from the conversation list menu") {
+            pages.conversationListPage.apply {
+                clickConversationsMenuEntry()
+                clickSettingsButtonOnMenuEntry()
+            }
+        }
+        step("And Member1 verifies app lock is OFF, sets a new passcode, verifies it is ON and returns to the conversation list") {
+            pages.settingsPage.apply {
+                assertLockWithPasswordToggleIsOff()
+                turnOnLockWithPasscodeToggle()
+                assertSetUpAppLockPageVisible()
+                enterPasscode("${requireNotNull(member1?.password)}!New")
+                tapSetPasscodeButton()
+                assertLockWithPasswordToggleIsOn()
+                clickBackButtonOnSettingsPage()
+            }
+        }
+        step("And Member1 cold-starts Wire and verifies the app-lock gate is visible") {
+            UiAutomatorSetup.stopApp()
+            device.executeShellCommand("monkey -p $appPackage -c android.intent.category.LAUNCHER 1")
+            pages.appLockPage.apply {
+                assertAppLockGateVisible()
+            }
+        }
+        step("And Member1 opens the passcode screen, enters the original passcode and taps Unlock") {
+            pages.appLockPage.apply {
+                tapUsePasscodeOnBiometricPromptIfVisible()
+                assertAppLockPageVisible()
+                enterPasscode(requireNotNull(member1?.password))
+                tapUnlockButtonOnAppLockPage()
+            }
+        }
+        step("Then the original passcode is rejected and conversation content stays hidden") {
+            pages.appLockPage.assertWrongPasscodeErrorMessageVisible()
+            pages.conversationListPage.assertConversationListNotVisible()
+        }
+        step("When Member1 enters the new passcode") {
+            pages.appLockPage.apply {
+                clearPasscodeField()
+                enterPasscode("${requireNotNull(member1?.password)}!New")
+                tapUnlockButtonOnAppLockPage()
+            }
+        }
+        step("Then Wire unlocks and both original messages remain in Conversation SsoAppLockRecovery") {
+            pages.conversationListPage.apply {
+                assertConversationListVisible()
+                tapConversationNameInConversationList("SsoAppLockRecovery")
+            }
+            pages.conversationViewPage.apply {
+                assertSentMessageIsVisibleInCurrentConversation("Member1 history before app-lock recovery")
+                assertReceivedMessageIsVisibleInCurrentConversation("TeamOwner history before app-lock recovery")
+            }
+        }
+    }
+
+    @After
+    fun cleanUpSsoFixtures() {
+        keycloakApiClient?.cleanUp()
+    }
+
+    // Open the configured IdP; first login and recovery handle their own post-login screens.
+    private fun openStagingSsoLogin() {
+        pages.loginPage.apply {
+            clickStagingDeepLink()
+            clickProceedButtonOnDeeplinkOverlay()
+            clickContinueButtonOnBackendConfigSuccess()
+            enterSSOCodeOnSSOLoginTab(SSOServiceHelper.getSsoCode())
+            clickLoginButton()
+        }
+        pages.chromePage.dismissFirstRunIfVisible()
+    }
+
+    // Shared password login flow; analytics consent is handled only on the first login.
+    private fun loginToStagingAs(user: ClientUser) {
+        pages.loginPage.apply {
+            clickStagingDeepLink()
+            clickProceedButtonOnDeeplinkOverlay()
+            clickContinueButtonOnBackendConfigSuccess()
+            enterUserIdentifier(user.email.orEmpty())
+            clickLoginButton()
+            enterUserPassword(user.password.orEmpty())
+            clickLoginButton()
+        }
+        pages.registrationPage.apply {
+            waitUntilLoginFlowIsCompleted()
+            clickAllowNotificationButton()
+        }
+        pages.conversationListPage.waitUntilWireServiceNotificationDisappears()
     }
 
     private companion object {

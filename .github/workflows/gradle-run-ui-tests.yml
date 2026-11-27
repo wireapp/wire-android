@@ -49,6 +49,19 @@ jobs:
         with:
           enable-kvm: true
 
+      # Compile before the emulator boots, then stop the daemons. Building next to a running
+      # emulator pushed the 8x runner to ~98% memory and the VM was shut down mid-test.
+      # generateVersionFile pins the version code so the test run finds the build up to date.
+      - name: Build app and test APKs
+        run: |
+          ./gradlew generateVersionFile
+          ./gradlew :app:assembleDevDebug :app:assembleDevDebugAndroidTest
+          ./gradlew --stop
+          pkill -f KotlinCompileDaemon || true
+        env:
+          GITHUB_USER: ${{ github.actor }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: AVD cache
         uses: WarpBuilds/cache@dad44e2487e9dc889ad6e6bd198e77bb2d828eee # v2
         id: avd-cache

@@ -241,19 +241,8 @@ class LogoutTests : BaseUiTest() {
             pages.selfUserProfilePage.iSeeUserProfilePage()
         }
 
-        step("When I tap log out button and see the clear data alert") {
-            pages.selfUserProfilePage.apply {
-                tapLogoutButton()
-                iSeeClearDataOnLogOutAlert()
-            }
-        }
-
-        step("And I select the option to clear my data and log out") {
-            pages.selfUserProfilePage.apply {
-                iSeeInfoTextCheckbox("Delete all your personal information and conversations on this device")
-                tapInfoTextCheckbox()
-                tapLogoutButton()
-            }
+        step("When I tap Log out, see the clear data alert, select clear data and confirm logout") {
+            pages.selfUserProfilePage.logoutWithClearedData()
         }
 
         step("Then I see email verification Welcome Page") {

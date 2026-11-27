@@ -91,7 +91,7 @@ class WireDriveDownloadsAndOfflineTests : BaseUiTest() {
     }
 
     @Suppress("LongMethod")
-    @TestCaseId("TC-12256")
+    @TestCaseId("TC-12928")
     @Category("regression", "RC", "wireDrive", "wireDriveDownloadsAndOffline")
     @Test
     fun givenMemberHasEditorAccessToSharedDrive_whenSavingPdfOfflineAndRestartingWireWithoutNetwork_thenSavedPdfRemainsAvailableAndReadOnly() {
@@ -392,7 +392,7 @@ class WireDriveDownloadsAndOfflineTests : BaseUiTest() {
     }
 
     @Suppress("LongMethod")
-    @TestCaseId("TC-12252")
+    @TestCaseId("TC-12924")
     @Category("regression", "RC", "wireDrive", "wireDriveDownloadsAndOffline")
     @Test
     fun givenMemberHasUnopenedVideoAndAudio_whenPlayingPausingResumingAndReopeningSavedFiles_thenCorrectPlayersWorkAndPlaybackStopsOnBack() {
@@ -555,7 +555,7 @@ class WireDriveDownloadsAndOfflineTests : BaseUiTest() {
     }
 
     @Suppress("LongMethod")
-    @TestCaseId("TC-12257")
+    @TestCaseId("TC-12929")
     @Category("regression", "RC", "wireDrive", "wireDriveDownloadsAndOffline")
     @Test
     fun givenPdfSavedInNestedFolders_whenMemberBrowsesAndTriesToCreateFolderOffline_thenSavedPdfOpensUncachedPdfIsHiddenAndCreationFails() {
@@ -1001,7 +1001,7 @@ class WireDriveDownloadsAndOfflineTests : BaseUiTest() {
     }
 
     @Suppress("LongMethod")
-    @TestCaseId("TC-12258")
+    @TestCaseId("TC-12930")
     @Category("regression", "RC", "wireDrive", "wireDriveDownloadsAndOffline")
     @Test
     fun givenMemberHasSavedSharedDrivePdfOffline_whenRemovingOfflineAccessWithoutNetwork_thenLocalCopyDisappearsAndBothMemberAndOwnerCanStillOpenOnlineFile() {
@@ -1296,7 +1296,7 @@ class WireDriveDownloadsAndOfflineTests : BaseUiTest() {
     }
 
     @Suppress("LongMethod")
-    @TestCaseId("TC-12259")
+    @TestCaseId("TC-12931")
     @Category("regression", "RC", "wireDrive", "wireDriveDownloadsAndOffline")
     @Test
     fun givenMemberIsEditorAndGuestIsViewer_whenInspectingOfflineActions_thenOnlyEditorPdfAndImageCanBeSavedAndConversationMenusHaveNoOfflineActions() {
@@ -1503,7 +1503,7 @@ class WireDriveDownloadsAndOfflineTests : BaseUiTest() {
     }
 
     @Suppress("LongMethod")
-    @TestCaseId("TC-12260")
+    @TestCaseId("TC-12932")
     @Category("regression", "RC", "wireDrive", "wireDriveDownloadsAndOffline")
     @Test
     fun givenMemberIsSavingLargePdfOffline_whenConnectionIsLostAndRestored_thenDownloadResumesAutomaticallyAndSavesEveryPage() {
@@ -2078,7 +2078,7 @@ class WireDriveDownloadsAndOfflineTests : BaseUiTest() {
     }
 
     @Suppress("LongMethod")
-    @TestCaseId("TC-12261")
+    @TestCaseId("TC-12933")
     @Category("regression", "RC", "wireDrive", "wireDriveDownloadsAndOffline")
     @Test
     fun givenMemberHasSavedPdfOffline_whenTeamOwnerUpdatesTheSameOnlinePdf_thenMemberStillReadsOriginalContentWithoutEditingWhileOffline() {

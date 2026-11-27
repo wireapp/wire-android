@@ -11,5 +11,17 @@
                 <data android:mimeType="application/pdf" />
             </intent-filter>
         </activity>
+        <activity
+            android:name="com.wire.android.tests.core.fixtures.ProfileShareReceiverActivity"
+            android:exported="true"
+            android:label="@string/profile_test_receiver"
+            android:theme="@android:style/Theme.Material.Light.NoActionBar">
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="text/plain" />
+                <data android:mimeType="image/*" />
+            </intent-filter>
+        </activity>
     </application>
 </manifest>

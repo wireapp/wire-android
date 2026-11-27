@@ -18,17 +18,26 @@
 package util
 
 import android.graphics.Bitmap
+import android.graphics.Rect
+import android.net.Uri
+import androidx.test.platform.app.InstrumentationRegistry
 import com.google.zxing.BarcodeFormat
 import com.google.zxing.BinaryBitmap
 import com.google.zxing.EncodeHintType
 import com.google.zxing.MultiFormatWriter
 import com.google.zxing.NotFoundException
 import com.google.zxing.RGBLuminanceSource
+import com.google.zxing.ReaderException
 import com.google.zxing.common.BitMatrix
 import com.google.zxing.common.HybridBinarizer
 import com.google.zxing.qrcode.QRCodeReader
 import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel
 import java.util.EnumMap
+
+fun profileQrLink(profileLink: String): String {
+    val qualifiedId = requireNotNull(Uri.parse(profileLink).getQueryParameter("id"))
+    return "wire://user/${qualifiedId.substringAfter('@')}/${qualifiedId.substringBefore('@')}"
+}
 
 fun generateQRCode(text: String, size: Int = 512): Bitmap {
     val hints = EnumMap<EncodeHintType, Any>(EncodeHintType::class.java).apply {
@@ -67,5 +76,23 @@ fun decodeQRCode(bitmap: Bitmap): String? {
         QRCodeReader().decode(image).text
     } catch (_: NotFoundException) {
         null
+    }
+}
+
+// Decode only the caller's screen area, retrying unreadable images through the caller's existing wait.
+fun qrCodeInScreenArea(bounds: Rect): String? {
+    if (bounds.isEmpty) return null
+    val screenshot = requireNotNull(InstrumentationRegistry.getInstrumentation().uiAutomation.takeScreenshot())
+    try {
+        val area = Bitmap.createBitmap(screenshot, bounds.left, bounds.top, bounds.width(), bounds.height())
+        return try {
+            decodeQRCode(area)
+        } catch (_: ReaderException) {
+            null
+        } finally {
+            if (area !== screenshot) area.recycle()
+        }
+    } finally {
+        screenshot.recycle()
     }
 }

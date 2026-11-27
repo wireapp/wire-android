@@ -54,7 +54,7 @@ class MeetingListTests : BaseUiTest() {
         settings.useLocaleTimeFormat()
         // English selectors also support the English regional locales used by the CI phones.
         check(context.resources.configuration.locales[0].language == "en") {
-            "Meeting UI automation requires English UI; TC-12051 changes and restores the app locale"
+            "Meeting UI automation requires English UI; TC-12832 changes and restores the app locale"
         }
         givenTeamMemberIsLoggedIn()
     }
@@ -72,7 +72,7 @@ class MeetingListTests : BaseUiTest() {
         }
     }
 
-    @TestCaseId("TC-12041")
+    @TestCaseId("TC-12826")
     @Category("regression", "RC", "meetings")
     @Test
     fun givenNoMeetings_whenOpeningMeetings_thenEmptyStateIsResponsive() {
@@ -97,7 +97,7 @@ class MeetingListTests : BaseUiTest() {
         }
     }
 
-    @TestCaseId("TC-12042", "TC-12050")
+    @TestCaseId("TC-12827", "TC-12831")
     @Category("regression", "RC", "meetings")
     @Test
     fun givenInvitedScheduledAndRecurringMeetings_whenOpeningList_thenLocalGroupingOrderAndDetailsAreCorrect() {
@@ -140,7 +140,7 @@ class MeetingListTests : BaseUiTest() {
         }
     }
 
-    @TestCaseId("TC-12044")
+    @TestCaseId("TC-12828")
     @Category("regression", "RC", "meetings")
     @Test
     fun givenCompletedMeetingToday_whenLocalMidnightPasses_thenOnlyTheOldMeetingDisappears() {
@@ -177,7 +177,7 @@ class MeetingListTests : BaseUiTest() {
         }
     }
 
-    @TestCaseId("TC-12045")
+    @TestCaseId("TC-12829")
     @Category("regression", "RC", "meetings")
     @Test
     fun givenMoreThanInitialPageOfMeetings_whenScrolling_thenAllMeetingsLoadInOrderWithoutDuplicatesOrJumps() {
@@ -205,7 +205,7 @@ class MeetingListTests : BaseUiTest() {
         }
     }
 
-    @TestCaseId("TC-12047")
+    @TestCaseId("TC-12830")
     @Category("regression", "RC", "meetings")
     @Test
     fun givenMeetingListIsActive_whenHostCreatesUpdatesDeletesAndChangesWhileBackgrounded_thenListSynchronizes() {
@@ -257,7 +257,7 @@ class MeetingListTests : BaseUiTest() {
 
     // Android 13 introduced the per-app locale command. The Android 11 and 12 CI phones skip this case.
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.TIRAMISU)
-    @TestCaseId("TC-12051")
+    @TestCaseId("TC-12832")
     @Category("regression", "RC", "meetings")
     @Test
     fun givenOneMeeting_whenAppLocaleChangesFromGermanToUs_thenFormattingChangesButOccurrenceDoesNot() {
@@ -287,7 +287,7 @@ class MeetingListTests : BaseUiTest() {
         }
     }
 
-    @TestCaseId("TC-12053", "TC-12055")
+    @TestCaseId("TC-12833", "TC-12834")
     @Category("regression", "RC", "meetings")
     @Test
     fun givenUpcomingMeetings_whenCountdownReachesStartAndAppReturnsFromBackground_thenJoinStateIsCurrent() {

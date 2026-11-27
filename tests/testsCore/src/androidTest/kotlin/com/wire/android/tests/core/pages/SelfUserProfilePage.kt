@@ -28,6 +28,7 @@ import kotlin.time.Duration.Companion.seconds
 
 data class SelfUserProfilePage(private val device: UiDevice) {
 
+    private val shareProfileLinkButton = UiSelectorParams(description = "Share Profile Link")
     private val userProfilePageTitle = UiSelectorParams(text = "User Profile")
     private val logoutButton = UiSelectorParams(text = "Log out")
     private val clearDataAlert = UiSelectorParams(text = "Clear Data?")
@@ -49,6 +50,11 @@ data class SelfUserProfilePage(private val device: UiDevice) {
         UiSelectorParams(description = "Profile name, $accountName")
 
     private fun availabilityStatus(status: String) = UiSelectorParams(text = status)
+
+    fun tapShareProfileLinkButton(): SelfUserProfilePage {
+        UiWaitUtils.waitElement(shareProfileLinkButton).click()
+        return this
+    }
 
     fun iSeeUserProfilePage(timeout: Duration = 30.seconds): SelfUserProfilePage {
         UiWaitUtils.waitAnyVisible(
@@ -120,6 +126,15 @@ data class SelfUserProfilePage(private val device: UiDevice) {
 
     fun tapLogoutButton(): SelfUserProfilePage {
         UiWaitUtils.waitElement(logoutButton).click()
+        return this
+    }
+
+    fun logoutWithClearedData(): SelfUserProfilePage {
+        tapLogoutButton()
+        iSeeClearDataOnLogOutAlert()
+        iSeeInfoTextCheckbox("Delete all your personal information and conversations on this device")
+        tapInfoTextCheckbox()
+        tapLogoutButton()
         return this
     }
 

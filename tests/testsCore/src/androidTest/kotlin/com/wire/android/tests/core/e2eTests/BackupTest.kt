@@ -190,11 +190,7 @@ class BackupTest : BaseUiTest() {
         step("And I log out with clear data selected") {
             pages.selfUserProfilePage.apply {
                 iSeeUserProfilePage()
-                tapLogoutButton()
-                iSeeClearDataOnLogOutAlert()
-                iSeeInfoTextCheckbox("Delete all your personal information and conversations on this device")
-                tapInfoTextCheckbox()
-                tapLogoutButton()
+                logoutWithClearedData()
             }
         }
 
@@ -425,11 +421,7 @@ class BackupTest : BaseUiTest() {
         step("And I log out with clear data selected") {
             pages.selfUserProfilePage.apply {
                 iSeeUserProfilePage()
-                tapLogoutButton()
-                iSeeClearDataOnLogOutAlert()
-                iSeeInfoTextCheckbox("Delete all your personal information and conversations on this device")
-                tapInfoTextCheckbox()
-                tapLogoutButton()
+                logoutWithClearedData()
             }
         }
 
@@ -675,11 +667,7 @@ class BackupTest : BaseUiTest() {
         step("And I log out with clear data selected") {
             pages.selfUserProfilePage.apply {
                 iSeeUserProfilePage()
-                tapLogoutButton()
-                iSeeClearDataOnLogOutAlert()
-                iSeeInfoTextCheckbox("Delete all your personal information and conversations on this device")
-                tapInfoTextCheckbox()
-                tapLogoutButton()
+                logoutWithClearedData()
             }
         }
 

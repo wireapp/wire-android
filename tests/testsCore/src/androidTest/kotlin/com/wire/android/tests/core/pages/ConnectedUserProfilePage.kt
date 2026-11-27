@@ -79,6 +79,11 @@ data class ConnectedUserProfilePage(private val device: UiDevice) {
         return this
     }
 
+    fun assertProfileUsername(username: String): ConnectedUserProfilePage {
+        UiWaitUtils.waitElement(UiSelectorParams(text = "@${username.removePrefix("@")}"))
+        return this
+    }
+
     fun tapDevicesTab(): ConnectedUserProfilePage {
         UiWaitUtils.waitElement(devicesTab).click()
         return this

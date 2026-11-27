@@ -196,6 +196,99 @@ data class SettingsPage(private val device: UiDevice) {
         return this
     }
 
+    fun setTypingIndicatorEnabled(enabled: Boolean): SettingsPage {
+        setPrivacySettingEnabled("Typing indicator", enabled)
+        return this
+    }
+
+    fun assertTypingIndicatorToggleIsOn(): SettingsPage {
+        assertPrivacySettingIsOn("Typing indicator")
+        return this
+    }
+
+    @Suppress("MagicNumber")
+    fun assertAllPrivacySettingsRemainOn(): SettingsPage {
+        var consecutiveMatches = 0
+        assertTrue(
+            "Privacy settings did not remain ON across three consecutive checks",
+            UiWaitUtils.retryUntilTimeout(UiWaitUtils.DEFAULT_TIMEOUT, pollingInterval = 1.seconds) {
+                val allOn = listOf("Typing indicator", "Send read receipts", "Censor screenshots").all { label ->
+                    val state = device.findObject(UiSelector().text(label)).getFromParent(toggleOnText)
+                    state.exists() && !state.visibleBounds.isEmpty
+                }
+                // Reset if the initial ON values change while the saved settings load.
+                consecutiveMatches = if (allOn) consecutiveMatches + 1 else 0
+                consecutiveMatches >= 3
+            }
+        )
+        return this
+    }
+
+    fun setReadReceiptsEnabled(enabled: Boolean): SettingsPage {
+        setPrivacySettingEnabled("Send read receipts", enabled)
+        return this
+    }
+
+    fun setScreenshotCensoringEnabled(enabled: Boolean): SettingsPage {
+        setPrivacySettingEnabled("Censor screenshots", enabled)
+        return this
+    }
+
+    fun assertScreenshotCensoringToggleIsOn(): SettingsPage {
+        assertPrivacySettingIsOn("Censor screenshots")
+        return this
+    }
+
+    fun assertTypingIndicatorToggleIsOff(): SettingsPage {
+        assertPrivacySettingIsOff("Typing indicator")
+        return this
+    }
+
+    fun assertScreenshotCensoringToggleIsOff(): SettingsPage {
+        assertPrivacySettingIsOff("Censor screenshots")
+        return this
+    }
+
+    private fun assertPrivacySettingIsOff(label: String) {
+        UiWaitUtils.waitElement(UiSelectorParams(text = label))
+        assertTrue(
+            "'$label' should be OFF",
+            UiWaitUtils.retryUntilTimeout(UiWaitUtils.DEFAULT_TIMEOUT) {
+                val state = device.findObject(UiSelector().text(label)).getFromParent(toggleOffText)
+                state.exists() && !state.visibleBounds.isEmpty
+            }
+        )
+    }
+
+    private fun setPrivacySettingEnabled(label: String, enabled: Boolean) {
+        UiWaitUtils.waitElement(UiSelectorParams(text = label))
+        val labelSelector = UiSelector().text(label)
+        val expectedState = if (enabled) toggleOnText else toggleOffText
+        if (!device.findObject(labelSelector).getFromParent(expectedState).exists()) {
+            val toggle = device.findObject(labelSelector).getFromParent(clickableToggle)
+            assertTrue("'$label' toggle is not enabled", toggle.isEnabled)
+            toggle.click()
+        }
+        assertTrue(
+            "'$label' did not become ${if (enabled) "ON" else "OFF"}",
+            UiWaitUtils.retryUntilTimeout(UiWaitUtils.DEFAULT_TIMEOUT) {
+                val state = device.findObject(labelSelector).getFromParent(expectedState)
+                state.exists() && !state.visibleBounds.isEmpty
+            }
+        )
+    }
+
+    private fun assertPrivacySettingIsOn(label: String) {
+        UiWaitUtils.waitElement(UiSelectorParams(text = label))
+        assertTrue(
+            "'$label' should be ON",
+            UiWaitUtils.retryUntilTimeout(UiWaitUtils.DEFAULT_TIMEOUT) {
+                val state = device.findObject(UiSelector().text(label)).getFromParent(toggleOnText)
+                state.exists() && !state.visibleBounds.isEmpty
+            }
+        )
+    }
+
     fun openBackupAndRestoreConversationsMenu(timeout: Duration = UiWaitUtils.MEDIUM_TIMEOUT): SettingsPage {
         val opened = UiWaitUtils.retryUntilTimeout(
             timeout = timeout,

@@ -17,14 +17,12 @@
  */
 package com.wire.android.tests.core.pages
 
-import android.graphics.Bitmap
-import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.UiObject2
 import org.junit.Assert.assertTrue
 import uiautomatorutils.UiSelectorParams
 import uiautomatorutils.UiWaitUtils
-import util.decodeQRCode
+import util.qrCodeInScreenArea
 
 /** Verifies the selected image's identity and rendered pixels in Wire's image viewer. */
 data class DriveImageViewerPage(private val device: UiDevice) {
@@ -44,15 +42,7 @@ data class DriveImageViewerPage(private val device: UiDevice) {
 
     private fun assertQrContent(image: UiObject2, expectedValue: String) {
         val rendered = UiWaitUtils.retryUntilTimeout(UiWaitUtils.VERY_LONG_TIMEOUT) {
-            val screenshot = requireNotNull(InstrumentationRegistry.getInstrumentation().uiAutomation.takeScreenshot())
-            val bounds = image.visibleBounds
-            val content = Bitmap.createBitmap(screenshot, bounds.left, bounds.top, bounds.width(), bounds.height())
-            try {
-                decodeQRCode(content) == expectedValue
-            } finally {
-                content.recycle()
-                screenshot.recycle()
-            }
+            qrCodeInScreenArea(image.visibleBounds) == expectedValue
         }
         assertTrue("The selected image does not render QR content '$expectedValue'", rendered)
     }

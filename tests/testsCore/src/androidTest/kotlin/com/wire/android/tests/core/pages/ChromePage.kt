@@ -27,6 +27,8 @@ import uiautomatorutils.UiWaitUtils
 
 data class ChromePage(private val device: UiDevice) {
 
+    private val profileInvitationText = UiSelectorParams(text = "You have been invited to view a user profile in Wire")
+    private val openInAppButton = UiSelectorParams(text = "Open in App")
     private val useWithoutAccountLocator = UiSelectorParams(text = "Use without an account")
     private val noThanksLocator = UiSelectorParams(textMatches = "No,? thanks")
     private val declineCookiesLocator = UiSelectorParams(text = "Decline")
@@ -35,6 +37,15 @@ data class ChromePage(private val device: UiDevice) {
     private val globalDriveArticleTitle = UiSelectorParams(
         textContains = "Access all files shared across conversations (Drive)"
     )
+
+    fun tapOpenInAppOnProfileLinkPage(): ChromePage {
+        UiWaitUtils.waitElement(
+            profileInvitationText,
+            timeout = UiWaitUtils.VERY_LONG_TIMEOUT
+        )
+        UiWaitUtils.waitElement(openInAppButton).click()
+        return this
+    }
 
     fun clickUseWithoutAccount(): ChromePage {
         UiWaitUtils.waitElement(useWithoutAccountLocator).click()

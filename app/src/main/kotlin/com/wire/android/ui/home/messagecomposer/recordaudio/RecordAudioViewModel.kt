@@ -47,6 +47,10 @@ import com.wire.kalium.logic.feature.asset.AudioNormalizedLoudnessBuilder
 import com.wire.kalium.logic.feature.asset.GetAssetSizeLimitUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import com.wire.kalium.util.DateTimeUtil
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -83,6 +87,9 @@ class RecordAudioViewModel @Inject constructor(
     // stopRecording can be triggered several times at once (e.g. ON_STOP and going to background),
     // so stopping and releasing the recorder must not run concurrently
     private val stopRecorderMutex = Mutex()
+
+    // the work after the recorder stops (encoding, length, waves); discard and a new recording cancel it
+    private var encodingJob: Job? = null
 
     private val infoMessage = MutableSharedFlow<UIText>()
 
@@ -193,38 +200,50 @@ class RecordAudioViewModel @Inject constructor(
 
     fun stopRecording() {
         audioFocusHelper.abandonExclusive()
-        viewModelScope.launch(dispatchers.default()) {
+        encodingJob?.cancel()
+        encodingJob = viewModelScope.launch(dispatchers.default()) {
             stopAndReleaseRecorder()
 
-            if (state.originalOutputFile != null) {
+            val originalFile = state.originalOutputFile ?: return@launch
+            val effectsFile = state.effectsOutputFile
+            // a failed recording holds only the WAV header, and sending it would deliver a 0:00 voice note
+            if (originalFile.length() <= AudioMediaRecorder.HEADER_SIZE) {
+                appLogger.w("[$tag] -> Recording holds no audio, discarding it")
+                originalFile.toPath().deleteIfExists()
+                effectsFile?.toPath()?.deleteIfExists()
                 state = state.copy(
-                    buttonState = RecordAudioButtonState.ENCODING,
-                    audioState = state.audioState.copy(audioMediaPlayingState = AudioMediaPlayingState.Fetching)
+                    buttonState = RecordAudioButtonState.ENABLED,
+                    audioState = AudioState.DEFAULT,
+                    originalOutputFile = null,
+                    effectsOutputFile = null
                 )
-                if (state.shouldApplyEffects && state.effectsOutputFile != null) {
-                    generateAudioFileWithEffects(
-                        context = context,
-                        originalFilePath = state.originalOutputFile!!.path,
-                        effectsFilePath = state.effectsOutputFile!!.path
-                    )
-                }
-
-                val playableAudioFile = getPlayableAudioFile()
-                state = state.copy(
-                    buttonState = RecordAudioButtonState.READY_TO_SEND,
-                    audioState = AudioState.DEFAULT.copy(
-                        totalTimeInMs = AudioState.TotalTimeInMs.Known(
-                            playableAudioFile?.let {
-                                getAudioLengthInMs(
-                                    dataPath = it.path.toPath(),
-                                    mimeType = SUPPORTED_AUDIO_MIME_TYPE
-                                ).toInt()
-                            } ?: 0
-                        ),
-                    ),
-                    wavesMask = playableAudioFile?.let { audioNormalizedLoudnessBuilder(it.path) }?.toWavesMask() ?: listOf()
+                infoMessage.emit(RecordAudioInfoMessageType.UnableToRecordAudioError.uiText)
+                return@launch
+            }
+            state = state.copy(
+                buttonState = RecordAudioButtonState.ENCODING,
+                audioState = state.audioState.copy(audioMediaPlayingState = AudioMediaPlayingState.Fetching)
+            )
+            if (state.shouldApplyEffects && effectsFile != null) {
+                generateAudioFileWithEffects(
+                    context = context,
+                    originalFilePath = originalFile.path,
+                    effectsFilePath = effectsFile.path
                 )
             }
+
+            val playableAudioFile = if (state.shouldApplyEffects) effectsFile else originalFile
+            val totalTimeInMs = playableAudioFile?.let {
+                getAudioLengthInMs(dataPath = it.path.toPath(), mimeType = SUPPORTED_AUDIO_MIME_TYPE).toInt()
+            } ?: 0
+            val wavesMask = playableAudioFile?.let { audioNormalizedLoudnessBuilder(it.path) }?.toWavesMask() ?: listOf()
+            // a discard or another stopRecording cancels this job, and must not be overwritten by it
+            ensureActive()
+            state = state.copy(
+                buttonState = RecordAudioButtonState.READY_TO_SEND,
+                audioState = AudioState.DEFAULT.copy(totalTimeInMs = AudioState.TotalTimeInMs.Known(totalTimeInMs)),
+                wavesMask = wavesMask
+            )
         }
     }
 
@@ -277,6 +296,7 @@ class RecordAudioViewModel @Inject constructor(
     }
 
     fun discardRecording() {
+        encodingJob?.cancel()
         viewModelScope.launch {
             stopAndReleaseRecorder()
             state.originalOutputFile?.toPath()?.deleteIfExists()
@@ -336,6 +356,8 @@ class RecordAudioViewModel @Inject constructor(
                     )
                 )
             )
+            // the ViewModel outlives the record panel, so the next open must not start in ENCODING
+            state = state.copy(buttonState = RecordAudioButtonState.ENABLED, audioState = AudioState.DEFAULT, wavesMask = null)
         }
     }
 
@@ -408,6 +430,12 @@ class RecordAudioViewModel @Inject constructor(
     override fun onCleared() {
         super.onCleared()
         recordAudioMessagePlayer.close()
+        audioFocusHelper.abandonExclusive()
+        // viewModelScope is already cancelled here, and a stop it had in flight may have skipped release(),
+        // so the recorder is stopped and released again (both are no-ops when already done) on a scope that survives
+        CoroutineScope(SupervisorJob() + dispatchers.default()).launch {
+            stopAndReleaseRecorder()
+        }
     }
 
     companion object {

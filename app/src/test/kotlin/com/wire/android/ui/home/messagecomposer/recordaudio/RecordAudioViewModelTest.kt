@@ -18,7 +18,12 @@
 package com.wire.android.ui.home.messagecomposer.recordaudio
 
 import android.content.Context
+import android.net.Uri
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelStore
 import app.cash.turbine.test
+import com.wire.android.assertIs
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.datastore.GlobalDataStore
@@ -29,6 +34,7 @@ import com.wire.android.media.audiomessage.RecordAudioMessagePlayer
 import com.wire.android.ui.home.messagecomposer.recordaudio.RecordAudioViewModelTest.Arrangement.Companion.ASSET_SIZE_LIMIT
 import com.wire.android.util.CurrentScreen
 import com.wire.android.util.CurrentScreenManager
+import com.wire.android.util.fromNioPathToContentUri
 import com.wire.kalium.logic.data.call.Call
 import com.wire.kalium.logic.data.call.CallStatus
 import com.wire.kalium.logic.data.conversation.Conversation
@@ -44,14 +50,22 @@ import io.mockk.coVerify
 import io.mockk.coVerifyOrder
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.mockkStatic
+import io.mockk.spyk
+import io.mockk.unmockkStatic
 import io.mockk.verify
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
+import okio.Path.Companion.toOkioPath
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import org.junit.jupiter.api.io.TempDir
+import java.io.File
+import java.nio.file.Files
 
 @ExtendWith(CoroutineTestExtension::class)
 class RecordAudioViewModelTest {
@@ -353,6 +367,209 @@ class RecordAudioViewModelTest {
         }
 
     @Test
+    fun `given encoding is running, when discarding and the encoding then finishes, then the discard stays`() =
+        runTest {
+            // given
+            val encodingGate = CompletableDeferred<Unit>()
+            val (_, viewModel) = Arrangement()
+                .withFilterEnabled(true)
+                .withEncodingWaitingFor(encodingGate)
+                .arrange()
+            viewModel.startRecording()
+            viewModel.stopRecording()
+            assertEquals(RecordAudioButtonState.ENCODING, viewModel.state.buttonState)
+
+            // when
+            viewModel.discardRecording()
+            encodingGate.complete(Unit)
+
+            // then
+            assertEquals(RecordAudioButtonState.ENABLED, viewModel.state.buttonState)
+            assertEquals(null, viewModel.state.originalOutputFile)
+            assertEquals(null, viewModel.state.effectsOutputFile)
+        }
+
+    @Test
+    fun `given a stop is in flight, when discarding, then the recorder is still released after the stop finishes`() =
+        runTest {
+            // given
+            val stopGate = CompletableDeferred<Unit>()
+            val (arrangement, viewModel) = Arrangement()
+                .withFilterEnabled(false)
+                .withMaxFileSizeNeverReached()
+                .withFirstRecorderStopWaitingFor(stopGate)
+                .arrange()
+            viewModel.startRecording()
+            viewModel.stopRecording()
+
+            // when
+            viewModel.discardRecording()
+            stopGate.complete(Unit)
+
+            // then
+            assertEquals(RecordAudioButtonState.ENABLED, viewModel.state.buttonState)
+            coVerify(exactly = 2) { arrangement.audioMediaRecorder.stop() }
+            verify(exactly = 1) { arrangement.audioMediaRecorder.release() }
+            coVerifyOrder {
+                arrangement.audioMediaRecorder.stop()
+                arrangement.audioMediaRecorder.release()
+            }
+        }
+
+    @Test
+    fun `given user is recording, when the view model is cleared, then the recorder is stopped and released`() =
+        runTest {
+            // given
+            val (arrangement, viewModel) = Arrangement()
+                .withFilterEnabled(false)
+                .withMaxFileSizeNeverReached()
+                .arrange()
+            viewModel.startRecording()
+
+            // when
+            clear(viewModel)
+
+            // then
+            coVerifyOrder {
+                arrangement.audioMediaRecorder.stop()
+                arrangement.audioMediaRecorder.release()
+            }
+            verify(exactly = 1) { arrangement.audioFocusHelper.abandonExclusive() }
+        }
+
+    @Test
+    fun `given a stop is in flight, when the view model is cleared, then the recorder is still released`() =
+        runTest {
+            // given
+            val stopGate = CompletableDeferred<Unit>()
+            val (arrangement, viewModel) = Arrangement()
+                .withFilterEnabled(false)
+                .withMaxFileSizeNeverReached()
+                .withFirstRecorderStopWaitingFor(stopGate)
+                .arrange()
+            viewModel.startRecording()
+            viewModel.stopRecording()
+
+            // when
+            clear(viewModel)
+            stopGate.complete(Unit)
+
+            // then
+            verify(exactly = 1) { arrangement.audioMediaRecorder.release() }
+            coVerifyOrder {
+                arrangement.audioMediaRecorder.stop()
+                arrangement.audioMediaRecorder.release()
+            }
+        }
+
+    @Test
+    fun `given encoding is running, when discarding and recording again, then the new recording is not overwritten`() =
+        runTest {
+            // given
+            val encodingGate = CompletableDeferred<Unit>()
+            val (_, viewModel) = Arrangement()
+                .withFilterEnabled(true)
+                .withEncodingWaitingFor(encodingGate)
+                .arrange()
+            viewModel.startRecording()
+            viewModel.stopRecording()
+            viewModel.discardRecording()
+            viewModel.startRecording()
+            assertEquals(RecordAudioButtonState.RECORDING, viewModel.state.buttonState)
+
+            // when
+            encodingGate.complete(Unit)
+
+            // then
+            assertEquals(RecordAudioButtonState.RECORDING, viewModel.state.buttonState)
+        }
+
+    @Test
+    fun `given user recorded an audio, when sending the recording, then the recorder is back to its initial state`() =
+        runTest {
+            // given
+            val (arrangement, viewModel) = Arrangement()
+                .withFilterEnabled(false)
+                .withMaxFileSizeNeverReached()
+                .arrange()
+            val m4aPath = arrangement.fakeKaliumFileSystem.tempFilePath("voice.m4a")
+            every { arrangement.audioMediaRecorder.m4aOutputPath } returns m4aPath
+            coEvery { arrangement.audioMediaRecorder.convertWavToM4a(any()) } returns true
+
+            mockkStatic("com.wire.android.util.FileUtilKt")
+            try {
+                every { any<Context>().fromNioPathToContentUri(any()) } returns mockk<Uri>()
+                viewModel.startRecording()
+                viewModel.stopRecording()
+
+                viewModel.actions.test {
+                    // when
+                    viewModel.sendRecording()
+
+                    // then
+                    assertIs<RecordAudioViewActions.Recorded>(awaitItem())
+                    assertEquals(RecordAudioState().buttonState, viewModel.state.buttonState)
+                    assertEquals(null, viewModel.state.originalOutputFile)
+                    assertEquals(AudioState.DEFAULT, viewModel.state.audioState)
+                    assertEquals(null, viewModel.state.wavesMask)
+                }
+            } finally {
+                unmockkStatic("com.wire.android.util.FileUtilKt")
+            }
+        }
+
+    @Test
+    fun `given the conversion fails and effects are off, when sending the recording, then the original wav is sent and kept`(
+        @TempDir dir: java.nio.file.Path
+    ) = runTest { assertWavFallbackSendsKeptFile(dir, applyEffects = false) }
+
+    @Test
+    fun `given the conversion fails and effects are on, when sending the recording, then the effects wav is sent and kept`(
+        @TempDir dir: java.nio.file.Path
+    ) = runTest { assertWavFallbackSendsKeptFile(dir, applyEffects = true) }
+
+    private suspend fun assertWavFallbackSendsKeptFile(dir: java.nio.file.Path, applyEffects: Boolean) {
+        // given
+        val (arrangement, viewModel) = Arrangement()
+            .withFilterEnabled(applyEffects)
+            .withMaxFileSizeNeverReached()
+            .arrange()
+        coEvery { arrangement.audioMediaRecorder.convertWavToM4a(any()) } returns false
+        every { arrangement.audioMediaRecorder.originalOutputPath } returns dir.resolve("temp_recording.wav").toOkioPath()
+        every { arrangement.fakeKaliumFileSystem.tempFilePath(any()) } answers { dir.resolve(firstArg<String>()).toOkioPath() }
+        val sentUri = mockk<Uri>()
+        val sentPaths = mutableListOf<java.nio.file.Path>()
+        mockkStatic("com.wire.android.util.FileUtilKt")
+
+        try {
+            every { any<Context>().fromNioPathToContentUri(any()) } answers {
+                sentPaths.add(secondArg())
+                sentUri
+            }
+            viewModel.startRecording()
+            viewModel.stopRecording()
+            val original = viewModel.state.originalOutputFile!!.also { it.createNewFile() }
+            val effects = viewModel.state.effectsOutputFile?.also { it.createNewFile() }
+            val (kept, dropped) = if (applyEffects) effects!! to original else original to effects
+
+            viewModel.actions.test {
+                // when
+                viewModel.sendRecording()
+
+                // then
+                val action = assertIs<RecordAudioViewActions.Recorded>(awaitItem())
+                assertEquals("audio/wav", action.uriAsset.mimeType)
+                assertEquals(sentUri, action.uriAsset.uri)
+                assertEquals(listOf(kept.toPath()), sentPaths)
+                assertEquals(true, kept.exists())
+                assertEquals(false, dropped?.exists() ?: false)
+            }
+        } finally {
+            unmockkStatic("com.wire.android.util.FileUtilKt")
+        }
+    }
+
+    @Test
     fun `given start recording succeeded, when recording audio, then recording screen is shown`() =
         runTest {
             // given
@@ -390,6 +607,49 @@ class RecordAudioViewModelTest {
             }
         }
 
+    @Test
+    fun `given the recording holds no audio, when stopping the recording, then the recorder resets and an error is shown`(
+        @TempDir dir: java.nio.file.Path
+    ) =
+        runTest {
+            // given
+            val (arrangement, viewModel) = Arrangement()
+                .withFilterEnabled(true)
+                .withMaxFileSizeNeverReached()
+                .withEmptyRecording()
+                .arrange()
+            every { arrangement.fakeKaliumFileSystem.tempFilePath(any()) } answers { dir.resolve(firstArg<String>()).toOkioPath() }
+
+            viewModel.getInfoMessage().test {
+                viewModel.startRecording()
+                val recording = viewModel.state.originalOutputFile!!
+                val effects = viewModel.state.effectsOutputFile!!.also { it.createNewFile() }
+
+                // when
+                viewModel.stopRecording()
+
+                // then
+                assertEquals(RecordAudioInfoMessageType.UnableToRecordAudioError.uiText, awaitItem())
+                assertEquals(RecordAudioButtonState.ENABLED, viewModel.state.buttonState)
+                assertEquals(null, viewModel.state.originalOutputFile)
+                assertEquals(null, viewModel.state.effectsOutputFile)
+                assertEquals(false, recording.exists())
+                assertEquals(false, effects.exists())
+            }
+        }
+
+    private fun clear(viewModel: RecordAudioViewModel) {
+        val store = ViewModelStore()
+        ViewModelProvider(
+            store,
+            object : ViewModelProvider.Factory {
+                @Suppress("UNCHECKED_CAST")
+                override fun <T : ViewModel> create(modelClass: Class<T>): T = viewModel as T
+            }
+        )[RecordAudioViewModel::class.java]
+        store.clear()
+    }
+
     private class Arrangement {
 
         val recordAudioMessagePlayer = mockk<RecordAudioMessagePlayer>()
@@ -401,9 +661,11 @@ class RecordAudioViewModelTest {
         val generateAudioFileWithEffects = mockk<GenerateAudioFileWithEffectsUseCase>()
         val context = mockk<Context>()
         val dispatchers = TestDispatcherProvider()
-        val fakeKaliumFileSystem = FakeKaliumFileSystem()
+        val fakeKaliumFileSystem = spyk(FakeKaliumFileSystem())
         val audioNormalizedLoudnessBuilder = mockk<AudioNormalizedLoudnessBuilder>()
         val audioFocusHelper = mockk<AudioFocusHelper>()
+        private val recordingDir = Files.createTempDirectory("record_audio_test").toFile().apply { deleteOnExit() }
+        private var recordedAudioBytes = RECORDED_AUDIO_BYTES
 
         val viewModel by lazy {
             RecordAudioViewModel(
@@ -427,12 +689,11 @@ class RecordAudioViewModelTest {
 
             coEvery { getAssetSizeLimit.invoke(false) } returns ASSET_SIZE_LIMIT
             every { audioMediaRecorder.setUp(ASSET_SIZE_LIMIT) } returns Unit
-            every { audioMediaRecorder.startRecording() } returns true
+            every { audioMediaRecorder.startRecording() } answers { writeRecording() }
             coEvery { audioMediaRecorder.stop() } returns Unit
             every { audioMediaRecorder.release() } returns Unit
             coEvery { globalDataStore.setRecordAudioEffectsCheckboxEnabled(any()) } returns Unit
-            every { audioMediaRecorder.originalOutputPath } returns fakeKaliumFileSystem
-                .tempFilePath("temp_recording.wav")
+            every { audioMediaRecorder.originalOutputPath } returns File(recordingDir, "temp_recording.wav").toOkioPath()
             coEvery { audioMediaRecorder.getMaxFileSizeReached() } returns flowOf(
                 RecordAudioDialogState.MaxFileSizeReached(
                     maxSize = ASSET_SIZE_DEFAULT_LIMIT_BYTES
@@ -466,8 +727,33 @@ class RecordAudioViewModelTest {
             )
         }
 
-        fun withStartRecordingSuccessful() = apply { every { audioMediaRecorder.startRecording() } returns true }
+        fun withStartRecordingSuccessful() = apply {
+            every { audioMediaRecorder.startRecording() } answers { writeRecording() }
+        }
         fun withStartRecordingFailed() = apply { every { audioMediaRecorder.startRecording() } returns false }
+
+        fun withEncodingWaitingFor(gate: CompletableDeferred<Unit>) = apply {
+            coEvery { generateAudioFileWithEffects(any(), any(), any()) } coAnswers { gate.await() }
+        }
+
+        fun withFirstRecorderStopWaitingFor(gate: CompletableDeferred<Unit>) = apply {
+            var isFirstStop = true
+            coEvery { audioMediaRecorder.stop() } coAnswers {
+                if (isFirstStop) {
+                    isFirstStop = false
+                    gate.await()
+                }
+            }
+        }
+
+        fun withEmptyRecording() = apply { recordedAudioBytes = 0 }
+
+        // the real recorder writes the WAV header, then the audio, to originalOutputPath
+        private fun writeRecording(): Boolean {
+            val recording = audioMediaRecorder.originalOutputPath!!.toFile().apply { deleteOnExit() }
+            recording.writeBytes(ByteArray(AudioMediaRecorder.HEADER_SIZE + recordedAudioBytes))
+            return true
+        }
 
         fun withMaxFileSizeNeverReached() = apply {
             every { audioMediaRecorder.getMaxFileSizeReached() } returns emptyFlow()
@@ -481,6 +767,7 @@ class RecordAudioViewModelTest {
 
         companion object {
             const val ASSET_SIZE_LIMIT = 5L
+            const val RECORDED_AUDIO_BYTES = 1024
             val DUMMY_CALL = Call(
                 conversationId = ConversationId(
                     value = "conversationId",

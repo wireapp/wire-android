@@ -74,7 +74,8 @@ fun GroupConversationOptions(
     onChannelAccessItemClicked: () -> Unit,
     onEditSelfDeletingMessages: () -> Unit,
     viewModel: GroupConversationDetailsViewModel,
-    onEditGroupName: () -> Unit
+    onEditGroupName: () -> Unit,
+    onSharedDriveClicked: () -> Unit = {},
 ) {
     val state by viewModel.groupOptionsState.collectAsStateWithLifecycle()
 
@@ -88,6 +89,7 @@ fun GroupConversationOptions(
         lazyListState = lazyListState,
         onEditGroupName = onEditGroupName,
         onProtocolClicked = viewModel::onProtocolTapped,
+        onSharedDriveClicked = onSharedDriveClicked,
     )
 
     if (state.shouldShowMlsMigrationDialog) {
@@ -110,8 +112,9 @@ fun GroupConversationSettings(
     onEditGroupName: () -> Unit,
     onProtocolClicked: () -> Unit,
     modifier: Modifier = Modifier,
+    onSharedDriveClicked: () -> Unit = {},
     lazyListState: LazyListState = rememberLazyListState(),
-    mlsReadReceiptsEnabled: Boolean = BuildConfig.MLS_READ_RECEIPTS_ENABLED,
+    mlsReadReceiptsEnabled: Boolean = BuildConfig.MLS_READ_RECEIPTS_ENABLED
 ) {
     LazyColumn(
         state = lazyListState,
@@ -173,11 +176,17 @@ fun GroupConversationSettings(
                     addIf(state.isWireCellEnabled) {
                         GroupConversationOptionsItem(
                             title = stringResource(id = R.string.conversation_options_shared_drive_label),
-                            subtitle = stringResource(id = R.string.conversation_options_shared_drive_description),
+                            subtitle = stringResource(
+                                if (state.isSelfUserViewerOnly) {
+                                    R.string.shared_drive_permissions_viewer_access
+                                } else {
+                                    R.string.shared_drive_permissions_editor_access
+                                }
+                            ),
                             trailingOnText = null,
                             switchState = SwitchState.TextOnly(true),
-                            arrowType = ArrowType.NONE,
-                            clickable = Clickable(enabled = false)
+                            arrowType = ArrowType.TITLE_ALIGNED,
+                            clickable = Clickable(enabled = true, onClick = onSharedDriveClicked),
                         )
                     }
                 }

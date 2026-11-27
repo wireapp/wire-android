@@ -244,6 +244,8 @@ class GroupConversationDetailsViewModel @AssistedInject constructor(
                         loadingWireCellState = false,
                         isWireCellEnabled = groupDetails.wireCell != null,
                         isWireCellFeatureEnabled = wireCellFeatureEnabled,
+                        isSelfUserViewerOnly = groupDetails.wireCell != null &&
+                                groupDetails.conversation.teamId?.value != selfTeam?.id,
                         isSelfPartOfATeam = selfTeam != null,
                         canSelfAddParticipants = canSelfAddParticipants,
                         canManuallyMigrateToMLS = canManuallyMigrateToMLS,

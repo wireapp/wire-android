@@ -40,6 +40,7 @@ import com.wire.android.ui.home.conversations.details.editguestaccess.createPass
 import com.wire.android.ui.home.conversations.details.editselfdeletingmessages.EditSelfDeletingMessagesRouteScreen
 import com.wire.android.ui.home.conversations.details.metadata.EditConversationNameRouteScreen
 import com.wire.android.ui.home.conversations.details.participants.GroupConversationAllParticipantsRouteScreen
+import com.wire.android.ui.home.conversations.details.participants.SharedDrivePermissionsRouteScreen
 import com.wire.android.ui.home.conversations.details.participants.model.UIParticipant
 import com.wire.android.ui.home.conversations.details.updateappsaccess.UpdateAppsAccessRouteScreen
 import com.wire.android.ui.home.conversations.details.updatechannelaccess.ChannelAccessOnUpdateRouteScreen
@@ -116,6 +117,13 @@ internal fun conversationDetailsNavigation3Entries(
             onProfilePressed = { participant ->
                 actions.openParticipantProfile(participant, it.conversationId)
             },
+        )
+    }
+    wireEntry<SharedDrivePermissionsRoute>(presentation = WireEntryPresentation.Slide) {
+        SharedDrivePermissionsRouteScreen(
+            viewModel = groupConversationParticipantsViewModel(it.toViewModelArgs()),
+            isSelfUserViewerOnly = it.isSelfUserViewerOnly,
+            onBackPressed = runtime.navigator::goBack,
         )
     }
     wireEntry<UpdateAppsAccessRoute>(presentation = WireEntryPresentation.Slide) {
@@ -281,6 +289,17 @@ private fun GroupConversationDetailsNavigation3Entry(
                     EditConversationNameRoute(route.sessionId, route.conversationId),
                     EditConversationNameNavigation3ResultType,
                 )?.value
+            },
+            onSharedDriveClicked = { isSelfUserViewerOnly ->
+                runtime.navigator.navigate(
+                    WireNavigationCommand(
+                        SharedDrivePermissionsRoute(
+                            route.sessionId,
+                            route.conversationId,
+                            isSelfUserViewerOnly,
+                        )
+                    )
+                )
             },
             onSearchConversationMessages = { cells, name ->
                 actions.openSearchMessages(route.conversationId, cells, name)

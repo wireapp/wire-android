@@ -40,6 +40,9 @@ internal fun EditSelfDeletingMessagesRoute.toViewModelArgs() =
 internal fun GroupConversationAllParticipantsRoute.toViewModelArgs() =
     GroupConversationAllParticipantsNavArgs(conversationId.toQualifiedId())
 
+internal fun SharedDrivePermissionsRoute.toViewModelArgs() =
+    GroupConversationAllParticipantsNavArgs(conversationId.toQualifiedId())
+
 internal fun UpdateAppsAccessRoute.toViewModelArgs() = UpdateAppsAccessNavArgs(
     conversationId = conversationId.toQualifiedId(),
     updateAppsAccessParams = UpdateAppsAccessParams(

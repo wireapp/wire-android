@@ -8,8 +8,9 @@ import time
 
 
 def wait_for_report(repository, run_id, timeout=300):
-    deadline = time.monotonic() + timeout
-    while time.monotonic() < deadline:
+    # The workflow step bounds total publication time; this deadline bounds API outages only.
+    deadline = None
+    while True:
         try:
             response = subprocess.run(
                 ["gh", "api", f"repos/{repository}/actions/runs/{run_id}"],
@@ -18,15 +19,20 @@ def wait_for_report(repository, run_id, timeout=300):
             run = json.loads(response.stdout)
             if run.get("id") != int(run_id):
                 raise ValueError("Publisher returned a different workflow run")
+            deadline = None
             if run.get("status") == "completed":
                 if run.get("conclusion") != "success":
                     raise RuntimeError(f"Private publisher finished: {run.get('conclusion')}")
                 return
         except (subprocess.CalledProcessError, subprocess.TimeoutExpired, json.JSONDecodeError) as error:
+            now = time.monotonic()
+            if deadline is None:
+                deadline = now + timeout
+            if now >= deadline:
+                raise TimeoutError("Timed out checking private publication status") from error
             print(getattr(error, "stderr", None) or str(error), file=sys.stderr)
             print("Publisher status temporarily unavailable; checking again.", file=sys.stderr)
-        time.sleep(min(10, max(0, deadline - time.monotonic())))
-    raise TimeoutError("Timed out waiting for private publication")
+        time.sleep(10 if deadline is None else min(10, max(0, deadline - time.monotonic())))
 
 
 if __name__ == "__main__":

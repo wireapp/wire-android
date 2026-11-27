@@ -13,7 +13,6 @@ ref=$(gh api "repos/${REPORTING_REPOSITORY}" --jq \
 base_url=$(gh api "repos/${REPORTING_REPOSITORY}/pages" --jq \
   'if .public == false and .build_type == "workflow" then .html_url else error("Private Pages with GitHub Actions publishing is required") end')
 python3 scripts/qa/android-ui/prepare_private_report.py
-echo "private_evidence_url=https://github.com/${REPORTING_REPOSITORY}/tree/reports/${report_id}/incoming" >> "$GITHUB_OUTPUT"
 
 git -C private-reports switch --quiet -c "reports/${report_id}"
 git -C private-reports add incoming
@@ -24,6 +23,7 @@ git -C private-reports -c "user.name=${BOT_LOGIN}" \
 git -C private-reports -c credential.helper= \
   -c 'credential.helper=!gh auth git-credential' \
   push --quiet origin "reports/${report_id}"
+echo "private_evidence_url=https://github.com/${REPORTING_REPOSITORY}/tree/reports/${report_id}/incoming" >> "$GITHUB_OUTPUT"
 
 run_id=$(gh api --method POST -H 'X-GitHub-Api-Version: 2022-11-28' \
   "repos/${REPORTING_REPOSITORY}/actions/workflows/publish-android-report.yml/dispatches" \

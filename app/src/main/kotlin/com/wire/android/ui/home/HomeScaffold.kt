@@ -134,6 +134,7 @@ internal data class HomeScaffoldActions(
 @Composable
 internal fun HomeScaffold(
     homeState: HomeState,
+    isMeetingsEnabled: Boolean,
     state: HomeScaffoldState,
     drawerState: DrawerState,
     focusRequesters: HomeScaffoldFocusRequesters,
@@ -141,6 +142,7 @@ internal fun HomeScaffold(
     content: @Composable () -> Unit,
 ) {
     with(state.holder) {
+        val fab = currentNavigationItem.fab.takeUnless { it == FabOptions.NewMeeting && !isMeetingsEnabled }
         CollapsingTopBarScaffold(
             modifier = Modifier.homeScaffoldFocusTrap(
                 isDrawerOpen = drawerState.isOpen,
@@ -159,6 +161,7 @@ internal fun HomeScaffold(
             topBarCollapsing = {
                 HomeSearchTopBar(
                     state = state,
+                    fab = fab,
                     searchFocusRequester = focusRequesters.search,
                     fabFocusRequester = focusRequesters.fab
                 )
@@ -171,6 +174,7 @@ internal fun HomeScaffold(
             floatingActionButton = {
                 HomeScaffoldFloatingActionButton(
                     state = state,
+                    fab = fab,
                     fabFocusRequester = focusRequesters.fab,
                     onNewConversationClick = actions.onNewConversationClick
                 )
@@ -218,6 +222,7 @@ private fun HomeTopBarHeader(
 @Composable
 private fun HomeSearchTopBar(
     state: HomeScaffoldState,
+    fab: FabOptions?,
     searchFocusRequester: FocusRequester,
     fabFocusRequester: FocusRequester,
 ) {
@@ -241,7 +246,7 @@ private fun HomeSearchTopBar(
                     externalFocusRequester = searchFocusRequester,
                     nextFocusRequester = when {
                         searchBarState.isSearchActive -> emptySearchResultFocusRequester
-                        currentNavigationItem.fab != null -> fabFocusRequester
+                        fab != null -> fabFocusRequester
                         else -> firstConversationFocusRequester
                     },
                     activateSearchOnFocus = false,
@@ -255,17 +260,18 @@ private fun HomeSearchTopBar(
 @Composable
 private fun HomeScaffoldFloatingActionButton(
     state: HomeScaffoldState,
+    fab: FabOptions?,
     fabFocusRequester: FocusRequester,
     onNewConversationClick: () -> Unit,
 ) {
     with(state.holder) {
         AnimatedVisibility(
-            visible = currentNavigationItem.fab != null && !searchBarState.isSearchActive,
+            visible = fab != null && !searchBarState.isSearchActive,
             enter = scaleIn(),
             exit = scaleOut(),
         ) {
             HomeFloatingActionButton(
-                currentNavigationItem = currentNavigationItem,
+                fab = fab,
                 fabFocusRequester = fabFocusRequester,
                 nextFocusRequester = firstConversationFocusRequester,
                 onNewConversationClick = onNewConversationClick,
@@ -372,15 +378,15 @@ private fun Modifier.homeDrawerSheetFocusTrap(
 
 @Composable
 private fun HomeFloatingActionButton(
-    currentNavigationItem: HomeDestination,
+    fab: FabOptions?,
     fabFocusRequester: FocusRequester,
     nextFocusRequester: FocusRequester,
     onNewConversationClick: () -> Unit,
     onNewMeetingClick: () -> Unit,
 ) {
-    var currentFab by remember { mutableStateOf(currentNavigationItem.fab ?: FabOptions.NewConversation) }
+    var currentFab by remember { mutableStateOf(fab ?: FabOptions.NewConversation) }
     // to keep the fab during the exit animation, we need to keep last known (non-null) fab data
-    currentNavigationItem.fab?.let { currentFab = it }
+    fab?.let { currentFab = it }
 
     FloatingActionButton(
         text = stringResource(currentFab.text),
@@ -401,7 +407,7 @@ private fun HomeFloatingActionButton(
             )
         },
         onClick = {
-            when (currentNavigationItem.fab) {
+            when (fab) {
                 FabOptions.NewConversation -> onNewConversationClick()
                 FabOptions.NewMeeting -> onNewMeetingClick()
                 else -> { /* no-op */ }

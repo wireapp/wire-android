@@ -2034,4 +2034,15 @@ In group conversations, the group admin can overwrite this setting.</string>
     </plurals>
     <string name="startup_account_limit_logout">Log out of this account</string>
     <string name="startup_account_limit_later">Later</string>
+    <string name="join_meeting_title">Join meeting</string>
+    <string name="join_meeting_password_title">Enter meeting password</string>
+    <string name="join_meeting_password_description">Enter the password shared with the meeting link.</string>
+    <string name="join_meeting_password_label">Meeting password</string>
+    <string name="join_meeting_learn_more">Learn more about guest links</string>
+    <string name="join_meeting_failure_description">Unable to join the meeting.</string>
+    <string name="join_meeting_not_found_title">Meeting not found</string>
+    <string name="join_meeting_not_found_description">This meeting link has expired or is no longer valid.</string>
+    <string name="join_meeting_unavailable_title">Meeting link unavailable</string>
+    <string name="join_meeting_unavailable_description">Joining meeting through a link is not supported.</string>
+    <string name="join_meeting_success">Joined meeting</string>
 </resources>

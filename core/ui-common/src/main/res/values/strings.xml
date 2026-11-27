@@ -177,4 +177,5 @@
     <string name="password_copied">Password copied to clipboard</string>
     <string name="onboarding_pending">Onboarding pending</string>
     <string name="onboarding_pending_description">You can start a conversation with this team member once they are fully onboarded.</string>
+    <string name="url_meeting_guest_links" translatable="false">https://support.wire.com/hc/articles/18464888721053-How-can-I-join-a-meeting-via-a-guest-link</string>
 </resources>

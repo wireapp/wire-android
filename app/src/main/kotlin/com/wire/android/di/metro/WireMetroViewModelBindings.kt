@@ -20,6 +20,8 @@
 package com.wire.android.di.metro
 
 import androidx.lifecycle.ViewModel
+import com.wire.android.media.audiomessage.AudioMessageArgs
+import com.wire.android.media.audiomessage.AudioMessageViewModelImpl
 import com.wire.android.ui.analytics.AnalyticsUsageViewModel
 import com.wire.android.ui.authentication.SessionAuthenticationManualViewModelFactory
 import com.wire.android.ui.authentication.SessionAuthenticationViewModelFactory
@@ -33,11 +35,23 @@ import com.wire.android.ui.home.appLock.forgot.ForgotLockScreenViewModel
 import com.wire.android.ui.home.appLock.set.SetLockScreenViewModel
 import com.wire.android.ui.home.appLock.unlock.AppUnlockWithBiometricsViewModel
 import com.wire.android.ui.home.appLock.unlock.EnterLockScreenViewModel
+import com.wire.android.ui.home.conversations.CompositeMessageViewModelImpl
+import com.wire.android.ui.home.conversations.ScopedMessageManualViewModelFactory
+import com.wire.android.ui.home.conversations.edit.MessageOptionsMenuArgs
+import com.wire.android.ui.home.conversations.edit.MessageOptionsMenuViewModelImpl
 import com.wire.android.ui.home.conversations.media.CheckAssetRestrictionsViewModel
 import com.wire.android.ui.home.conversations.messages.QuotedMultipartMessageViewModel
+import com.wire.android.ui.home.conversations.messages.item.AssetLocalPathArgs
+import com.wire.android.ui.home.conversations.messages.item.AssetLocalPathViewModelImpl
 import com.wire.android.ui.home.conversations.messages.item.ConversationAssetPathsViewModelImpl
-import com.wire.android.ui.home.conversations.ScopedMessageManualViewModelFactory
+import com.wire.android.ui.home.conversations.model.CompositeMessageArgs
+import com.wire.android.ui.home.conversations.typing.TypingIndicatorArgs
+import com.wire.android.ui.home.conversations.typing.TypingIndicatorViewModelImpl
+import com.wire.android.ui.home.messagecomposer.actions.SelfDeletingMessageActionArgs
+import com.wire.android.ui.home.messagecomposer.actions.SelfDeletingMessageActionViewModelImpl
+import com.wire.android.ui.home.messagecomposer.attachments.IsFileSharingEnabledViewModelImpl
 import com.wire.android.ui.home.messagecomposer.location.LocationPickerViewModel
+import com.wire.android.ui.home.messagecomposer.recordaudio.RecordAudioViewModel
 import com.wire.android.ui.home.settings.SettingsViewModel
 import com.wire.android.ui.home.settings.account.MyAccountViewModel
 import com.wire.android.ui.home.settings.account.color.ChangeUserColorViewModel
@@ -51,32 +65,19 @@ import com.wire.android.ui.home.settings.backup.BackupAndRestoreViewModel
 import com.wire.android.ui.home.settings.privacy.PrivacySettingsViewModel
 import com.wire.android.ui.initialsync.InitialSyncViewModel
 import com.wire.android.ui.joinConversation.JoinConversationViaCodeViewModel
-import com.wire.android.ui.legalhold.dialog.requested.LegalHoldRequestedViewModel
+import com.wire.android.ui.joinMeeting.JoinMeetingViaCodeViewModel
 import com.wire.android.ui.legalhold.dialog.deactivated.LegalHoldDeactivatedViewModel
+import com.wire.android.ui.legalhold.dialog.requested.LegalHoldRequestedViewModel
 import com.wire.android.ui.settings.devices.SelfDevicesViewModel
 import com.wire.android.ui.sharing.ImportMediaAuthenticatedViewModel
-import com.wire.android.media.audiomessage.AudioMessageArgs
-import com.wire.android.media.audiomessage.AudioMessageViewModelImpl
-import com.wire.android.ui.home.conversations.CompositeMessageViewModelImpl
-import com.wire.android.ui.home.conversations.edit.MessageOptionsMenuArgs
-import com.wire.android.ui.home.conversations.edit.MessageOptionsMenuViewModelImpl
-import com.wire.android.ui.home.conversations.messages.item.AssetLocalPathArgs
-import com.wire.android.ui.home.conversations.messages.item.AssetLocalPathViewModelImpl
-import com.wire.android.ui.home.conversations.model.CompositeMessageArgs
-import com.wire.android.ui.home.conversations.typing.TypingIndicatorArgs
-import com.wire.android.ui.home.conversations.typing.TypingIndicatorViewModelImpl
-import com.wire.android.ui.home.messagecomposer.actions.SelfDeletingMessageActionArgs
-import com.wire.android.ui.home.messagecomposer.actions.SelfDeletingMessageActionViewModelImpl
-import com.wire.android.ui.home.messagecomposer.attachments.IsFileSharingEnabledViewModelImpl
-import com.wire.android.ui.home.messagecomposer.recordaudio.RecordAudioViewModel
 import com.wire.android.ui.userprofile.avatarpicker.AvatarPickerViewModel
 import com.wire.android.ui.userprofile.self.SelfUserProfileViewModel
 import com.wire.android.ui.userprofile.teammigration.TeamMigrationViewModel
 import com.wire.kalium.logic.data.user.UserId
 import dev.zacsweers.metro.BindingContainer
 import dev.zacsweers.metro.IntoMap
-import dev.zacsweers.metro.Provides
 import dev.zacsweers.metro.Provider
+import dev.zacsweers.metro.Provides
 import dev.zacsweers.metrox.viewmodel.ManualViewModelAssistedFactory
 import dev.zacsweers.metrox.viewmodel.ManualViewModelAssistedFactoryKey
 import dev.zacsweers.metrox.viewmodel.ViewModelKey
@@ -310,4 +311,9 @@ object WireMetroViewModelBindings {
     @IntoMap
     @ViewModelKey(TeamMigrationViewModel::class)
     fun teamMigrationViewModel(viewModel: TeamMigrationViewModel): ViewModel = viewModel
+
+    @Provides
+    @IntoMap
+    @ViewModelKey(JoinMeetingViaCodeViewModel::class)
+    fun joinMeetingViaCodeViewModel(viewModel: JoinMeetingViaCodeViewModel): ViewModel = viewModel
 }

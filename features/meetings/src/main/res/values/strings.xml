@@ -148,10 +148,10 @@
     <string name="meeting_reminders_card_settings">Open Device Settings</string>
     <string name="meeting_link_rotate">Create New Link</string>
     <string name="meeting_link_create_title">Create new link</string>
-    <string name="meeting_link_create_description">Any previous link to this meetings will be revoked and a new link will be created.</string>
+    <string name="meeting_link_create_description">Any previous link to this meeting will be revoked and a new link will be created.</string>
     <string name="meeting_link_create">Create</string>
     <string name="meeting_link_creating">Creating...</string>
-    <string name="meeting_link_remove_password_description">No password was provided for the new link. The previous link was password-protected, but the new meeting link will not be password secured.</string>
+    <string name="meeting_link_remove_password_description">Your new meeting link doesn\'t have a password, but your previous one did. Add a password to keep it protected.</string>
     <string name="meeting_link_create_without_password">Create without password</string>
     <string name="meeting_link_refresh_failed">Could not create a new link. Please try again.</string>
 </resources>

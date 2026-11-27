@@ -356,6 +356,15 @@ public fun com.wire.android.ui.JoinConversationDialog(joinedDialogState: com.wir
     - onJoinConversationFlowCompleted: STABLE (function type)
 
 @Composable
+public fun com.wire.android.ui.JoinMeetingDialog(link: com.wire.android.ui.joinMeeting.MeetingJoinLink?, onFlowCompleted: kotlin.Function2<com.wire.android.ui.joinMeeting.MeetingJoinLink, kotlin.Boolean, kotlin.Unit>, viewModel: com.wire.android.ui.joinMeeting.JoinMeetingViaCodeViewModel): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - link: STABLE (class with no mutable properties)
+    - onFlowCompleted: STABLE (function type)
+    - viewModel: UNSTABLE (has mutable properties or unstable members)
+
+@Composable
 public fun com.wire.android.ui.MaxAccountDialog(shouldShow: kotlin.Boolean, onConfirm: kotlin.Function0<kotlin.Unit>, onDismiss: kotlin.Function0<kotlin.Unit>): kotlin.Unit
   skippable: true
   restartable: true
@@ -4023,11 +4032,11 @@ internal fun com.wire.android.ui.home.HomeDrawerSheet(currentDestination: com.wi
     - onCloseDrawer: STABLE (function type)
 
 @Composable
-private fun com.wire.android.ui.home.HomeFloatingActionButton(currentNavigationItem: com.wire.android.navigation.HomeDestination, fabFocusRequester: androidx.compose.ui.focus.FocusRequester, nextFocusRequester: androidx.compose.ui.focus.FocusRequester, onNewConversationClick: kotlin.Function0<kotlin.Unit>, onNewMeetingClick: kotlin.Function0<kotlin.Unit>): kotlin.Unit
+private fun com.wire.android.ui.home.HomeFloatingActionButton(fab: com.wire.android.navigation.HomeDestination.FabOptions?, fabFocusRequester: androidx.compose.ui.focus.FocusRequester, nextFocusRequester: androidx.compose.ui.focus.FocusRequester, onNewConversationClick: kotlin.Function0<kotlin.Unit>, onNewMeetingClick: kotlin.Function0<kotlin.Unit>): kotlin.Unit
   skippable: true
   restartable: true
   params:
-    - currentNavigationItem: UNKNOWN (interface or non-final class; concrete implementation unknown)
+    - fab: STABLE (class with no mutable properties)
     - fabFocusRequester: STABLE (marked @Stable or @Immutable)
     - nextFocusRequester: STABLE (marked @Stable or @Immutable)
     - onNewConversationClick: STABLE (function type)
@@ -4058,11 +4067,12 @@ internal fun com.wire.android.ui.home.HomeNavigation3TopLevelContent(destination
     - actions: UNKNOWN (interface or non-final class; concrete implementation unknown)
 
 @Composable
-internal fun com.wire.android.ui.home.HomeScaffold(homeState: com.wire.android.ui.home.HomeState, state: com.wire.android.ui.home.HomeScaffoldState, drawerState: androidx.compose.material3.DrawerState, focusRequesters: com.wire.android.ui.home.HomeScaffoldFocusRequesters, actions: com.wire.android.ui.home.HomeScaffoldActions, content: @[Composable] androidx.compose.runtime.internal.ComposableFunction0<kotlin.Unit>): kotlin.Unit
+internal fun com.wire.android.ui.home.HomeScaffold(homeState: com.wire.android.ui.home.HomeState, isMeetingsEnabled: kotlin.Boolean, state: com.wire.android.ui.home.HomeScaffoldState, drawerState: androidx.compose.material3.DrawerState, focusRequesters: com.wire.android.ui.home.HomeScaffoldFocusRequesters, actions: com.wire.android.ui.home.HomeScaffoldActions, content: @[Composable] androidx.compose.runtime.internal.ComposableFunction0<kotlin.Unit>): kotlin.Unit
   skippable: true
   restartable: true
   params:
     - homeState: STABLE (class with no mutable properties)
+    - isMeetingsEnabled: STABLE (primitive type)
     - state: STABLE (marked @Stable or @Immutable)
     - drawerState: STABLE (marked @Stable or @Immutable)
     - focusRequesters: STABLE (class with no mutable properties)
@@ -4070,20 +4080,22 @@ internal fun com.wire.android.ui.home.HomeScaffold(homeState: com.wire.android.u
     - content: STABLE (composable function type)
 
 @Composable
-private fun com.wire.android.ui.home.HomeScaffoldFloatingActionButton(state: com.wire.android.ui.home.HomeScaffoldState, fabFocusRequester: androidx.compose.ui.focus.FocusRequester, onNewConversationClick: kotlin.Function0<kotlin.Unit>): kotlin.Unit
+private fun com.wire.android.ui.home.HomeScaffoldFloatingActionButton(state: com.wire.android.ui.home.HomeScaffoldState, fab: com.wire.android.navigation.HomeDestination.FabOptions?, fabFocusRequester: androidx.compose.ui.focus.FocusRequester, onNewConversationClick: kotlin.Function0<kotlin.Unit>): kotlin.Unit
   skippable: true
   restartable: true
   params:
     - state: STABLE (marked @Stable or @Immutable)
+    - fab: STABLE (class with no mutable properties)
     - fabFocusRequester: STABLE (marked @Stable or @Immutable)
     - onNewConversationClick: STABLE (function type)
 
 @Composable
-private fun com.wire.android.ui.home.HomeSearchTopBar(state: com.wire.android.ui.home.HomeScaffoldState, searchFocusRequester: androidx.compose.ui.focus.FocusRequester, fabFocusRequester: androidx.compose.ui.focus.FocusRequester): kotlin.Unit
+private fun com.wire.android.ui.home.HomeSearchTopBar(state: com.wire.android.ui.home.HomeScaffoldState, fab: com.wire.android.navigation.HomeDestination.FabOptions?, searchFocusRequester: androidx.compose.ui.focus.FocusRequester, fabFocusRequester: androidx.compose.ui.focus.FocusRequester): kotlin.Unit
   skippable: true
   restartable: true
   params:
     - state: STABLE (marked @Stable or @Immutable)
+    - fab: STABLE (class with no mutable properties)
     - searchFocusRequester: STABLE (marked @Stable or @Immutable)
     - fabFocusRequester: STABLE (marked @Stable or @Immutable)
 
@@ -10454,6 +10466,52 @@ public fun com.wire.android.ui.joinConversation.JoinConversationViaInviteLinkErr
 
 @Composable
 public fun com.wire.android.ui.joinConversationViaCodeViewModel(owner: androidx.lifecycle.ViewModelStoreOwner): com.wire.android.ui.joinConversation.JoinConversationViaCodeViewModel
+  skippable: false
+  restartable: false
+  params:
+    - owner: UNKNOWN (interface or non-final class; concrete implementation unknown)
+
+@Composable
+private fun com.wire.android.ui.joinMeeting.ClearInputIconButton(state: androidx.compose.foundation.text.input.TextFieldState, enabled: kotlin.Boolean): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - state: STABLE (marked @Stable or @Immutable)
+    - enabled: STABLE (primitive type)
+
+@Composable
+private fun com.wire.android.ui.joinMeeting.JoinMeetingErrorDialog(state: com.wire.android.ui.joinMeeting.JoinMeetingDialogState.Error, onRetry: kotlin.Function0<kotlin.Unit>, onDismiss: kotlin.Function0<kotlin.Unit>): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - state: UNKNOWN (interface or non-final class; concrete implementation unknown)
+    - onRetry: STABLE (function type)
+    - onDismiss: STABLE (function type)
+
+@Composable
+public fun com.wire.android.ui.joinMeeting.JoinMeetingViaDeepLinkDialog(state: com.wire.android.ui.joinMeeting.JoinMeetingDialogState, passwordTextState: androidx.compose.foundation.text.input.TextFieldState, onJoin: kotlin.Function0<kotlin.Unit>, onRetry: kotlin.Function0<kotlin.Unit>, onDismiss: kotlin.Function0<kotlin.Unit>): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - state: UNKNOWN (interface or non-final class; concrete implementation unknown)
+    - passwordTextState: STABLE (marked @Stable or @Immutable)
+    - onJoin: STABLE (function type)
+    - onRetry: STABLE (function type)
+    - onDismiss: STABLE (function type)
+
+@Composable
+private fun com.wire.android.ui.joinMeeting.MeetingPasswordDialog(loading: kotlin.Boolean, error: com.wire.android.ui.joinMeeting.JoinMeetingDialogState.Error?, passwordTextState: androidx.compose.foundation.text.input.TextFieldState, onJoin: kotlin.Function0<kotlin.Unit>, onDismiss: kotlin.Function0<kotlin.Unit>): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - loading: STABLE (primitive type)
+    - error: UNKNOWN (interface or non-final class; concrete implementation unknown)
+    - passwordTextState: STABLE (marked @Stable or @Immutable)
+    - onJoin: STABLE (function type)
+    - onDismiss: STABLE (function type)
+
+@Composable
+public fun com.wire.android.ui.joinMeetingViaCodeViewModel(owner: androidx.lifecycle.ViewModelStoreOwner): com.wire.android.ui.joinMeeting.JoinMeetingViaCodeViewModel
   skippable: false
   restartable: false
   params:

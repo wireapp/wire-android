@@ -210,7 +210,7 @@ internal fun ConversationFilesScreenContent(
     sendIntent: (CellViewIntent) -> Unit,
     isRefreshing: State<Boolean>,
     onRefresh: () -> Unit,
-    retryEditNodeError: (String) -> Unit,
+    retryEditNodeError: (String, Boolean) -> Unit,
     modifier: Modifier = Modifier,
     isDeleteInProgress: Boolean = false,
     screenTitle: String? = null,
@@ -585,7 +585,7 @@ internal fun ConversationFilesScreenContent(
                     showVideoViewer = navigation::video,
                     showAudioPlayer = navigation::audio,
                     showPdfViewer = navigation::pdf,
-                    retryEditNodeError = { retryEditNodeError(it) },
+                    retryEditNodeError = { uuid, readOnly -> retryEditNodeError(uuid, readOnly) },
                     isRefreshing = isRefreshing,
                     onRefresh = onRefresh,
                     fileReadyFlow = fileReadyFlow,
@@ -757,7 +757,7 @@ fun PreviewConversationFilesScreen() {
                     breadcrumbs = arrayOf("Engineering", "Android"),
                     isRefreshing = remember { mutableStateOf(false) },
                     onRefresh = {},
-                    retryEditNodeError = {},
+                    retryEditNodeError = { _, _ -> },
                 )
             }
         }

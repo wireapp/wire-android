@@ -214,7 +214,7 @@ internal fun SearchRouteScreen(
                 showVideoViewer = navigation::video,
                 showAudioPlayer = navigation::audio,
                 showPdfViewer = navigation::pdf,
-                retryEditNodeError = { cellViewModel.editNode(it) },
+                retryEditNodeError = { uuid, readOnly -> cellViewModel.editNode(uuid, readOnly) },
                 isRefreshing = remember { mutableStateOf(false) },
                 onRefresh = { },
                 fileReadyFlow = cellViewModel.fileReadyFlow,

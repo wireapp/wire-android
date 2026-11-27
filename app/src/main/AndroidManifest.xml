@@ -85,6 +85,11 @@
             android:theme="@style/AppTheme" />
 
         <activity
+                android:name=".ui.edit.OnlineEditorActivity"
+                android:exported="false"
+                android:theme="@style/AppTheme" />
+
+        <activity
             android:name=".ui.calling.ongoing.OngoingCallActivity"
             android:configChanges="screenSize|smallestScreenSize|screenLayout|orientation"
             android:exported="false"

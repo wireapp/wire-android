@@ -377,7 +377,7 @@ class MultipartAttachmentsViewModelTest {
     }
 
     @Test
-    fun `givenFileActivelyDownloading_whenClickedAgain_thenDownloadIsCancelled`() = runTest {
+    fun givenFileActivelyDownloading_whenClickedAgain_thenDownloadIsCancelled() = runTest {
         val (arrangement, viewModel) = Arrangement().arrange()
         val pdfAttachment = testAttachmentUi.copy(
             mimeType = "application/pdf",
@@ -401,7 +401,7 @@ class MultipartAttachmentsViewModelTest {
     }
 
     @Test
-    fun `givenDownloadCompleted_whenClickedDuringReadyState_thenFileIsOpenedImmediately`() = runTest {
+    fun givenDownloadCompleted_whenClickedDuringReadyState_thenFileIsOpenedImmediately() = runTest {
         val (arrangement, viewModel) = Arrangement().arrange()
         val pdfAttachment = testAttachmentUi.copy(
             mimeType = "application/pdf",
@@ -427,7 +427,7 @@ class MultipartAttachmentsViewModelTest {
     }
 
     @Test
-    fun `givenNoActiveState_whenClicked_thenControllerStartIsCalled`() = runTest {
+    fun givenNoActiveState_whenClicked_thenControllerStartIsCalled() = runTest {
         val (arrangement, viewModel) = Arrangement().arrange()
         // Not a pdf - pdfs are handed over to the internal viewer instead of being downloaded here.
         val attachment = testAttachmentUi.copy(
@@ -442,7 +442,7 @@ class MultipartAttachmentsViewModelTest {
     }
 
     @Test
-    fun `givenVideoAttachmentWithContentUrl_whenClicked_thenVideoIsStreamedInPlayerInsteadOfOpeningUrl`() = runTest {
+    fun givenVideoAttachmentWithContentUrl_whenClicked_thenVideoIsStreamedInPlayerInsteadOfOpeningUrl() = runTest {
         val (arrangement, viewModel) = Arrangement().arrange()
         val videoAttachment = testAttachmentUi.copy(
             mimeType = "video/mp4",
@@ -461,7 +461,7 @@ class MultipartAttachmentsViewModelTest {
     }
 
     @Test
-    fun `givenVideoAttachmentWithLocalPath_whenClicked_thenVideoIsPlayedFromLocalFile`() = runTest {
+    fun givenVideoAttachmentWithLocalPath_whenClicked_thenVideoIsPlayedFromLocalFile() = runTest {
         val (arrangement, viewModel) = Arrangement().arrange()
         val videoAttachment = testAttachmentUi.copy(
             mimeType = "video/mp4",
@@ -480,7 +480,7 @@ class MultipartAttachmentsViewModelTest {
     }
 
     @Test
-    fun `givenEditableAttachmentAndEditorAccess_whenClicked_thenOnlineEditorIsOpened`() = runTest {
+    fun givenEditableAttachmentAndEditorAccess_whenClicked_thenOnlineEditorIsOpened() = runTest {
         val (arrangement, viewModel) = Arrangement()
             .withCollaboraEnabled()
             .arrange()
@@ -489,7 +489,7 @@ class MultipartAttachmentsViewModelTest {
         viewModel.onClick(testEditableAttachmentUi, mockk(), mockk(), mockk(), openInPdfViewer)
 
         coVerify(exactly = 1) { arrangement.getEditorUrl(testEditableAttachmentUi.uuid) }
-        verify(exactly = 1) { arrangement.onlineEditor.open(EDITOR_URL) }
+        coVerify(exactly = 1) { arrangement.onlineEditor.open(EDITOR_URL) }
         coVerify(exactly = 0) { arrangement.getPdfPreviewUrl(any()) }
         verify(exactly = 0) { openInPdfViewer.invoke(any(), any()) }
     }
@@ -505,7 +505,7 @@ class MultipartAttachmentsViewModelTest {
         viewModel.onClick(testEditableAttachmentUi, mockk(), mockk(), mockk(), openInPdfViewer)
 
         verify(exactly = 1) { openInPdfViewer.invoke(testEditableAttachmentUi, PDF_RENDITION_URL) }
-        verify(exactly = 0) { arrangement.onlineEditor.open(any()) }
+        coVerify(exactly = 0) { arrangement.onlineEditor.open(any()) }
         coVerify(exactly = 0) { arrangement.getEditorUrl(any()) }
         verify(exactly = 0) { arrangement.openFileDownloadController.start(any(), any(), any(), any()) }
     }
@@ -524,7 +524,7 @@ class MultipartAttachmentsViewModelTest {
 
         // A viewer has nothing to read, and must not be handed the original file either.
         verify(exactly = 0) { openInPdfViewer.invoke(any(), any()) }
-        verify(exactly = 0) { arrangement.onlineEditor.open(any()) }
+        coVerify(exactly = 0) { arrangement.onlineEditor.open(any()) }
         verify(exactly = 0) { arrangement.openFileDownloadController.start(any(), any(), any(), any()) }
     }
 
@@ -540,7 +540,7 @@ class MultipartAttachmentsViewModelTest {
 
         viewModel.onClick(testEditableAttachmentUi, mockk(), mockk(), mockk(), openInPdfViewer)
 
-        verify(exactly = 1) { arrangement.onlineEditor.open(EDITOR_URL) }
+        coVerify(exactly = 1) { arrangement.onlineEditor.open(EDITOR_URL) }
         verify(exactly = 0) { openInPdfViewer.invoke(any(), any()) }
     }
 

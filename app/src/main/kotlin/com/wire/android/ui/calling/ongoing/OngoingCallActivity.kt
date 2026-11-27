@@ -24,7 +24,6 @@ import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.togetherWith
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
@@ -51,7 +50,6 @@ import dev.zacsweers.metro.Inject
  *
  * @see OngoingCallScreen
  */
-@OptIn(ExperimentalComposeUiApi::class)
 class OngoingCallActivity : CallActivity() {
     @Inject
     lateinit var servicesManager: ServicesManager

@@ -75,7 +75,7 @@
     <string name="connection_request_ignore_error">Connection request could not be ignored</string>
     <string name="error_unblocking_user">User could not be unblocked</string>
     <string name="conversation_viewer_access_banner">Viewer access: you can’t upload or edit files.</string>
-    <string name="conversation_drive_offboarded_banner">File sharing is no longer available in this conversation. Existing files are read-only until they’re permanently deleted.</string>
+    <string name="conversation_drive_offboarded_banner">Shared Drive is off. You can no longer share files in this conversation, but you can still read existing files until they’re permanently deleted.</string>
     <string name="content_description_close_button">Close</string>
     <string name="content_description_close">Close</string>
     <string name="content_description_menu_button">Main navigation</string>

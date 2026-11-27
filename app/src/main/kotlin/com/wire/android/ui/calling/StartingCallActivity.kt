@@ -22,7 +22,6 @@ import android.content.Intent
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.togetherWith
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
@@ -46,7 +45,6 @@ import com.wire.kalium.logic.data.id.MeetingId
  * @see IncomingCallScreen
  * @see OutgoingCallScreen
  */
-@OptIn(ExperimentalComposeUiApi::class)
 class StartingCallActivity : CallActivity() {
     override val destination: CallActivityDestination = CallActivityDestination.STARTING
 

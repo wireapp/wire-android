@@ -20,7 +20,6 @@ package com.wire.android.feature.cells.ui
 import com.wire.android.feature.cells.domain.model.AttachmentFileType
 import com.wire.android.feature.cells.ui.edit.OnlineEditor
 import com.wire.android.feature.cells.ui.model.CellNodeUi
-import com.wire.android.feature.cells.ui.model.pdfRenditionUrl
 import com.wire.android.feature.cells.util.FileHelper
 import com.wire.kalium.cells.domain.usecase.GetEditorUrlUseCase
 import com.wire.kalium.cells.domain.usecase.GetWireCellConfigurationUseCase
@@ -61,25 +60,19 @@ class CellFileOpener @Inject constructor(
         file.isEditSupported && isCollaboraEnabled && featureFlags.collaboraIntegration && isOnline
 
     /**
-     * Documents, presentations and spreadsheets open in the online editor. A user with viewer access can't edit them, so
-     * they are shown read-only through the PDF rendition the backend generates for them. Without such a rendition (still
-     * processing, failed or unsupported) there is nothing a viewer may be shown, which is reported the same way as for
-     * any other file a viewer can't open.
+     * Documents, presentations and spreadsheets open in the online editor. A user with viewer access can't edit them,
+     * so for them the editor is opened read-only.
      */
     internal fun openEditableDocument(file: CellNodeUi.File, scope: CoroutineScope, actions: CellActionSink) {
-        when {
-            !(file.isViewerOnly && featureFlags.drivePermissionsEnabled) -> edit(file.uuid, scope, actions)
-            file.pdfRenditionUrl() != null -> actions.sendAction(OpenPdfViewer(file))
-            else -> actions.sendAction(ShowError(CellError.OTHER_ERROR))
-        }
+        edit(file.uuid, scope, actions, readOnly = file.isViewerOnly && featureFlags.drivePermissionsEnabled)
     }
 
-    internal fun edit(nodeUuid: String, scope: CoroutineScope, actions: CellActionSink) = scope.launch {
+    internal fun edit(nodeUuid: String, scope: CoroutineScope, actions: CellActionSink, readOnly: Boolean = false) = scope.launch {
         getEditorUrl(nodeUuid)
             .onSuccess { url ->
-                if (url != null) onlineEditor.open(url) else actions.sendAction(ShowEditErrorDialog(nodeUuid))
+                if (url != null) onlineEditor.open(url, readOnly) else actions.sendAction(ShowEditErrorDialog(nodeUuid, readOnly))
             }
-            .onFailure { actions.sendAction(ShowEditErrorDialog(nodeUuid)) }
+            .onFailure { actions.sendAction(ShowEditErrorDialog(nodeUuid, readOnly)) }
     }
 
     /** Opens [file] from its local copy. */

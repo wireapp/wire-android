@@ -57,7 +57,6 @@ import com.wire.android.feature.cells.ui.common.LoadingScreen
 import com.wire.android.feature.cells.ui.common.WireCellErrorDialog
 import com.wire.android.feature.cells.ui.dialog.DeleteConfirmationDialog
 import com.wire.android.feature.cells.ui.dialog.NodeActionsBottomSheet
-import com.wire.android.feature.cells.ui.edit.OnlineEditor
 import com.wire.android.feature.cells.ui.model.CellNodeUi
 import com.wire.android.feature.cells.ui.movetofolder.NodeToMove
 import com.wire.android.feature.cells.ui.publiclink.PublicLinkScreenData
@@ -65,6 +64,7 @@ import com.wire.android.feature.cells.ui.recyclebin.RestoreConfirmationDialog
 import com.wire.android.feature.cells.ui.recyclebin.RestoreParentFolderConfirmationDialog
 import com.wire.android.feature.cells.ui.recyclebin.UnableToRestoreDialog
 import com.wire.android.feature.cells.ui.search.sort.SortBy
+import com.wire.android.util.CustomTabsHelper
 import com.wire.android.util.SupportPage
 import com.wire.android.ui.common.HandleActions
 import com.wire.android.ui.common.dimensions
@@ -104,7 +104,7 @@ internal fun CellScreenContent(
     isOffline: Boolean = false,
     isPullToRefreshEnabled: Boolean = true,
     lazyListState: LazyListState = rememberLazyListState(),
-    retryEditNodeError: (String) -> Unit = {},
+    retryEditNodeError: (String, Boolean) -> Unit = { _, _ -> },
     showVersionHistoryScreen: (String, String) -> Unit = { _, _ -> },
     showImageViewer: (CellNodeUi.File) -> Unit = {},
     showVideoViewer: (CellNodeUi.File) -> Unit = {},
@@ -128,7 +128,7 @@ internal fun CellScreenContent(
     var restoreConfirmation by remember { mutableStateOf<CellNodeUi?>(null) }
     var showRestoreError by remember { mutableStateOf<ShowUnableToRestoreDialog?>(null) }
     var restoreParentFolderConfirmation by remember { mutableStateOf<CellNodeUi?>(null) }
-    var editNodeError by remember { mutableStateOf<String?>(null) }
+    var editNodeError by remember { mutableStateOf<ShowEditErrorDialog?>(null) }
     var menu by remember { mutableStateOf<MenuOptions?>(null) }
 
     when {
@@ -238,13 +238,13 @@ internal fun CellScreenContent(
         )
     }
 
-    editNodeError?.let { nodeUuid ->
+    editNodeError?.let { error ->
         WireCellErrorDialog(
             title = stringResource(R.string.cell_open_editor_failure_dialog_title),
             message = stringResource(R.string.cell_open_editor_failure_dialog_message),
             onResult = { tryAgain ->
                 editNodeError = null
-                if (tryAgain) retryEditNodeError(nodeUuid)
+                if (tryAgain) retryEditNodeError(error.nodeUuid, error.readOnly)
             }
         )
     }
@@ -296,7 +296,7 @@ internal fun CellScreenContent(
                 Toast.LENGTH_LONG
             ).show()
             is OpenFolder -> openFolder(action.path, action.title, action.parentFolderUuid)
-            is ShowEditErrorDialog -> editNodeError = action.nodeUuid
+            is ShowEditErrorDialog -> editNodeError = action
             is ShowOfflineFileSaved -> {
                 Toast.makeText(
                     context,
@@ -437,8 +437,7 @@ private fun LearnMoreLink(
     @StringRes textRes: Int,
     page: SupportPage,
 ) {
-    val context = LocalContext.current.applicationContext
-    val onlineEditor = remember(context) { OnlineEditor(context) }
+    val context = LocalContext.current
 
     val url = supportUrlResource(page)
     Text(
@@ -446,7 +445,7 @@ private fun LearnMoreLink(
         style = MaterialTheme.wireTypography.body01,
         textDecoration = TextDecoration.Underline,
         modifier = Modifier.clickable {
-            onlineEditor.open(url)
+            CustomTabsHelper.launchUrl(context, url)
         },
     )
 }

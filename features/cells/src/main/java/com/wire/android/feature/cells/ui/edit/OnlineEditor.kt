@@ -19,69 +19,44 @@ package com.wire.android.feature.cells.ui.edit
 
 import android.content.Context
 import android.content.Intent
-import android.graphics.BitmapFactory
 import android.net.Uri
-import androidx.appcompat.app.AppCompatDelegate
-import androidx.browser.customtabs.CustomTabsClient
-import androidx.browser.customtabs.CustomTabsIntent
-import androidx.browser.customtabs.CustomTabsIntent.COLOR_SCHEME_DARK
-import androidx.browser.customtabs.CustomTabsIntent.COLOR_SCHEME_LIGHT
-import androidx.browser.customtabs.CustomTabsIntent.COLOR_SCHEME_SYSTEM
+import com.wire.android.feature.cells.ui.CellFeatureFlags
+import com.wire.kalium.logic.data.user.UserId
+import com.wire.android.di.CurrentAccount
+import com.wire.kalium.logic.feature.client.IsWireCellsEnabledUseCase
 import dev.zacsweers.metro.Inject
 
+/** Opens the online document editor in an in-app screen, never in a browser. */
 class OnlineEditor @Inject constructor(
     private val context: Context,
+    private val isWireCellsEnabled: IsWireCellsEnabledUseCase,
+    private val featureFlags: CellFeatureFlags,
+    @CurrentAccount private val userId: UserId,
 ) {
 
-    fun open(url: String) {
-
-        val uri = Uri.parse(url)
-
-        if (isCustomTabsSupported()) {
-            runCatching {
-                openCustomTab(uri)
-            }.onFailure {
-                openInBrowser(uri)
-            }
-        } else {
-            openInBrowser(uri)
-        }
-    }
-
-    private fun openCustomTab(uri: Uri) {
-
-        val customTabsIntent = CustomTabsIntent.Builder()
-            .setCloseButtonIcon(BitmapFactory.decodeResource(context.resources, com.wire.android.ui.common.R.drawable.ic_close))
-            .setShareState(CustomTabsIntent.SHARE_STATE_OFF)
-            .setDownloadButtonEnabled(false)
-            .setBookmarksButtonEnabled(false)
-            .setColorScheme(getColorScheme())
-            .setShowTitle(true)
-            .build().apply {
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                intent.putExtra(Intent.EXTRA_REFERRER, Uri.parse("android-app://" + context.packageName))
-            }
-
-        customTabsIntent.launchUrl(context, uri)
-    }
-
-    private fun openInBrowser(uri: Uri) {
-        val intent = Intent().apply {
-            action = Intent.ACTION_VIEW
-            data = uri
-            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        }
+    /** Opens read-only when asked to, and always once the team's Drive is offboarded. */
+    suspend fun open(url: String, readOnly: Boolean = false) {
+        val isReadOnly = readOnly || (featureFlags.driveOffboardingEnabled && !isWireCellsEnabled())
+        val editorUrl = if (isReadOnly) url.asReadOnlyEditorUrl() else url
+        // The activity lives in the app module (it needs the app lock), so it is addressed by name.
+        val intent = Intent()
+            .setClassName(context.packageName, ACTIVITY_CLASS_NAME)
+            .setData(Uri.parse(editorUrl))
+            .putExtra(EXTRA_USER_ID, userId.toString())
+            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         context.startActivity(intent)
     }
 
-    private fun getColorScheme() = when (AppCompatDelegate.getDefaultNightMode()) {
-        AppCompatDelegate.MODE_NIGHT_NO -> COLOR_SCHEME_LIGHT
-        AppCompatDelegate.MODE_NIGHT_YES -> COLOR_SCHEME_DARK
-        else -> COLOR_SCHEME_SYSTEM
-    }
+    internal companion object {
+        private const val ACTIVITY_CLASS_NAME = "com.wire.android.ui.edit.OnlineEditorActivity"
+        private const val EXTRA_USER_ID = "user_id"
+        private val PERMISSION_PARAM = Regex("([?&])permission=[^&#]*")
 
-    private fun isCustomTabsSupported(): Boolean {
-        val packageName = CustomTabsClient.getPackageName(context, mutableListOf<String?>())
-        return packageName != null
+        fun String.asReadOnlyEditorUrl(): String =
+            if (PERMISSION_PARAM.containsMatchIn(this)) {
+                replace(PERMISSION_PARAM, "$1permission=read")
+            } else {
+                this + (if ('?' in this) "&" else "?") + "permission=read"
+            }
     }
 }

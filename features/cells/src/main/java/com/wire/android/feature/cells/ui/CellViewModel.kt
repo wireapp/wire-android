@@ -249,7 +249,7 @@ class CellViewModel @AssistedInject constructor(
     internal fun confirmUpload() = uploadController.confirm(host)
     internal fun cancelUploadConfirmation() = uploadController.cancel()
 
-    internal fun editNode(nodeUuid: String) = fileOpener.edit(nodeUuid, viewModelScope, host)
+    internal fun editNode(nodeUuid: String, readOnly: Boolean = false) = fileOpener.edit(nodeUuid, viewModelScope, host, readOnly)
 
     @Suppress("CyclomaticComplexMethod")
     internal fun sendIntent(intent: CellViewIntent) {

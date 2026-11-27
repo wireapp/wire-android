@@ -72,4 +72,6 @@ class AllPages(val device: UiDevice) {
     val documentsUIPage = DocumentsUIPage(device)
 
     val meetingsPage = MeetingsPage(device)
+
+    val scheduleMeetingPage = ScheduleMeetingPage(device)
 }

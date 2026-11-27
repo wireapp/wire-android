@@ -120,6 +120,13 @@ class HomeNavigation3EntryTest {
     }
 
     @Test
+    fun givenIgnoredConnectionRequestWithBlankName_whenMapped_thenHomeMessageIsCreated() {
+        val message = ConnectionRequestIgnoredResult("").toHomeSnackBarMessage()
+
+        assertEquals("", (message as HomeSnackBarMessage.SuccessConnectionIgnoreRequest).userName)
+    }
+
+    @Test
     fun givenHomeEntry_whenInspectingResultFlow_thenNavigation3OwnsSnackbarParity() {
         val source = sourceFile().readText()
 

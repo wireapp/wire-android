@@ -204,7 +204,7 @@ fun ConnectionActionButton(
     HandleActions(viewModel.actions) { action ->
         when (action) {
             is OpenConversation -> onOpenConversation(action.conversationId)
-            is ConnectionRequestIgnored -> onConnectionRequestIgnored(action.userName)
+            is ConnectionRequestIgnored -> onConnectionRequestIgnored(action.userName.ifBlank { fullName })
             is UnableToStartConversation -> unableStartConversationDialogState.show(UnableStartConversationDialogState(fullName))
         }
     }

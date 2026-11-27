@@ -17,12 +17,14 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalContext
 import com.wire.android.feature.SwitchAccountActions
 import com.wire.android.navigation.navigation3.WireEntryPresentation
 import com.wire.android.navigation.navigation3.WireEntryProviderInstaller
 import com.wire.android.navigation.navigation3.WireNavigation3ResultType
 import com.wire.android.navigation.navigation3.WireNavigation3Runtime
 import com.wire.android.navigation.navigation3.wireEntry
+import com.wire.android.navigation.routes.media.AuthenticatedImportMediaRoute
 import com.wire.android.ui.common.snackbar.LocalSnackbarHostState
 import com.wire.android.ui.home.conversations.ConversationFoldersNavigation3ResultType
 import com.wire.android.ui.home.conversations.toNavigation3Route
@@ -44,6 +46,7 @@ import com.wire.android.ui.userprofile.other.OtherUserProfileRouteScreen
 import com.wire.android.ui.userprofile.other.toViewModelArgs as toOtherUserProfileViewModelArgs
 import com.wire.android.ui.userprofile.qr.SelfQRCodeScreen
 import com.wire.android.ui.userprofile.qr.SelfQrCodeRoute
+import com.wire.android.ui.userprofile.qr.shareLinkToProfile
 import com.wire.android.ui.userprofile.qr.toViewModelArgs as toSelfQrCodeViewModelArgs
 import com.wire.android.ui.userprofile.self.SelfUserProfileRoute
 import com.wire.android.ui.userprofile.self.SelfUserProfileRouteScreen
@@ -149,8 +152,20 @@ private fun SelfQrCodeNavigation3Entry(
     route: SelfQrCodeRoute,
     actions: UserProfileNavigation3Actions,
 ) {
+    val context = LocalContext.current
     SelfQRCodeScreen(
         viewModel = selfQRCodeViewModel(route.toSelfQrCodeViewModelArgs()),
+        onShareProfileLink = { url -> context.shareLinkToProfile(url, route.entryId) },
+        onShareQrViaWire = { uri ->
+            runtime.navigator.navigate(
+                WireNavigationCommand(
+                    AuthenticatedImportMediaRoute(
+                        sessionId = route.sessionId,
+                        internalAssetUriStrings = listOf(uri.toString()),
+                    )
+                )
+            )
+        },
         onNavigateBack = {
             if (!runtime.navigator.goBack()) actions.exitUserProfile()
         },

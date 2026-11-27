@@ -23,6 +23,7 @@ package com.wire.android.tests.support.tags
  * Examples:
  * @Tag(key = "feature", value = "calling")
  * @Tag(key = "runType", value = "smoke")
+ * @Tag(key = "minSdk", value = "33") // Assign this method to Android 13+ in CI, including retries.
  *
  * These tags will later be used for filtering tests in CI or local runs.
  * For example:

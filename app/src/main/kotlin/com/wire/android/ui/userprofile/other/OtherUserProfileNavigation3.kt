@@ -57,11 +57,7 @@ internal fun OtherUserProfileRoute.toViewModelArgs() = OtherUserProfileViewModel
 data class ConnectionRequestIgnoredResult(
     @SerialName("userId")
     val userName: String,
-) {
-    init {
-        require(userName.isNotBlank()) { "An ignored connection request user name cannot be blank" }
-    }
-}
+)
 
 internal val ConnectionRequestIgnoredResultContract =
     WireNavResultContract<ConnectionRequestIgnoredResult>(

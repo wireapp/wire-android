@@ -103,6 +103,8 @@ interface NewMeetingViewModel : ActionsManager<NewMeetingViewActions> {
         const val MEETING_NAME_MAX_COUNT = 64
         const val GENERATED_PASSWORD_LENGTH = 8
     }
+
+    fun hasUnsavedChanges(): Boolean = false
 }
 
 class NewMeetingViewModelPreview(
@@ -144,6 +146,8 @@ class NewMeetingViewModelImpl @AssistedInject constructor(
     override val confirmPasswordTextState: TextFieldState = TextFieldState()
     override var state: NewMeetingState by mutableStateOf(initialState(currentTimeProvider, currentTimeZoneProvider))
         private set
+    private var initialDraftState = state
+    private var initialDraftTitle = titleTextState.text.toString()
 
     init {
         observeTitleChanges()
@@ -173,6 +177,8 @@ class NewMeetingViewModelImpl @AssistedInject constructor(
                         )
                     }
                 }
+                initialDraftState = state
+                initialDraftTitle = titleTextState.text.toString()
                 state = state.copy(
                     isGuestLinkSharingEnabled = meetingType !is NewMeetingType.Edit
                             && meetingsGuestsLinksEnabled
@@ -434,6 +440,14 @@ class NewMeetingViewModelImpl @AssistedInject constructor(
 
     override fun dismissCreationError() {
         state = state.copy(submitError = null)
+    }
+
+    override fun hasUnsavedChanges(): Boolean {
+        if (state.initialLoading != InitialLoadingState.Loaded) return false
+        return titleTextState.text.toString() != initialDraftTitle ||
+            state.startTime != initialDraftState.startTime || state.endTime != initialDraftState.endTime ||
+            state.repeatingInterval != initialDraftState.repeatingInterval ||
+            state.confirmedContacts != initialDraftState.confirmedContacts
     }
 }
 

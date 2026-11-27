@@ -90,6 +90,19 @@ Category:
 
 Tag:  
 @Tag(key = "feature", value = "calling")
+
+For a test method requiring Android 13 or later, use:
+
+```kotlin
+@Tag(key = "minSdk", value = "33")
+```
+
+CI reads this requirement from the compiled test APK and assigns the method to
+a compatible phone, including retries and manual deflake runs. Other tests keep
+their normal assignment. Local instrumentation excludes tagged methods on older
+Android versions. Use the SDK number, so Android 14 is `34` and Android 15 is `35`.
+The existing `Tag` annotation allows one tag per method; do not replace an
+existing feature tag without checking its filtering and reporting uses.
 ---
 ## Filtering System (Latest Implementation)
 

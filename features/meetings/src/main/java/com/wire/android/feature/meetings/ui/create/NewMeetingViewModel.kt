@@ -78,6 +78,7 @@ import kotlinx.datetime.plus
 import kotlinx.datetime.toInstant
 import kotlinx.datetime.toLocalDateTime
 
+@Suppress("TooManyFunctions")
 interface NewMeetingViewModel : ActionsManager<NewMeetingViewActions> {
     val currentTimeProvider: CurrentTimeProvider
     val currentTimeZoneProvider: CurrentTimeZoneProvider
@@ -527,13 +528,14 @@ class NewMeetingViewModelImpl @AssistedInject constructor(
     }
 
     override fun hasUnsavedChanges(): Boolean {
-        val state = state as? NewMeetingState.Ready ?: return false
-        val initialDraftState = initialDraftState ?: return false
+        val state = state as? NewMeetingState.Ready
+        val initialDraft = initialDraftState
+        if (state == null || initialDraft == null) return false
         return titleTextState.text.toString() != initialDraftTitle ||
-            state.startTime != initialDraftState.startTime || state.endTime != initialDraftState.endTime ||
-            state.repeatingInterval != initialDraftState.repeatingInterval ||
-            state.confirmedContacts != initialDraftState.confirmedContacts ||
-            state.confirmedEmails != initialDraftState.confirmedEmails
+            state.startTime != initialDraft.startTime || state.endTime != initialDraft.endTime ||
+            state.repeatingInterval != initialDraft.repeatingInterval ||
+            state.confirmedContacts != initialDraft.confirmedContacts ||
+            state.confirmedEmails != initialDraft.confirmedEmails
     }
 }
 

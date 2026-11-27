@@ -17,7 +17,7 @@ internal interface CellsFilesNavigation {
     fun createFolder(parentUuid: String?)
     fun createFile(parentUuid: String, fileType: FileType)
     fun recycleBin(args: CellFilesNavArgs, popConsecutive: Boolean = false)
-    fun search(conversationId: String, sortCriteria: SortCriteriaNavArg? = null)
+    fun search(conversationId: String, sortCriteria: SortCriteriaNavArg? = null, isOfflineOnly: Boolean = false)
     fun folder(args: CellFilesNavArgs)
     fun publicLink(data: PublicLinkScreenData)
     fun move(currentPath: String, nodePath: String, uuid: String) = moveNodes(currentPath, listOf(NodeToMove(uuid, nodePath)))
@@ -37,7 +37,7 @@ internal object NoOpCellsFilesNavigation : CellsFilesNavigation {
     override fun createFolder(parentUuid: String?) = Unit
     override fun createFile(parentUuid: String, fileType: FileType) = Unit
     override fun recycleBin(args: CellFilesNavArgs, popConsecutive: Boolean) = Unit
-    override fun search(conversationId: String, sortCriteria: SortCriteriaNavArg?) = Unit
+    override fun search(conversationId: String, sortCriteria: SortCriteriaNavArg?, isOfflineOnly: Boolean) = Unit
     override fun folder(args: CellFilesNavArgs) = Unit
     override fun publicLink(data: PublicLinkScreenData) = Unit
     override fun moveNodes(currentPath: String, nodes: List<NodeToMove>) = Unit

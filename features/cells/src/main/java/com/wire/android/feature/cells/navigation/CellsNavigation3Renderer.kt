@@ -349,8 +349,10 @@ private class Navigation3CellsFilesNavigation(
         )
     }
 
-    override fun search(conversationId: String, sortCriteria: SortCriteriaNavArg?) {
-        runtime.navigator.navigate(WireNavigationCommand(SearchRoute(sessionId, conversationId, sortCriteria)))
+    override fun search(conversationId: String, sortCriteria: SortCriteriaNavArg?, isOfflineOnly: Boolean) {
+        runtime.navigator.navigate(
+            WireNavigationCommand(SearchRoute(sessionId, conversationId, sortCriteria, isOfflineOnly = isOfflineOnly))
+        )
     }
 
     override fun folder(args: com.wire.android.feature.cells.ui.CellFilesNavArgs) {

@@ -24,4 +24,6 @@ data class SearchNavArgs(
     val screenType: DriveSearchScreenType = DriveSearchScreenType.SHARED_DRIVE,
     val parentRoute: String? = null,
     val initialSortingCriteria: SortCriteriaNavArg? = null,
+    /** Opened from a listing showing only the files saved for offline use: searches those files only. */
+    val isOfflineOnly: Boolean = false,
 )

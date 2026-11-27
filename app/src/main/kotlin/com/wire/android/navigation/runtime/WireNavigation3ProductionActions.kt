@@ -135,12 +135,13 @@ internal class WireNavigation3ProductionActions(
 ) : WireNavigation3CompositeActions {
 
     override val cells: AllFilesNavigationActions = AllFilesNavigationActions(
-        openSearch = { sortCriteria ->
+        openSearch = { sortCriteria, isOfflineOnly ->
             navigate(
                 SearchRoute(
                     sessionId = requireSession(),
                     sortCriteria = sortCriteria,
                     screenType = CellsSearchType.DRIVE,
+                    isOfflineOnly = isOfflineOnly,
                 )
             )
         },

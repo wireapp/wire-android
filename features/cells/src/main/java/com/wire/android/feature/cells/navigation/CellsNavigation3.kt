@@ -229,6 +229,7 @@ data class SearchRoute(
     val sortCriteria: SortCriteriaNavArg? = null,
     val screenType: CellsSearchType = CellsSearchType.SHARED_DRIVE,
     val parentRoute: String? = null,
+    val isOfflineOnly: Boolean = false,
     override val entryId: WireNavEntryId = WireNavEntryId.random(),
 ) : CellsRoute {
     override val routeId = ROUTE_ID

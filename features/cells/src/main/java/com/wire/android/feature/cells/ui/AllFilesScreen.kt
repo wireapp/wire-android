@@ -101,6 +101,17 @@ fun AllFilesScreen(
         )
     }
 
+    // While offline, or listing only the files saved for offline use, searches those files.
+    val searchBar: @Composable () -> Unit = {
+        SearchTopBar(
+            modifier = Modifier,
+            isSearchActive = false,
+            searchBarHint = stringResource(R.string.search_label),
+            searchQueryTextState = rememberTextFieldState(),
+            onTap = { navigationActions.openSearch(sortingCriteria.toNavArg(), isOfflineOnly) },
+        )
+    }
+
     val lazyListState = rememberLazyListState()
     LaunchedEffect(sortingCriteria) {
         lazyListState.animateScrollToItem(0)
@@ -130,20 +141,7 @@ fun AllFilesScreen(
                 ) { state ->
                     when (state) {
                         AllFilesTopBarState.Browsing -> Column {
-                            // Searches the server: not while listing only the files saved for offline use, like when offline.
-                            AnimatedVisibility(
-                                visible = !isOfflineOnly,
-                                enter = expandVertically(expandFrom = Alignment.Top) + fadeIn(),
-                                exit = shrinkVertically(shrinkTowards = Alignment.Top) + fadeOut(),
-                            ) {
-                                SearchTopBar(
-                                    modifier = Modifier,
-                                    isSearchActive = false,
-                                    searchBarHint = stringResource(R.string.search_label),
-                                    searchQueryTextState = rememberTextFieldState(),
-                                    onTap = { navigationActions.openSearch(sortingCriteria.toNavArg()) },
-                                )
-                            }
+                            searchBar()
                             // Only shown while browsing; with fewer than two items there is nothing to select several of.
                             AnimatedVisibility(
                                 visible = showBulkSelectionHint && pagingListItems.itemCount >= 2,
@@ -180,7 +178,11 @@ fun AllFilesScreen(
                             elevation = dimensions().spacing0x,
                         )
 
-                        AllFilesTopBarState.Offline -> OfflineBanner()
+                        // Searches the files saved for offline use.
+                        AllFilesTopBarState.Offline -> Column {
+                            searchBar()
+                            OfflineBanner()
+                        }
                     }
                 }
             }

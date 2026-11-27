@@ -17,7 +17,6 @@
  */
 package com.wire.android.feature.cells.ui.search
 
-import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.foundation.layout.Column
@@ -55,8 +54,6 @@ import com.wire.android.navigation.transition.SHARED_ELEMENT_SEARCH_INPUT_KEY
 import com.wire.android.ui.common.bottomsheet.WireSheetValue
 import com.wire.android.ui.common.bottomsheet.rememberWireModalSheetState
 import com.wire.android.ui.common.scaffold.WireScaffold
-import com.wire.android.ui.common.topappbar.NavigationIconType
-import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.topappbar.search.SearchTopBar
 
 @OptIn(ExperimentalSharedTransitionApi::class, ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
@@ -72,6 +69,7 @@ internal fun SearchRouteScreen(
     val isOnlineState by cellViewModel.isOnline.collectAsState()
     // When offline files are disabled, never enter offline mode so all offline UI stays hidden.
     val isOnline = isOnlineState || !cellViewModel.offlineFilesEnabled
+    val isOfflineSearch by searchScreenViewModel.isOfflineSearch.collectAsStateWithLifecycle()
 
     val filterTypeSheetState = rememberWireModalSheetState<Unit>(WireSheetValue.Hidden)
     val filterTagsSheetState = rememberWireModalSheetState<Unit>(WireSheetValue.Hidden)
@@ -94,77 +92,69 @@ internal fun SearchRouteScreen(
         WireScaffold(
             modifier = modifier,
             topBar = {
-                AnimatedContent(isOnline) { online ->
-                    if (online) {
-                        Column {
-                            SearchTopBar(
-                                modifier = Modifier.sharedElement(
-                                    sharedContentState = rememberSharedContentState(key = SHARED_ELEMENT_SEARCH_INPUT_KEY),
-                                    animatedVisibilityScope = animatedVisibilityScope
-                                ),
-                                isSearchActive = uiState.isSearchActive,
-                                shouldClearTextOnClearFocus = false,
-                                keepBackButtonVisible = true,
-                                searchBarHint = when (searchScreenViewModel.screenType) {
-                                    DriveSearchScreenType.SHARED_DRIVE -> stringResource(R.string.search_shared_drive_text_input_hint)
-                                    DriveSearchScreenType.DRIVE -> stringResource(R.string.search_drive_text_input_hint)
-                                },
-                                searchQueryTextState = searchState,
-                                onCloseSearchClicked = navigation::back,
-                                onActiveChanged = {
-                                    searchScreenViewModel.onSetSearchActive(it)
-                                },
-                            )
-                            FilterChipsRow(
-                                state = uiState.chipsState,
-                                screenType = searchScreenViewModel.screenType,
-                                onFilterByTagsClicked = {
-                                    searchScreenViewModel.onSetSearchActive(false)
-                                    filterTagsSheetState.show(Unit, isImeVisible)
-                                },
-                                onFilterByTypeClicked = {
-                                    searchScreenViewModel.onSetSearchActive(false)
-                                    filterTypeSheetState.show(Unit, isImeVisible)
-                                },
-                                onFilterByOwnerClicked = {
-                                    searchScreenViewModel.onSetSearchActive(false)
-                                    filterOwnerSheetState.show(Unit, isImeVisible)
-                                },
-                                onFilterBySharedByLinkClicked = {
-                                    searchScreenViewModel.onSharedByMeClicked()
-                                },
-                                onFilterByConversationClicked = {
-                                    searchScreenViewModel.onSetSearchActive(false)
-                                    filterConversationSheetState.show(Unit, isImeVisible)
-                                },
-                                onRemoveAllFiltersClicked = {
-                                    searchScreenViewModel.onRemoveAllFilters()
-                                }
-                            )
-
-                            with(uiState) {
-                                SortRowWithMenu(
-                                    screenType = searchScreenViewModel.screenType,
-                                    sortingCriteria = sortingCriteria,
-                                    isSearchResult = searchState.text.isNotEmpty() || hasAnyFilter,
-                                    onSortByClicked = {
-                                        searchScreenViewModel.setSortBy(it)
-                                    },
-                                    onOrderClicked = {
-                                        searchScreenViewModel.setSorting(it)
-                                    }
-                                )
+                Column {
+                    SearchTopBar(
+                        modifier = Modifier.sharedElement(
+                            sharedContentState = rememberSharedContentState(key = SHARED_ELEMENT_SEARCH_INPUT_KEY),
+                            animatedVisibilityScope = animatedVisibilityScope
+                        ),
+                        isSearchActive = uiState.isSearchActive,
+                        shouldClearTextOnClearFocus = false,
+                        keepBackButtonVisible = true,
+                        searchBarHint = when (searchScreenViewModel.screenType) {
+                            DriveSearchScreenType.SHARED_DRIVE -> stringResource(R.string.search_shared_drive_text_input_hint)
+                            DriveSearchScreenType.DRIVE -> stringResource(R.string.search_drive_text_input_hint)
+                        },
+                        searchQueryTextState = searchState,
+                        onCloseSearchClicked = navigation::back,
+                        onActiveChanged = {
+                            searchScreenViewModel.onSetSearchActive(it)
+                        },
+                    )
+                    // Searching the files saved for offline use meanwhile.
+                    if (!isOnline) OfflineBanner()
+                    // None of the filters apply to the files saved for offline use, see [OfflineSearch].
+                    if (!isOfflineSearch) {
+                        FilterChipsRow(
+                            state = uiState.chipsState,
+                            screenType = searchScreenViewModel.screenType,
+                            onFilterByTagsClicked = {
+                                searchScreenViewModel.onSetSearchActive(false)
+                                filterTagsSheetState.show(Unit, isImeVisible)
+                            },
+                            onFilterByTypeClicked = {
+                                searchScreenViewModel.onSetSearchActive(false)
+                                filterTypeSheetState.show(Unit, isImeVisible)
+                            },
+                            onFilterByOwnerClicked = {
+                                searchScreenViewModel.onSetSearchActive(false)
+                                filterOwnerSheetState.show(Unit, isImeVisible)
+                            },
+                            onFilterBySharedByLinkClicked = {
+                                searchScreenViewModel.onSharedByMeClicked()
+                            },
+                            onFilterByConversationClicked = {
+                                searchScreenViewModel.onSetSearchActive(false)
+                                filterConversationSheetState.show(Unit, isImeVisible)
+                            },
+                            onRemoveAllFiltersClicked = {
+                                searchScreenViewModel.onRemoveAllFilters()
                             }
-                        }
-                    } else {
-                        Column {
-                            WireCenterAlignedTopAppBar(
-                                title = "",
-                                navigationIconType = NavigationIconType.Close(),
-                                onNavigationPressed = navigation::back,
-                            )
-                            OfflineBanner()
-                        }
+                        )
+                    }
+
+                    with(uiState) {
+                        SortRowWithMenu(
+                            screenType = searchScreenViewModel.screenType,
+                            sortingCriteria = sortingCriteria,
+                            isSearchResult = searchState.text.isNotEmpty() || hasAnyFilter,
+                            onSortByClicked = {
+                                searchScreenViewModel.setSortBy(it)
+                            },
+                            onOrderClicked = {
+                                searchScreenViewModel.setSorting(it)
+                            }
+                        )
                     }
                 }
             },
@@ -201,6 +191,8 @@ internal fun SearchRouteScreen(
                             conversationId = path,
                             screenTitle = title,
                             parentFolderUuid = parentFolderUuid,
+                            // A folder of the offline listing shown meanwhile opens with that listing too.
+                            isOfflineOnly = cellViewModel.isOfflineOnly.value,
                         )
                     )
                 },

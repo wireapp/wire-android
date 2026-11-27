@@ -25,6 +25,10 @@ import androidx.paging.LoadState
 import androidx.paging.LoadStates
 import androidx.paging.PagingData
 import com.wire.android.feature.cells.ui.CellFileLocalPathCache
+import com.wire.kalium.network.NetworkStateObserver
+import com.wire.kalium.network.NetworkState
+import com.wire.android.feature.cells.ui.CellNodesSource
+import com.wire.android.feature.cells.ui.CellFeatureFlags
 import com.wire.android.feature.cells.ui.OfflineDownloadStates
 import com.wire.android.feature.cells.ui.offline.SessionOfflineDownloads
 import com.wire.android.feature.cells.ui.search.filter.data.FilterConversationUi
@@ -39,6 +43,7 @@ import com.wire.kalium.cells.domain.usecase.GetOwnersUseCaseResult
 import com.wire.kalium.cells.domain.usecase.GetPaginatedCellConversationsFlowUseCase
 import com.wire.kalium.cells.domain.usecase.GetPaginatedFilesFlowUseCase
 import com.wire.kalium.cells.domain.usecase.offline.ObserveOfflineFilesUseCase
+import com.wire.kalium.cells.domain.usecase.offline.OfflineFileInfo
 import com.wire.kalium.common.error.CoreFailure
 import com.wire.kalium.common.functional.Either
 import com.wire.kalium.logic.data.id.ConversationId
@@ -99,6 +104,31 @@ class SearchScreenViewModelTest {
     private val offlineDownloads = mockk<SessionOfflineDownloads> {
         every { states } returns MutableStateFlow(OfflineDownloadStates())
     }
+    private val networkState = MutableStateFlow<NetworkState>(NetworkState.ConnectedWithInternet)
+    private val networkStateObserver = mockk<NetworkStateObserver> {
+        every { observeNetworkState() } returns networkState
+    }
+    private val featureFlags = CellFeatureFlags(
+        kaliumConfigs = mockk(relaxed = true),
+        offlineFilesEnabled = true,
+        inAppImageViewerEnabled = true,
+        drivePermissionsEnabled = true,
+        driveDirectUploadEnabled = true,
+        driveBulkActionsEnabled = true,
+        driveOfflineEnabled = true,
+        bulkRestoreEnabled = true,
+        driveOffboardingEnabled = true,
+    )
+
+    private fun nodesSource() = CellNodesSource(
+        getCellFilesPaged = getCellFilesPaged,
+        isAtLeastOneCellAvailable = mockk(relaxed = true),
+        observeOfflineFiles = observeOfflineFiles,
+        sharedPathCache = sharedPathCache,
+        offlineDownloads = offlineDownloads,
+        getConversationName = mockk(relaxed = true),
+        getUserName = mockk(relaxed = true),
+    )
 
     @BeforeEach
     fun setup() {
@@ -184,6 +214,9 @@ class SearchScreenViewModelTest {
             offlineDownloads = offlineDownloads,
             observeOfflineFiles = observeOfflineFiles,
             nodeChangeEvents = nodeChangeEvents,
+            nodesSource = nodesSource(),
+            networkStateObserver = networkStateObserver,
+            featureFlags = featureFlags,
         )
         advanceUntilIdle()
 
@@ -429,6 +462,99 @@ class SearchScreenViewModelTest {
         assertEquals("other_name.txt", flowOf(viewModel.cellNodesFlow.first()).asSnapshot().single().name)
     }
 
+    @Test
+    fun givenOpenedFromOfflineOnlyListing_whenSearching_thenMatchingSavedFilesAreShownWithoutAskingTheServer() = runTest {
+        every { observeOfflineFiles() } returns flowOf(
+            listOf(
+                offlineFile("1", "$CONVERSATION_ID/report.pdf"),
+                offlineFile("2", "$CONVERSATION_ID/folder/report-2.pdf"),
+                offlineFile("3", "$CONVERSATION_ID/photo.png"),
+                offlineFile("4", "otherConversation/report-3.pdf"),
+            )
+        )
+        val viewModel = createViewModel(SearchNavArgs(CONVERSATION_ID, DriveSearchScreenType.SHARED_DRIVE, isOfflineOnly = true))
+        backgroundScope.launch { viewModel.cellNodesFlow.collect {} }
+
+        viewModel.onSearchQueryChanged("REPORT")
+        advanceUntilIdle()
+
+        val names = flowOf(viewModel.cellNodesFlow.first()).asSnapshot().map { it.name }
+        assertEquals(listOf("report-2.pdf", "report.pdf"), names)
+        coVerify(exactly = 0) { getCellFilesPaged(any(), any(), any(), any(), any()) }
+    }
+
+    @Test
+    fun givenSearchingOffline_whenBackOnline_thenTheServerIsSearched() = runTest {
+        networkState.value = NetworkState.NotConnected
+        every { observeOfflineFiles() } returns flowOf(listOf(offlineFile("1", "$CONVERSATION_ID/report.pdf")))
+        coEvery { getCellFilesPaged(any(), any(), any(), any(), any()) } returns emptyFlow()
+        val viewModel = createViewModel()
+        backgroundScope.launch { viewModel.cellNodesFlow.collect {} }
+        viewModel.onSearchQueryChanged("report")
+        advanceUntilIdle()
+        assertTrue(viewModel.isOfflineSearch.value)
+        assertEquals(listOf("report.pdf"), flowOf(viewModel.cellNodesFlow.first()).asSnapshot().map { it.name })
+        coVerify(exactly = 0) { getCellFilesPaged(any(), any(), any(), any(), any()) }
+
+        networkState.value = NetworkState.ConnectedWithInternet
+        advanceUntilIdle()
+
+        assertFalse(viewModel.isOfflineSearch.value)
+        coVerify(exactly = 1) { getCellFilesPaged(CONVERSATION_ID, "report", any(), any(), any()) }
+    }
+
+    @Test
+    fun givenOpenedFromOfflineOnlyListing_whenBackOnline_thenSavedFilesAreStillSearched() = runTest {
+        networkState.value = NetworkState.NotConnected
+        val viewModel = createViewModel(SearchNavArgs(CONVERSATION_ID, DriveSearchScreenType.SHARED_DRIVE, isOfflineOnly = true))
+        backgroundScope.launch { viewModel.isOfflineSearch.collect {} }
+
+        networkState.value = NetworkState.ConnectedWithInternet
+        advanceUntilIdle()
+
+        assertTrue(viewModel.isOfflineSearch.value)
+    }
+
+    @Test
+    fun givenPublicLinkFilterSelected_whenSearchingOffline_thenItIsCleared() = runTest {
+        val viewModel = createViewModel()
+        viewModel.onSharedByMeClicked()
+        advanceUntilIdle()
+        assertTrue(viewModel.uiState.value.filesWithPublicLink)
+
+        networkState.value = NetworkState.NotConnected
+        advanceUntilIdle()
+
+        assertFalse(viewModel.uiState.value.filesWithPublicLink)
+    }
+
+    private fun offlineFile(id: String, remotePath: String) = OfflineFileInfo(
+        id = id,
+        conversationId = remotePath.substringBefore('/'),
+        name = remotePath.substringAfterLast('/'),
+        mimeType = "application/pdf",
+        owner = "owner",
+        localPath = "/local/$id",
+        size = 1024,
+        downloadedAt = 0L,
+        remotePath = remotePath,
+    )
+
+    private fun createViewModel(navArgs: SearchNavArgs): SearchScreenViewModel = SearchScreenViewModel(
+        navArgs = navArgs,
+        getAllTagsUseCase = getAllTagsUseCase,
+        getCellFilesPaged = getCellFilesPaged,
+        getOwners = getOwners,
+        getPaginatedConversations = getPaginatedConversations,
+        sharedPathCache = sharedPathCache,
+        offlineDownloads = offlineDownloads,
+        observeOfflineFiles = observeOfflineFiles,
+        nodeChangeEvents = nodeChangeEvents,
+        nodesSource = nodesSource(),
+        networkStateObserver = networkStateObserver,
+        featureFlags = featureFlags,
+    )
+
     private fun fileNamed(name: String) = Node.File(
         uuid = FILE_UUID,
         conversationId = CONVERSATION_ID,
@@ -480,6 +606,9 @@ class SearchScreenViewModelTest {
             offlineDownloads = offlineDownloads,
             observeOfflineFiles = observeOfflineFiles,
             nodeChangeEvents = nodeChangeEvents,
+            nodesSource = nodesSource(),
+            networkStateObserver = networkStateObserver,
+            featureFlags = featureFlags,
         )
     }
 
@@ -498,6 +627,9 @@ class SearchScreenViewModelTest {
             offlineDownloads = offlineDownloads,
             observeOfflineFiles = observeOfflineFiles,
             nodeChangeEvents = nodeChangeEvents,
+            nodesSource = nodesSource(),
+            networkStateObserver = networkStateObserver,
+            featureFlags = featureFlags,
         )
     }
 
@@ -513,6 +645,9 @@ class SearchScreenViewModelTest {
             offlineDownloads = offlineDownloads,
             observeOfflineFiles = observeOfflineFiles,
             nodeChangeEvents = nodeChangeEvents,
+            nodesSource = nodesSource(),
+            networkStateObserver = networkStateObserver,
+            featureFlags = featureFlags,
         )
     }
 
@@ -527,6 +662,9 @@ class SearchScreenViewModelTest {
             offlineDownloads = offlineDownloads,
             observeOfflineFiles = observeOfflineFiles,
             nodeChangeEvents = nodeChangeEvents,
+            nodesSource = nodesSource(),
+            networkStateObserver = networkStateObserver,
+            featureFlags = featureFlags,
         )
     }
 }

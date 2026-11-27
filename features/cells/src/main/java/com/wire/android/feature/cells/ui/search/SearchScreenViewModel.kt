@@ -25,7 +25,10 @@ import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import androidx.paging.map
 import com.wire.android.feature.cells.ui.CellFileLocalPathCache
+import com.wire.android.feature.cells.ui.CellFeatureFlags
 import com.wire.android.feature.cells.ui.CellNodeChangeEvents
+import com.wire.android.feature.cells.ui.CellNodesSource
+import com.wire.android.feature.cells.ui.OfflineSearch
 import com.wire.android.feature.cells.ui.CellNodeUpdate
 import com.wire.android.feature.cells.ui.applyTo
 import com.wire.android.feature.cells.ui.downloadProgressOf
@@ -58,6 +61,8 @@ import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.user.UserAssetId
 import dev.zacsweers.metro.Assisted
 import dev.zacsweers.metro.AssistedFactory
+import com.wire.kalium.network.NetworkState
+import com.wire.kalium.network.NetworkStateObserver
 import dev.zacsweers.metro.AssistedInject
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -67,9 +72,12 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.util.concurrent.ConcurrentHashMap
@@ -84,7 +92,26 @@ private data class FetchedNode(val node: CellNodeUi, val fetch: Int)
 /** A change made to a result while the [fetch]-th fetch was the latest. */
 private data class FetchUpdate(val update: CellNodeUpdate, val fetch: Int)
 
-@Suppress("TooManyFunctions")
+/**
+ * The changes the results of the [fetch]-th fetch can miss: those made since it started. Changes made before it are
+ * already on the server it fetched them from, and applying them anyway would hide later changes made elsewhere.
+ */
+// Results as the screen shows them before any search: none, while it shows the listing it was opened from.
+private val noResultsYet: PagingData<FetchedNode> = PagingData.empty(
+    LoadStates(
+        refresh = LoadState.Loading,
+        prepend = LoadState.NotLoading(true),
+        append = LoadState.NotLoading(true),
+    )
+)
+
+private val notLoading = LoadStates(
+    refresh = LoadState.NotLoading(true),
+    prepend = LoadState.NotLoading(true),
+    append = LoadState.NotLoading(true),
+)
+
+@Suppress("TooManyFunctions", "LongParameterList")
 class SearchScreenViewModel @AssistedInject constructor(
     @Assisted private val navArgs: SearchNavArgs,
     private val getAllTagsUseCase: GetAllTagsUseCase,
@@ -95,6 +122,9 @@ class SearchScreenViewModel @AssistedInject constructor(
     private val offlineDownloads: SessionOfflineDownloads,
     private val observeOfflineFiles: ObserveOfflineFilesUseCase,
     private val nodeChangeEvents: CellNodeChangeEvents,
+    private val nodesSource: CellNodesSource,
+    networkStateObserver: NetworkStateObserver,
+    featureFlags: CellFeatureFlags,
 ) : ViewModel() {
 
     @AssistedFactory
@@ -165,54 +195,35 @@ class SearchScreenViewModel @AssistedInject constructor(
             )
         }.distinctUntilChanged()
 
+    /**
+     * Whether search looks in the files saved for offline use rather than on the server: when opened from a listing
+     * showing only those, or while offline. Back online, a search started because of being offline goes on on the server.
+     */
+    val isOfflineSearch: StateFlow<Boolean> = if (featureFlags.offlineFilesEnabled) {
+        networkStateObserver.observeNetworkState()
+            .map { navArgs.isOfflineOnly || it !is NetworkState.ConnectedWithInternet }
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.Eagerly,
+                initialValue = navArgs.isOfflineOnly ||
+                        networkStateObserver.observeNetworkState().value !is NetworkState.ConnectedWithInternet,
+            )
+    } else {
+        MutableStateFlow(false).asStateFlow()
+    }
+
+    private val searches: Flow<Pair<SearchParams, Boolean>> =
+        combine(searchParamsFlow, isOfflineSearch) { params, isOffline -> params to isOffline }
+
     val cellNodesFlow: Flow<PagingData<CellNodeUi>> =
         combine(
-            searchParamsFlow.flatMapLatest<SearchParams, PagingData<FetchedNode>> { params: SearchParams ->
+            searches.flatMapLatest<Pair<SearchParams, Boolean>, PagingData<FetchedNode>> { (params, isOffline) ->
                 val fetch = startFetch()
-                val hasFilters = params.sortingCriteria != inheritedSortingCriteria ||
-                        params.query.isNotEmpty() ||
-                        params.tagIds.isNotEmpty() ||
-                        params.ownerIds.isNotEmpty() ||
-                        params.mimeTypes.isNotEmpty() ||
-                        params.filesWithPublicLink == true ||
-                        params.conversationId != navArgs.conversationId
-
-                if (!hasFilters) {
-                    return@flatMapLatest kotlinx.coroutines.flow.flowOf(
-                        PagingData.empty(
-                            LoadStates(
-                                refresh = LoadState.Loading,
-                                prepend = LoadState.NotLoading(true),
-                                append = LoadState.NotLoading(true),
-                            )
-                        )
-                    )
-                }
-
-                getCellFilesPaged(
-                    conversationId = params.conversationId,
-                    query = params.query,
-                    fileFilters = FileFilters(
-                        tags = params.tagIds,
-                        owners = params.ownerIds,
-                        mimeTypes = params.mimeTypes,
-                        hasPublicLink = params.filesWithPublicLink,
-                    ),
-                    sortingSpec = SortingSpec(
-                        criteria = params.sortingCriteria.toKaliumCriteria(),
-                        descending = params.sortingCriteria.isDescending
-                    ),
-                    // only when searching; filtering and sorting should be non-recursive
-                    isRecursive = params.query.isNotEmpty()
-                ).map { pagingData: PagingData<Node> ->
-                    pagingData.map { node: Node ->
-                        val uiNode = when (node) {
-                            is Node.Folder -> node.toUiModel()
-                            is Node.File -> node.toUiModel()
-                        }
-                        shownUuids.add(uiNode.uuid)
-                        FetchedNode(uiNode, fetch)
-                    }
+                when {
+                    isOffline && params.hasOfflineFilters() -> offlineResults(params, fetch)
+                    !isOffline && params.hasFilters() -> serverResults(params, fetch)
+                    // The screen shows the listing it was opened from meanwhile.
+                    else -> flowOf(noResultsYet)
                 }
             }.cachedIn(viewModelScope),
             sharedPathCache.openLoadStates,
@@ -257,6 +268,7 @@ class SearchScreenViewModel @AssistedInject constructor(
         loadTags()
         loadOwners()
         updateResultsUpdatedElsewhere()
+        clearFiltersUnavailableOffline()
     }
 
     // The changes are known: no need to load the results again for them.
@@ -274,6 +286,81 @@ class SearchScreenViewModel @AssistedInject constructor(
         val fetch = fetchCount.incrementAndGet()
         resultUpdates.update { updates -> updates.filter { it.fetch >= fetch - 1 } }
         return fetch
+    }
+
+    private fun SearchParams.hasFilters(): Boolean = sortingCriteria != inheritedSortingCriteria ||
+            query.isNotEmpty() ||
+            tagIds.isNotEmpty() ||
+            ownerIds.isNotEmpty() ||
+            mimeTypes.isNotEmpty() ||
+            filesWithPublicLink == true ||
+            conversationId != navArgs.conversationId
+
+    // Only a query and a sorting apply to the files saved for offline use, see [OfflineSearch].
+    private fun SearchParams.hasOfflineFilters(): Boolean =
+        sortingCriteria != inheritedSortingCriteria || query.isNotEmpty()
+
+    private suspend fun serverResults(params: SearchParams, fetch: Int): Flow<PagingData<FetchedNode>> =
+        getCellFilesPaged(
+            conversationId = params.conversationId,
+            query = params.query,
+            fileFilters = FileFilters(
+                tags = params.tagIds,
+                owners = params.ownerIds,
+                mimeTypes = params.mimeTypes,
+                hasPublicLink = params.filesWithPublicLink,
+            ),
+            sortingSpec = SortingSpec(
+                criteria = params.sortingCriteria.toKaliumCriteria(),
+                descending = params.sortingCriteria.isDescending
+            ),
+            // only when searching; filtering and sorting should be non-recursive
+            isRecursive = params.query.isNotEmpty()
+        ).map { pagingData: PagingData<Node> ->
+            pagingData.map { node: Node ->
+                val uiNode = when (node) {
+                    is Node.Folder -> node.toUiModel()
+                    is Node.File -> node.toUiModel()
+                }
+                shownUuids.add(uiNode.uuid)
+                FetchedNode(uiNode, fetch)
+            }
+        }
+
+    private fun offlineResults(params: SearchParams, fetch: Int): Flow<PagingData<FetchedNode>> =
+        nodesSource.offlineSearchResults(
+            OfflineSearch(
+                currentPath = navArgs.conversationId,
+                query = params.query,
+                sortingCriteria = params.sortingCriteria,
+            )
+        ).map { files ->
+            PagingData.from(
+                data = files.map { file ->
+                    shownUuids.add(file.uuid)
+                    FetchedNode(file, fetch)
+                },
+                sourceLoadStates = notLoading,
+            )
+        }
+
+    /**
+     * No filter can be applied to the files saved for offline use: they aren't offered then, and are cleared so that the
+     * results don't pretend to match them.
+     */
+    private fun clearFiltersUnavailableOffline() = viewModelScope.launch {
+        isOfflineSearch.collect { isOffline ->
+            if (!isOffline) return@collect
+            _uiState.update { state ->
+                state.copy(
+                    availableTags = state.availableTags.map { it.copy(selected = false) },
+                    availableTypes = state.availableTypes.map { it.copy(selected = false) },
+                    availableOwners = state.availableOwners.map { it.copy(selected = false) },
+                    selectedConversation = null,
+                    filesWithPublicLink = false,
+                )
+            }
+        }
     }
 
     internal fun loadTags() = viewModelScope.launch {

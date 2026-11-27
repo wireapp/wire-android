@@ -21,7 +21,7 @@ import com.wire.android.feature.cells.ui.search.sort.SortCriteriaNavArg
  * owner keep [CellViewModel] alive while the destination implementation migrates independently.
  */
 data class AllFilesNavigationActions(
-    val openSearch: (sortCriteria: SortCriteriaNavArg?) -> Unit,
+    val openSearch: (sortCriteria: SortCriteriaNavArg?, isOfflineOnly: Boolean) -> Unit,
     val showPublicLink: (PublicLinkScreenData) -> Unit,
     val showAddRemoveTags: (CellNodeUi) -> Unit,
     val showImageViewer: (CellNodeUi.File) -> Unit,

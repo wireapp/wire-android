@@ -138,9 +138,10 @@ class CellViewModel @AssistedInject constructor(
         source = nodesSource,
         isOnline = isOnline,
         offlineFilesEnabled = featureFlags.offlineFilesEnabled,
-        // Not in search results nor in the recycle bin.
-        offlineOnlyFilterEnabled = featureFlags.offlineFilesEnabled && !screenContext.isSearch &&
-                (screenContext.isAllFiles || screenContext.isConversationFiles),
+        // Not in the recycle bin, nor in search unless opened from a listing showing only offline files.
+        offlineOnlyFilterEnabled = featureFlags.offlineFilesEnabled &&
+                (screenContext.isAllFiles || screenContext.isConversationFiles) &&
+                (!screenContext.isSearch || screenContext.isOfflineOnlyRequested),
     )
 
     private val host = object : CellScreenHost {
@@ -351,6 +352,7 @@ class CellViewModel @AssistedInject constructor(
             // The folders of the offline listing only stand for the path of the files saved in them, there is no such
             // node to act on: they get the menu they'd get offline.
             isOnline = isOnline.value && !(isOfflineOnly.value && node is CellNodeUi.Folder),
+            isOfflineOnly = isOfflineOnly.value,
         )
         _menu.emit(MenuOptions(node, menuItems))
     }
@@ -407,4 +409,4 @@ class CellViewModel @AssistedInject constructor(
 }
 
 internal fun SearchNavArgs.toCellFilesNavArgs(): CellFilesNavArgs =
-    CellFilesNavArgs(conversationId = conversationId)
+    CellFilesNavArgs(conversationId = conversationId, isOfflineOnly = isOfflineOnly)

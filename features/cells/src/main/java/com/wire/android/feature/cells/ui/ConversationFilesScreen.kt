@@ -448,7 +448,7 @@ internal fun ConversationFilesScreenContent(
 
                     // Searches the server: not while listing only the files saved for offline use, like when offline.
                     AnimatedVisibility(
-                        visible = isOnline && !isOfflineOnly && !isSelectionMode,
+                        visible = isOnline && !isSelectionMode,
                         enter = expandVertically(expandFrom = Alignment.Top) + fadeIn(),
                         exit = shrinkVertically(shrinkTowards = Alignment.Top) + fadeOut(),
                     ) {
@@ -463,7 +463,7 @@ internal fun ConversationFilesScreenContent(
                             searchQueryTextState = TextFieldState(),
                             onTap = {
                                 currentNodeUuid?.let {
-                                    navigation.search(it, sortingCriteria.toNavArg())
+                                    navigation.search(it, sortingCriteria.toNavArg(), isOfflineOnly = isOfflineOnly)
                                 }
                             },
                         )

@@ -17,6 +17,7 @@
  */
 package com.wire.android.feature.meetings.ui.create
 
+import android.text.format.DateFormat
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
@@ -56,15 +57,19 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalResources
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.disabled
 import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.text
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextAlign
 import com.wire.android.feature.meetings.R
@@ -122,6 +127,7 @@ import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toInstant
 import kotlinx.datetime.toLocalDateTime
+import java.util.Date
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Instant
 import com.wire.android.ui.common.R as commonR
@@ -142,18 +148,27 @@ fun NewMeetingContent(
     onStartTimeChanged: (startTime: Instant) -> Unit = {},
     onEndTimeChanged: (endTime: Instant) -> Unit = {},
     onRepeatingIntervalChanged: (interval: MeetingItem.RepeatingInterval?) -> Unit = {},
+    hasUnsavedChanges: Boolean = false,
 ) {
     val scrollState = rememberScrollState()
     val audioPermissionCheck = audioPermissionCheckFlow(onPermissionGranted = onCreateClicked)
+    val discardConfirmationState = rememberVisibilityState<Unit>()
+    val closeDraft = {
+        if (!state.isSubmitting) {
+            if (hasUnsavedChanges) {
+                discardConfirmationState.show(Unit)
+            } else {
+                onBackPressed()
+            }
+        }
+    }
     WireScaffold(
         modifier = modifier,
         topBar = {
             WireCenterAlignedTopAppBar(
                 elevation = scrollState.rememberTopBarElevationState().value,
                 title = stringResource(type.title),
-                onNavigationPressed = {
-                    if (!state.isSubmitting) onBackPressed()
-                },
+                onNavigationPressed = closeDraft,
                 navigationIconType = NavigationIconType.Close(
                     contentDescription = R.string.content_description_new_meeting_back_icon
                 ),
@@ -270,7 +285,27 @@ fun NewMeetingContent(
             }
         }
     )
-    BackHandler(state.isSubmitting) { /* block until submitted */ }
+    BackHandler(onBack = closeDraft)
+    VisibilityState(status = discardConfirmationState) {
+        WireDialog(
+            title = stringResource(R.string.new_meeting_discard_title),
+            text = stringResource(R.string.new_meeting_discard_message),
+            onDismiss = discardConfirmationState::dismiss,
+            optionButton1Properties = WireDialogButtonProperties(
+                text = stringResource(R.string.new_meeting_discard_action),
+                onClick = {
+                    discardConfirmationState.dismiss()
+                    onBackPressed()
+                },
+                type = WireDialogButtonType.Primary,
+                state = WireButtonState.Error,
+            ),
+            dismissButtonProperties = WireDialogButtonProperties(
+                text = stringResource(commonR.string.label_cancel),
+                onClick = discardConfirmationState::dismiss,
+            ),
+        )
+    }
 }
 
 @Composable
@@ -409,6 +444,7 @@ private fun ParticipantsInput(
     WireTextField(
         textState = textFieldState,
         placeholderText = stringResource(R.string.new_meeting_participants_input_placeholder),
+        semanticDescription = semanticDescription,
         labelText = stringResource(R.string.new_meeting_participants_input_label).uppercase(),
         keyboardOptions = KeyboardOptions.DefaultEmailDone,
         state = WireTextFieldState.Default,
@@ -428,6 +464,7 @@ private fun ParticipantsInput(
         },
         inputModifier = Modifier.clearAndSetSemantics {
             contentDescription = semanticDescription
+            text = AnnotatedString(textFieldState.text.toString())
             role = Role.Button
         }
     )
@@ -443,14 +480,16 @@ private fun TimeInput(
     timePlaceholder: String,
     dateInputDisabled: Boolean = false,
 ) {
+    val timeFormat = DateFormat.getTimeFormat(LocalContext.current)
+    val formattedTime = timeFormat.format(Date(time.toEpochMilliseconds()))
     val dateTextFieldState = rememberTextFieldState(DateAndTimeParsers.meetingDate(time))
-    val timeTextFieldState = rememberTextFieldState(DateAndTimeParsers.meetingTime(time))
+    val timeTextFieldState = rememberTextFieldState(formattedTime)
     val datePickerDialogState = rememberVisibilityState<Unit>()
     val timePickerDialogState = rememberVisibilityState<Unit>()
 
-    LaunchedEffect(time) {
+    LaunchedEffect(time, formattedTime) {
         dateTextFieldState.setTextAndPlaceCursorAtEnd(DateAndTimeParsers.meetingDate(time))
-        timeTextFieldState.setTextAndPlaceCursorAtEnd(DateAndTimeParsers.meetingTime(time))
+        timeTextFieldState.setTextAndPlaceCursorAtEnd(formattedTime)
     }
 
     Column(modifier = Modifier.fillMaxWidth()) {
@@ -461,6 +500,7 @@ private fun TimeInput(
             WireTextField(
                 textState = dateTextFieldState,
                 placeholderText = datePlaceholder,
+                semanticDescription = datePlaceholder,
                 labelText = label.uppercase(),
                 keyboardOptions = KeyboardOptions.DefaultEmailDone,
                 state = when {
@@ -493,11 +533,14 @@ private fun TimeInput(
                 modifier = Modifier.weight(2f),
                 inputModifier = Modifier.clearAndSetSemantics {
                     contentDescription = datePlaceholder
+                    text = AnnotatedString(dateTextFieldState.text.toString())
+                    if (dateInputDisabled) disabled()
                     role = Role.Button
                 }
             )
             WireTextField(
                 textState = timeTextFieldState,
+                semanticDescription = timePlaceholder,
                 labelText = String.EMPTY, // Time input doesn't have a label as the date input's label already describes the field
                 keyboardOptions = KeyboardOptions.DefaultEmailDone,
                 state = if (timeError != null) WireTextFieldState.Error() else WireTextFieldState.Default,
@@ -524,6 +567,7 @@ private fun TimeInput(
                 modifier = Modifier.weight(1f),
                 inputModifier = Modifier.clearAndSetSemantics {
                     contentDescription = timePlaceholder
+                    text = AnnotatedString(timeTextFieldState.text.toString())
                     role = Role.Button
                 }
             )

@@ -85,3 +85,30 @@ private fun BackendClient.sendMeetingRequest(
         options = RequestOptions(accessToken = token)
     ).body
 }
+
+fun BackendClient.getMeetingConversation(meeting: Meeting): JSONObject =
+    JSONObject(
+        sendMeetingRequest(
+            meeting.creator,
+            "conversations/${Uri.encode(meeting.conversationId.domain)}/${Uri.encode(meeting.conversationId.id)}",
+            "GET"
+        )
+    )
+
+/** Fetch actual saved series, including meetings created by the Android UI. */
+fun BackendClient.listMeetings(creator: ClientUser): List<Meeting> {
+    val response = JSONArray(sendMeetingRequest(creator, "meetings/list", "GET"))
+    return (0 until response.length()).map { index ->
+        val meeting = response.getJSONObject(index)
+        Meeting(
+            id = QualifiedID.fromJSON(meeting.getJSONObject("qualified_id")),
+            conversationId = QualifiedID.fromJSON(meeting.getJSONObject("qualified_conversation")),
+            creator = creator,
+            title = meeting.getString("title"),
+            start = Instant.parse(meeting.getString("start_time")),
+            end = Instant.parse(meeting.getString("end_time")),
+            zone = ZoneId.of(meeting.getString("tzid")),
+            recurring = !meeting.isNull("recurrence"),
+        )
+    }
+}

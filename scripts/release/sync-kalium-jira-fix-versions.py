@@ -71,6 +71,9 @@ def introduced_issues(previous_ref, current_ref):
 
 
 def jira_request(issue, authorization, update=None):
+    if not ISSUE_KEY.fullmatch(issue):
+        raise JiraRequestError("Invalid Jira issue key")
+
     path = f"/rest/api/3/issue/{issue}"
     headers = {"Authorization": authorization, "Accept": "application/json"}
     method = "GET"

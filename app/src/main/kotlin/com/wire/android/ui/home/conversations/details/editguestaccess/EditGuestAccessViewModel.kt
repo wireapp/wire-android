@@ -30,7 +30,6 @@ import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.id.QualifiedID
-import com.wire.kalium.logic.data.user.SupportedProtocol
 import com.wire.kalium.logic.data.user.type.isTeamAdmin
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.SyncConversationCodeUseCase
@@ -42,7 +41,6 @@ import com.wire.kalium.logic.feature.conversation.guestroomlink.ObserveGuestRoom
 import com.wire.kalium.logic.feature.conversation.guestroomlink.ObserveGuestRoomLinkUseCase
 import com.wire.kalium.logic.feature.conversation.guestroomlink.RevokeGuestRoomLinkResult
 import com.wire.kalium.logic.feature.conversation.guestroomlink.RevokeGuestRoomLinkUseCase
-import com.wire.kalium.logic.feature.user.GetDefaultProtocolUseCase
 import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
 import com.wire.kalium.logic.feature.user.guestroomlink.ObserveGuestRoomLinkFeatureFlagUseCase
 import dev.zacsweers.metro.Assisted
@@ -75,7 +73,6 @@ class EditGuestAccessViewModel @AssistedInject constructor(
     private val observeGuestRoomLinkFeatureFlag: ObserveGuestRoomLinkFeatureFlagUseCase,
     private val canCreatePasswordProtectedLinks: CanCreatePasswordProtectedLinksUseCase,
     private val syncConversationCode: SyncConversationCodeUseCase,
-    private val getDefaultProtocol: GetDefaultProtocolUseCase,
     private val selfUser: ObserveSelfUserUseCase,
     @Assisted navigationArgs: EditGuestAccessNavArgs,
 ) : ViewModel() {
@@ -149,8 +146,6 @@ class EditGuestAccessViewModel @AssistedInject constructor(
                 .map { it.isSelfAnAdmin }
                 .distinctUntilChanged()
 
-            val isMLSTeam = getDefaultProtocol() == SupportedProtocol.MLS
-
             // TODO(refactor): Move all this logic to a UseCase
             combine(
                 conversationDetailsFlow,
@@ -165,11 +160,10 @@ class EditGuestAccessViewModel @AssistedInject constructor(
                     (conversationDetails is ConversationDetails.Group.Channel && isTeamAdmin && isSelfInConversationTeam)
                 val canSelfPerformAdminActions = isSelfAnAdmin || isSelfChannelTeamAdmin
                 val isGuestAllowed = conversationDetails.conversation.isGuestAccessEnabled()
-                val isMLSConversation = conversationDetails.conversation.protocol is Conversation.ProtocolInfo.MLS
 
                 editGuestAccessState = editGuestAccessState.copy(
                     isGuestAccessAllowed = isGuestAllowed,
-                    isServicesAccessAllowed = conversationDetails.conversation.isServicesAllowed() && !isMLSTeam && !isMLSConversation,
+                    isServicesAccessAllowed = conversationDetails.conversation.isServicesAllowed(),
                     isUpdatingGuestAccessAllowed = canSelfPerformAdminActions
                 )
 

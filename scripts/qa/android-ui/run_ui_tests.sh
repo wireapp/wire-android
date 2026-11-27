@@ -99,6 +99,29 @@ mkdir -p "${LOG_DIR}" "${STATE_DIR}" "${ALLURE_RESULTS_ROOT}"
 read -ra DEVICES <<< "${DEVICE_LIST}"
 RETRY_DEVICES=("${DEVICES[@]}")
 
+DEVICE_SDKS=()
+for serial in "${DEVICES[@]}"; do
+  sdk="$(adb -s "${serial}" shell getprop ro.build.version.sdk | tr -d '\r\n')"
+  [[ "${sdk}" =~ ^[0-9]+$ ]] || { echo "ERROR: Cannot read Android SDK for ${serial}."; exit 1; }
+  DEVICE_SDKS+=("${sdk}")
+done
+DEVICE_SDKS_CSV="$(IFS=,; echo "${DEVICE_SDKS[*]}")"
+SDK_REQUIREMENTS_FILE="${STATE_DIR}/test-min-sdk.tsv"
+
+# A minSdk tag may require a newer phone than the normal retry assignment.
+# Read the requirement discovered from the test APK, so new tagged tests need no script changes.
+device_can_run_test() {
+  local test_id="$1" serial="$2" index min_sdk
+  min_sdk="$(awk -F '\t' -v id="${test_id}" '$1 == id {print $2; exit}' "${SDK_REQUIREMENTS_FILE}")"
+  for index in "${!DEVICES[@]}"; do
+    if [[ "${DEVICES[${index}]}" == "${serial}" ]]; then
+      (( DEVICE_SDKS[index] >= ${min_sdk:-0} ))
+      return $?
+    fi
+  done
+  return 1
+}
+
 BASE_NUM_SHARDS="${DEVICE_COUNT}"
 if [[ -n "${RESOLVED_TESTCASE_ID:-}" ]]; then
   BASE_NUM_SHARDS="1"
@@ -292,6 +315,7 @@ prepare_retry_assignments() {
     : > "$(rerun_list_file_for_device "${next_attempt}" "${serial}")"
   done
 
+  local original_device_count=${#devices[@]}
   local device_index=0
   local assigned_total=0
   local test_id=""
@@ -302,9 +326,27 @@ prepare_retry_assignments() {
     test_id="${test_id%$'\r'}"
     [[ -z "${test_id}" ]] && continue
 
-    printf '%s\n' "${test_id}" >> "$(rerun_list_file_for_device "${next_attempt}" "${devices[${device_index}]}")"
+    local assigned_serial="${devices[${device_index}]}"
+    if ! device_can_run_test "${test_id}" "${assigned_serial}"; then
+      assigned_serial=""
+      for serial in "${DEVICES[@]}"; do
+        if device_can_run_test "${test_id}" "${serial}"; then
+          assigned_serial="${serial}"
+          break
+        fi
+      done
+      if [[ -z "${assigned_serial}" ]]; then
+        echo "ERROR: No compatible device is available for ${test_id}."
+        return 1
+      fi
+      if [[ " ${devices[*]} " != *" ${assigned_serial} "* ]]; then
+        devices+=("${assigned_serial}")
+        : > "$(rerun_list_file_for_device "${next_attempt}" "${assigned_serial}")"
+      fi
+    fi
+    printf '%s\n' "${test_id}" >> "$(rerun_list_file_for_device "${next_attempt}" "${assigned_serial}")"
     assigned_total=$((assigned_total + 1))
-    device_index=$(((device_index + 1) % ${#devices[@]}))
+    device_index=$(((device_index + 1) % original_device_count))
   done < "${failed_list_file}"
 
   if (( assigned_total == 0 )); then
@@ -313,15 +355,16 @@ prepare_retry_assignments() {
   fi
 
   echo "Retry assignment for attempt ${next_attempt}:"
+  RETRY_DEVICES=()
   for serial in "${devices[@]}"; do
     local device_list_file
     local assigned_count
     device_list_file="$(rerun_list_file_for_device "${next_attempt}" "${serial}")"
     assigned_count="$(count_tests_in_list_file "${device_list_file}")"
     if (( assigned_count == 0 )); then
-      echo "ERROR: Retry planner assigned zero tests to device ${serial} in attempt ${next_attempt}."
-      return 1
+      continue
     fi
+    RETRY_DEVICES+=("${serial}")
     echo "  - ${serial}: ${assigned_count} test(s)"
   done
 }
@@ -511,8 +554,18 @@ run_attempt_on_devices() {
       ${adb_cmd} shell "rm -rf '${allure_device_dir}' && mkdir -p '${allure_device_dir}'" >/dev/null 2>&1 || true
 
       local args=()
-      args+=(-e numShards "${num_shards}")
-      args+=(-e shardIndex "${this_shard_index}")
+      if attempt_uses_selector_mode "${attempt}" && [[ -s "${SDK_REQUIREMENTS_FILE}" ]]; then
+        # Untagged runs keep Android sharding; selected minSdk tests use the
+        # same assignment with incompatible phones excluded for those tests.
+        args+=(-e ciDeviceSdks "${DEVICE_SDKS_CSV}")
+        args+=(-e ciDeviceIndex "${shard_index}")
+        if [[ "${num_shards}" == "1" ]]; then
+          args+=(-e ciRunOnAllDevices "true")
+        fi
+      else
+        args+=(-e numShards "${num_shards}")
+        args+=(-e shardIndex "${this_shard_index}")
+      fi
       args+=(-e filter "com.wire.android.tests.support.suite.TaggedFilter")
       # The tests must launch the exact app flavor CI installed for this run.
       args+=(-e appPackage "${APP_ID}")
@@ -667,6 +720,46 @@ run_attempt_on_devices() {
 
   return "${failed}"
 }
+
+# Read minSdk tags from the compiled tests in log-only mode: no test setup or
+# scenario runs here. This also works for explicit deflake lists without a separate
+# hardcoded map of test names. Any selected phone can read this metadata.
+collect_test_device_requirements() {
+  local serial="${DEVICES[0]}" instrumentation instr_list index
+  python3 scripts/qa/android-ui/install_apk_xiaomi.py "${serial}" "${TEST_APP_ID}" install -r -t "${TEST_APK_PATH}" >/dev/null
+  instr_list="$(adb -s "${serial}" shell pm list instrumentation | tr -d '\r')"
+  instrumentation="$(INSTRUMENTATION_LIST="${instr_list}" TEST_APP_ID="${TEST_APP_ID}" \
+    python3 scripts/qa/android-ui/resolve_instrumentation.py)"
+  local discovery_args=(-e log true -e ciListDeviceRequirements true
+    -e filter com.wire.android.tests.support.suite.TaggedFilter)
+  if [[ -n "${EXCLUDE_CATEGORY:-}" ]]; then
+    discovery_args+=(-e excludeCategory "${EXCLUDE_CATEGORY}")
+  fi
+  if [[ -n "${NORMALIZED_INITIAL_FAILED_TESTS_FILE}" ]]; then
+    build_rerun_inline_parts "${NORMALIZED_INITIAL_FAILED_TESTS_FILE}" "${INLINE_PART_MAX_CHARS}"
+    discovery_args+=(-e enableRerunMode true -e rerunAttempt 1 -e rerunListInline "${RERUN_INLINE_PARTS[0]}")
+    for index in "${!RERUN_INLINE_PARTS[@]}"; do
+      if (( index > 0 )); then
+        discovery_args+=(-e "rerunListInlinePart${index}" "${RERUN_INLINE_PARTS[${index}]}")
+      fi
+    done
+  else
+    [[ -z "${RESOLVED_TESTCASE_ID:-}" ]] || discovery_args+=(-e testCaseId "${RESOLVED_TESTCASE_ID}")
+    [[ -z "${RESOLVED_CATEGORY:-}" ]] || discovery_args+=(-e category "${RESOLVED_CATEGORY}")
+    [[ -z "${REQUIRED_CATEGORY:-}" ]] || discovery_args+=(-e requiredCategory "${REQUIRED_CATEGORY}")
+  fi
+  local discovery_log="${LOG_DIR}/device-requirements.log"
+  adb -s "${serial}" shell am instrument -w -r "${discovery_args[@]}" "${instrumentation}" > "${discovery_log}" 2>&1
+  if ! grep -q '^INSTRUMENTATION_CODE: -1' "${discovery_log}" || \
+      grep -qE 'INSTRUMENTATION_FAILED|shortMsg=|FAILURES!!!' "${discovery_log}"; then
+    echo "ERROR: Test device requirement discovery failed. See ${discovery_log}."
+    return 1
+  fi
+  sed -n 's/^INSTRUMENTATION_STATUS: stream=CI_TEST_MIN_SDK://p' "${discovery_log}" | tr -d '\r' | \
+    LC_ALL=C sort -u > "${SDK_REQUIREMENTS_FILE}"
+}
+
+collect_test_device_requirements
 
 # Keep the first executed failed list in a separate file so later bookkeeping
 # can compare the run entry point against the final leftover failures.

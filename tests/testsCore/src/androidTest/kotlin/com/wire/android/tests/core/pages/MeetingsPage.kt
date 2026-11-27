@@ -41,8 +41,8 @@ class MeetingsPage(private val device: UiDevice) {
     private val mainMenuButton = UiSelectorParams(description = "Main navigation")
     private val germanMainMenuButton = UiSelectorParams(description = "Hauptnavigation")
     private val meetingsHeading = UiSelectorParams(text = "Meetings")
-    private val meetingInviteNotification = By.text(Regex(".*(ML-.*|invited (you )?to a meeting|zu einem Meeting).*").toPattern())
-        .pkg("com.android.systemui")
+    private val meetingInviteNotification = By.res("android", "status_bar_latest_event_content")
+        .hasDescendant(By.res("android", "title").textStartsWith("ML-"))
     private val remindersDialogTitle = UiSelectorParams(text = "Enable precise meeting reminders")
     private val samsungSoftwareUpdatePrompt = By.pkg("com.wssyncmldm").textStartsWith("Update ready to install")
     private val cancelButton = UiSelectorParams(text = "Cancel")
@@ -65,13 +65,21 @@ class MeetingsPage(private val device: UiDevice) {
     fun open(locale: Locale = Locale.getDefault()) {
         val navigationButton = if (locale.language == "de") germanMainMenuButton else mainMenuButton
         UiWaitUtils.waitElement(navigationButton, timeout = 30.seconds)
-        // An invitation can arrive just after its meeting is created.
-        device.wait(Until.hasObject(meetingInviteNotification), UiWaitUtils.STABLE_TIMEOUT.inWholeMilliseconds)
-        UiWaitUtils.waitUntilGoneOrThrow(
-            meetingInviteNotification,
-            errorMessage = "Meeting invite notification is still covering the navigation button"
+        // MIUI notification content reports Wire's package, so identify its Android notification container.
+        assertTrue(
+            "Meetings navigation did not open after dismissing meeting invitations",
+            UiWaitUtils.retryUntilTimeout(UiWaitUtils.MEDIUM_TIMEOUT) {
+                try {
+                    device.findObject(meetingInviteNotification)?.swipe(Direction.LEFT, 1f)
+                    if (!device.hasObject(meetingsHeading.toBySelector())) {
+                        device.findObject(navigationButton.toBySelector())?.click()
+                    }
+                    device.wait(Until.hasObject(meetingsHeading.toBySelector()), UiWaitUtils.POLLING_DEFAULT.inWholeMilliseconds)
+                } catch (_: StaleObjectException) {
+                    false
+                }
+            }
         )
-        assertTrue("Main navigation button is not clickable", UiWaitUtils.clickWhenClickable(navigationButton, timeout = 30.seconds))
         UiWaitUtils.waitElement(meetingsHeading, timeout = 30.seconds).click()
         // The app asks for exact-alarm access the first time this screen opens.
         if (UiWaitUtils.retryUntilTimeout(5.seconds) { device.hasObject(remindersDialogTitle.toBySelector()) }) {
@@ -226,7 +234,8 @@ class MeetingsPage(private val device: UiDevice) {
             lastReached = maxOf(lastReached, indices.last())
             assertFalse("Pagination requires a manual load button", device.hasObject(manualLoadButton.toBySelector()))
             entries.forEachIndexed { index, node ->
-                val meeting = meetings.find { it.title == node.text }
+                val meeting = meetings.find { it.title == node.text && it.title !in checkedCards }
+                // Check each full card once; overlapping viewports still validate the complete entry sequence.
                 // A following entry proves this card is fully in view. The final viewport covers the last card.
                 if (meeting != null && (index < entries.lastIndex || atEnd)) {
                     assertCardDetails(node, meeting, zone, locale, participants[meeting.title])
@@ -419,6 +428,12 @@ class MeetingsPage(private val device: UiDevice) {
         daysBetween: Int,
         locale: Locale = Locale.getDefault(),
     ) {
+        assertTrue(
+            "Recurring meeting ${meeting.title} did not appear in the open list",
+            UiWaitUtils.retryUntilTimeout(UiWaitUtils.MEDIUM_TIMEOUT) {
+                visibleEntries().any { it.text == meeting.title }
+            }
+        )
         val firstDate = meeting.start.atZone(zone).toLocalDate()
         val expected = (0 until 12).flatMap { index ->
             listOf(header(firstDate.plusDays(index.toLong() * daysBetween), today, locale), meeting.title)
@@ -426,6 +441,7 @@ class MeetingsPage(private val device: UiDevice) {
         var previousOffset = 0
         val observed = mutableSetOf<Int>()
         val checkedCards = mutableSetOf<Int>()
+        var atEnd = false
         repeat(MAX_SCROLLS) {
             val entries = visibleEntries()
             val texts = entries.map { it.text }
@@ -438,7 +454,7 @@ class MeetingsPage(private val device: UiDevice) {
             observed.addAll(start until start + entries.size)
             entries.forEachIndexed { index, node ->
                 // A following entry proves the card's details are fully visible.
-                if (node.text == meeting.title && index < entries.lastIndex) {
+                if (node.text == meeting.title && (index < entries.lastIndex || atEnd)) {
                     val details = rowTexts(node)
                     val recurrenceVisible = readFreshNodes {
                         rowNodes(UiSelectorParams(description = recurrenceLabel), node).isNotEmpty()
@@ -451,7 +467,8 @@ class MeetingsPage(private val device: UiDevice) {
             // Three complete header/card pairs prove the recurrence interval over two successive gaps.
             if ((0 until 6).all { it in observed } && listOf(1, 3, 5).all { it in checkedCards }) return
             previousOffset = start
-            assertTrue("Cannot scroll to the next occurrence", list()?.scroll(Direction.DOWN, 0.45f) == true)
+            assertFalse("The list ended before three complete occurrences were verified: $texts", atEnd)
+            atEnd = scrollToNextViewport(texts, expected.last())
         }
         throw AssertionError("Could not verify recurring meeting occurrences")
     }

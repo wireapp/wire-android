@@ -9,14 +9,13 @@
  */
 package com.wire.android.tests.core.e2eTests
 
-import android.os.Build
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.SdkSuppress
 import backendUtils.meeting.deleteMeeting
 import backendUtils.meeting.getMeeting
 import backendUtils.meeting.updateMeeting
 import com.wire.android.tests.support.UiAutomatorSetup
 import com.wire.android.tests.support.tags.Category
+import com.wire.android.tests.support.tags.Tag
 import com.wire.android.tests.support.tags.TestCaseId
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -109,11 +108,15 @@ class MeetingListTests : BaseMeetingUiTest() {
         val future = stepWithResult("And Host creates a future meeting for the following morning") {
             createMeeting("ML-Future", today.plusDays(1).atTime(10, 0).atZone(zone).toInstant())
         }
-        step("When I open Meetings before midnight and see the completed meeting under Today alongside the future meeting") {
+        step("When I set the clock before local midnight and open Meetings") {
             settings.setTime(today.plusDays(1).atStartOfDay(zone).minusSeconds(45).toInstant())
             pages.meetingsPage.apply {
                 dismissSamsungSoftwareUpdatePromptIfShown()
                 open()
+            }
+        }
+        step("Then the completed meeting is under Today and the future meeting is grouped under the following date") {
+            pages.meetingsPage.apply {
                 assertMeeting(completed, zone)
                 assertHeader(completed, zone, today)
                 assertCompleteList(listOf(completed, future), zone, today)
@@ -144,6 +147,9 @@ class MeetingListTests : BaseMeetingUiTest() {
             (0 until 65).map { index ->
                 createMeeting("ML-Paging-${index.toString().padStart(2, '0')}", firstStart.plusSeconds(index * 900L))
             }
+        }
+        step("And Host's test-service session is stopped after creating the meeting fixtures") {
+            stopMeetingServiceDevices()
         }
         step("When I open Meetings and see the first meeting while the last meeting is not visible") {
             pages.meetingsPage.apply {
@@ -190,9 +196,11 @@ class MeetingListTests : BaseMeetingUiTest() {
                 assertCompleteList(listOf(updated), zone, LocalDate.now(zone))
             }
         }
-        step("When Host deletes the meeting, its card disappears and I see the empty Meetings screen") {
+        step("When Host deletes the meeting") {
             backendClient.deleteMeeting(updated)
             createdMeetings.removeAll { it.id == updated.id }
+        }
+        step("Then the deleted meeting card disappears and Meetings shows its empty state") {
             pages.meetingsPage.apply {
                 assertGone(updated.title)
                 assertEmpty()
@@ -203,8 +211,10 @@ class MeetingListTests : BaseMeetingUiTest() {
             val background = invitedMeeting("ML-Background-created", start)
             backendClient.updateMeeting(background, "ML-Background-latest", start.plusSeconds(7200), start.plusSeconds(9000))
         }
-        step("Then I return to Wire and see only the latest meeting title, time and details") {
+        step("When I relaunch Wire after Host's background changes") {
             pages.commonAppPage.restartWireApp().assertWireAppIsInForeground()
+        }
+        step("Then Meetings shows the latest meeting title, time and details without the original title") {
             pages.meetingsPage.apply {
                 assertMeeting(latest, zone)
                 assertGone("ML-Background-created")
@@ -213,8 +223,8 @@ class MeetingListTests : BaseMeetingUiTest() {
         }
     }
 
-    // Android 13 introduced the per-app locale command. The Android 11 and 12 CI phones skip this case.
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.TIRAMISU)
+    // Per-app locale switching requires Android 13; CI assigns this test to a compatible phone.
+    @Tag(key = "minSdk", value = "33")
     @TestCaseId("TC-12051")
     @Category("regression", "RC", "meetings")
     @Test
@@ -223,21 +233,29 @@ class MeetingListTests : BaseMeetingUiTest() {
         val meeting = stepWithResult("Given Host creates a meeting for Member to check in German and US English") {
             createMeeting("ML-Locale", start)
         }
-        step("When I set Wire to German, open Meetings and see the German date header and 24-hour meeting time") {
+        step("When I set Wire to German and open Meetings") {
             settings.setAppLocale(UiAutomatorSetup.appPackage, Locale.GERMANY)
             pages.meetingsPage.apply {
                 open(Locale.GERMANY)
+            }
+        }
+        step("Then the meeting card and date header use German formatting") {
+            pages.meetingsPage.apply {
                 assertMeeting(meeting, zone, Locale.GERMANY)
                 assertHeader(meeting, zone, LocalDate.now(zone), Locale.GERMANY)
             }
         }
-        step("Then after I switch Wire to US English, the same meeting has English formatting and unchanged occurrence details") {
+        step("When I switch Wire to US English and relaunch it") {
             settings.setAppLocale(UiAutomatorSetup.appPackage, Locale.US)
             pages.commonAppPage.restartWireApp().assertWireAppIsInForeground()
+        }
+        step("Then the same meeting card and date header use US English formatting") {
             pages.meetingsPage.apply {
                 assertMeeting(meeting, zone, Locale.US)
                 assertHeader(meeting, zone, LocalDate.now(zone), Locale.US)
             }
+        }
+        step("And the backend occurrence ID, start time and end time remain unchanged") {
             val unchanged = backendClient.getMeeting(meeting, member)
             assertEquals(meeting.start, Instant.parse(unchanged.getString("start_time")))
             assertEquals(meeting.end, Instant.parse(unchanged.getString("end_time")))
@@ -278,23 +296,29 @@ class MeetingListTests : BaseMeetingUiTest() {
                 (background.start.minusSeconds(300).epochSecond - Instant.now().epochSecond).coerceAtLeast(0).seconds
             pages.meetingsPage.assertHasCountdown(background.title, untilCountdown + 10.seconds)
         }
-        step("Then after I advance to the meeting start, the open meeting card automatically shows Join") {
+        step("When I advance the device clock to two seconds before the first meeting starts") {
             settings.setTime(start.minusSeconds(2))
+            pages.meetingsPage.dismissSamsungSoftwareUpdatePromptIfShown()
+        }
+        step("Then the open first meeting card automatically changes from its countdown to Join") {
             pages.meetingsPage.apply {
-                dismissSamsungSoftwareUpdatePromptIfShown()
                 awaitJoin(foreground.title, 15.seconds)
                 assertMeeting(foreground, zone)
             }
         }
-        step("And I see the second countdown, background Wire, advance past its start and return to see Join") {
+        step("And the second meeting still shows its countdown before Wire goes into the background") {
             pages.meetingsPage.apply {
                 assertMeeting(background, zone)
                 assertHasCountdown(background.title)
             }
+        }
+        step("When I background Wire, advance past the second meeting start and relaunch Wire") {
             device.pressHome()
             settings.setTime(background.start.plusSeconds(1))
             pages.meetingsPage.dismissSamsungSoftwareUpdatePromptIfShown()
             pages.commonAppPage.restartWireApp().assertWireAppIsInForeground()
+        }
+        step("Then the second meeting shows Join and its expected details") {
             pages.meetingsPage.apply {
                 awaitJoin(background.title)
                 assertMeeting(background, zone)

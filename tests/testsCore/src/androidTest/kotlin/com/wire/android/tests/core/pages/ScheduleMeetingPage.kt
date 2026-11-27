@@ -38,6 +38,9 @@ import kotlin.time.Duration.Companion.seconds
 /** Operates the real Compose form and Material date/time pickers through accessibility. */
 @Suppress("TooManyFunctions", "MagicNumber")
 class ScheduleMeetingPage(private val device: UiDevice) {
+    private val meetingLinkHeading = UiSelectorParams(text = "Meeting link")
+    private val newMeetingButton = UiSelectorParams(description = "Start or schedule a new Wire Meeting")
+
     fun open(locale: Locale = Locale.getDefault()) {
         description(if (locale.language == "de") "Meeting starten oder planen" else "Start or schedule a new Wire Meeting").click()
         text(if (locale.language == "de") "Meeting planen" else "Schedule a Meeting").click()
@@ -84,6 +87,13 @@ class ScheduleMeetingPage(private val device: UiDevice) {
         )
     }
 
+    // Scheduling can open the link screen before returning to the meeting list.
+    fun closeMeetingLinkIfShown() {
+        val screen = UiWaitUtils.waitAnyVisible(listOf(meetingLinkHeading, newMeetingButton))
+            ?: throw AssertionError("Neither the meeting link screen nor the meeting list is visible")
+        if (screen.text == "Meeting link") text("Close").click()
+    }
+
     fun close(useBack: Boolean = false, locale: Locale = Locale.getDefault()) {
         closeKeyboardIfOpened()
         if (useBack) {
@@ -128,7 +138,7 @@ class ScheduleMeetingPage(private val device: UiDevice) {
             DateTimeFormatter.ofPattern(DateFormat.getBestDateTimePattern(locale, if (is24Hour) "Hm" else "hm"), locale)
         )
         val actual = normalizedTime(field("start time").text)
-        assertEquals("Time must follow Android 12/24-hour preference", expected, actual)
+        assertEquals("Time must follow Android 12/24-hour preference", normalizedTime(expected), actual)
     }
 
     fun selectDate(date: LocalDate) {

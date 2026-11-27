@@ -55,8 +55,17 @@ abstract class BaseMeetingUiTest : BaseUiTest() {
             try {
                 removeCreatedMeetings()
             } finally {
-                if (meetingServiceStarted) testServiceHelper.testServiceClient.cleanUp()
+                stopMeetingServiceDevices()
             }
+        }
+    }
+
+    // Release finished fixture devices before long UI checks outlive the service instance limit.
+    protected fun stopMeetingServiceDevices() {
+        if (meetingServiceStarted) {
+            testServiceHelper.testServiceClient.cleanUp()
+            meetingServiceStarted = false
+            hostServiceStarted = false
         }
     }
 
@@ -73,8 +82,9 @@ abstract class BaseMeetingUiTest : BaseUiTest() {
         failure?.let { throw it }
     }
 
+    @Suppress("LongMethod") // Keep setup and login actions in order with explicit Allure step boundaries.
     private fun givenTeamMemberIsLoggedIn() {
-        step("Given Host creates an MLS team, adds Member, enables Meetings and Member is me") {
+        step("Given Host creates the team and configures MLS") {
             backendSetupHelper.createTeamOwnerByAlias(
                 "user1Name",
                 TEAM_NAME,
@@ -84,6 +94,8 @@ abstract class BaseMeetingUiTest : BaseUiTest() {
                 context
             )
             backendSetupHelper.userConfiguresMLSForTeam("user1Name", TEAM_NAME, backendClient)
+        }
+        step("And Host adds Member to the team") {
             backendSetupHelper.userXAddsUsersToTeam(
                 "user1Name",
                 "user2Name",
@@ -95,26 +107,38 @@ abstract class BaseMeetingUiTest : BaseUiTest() {
             )
             host = clientUserManager.findUserByNameOrNameAlias("user1Name")
             member = clientUserManager.findUserByNameOrNameAlias("user2Name")
+        }
+        step("And Host enables Meetings for the team") {
             backendSetupHelper.userEnablesMeetingsForTeam("user1Name")
+        }
+        step("And Member is selected as the logged-in user") {
             clientUserManager.setSelfUser(member)
         }
-        step("And I log in as Member on Staging, complete the login prompts and see the conversation list") {
+        step("And Member opens the login screen on Staging") {
             pages.registrationPage.assertEmailWelcomePage()
             pages.loginPage.apply {
                 clickStagingDeepLink()
                 clickProceedButtonOnDeeplinkOverlay()
                 clickContinueButtonOnBackendConfigSuccess()
-                enterTeamMemberLoggingEmail(requireNotNull(member.email))
+            }
+        }
+        step("When Member logs in with their credentials") {
+            pages.loginPage.apply {
+                enterUserIdentifier(requireNotNull(member.email))
                 clickLoginButton()
                 assertUserLoginScreenVisible()
-                enterTeamMemberLoggingPassword(requireNotNull(member.password))
+                enterUserPassword(requireNotNull(member.password))
                 clickLoginButton()
             }
+        }
+        step("And Member completes the post-login prompts") {
             pages.registrationPage.apply {
                 waitUntilLoginFlowIsCompleted()
                 clickAllowNotificationButton()
                 clickDeclineShareDataAlert()
             }
+        }
+        step("Then Member sees the conversation list and the service notification disappears") {
             pages.conversationListPage.apply {
                 assertConversationListVisible()
                 waitUntilWireServiceNotificationDisappears()

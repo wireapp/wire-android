@@ -31,6 +31,7 @@ import com.wire.android.ui.home.conversations.model.UriAsset
 import com.wire.android.ui.home.conversations.usecase.HandleUriAssetUseCase
 import com.wire.android.ui.home.messagecomposer.model.ComposableMessageBundle
 import com.wire.android.ui.home.messagecomposer.model.Ping
+import com.wire.kalium.common.error.NetworkFailure
 import com.wire.kalium.logic.data.asset.AttachmentType
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.ConversationId
@@ -39,6 +40,8 @@ import com.wire.kalium.logic.failure.LegalHoldEnabledForConversationFailure
 import com.wire.kalium.logic.feature.asset.upload.AssetUploadParams
 import com.wire.kalium.logic.feature.asset.upload.ScheduleNewAssetMessageResult
 import com.wire.kalium.logic.feature.message.linkpreview.LinkPreviewTarget
+import com.wire.kalium.network.api.model.GenericAPIErrorResponse
+import com.wire.kalium.network.exceptions.KaliumException
 import io.mockk.coVerify
 import io.mockk.verify
 import kotlinx.coroutines.Dispatchers
@@ -784,6 +787,43 @@ class SendMessageViewModelTest {
                 )
             }
         }
+
+    @Test
+    fun `given conversation not found on text send then show Leave guidance once`() = runTest {
+        val error = KaliumException.InvalidRequestError(GenericAPIErrorResponse(404, "Conversation not found", "no-conversation"))
+        val (_, viewModel) = SendMessageViewModelArrangement()
+            .withSuccessfulViewModelInit()
+            .withFailedSendTextMessage(NetworkFailure.ServerMiscommunication(error))
+            .arrange()
+
+        viewModel.infoMessage.test {
+            viewModel.trySendMessage(ComposableMessageBundle.SendTextMessageBundle(conversationId, "text", emptyList()))
+            advanceUntilIdle()
+
+            assertEquals(ConversationSnackbarMessages.ConversationUnavailableOnSend, awaitItem())
+            expectNoEvents()
+        }
+    }
+
+    @Test
+    fun `given other client errors on text send then do not show Leave guidance`() = runTest {
+        val responses = listOf(
+            GenericAPIErrorResponse(404, "Member not found", "no-conversation-member"),
+            GenericAPIErrorResponse(403, "Forbidden", "no-conversation"),
+        )
+        for (response in responses) {
+            val (_, viewModel) = SendMessageViewModelArrangement()
+                .withSuccessfulViewModelInit()
+                .withFailedSendTextMessage(NetworkFailure.ServerMiscommunication(KaliumException.InvalidRequestError(response)))
+                .arrange()
+
+            viewModel.infoMessage.test {
+                viewModel.trySendMessage(ComposableMessageBundle.SendTextMessageBundle(conversationId, "text", emptyList()))
+                advanceUntilIdle()
+                expectNoEvents()
+            }
+        }
+    }
 
     @Test
     fun `given that user need to be informed about verification, when invoked sending, then message is not sent and dialog shown`() =

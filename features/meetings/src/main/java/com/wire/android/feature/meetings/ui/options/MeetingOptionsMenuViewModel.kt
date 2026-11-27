@@ -129,21 +129,32 @@ class MeetingOptionsMenuViewModelImpl @Inject constructor(
 
     override fun deleteMeetingForEveryone(meetingId: MeetingId, meetingTitle: String) {
         performDelete(meetingTitle) {
-            deleteMeetingForEveryoneUseCase(meetingId) is DeleteMeetingForEveryoneUseCase.Result.Success
+            when (deleteMeetingForEveryoneUseCase(meetingId)) {
+                DeleteMeetingForEveryoneUseCase.Result.Success -> null
+                is DeleteMeetingForEveryoneUseCase.Result.Failure.CleanupFailed -> DeleteMeetingError.CleanupFailed
+                DeleteMeetingForEveryoneUseCase.Result.Failure.NotAllowed -> DeleteMeetingError.NotAllowed
+                is DeleteMeetingForEveryoneUseCase.Result.Failure.Other -> DeleteMeetingError.DeleteFailed
+            }
         }
     }
 
     override fun deleteMeetingForMe(meetingId: MeetingId, meetingTitle: String) {
         performDelete(meetingTitle) {
-            deleteMeetingForMeUseCase(meetingId) is DeleteMeetingForMeUseCase.Result.Success
+            when (deleteMeetingForMeUseCase(meetingId)) {
+                DeleteMeetingForMeUseCase.Result.Success -> null
+                is DeleteMeetingForMeUseCase.Result.Failure.CleanupFailed -> DeleteMeetingError.CleanupFailed
+                is DeleteMeetingForMeUseCase.Result.Failure.Other -> DeleteMeetingError.LeaveFailed
+            }
         }
     }
 
-    private fun performDelete(meetingTitle: String, delete: suspend () -> Boolean) {
-        if (deleteMeetingDialogState.savedState?.loading == true) return
-        deleteMeetingDialogState.update { it.copy(loading = true, failed = false) }
+    private fun performDelete(meetingTitle: String, delete: suspend () -> DeleteMeetingError?) {
+        val dialogState = deleteMeetingDialogState.savedState
+        if (dialogState?.loading == true || dialogState?.error?.retryable == false) return
+        deleteMeetingDialogState.update { it.copy(loading = true, error = null) }
         viewModelScope.launch {
-            if (delete()) {
+            val error = delete()
+            if (error == null) {
                 deleteMeetingDialogState.update { it.copy(loading = false) }
                 deleteMeetingDialogState.dismiss()
                 sendAction(
@@ -152,7 +163,7 @@ class MeetingOptionsMenuViewModelImpl @Inject constructor(
                     )
                 )
             } else {
-                deleteMeetingDialogState.update { it.copy(loading = false, failed = true) }
+                deleteMeetingDialogState.update { it.copy(loading = false, error = error) }
             }
         }
     }

@@ -37,29 +37,8 @@ internal fun DeleteMeetingDialog(
     onDelete: (DeleteMeetingDialogState) -> Unit,
 ) {
     VisibilityState(dialogState) { state ->
-        val (titleResId, textResId) = when {
-            state.failed -> when (state.deleteType) {
-                DeleteMeetingType.ForEveryone -> R.string.delete_meeting_failure_title to R.string.delete_meeting_failure_description
-                DeleteMeetingType.ForMe -> R.string.leave_meeting_failure_title to R.string.leave_meeting_failure_description
-            }
-            else -> when (state.deleteType) {
-                DeleteMeetingType.ForEveryone -> Pair(
-                    R.string.delete_meeting_for_everyone_title,
-                    when (state.isRecurring) {
-                        true -> R.string.delete_meeting_for_everyone_recurring_description
-                        false -> R.string.delete_meeting_for_everyone_description
-                    },
-                )
-
-                DeleteMeetingType.ForMe -> Pair(
-                    R.string.delete_meeting_for_me_title,
-                    when (state.isRecurring) {
-                        true -> R.string.delete_meeting_for_me_recurring_description
-                        false -> R.string.delete_meeting_for_me_description
-                    },
-                )
-            }
-        }
+        val (titleResId, textResId) = state.resources()
+        val canRetry = state.error?.retryable != false
         WireDialog(
             properties = wireDialogPropertiesBuilder(dismissOnBackPress = !state.loading, dismissOnClickOutside = !state.loading),
             title = stringResource(id = titleResId),
@@ -73,14 +52,31 @@ internal fun DeleteMeetingDialog(
             ),
             optionButton1Properties = WireDialogButtonProperties(
                 onClick = {
-                    onDelete(state)
+                    if (canRetry) onDelete(state) else dialogState.dismiss()
                 },
-                text = stringResource(id = if (state.failed) R.string.meetings_retry else commonR.string.label_ok),
+                text = stringResource(id = if (state.error != null && canRetry) R.string.meetings_retry else commonR.string.label_ok),
                 type = WireDialogButtonType.Primary,
-                state = if (state.loading) WireButtonState.Disabled else WireButtonState.Error,
+                state = when {
+                    state.loading -> WireButtonState.Disabled
+                    canRetry -> WireButtonState.Error
+                    else -> WireButtonState.Default
+                },
                 loading = state.loading
             )
         )
+    }
+}
+
+private fun DeleteMeetingDialogState.resources(): Pair<Int, Int> = error?.let {
+    it.titleRes to it.descriptionRes
+} ?: when (deleteType) {
+    DeleteMeetingType.ForEveryone -> R.string.delete_meeting_for_everyone_title to when (isRecurring) {
+        true -> R.string.delete_meeting_for_everyone_recurring_description
+        false -> R.string.delete_meeting_for_everyone_description
+    }
+    DeleteMeetingType.ForMe -> R.string.delete_meeting_for_me_title to when (isRecurring) {
+        true -> R.string.delete_meeting_for_me_recurring_description
+        false -> R.string.delete_meeting_for_me_description
     }
 }
 
@@ -95,5 +91,12 @@ data class DeleteMeetingDialogState(
     val meetingId: MeetingId,
     val meetingTitle: String,
     val loading: Boolean = false,
-    val failed: Boolean = false,
+    val error: DeleteMeetingError? = null,
 )
+
+enum class DeleteMeetingError(val titleRes: Int, val descriptionRes: Int, val retryable: Boolean) {
+    DeleteFailed(R.string.delete_meeting_failure_title, R.string.delete_meeting_failure_description, true),
+    LeaveFailed(R.string.leave_meeting_failure_title, R.string.leave_meeting_failure_description, true),
+    CleanupFailed(R.string.delete_meeting_cleanup_failure_title, R.string.delete_meeting_cleanup_failure_description, false),
+    NotAllowed(R.string.delete_meeting_not_allowed_title, R.string.delete_meeting_not_allowed_description, false),
+}

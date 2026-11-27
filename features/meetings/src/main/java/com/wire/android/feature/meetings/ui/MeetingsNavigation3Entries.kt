@@ -122,6 +122,7 @@ private fun NewMeetingDetailsNavigation3Entry(
     viewModel.state.submitError?.let { submitError ->
         NewMeetingErrorDialog(
             error = submitError,
+            contacts = viewModel.state.confirmedContacts.toList(),
             type = viewModel.type,
             isSubmitting = viewModel.state.isSubmitting,
             onDismiss = viewModel::dismissCreationError,
@@ -133,6 +134,7 @@ private fun NewMeetingDetailsNavigation3Entry(
     }
     HandleActions(viewModel.actions) { action ->
         when (action) {
+            NewMeetingViewActions.Close -> navigateBack()
             is NewMeetingViewActions.Success ->
                 if (!runtime.completeCurrentAndPop(
                         resultType = NewMeetingNavigation3ResultType,

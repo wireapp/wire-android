@@ -48,6 +48,7 @@ import com.wire.kalium.logic.feature.auth.ValidatePasswordUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationMembersUseCase
 import com.wire.kalium.logic.feature.conversation.RenameConversationUseCase
 import com.wire.kalium.logic.feature.conversation.RenamingResult
+import com.wire.kalium.logic.feature.meeting.MeetingSaveWarning
 import com.wire.kalium.logic.feature.meeting.CreateNewMeetingUseCase
 import com.wire.kalium.logic.feature.meeting.GetNextUnfinishedMeetingOccurrenceUseCase
 import com.wire.kalium.logic.feature.meeting.UpdateMeetingUseCase
@@ -440,7 +441,9 @@ class NewMeetingViewModelTest {
             Arrangement(dispatcher)
                 .withNewMeetingType(NewMeetingType.MeetNow)
                 .withCurrentTimeProvider { currentTime }
-                .withCreateMeetingResult(CreateNewMeetingUseCase.Result.Success(createdConversationId, CREATED_MEETING_ID))
+                .withCreateMeetingResult(
+                    CreateNewMeetingUseCase.Result.Success.Complete(createdConversationId, CREATED_MEETING_ID)
+                )
         )
 
         enterTitle(viewModel, "  Quick sync  ")
@@ -479,7 +482,7 @@ class NewMeetingViewModelTest {
             Arrangement(dispatcher)
                 .withNewMeetingType(NewMeetingType.Schedule)
                 .withCurrentTimeProvider { currentTime }
-                .withCreateMeetingResult(CreateNewMeetingUseCase.Result.Success(CONVERSATION_ID, CREATED_MEETING_ID))
+                .withCreateMeetingResult(CreateNewMeetingUseCase.Result.Success.Complete(CONVERSATION_ID, CREATED_MEETING_ID))
         )
         enterTitle(viewModel, createMeeting.title)
         viewModel.updateStartTime(createMeeting.startTime)
@@ -507,7 +510,7 @@ class NewMeetingViewModelTest {
         val (_, viewModel) = arrangeViewModel(
             Arrangement(dispatcher)
                 .withNewMeetingType(NewMeetingType.Schedule)
-                .withCreateMeetingResult(CreateNewMeetingUseCase.Result.Success(CONVERSATION_ID, CREATED_MEETING_ID))
+                .withCreateMeetingResult(CreateNewMeetingUseCase.Result.Success.Complete(CONVERSATION_ID, CREATED_MEETING_ID))
         )
         enterTitle(viewModel, "Planning")
         viewModel.actions.test {
@@ -528,7 +531,7 @@ class NewMeetingViewModelTest {
                 .withNewMeetingType(NewMeetingType.Schedule)
                 .withMeetingsGuestsLinksEnabled(false)
                 .withGuestLinkSharingEnabled(false)
-                .withCreateMeetingResult(CreateNewMeetingUseCase.Result.Success(CONVERSATION_ID, CREATED_MEETING_ID))
+                .withCreateMeetingResult(CreateNewMeetingUseCase.Result.Success.Complete(CONVERSATION_ID, CREATED_MEETING_ID))
         )
         enterTitle(viewModel, "Planning")
         viewModel.actions.test {
@@ -545,7 +548,7 @@ class NewMeetingViewModelTest {
             val (arrangement, viewModel) = arrangeViewModel(
                 Arrangement(dispatcher)
                     .withNewMeetingType(type)
-                    .withCreateMeetingResult(CreateNewMeetingUseCase.Result.Failure)
+                    .withCreateMeetingResult(CreateNewMeetingUseCase.Result.Failure(CoreFailure.Unknown(null)))
             )
 
             enterTitle(viewModel, "Weekly sync")
@@ -560,13 +563,84 @@ class NewMeetingViewModelTest {
                 assertEquals(true, viewModel.state.continueButtonEnabled)
                 assertEquals(NewMeetingState.SubmitError.Other, viewModel.state.submitError)
                 assertEquals("Weekly sync", viewModel.titleTextState.text.toString())
-                arrangement.withCreateMeetingResult(CreateNewMeetingUseCase.Result.Success(CONVERSATION_ID, CREATED_MEETING_ID))
+                arrangement.withCreateMeetingResult(
+                    CreateNewMeetingUseCase.Result.Success.Complete(CONVERSATION_ID, CREATED_MEETING_ID)
+                )
                 viewModel.dismissCreationError()
                 viewModel.submitCreation()
                 advanceUntilIdle()
                 coVerify(exactly = 2) { arrangement.createNewMeeting(any()) }
                 awaitItem()
             }
+        }
+    }
+
+    @Test
+    fun givenMeetingSavedWithWarning_whenAcknowledged_thenClosesWithoutResubmittingOrStartingCall() = runTest(dispatcher) {
+        withCreationTypes { type ->
+            val warning = MeetingSaveWarning.ConversationSetupFailed
+            val (arrangement, viewModel) = arrangeViewModel(
+                Arrangement(dispatcher)
+                    .withNewMeetingType(type)
+                    .withCreateMeetingResult(
+                        CreateNewMeetingUseCase.Result.Success.Partial(CONVERSATION_ID, CREATED_MEETING_ID, warning)
+                    )
+            )
+            enterTitle(viewModel, "Weekly sync")
+            viewModel.actions.test {
+                viewModel.submitCreation()
+                advanceUntilIdle()
+                assertEquals(NewMeetingState.SubmitError.Saved(warning), viewModel.state.submitError)
+                assertFalse(viewModel.state.isSubmitting)
+                expectNoEvents()
+                viewModel.submitCreation()
+                advanceUntilIdle()
+                coVerify(exactly = 1) { arrangement.createNewMeeting(any()) }
+                viewModel.dismissCreationError()
+                advanceUntilIdle()
+                assertEquals(NewMeetingViewActions.Close, awaitItem())
+                expectNoEvents()
+            }
+        }
+    }
+
+    @Test
+    fun givenUpdatePartiallySucceeds_whenAcknowledged_thenClosesAndPreventsDuplicateUpdate() = runTest(dispatcher) {
+        val warning = MeetingSaveWarning.RemoveParticipantsFailed
+        val (arrangement, viewModel) = arrangeViewModel(
+            Arrangement(dispatcher)
+                .withNewMeetingType(NewMeetingType.Edit(CREATED_MEETING_ID))
+                .withNextUnfinishedMeetingOccurrence(MEETING_OCCURRENCE)
+                .withUpdateMeetingResult(CREATED_MEETING_ID, UpdateMeetingUseCase.Result.Success.Partial(warning))
+        )
+        viewModel.actions.test {
+            viewModel.submitUpdate()
+            advanceUntilIdle()
+            assertEquals(NewMeetingState.SubmitError.Saved(warning), viewModel.state.submitError)
+            assertFalse(viewModel.state.isSubmitting)
+            expectNoEvents()
+            viewModel.submitUpdate()
+            advanceUntilIdle()
+            coVerify(exactly = 1) { arrangement.updateMeeting(CREATED_MEETING_ID, any()) }
+            viewModel.dismissCreationError()
+            advanceUntilIdle()
+            assertEquals(NewMeetingViewActions.Close, awaitItem())
+        }
+    }
+
+    @Test
+    fun givenMissingEditId_whenOpening_thenShowsDismissibleUpdateErrorAndDoesNotSubmit() = runTest(dispatcher) {
+        val (arrangement, viewModel) = arrangeViewModel(Arrangement(dispatcher).withNewMeetingType(NewMeetingType.Edit(null)))
+        assertEquals(NewMeetingState.SubmitError.InvalidEdit, viewModel.state.submitError)
+        assertEquals(NewMeetingState.InitialLoadingState.Loaded, viewModel.state.initialLoading)
+        viewModel.actions.test {
+            viewModel.submitUpdate()
+            advanceUntilIdle()
+            coVerify(exactly = 0) { arrangement.updateMeeting(any(), any()) }
+            coVerify(exactly = 0) { arrangement.getNextUnfinishedMeetingOccurrence(any(), any()) }
+            viewModel.dismissCreationError()
+            advanceUntilIdle()
+            assertEquals(NewMeetingViewActions.Close, awaitItem())
         }
     }
 
@@ -581,7 +655,7 @@ class NewMeetingViewModelTest {
             val (arrangement, viewModel) = arrangeViewModel(
                 Arrangement(dispatcher)
                     .withNewMeetingType(type)
-                    .withCreateMeetingResult(CreateNewMeetingUseCase.Result.Success(CONVERSATION_ID, CREATED_MEETING_ID))
+                    .withCreateMeetingResult(CreateNewMeetingUseCase.Result.Success.Complete(CONVERSATION_ID, CREATED_MEETING_ID))
             )
             enterTitle(viewModel, "  Weekly sync  ")
             viewModel.updateSelectedContact(true, shared)
@@ -623,7 +697,7 @@ class NewMeetingViewModelTest {
             Arrangement(dispatcher)
                 .withNewMeetingType(editType)
                 .withNextUnfinishedMeetingOccurrence(nextOccurrence)
-                .withUpdateMeetingResult(nextOccurrence.meeting.meetingId, UpdateMeetingUseCase.Result.Success)
+                .withUpdateMeetingResult(nextOccurrence.meeting.meetingId, UpdateMeetingUseCase.Result.Success.Complete)
                 .withCurrentTimeProvider { currentTime }
         )
 
@@ -638,7 +712,7 @@ class NewMeetingViewModelTest {
         viewModel.actions.test {
             viewModel.submitUpdate()
             advanceUntilIdle()
-            coVerify(exactly = 1) { arrangement.updateMeeting(editType.id, updateMeeting) }
+            coVerify(exactly = 1) { arrangement.updateMeeting(requireNotNull(editType.id), updateMeeting) }
             verify(exactly = 0) { arrangement.validatePassword(any()) }
             assertFalse(viewModel.state.isSubmitting)
             assertNull(viewModel.state.submitError)
@@ -657,7 +731,7 @@ class NewMeetingViewModelTest {
             Arrangement(dispatcher)
                 .withNewMeetingType(editType)
                 .withNextUnfinishedMeetingOccurrence(immediateOccurrence)
-                .withUpdateMeetingResult(editType.id, UpdateMeetingUseCase.Result.Success)
+                .withUpdateMeetingResult(requireNotNull(editType.id), UpdateMeetingUseCase.Result.Success.Complete)
         )
 
         advanceUntilIdle()
@@ -667,7 +741,7 @@ class NewMeetingViewModelTest {
         advanceUntilIdle()
 
         coVerify(exactly = 1) {
-            arrangement.updateMeeting(editType.id, match { it.type == Meeting.Type.IMMEDIATE })
+            arrangement.updateMeeting(requireNotNull(editType.id), match { it.type == Meeting.Type.IMMEDIATE })
         }
     }
 
@@ -701,7 +775,7 @@ class NewMeetingViewModelTest {
                     .withNewMeetingType(editType)
                     .withCurrentTimeProvider { currentTime }
                     .withNextUnfinishedMeetingOccurrence(nextOccurrence)
-                    .withUpdateMeetingResult(nextOccurrence.meeting.meetingId, UpdateMeetingUseCase.Result.Success)
+                    .withUpdateMeetingResult(nextOccurrence.meeting.meetingId, UpdateMeetingUseCase.Result.Success.Complete)
             )
 
             enterTitle(viewModel, updateMeeting.title)
@@ -712,7 +786,7 @@ class NewMeetingViewModelTest {
                 viewModel.submitUpdate()
                 advanceUntilIdle()
 
-                coVerify(exactly = 1) { arrangement.updateMeeting(editType.id, updateMeeting) }
+                coVerify(exactly = 1) { arrangement.updateMeeting(requireNotNull(editType.id), updateMeeting) }
                 assertNull(viewModel.state.startTimeError)
                 assertNull(viewModel.state.endTimeError)
                 assertFalse(viewModel.state.isSubmitting)
@@ -739,7 +813,10 @@ class NewMeetingViewModelTest {
             Arrangement(dispatcher)
                 .withNewMeetingType(editType)
                 .withNextUnfinishedMeetingOccurrence(nextOccurrence)
-                .withUpdateMeetingResult(nextOccurrence.meeting.meetingId, UpdateMeetingUseCase.Result.Failure.Other)
+                .withUpdateMeetingResult(
+                    nextOccurrence.meeting.meetingId,
+                    UpdateMeetingUseCase.Result.Failure.Other(CoreFailure.Unknown(null))
+                )
         )
 
         enterTitle(viewModel, "Weekly sync")
@@ -748,17 +825,17 @@ class NewMeetingViewModelTest {
             viewModel.submitUpdate()
             advanceUntilIdle()
 
-            coVerify(exactly = 1) { arrangement.updateMeeting(editType.id, any()) }
+            coVerify(exactly = 1) { arrangement.updateMeeting(requireNotNull(editType.id), any()) }
             expectNoEvents()
             assertFalse(viewModel.state.isSubmitting)
             assertEquals(true, viewModel.state.continueButtonEnabled)
             assertEquals(NewMeetingState.SubmitError.Other, viewModel.state.submitError)
             assertEquals("Weekly sync", viewModel.titleTextState.text.toString())
-            arrangement.withUpdateMeetingResult(editType.id, UpdateMeetingUseCase.Result.Success)
+            arrangement.withUpdateMeetingResult(requireNotNull(editType.id), UpdateMeetingUseCase.Result.Success.Complete)
             viewModel.dismissCreationError()
             viewModel.submitUpdate()
             advanceUntilIdle()
-            coVerify(exactly = 2) { arrangement.updateMeeting(editType.id, any()) }
+            coVerify(exactly = 2) { arrangement.updateMeeting(requireNotNull(editType.id), any()) }
             assertEquals(NewMeetingViewActions.Success(NewMeetingResult.Updated), awaitItem())
         }
     }
@@ -792,7 +869,7 @@ class NewMeetingViewModelTest {
             viewModel.submitUpdate()
             advanceUntilIdle()
 
-            coVerify(exactly = 1) { arrangement.updateMeeting(editType.id, any()) }
+            coVerify(exactly = 1) { arrangement.updateMeeting(requireNotNull(editType.id), any()) }
             expectNoEvents()
             assertFalse(viewModel.state.isSubmitting)
             assertEquals(true, viewModel.state.continueButtonEnabled)
@@ -834,7 +911,7 @@ class NewMeetingViewModelTest {
                 viewModel.submitUpdate()
                 advanceUntilIdle()
 
-                coVerify(exactly = 1) { arrangement.updateMeeting(editType.id, any()) }
+                coVerify(exactly = 1) { arrangement.updateMeeting(requireNotNull(editType.id), any()) }
                 expectNoEvents()
                 assertFalse(viewModel.state.isSubmitting)
                 assertEquals(true, viewModel.state.continueButtonEnabled)
@@ -963,7 +1040,7 @@ class NewMeetingViewModelTest {
                 .withNextUnfinishedMeetingOccurrence(nextOccurrence)
         )
 
-        coVerify(exactly = 1) { arrangement.getNextUnfinishedMeetingOccurrence(editType.id, currentTime) }
+        coVerify(exactly = 1) { arrangement.getNextUnfinishedMeetingOccurrence(requireNotNull(editType.id), currentTime) }
         assertEquals(editType, viewModel.type)
         assertEquals(nextOccurrence.meeting.title, viewModel.titleTextState.text.toString())
         assertEquals(nextOccurrence.occurrenceStartTime, viewModel.state.startTime)
@@ -1014,7 +1091,7 @@ class NewMeetingViewModelTest {
                 .withNextUnfinishedMeetingOccurrence(null)
         )
 
-        coVerify(exactly = 1) { arrangement.getNextUnfinishedMeetingOccurrence(editType.id, currentTime) }
+        coVerify(exactly = 1) { arrangement.getNextUnfinishedMeetingOccurrence(requireNotNull(editType.id), currentTime) }
         assertEquals(editType, viewModel.type)
         assertEquals("", viewModel.titleTextState.text.toString())
         assertEquals(currentTime + 1.hours, viewModel.state.startTime)
@@ -1033,7 +1110,7 @@ class NewMeetingViewModelTest {
                 .withNextUnfinishedMeetingOccurrenceFailure()
         )
 
-        coVerify(exactly = 1) { arrangement.getNextUnfinishedMeetingOccurrence(editType.id, currentTime) }
+        coVerify(exactly = 1) { arrangement.getNextUnfinishedMeetingOccurrence(requireNotNull(editType.id), currentTime) }
         assertEquals(NewMeetingState.InitialLoadingState.Error, viewModel.state.initialLoading)
     }
 
@@ -1055,7 +1132,7 @@ class NewMeetingViewModelTest {
                     .withNewMeetingType(type)
                     .withCurrentTimeProvider { currentTime }
                     .withCurrentTimeZone(localTimeZoneID)
-                    .withCreateMeetingResult(CreateNewMeetingUseCase.Result.Success(CONVERSATION_ID, CREATED_MEETING_ID))
+                    .withCreateMeetingResult(CreateNewMeetingUseCase.Result.Success.Complete(CONVERSATION_ID, CREATED_MEETING_ID))
             )
             enterTitle(viewModel, createMeeting.title)
             viewModel.updateStartTime(createMeeting.startTime)
@@ -1092,7 +1169,7 @@ class NewMeetingViewModelTest {
                     .withNextUnfinishedMeetingOccurrence(nextOccurrence)
             )
 
-            coVerify(exactly = 1) { arrangement.getNextUnfinishedMeetingOccurrence(editType.id, currentTime) }
+            coVerify(exactly = 1) { arrangement.getNextUnfinishedMeetingOccurrence(requireNotNull(editType.id), currentTime) }
             assertEquals(meetingTimeZoneId, viewModel.state.tzid)
             assertEquals(NewMeetingState.InitialLoadingState.Loaded, viewModel.state.initialLoading)
         }
@@ -1117,7 +1194,7 @@ class NewMeetingViewModelTest {
                     .withCurrentTimeProvider { currentTime }
                     .withCurrentTimeZone(localTimeZoneID)
                     .withNextUnfinishedMeetingOccurrence(nextOccurrence)
-                    .withUpdateMeetingResult(nextOccurrence.meeting.meetingId, UpdateMeetingUseCase.Result.Success)
+                    .withUpdateMeetingResult(nextOccurrence.meeting.meetingId, UpdateMeetingUseCase.Result.Success.Complete)
             )
 
             // only update the title, keep the original start and end times, so no time changes are made and no tzid change is expected
@@ -1127,7 +1204,7 @@ class NewMeetingViewModelTest {
                 viewModel.submitUpdate()
                 advanceUntilIdle()
 
-                coVerify(exactly = 1) { arrangement.updateMeeting(editType.id, updateMeeting) }
+                coVerify(exactly = 1) { arrangement.updateMeeting(requireNotNull(editType.id), updateMeeting) }
                 assertEquals(NewMeetingViewActions.Success(NewMeetingResult.Updated), awaitItem())
                 cancelAndConsumeRemainingEvents()
             }
@@ -1154,7 +1231,7 @@ class NewMeetingViewModelTest {
                     .withCurrentTimeProvider { currentTime }
                     .withCurrentTimeZone(localTimeZoneID)
                     .withNextUnfinishedMeetingOccurrence(nextOccurrence)
-                    .withUpdateMeetingResult(nextOccurrence.meeting.meetingId, UpdateMeetingUseCase.Result.Success)
+                    .withUpdateMeetingResult(nextOccurrence.meeting.meetingId, UpdateMeetingUseCase.Result.Success.Complete)
             )
 
             viewModel.updateStartTime(updatedStartTime)
@@ -1163,7 +1240,7 @@ class NewMeetingViewModelTest {
                 viewModel.submitUpdate()
                 advanceUntilIdle()
 
-                coVerify(exactly = 1) { arrangement.updateMeeting(editType.id, updateMeeting) }
+                coVerify(exactly = 1) { arrangement.updateMeeting(requireNotNull(editType.id), updateMeeting) }
                 assertEquals(NewMeetingViewActions.Success(NewMeetingResult.Updated), awaitItem())
                 cancelAndConsumeRemainingEvents()
             }
@@ -1190,7 +1267,7 @@ class NewMeetingViewModelTest {
                     .withCurrentTimeProvider { currentTime }
                     .withCurrentTimeZone(localTimeZoneID)
                     .withNextUnfinishedMeetingOccurrence(nextOccurrence)
-                    .withUpdateMeetingResult(nextOccurrence.meeting.meetingId, UpdateMeetingUseCase.Result.Success)
+                    .withUpdateMeetingResult(nextOccurrence.meeting.meetingId, UpdateMeetingUseCase.Result.Success.Complete)
             )
 
             viewModel.updateEndTime(updatedEndTime)
@@ -1199,7 +1276,7 @@ class NewMeetingViewModelTest {
                 viewModel.submitUpdate()
                 advanceUntilIdle()
 
-                coVerify(exactly = 1) { arrangement.updateMeeting(editType.id, updateMeeting) }
+                coVerify(exactly = 1) { arrangement.updateMeeting(requireNotNull(editType.id), updateMeeting) }
                 assertEquals(NewMeetingViewActions.Success(NewMeetingResult.Updated), awaitItem())
                 cancelAndConsumeRemainingEvents()
             }
@@ -1212,7 +1289,7 @@ class NewMeetingViewModelTest {
             val (arrangement, viewModel) = arrangeViewModel(
                 Arrangement(dispatcher)
                     .withNewMeetingType(type)
-                    .withCreateMeetingResult(CreateNewMeetingUseCase.Result.Success(CONVERSATION_ID, CREATED_MEETING_ID))
+                    .withCreateMeetingResult(CreateNewMeetingUseCase.Result.Success.Complete(CONVERSATION_ID, CREATED_MEETING_ID))
             )
             enterTitle(viewModel, "Weekly sync")
 
@@ -1234,7 +1311,7 @@ class NewMeetingViewModelTest {
                 Arrangement(dispatcher)
                     .withPasswordValidationResult(password, ValidatePasswordResult.Valid)
                     .withNewMeetingType(type)
-                    .withCreateMeetingResult(CreateNewMeetingUseCase.Result.Success(CONVERSATION_ID, CREATED_MEETING_ID))
+                    .withCreateMeetingResult(CreateNewMeetingUseCase.Result.Success.Complete(CONVERSATION_ID, CREATED_MEETING_ID))
             )
             enterTitle(viewModel, "Weekly sync")
             viewModel.passwordTextState.setTextAndPlaceCursorAtEnd(password)
@@ -1283,7 +1360,7 @@ class NewMeetingViewModelTest {
                 Arrangement(dispatcher)
                     .withPasswordValidationResult("invalid", ValidatePasswordResult.Invalid())
                     .withNewMeetingType(type)
-                .withCreateMeetingResult(CreateNewMeetingUseCase.Result.Success(CONVERSATION_ID, CREATED_MEETING_ID))
+                .withCreateMeetingResult(CreateNewMeetingUseCase.Result.Success.Complete(CONVERSATION_ID, CREATED_MEETING_ID))
             )
             enterTitle(viewModel, "Weekly sync")
             viewModel.passwordTextState.setTextAndPlaceCursorAtEnd("invalid")
@@ -1314,7 +1391,7 @@ class NewMeetingViewModelTest {
                     .withPasswordValidationResult(password, ValidatePasswordResult.Valid)
                     .withNewMeetingType(type)
                 .withPasswordValidationResult(password, ValidatePasswordResult.Valid)
-                .withCreateMeetingResult(CreateNewMeetingUseCase.Result.Success(CONVERSATION_ID, CREATED_MEETING_ID))
+                .withCreateMeetingResult(CreateNewMeetingUseCase.Result.Success.Complete(CONVERSATION_ID, CREATED_MEETING_ID))
             )
             enterTitle(viewModel, "Weekly sync")
 
@@ -1342,7 +1419,7 @@ class NewMeetingViewModelTest {
                     .withPasswordValidationResult("still invalid", ValidatePasswordResult.Invalid())
                     .withPasswordValidationResult(password, ValidatePasswordResult.Valid)
                     .withNewMeetingType(type)
-                    .withCreateMeetingResult(CreateNewMeetingUseCase.Result.Success(CONVERSATION_ID, CREATED_MEETING_ID))
+                    .withCreateMeetingResult(CreateNewMeetingUseCase.Result.Success.Complete(CONVERSATION_ID, CREATED_MEETING_ID))
             )
             enterTitle(viewModel, "Quick sync")
             viewModel.passwordTextState.setTextAndPlaceCursorAtEnd("invalid")
@@ -1399,7 +1476,9 @@ class NewMeetingViewModelTest {
                         .withNewMeetingType(type)
                         .withMeetingsGuestsLinksEnabled(buildFlag)
                         .withGuestLinkSharingEnabled(guestLinkSupport)
-                        .withCreateMeetingResult(CreateNewMeetingUseCase.Result.Success(CONVERSATION_ID, CREATED_MEETING_ID))
+                        .withCreateMeetingResult(
+                            CreateNewMeetingUseCase.Result.Success.Complete(CONVERSATION_ID, CREATED_MEETING_ID)
+                        )
                 )
                 enterTitle(viewModel, "Weekly sync")
                 viewModel.passwordTextState.setTextAndPlaceCursorAtEnd("hidden password")
@@ -1426,7 +1505,7 @@ class NewMeetingViewModelTest {
                 Arrangement(dispatcher)
                     .withPasswordValidationResult(password, ValidatePasswordResult.Valid)
                     .withNewMeetingType(type)
-                .withCreateMeetingResult(CreateNewMeetingUseCase.Result.Success(CONVERSATION_ID, CREATED_MEETING_ID))
+                .withCreateMeetingResult(CreateNewMeetingUseCase.Result.Success.Complete(CONVERSATION_ID, CREATED_MEETING_ID))
             )
             assertEquals(true, viewModel.state.isGuestLinkSharingEnabled)
             assertEquals(NewMeetingState.InitialLoadingState.Loaded, viewModel.state.initialLoading)
@@ -1481,7 +1560,7 @@ class NewMeetingViewModelTest {
                 Arrangement(dispatcher)
                     .withPasswordValidationResult(password, ValidatePasswordResult.Valid)
                     .withNewMeetingType(type)
-                    .withCreateMeetingResult(CreateNewMeetingUseCase.Result.Success(CONVERSATION_ID, CREATED_MEETING_ID))
+                    .withCreateMeetingResult(CreateNewMeetingUseCase.Result.Success.Complete(CONVERSATION_ID, CREATED_MEETING_ID))
             )
             enterTitle(viewModel, "Weekly sync")
             viewModel.passwordTextState.setTextAndPlaceCursorAtEnd(password)
@@ -1507,7 +1586,7 @@ class NewMeetingViewModelTest {
             val (arrangement, viewModel) = arrangeViewModel(
                 Arrangement(dispatcher)
                     .withNewMeetingType(type)
-                    .withCreateMeetingResult(CreateNewMeetingUseCase.Result.Success(CONVERSATION_ID, CREATED_MEETING_ID))
+                    .withCreateMeetingResult(CreateNewMeetingUseCase.Result.Success.Complete(CONVERSATION_ID, CREATED_MEETING_ID))
             )
             enterTitle(viewModel, "Weekly sync")
             viewModel.confirmPasswordTextState.setTextAndPlaceCursorAtEnd("ValidPassword1!")
@@ -1567,7 +1646,7 @@ class NewMeetingViewModelTest {
             runCurrent()
 
             coVerify(exactly = 1) { arrangement.createNewMeeting(any()) }
-            creationResult.complete(CreateNewMeetingUseCase.Result.Failure)
+            creationResult.complete(CreateNewMeetingUseCase.Result.Failure(CoreFailure.Unknown(null)))
             runCurrent()
 
             assertFalse(viewModel.state.isSubmitting)
@@ -1609,7 +1688,7 @@ class NewMeetingViewModelTest {
             assertNull(viewModel.state.titleError)
             assertEquals(NewMeetingState.TimeError.EndTimeBeforeStartTimeError, viewModel.state.endTimeError)
             assertFalse(viewModel.state.continueButtonEnabled)
-            creationResult.complete(CreateNewMeetingUseCase.Result.Failure)
+            creationResult.complete(CreateNewMeetingUseCase.Result.Failure(CoreFailure.Unknown(null)))
             runCurrent()
 
             assertFalse(viewModel.state.isSubmitting)

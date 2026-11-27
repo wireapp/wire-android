@@ -227,7 +227,7 @@ class MeetingOptionsMenuViewModelTest {
     fun givenFailure_whenDeletingMeetingForEveryone_thenDialogAllowsRetryWithoutFailureMessage() = runTest(dispatcher) {
         val (arrangement, viewModel) = Arrangement()
             .withDeleteMeetingForEveryoneResult(
-                DeleteMeetingForEveryoneUseCase.Result.Failure(NetworkFailure.NoNetworkConnection(null))
+                DeleteMeetingForEveryoneUseCase.Result.Failure.Other(NetworkFailure.NoNetworkConnection(null))
             )
             .arrange()
         viewModel.deleteMeetingDialogState.show(deleteMeetingForEveryoneDialogState())
@@ -240,7 +240,7 @@ class MeetingOptionsMenuViewModelTest {
 
             coVerify(exactly = 1) { arrangement.deleteMeetingForEveryoneUseCase(MEETING_ID) }
             assertEquals(true, viewModel.deleteMeetingDialogState.isVisible)
-            assertEquals(true, viewModel.deleteMeetingDialogState.savedState?.failed)
+            assertEquals(DeleteMeetingError.DeleteFailed, viewModel.deleteMeetingDialogState.savedState?.error)
             assertEquals(false, viewModel.deleteMeetingDialogState.savedState?.loading)
             expectNoEvents()
 
@@ -280,7 +280,7 @@ class MeetingOptionsMenuViewModelTest {
     fun givenFailure_whenDeletingMeetingForMe_thenDialogAllowsRetryWithoutFailureMessage() = runTest(dispatcher) {
         val (arrangement, viewModel) = Arrangement()
             .withDeleteMeetingForMeResult(
-                DeleteMeetingForMeUseCase.Result.Failure(NetworkFailure.NoNetworkConnection(null))
+                DeleteMeetingForMeUseCase.Result.Failure.Other(NetworkFailure.NoNetworkConnection(null))
             )
             .arrange()
         viewModel.deleteMeetingDialogState.show(deleteMeetingForMeDialogState())
@@ -293,7 +293,7 @@ class MeetingOptionsMenuViewModelTest {
 
             coVerify(exactly = 1) { arrangement.deleteMeetingForMeUseCase(MEETING_ID) }
             assertEquals(true, viewModel.deleteMeetingDialogState.isVisible)
-            assertEquals(true, viewModel.deleteMeetingDialogState.savedState?.failed)
+            assertEquals(DeleteMeetingError.LeaveFailed, viewModel.deleteMeetingDialogState.savedState?.error)
             assertEquals(false, viewModel.deleteMeetingDialogState.savedState?.loading)
             expectNoEvents()
 
@@ -303,6 +303,45 @@ class MeetingOptionsMenuViewModelTest {
             assertFalse(viewModel.deleteMeetingDialogState.isVisible)
             coVerify(exactly = 2) { arrangement.deleteMeetingForMeUseCase(MEETING_ID) }
             awaitItem()
+        }
+    }
+
+    @Test
+    fun givenRemoteDeletionWithCleanupFailure_whenDeleting_thenShowsAcknowledgementWarningWithoutFailureMessage() = runTest(dispatcher) {
+        val (arrangement, viewModel) = Arrangement()
+            .withDeleteMeetingForEveryoneResult(
+                DeleteMeetingForEveryoneUseCase.Result.Failure.CleanupFailed(NetworkFailure.NoNetworkConnection(null))
+            )
+            .arrange()
+        viewModel.deleteMeetingDialogState.show(deleteMeetingForEveryoneDialogState())
+        viewModel.actions.test {
+            viewModel.deleteMeetingForEveryone(MEETING_ID, MEETING_TITLE)
+            advanceUntilIdle()
+            assertEquals(DeleteMeetingError.CleanupFailed, viewModel.deleteMeetingDialogState.savedState?.error)
+            assertEquals(false, viewModel.deleteMeetingDialogState.savedState?.error?.retryable)
+            assertEquals(true, viewModel.deleteMeetingDialogState.isVisible)
+            assertEquals(false, viewModel.deleteMeetingDialogState.savedState?.loading)
+            expectNoEvents()
+            viewModel.deleteMeetingForEveryone(MEETING_ID, MEETING_TITLE)
+            advanceUntilIdle()
+            viewModel.deleteMeetingDialogState.dismiss()
+            assertFalse(viewModel.deleteMeetingDialogState.isVisible)
+            coVerify(exactly = 1) { arrangement.deleteMeetingForEveryoneUseCase(MEETING_ID) }
+        }
+    }
+
+    @Test
+    fun givenDeleteNotAllowed_whenDeleting_thenShowsNonRetryableModal() = runTest(dispatcher) {
+        val (_, viewModel) = Arrangement()
+            .withDeleteMeetingForEveryoneResult(DeleteMeetingForEveryoneUseCase.Result.Failure.NotAllowed)
+            .arrange()
+        viewModel.deleteMeetingDialogState.show(deleteMeetingForEveryoneDialogState())
+        viewModel.actions.test {
+            viewModel.deleteMeetingForEveryone(MEETING_ID, MEETING_TITLE)
+            advanceUntilIdle()
+            assertEquals(DeleteMeetingError.NotAllowed, viewModel.deleteMeetingDialogState.savedState?.error)
+            assertEquals(false, viewModel.deleteMeetingDialogState.savedState?.error?.retryable)
+            expectNoEvents()
         }
     }
 

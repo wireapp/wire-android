@@ -117,6 +117,7 @@ private fun NewMeetingDetailsNavigation3Entry(
                     passwordState = viewModel.passwordTextState,
                     confirmPasswordState = viewModel.confirmPasswordTextState,
                     onGenerateRandomPassword = viewModel::onGenerateRandomPassword,
+                    hasUnsavedChanges = viewModel.hasUnsavedChanges(),
                     onParticipantsClicked = {
                         runtime.navigator.navigate(
                             WireNavigationCommand(

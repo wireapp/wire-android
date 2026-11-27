@@ -192,9 +192,18 @@ detect_target_devices() {
     fi
     device_list="$target"
   elif [[ -n "${RESOLVED_TESTCASE_ID:-}" ]]; then
-    # Single-testcase runs stay on one device so the same test is not fanned
-    # out across multiple phones by the default sharding logic.
-    device_list="$(printf '%s\n' "${eligible_device_lines}" | head -n 1)"
+    # Keep single-testcase runs on one phone. Prefer the newest Android SDK so
+    # a minSdk-tagged test is not pinned to an older phone before routing starts.
+    local newest_sdk=0 serial sdk
+    while IFS= read -r serial; do
+      # adb must not consume the remaining serials from this loop's input.
+      sdk="$(adb -s "${serial}" shell getprop ro.build.version.sdk < /dev/null | tr -d '\r\n')"
+      [[ "${sdk}" =~ ^[0-9]+$ ]] || { echo "ERROR: Cannot read Android SDK for ${serial}."; exit 1; }
+      if (( sdk > newest_sdk )); then
+        newest_sdk="${sdk}"
+        device_list="${serial}"
+      fi
+    done <<< "${eligible_device_lines}"
     echo "Single-testcase mode (${RESOLVED_TESTCASE_ID}): selected device ${device_list}"
   else
     device_list="$(printf '%s\n' "${eligible_device_lines}" | xargs)"

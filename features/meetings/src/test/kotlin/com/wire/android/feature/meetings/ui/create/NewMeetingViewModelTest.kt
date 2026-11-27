@@ -1696,6 +1696,119 @@ class NewMeetingViewModelTest {
     }
 
     @Test
+    fun givenScheduleDraft_whenFieldsAreChangedAndRestored_thenOnlyActualChangesRequireDiscard() = runTest(dispatcher) {
+        val (_, viewModel) = arrangeViewModel(Arrangement(dispatcher).withNewMeetingType(NewMeetingType.Schedule))
+        val initialStart = viewModel.readyState.startTime
+        assertFalse(viewModel.hasUnsavedChanges())
+
+        viewModel.titleTextState.setTextAndPlaceCursorAtEnd("Draft")
+        assertTrue(viewModel.hasUnsavedChanges())
+        viewModel.titleTextState.setTextAndPlaceCursorAtEnd("")
+        assertFalse(viewModel.hasUnsavedChanges())
+
+        viewModel.updateStartTime(initialStart + 1.hours)
+        assertTrue(viewModel.hasUnsavedChanges())
+        viewModel.updateStartTime(initialStart)
+        assertFalse(viewModel.hasUnsavedChanges())
+
+        viewModel.updateRepeatingInterval(MeetingItem.RepeatingInterval.Supported.first())
+        assertTrue(viewModel.hasUnsavedChanges())
+        viewModel.updateRepeatingInterval(null)
+        assertFalse(viewModel.hasUnsavedChanges())
+    }
+
+    @Test
+    fun givenParticipantSelection_whenConfirmedOrCancelled_thenOnlyConfirmedChangesRequireDiscard() = runTest(dispatcher) {
+        val (_, viewModel) = arrangeViewModel(Arrangement(dispatcher).withNewMeetingType(NewMeetingType.Schedule))
+        viewModel.updateSelectedContact(true, CONTACT)
+        assertFalse(viewModel.hasUnsavedChanges())
+        viewModel.resetSelectedContacts()
+        assertFalse(viewModel.hasUnsavedChanges())
+
+        viewModel.updateSelectedContact(true, CONTACT)
+        viewModel.confirmSelectedContacts()
+        assertTrue(viewModel.hasUnsavedChanges())
+        viewModel.updateSelectedContact(false, CONTACT)
+        viewModel.confirmSelectedContacts()
+        assertFalse(viewModel.hasUnsavedChanges())
+    }
+
+    @Test
+    fun givenEmailSelection_whenConfirmedAndRestored_thenOnlyConfirmedChangesRequireDiscard() = runTest(dispatcher) {
+        val (_, viewModel) = arrangeViewModel(Arrangement(dispatcher).withNewMeetingType(NewMeetingType.Schedule))
+        viewModel.updateSelectedEmail(true, "guest@example.com")
+        assertFalse(viewModel.hasUnsavedChanges())
+        viewModel.confirmSelectedContacts()
+        assertTrue(viewModel.hasUnsavedChanges())
+        viewModel.updateSelectedEmail(false, "guest@example.com")
+        viewModel.confirmSelectedContacts()
+        assertFalse(viewModel.hasUnsavedChanges())
+    }
+
+    @Test
+    fun givenEditMeeting_whenLoadedValuesAreChangedAndRestored_thenOnlyActualEditsRequireDiscard() = runTest(dispatcher) {
+        val user = TestUser.OTHER_USER.copy(id = UserId(CONTACT.id, CONTACT.domain))
+        val (_, viewModel) = Arrangement(dispatcher)
+            .withNewMeetingType(NewMeetingType.Edit(MEETING_OCCURRENCE.meeting.meetingId))
+            .withNextUnfinishedMeetingOccurrence(MEETING_OCCURRENCE)
+            .withConversationMembers(
+                MEETING_OCCURRENCE.meeting.conversationId,
+                listOf(MemberDetails(user, Conversation.Member.Role.Member))
+            )
+            .withMappedContact(user, CONTACT)
+            .arrange()
+
+        assertFalse(viewModel.hasUnsavedChanges())
+        runCurrent()
+        assertTrue(viewModel.state is NewMeetingState.Ready)
+        assertEquals(setOf(CONTACT), viewModel.readyState.confirmedContacts.toSet())
+        assertFalse(viewModel.hasUnsavedChanges())
+
+        viewModel.titleTextState.setTextAndPlaceCursorAtEnd("Changed meeting")
+        assertTrue(viewModel.hasUnsavedChanges())
+        viewModel.titleTextState.setTextAndPlaceCursorAtEnd(MEETING_OCCURRENCE.meeting.title)
+        assertFalse(viewModel.hasUnsavedChanges())
+
+        val initialStart = viewModel.readyState.startTime
+        viewModel.updateStartTime(initialStart + 1.hours)
+        assertTrue(viewModel.hasUnsavedChanges())
+        viewModel.updateStartTime(initialStart)
+        assertFalse(viewModel.hasUnsavedChanges())
+
+        val initialRecurrence = viewModel.readyState.repeatingInterval
+        viewModel.updateRepeatingInterval(null)
+        assertTrue(viewModel.hasUnsavedChanges())
+        viewModel.updateRepeatingInterval(initialRecurrence)
+        assertFalse(viewModel.hasUnsavedChanges())
+
+        viewModel.updateSelectedContact(false, CONTACT)
+        viewModel.confirmSelectedContacts()
+        assertTrue(viewModel.hasUnsavedChanges())
+        viewModel.updateSelectedContact(true, CONTACT)
+        viewModel.confirmSelectedContacts()
+        assertFalse(viewModel.hasUnsavedChanges())
+    }
+
+    @Test
+    fun givenMeetNowDraft_whenTitleAndParticipantsAreChanged_thenDiscardTracksTheDraft() = runTest(dispatcher) {
+        val (_, viewModel) = arrangeViewModel(Arrangement(dispatcher).withNewMeetingType(NewMeetingType.MeetNow))
+        assertFalse(viewModel.hasUnsavedChanges())
+
+        viewModel.titleTextState.setTextAndPlaceCursorAtEnd("Meet now")
+        assertTrue(viewModel.hasUnsavedChanges())
+        viewModel.titleTextState.setTextAndPlaceCursorAtEnd("")
+        assertFalse(viewModel.hasUnsavedChanges())
+
+        viewModel.updateSelectedContact(true, CONTACT)
+        assertFalse(viewModel.hasUnsavedChanges())
+        viewModel.confirmSelectedContacts()
+        assertTrue(viewModel.hasUnsavedChanges())
+        viewModel.updateSelectedContact(false, CONTACT)
+        viewModel.confirmSelectedContacts()
+        assertFalse(viewModel.hasUnsavedChanges())
+    }
+
+    @Test
     fun givenInvalidPassword_whenEdited_thenErrorsClearAndPasswordIsRevalidatedOnSubmission() = runTest(dispatcher) {
         withCreationTypes { type ->
             val password = "ValidPassword1!"

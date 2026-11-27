@@ -19,7 +19,12 @@ package com.wire.android.tests.support.suite
 
 import android.os.Bundle
 import android.util.Log
+import io.qameta.allure.android.AllureAndroidLifecycle
 import io.qameta.allure.android.runners.AllureAndroidJUnitRunner
+import io.qameta.allure.kotlin.AllureResultsWriter
+import io.qameta.allure.kotlin.model.TestResult
+import io.qameta.allure.kotlin.model.TestResultContainer
+import java.io.InputStream
 
 /**
  * Custom test runner that delegates to Allure's Android runner,
@@ -30,8 +35,17 @@ import io.qameta.allure.android.runners.AllureAndroidJUnitRunner
  * list through instrumentation args so only previously failed tests execute.
  */
 class TaggedTestRunner : AllureAndroidJUnitRunner() {
+    private var discoveringRequirements = false
 
     override fun onCreate(arguments: Bundle) {
+        // Direct ADB launches need the same selector and SDK guards as Gradle and CI.
+        if (arguments.getString("filter").isNullOrBlank()) {
+            arguments.putString("filter", TaggedFilter::class.java.name)
+        }
+        discoveringRequirements = arguments.getString("ciListDeviceRequirements") == "true"
+        check(!discoveringRequirements || arguments.getString("log") == "true") {
+            "Device requirement discovery must use log-only mode"
+        }
         val filterId = arguments.getString("testCaseId")
         val category = arguments.getString("category")
         val excludeCategory = arguments.getString("excludeCategory")
@@ -63,10 +77,21 @@ class TaggedTestRunner : AllureAndroidJUnitRunner() {
 
     override fun onStart() {
         // Before running any tests, clear previous Allure results on the device.
-        clearAllureResultsOnDevice()
+        if (!discoveringRequirements) clearAllureResultsOnDevice()
 
         // Then let Allure/AndroidJUnitRunner do its normal startup.
         super.onStart()
+    }
+
+    // Discovery lists tests without running them. Discard its Allure events so
+    // they cannot appear as passing tests or require TestStorage to be installed.
+    override fun createAllureAndroidLifecycle(): AllureAndroidLifecycle {
+        if (!discoveringRequirements) return super.createAllureAndroidLifecycle()
+        return AllureAndroidLifecycle(object : AllureResultsWriter {
+            override fun write(testResult: TestResult) = Unit
+            override fun write(testResultContainer: TestResultContainer) = Unit
+            override fun write(source: String, attachment: InputStream) = attachment.close()
+        })
     }
 
     private fun clearAllureResultsOnDevice() {

@@ -105,6 +105,8 @@ interface NewMeetingViewModel : ActionsManager<NewMeetingViewActions> {
         const val MEETING_NAME_MAX_COUNT = 64
         const val GENERATED_PASSWORD_LENGTH = 8
     }
+
+    fun hasUnsavedChanges(): Boolean = false
 }
 
 class NewMeetingViewModelPreview(
@@ -149,6 +151,8 @@ class NewMeetingViewModelImpl @AssistedInject constructor(
     override val confirmPasswordTextState: TextFieldState = TextFieldState()
     override var state: NewMeetingState by mutableStateOf(NewMeetingState.Loading)
         private set
+    private var initialDraftState: NewMeetingState.Ready? = null
+    private var initialDraftTitle = titleTextState.text.toString()
 
     private var initialEditSnapshot: EditSnapshot? = null
 
@@ -189,6 +193,8 @@ class NewMeetingViewModelImpl @AssistedInject constructor(
                         state = state.withValidatedTitle().withValidatedTimes()
                     }
                 }
+                initialDraftState = state
+                initialDraftTitle = titleTextState.text.toString()
                 this@NewMeetingViewModelImpl.state = state.copy(
                     isGuestLinkSharingEnabled = meetingsGuestsLinksEnabled && isMeetingsEnabledUseCase.isGuestLinkSharingEnabled(),
                 ).withValidatedContinueButton()
@@ -518,6 +524,16 @@ class NewMeetingViewModelImpl @AssistedInject constructor(
 
     override fun dismissCreationError() {
         updateReadyState { state -> state.copy(submitError = null) }
+    }
+
+    override fun hasUnsavedChanges(): Boolean {
+        val state = state as? NewMeetingState.Ready ?: return false
+        val initialDraftState = initialDraftState ?: return false
+        return titleTextState.text.toString() != initialDraftTitle ||
+            state.startTime != initialDraftState.startTime || state.endTime != initialDraftState.endTime ||
+            state.repeatingInterval != initialDraftState.repeatingInterval ||
+            state.confirmedContacts != initialDraftState.confirmedContacts ||
+            state.confirmedEmails != initialDraftState.confirmedEmails
     }
 }
 

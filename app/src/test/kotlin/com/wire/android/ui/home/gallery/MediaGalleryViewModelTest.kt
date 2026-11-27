@@ -47,6 +47,7 @@ import com.wire.kalium.logic.data.user.type.UserType
 import com.wire.kalium.logic.data.user.type.UserTypeInfo
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.MessageAssetResult
+import com.wire.kalium.logic.feature.client.IsWireCellsEnabledUseCase
 import com.wire.kalium.logic.feature.conversation.IsSelfUserViewerOnConversationUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
@@ -540,6 +541,42 @@ class MediaGalleryViewModelTest {
     }
 
     @Test
+    fun givenDriveIsOffboarded_whenShowingCellAssetMenu_thenSharePublicLinkIsHidden() = runTest {
+        val (_, viewModel) = Arrangement()
+            .withNavArgs(messageOptionsEnabled = true, isEphemeral = false, cellAssetId = "cell-asset-id")
+            .withConversationDetails(mockedConversationDetails())
+            .withDriveOffboarded()
+            .withAssetContent(
+                CellAssetContent(
+                    id = "cell-asset-id",
+                    versionId = "",
+                    mimeType = "image/png",
+                    localPath = null,
+                    assetPath = "asset/path",
+                    contentUrl = "content/url",
+                    previewUrl = "preview/url",
+                    assetSize = 1,
+                    metadata = null,
+                    transferStatus = AssetTransferStatus.SAVED_INTERNALLY
+                )
+            ).arrange()
+
+        viewModel.onOptionsClick()
+
+        val state = viewModel.mediaGalleryViewState
+
+        assertTrue(state.viewerAccess)
+        assertEquals(
+            listOf(
+                MediaGalleryMenuItem.REACT,
+                MediaGalleryMenuItem.SHOW_DETAILS,
+                MediaGalleryMenuItem.REPLY,
+            ),
+            state.menuItems
+        )
+    }
+
+    @Test
     fun givenMessageMenuOptionsEnabled_whenShowingMenu_thenCorrectMenuItemsShown() = runTest {
         val (_, viewModel) = Arrangement()
             .withNavArgs(messageOptionsEnabled = true, isEphemeral = false, cellAssetId = null)
@@ -594,11 +631,15 @@ class MediaGalleryViewModelTest {
         @MockK
         lateinit var isSelfUserViewerOnConversation: IsSelfUserViewerOnConversationUseCase
 
+        @MockK
+        lateinit var isWireCellsEnabled: IsWireCellsEnabledUseCase
+
         init {
             // Tests setup
             MockKAnnotations.init(this, relaxUnitFun = true)
 
             coEvery { isSelfUserViewerOnConversation(any()) } returns true
+            coEvery { isWireCellsEnabled() } returns true
             coEvery { deleteMessage(any(), any(), any()) } returns MessageOperationResult.Success
             coEvery { getAttachment(any()) } returns StorageFailure.DataNotFound.left()
             every { fileManager.localFileExists(any()) } returns false
@@ -682,6 +723,10 @@ class MediaGalleryViewModelTest {
             return this
         }
 
+        fun withDriveOffboarded() = apply {
+            coEvery { isWireCellsEnabled() } returns false
+        }
+
         fun withViewerAccessOnly() = apply {
             coEvery { isSelfUserViewerOnConversation(any()) } returns false
         }
@@ -696,6 +741,8 @@ class MediaGalleryViewModelTest {
             getAttachment,
             getCellFile,
             isSelfUserViewerOnConversation,
+            isWireCellsEnabled,
+            driveOffboardingEnabled = true,
         )
     }
 

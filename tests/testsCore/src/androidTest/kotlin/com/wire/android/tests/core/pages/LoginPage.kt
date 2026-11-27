@@ -101,13 +101,8 @@ data class LoginPage(private val device: UiDevice) {
         val bounds = input.visibleBounds
         device.click(bounds.centerX(), bounds.centerY())
         device.waitForIdle()
-        val userIdentifierInput = runCatching { device.findObject(emailInputField) }.getOrNull()
-        if (userIdentifierInput != null) {
-            userIdentifierInput.setText("")
-            userIdentifierInput.setText(email)
-        } else {
-            input.text = email
-        }
+        // Legacy UiObject lookup can lose the field when the keyboard becomes the active window.
+        input.text = email
         return this
     }
 

@@ -22,6 +22,8 @@
 )
 package com.wire.android.tests.support.suite
 
+import android.os.Build
+import android.os.Bundle
 import androidx.test.platform.app.InstrumentationRegistry
 import com.wire.android.tests.support.tags.Category
 import com.wire.android.tests.support.tags.Tag
@@ -29,6 +31,7 @@ import com.wire.android.tests.support.tags.TestCaseId
 import org.junit.runner.Description
 import org.junit.runner.manipulation.Filter
 import java.io.File
+import kotlin.math.abs
 
 /**
  * JUnit filter used by AndroidJUnitRunner / AllureAndroidJUnitRunner.
@@ -61,42 +64,51 @@ class TaggedFilter : Filter() {
         get() = rerunModeEnabled && rerunAttempt > 0
 
     override fun shouldRun(description: Description): Boolean {
-        // Suite exclusions also apply to explicit retry and manual deflake lists.
-        if (description.children.isEmpty() && matchesExcludedCategory(description)) {
-            return false
+        if (description.children.isNotEmpty()) {
+            return description.children.any { shouldRun(it) }
         }
-        // Rerun mode -> only run explicit retry tests.
-        if (rerunModeActive) {
-            return shouldRunInRerunMode(description)
-        }
-
-        // No filters -> include everything
-        if (filterTestCaseId == null &&
-            filterCategory == null &&
-            excludeCategory == null &&
-            requiredCategory == null &&
-            filterTagKey == null &&
-            filterTagValue == null
-        ) {
+        if (!matchesSelection(description)) return false
+        val minSdk = description.annotations.filterIsInstance<Tag>().firstOrNull { it.key == "minSdk" }
+            ?.value?.let { value ->
+                requireNotNull(value.toIntOrNull()?.takeIf { it > 0 }) { "Invalid minSdk tag: $value" }
+            } ?: 0
+        if (args.getString("ciListDeviceRequirements") == "true") {
+            check(args.getString("log") == "true") { "Device requirement discovery must use log-only mode" }
+            val testId = toTestId(description)
+            if (minSdk > 0 && testId != null) {
+                val status = Bundle().apply { putString("stream", "CI_TEST_MIN_SDK:$testId\t$minSdk\n") }
+                InstrumentationRegistry.getInstrumentation().sendStatus(0, status)
+            }
             return true
         }
+        return matchesDeviceShard(description, minSdk)
+    }
 
-        // If this is a suite (class / package), run it if ANY child matches
-        val children = description.children
-        if (children.isNotEmpty()) {
-            return children.any { shouldRun(it) }
-        }
+    /**
+     * Tests tagged with minSdk require a phone running that Android SDK or later.
+     * Keep the usual shard for other tests, and reassign a tagged test only when
+     * its original phone is too old. CI uses the same requirement when planning retries.
+     */
+    private fun matchesDeviceShard(description: Description, minSdk: Int): Boolean {
+        val deviceSdks = args.getString("ciDeviceSdks")?.split(',')?.map(String::toInt)
+            ?: return Build.VERSION.SDK_INT >= minSdk
+        val deviceIndex = requireNotNull(args.getString("ciDeviceIndex")).toInt()
+        val eligible = deviceSdks.indices.filter { deviceSdks[it] >= minSdk }
+        check(eligible.isNotEmpty()) { "No device supports SDK $minSdk for ${toTestId(description)}" }
+        if (args.getString("ciRunOnAllDevices") == "true") return deviceIndex in eligible
 
-        // Leaf = actual test method
-        return matchesFilters(description)
+        val hash = abs(description.hashCode().toLong())
+        val originalShard = (hash % deviceSdks.size).toInt()
+        val assignedShard = if (originalShard in eligible) originalShard else eligible[(hash % eligible.size).toInt()]
+        return deviceIndex == assignedShard
+    }
+
+    private fun matchesSelection(description: Description): Boolean {
+        if (matchesExcludedCategory(description)) return false
+        return if (rerunModeActive) shouldRunInRerunMode(description) else matchesFilters(description)
     }
 
     private fun shouldRunInRerunMode(description: Description): Boolean {
-        val children = description.children
-        if (children.isNotEmpty()) {
-            return children.any { shouldRun(it) }
-        }
-
         if (rerunTestIds.isEmpty()) {
             throw IllegalStateException(
                 "Rerun mode is enabled but no retry tests were provided " +

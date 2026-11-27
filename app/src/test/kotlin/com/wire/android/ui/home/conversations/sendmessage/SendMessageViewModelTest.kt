@@ -1089,55 +1089,56 @@ class SendMessageViewModelTest {
     }
 
     @Test
-    fun `given an asset is being shared and Cells is not enabled, when initializing the viewmodel, then message is sent to use the case`() = runTest {
-        val assetBundles = arrayOf(
-            AssetBundle(
-                "key1",
-                "application/pdf",
-                "some-data-path1".toPath(),
-                1L,
-                "mocked_file1.pdf",
-                AttachmentType.GENERIC_FILE
-            ),
-            AssetBundle(
-                "key2",
-                "application/pdf",
-                "some-data-path2".toPath(),
-                1L,
-                "mocked_file2.pdf",
-                AttachmentType.GENERIC_FILE
-            )
-        )
-        val (arrangement, _) = SendMessageViewModelArrangement()
-            .withSuccessfulViewModelInit()
-            .withPendingAssetBundle(*assetBundles)
-            .withCellsEnabledForConversation(false)
-            .withSendAttachmentMessageResult(ScheduleNewAssetMessageResult.Success("some-message-id1"))
-            .withSendAttachmentMessageResult(ScheduleNewAssetMessageResult.Success("some-message-id2"))
-            .arrange()
-        advanceUntilIdle()
-
-        assetBundles.forEach { bundle ->
-            coVerify {
-                arrangement.sendAssetMessage(
-                    AssetUploadParams(
-                        conversationId = conversationId,
-                        assetDataPath = bundle.dataPath,
-                        assetDataSize = bundle.dataSize,
-                        assetName = bundle.fileName,
-                        assetMimeType = bundle.mimeType,
-                        assetWidth = null,
-                        assetHeight = null,
-                        audioLengthInMs = 0L,
-                        audioNormalizedLoudness = null
-                    )
+    fun `given an asset is being shared and Cells is not enabled, when initializing the viewmodel, then message is sent to use the case`() =
+        runTest {
+            val assetBundles = arrayOf(
+                AssetBundle(
+                    "key1",
+                    "application/pdf",
+                    "some-data-path1".toPath(),
+                    1L,
+                    "mocked_file1.pdf",
+                    AttachmentType.GENERIC_FILE
+                ),
+                AssetBundle(
+                    "key2",
+                    "application/pdf",
+                    "some-data-path2".toPath(),
+                    1L,
+                    "mocked_file2.pdf",
+                    AttachmentType.GENERIC_FILE
                 )
-            }
-            verify {
-                arrangement.analyticsManager.sendEvent(any())
+            )
+            val (arrangement, _) = SendMessageViewModelArrangement()
+                .withSuccessfulViewModelInit()
+                .withPendingAssetBundle(*assetBundles)
+                .withCellsEnabledForConversation(false)
+                .withSendAttachmentMessageResult(ScheduleNewAssetMessageResult.Success("some-message-id1"))
+                .withSendAttachmentMessageResult(ScheduleNewAssetMessageResult.Success("some-message-id2"))
+                .arrange()
+            advanceUntilIdle()
+
+            assetBundles.forEach { bundle ->
+                coVerify {
+                    arrangement.sendAssetMessage(
+                        AssetUploadParams(
+                            conversationId = conversationId,
+                            assetDataPath = bundle.dataPath,
+                            assetDataSize = bundle.dataSize,
+                            assetName = bundle.fileName,
+                            assetMimeType = bundle.mimeType,
+                            assetWidth = null,
+                            assetHeight = null,
+                            audioLengthInMs = 0L,
+                            audioNormalizedLoudness = null
+                        )
+                    )
+                }
+                verify {
+                    arrangement.analyticsManager.sendEvent(any())
+                }
             }
         }
-    }
 
     @Test
     fun `given an asset is being shared and Cells is enabled, when initializing the viewmodel, then emit the message`() = runTest {
@@ -1172,6 +1173,28 @@ class SendMessageViewModelTest {
         coVerify(exactly = 1) {
             arrangement.sharedState.postBundles(any())
         }
+    }
+
+    @Test
+    fun givenDriveIsOffboarded_whenPendingBundlesArrive_thenNothingIsSentOrPosted() = runTest {
+        val assetBundle = AssetBundle(
+            key = "key",
+            mimeType = "text/plain",
+            dataPath = "some-data-path".toPath(),
+            dataSize = 1L,
+            fileName = "file.txt",
+            assetType = AttachmentType.GENERIC_FILE
+        )
+        val (arrangement, _) = SendMessageViewModelArrangement()
+            .withSuccessfulViewModelInit()
+            .withPendingAssetBundle(assetBundle)
+            .withDriveOffboarded()
+            .withCellsEnabledForConversation(true)
+            .arrange()
+        advanceUntilIdle()
+
+        coVerify(exactly = 0) { arrangement.sharedState.postBundles(any()) }
+        coVerify(exactly = 0) { arrangement.sendAssetMessage(any()) }
     }
 
     companion object {

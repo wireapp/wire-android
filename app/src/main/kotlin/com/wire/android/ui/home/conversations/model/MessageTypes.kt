@@ -61,6 +61,7 @@ import com.wire.android.ui.home.conversations.messages.item.MessageStyle
 import com.wire.android.ui.home.conversations.messages.item.error
 import com.wire.android.ui.home.conversations.messages.item.highlighted
 import com.wire.android.ui.home.conversations.messages.item.isBubble
+import com.wire.android.ui.home.gallery.mediaGallerySharedElement
 import com.wire.android.ui.home.conversations.messages.item.textColor
 import com.wire.android.ui.home.conversations.mock.mockedPrivateAsset
 import com.wire.android.ui.home.conversations.model.messagetypes.image.AsyncImageMessage
@@ -233,6 +234,7 @@ fun MessageImage(
     onImageClick: Clickable,
     modifier: Modifier = Modifier,
     assetPath: Path? = null,
+    sharedElementKey: String? = null,
 ) {
     val imageSize = if (messageStyle.isBubble()) {
         imgParams.normalizedSize(
@@ -274,7 +276,12 @@ fun MessageImage(
         contentAlignment = Alignment.Center
     ) {
         assetPath?.let {
-            MessageImageContent(assetPath = assetPath, size = imageSize, messageStyle = messageStyle)
+            MessageImageContent(
+                assetPath = assetPath,
+                size = imageSize,
+                messageStyle = messageStyle,
+                sharedElementKey = sharedElementKey,
+            )
         }
         MessageImageOverlay(
             hasImageSource = assetPath != null,
@@ -290,8 +297,11 @@ private fun BoxScope.MessageImageContent(
     assetPath: Path,
     size: DpSize,
     messageStyle: MessageStyle,
+    sharedElementKey: String?,
 ) {
-    val alignCenterModifier = Modifier.align(Alignment.Center)
+    val alignCenterModifier = Modifier
+        .align(Alignment.Center)
+        .mediaGallerySharedElement(sharedElementKey)
     AsyncImageMessage(
         assetPath = assetPath,
         size = size,

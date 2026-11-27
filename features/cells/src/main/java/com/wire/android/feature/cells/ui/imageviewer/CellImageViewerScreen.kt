@@ -46,6 +46,7 @@ internal fun CellImageViewerScreenContent(
     previewUrl: String?,
     contentHash: String?,
     fileName: String?,
+    sharedElementKey: String? = null,
     onNavigateBack: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -72,7 +73,9 @@ internal fun CellImageViewerScreenContent(
                 previewUrl = previewUrl,
                 contentHash = contentHash,
                 contentDescription = fileName ?: stringResource(R.string.content_description_image_message),
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .cellImageViewerSharedElement(sharedElementKey),
             )
         }
     }

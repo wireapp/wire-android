@@ -85,7 +85,7 @@ internal fun cellsNavigation3Entries(
     wireEntry<VersionHistoryRoute>(presentation = WireEntryPresentation.PopUp) {
         CellsNavigation3RouteScreen(it, runtime, onExitCells)
     }
-    wireEntry<CellImageViewerRoute>(presentation = WireEntryPresentation.PopUp) {
+    wireEntry<CellImageViewerRoute>(presentation = WireEntryPresentation.DropDown) {
         CellsNavigation3RouteScreen(it, runtime, onExitCells)
     }
     wireEntry<VideoPlayerRoute>(presentation = WireEntryPresentation.PopUp) {

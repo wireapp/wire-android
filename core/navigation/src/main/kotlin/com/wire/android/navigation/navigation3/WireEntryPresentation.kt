@@ -69,6 +69,14 @@ class WireEntryPresentation private constructor(
         )
 
         /**
+         * The new entry drops in from above; on back it returns towards the top.
+         */
+        val DropDown: WireEntryPresentation = animated(
+            profile = WireEntryTransitionProfile.DropDown,
+            animationType = TransitionAnimationType.DROP_DOWN,
+        )
+
+        /**
          * Disables forward, back and predictive-back content animation for this entry.
          */
         val None: WireEntryPresentation = animated(
@@ -110,6 +118,7 @@ class WireEntryPresentation private constructor(
 internal enum class WireEntryTransitionProfile {
     Slide,
     PopUp,
+    DropDown,
     None,
     Dialog,
 }

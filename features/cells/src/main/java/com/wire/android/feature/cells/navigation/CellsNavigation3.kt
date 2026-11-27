@@ -172,6 +172,7 @@ data class CellImageViewerRoute(
     val previewUrl: String? = null,
     val contentHash: String? = null,
     val fileName: String? = null,
+    val fileUuid: String? = null,
     override val entryId: WireNavEntryId = WireNavEntryId.random(),
 ) : CellsRoute {
     override val routeId = ROUTE_ID

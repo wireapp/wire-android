@@ -28,9 +28,13 @@ import coil3.compose.AsyncImage
 import com.wire.android.ui.common.multipart.MultipartAttachmentUi
 import com.wire.android.ui.home.conversations.model.messagetypes.multipart.previewAvailable
 import com.wire.android.ui.home.conversations.model.messagetypes.multipart.previewImageModel
+import com.wire.android.ui.home.gallery.mediaGallerySharedElement
 
 @Composable
-internal fun ImageAssetGridPreview(item: MultipartAttachmentUi) {
+internal fun ImageAssetGridPreview(
+    item: MultipartAttachmentUi,
+    sharedElementKey: String? = null,
+) {
     if (LocalInspectionMode.current) {
         Image(
             modifier = Modifier.fillMaxSize(),
@@ -40,7 +44,9 @@ internal fun ImageAssetGridPreview(item: MultipartAttachmentUi) {
         )
     } else if (item.previewAvailable()) {
         AsyncImage(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier
+                .fillMaxSize()
+                .mediaGallerySharedElement(sharedElementKey),
             model = item.previewImageModel(),
             contentScale = ContentScale.Crop,
             contentDescription = null,

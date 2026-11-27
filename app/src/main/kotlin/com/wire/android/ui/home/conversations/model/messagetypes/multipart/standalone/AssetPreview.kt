@@ -48,6 +48,7 @@ fun AssetPreview(
     item: MultipartAttachmentUi,
     messageStyle: MessageStyle,
     onClick: () -> Unit,
+    sharedElementKey: String? = null,
     modifier: Modifier = Modifier,
     showWithPreview: Boolean = false
 ) {
@@ -75,7 +76,11 @@ fun AssetPreview(
     ) {
         if (item.transferStatus != AssetTransferStatus.NOT_FOUND) {
             when {
-                item.assetType == AttachmentFileType.IMAGE -> ImageAssetPreview(item, messageStyle)
+                item.assetType == AttachmentFileType.IMAGE -> ImageAssetPreview(
+                    item = item,
+                    messageStyle = messageStyle,
+                    sharedElementKey = sharedElementKey,
+                )
                 item.assetType == AttachmentFileType.VIDEO -> VideoAssetPreview(item, messageStyle)
                 item.assetType == AttachmentFileType.PDF && !showWithPreview -> PdfAssetPreview(item, messageStyle)
                 item.isEditSupported -> EditableAssetPreview(item, messageStyle)

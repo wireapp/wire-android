@@ -54,6 +54,7 @@ internal fun AssetGridPreview(
     item: MultipartAttachmentUi,
     messageStyle: MessageStyle,
     onClick: () -> Unit,
+    sharedElementKey: String? = null,
     modifier: Modifier = Modifier,
 ) {
     Box(
@@ -83,7 +84,7 @@ internal fun AssetGridPreview(
         if (item.transferStatus != AssetTransferStatus.NOT_FOUND) {
             when (item.assetType) {
                 AttachmentFileType.IMAGE -> {
-                    ImageAssetGridPreview(item)
+                    ImageAssetGridPreview(item, sharedElementKey)
                 }
 
                 AttachmentFileType.VIDEO -> {

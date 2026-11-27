@@ -101,10 +101,20 @@ class AudioMediaRecorder @Inject constructor(
         }
     }
 
+    // Synchronized so the isActive check and the launch are one step: two callers cannot both see no writer and start two.
+    // stop() holds the lock only for its non-suspending clear of the field, and only if it still holds the job it cancelled.
+    @Synchronized
     fun startRecording(): Boolean = try {
-        audioRecorder?.startRecording()
-        isRecording = true
-        recordingJob = scope.launch { writeAudioDataToFile() }
+        // A repeated start (double tap) keeps the running writer: a second one would split the audio of the shared AudioRecord.
+        if (recordingJob?.isActive != true) {
+            val recorder = audioRecorder
+            val outputPath = originalOutputPath
+            recorder?.startRecording()
+            isRecording = true
+            if (recorder != null && outputPath != null) {
+                recordingJob = scope.launch { writeAudioDataToFile(recorder, outputPath) }
+            }
+        }
         true
     } catch (e: IllegalStateException) {
         e.printStackTrace()
@@ -140,6 +150,7 @@ class AudioMediaRecorder @Inject constructor(
 
     private fun updateWavHeader(filePath: Path) {
         val file = filePath.toFile()
+        if (file.length() < HEADER_SIZE) return
         val fileSize = file.length().toInt()
         val dataSize = fileSize - HEADER_SIZE
 
@@ -170,8 +181,11 @@ class AudioMediaRecorder @Inject constructor(
         } catch (e: IllegalStateException) {
             appLogger.e("[RecordAudio] stop: IllegalStateException - ${e.message}")
         }
-        recordingJob?.cancelAndJoin()
-        recordingJob = null
+        val job = recordingJob
+        job?.cancelAndJoin()
+        // A start that landed during the join owns a newer job: clearing it would leave that writer uncancellable.
+        // Locked with startRecording so a start cannot land between the check and the clear.
+        synchronized(this) { if (recordingJob === job) recordingJob = null }
     }
 
     fun release() {
@@ -180,23 +194,23 @@ class AudioMediaRecorder @Inject constructor(
     }
 
     @Suppress("NestedBlockDepth")
-    private suspend fun writeAudioDataToFile() {
+    private suspend fun writeAudioDataToFile(recorder: AudioRecord, outputPath: Path) {
         withContext(dispatcherProvider.io()) {
             val data = ByteArray(BUFFER_SIZE)
 
             try {
-                kaliumFileSystem.sink(originalOutputPath!!).use { sink ->
+                kaliumFileSystem.sink(outputPath).use { sink ->
                     sink.buffer()
                         .use {
                             writeWavHeader(it, SAMPLING_RATE, AUDIO_CHANNELS, BITS_PER_SAMPLE)
                             while (isRecording && isActive) {
-                                val read = audioRecorder?.read(data, 0, BUFFER_SIZE) ?: 0
+                                val read = recorder.read(data, 0, BUFFER_SIZE)
                                 if (read > 0) {
                                     it.write(data, 0, read)
                                 }
 
                                 // Check if the file size exceeds the limit
-                                val currentSize = originalOutputPath!!.toFile().length()
+                                val currentSize = outputPath.toFile().length()
                                 if (currentSize > (assetLimitInMB * SIZE_OF_1MB)) {
                                     isRecording = false
                                     _maxFileSizeReached.emit(
@@ -209,10 +223,16 @@ class AudioMediaRecorder @Inject constructor(
                             }
                         }
                 }
-                updateWavHeader(originalOutputPath!!)
             } catch (e: IOException) {
                 e.printStackTrace()
                 appLogger.e("[RecordAudio] writeAudioDataToFile: IOException - ${e.message}")
+            } finally {
+                // After the sink is closed and flushed, and on every exit including cancellation, so the sizes match the file.
+                try {
+                    updateWavHeader(outputPath)
+                } catch (e: IOException) {
+                    appLogger.e("[RecordAudio] updateWavHeader: IOException - ${e.message}")
+                }
             }
         }
     }

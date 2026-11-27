@@ -21,7 +21,7 @@ import android.app.Activity
 import android.app.Application
 import android.content.Context
 import android.os.Build
-import android.util.Log
+import com.wire.android.appLogger
 import com.wire.android.feature.analytics.model.AnalyticsEvent
 import com.wire.android.feature.analytics.model.AnalyticsEventConstants
 import com.wire.android.feature.analytics.model.AnalyticsEventConstants.APP_NAME
@@ -170,7 +170,7 @@ class AnonymousAnalyticsRecorderImpl(
         } catch (e: Exception) {
             // Countly SDK throws exceptions on some cases, just log it
             // We don't want to crash the app because of that.
-            Log.wtf(TAG, "Countly SDK request failed", e)
+            appLogger.e("$TAG: Countly SDK request failed: ${e::class.simpleName}")
         }
     }
 

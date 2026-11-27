@@ -19,7 +19,7 @@ package com.wire.android.feature.analytics
 
 import android.app.Activity
 import android.content.Context
-import android.util.Log
+import com.wire.android.appLogger
 import com.wire.android.feature.analytics.handler.AnalyticsMigrationHandler
 import com.wire.android.feature.analytics.handler.AnalyticsPropagationHandler
 import com.wire.android.feature.analytics.model.AnalyticsEvent
@@ -108,7 +108,7 @@ object AnonymousAnalyticsManagerImpl : AnonymousAnalyticsManager {
                 if (!isAnonymousUsageDataEnabled) return@withLock
 
                 anonymousAnalyticsRecorder?.onStart(activity = activity)
-                    ?: Log.w(TAG, "Calling onStart with a null recorder.")
+                    ?: appLogger.w("$TAG: Calling onStart with a null recorder.")
             }
         }
     }
@@ -121,7 +121,7 @@ object AnonymousAnalyticsManagerImpl : AnonymousAnalyticsManager {
                 if (!isAnonymousUsageDataEnabled) return@withLock
 
                 anonymousAnalyticsRecorder?.onStop()
-                    ?: Log.w(TAG, "Calling onStop with a null recorder.")
+                    ?: appLogger.w("$TAG: Calling onStop with a null recorder.")
             }
         }
     }
@@ -132,7 +132,7 @@ object AnonymousAnalyticsManagerImpl : AnonymousAnalyticsManager {
                 if (!isAnonymousUsageDataEnabled) return@withLock
 
                 anonymousAnalyticsRecorder?.sendEvent(event = event)
-                    ?: Log.w(TAG, "Calling sendEvent with key : ${event.key} with a null recorder.")
+                    ?: appLogger.w("$TAG: Calling sendEvent with key : ${event.key} with a null recorder.")
             }
         }
     }
@@ -184,13 +184,13 @@ object AnonymousAnalyticsManagerImpl : AnonymousAnalyticsManager {
 
     override fun isAnalyticsInitialized(): Boolean =
         anonymousAnalyticsRecorder?.isAnalyticsInitialized() ?: run {
-            Log.w(TAG, "Calling isAnalyticsInitialized with a null recorder.")
+            appLogger.w("$TAG: Calling isAnalyticsInitialized with a null recorder.")
             false
         }
 
     override fun recordView(screen: String) {
         if (!VIEW_TRACKING_ENABLED) {
-            Log.d(TAG, "View tracking is disabled for this build.")
+            appLogger.d("$TAG: View tracking is disabled for this build.")
             return
         }
         coroutineScope.launch {
@@ -203,7 +203,7 @@ object AnonymousAnalyticsManagerImpl : AnonymousAnalyticsManager {
 
     override fun stopView(screen: String) {
         if (!VIEW_TRACKING_ENABLED) {
-            Log.d(TAG, "View tracking is disabled for this build.")
+            appLogger.d("$TAG: View tracking is disabled for this build.")
             return
         }
         coroutineScope.launch {
@@ -218,6 +218,6 @@ object AnonymousAnalyticsManagerImpl : AnonymousAnalyticsManager {
         if (!isAnonymousUsageDataEnabled) return
 
         anonymousAnalyticsRecorder?.applicationOnCreate()
-            ?: Log.w(TAG, "Calling applicationOnCreate with a null recorder.")
+            ?: appLogger.w("$TAG: Calling applicationOnCreate with a null recorder.")
     }
 }

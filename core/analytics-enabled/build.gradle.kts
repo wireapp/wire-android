@@ -8,8 +8,10 @@ plugins {
 dependencies {
     implementation(libs.androidx.core)
     implementation(libs.androidx.appcompat)
+    implementation(projects.core.uiCommon)
 
     implementation("com.wire.kalium:kalium-data")
+    implementation("com.wire.kalium:kalium-logic")
     api(project(":core:analytics"))
 
     val composeBom = enforcedPlatform(libs.compose.bom)

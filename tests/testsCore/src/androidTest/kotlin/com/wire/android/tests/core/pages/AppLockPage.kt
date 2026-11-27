@@ -19,6 +19,7 @@ package com.wire.android.tests.core.pages
 
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import uiautomatorutils.UiSelectorParams
 import uiautomatorutils.UiWaitUtils
@@ -28,6 +29,12 @@ data class AppLockPage(private val device: UiDevice) {
     private val appLockPageTitle = UiSelectorParams(text = "Enter passcode to unlock Wire")
     private val passcodeField = UiSelectorParams(resourceId = "password")
     private val unlockButton = UiSelectorParams(text = "Unlock")
+    private val forgotPasscodeButton = UiSelectorParams(text = "Forgot your passcode?")
+    private val forgotPasscodeTitle = UiSelectorParams(text = "Forgot your app lock passcode?")
+    private val recoveryLogoutButton = UiSelectorParams(resourceId = "logout_button")
+    private val clearDataDialogTitle = UiSelectorParams(text = "Clear Data?")
+    private val clearDataCheckbox = UiSelectorParams(className = "android.widget.CheckBox")
+    private val confirmLogoutButton = UiSelectorParams(text = "Log out")
     private val wrongPasscodeErrorMessage = UiSelectorParams(text = "Check your passcode and try again")
     private val biometricPromptTitle = UiSelectorParams(text = "Authenticate with biometrics")
     private val biometricPromptSubtitle = UiSelectorParams(text = "To unlock Wire")
@@ -100,6 +107,29 @@ data class AppLockPage(private val device: UiDevice) {
     fun assertWrongPasscodeErrorMessageVisible(): AppLockPage {
         val errorMessage = UiWaitUtils.waitElement(wrongPasscodeErrorMessage)
         assertTrue("Wrong passcode error message is not visible", !errorMessage.visibleBounds.isEmpty)
+        return this
+    }
+
+    fun tapForgotPasscodeButton(): AppLockPage {
+        UiWaitUtils.waitElement(forgotPasscodeButton).click()
+        UiWaitUtils.waitElement(forgotPasscodeTitle)
+        return this
+    }
+
+    fun tapLogoutButtonOnRecoveryScreen(): AppLockPage {
+        UiWaitUtils.waitElement(recoveryLogoutButton).click()
+        return this
+    }
+
+    fun assertClearDataIsUnchecked(): AppLockPage {
+        UiWaitUtils.waitElement(clearDataDialogTitle)
+        assertFalse("Recovery must preserve local conversation history", UiWaitUtils.waitElement(clearDataCheckbox).isChecked)
+        return this
+    }
+
+    fun confirmLogoutWithoutClearingData(): AppLockPage {
+        assertClearDataIsUnchecked()
+        UiWaitUtils.waitElement(confirmLogoutButton).click()
         return this
     }
 }

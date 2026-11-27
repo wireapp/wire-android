@@ -128,4 +128,19 @@
     <string name="meeting_share_link_not_password_protected">Dieser Link ist nicht passwortgeschützt. Stellen Sie sicher, dass Sie ihn nur mit den richtigen Personen teilen. Um ein Passwort hinzuzufügen, erstellen Sie einen neuen Link.</string>
     <string name="meeting_share_link_unavailable">Der Meeting-Link ist nicht verfügbar.</string>
     <string name="meeting_share_copy_link">Link kopieren</string>
+    <string name="new_meeting_password_input_label">Passwort festlegen</string>
+    <string name="new_meeting_password_info">Legen Sie ein Passwort für den Meeting-Link fest (optional).</string>
+    <string name="new_meeting_password_copy_info">Kopieren Sie dieses Passwort, bevor Sie den Link erstellen. Sie können es danach nicht mehr einsehen.</string>
+    <string name="new_meeting_discard_title">Änderungen verwerfen?</string>
+    <string name="new_meeting_discard_action">Verwerfen</string>
+    <string name="meeting_reminders_card_title">Erinnerungen an Meetings</string>
+    <string name="meeting_reminders_card_description">Um pünktlich an Besprechungen teilzunehmen, aktivieren Sie in den Systemeinstellungen Ihres Geräts die Erinnerungen für Wire.</string>
+    <string name="meeting_reminders_card_settings">Geräteeinstellungen öffnen</string>
+    <string name="meeting_link_rotate">Neuen Link erstellen</string>
+    <string name="meeting_link_create_title">Neuen Link erstellen</string>
+    <string name="meeting_link_create_description">Alle bisherigen Links zu diesem Meeting werden ungültig und es wird ein neuer Link erstellt.</string>
+    <string name="meeting_link_create">Erstellen</string>
+    <string name="meeting_link_creating">Wird erstellt...</string>
+    <string name="meeting_link_create_without_password">Link ohne Passwort erstellen</string>
+    <string name="meeting_link_refresh_failed">Neuer Link konnte nicht erstellt werden. Versuchen Sie es erneut.</string>
 </resources>

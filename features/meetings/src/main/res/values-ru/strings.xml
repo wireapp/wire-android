@@ -135,19 +135,34 @@
     </plurals>
     <string name="meeting_link_title">Ссылка на встречу</string>
     <string name="meeting_share_link_description">Любой пользователь со ссылкой может получить доступ к встрече.</string>
-    <string name="meeting_share_link_password_protected">Ссылка защищена паролем. Чтобы установить новый пароль, сгенерируйте новую ссылку.</string>
-    <string name="meeting_share_link_not_password_protected">Эта ссылка не защищена паролем. Убедитесь, что делитесь ею только с нужными людьми. Чтобы установить пароль, сгенерируйте новую ссылку.</string>
+    <string name="meeting_share_link_password_protected">Ссылка защищена паролем. Чтобы установить новый пароль, создайте новую ссылку.</string>
+    <string name="meeting_share_link_not_password_protected">Эта ссылка не защищена паролем. Убедитесь, что делитесь ею только с нужными людьми. Чтобы установить пароль, создайте новую ссылку.</string>
     <string name="meeting_share_link_unavailable">Ссылка на встречу недоступна.</string>
     <string name="meeting_share_copy_link">Скопировать ссылку</string>
     <string name="meeting_share_link_copied">Ссылка скопирована в буфер обмена</string>
     <string name="new_meeting_password_input_label">Установить пароль</string>
-    <string name="new_meeting_password_info">Установите пароль для ссылки на встречу (необязательно).</string>
     <string name="new_meeting_password_input_placeholder">Введите пароль</string>
+    <string name="new_meeting_password_info">Установить пароль для ссылки на встречу (необязательно).</string>
+    <string name="new_meeting_password_copy_info">Скопируйте этот пароль перед созданием ссылки. Он отображается единственный раз.</string>
     <string name="new_meeting_password_error">Используйте как минимум 8 символов, включая одну строчную букву, одну заглавную букву, цифру и специальный символ.</string>
     <string name="new_meeting_confirm_password_input_label">Подтвердите пароль</string>
     <string name="new_meeting_confirm_password_input_placeholder">Введите пароль повторно</string>
     <string name="new_meeting_password_mismatch_error">Пароли не совпадают</string>
+    <string name="new_meeting_discard_title">Отменить изменения?</string>
+    <string name="new_meeting_discard_message">Если вы уйдете, изменения будут утеряны.</string>
+    <string name="new_meeting_discard_action">Отменить</string>
     <string name="meeting_creation_confirmation_description">Поделитесь этой ссылкой, чтобы пригласить участников.</string>
     <string name="meeting_invite_guests_title">Пригласить гостей по ссылке</string>
     <string name="meeting_invite_guests_close_content_description">Закрыть карту со ссылкой для гостей</string>
+    <string name="meeting_reminders_card_title">Напоминания о встрече</string>
+    <string name="meeting_reminders_card_description">Чтобы вовремя присоединяться ко встречам, включите напоминания Wire в настройках на вашем устройстве.</string>
+    <string name="meeting_reminders_card_settings">Открыть настройки устройства</string>
+    <string name="meeting_link_rotate">Создать новую ссылку</string>
+    <string name="meeting_link_create_title">Создать новую ссылку</string>
+    <string name="meeting_link_create_description">Все предыдущие ссылки на эту встречу будут аннулированы, и будет создана новая ссылка.</string>
+    <string name="meeting_link_create">Создать</string>
+    <string name="meeting_link_creating">Создание...</string>
+    <string name="meeting_link_remove_password_description">Для новой ссылки пароль указан не был. Предыдущая ссылка была защищена паролем, но новая ссылка на встречу не будет защищена паролем.</string>
+    <string name="meeting_link_create_without_password">Создать без пароля</string>
+    <string name="meeting_link_refresh_failed">Не удалось создать новую ссылку. Пожалуйста, попробуйте еще раз.</string>
 </resources>

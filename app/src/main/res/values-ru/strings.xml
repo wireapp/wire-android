@@ -1139,29 +1139,29 @@
     </plurals>
     <string name="notification_drive_upload_action_cancel_all">Отменить все</string>
     <string name="notification_drive_upload_action_retry">Повторить</string>
-    <string name="notification_offline_download_preparing_title">Сохранение файлов для использования оффлайн…</string>
+    <string name="notification_offline_download_preparing_title">Файлы делаются доступными офлайн…</string>
     <plurals name="notification_offline_download_title">
-        <item quantity="one">Сохранение %1$d файла для использования офлайн</item>
-        <item quantity="few">Сохранение %1$d файлов для использования офлайн</item>
-        <item quantity="many">Сохранение %1$d файлов для использования офлайн</item>
-        <item quantity="other">Сохранение %1$d файлов для использования офлайн</item>
+        <item quantity="one">%1$d файл делается доступным офлайн</item>
+        <item quantity="few">%1$d файла делаются доступными офлайн</item>
+        <item quantity="many">%1$d файлов делаются доступными офлайн</item>
+        <item quantity="other">%1$d файла делаются доступными офлайн</item>
     </plurals>
-    <string name="notification_offline_download_progress_text">%1$d из %2$d сохранено</string>
-    <string name="notification_offline_download_waiting_for_network_text">Приостановлено, ожидается подключение · %1$d из %2$d сохранено</string>
+    <string name="notification_offline_download_progress_text">%1$d из %2$d доступны офлайн</string>
+    <string name="notification_offline_download_waiting_for_network_text">Приостановлено, ожидается подключение · %1$d из %2$d доступны офлайн</string>
     <string name="notification_offline_download_action_cancel">Отмена</string>
-    <string name="notification_offline_download_complete_title">Сохранено для использования оффлайн</string>
+    <string name="notification_offline_download_complete_title">Доступны для использования офлайн</string>
     <plurals name="notification_offline_download_complete_text">
-        <item quantity="one">%1$d файл сохранен для использования оффлайн</item>
-        <item quantity="few">%1$d файла сохранены для использования оффлайн</item>
-        <item quantity="many">%1$d файлов сохранены для использования оффлайн</item>
-        <item quantity="other">%1$d файла сохранены для использования оффлайн</item>
+        <item quantity="one">%1$d файл доступен для использования офлайн</item>
+        <item quantity="few">%1$d файла доступны для использования офлайн</item>
+        <item quantity="many">%1$d файлов доступны для использования офлайн</item>
+        <item quantity="other">%1$d файла доступны для использования офлайн</item>
     </plurals>
-    <string name="notification_offline_download_partial_title">%1$d из %2$d файлов сохранены для использования оффлайн</string>
+    <string name="notification_offline_download_partial_title">%1$d из %2$d файлов доступны офлайн</string>
     <plurals name="notification_offline_download_failed_text">
-        <item quantity="one">%1$d файл не может быть сохранен</item>
-        <item quantity="few">%1$d файла не могут быть сохранены</item>
-        <item quantity="many">%1$d файлов не могут быть сохранены</item>
-        <item quantity="other">%1$d файла не могут быть сохранены</item>
+        <item quantity="one">%1$d файл не может быть сохранен для использования оффлайн</item>
+        <item quantity="few">%1$d файла не могут быть сохранены для использования оффлайн</item>
+        <item quantity="many">%1$d файлов не могут быть сохранены для использования оффлайн</item>
+        <item quantity="other">%1$d файла не могут быть сохранены для использования оффлайн</item>
     </plurals>
     <string name="notification_offline_download_no_storage_title">Недостаточно места</string>
     <!-- Calling-->

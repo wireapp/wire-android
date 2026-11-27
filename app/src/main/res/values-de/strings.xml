@@ -1073,13 +1073,15 @@
     </plurals>
     <string name="notification_drive_upload_action_cancel_all">Alle abbrechen</string>
     <string name="notification_drive_upload_action_retry">Wiederholen</string>
-    <string name="notification_offline_download_progress_text">%1$d von %2$d gespeichert</string>
-    <string name="notification_offline_download_waiting_for_network_text">Warten auf Verbindung · %1$d von %2$d gespeichert</string>
-    <string name="notification_offline_download_action_cancel">Abbrechen</string>
-    <plurals name="notification_offline_download_failed_text">
-        <item quantity="one">%1$d Datei konnte nicht gespeichert werden</item>
-        <item quantity="other">%1$d Dateien konnte nicht gespeichert werden</item>
+    <string name="notification_offline_download_preparing_title">Dateien offline verfügbar machen…</string>
+    <plurals name="notification_offline_download_title">
+        <item quantity="one">%1$d Datei offline verfügbar machen</item>
+        <item quantity="other">%1$d Dateien offline verfügbar machen</item>
     </plurals>
+    <string name="notification_offline_download_progress_text">%1$d von %2$d offline verfügbar</string>
+    <string name="notification_offline_download_waiting_for_network_text">Warten auf Verbindung · %1$d von %2$d offline verfügbar</string>
+    <string name="notification_offline_download_action_cancel">Abbrechen</string>
+    <string name="notification_offline_download_complete_title">Verfügbar für Offline-Nutzung</string>
     <string name="notification_offline_download_no_storage_title">Nicht genügend Speicherplatz</string>
     <!-- Calling-->
     <string name="calling_constant_bit_rate_indication">Konstante Bitrate</string>

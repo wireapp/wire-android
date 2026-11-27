@@ -45,6 +45,7 @@
     <string name="connection_request_ignore_error">Запрос на добавление не может быть проигнорирован</string>
     <string name="error_unblocking_user">Пользователь не может быть разблокирован</string>
     <string name="conversation_viewer_access_banner">Доступ для просмотра: вы не можете загружать или редактировать файлы.</string>
+    <string name="conversation_drive_offboarded_banner">В этой беседе больше недоступна функция обмена файлами. Существующие файлы доступны только для чтения, пока их не удалят окончательно.</string>
     <string name="content_description_close_button">Закрыть</string>
     <string name="content_description_close">Закрыть</string>
     <string name="content_description_menu_button">Основное меню</string>

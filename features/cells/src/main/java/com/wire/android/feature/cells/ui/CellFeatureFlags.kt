@@ -29,6 +29,8 @@ class CellFeatureFlags @Inject constructor(
     @Named("offlineFilesEnabled") val offlineFilesEnabled: Boolean,
     @Named("inAppImageViewerEnabled") val inAppImageViewerEnabled: Boolean,
     @Named("drivePermissionsEnabled") val drivePermissionsEnabled: Boolean,
+    /** When enabled, drive content of a team without Drive becomes read-only instead of being hidden. */
+    @Named("driveOffboardingEnabled") val driveOffboardingEnabled: Boolean,
     @Named("driveDirectUploadEnabled") val driveDirectUploadEnabled: Boolean,
     @Named("driveBulkActionsEnabled") val driveBulkActionsEnabled: Boolean,
     @Named("driveOfflineEnabled") val driveOfflineEnabled: Boolean,

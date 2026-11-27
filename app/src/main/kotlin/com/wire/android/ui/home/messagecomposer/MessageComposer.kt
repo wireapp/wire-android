@@ -100,6 +100,7 @@ fun MessageComposer(
     onAudioRecorded: (UriAsset) -> Unit,
     onAttachmentClick: (AttachmentDraftUi) -> Unit,
     onAttachmentMenuClick: (AttachmentDraftUi) -> Unit,
+    isDriveOffboarded: Boolean = false,
 ) {
     with(messageComposerStateHolder) {
         when (messageComposerViewState.value.interactionAvailability) {
@@ -167,6 +168,7 @@ fun MessageComposer(
                     tempWritableImageUri = tempWritableImageUri,
                     onAttachmentClick = onAttachmentClick,
                     onAttachmentMenuClick = onAttachmentMenuClick,
+                    isDriveOffboarded = isDriveOffboarded,
                 )
             }
         }

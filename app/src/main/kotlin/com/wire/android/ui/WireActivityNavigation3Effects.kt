@@ -39,6 +39,7 @@ import com.wire.android.ui.home.conversations.ConversationRoute
 import com.wire.android.ui.home.conversations.ConversationRouteId
 import com.wire.android.ui.userprofile.UserProfileQualifiedId
 import com.wire.android.ui.userprofile.other.OtherUserProfileRoute
+import com.wire.android.ui.userprofile.qr.SelfQrCodeRoute
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.navigation.WireBackStackMode
 import com.wire.navigation.WireNavEntryId
@@ -106,7 +107,7 @@ internal object WireActivityNavigation3EffectResolver {
         is OnCustomBackendLogin -> customBackendLogin(action, routes)
         is OnOpenUserProfile -> openUserProfile(action, currentSessionId)
         is OnSSOLogin -> ssoLogin(action, routes)
-        is OnShowImportMediaScreen -> importMedia(action, currentSessionId)
+        is OnShowImportMediaScreen -> importMedia(action, routes.lastOrNull(), currentSessionId)
         is OpenMeetings -> openMeetings(action, currentSessionId)
         is OpenConversation -> openConversation(action, currentSessionId)
         is OpenDriveFiles -> openDriveFiles(action, currentSessionId)
@@ -301,11 +302,20 @@ internal object WireActivityNavigation3EffectResolver {
         return WireActivityNavigation3EffectResolution(mutations)
     }
 
-    private fun importMedia(action: OnShowImportMediaScreen, currentSessionId: WireSessionId?) =
+    private fun importMedia(
+        action: OnShowImportMediaScreen,
+        currentRoute: WireRoute?,
+        currentSessionId: WireSessionId?,
+    ) =
         singleNavigation(
-            destination = currentSessionId?.let {
+            destination = currentSessionId?.let { sessionId ->
+                val returnsToShareProfile = currentRoute is SelfQrCodeRoute &&
+                    currentRoute.sessionId == sessionId && currentRoute.entryId == action.profileLinkShareOrigin
                 // External apps expect to get back to their own screen when sharing is closed
-                AuthenticatedImportMediaRoute(it, finishOnClose = !action.isSharedFromWire)
+                AuthenticatedImportMediaRoute(
+                    sessionId,
+                    finishOnClose = !action.isSharedFromWire && !returnsToShareProfile,
+                )
             } ?: LoggedOutImportMediaRoute(),
             mode = WireBackStackMode.UPDATE_EXISTING,
         )

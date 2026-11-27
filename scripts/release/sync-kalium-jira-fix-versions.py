@@ -2,26 +2,30 @@
 """Assign the Android fix version to Jira issues brought in by a Kalium ref update."""
 
 import base64
+from contextlib import closing
+from http.client import HTTPException, HTTPSConnection
 import json
 import os
 from pathlib import Path
 import re
 import subprocess
 import sys
-from urllib.error import HTTPError, URLError
-from urllib.request import Request, urlopen
 
 
 KALIUM_REPO = "wireapp/kalium"
-JIRA_URL = "https://wearezeta.atlassian.net"
+JIRA_HOST = "wearezeta.atlassian.net"
 ANDROID_COORDINATES = Path("build-logic/plugins/src/main/kotlin/AndroidCoordinates.kt")
 ISSUE_KEY = re.compile(r"\b[A-Z][A-Z0-9]{0,9}-[0-9]+\b")
-JIRA_LINK = re.compile(rf"{re.escape(JIRA_URL)}/browse/({ISSUE_KEY.pattern})")
+JIRA_LINK = re.compile(rf"https://{re.escape(JIRA_HOST)}/browse/({ISSUE_KEY.pattern})")
 JIRA_DESCRIPTION = re.compile(
     r"<!--jira-description-action-hidden-marker-start-->(.*?)"
     r"<!--jira-description-action-hidden-marker-end-->",
     re.DOTALL,
 )
+
+
+class JiraRequestError(Exception):
+    pass
 
 
 def kalium_ref(android_ref):
@@ -67,17 +71,25 @@ def introduced_issues(previous_ref, current_ref):
 
 
 def jira_request(issue, authorization, update=None):
-    url = f"{JIRA_URL}/rest/api/3/issue/{issue}"
+    path = f"/rest/api/3/issue/{issue}"
     headers = {"Authorization": authorization, "Accept": "application/json"}
+    method = "GET"
+    body = None
     if update is None:
-        request = Request(f"{url}?fields=fixVersions", headers=headers)
+        path += "?fields=fixVersions"
     else:
+        method = "PUT"
+        body = json.dumps(update).encode()
         headers["Content-Type"] = "application/json"
-        request = Request(url, json.dumps(update).encode(), headers, method="PUT")
 
-    with urlopen(request, timeout=30) as response:
-        if update is None:
-            return json.load(response)["fields"]["fixVersions"]
+    with closing(HTTPSConnection(JIRA_HOST, timeout=30)) as connection:
+        connection.request(method, path, body=body, headers=headers)
+        with connection.getresponse() as response:
+            if not 200 <= response.status < 300:
+                error = response.read().decode(errors="replace")
+                raise JiraRequestError(f"HTTP {response.status}: {error}")
+            if update is None:
+                return json.load(response)["fields"]["fixVersions"]
 
 
 def add_fix_version(issue, version, authorization):
@@ -123,10 +135,7 @@ def main(previous_android_ref):
     for issue in issues:
         try:
             add_fix_version(issue, version, authorization)
-        except HTTPError as error:
-            print(f"Could not assign {version} to {issue} (HTTP {error.code}): {error.read().decode()}", file=sys.stderr)
-            failed = True
-        except (URLError, TimeoutError) as error:
+        except (JiraRequestError, HTTPException, OSError) as error:
             print(f"Could not assign {version} to {issue}: {error}", file=sys.stderr)
             failed = True
     return int(failed)

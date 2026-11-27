@@ -10,6 +10,7 @@
 
 package com.wire.android.feature.meetings.ui
 
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.runtime.Composable
 import com.wire.android.feature.meetings.ui.create.FailedToLoadEditMeetingDataError
 import com.wire.android.feature.meetings.ui.create.NewMeetingContent
@@ -28,6 +29,7 @@ import com.wire.android.navigation.navigation3.WireNavigation3Runtime
 import com.wire.android.navigation.navigation3.wireEntry
 import com.wire.android.navigation.navigation3.wireViewModelStoreOwner
 import com.wire.android.ui.common.HandleActions
+import com.wire.android.ui.common.progress.CenteredCircularProgressBarIndicator
 import com.wire.navigation.WireNavResult
 import com.wire.navigation.WireNavigationCommand
 import com.wire.navigation.WireViewModelOwner
@@ -98,39 +100,48 @@ private fun NewMeetingDetailsNavigation3Entry(
 ) {
     val viewModel = newMeetingFlowViewModel(route.type, route.meetingId, route.flowId)
     val navigateBack = { if (!runtime.navigator.goBack()) actions.exitMeetingFlow() }
-    NewMeetingContent(
-        type = route.type.toLegacyType(route.meetingId),
-        onBackPressed = navigateBack,
-        state = viewModel.state,
-        titleState = viewModel.titleTextState,
-        passwordState = viewModel.passwordTextState,
-        confirmPasswordState = viewModel.confirmPasswordTextState,
-        onGenerateRandomPassword = viewModel::onGenerateRandomPassword,
-        hasUnsavedChanges = viewModel.hasUnsavedChanges(),
-        onParticipantsClicked = {
-            runtime.navigator.navigate(
-                WireNavigationCommand(
-                    NewMeetingParticipantsRoute(route.sessionId, route.flowId, route.type, route.meetingId)
+    AnimatedContent(
+        targetState = viewModel.state,
+        contentKey = { it::class.simpleName },
+        label = "NewMeetingDetailsState",
+    ) { state ->
+        when (state) {
+            NewMeetingState.Loading -> CenteredCircularProgressBarIndicator()
+            NewMeetingState.Error -> FailedToLoadEditMeetingDataError(navigateBack)
+            is NewMeetingState.Ready -> {
+                NewMeetingContent(
+                    type = route.type.toLegacyType(route.meetingId),
+                    onBackPressed = navigateBack,
+                    state = state,
+                    titleState = viewModel.titleTextState,
+                    passwordState = viewModel.passwordTextState,
+                    confirmPasswordState = viewModel.confirmPasswordTextState,
+                    onGenerateRandomPassword = viewModel::onGenerateRandomPassword,
+                    hasUnsavedChanges = viewModel.hasUnsavedChanges(),
+                    onParticipantsClicked = {
+                        runtime.navigator.navigate(
+                            WireNavigationCommand(
+                                NewMeetingParticipantsRoute(route.sessionId, route.flowId, route.type, route.meetingId)
+                            )
+                        )
+                    },
+                    onCreateClicked = viewModel::submitCreation,
+                    onUpdateClicked = viewModel::submitUpdate,
+                    onStartTimeChanged = viewModel::updateStartTime,
+                    onEndTimeChanged = viewModel::updateEndTime,
+                    onRepeatingIntervalChanged = viewModel::updateRepeatingInterval,
                 )
-            )
-        },
-        onCreateClicked = viewModel::submitCreation,
-        onUpdateClicked = viewModel::submitUpdate,
-        onStartTimeChanged = viewModel::updateStartTime,
-        onEndTimeChanged = viewModel::updateEndTime,
-        onRepeatingIntervalChanged = viewModel::updateRepeatingInterval,
-    )
-    viewModel.state.submitError?.let { submitError ->
-        NewMeetingErrorDialog(
-            error = submitError,
-            type = viewModel.type,
-            isSubmitting = viewModel.state.isSubmitting,
-            onDismiss = viewModel::dismissCreationError,
-            onRetryUpdateConversationName = viewModel::retryUpdateConversationName,
-        )
-    }
-    if (viewModel.state.initialLoading == NewMeetingState.InitialLoadingState.Error) {
-        FailedToLoadEditMeetingDataError(navigateBack)
+                state.submitError?.let { submitError ->
+                    NewMeetingErrorDialog(
+                        error = submitError,
+                        type = viewModel.type,
+                        isSubmitting = state.isSubmitting,
+                        onDismiss = viewModel::dismissCreationError,
+                        onRetryUpdateConversationName = viewModel::retryUpdateConversationName,
+                    )
+                }
+            }
+        }
     }
     HandleActions(viewModel.actions) { action ->
         when (action) {
@@ -152,13 +163,35 @@ private fun NewMeetingParticipantsNavigation3Entry(
     runtime: WireNavigation3Runtime,
     actions: MeetingsNavigation3Actions,
 ) {
-    NewMeetingParticipantsRouteContent(
-        newMeetingViewModel = newMeetingFlowViewModel(route.type, route.meetingId, route.flowId),
-        onNavigateBack = runtime.navigator::goBack,
-        onOpenUserProfile = {
-            actions.openUserProfile(MeetingParticipantId(it.value, it.domain))
-        },
-    )
+    val viewModel = newMeetingFlowViewModel(route.type, route.meetingId, route.flowId)
+    val navigateBack = { if (!runtime.navigator.goBack()) actions.exitMeetingFlow() }
+    AnimatedContent(
+        targetState = viewModel.state,
+        contentKey = { it::class.simpleName },
+        label = "NewMeetingParticipantsState",
+    ) { state ->
+        when (state) {
+            NewMeetingState.Loading -> CenteredCircularProgressBarIndicator()
+            NewMeetingState.Error -> FailedToLoadEditMeetingDataError(navigateBack)
+            is NewMeetingState.Ready -> NewMeetingParticipantsRouteContent(
+                state = state,
+                onClose = {
+                    viewModel.resetSelectedContacts()
+                    navigateBack()
+                },
+                onSelect = {
+                    viewModel.confirmSelectedContacts()
+                    navigateBack()
+                },
+                onOpenUserProfile = {
+                    actions.openUserProfile(MeetingParticipantId(it.value, it.domain))
+                },
+                onEmailChecked = viewModel::updateSelectedEmail,
+                onContactChecked = viewModel::updateSelectedContact,
+                onGroupChecked = viewModel::updateSelectedGroup,
+            )
+        }
+    }
 }
 
 @Composable

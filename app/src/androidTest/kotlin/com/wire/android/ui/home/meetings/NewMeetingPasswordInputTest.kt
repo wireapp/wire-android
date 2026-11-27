@@ -74,12 +74,11 @@ class NewMeetingPasswordInputTest(private val meetingType: NewMeetingType) {
     private val context get() = InstrumentationRegistry.getInstrumentation().targetContext
     private var errorColor = Color.Unspecified
     private lateinit var inputModeManager: InputModeManager
-    private val initialState = NewMeetingState(
+    private val initialState = NewMeetingState.Ready(
         startTime = Instant.parse("2026-11-10T12:00:00Z"),
         endTime = Instant.parse("2026-11-10T13:00:00Z"),
         tzid = "UTC",
         isGuestLinkSharingEnabled = true,
-        initialLoading = NewMeetingState.InitialLoadingState.Loaded,
     )
 
     @Test
@@ -232,7 +231,7 @@ class NewMeetingPasswordInputTest(private val meetingType: NewMeetingType) {
     private fun renderMeeting(
         passwordState: TextFieldState = TextFieldState(),
         confirmPasswordState: TextFieldState = TextFieldState(),
-        state: NewMeetingState = initialState,
+        state: NewMeetingState.Ready = initialState,
         onGenerateRandomPassword: () -> Unit = {},
     ) {
         composeTestRule.setContent {
@@ -263,12 +262,11 @@ class EditMeetingPasswordInputTest {
         composeTestRule.setContent {
             WireTestTheme {
                 NewMeetingContent(
-                    state = NewMeetingState(
+                    state = NewMeetingState.Ready(
                         startTime = Instant.parse("2026-11-10T12:00:00Z"),
                         endTime = Instant.parse("2026-11-10T13:00:00Z"),
                         tzid = "UTC",
                         isGuestLinkSharingEnabled = true,
-                        initialLoading = NewMeetingState.InitialLoadingState.Loaded,
                     ),
                     titleState = TextFieldState("Meeting"),
                     passwordState = TextFieldState(),

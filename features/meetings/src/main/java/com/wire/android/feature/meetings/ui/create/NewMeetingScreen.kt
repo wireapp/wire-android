@@ -22,7 +22,6 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -94,7 +93,6 @@ import com.wire.android.ui.common.datetime.WireDatePickerDialog
 import com.wire.android.ui.common.datetime.WireTimePickerDialog
 import com.wire.android.ui.common.datetime.asTimePickerResult
 import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.common.progress.WireCircularProgressIndicator
 import com.wire.android.ui.common.rememberTopBarElevationState
 import com.wire.android.ui.common.scaffold.WireScaffold
 import com.wire.android.ui.common.spacers.VerticalSpace
@@ -119,6 +117,7 @@ import com.wire.android.util.DateAndTimeParsers
 import com.wire.android.util.EMPTY
 import com.wire.android.util.time.CurrentTimeZoneProvider
 import com.wire.kalium.logic.data.id.MeetingId
+import com.wire.kalium.logic.data.meeting.Meeting
 import com.wire.kalium.logic.data.user.ConnectionState
 import kotlinx.collections.immutable.ImmutableSet
 import kotlinx.collections.immutable.toImmutableList
@@ -134,7 +133,7 @@ import com.wire.android.ui.common.R as commonR
 
 @Composable
 fun NewMeetingContent(
-    state: NewMeetingState,
+    state: NewMeetingState.Ready,
     titleState: TextFieldState,
     passwordState: TextFieldState,
     confirmPasswordState: TextFieldState,
@@ -219,6 +218,7 @@ fun NewMeetingContent(
                 VerticalSpace.x24()
                 ParticipantsInput(
                     participants = state.confirmedContacts,
+                    emails = state.confirmedEmails,
                     onClick = onParticipantsClicked,
                 )
                 if (type !is NewMeetingType.Edit && state.isGuestLinkSharingEnabled) {
@@ -232,28 +232,14 @@ fun NewMeetingContent(
                     )
                 }
             }
-            if (state.isSubmitting || state.initialLoading != NewMeetingState.InitialLoadingState.Loaded) {
+            if (state.isSubmitting) {
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
                         .pointerInput(Unit) {
-                            detectTapGestures { /* consume the touch while submitting or loading data */ }
+                            detectTapGestures { /* consume the touch while submitting */ }
                         },
                 )
-            }
-            AnimatedVisibility(state.initialLoading != NewMeetingState.InitialLoadingState.Loaded) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(colorsScheme().background),
-                    contentAlignment = Alignment.Center
-                ) {
-                    WireCircularProgressIndicator(
-                        size = dimensions().spacing32x,
-                        strokeWidth = dimensions().spacing4x,
-                        progressColor = MaterialTheme.wireColorScheme.onBackground,
-                    )
-                }
             }
         },
         bottomBar = {
@@ -414,6 +400,7 @@ private fun TitleInput(
 @Composable
 private fun ParticipantsInput(
     participants: ImmutableSet<Contact>,
+    emails: Set<String>,
     onClick: () -> Unit,
 ) {
     val resources = LocalResources.current
@@ -421,7 +408,7 @@ private fun ParticipantsInput(
     val textColor = colorsScheme().onSurface
     val suffixColor = colorsScheme().secondaryText
     val textMeasurer = rememberTextMeasurer()
-    val textFieldState = rememberTextFieldState(participants.joinToString(", ") { it.name })
+    val textFieldState = rememberTextFieldState((participants.map { it.name } + emails).joinToString(", "))
     var innerTextWidthPx by remember { mutableIntStateOf(0) }
     val truncationTransformation = remember(innerTextWidthPx) {
         TextListTruncationTransformation(
@@ -436,8 +423,8 @@ private fun ParticipantsInput(
         )
     }
 
-    LaunchedEffect(participants) {
-        textFieldState.setTextAndPlaceCursorAtEnd(participants.joinToString(", ") { it.name })
+    LaunchedEffect(participants, emails) {
+        textFieldState.setTextAndPlaceCursorAtEnd((participants.map { it.name } + emails).joinToString(", "))
     }
 
     val semanticDescription = stringResource(R.string.new_meeting_participants_input_placeholder)
@@ -708,9 +695,9 @@ fun PreviewNewMeetingScreen_MeetNow() = WireTheme {
         confirmPasswordState = rememberTextFieldState(),
         type = NewMeetingType.MeetNow,
         state = NewMeetingState.initialState(CurrentTimeProvider.Preview, CurrentTimeZoneProvider.Preview).copy(
+            meetingType = Meeting.Type.IMMEDIATE,
             confirmedIndividualContacts = buildContacts(names.size),
             continueButtonEnabled = true,
-            initialLoading = NewMeetingState.InitialLoadingState.Loaded,
         ),
     )
 }
@@ -727,7 +714,6 @@ fun PreviewNewMeetingScreen_Schedule() = WireTheme {
             startTime = getNextFullHour(CurrentTimeProvider.Preview.invoke(), CurrentTimeZoneProvider.Preview.invoke()),
             endTime = getNextFullHour(CurrentTimeProvider.Preview.invoke(), CurrentTimeZoneProvider.Preview.invoke()).plus(1.hours),
             repeatingInterval = MeetingItem.RepeatingInterval.Supported.first(),
-            initialLoading = NewMeetingState.InitialLoadingState.Loaded,
             isGuestLinkSharingEnabled = true,
         ),
     )
@@ -745,7 +731,6 @@ fun PreviewNewMeetingScreen_Edit() = WireTheme {
             startTime = getNextFullHour(CurrentTimeProvider.Preview.invoke(), CurrentTimeZoneProvider.Preview.invoke()),
             endTime = getNextFullHour(CurrentTimeProvider.Preview.invoke(), CurrentTimeZoneProvider.Preview.invoke()).plus(1.hours),
             repeatingInterval = MeetingItem.RepeatingInterval.Supported.first(),
-            initialLoading = NewMeetingState.InitialLoadingState.Loaded,
         ),
     )
 }

@@ -5,11 +5,14 @@
 //   ./gradlew :search:stabilityDump
 
 @Composable
-private fun com.wire.android.search.SearchAllPeopleOrContactsScreen(searchQuery: kotlin.String, contactsSelected: kotlinx.collections.immutable.ImmutableSet<com.wire.android.model.Contact>, isSearchActive: kotlin.Boolean, actionType: com.wire.android.model.ItemActionType, onOpenUserProfile: kotlin.Function1<com.wire.android.model.Contact, kotlin.Unit>, onContactChecked: kotlin.Function2<kotlin.Boolean, com.wire.android.model.Contact, kotlin.Unit>, onContactStatusesChanged: kotlin.Function1<kotlin.collections.Map<com.wire.kalium.logic.data.id.QualifiedID, com.wire.kalium.logic.data.user.ContactStatus?>, kotlin.Unit>, conversationId: com.wire.kalium.logic.data.id.QualifiedID?, onlySelfTeamAndDomain: kotlin.Boolean, searchUserViewModel: com.wire.android.search.users.SearchUserViewModel, lazyListState: androidx.compose.foundation.lazy.LazyListState, firstContactFocusRequester: androidx.compose.ui.focus.FocusRequester?, nextFocusRequester: androidx.compose.ui.focus.FocusRequester?): kotlin.Unit
+private fun com.wire.android.search.SearchAllPeopleOrContactsScreen(searchQuery: kotlin.String, emailInvitationsEnabled: kotlin.Boolean, selectedEmails: kotlin.collections.Set<kotlin.String>, onEmailChecked: kotlin.Function2<kotlin.Boolean, kotlin.String, kotlin.Unit>, contactsSelected: kotlinx.collections.immutable.ImmutableSet<com.wire.android.model.Contact>, isSearchActive: kotlin.Boolean, actionType: com.wire.android.model.ItemActionType, onOpenUserProfile: kotlin.Function1<com.wire.android.model.Contact, kotlin.Unit>, onContactChecked: kotlin.Function2<kotlin.Boolean, com.wire.android.model.Contact, kotlin.Unit>, onContactStatusesChanged: kotlin.Function1<kotlin.collections.Map<com.wire.kalium.logic.data.id.QualifiedID, com.wire.kalium.logic.data.user.ContactStatus?>, kotlin.Unit>, conversationId: com.wire.kalium.logic.data.id.QualifiedID?, onlySelfTeamAndDomain: kotlin.Boolean, searchUserViewModel: com.wire.android.search.users.SearchUserViewModel, lazyListState: androidx.compose.foundation.lazy.LazyListState, firstContactFocusRequester: androidx.compose.ui.focus.FocusRequester?, nextFocusRequester: androidx.compose.ui.focus.FocusRequester?): kotlin.Unit
   skippable: true
   restartable: true
   params:
     - searchQuery: STABLE (String is immutable)
+    - emailInvitationsEnabled: STABLE (primitive type)
+    - selectedEmails: RUNTIME (requires runtime check)
+    - onEmailChecked: STABLE (function type)
     - contactsSelected: STABLE (known stable type)
     - isSearchActive: STABLE (primitive type)
     - actionType: STABLE (class with no mutable properties)
@@ -24,7 +27,7 @@ private fun com.wire.android.search.SearchAllPeopleOrContactsScreen(searchQuery:
     - nextFocusRequester: STABLE (marked @Stable or @Immutable)
 
 @Composable
-public fun com.wire.android.search.SearchUsersAndAppsScreen(searchTitle: kotlin.String, selectedContacts: kotlinx.collections.immutable.ImmutableSet<com.wire.android.model.Contact>, onContactChecked: kotlin.Function2<kotlin.Boolean, com.wire.android.model.Contact, kotlin.Unit>, onClose: kotlin.Function0<kotlin.Unit>, navigationIconType: com.wire.android.ui.common.topappbar.NavigationIconType, itemActionType: com.wire.android.model.ItemActionType, modifier: androidx.compose.ui.Modifier, conversationId: com.wire.kalium.logic.data.id.QualifiedID?, onlySelfTeamAndDomain: kotlin.Boolean, shouldHideBottomActionForSearch: kotlin.Boolean, shouldHideBottomActionForServices: kotlin.Boolean, isAppsTabVisible: kotlin.Boolean, isConversationAppsEnabled: kotlin.Boolean, initialPage: com.wire.android.search.SearchPeopleTabItem, conversationProtocol: com.wire.kalium.logic.data.conversation.Conversation.ProtocolInfo?, peopleBottomActions: @[Composable] androidx.compose.runtime.internal.ComposableFunction1<androidx.compose.ui.focus.FocusRequester, kotlin.Unit>?, onOpenUserProfile: kotlin.Function1<com.wire.android.model.Contact, kotlin.Unit>, onAppClicked: kotlin.Function1<com.wire.android.model.Contact, kotlin.Unit>, isGroupsTabVisible: kotlin.Boolean, selectedGroups: kotlin.collections.Set<com.wire.android.search.groups.SearchGroup>, onGroupChecked: kotlin.Function2<kotlin.Boolean, com.wire.android.search.groups.SearchGroup, kotlin.Unit>, onContactStatusesChanged: kotlin.Function1<kotlin.collections.Map<com.wire.kalium.logic.data.id.QualifiedID, com.wire.kalium.logic.data.user.ContactStatus?>, kotlin.Unit>): kotlin.Unit
+public fun com.wire.android.search.SearchUsersAndAppsScreen(searchTitle: kotlin.String, selectedContacts: kotlinx.collections.immutable.ImmutableSet<com.wire.android.model.Contact>, onContactChecked: kotlin.Function2<kotlin.Boolean, com.wire.android.model.Contact, kotlin.Unit>, onClose: kotlin.Function0<kotlin.Unit>, navigationIconType: com.wire.android.ui.common.topappbar.NavigationIconType, itemActionType: com.wire.android.model.ItemActionType, modifier: androidx.compose.ui.Modifier, conversationId: com.wire.kalium.logic.data.id.QualifiedID?, onlySelfTeamAndDomain: kotlin.Boolean, shouldHideBottomActionForSearch: kotlin.Boolean, shouldHideBottomActionForServices: kotlin.Boolean, isAppsTabVisible: kotlin.Boolean, isConversationAppsEnabled: kotlin.Boolean, initialPage: com.wire.android.search.SearchPeopleTabItem, conversationProtocol: com.wire.kalium.logic.data.conversation.Conversation.ProtocolInfo?, peopleBottomActions: @[Composable] androidx.compose.runtime.internal.ComposableFunction1<androidx.compose.ui.focus.FocusRequester, kotlin.Unit>?, onOpenUserProfile: kotlin.Function1<com.wire.android.model.Contact, kotlin.Unit>, onAppClicked: kotlin.Function1<com.wire.android.model.Contact, kotlin.Unit>, isGroupsTabVisible: kotlin.Boolean, selectedGroups: kotlin.collections.Set<com.wire.android.search.groups.SearchGroup>, onGroupChecked: kotlin.Function2<kotlin.Boolean, com.wire.android.search.groups.SearchGroup, kotlin.Unit>, onContactStatusesChanged: kotlin.Function1<kotlin.collections.Map<com.wire.kalium.logic.data.id.QualifiedID, com.wire.kalium.logic.data.user.ContactStatus?>, kotlin.Unit>, emailInvitesEnabled: kotlin.Boolean, selectedEmails: kotlin.collections.Set<kotlin.String>, onEmailChecked: kotlin.Function2<kotlin.Boolean, kotlin.String, kotlin.Unit>): kotlin.Unit
   skippable: true
   restartable: true
   params:
@@ -50,6 +53,9 @@ public fun com.wire.android.search.SearchUsersAndAppsScreen(searchTitle: kotlin.
     - selectedGroups: RUNTIME (requires runtime check)
     - onGroupChecked: STABLE (function type)
     - onContactStatusesChanged: STABLE (function type)
+    - emailInvitesEnabled: STABLE (primitive type)
+    - selectedEmails: RUNTIME (requires runtime check)
+    - onEmailChecked: STABLE (function type)
 
 @Composable
 private fun com.wire.android.search.apps.AppsList(searchQuery: kotlin.String, apps: kotlin.collections.List<com.wire.android.model.Contact>, onServiceClicked: kotlin.Function1<com.wire.android.model.Contact, kotlin.Unit>, lazyListState: androidx.compose.foundation.lazy.LazyListState): kotlin.Unit
@@ -166,11 +172,80 @@ public fun com.wire.android.search.searchUserViewModel(conversationId: com.wire.
     - onlySelfTeamAndDomain: STABLE (primitive type)
 
 @Composable
-public fun com.wire.android.search.users.SearchAllPeopleScreen(searchQuery: kotlin.String, contactsSearchResult: kotlinx.collections.immutable.ImmutableList<com.wire.android.model.Contact>, publicSearchResult: kotlinx.collections.immutable.ImmutableList<com.wire.android.model.Contact>, contactsSelectedSearchResult: kotlinx.collections.immutable.ImmutableList<com.wire.android.model.Contact>, isLoading: kotlin.Boolean, isSearchActive: kotlin.Boolean, actionType: com.wire.android.model.ItemActionType, onChecked: kotlin.Function2<kotlin.Boolean, com.wire.android.model.Contact, kotlin.Unit>, onOpenUserProfile: kotlin.Function1<com.wire.android.model.Contact, kotlin.Unit>, firstContactFocusRequester: androidx.compose.ui.focus.FocusRequester?, nextFocusRequester: androidx.compose.ui.focus.FocusRequester?, selectedContactResultsExpanded: kotlin.Boolean, onSelectedContactResultsExpansionChanged: kotlin.Function1<kotlin.Boolean, kotlin.Unit>, contactResultsExpanded: kotlin.Boolean, onContactResultsExpansionChanged: kotlin.Function1<kotlin.Boolean, kotlin.Unit>, publicResultsExpanded: kotlin.Boolean, onPublicResultsExpansionChanged: kotlin.Function1<kotlin.Boolean, kotlin.Unit>, lazyListState: androidx.compose.foundation.lazy.LazyListState): kotlin.Unit
+internal fun com.wire.android.search.users.EmailInvitationItem(email: kotlin.String, searchQuery: kotlin.String, selected: kotlin.Boolean, message: kotlin.String, enabled: kotlin.Boolean, modifier: androidx.compose.ui.Modifier, onChecked: kotlin.Function0<kotlin.Unit>): kotlin.Unit
   skippable: true
   restartable: true
   params:
+    - email: STABLE (String is immutable)
     - searchQuery: STABLE (String is immutable)
+    - selected: STABLE (primitive type)
+    - message: STABLE (String is immutable)
+    - enabled: STABLE (primitive type)
+    - modifier: STABLE (marked @Stable or @Immutable)
+    - onChecked: STABLE (function type)
+
+@Composable
+public fun com.wire.android.search.users.EmptySearchQueryScreen(modifier: androidx.compose.ui.Modifier, text: kotlin.String, learnMoreTextToLink: kotlin.Pair<kotlin.String, kotlin.String>): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - modifier: STABLE (marked @Stable or @Immutable)
+    - text: STABLE (String is immutable)
+    - learnMoreTextToLink: STABLE (known stable type)
+
+@Composable
+public fun com.wire.android.search.users.ExternalContactSearchResultItem(avatarData: com.wire.android.model.UserAvatarData, userId: com.wire.kalium.logic.data.id.QualifiedID, name: kotlin.String, label: kotlin.String, membership: com.wire.android.ui.home.conversationslist.model.Membership, searchQuery: kotlin.String, connectionState: com.wire.kalium.logic.data.user.ConnectionState, clickable: com.wire.android.model.Clickable, modifier: androidx.compose.ui.Modifier, isOnboardingPending: kotlin.Boolean): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - avatarData: STABLE (marked @Stable or @Immutable)
+    - userId: STABLE (stability configuration file type)
+    - name: STABLE (String is immutable)
+    - label: STABLE (String is immutable)
+    - membership: STABLE (marked @Stable or @Immutable)
+    - searchQuery: STABLE (String is immutable)
+    - connectionState: STABLE (class with no mutable properties)
+    - clickable: STABLE (class with no mutable properties)
+    - modifier: STABLE (marked @Stable or @Immutable)
+    - isOnboardingPending: STABLE (primitive type)
+
+@Composable
+private fun com.wire.android.search.users.InternalContactResultItem(contact: com.wire.android.model.Contact, isSelected: kotlin.Boolean, searchTerm: kotlin.String, onChecked: kotlin.Function2<kotlin.Boolean, com.wire.android.model.Contact, kotlin.Unit>, onOpenUserProfile: kotlin.Function1<com.wire.android.model.Contact, kotlin.Unit>, actionType: com.wire.android.model.ItemActionType, modifier: androidx.compose.ui.Modifier): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - contact: STABLE (marked @Stable or @Immutable)
+    - isSelected: STABLE (primitive type)
+    - searchTerm: STABLE (String is immutable)
+    - onChecked: STABLE (function type)
+    - onOpenUserProfile: STABLE (function type)
+    - actionType: STABLE (class with no mutable properties)
+    - modifier: STABLE (marked @Stable or @Immutable)
+
+@Composable
+public fun com.wire.android.search.users.InternalContactSearchResultItem(avatarData: com.wire.android.model.UserAvatarData, name: kotlin.String, label: kotlin.String, membership: com.wire.android.ui.home.conversationslist.model.Membership, searchQuery: kotlin.String, connectionState: com.wire.kalium.logic.data.user.ConnectionState, onCheckClickable: com.wire.android.model.Clickable, isSelected: kotlin.Boolean, clickable: com.wire.android.model.Clickable, actionType: com.wire.android.model.ItemActionType, modifier: androidx.compose.ui.Modifier, isOnboardingPending: kotlin.Boolean): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - avatarData: STABLE (marked @Stable or @Immutable)
+    - name: STABLE (String is immutable)
+    - label: STABLE (String is immutable)
+    - membership: STABLE (marked @Stable or @Immutable)
+    - searchQuery: STABLE (String is immutable)
+    - connectionState: STABLE (class with no mutable properties)
+    - onCheckClickable: STABLE (class with no mutable properties)
+    - isSelected: STABLE (primitive type)
+    - clickable: STABLE (class with no mutable properties)
+    - actionType: STABLE (class with no mutable properties)
+    - modifier: STABLE (marked @Stable or @Immutable)
+    - isOnboardingPending: STABLE (primitive type)
+
+@Composable
+public fun com.wire.android.search.users.SearchAllPeopleScreen(query: com.wire.android.search.SearchQuery, contactsSearchResult: kotlinx.collections.immutable.ImmutableList<com.wire.android.model.Contact>, publicSearchResult: kotlinx.collections.immutable.ImmutableList<com.wire.android.model.Contact>, contactsSelectedSearchResult: kotlinx.collections.immutable.ImmutableList<com.wire.android.model.Contact>, isLoading: kotlin.Boolean, isSearchActive: kotlin.Boolean, actionType: com.wire.android.model.ItemActionType, onChecked: kotlin.Function2<kotlin.Boolean, com.wire.android.model.Contact, kotlin.Unit>, onOpenUserProfile: kotlin.Function1<com.wire.android.model.Contact, kotlin.Unit>, emailInvitationsEnabled: kotlin.Boolean, selectedEmails: kotlin.collections.Set<kotlin.String>, onEmailChecked: kotlin.Function2<kotlin.Boolean, kotlin.String, kotlin.Unit>, firstContactFocusRequester: androidx.compose.ui.focus.FocusRequester?, nextFocusRequester: androidx.compose.ui.focus.FocusRequester?, selectedContactResultsExpanded: kotlin.Boolean, onSelectedContactResultsExpansionChanged: kotlin.Function1<kotlin.Boolean, kotlin.Unit>, contactResultsExpanded: kotlin.Boolean, onContactResultsExpansionChanged: kotlin.Function1<kotlin.Boolean, kotlin.Unit>, publicResultsExpanded: kotlin.Boolean, onPublicResultsExpansionChanged: kotlin.Function1<kotlin.Boolean, kotlin.Unit>, lazyListState: androidx.compose.foundation.lazy.LazyListState): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - query: STABLE (class with no mutable properties)
     - contactsSearchResult: STABLE (known stable type)
     - publicSearchResult: STABLE (known stable type)
     - contactsSelectedSearchResult: STABLE (known stable type)
@@ -179,6 +254,9 @@ public fun com.wire.android.search.users.SearchAllPeopleScreen(searchQuery: kotl
     - actionType: STABLE (class with no mutable properties)
     - onChecked: STABLE (function type)
     - onOpenUserProfile: STABLE (function type)
+    - emailInvitationsEnabled: STABLE (primitive type)
+    - selectedEmails: RUNTIME (requires runtime check)
+    - onEmailChecked: STABLE (function type)
     - firstContactFocusRequester: STABLE (marked @Stable or @Immutable)
     - nextFocusRequester: STABLE (marked @Stable or @Immutable)
     - selectedContactResultsExpanded: STABLE (primitive type)
@@ -190,11 +268,11 @@ public fun com.wire.android.search.users.SearchAllPeopleScreen(searchQuery: kotl
     - lazyListState: STABLE (marked @Stable or @Immutable)
 
 @Composable
-private fun com.wire.android.search.users.SearchResult(searchQuery: kotlin.String, contactsSearchResult: kotlinx.collections.immutable.ImmutableList<com.wire.android.model.Contact>, publicSearchResult: kotlinx.collections.immutable.ImmutableList<com.wire.android.model.Contact>, contactsSelectedSearchResult: kotlinx.collections.immutable.ImmutableList<com.wire.android.model.Contact>, isSearchActive: kotlin.Boolean, actionType: com.wire.android.model.ItemActionType, onChecked: kotlin.Function2<kotlin.Boolean, com.wire.android.model.Contact, kotlin.Unit>, onOpenUserProfile: kotlin.Function1<com.wire.android.model.Contact, kotlin.Unit>, selectedContactResultsExpanded: kotlin.Boolean, onSelectedContactResultsExpansionChanged: kotlin.Function1<kotlin.Boolean, kotlin.Unit>, contactResultsExpanded: kotlin.Boolean, onContactResultsExpansionChanged: kotlin.Function1<kotlin.Boolean, kotlin.Unit>, publicResultsExpanded: kotlin.Boolean, onPublicResultsExpansionChanged: kotlin.Function1<kotlin.Boolean, kotlin.Unit>, lazyListState: androidx.compose.foundation.lazy.LazyListState, firstContactFocusRequester: androidx.compose.ui.focus.FocusRequester?, nextFocusRequester: androidx.compose.ui.focus.FocusRequester?): kotlin.Unit
+private fun com.wire.android.search.users.SearchResult(query: com.wire.android.search.SearchQuery, contactsSearchResult: kotlinx.collections.immutable.ImmutableList<com.wire.android.model.Contact>, publicSearchResult: kotlinx.collections.immutable.ImmutableList<com.wire.android.model.Contact>, contactsSelectedSearchResult: kotlinx.collections.immutable.ImmutableList<com.wire.android.model.Contact>, isSearchActive: kotlin.Boolean, actionType: com.wire.android.model.ItemActionType, onChecked: kotlin.Function2<kotlin.Boolean, com.wire.android.model.Contact, kotlin.Unit>, onOpenUserProfile: kotlin.Function1<com.wire.android.model.Contact, kotlin.Unit>, selectedContactResultsExpanded: kotlin.Boolean, onSelectedContactResultsExpansionChanged: kotlin.Function1<kotlin.Boolean, kotlin.Unit>, contactResultsExpanded: kotlin.Boolean, onContactResultsExpansionChanged: kotlin.Function1<kotlin.Boolean, kotlin.Unit>, publicResultsExpanded: kotlin.Boolean, onPublicResultsExpansionChanged: kotlin.Function1<kotlin.Boolean, kotlin.Unit>, emailInvitationsEnabled: kotlin.Boolean, selectedEmails: kotlin.collections.Set<kotlin.String>, onEmailChecked: kotlin.Function2<kotlin.Boolean, kotlin.String, kotlin.Unit>, lazyListState: androidx.compose.foundation.lazy.LazyListState, firstContactFocusRequester: androidx.compose.ui.focus.FocusRequester?, nextFocusRequester: androidx.compose.ui.focus.FocusRequester?): kotlin.Unit
   skippable: true
   restartable: true
   params:
-    - searchQuery: STABLE (String is immutable)
+    - query: STABLE (class with no mutable properties)
     - contactsSearchResult: STABLE (known stable type)
     - publicSearchResult: STABLE (known stable type)
     - contactsSelectedSearchResult: STABLE (known stable type)
@@ -208,6 +286,9 @@ private fun com.wire.android.search.users.SearchResult(searchQuery: kotlin.Strin
     - onContactResultsExpansionChanged: STABLE (function type)
     - publicResultsExpanded: STABLE (primitive type)
     - onPublicResultsExpansionChanged: STABLE (function type)
+    - emailInvitationsEnabled: STABLE (primitive type)
+    - selectedEmails: RUNTIME (requires runtime check)
+    - onEmailChecked: STABLE (function type)
     - lazyListState: STABLE (marked @Stable or @Immutable)
     - firstContactFocusRequester: STABLE (marked @Stable or @Immutable)
     - nextFocusRequester: STABLE (marked @Stable or @Immutable)
@@ -220,6 +301,13 @@ private fun com.wire.android.search.users.ShowButton(isShownAll: kotlin.Boolean,
     - isShownAll: STABLE (primitive type)
     - onShowButtonClicked: STABLE (function type)
     - modifier: STABLE (marked @Stable or @Immutable)
+
+@Composable
+public fun com.wire.android.search.users.rememberSearchPeopleScreenState(coroutineScope: kotlinx.coroutines.CoroutineScope): com.wire.android.search.users.SearchPeopleScreenState
+  skippable: false
+  restartable: false
+  params:
+    - coroutineScope: UNKNOWN (interface or non-final class; concrete implementation unknown)
 
 @Composable
 public fun com.wire.android.search.widget.HighlightName(name: kotlin.String, searchQuery: kotlin.String, modifier: androidx.compose.ui.Modifier, maxLines: kotlin.Int): kotlin.Unit
@@ -254,56 +342,6 @@ private fun com.wire.android.search.widget.isUnknownUser(): kotlin.Boolean
   skippable: false
   restartable: false
   params:
-
-@Composable
-public fun com.wire.android.ui.home.conversations.search.EmptySearchQueryScreen(modifier: androidx.compose.ui.Modifier, text: kotlin.String, learnMoreTextToLink: kotlin.Pair<kotlin.String, kotlin.String>): kotlin.Unit
-  skippable: true
-  restartable: true
-  params:
-    - modifier: STABLE (marked @Stable or @Immutable)
-    - text: STABLE (String is immutable)
-    - learnMoreTextToLink: STABLE (known stable type)
-
-@Composable
-public fun com.wire.android.ui.home.conversations.search.ExternalContactSearchResultItem(avatarData: com.wire.android.model.UserAvatarData, userId: com.wire.kalium.logic.data.id.QualifiedID, name: kotlin.String, label: kotlin.String, membership: com.wire.android.ui.home.conversationslist.model.Membership, searchQuery: kotlin.String, connectionState: com.wire.kalium.logic.data.user.ConnectionState, clickable: com.wire.android.model.Clickable, modifier: androidx.compose.ui.Modifier, isOnboardingPending: kotlin.Boolean): kotlin.Unit
-  skippable: true
-  restartable: true
-  params:
-    - avatarData: STABLE (marked @Stable or @Immutable)
-    - userId: STABLE (stability configuration file type)
-    - name: STABLE (String is immutable)
-    - label: STABLE (String is immutable)
-    - membership: STABLE (marked @Stable or @Immutable)
-    - searchQuery: STABLE (String is immutable)
-    - connectionState: STABLE (class with no mutable properties)
-    - clickable: STABLE (class with no mutable properties)
-    - modifier: STABLE (marked @Stable or @Immutable)
-    - isOnboardingPending: STABLE (primitive type)
-
-@Composable
-public fun com.wire.android.ui.home.conversations.search.InternalContactSearchResultItem(avatarData: com.wire.android.model.UserAvatarData, name: kotlin.String, label: kotlin.String, membership: com.wire.android.ui.home.conversationslist.model.Membership, searchQuery: kotlin.String, connectionState: com.wire.kalium.logic.data.user.ConnectionState, onCheckClickable: com.wire.android.model.Clickable, isSelected: kotlin.Boolean, clickable: com.wire.android.model.Clickable, actionType: com.wire.android.model.ItemActionType, modifier: androidx.compose.ui.Modifier, isOnboardingPending: kotlin.Boolean): kotlin.Unit
-  skippable: true
-  restartable: true
-  params:
-    - avatarData: STABLE (marked @Stable or @Immutable)
-    - name: STABLE (String is immutable)
-    - label: STABLE (String is immutable)
-    - membership: STABLE (marked @Stable or @Immutable)
-    - searchQuery: STABLE (String is immutable)
-    - connectionState: STABLE (class with no mutable properties)
-    - onCheckClickable: STABLE (class with no mutable properties)
-    - isSelected: STABLE (primitive type)
-    - clickable: STABLE (class with no mutable properties)
-    - actionType: STABLE (class with no mutable properties)
-    - modifier: STABLE (marked @Stable or @Immutable)
-    - isOnboardingPending: STABLE (primitive type)
-
-@Composable
-public fun com.wire.android.ui.home.conversations.search.rememberSearchPeopleScreenState(coroutineScope: kotlinx.coroutines.CoroutineScope): com.wire.android.ui.home.conversations.search.SearchPeopleScreenState
-  skippable: false
-  restartable: false
-  params:
-    - coroutineScope: UNKNOWN (interface or non-final class; concrete implementation unknown)
 
 @Composable
 public fun com.wire.android.ui.home.conversationslist.common.ConversationTitle(name: kotlin.String, searchQuery: kotlin.String, modifier: androidx.compose.ui.Modifier, showLegalHoldIndicator: kotlin.Boolean, badges: @[Composable] androidx.compose.runtime.internal.ComposableFunction0<kotlin.Unit>): kotlin.Unit

@@ -26,12 +26,14 @@ import com.wire.android.di.metro.WireAssistedViewModelBinding
 import com.wire.android.mapper.ContactMapper
 import com.wire.android.model.Contact
 import com.wire.android.search.SearchManualViewModelFactoryGroup
+import com.wire.android.search.SearchQuery
 import com.wire.android.search.removeQueryPrefix
 import com.wire.android.ui.common.DEFAULT_SEARCH_QUERY_DEBOUNCE
 import com.wire.android.util.EMPTY
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.ContactStatus
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.auth.ValidateEmailUseCase
 import com.wire.kalium.logic.feature.auth.ValidateUserHandleResult
 import com.wire.kalium.logic.feature.auth.ValidateUserHandleUseCase
 import com.wire.kalium.logic.feature.search.FederatedSearchParser
@@ -70,6 +72,7 @@ class SearchUserViewModel @AssistedInject constructor(
     private val contactMapper: ContactMapper,
     private val federatedSearchParser: FederatedSearchParser,
     private val validateUserHandle: ValidateUserHandleUseCase,
+    private val validateEmail: ValidateEmailUseCase,
     private val refreshContactStatuses: RefreshContactStatusesUseCase,
     private val isFederationSearchAllowed: IsFederationSearchAllowedUseCase,
     private val kaliumConfigs: KaliumConfigs,
@@ -102,6 +105,12 @@ class SearchUserViewModel @AssistedInject constructor(
                     // Each started search owns a generation; skipped duplicate queries keep the running one valid.
                     val requestGeneration = ++generation
                     val (searchTerm, domain) = federatedSearchParser(searchQuery, state.isOtherDomainAllowed)
+                    val query = SearchQuery(
+                        text = searchQuery,
+                        contactTerm = searchTerm,
+                        isValidEmail = validateEmail(searchQuery.trim()),
+                    )
+                    state = state.copy(query = query)
                     val isHandleSearch = validateUserHandle(searchTerm.removeQueryPrefix()) is ValidateUserHandleResult.Valid
                     val searchResult = if (isHandleSearch) searchByHandle(searchTerm, domain) else searchByName(searchTerm, domain)
                     channelFlow {
@@ -115,7 +124,7 @@ class SearchUserViewModel @AssistedInject constructor(
                         val fetched = freshStatuses.keys.toMutableSet()
                         selectedContactsFlow.collectLatest { selectedContacts ->
                             val ids = results.map { it.id }.toSet() + selectedContacts.map { UserId(it.id, it.domain) }
-                            fun resultState() = filterResults(searchResult, selectedContacts, isHandleSearch, searchTerm)
+                            fun resultState() = filterResults(searchResult, selectedContacts, isHandleSearch, query)
                                 .withContactStatuses(ids.associateWith { statuses[it] })
                             send(requestGeneration to resultState())
                             val missing = ids - fetched
@@ -164,7 +173,7 @@ class SearchUserViewModel @AssistedInject constructor(
         searchResult: SearchUserResult,
         selectedContacts: ImmutableSet<Contact>,
         isHandleSearch: Boolean,
-        searchTerm: String
+        query: SearchQuery
     ): SearchUserState {
         val selectedContactsIds = selectedContacts.map { UserId(it.id, it.domain) }
         val notSelectedContactsResult = searchResult.connected
@@ -176,15 +185,15 @@ class SearchUserViewModel @AssistedInject constructor(
         val selectedContactsResult = selectedContacts
             .filter { selectedContact ->
                 when {
-                    isHandleSearch -> selectedContact.handle.contains(searchTerm, ignoreCase = true)
-                    else -> selectedContact.name.contains(searchTerm, ignoreCase = true)
+                    isHandleSearch -> selectedContact.handle.contains(query.contactTerm, ignoreCase = true)
+                    else -> selectedContact.name.contains(query.contactTerm, ignoreCase = true)
                 }
             }
         return SearchUserState(
             contactsResult = notSelectedContactsResult.toImmutableList(),
             publicResult = notSelectedPublicResult.toImmutableList(),
             selectedResult = selectedContactsResult.toImmutableList(),
-            searchQuery = searchTerm
+            query = query,
         )
     }
 
@@ -209,7 +218,7 @@ data class SearchUserState(
     val contactsResult: ImmutableList<Contact> = persistentListOf(),
     val publicResult: ImmutableList<Contact> = persistentListOf(),
     val selectedResult: ImmutableList<Contact> = persistentListOf(),
-    val searchQuery: String = String.EMPTY,
+    val query: SearchQuery = SearchQuery(),
     val isOtherDomainAllowed: Boolean = false,
     val isLoading: Boolean = false,
     val contactStatuses: Map<UserId, ContactStatus?> = emptyMap(),

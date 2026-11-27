@@ -22,7 +22,9 @@ import com.wire.android.config.SnapshotExtension
 import com.wire.android.mapper.ContactMapper
 import com.wire.android.model.Contact
 import com.wire.android.model.UserAvatarData
+import com.wire.android.search.SearchQuery
 import com.wire.android.ui.home.conversationslist.model.Membership
+import com.wire.android.ui.common.DEFAULT_SEARCH_QUERY_DEBOUNCE
 import com.wire.android.util.EMPTY
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.ConversationId
@@ -34,6 +36,7 @@ import com.wire.kalium.logic.data.user.ContactStatus
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.data.user.type.UserType
 import com.wire.kalium.logic.data.user.type.UserTypeInfo
+import com.wire.kalium.logic.feature.auth.ValidateEmailUseCase
 import com.wire.kalium.logic.feature.auth.ValidateUserHandleResult
 import com.wire.kalium.logic.feature.auth.ValidateUserHandleUseCase
 import com.wire.kalium.logic.feature.search.FederatedSearchParser
@@ -47,11 +50,14 @@ import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
+import io.mockk.verify
 import io.mockk.impl.annotations.MockK
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.persistentSetOf
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
@@ -76,6 +82,65 @@ class SearchUserViewModelTest {
         .withSearchResult(SearchUserResult(connected = users, notConnected = emptyList()))
         .withFederatedSearchParserResult(FederatedSearchParser.Result("", "domain"))
         .withIsValidHandleResult(ValidateUserHandleResult.Invalid.TooLong(""))
+
+    @Test
+    fun `email validity follows the debounced full input and resets when cleared`() = runTest {
+        val query = " person@example.com "
+        val arrangement = pendingArrangement(emptyList())
+        every { arrangement.validateEmail("person@example.com") } returns true
+        coEvery { arrangement.federatedSearchParser(any(), any()) } coAnswers {
+            FederatedSearchParser.Result(firstArg<String>().trim().substringBefore('@'), "domain")
+        }
+        val (_, viewModel) = arrangement.arrange()
+        advanceUntilIdle()
+
+        viewModel.searchQueryChanged(query)
+        advanceTimeBy(DEFAULT_SEARCH_QUERY_DEBOUNCE - 1)
+        assertEquals(String.EMPTY, viewModel.state.query.text)
+        assertEquals(false, viewModel.state.query.isValidEmail)
+        verify(exactly = 0) { arrangement.validateEmail("person@example.com") }
+
+        advanceTimeBy(1)
+        runCurrent()
+        assertEquals(SearchQuery(text = query, contactTerm = "person", isValidEmail = true), viewModel.state.query)
+        verify(exactly = 1) { arrangement.validateEmail("person@example.com") }
+
+        viewModel.selectedContactsChanged(persistentSetOf(arrangement.fromSearchUserResult(pendingTestUser())))
+        advanceUntilIdle()
+        assertEquals(true, viewModel.state.query.isValidEmail)
+
+        viewModel.searchQueryChanged(String.EMPTY)
+        advanceUntilIdle()
+        assertEquals(String.EMPTY, viewModel.state.query.text)
+        assertEquals(false, viewModel.state.query.isValidEmail)
+    }
+
+    @Test
+    fun `email validation does not wait for contact lookup and late results cannot restore the old query`() = runTest {
+        val query = "person@example.com"
+        val arrangement = pendingArrangement(emptyList())
+        every { arrangement.validateEmail(query) } returns true
+        coEvery { arrangement.federatedSearchParser(any(), any()) } coAnswers {
+            FederatedSearchParser.Result(firstArg<String>().substringBefore('@'), "domain")
+        }
+        val (_, viewModel) = arrangement.arrange()
+        advanceUntilIdle()
+        val response = CompletableDeferred<SearchUserResult>()
+        coEvery { arrangement.searchUsersByNameUseCase("person", any(), any(), any()) } coAnswers { response.await() }
+
+        viewModel.searchQueryChanged(query)
+        advanceTimeBy(DEFAULT_SEARCH_QUERY_DEBOUNCE)
+        runCurrent()
+        assertEquals(SearchQuery(text = query, contactTerm = "person", isValidEmail = true), viewModel.state.query)
+        assertEquals(false, response.isCompleted)
+
+        viewModel.searchQueryChanged("invalid")
+        advanceUntilIdle()
+        response.complete(SearchUserResult(emptyList(), emptyList()))
+        advanceUntilIdle()
+        assertEquals("invalid", viewModel.state.query.text)
+        assertEquals(false, viewModel.state.query.isValidEmail)
+    }
 
     @Test
     fun `disabled feature ignores returned and selected status and does not refresh on resume`() = runTest {
@@ -600,6 +665,9 @@ class SearchUserViewModelTest {
         lateinit var validateUserHandle: ValidateUserHandleUseCase
 
         @MockK
+        lateinit var validateEmail: ValidateEmailUseCase
+
+        @MockK
         lateinit var searchUsersByHandleUseCase: SearchUsersByHandleUseCase
 
         @MockK
@@ -616,6 +684,7 @@ class SearchUserViewModelTest {
 
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
+            every { validateEmail(any()) } returns false
             coEvery { refreshContactStatuses(any()) } returns emptyMap()
             every { contactMapper.fromSearchUserResult(any()) } answers {
                 val user = args.get(0) as UserSearchDetails
@@ -693,6 +762,7 @@ class SearchUserViewModelTest {
                 contactMapper = contactMapper,
                 federatedSearchParser = federatedSearchParser,
                 validateUserHandle = validateUserHandle,
+                validateEmail = validateEmail,
                 refreshContactStatuses = refreshContactStatuses,
                 kaliumConfigs = KaliumConfigs(pendingConnections = pendingConnectionsEnabled),
                 isFederationSearchAllowed = isFederationSearchAllowedUseCase,

@@ -34,6 +34,7 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
@@ -109,6 +110,9 @@ fun SearchUsersAndAppsScreen(
     selectedGroups: Set<SearchGroup> = emptySet(),
     onGroupChecked: (Boolean, SearchGroup) -> Unit = { _, _ -> },
     onContactStatusesChanged: (Map<UserId, ContactStatus?>) -> Unit = {},
+    emailInvitesEnabled: Boolean = false,
+    selectedEmails: Set<String> = emptySet(),
+    onEmailChecked: (Boolean, String) -> Unit = { _, _ -> },
 ) {
     val searchBarState = rememberSearchbarState()
     val scope = rememberCoroutineScope()
@@ -137,12 +141,11 @@ fun SearchUsersAndAppsScreen(
     val firstContactFocusRequester = remember { FocusRequester() }
     val bottomActionFocusRequester = remember { FocusRequester() }
 
-    val searchBarTitle = if (isAppsTabVisible) {
-        stringResource(R.string.label_search_people_or_apps)
-    } else if (isGroupsTabVisible) {
-        stringResource(R.string.label_search_people_groups)
-    } else {
-        stringResource(R.string.label_search_people)
+    val searchBarTitle = when {
+        emailInvitesEnabled -> stringResource(R.string.label_search_name_or_email)
+        isAppsTabVisible -> stringResource(R.string.label_search_people_or_apps)
+        isGroupsTabVisible -> stringResource(R.string.label_search_people_groups)
+        else -> stringResource(R.string.label_search_people)
     }
     val isBottomActionVisible = peopleBottomActions != null
             && !(shouldHideBottomActionForServices && tabs[pagerState.currentPage] == SearchPeopleTabItem.SERVICES)
@@ -231,6 +234,12 @@ fun SearchUsersAndAppsScreen(
                     when (tabs[pageIndex]) {
                         SearchPeopleTabItem.PEOPLE -> {
                             SearchAllPeopleOrContactsScreen(
+                                emailInvitationsEnabled = emailInvitesEnabled,
+                                selectedEmails = selectedEmails,
+                                onEmailChecked = { selected, email ->
+                                    onEmailChecked(selected, email)
+                                    if (selected) searchBarState.searchQueryTextState.setTextAndPlaceCursorAtEnd("")
+                                },
                                 conversationId = conversationId,
                                 onlySelfTeamAndDomain = onlySelfTeamAndDomain,
                                 searchQuery = searchBarState.searchQueryTextState.text.toString(),
@@ -297,6 +306,9 @@ enum class SearchPeopleTabItem(@StringRes val titleResId: Int) : TabItem {
 @Composable
 private fun SearchAllPeopleOrContactsScreen(
     searchQuery: String,
+    emailInvitationsEnabled: Boolean,
+    selectedEmails: Set<String>,
+    onEmailChecked: (Boolean, String) -> Unit,
     contactsSelected: ImmutableSet<Contact>,
     isSearchActive: Boolean,
     actionType: ItemActionType,
@@ -331,11 +343,14 @@ private fun SearchAllPeopleOrContactsScreen(
         )
     }
 
-    var selectedContactResultsExpanded by remember { mutableStateOf(false) }
+    var selectedContactResultsExpanded by remember { mutableStateOf(emailInvitationsEnabled) }
     var contactResultsExpanded by remember { mutableStateOf(true) }
     var publicResultsExpanded by remember { mutableStateOf(true) }
     SearchAllPeopleScreen(
-        searchQuery = searchUserViewModel.state.searchQuery,
+        query = searchUserViewModel.state.query,
+        emailInvitationsEnabled = emailInvitationsEnabled,
+        selectedEmails = selectedEmails,
+        onEmailChecked = onEmailChecked,
         contactsSearchResult = searchUserViewModel.state.contactsResult,
         publicSearchResult = searchUserViewModel.state.publicResult,
         contactsSelectedSearchResult = searchUserViewModel.state.selectedResult,

@@ -30,32 +30,39 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import com.wire.android.feature.meetings.R
+import com.wire.android.model.Contact
 import com.wire.android.model.ItemActionType
 import com.wire.android.search.SearchUsersAndAppsScreen
+import com.wire.android.search.groups.SearchGroup
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
+import com.wire.kalium.logic.data.meeting.Meeting
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.android.ui.common.R as commonR
 
 @Composable
 internal fun NewMeetingParticipantsRouteContent(
-    newMeetingViewModel: NewMeetingViewModel,
-    onNavigateBack: () -> Unit,
+    state: NewMeetingState.Ready,
+    onClose: () -> Unit,
+    onSelect: () -> Unit,
     onOpenUserProfile: (UserId) -> Unit,
+    onEmailChecked: (Boolean, String) -> Unit,
+    onContactChecked: (Boolean, Contact) -> Unit,
+    onGroupChecked: (Boolean, SearchGroup) -> Unit,
 ) {
     SearchUsersAndAppsScreen(
         onlySelfTeamAndDomain = true,
+        emailInvitesEnabled = state.meetingType == Meeting.Type.SCHEDULED && state.isGuestLinkSharingEnabled,
+        selectedEmails = state.selectedEmails,
+        onEmailChecked = onEmailChecked,
         searchTitle = stringResource(R.string.new_meeting_participants_title),
-        selectedContacts = newMeetingViewModel.state.selectedContacts,
-        onContactChecked = newMeetingViewModel::updateSelectedContact,
-        onClose = {
-            newMeetingViewModel.resetSelectedContacts()
-            onNavigateBack()
-        },
+        selectedContacts = state.selectedContacts,
+        onContactChecked = onContactChecked,
+        onClose = onClose,
         navigationIconType = NavigationIconType.Close(
             contentDescription = R.string.content_description_new_meeting_participants_back_icon
         ),
@@ -65,14 +72,11 @@ internal fun NewMeetingParticipantsRouteContent(
             onOpenUserProfile(UserId(contact.id, contact.domain))
         },
         isGroupsTabVisible = true,
-        selectedGroups = newMeetingViewModel.state.selectedGroups,
-        onGroupChecked = newMeetingViewModel::updateSelectedGroup,
+        selectedGroups = state.selectedGroups,
+        onGroupChecked = onGroupChecked,
         peopleBottomActions = { focusRequester ->
             SelectButton(
-                onClick = {
-                    newMeetingViewModel.confirmSelectedContacts()
-                    onNavigateBack()
-                },
+                onClick = onSelect,
                 buttonModifier = Modifier.focusRequester(focusRequester),
             )
         }

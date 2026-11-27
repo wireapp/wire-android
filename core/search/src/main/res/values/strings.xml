@@ -30,4 +30,9 @@
     <string name="label_add_member_services">Apps</string>
     <string name="label_search_people_or_apps">Search people or apps</string>
     <string name="label_search_people">Search people</string>
+    <string name="label_search_name_or_email">Enter a name or email</string>
+    <string name="email_invitation_hint">Enter an email address</string>
+    <string name="email_invitation_description">Send a meeting link to this email</string>
+    <string name="email_invitation_invalid">Invalid email format</string>
+    <string name="email_invitation_duplicate">Email already added</string>
 </resources>

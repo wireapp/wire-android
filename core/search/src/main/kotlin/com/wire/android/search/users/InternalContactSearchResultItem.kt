@@ -16,19 +16,24 @@
  * along with this program. If not, see http://www.gnu.org/licenses/.
  */
 
-package com.wire.android.ui.home.conversations.search
+package com.wire.android.search.users
 
 import android.util.Log
+import androidx.compose.foundation.border
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.disabled
 import androidx.compose.ui.semantics.selected
@@ -36,6 +41,7 @@ import androidx.compose.ui.semantics.semantics
 import com.wire.android.model.Clickable
 import com.wire.android.model.ItemActionType
 import com.wire.android.model.UserAvatarData
+import com.wire.android.search.R
 import com.wire.android.search.util.ui.PreviewMultipleThemes
 import com.wire.android.search.widget.HighlightName
 import com.wire.android.search.widget.HighlightSubtitle
@@ -231,6 +237,64 @@ fun ExternalContactSearchResultItem(
     )
 }
 
+@Composable
+internal fun EmailInvitationItem(
+    email: String,
+    searchQuery: String,
+    selected: Boolean,
+    message: String,
+    enabled: Boolean,
+    modifier: Modifier = Modifier,
+    onChecked: () -> Unit,
+) {
+    val onCheckDescription = stringResource(
+        if (selected) commonR.string.content_description_unselect_label else commonR.string.content_description_select_label
+    )
+    RowItemTemplate(
+        leadingIcon = {
+            Row(verticalAlignment = CenterVertically) {
+                WireCheckbox(
+                    checked = selected,
+                    onCheckedChange = null,
+                    enabled = enabled,
+                    modifier = Modifier.padding(horizontal = dimensions().spacing4x),
+                )
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier
+                        .padding(dimensions().spacing8x)
+                        .size(dimensions().spacing32x)
+                        .border(dimensions().spacing1x, MaterialTheme.wireColorScheme.outline, CircleShape),
+                ) {
+                    Icon(
+                        painter = painterResource(commonR.drawable.ic_email_invitation),
+                        contentDescription = null,
+                        modifier = Modifier.size(dimensions().spacing20x),
+                    )
+                }
+            }
+        },
+        titleStartPadding = dimensions().spacing0x,
+        title = {
+            HighlightName(name = email, searchQuery = searchQuery.trim(), maxLines = maxTitleLines())
+        },
+        subtitle = {
+            Text(
+                text = message,
+                style = MaterialTheme.wireTypography.subline01,
+                color = MaterialTheme.wireColorScheme.secondaryText,
+            )
+        },
+        clickable = Clickable(enabled = enabled, onClickDescription = onCheckDescription, onClick = onChecked),
+        modifier = modifier
+            .padding(start = dimensions().spacing8x)
+            .semantics(mergeDescendants = true) {
+                this.selected = selected
+                if (!enabled) disabled()
+            },
+    )
+}
+
 @PreviewMultipleThemes
 @Composable
 fun PreviewInternalContactSearchResultItemCheckable() = WireTheme {
@@ -277,5 +341,18 @@ fun PreviewExternalContactSearchResultItem() = WireTheme {
         searchQuery = "",
         connectionState = ConnectionState.NOT_CONNECTED,
         clickable = Clickable {},
+    )
+}
+
+@PreviewMultipleThemes
+@Composable
+fun PreviewEmailInvitationItem() = WireTheme {
+    EmailInvitationItem(
+        email = "email@wire.com",
+        searchQuery = "wire",
+        selected = false,
+        message = stringResource(R.string.email_invitation_description),
+        enabled = true,
+        onChecked = {}
     )
 }

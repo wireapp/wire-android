@@ -20,9 +20,14 @@ package com.wire.android.ui.userprofile.qr
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import androidx.core.os.bundleOf
 import com.wire.android.util.externalShareChooserIntent
+import com.wire.android.util.startShareIntentWithTrustedWireTarget
+import com.wire.navigation.WireNavEntryId
 
-fun Context.shareLinkToProfile(selfProfileUrl: String) {
+private const val PROFILE_LINK_SHARE_ORIGIN = "com.wire.android.extra.PROFILE_LINK_SHARE_ORIGIN"
+
+internal fun Context.shareLinkToProfile(selfProfileUrl: String, origin: WireNavEntryId) {
     val sendIntent: Intent =
         Intent().apply {
             action = Intent.ACTION_SEND
@@ -32,8 +37,19 @@ fun Context.shareLinkToProfile(selfProfileUrl: String) {
             type = "text/plain"
         }
 
-    startActivity(externalShareChooserIntent(sendIntent))
+    val chooser = externalShareChooserIntent(sendIntent, excludeOwnComponents = false).apply {
+        putExtra(Intent.EXTRA_REPLACEMENT_EXTRAS, bundleOf(packageName to bundleOf(PROFILE_LINK_SHARE_ORIGIN to origin.value)))
+    }
+    startActivity(chooser)
 }
+
+// This extra controls navigation only. File access is checked independently.
+internal fun Intent.profileLinkShareOrigin(): WireNavEntryId? =
+    if (action == Intent.ACTION_SEND && type == "text/plain" && !hasExtra(Intent.EXTRA_STREAM)) {
+        getStringExtra(PROFILE_LINK_SHARE_ORIGIN)?.takeIf(String::isNotBlank)?.let(::WireNavEntryId)
+    } else {
+        null
+    }
 
 fun Context.shareQRToProfile(uri: Uri) {
     val sendIntent: Intent =
@@ -43,7 +59,7 @@ fun Context.shareQRToProfile(uri: Uri) {
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
             putExtra(Intent.EXTRA_STREAM, uri)
-            type = "image/jpg"
+            type = "image/jpeg"
         }
-    startActivity(externalShareChooserIntent(sendIntent))
+    startShareIntentWithTrustedWireTarget(sendIntent)
 }

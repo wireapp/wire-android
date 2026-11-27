@@ -52,6 +52,7 @@ import com.wire.android.ui.common.dialogs.CustomServerNoNetworkDialogState
 import com.wire.android.ui.joinConversation.JoinConversationViaCodeState
 import com.wire.android.ui.sharing.sharingUris
 import com.wire.android.ui.sharing.shouldRejectSharingIntent
+import com.wire.android.ui.userprofile.qr.profileLinkShareOrigin
 import com.wire.android.ui.theme.Accent
 import com.wire.android.ui.theme.ThemeOption
 import com.wire.android.util.BackendSupportConfig
@@ -92,6 +93,7 @@ import com.wire.kalium.logic.feature.session.ObserveSessionsUseCase
 import com.wire.kalium.logic.feature.user.SelfServerConfigUseCase
 import com.wire.kalium.logic.feature.user.screenshotCensoring.ObserveScreenshotCensoringConfigResult
 import com.wire.kalium.logic.feature.user.webSocketStatus.ObservePersistentWebSocketConnectionStatusUseCase
+import com.wire.navigation.WireNavEntryId
 import dev.zacsweers.metro.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -520,7 +522,12 @@ class WireActivityViewModel @Inject constructor(
                         sendAction(ShowToast(R.string.public_share_ignored_wire_internal_files))
                         return@launch
                     }
-                    sendAction(OnShowImportMediaScreen(isSharedFromWire = hasTrustedWireShareCaller))
+                    sendAction(
+                        OnShowImportMediaScreen(
+                            isSharedFromWire = hasTrustedWireShareCaller,
+                            profileLinkShareOrigin = intent?.profileLinkShareOrigin(),
+                        )
+                    )
                 }
                 DeepLinkResult.Unknown -> {
                     sendAction(OnUnknownDeepLink)
@@ -1009,7 +1016,10 @@ sealed interface WireActivityViewAction
 internal data class OpenConversation(val result: DeepLinkResult.OpenConversation) : WireActivityViewAction
 internal data class OpenMeetings(val result: DeepLinkResult.OpenMeetings) : WireActivityViewAction
 internal data class OpenDriveFiles(val result: DeepLinkResult.OpenDriveFiles) : WireActivityViewAction
-internal data class OnShowImportMediaScreen(val isSharedFromWire: Boolean = false) : WireActivityViewAction
+internal data class OnShowImportMediaScreen(
+    val isSharedFromWire: Boolean = false,
+    val profileLinkShareOrigin: WireNavEntryId? = null,
+) : WireActivityViewAction
 internal data object OnAuthorizationNeeded : WireActivityViewAction
 internal data object OnUnknownDeepLink : WireActivityViewAction
 internal data class OnMigrationLogin(val result: DeepLinkResult.MigrationLogin) : WireActivityViewAction

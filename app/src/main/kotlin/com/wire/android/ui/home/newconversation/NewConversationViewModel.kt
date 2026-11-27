@@ -52,11 +52,14 @@ import com.wire.kalium.logic.feature.conversation.createconversation.CreateChann
 import com.wire.kalium.logic.feature.conversation.createconversation.CreateRegularGroupUseCase
 import com.wire.kalium.logic.feature.featureConfig.AppsAllowedResult
 import com.wire.kalium.logic.feature.featureConfig.ObserveIsAppsAllowedForUsageUseCase
+import com.wire.kalium.logic.feature.service.HasWhitelistedServicesUseCase
 import com.wire.kalium.logic.feature.user.GetDefaultProtocolUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.featureFlags.KaliumConfigs
 import dev.zacsweers.metro.Inject
 import kotlinx.collections.immutable.toImmutableSet
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.dropWhile
 import kotlinx.coroutines.launch
@@ -71,6 +74,7 @@ class NewConversationViewModel @Inject constructor(
     private val isWireCellsFeatureEnabled: IsWireCellsEnabledUseCase,
     private val observeIsAppsAllowedForUsage: ObserveIsAppsAllowedForUsageUseCase,
     private val kaliumConfigs: KaliumConfigs,
+    private val hasWhitelistedServices: HasWhitelistedServicesUseCase,
 ) : ViewModel() {
 
     private data class GroupCreationAttempt(
@@ -87,6 +91,16 @@ class NewConversationViewModel @Inject constructor(
 
     private var pendingMLSGroupCreation: PendingMLSGroupCreation? = null
     private var failedMLSGroupCreationId: ConversationId? = null
+    private var defaultProtocolJob: Job? = null
+
+    private class WhitelistRequest
+
+    // A new token distinguishes a restarted check even if reset and start happen together.
+    private val whitelistRequest = MutableStateFlow<WhitelistRequest?>(null)
+    private var hasLegacyBots = false
+    private var isGroupCreationStarted = false
+    private var isDefaultProtocolLoaded = false
+    private var appsAllowedResult: AppsAllowedResult? = null
 
     var newGroupNameTextState: TextFieldState = TextFieldState()
     var newGroupState: GroupMetadataState by mutableStateOf(GroupMetadataState())
@@ -97,6 +111,16 @@ class NewConversationViewModel @Inject constructor(
     var createGroupState: CreateGroupState by mutableStateOf(CreateGroupState.Default)
 
     init {
+        viewModelScope.launch {
+            whitelistRequest.collectLatest { request ->
+                if (request == null) return@collectLatest
+                val available = hasWhitelistedServices()
+                if (whitelistRequest.value === request) {
+                    hasLegacyBots = available
+                    updateAppsSelection()
+                }
+            }
+        }
         loadDefaultProtocol()
         observeAllowanceOfAppsUsageInitialState()
         setConversationCreationParam()
@@ -105,11 +129,14 @@ class NewConversationViewModel @Inject constructor(
     }
 
     private fun loadDefaultProtocol() {
-        viewModelScope.launch {
+        defaultProtocolJob?.cancel()
+        defaultProtocolJob = viewModelScope.launch {
             val defaultProtocol = CreateConversationParam
                 .Protocol
                 .fromSupportedProtocolToConversationOptionsProtocol(getDefaultProtocol())
             newGroupState = newGroupState.copy(groupProtocol = defaultProtocol)
+            isDefaultProtocolLoaded = true
+            updateAppsEligibility()
         }
     }
 
@@ -117,16 +144,43 @@ class NewConversationViewModel @Inject constructor(
         viewModelScope.launch {
             observeIsAppsAllowedForUsage()
                 .collectLatest { isAppsAllowedResult ->
+                    appsAllowedResult = isAppsAllowedResult
                     groupOptionsState = groupOptionsState.copy(
                         isTeamAllowedToUseApps = isAppsAllowedResult,
                         shouldShowNewAppsUi = AppsUtil.isAppsAllowed(
                             appsAllowedResult = isAppsAllowedResult,
                             conversationProtocol = null
                         ),
-                        isAllowAppsEnabled = isAppsAllowedResult is AppsAllowedResult.Enabled
                     )
+                    updateAppsEligibility()
                 }
         }
+    }
+
+    private fun updateAppsEligibility() {
+        val canCheckWhitelist = isGroupCreationStarted && isDefaultProtocolLoaded &&
+            newGroupState.groupProtocol == CreateConversationParam.Protocol.PROTEUS &&
+            appsAllowedResult is AppsAllowedResult.Enabled
+        if (!canCheckWhitelist) {
+            whitelistRequest.value = null
+            hasLegacyBots = false
+        } else if (whitelistRequest.value == null) {
+            whitelistRequest.value = WhitelistRequest()
+        }
+        updateAppsSelection()
+    }
+
+    private fun updateAppsSelection() {
+        val isAppsAvailable = isDefaultProtocolLoaded && appsAllowedResult is AppsAllowedResult.Enabled &&
+            when (newGroupState.groupProtocol) {
+                CreateConversationParam.Protocol.PROTEUS -> hasLegacyBots
+                CreateConversationParam.Protocol.MLS -> AppsUtil.isAppsAllowed(appsAllowedResult, conversationProtocol = null)
+            }
+        groupOptionsState = groupOptionsState.copy(
+            isAppsAvailable = isAppsAvailable,
+            isAllowAppsEnabled = isAppsAvailable &&
+                (groupOptionsState.isAllowAppsEnabled || !groupOptionsState.isAppsAvailable)
+        )
     }
 
     fun resetState() {
@@ -134,8 +188,16 @@ class NewConversationViewModel @Inject constructor(
         newGroupState = GroupMetadataState()
         pendingMLSGroupCreation = null
         failedMLSGroupCreationId = null
+        isDefaultProtocolLoaded = false
+        isGroupCreationStarted = false
+        whitelistRequest.value = null
+        hasLegacyBots = false
+        groupOptionsState = groupOptionsState.copy(
+            isAppsAvailable = false,
+            isAllowAppsEnabled = false,
+            isTeamAllowedToUseApps = appsAllowedResult ?: AppsAllowedResult.Disabled,
+        )
         loadDefaultProtocol()
-        observeAllowanceOfAppsUsageInitialState()
         createGroupState = CreateGroupState.Default
         setConversationCreationParam()
     }
@@ -156,8 +218,11 @@ class NewConversationViewModel @Inject constructor(
         newGroupState = newGroupState.copy(channelAddPermissionType = channelAddPermissionType)
     }
 
-    fun setIsChannel(isChannel: Boolean) {
+    fun startGroupCreation(isChannel: Boolean) {
         newGroupState = newGroupState.copy(isChannel = isChannel)
+        if (isGroupCreationStarted) return
+        isGroupCreationStarted = true
+        updateAppsEligibility()
     }
 
     fun setChannelHistoryType(channelHistoryType: ChannelHistoryType) {
@@ -277,7 +342,7 @@ class NewConversationViewModel @Inject constructor(
     }
 
     fun onAllowServicesStatusChanged(status: Boolean) {
-        groupOptionsState = groupOptionsState.copy(isAllowAppsEnabled = status)
+        groupOptionsState = groupOptionsState.copy(isAllowAppsEnabled = status && groupOptionsState.isAppsAvailable)
     }
 
     fun onReadReceiptStatusChanged(status: Boolean) {
@@ -349,7 +414,7 @@ class NewConversationViewModel @Inject constructor(
                     readReceiptsEnabled = groupOptionsState.isReadReceiptEnabled,
                     accessRole = Conversation.accessRolesFor(
                         guestAllowed = groupOptionsState.isAllowGuestEnabled,
-                        servicesAllowed = groupOptionsState.isAllowAppsEnabled,
+                        servicesAllowed = groupOptionsState.isAppsAvailable && groupOptionsState.isAllowAppsEnabled,
                         nonTeamMembersAllowed = groupOptionsState.isAllowGuestEnabled
                     ),
                     access = Conversation.accessFor(groupOptionsState.isAllowGuestEnabled),
@@ -397,7 +462,7 @@ class NewConversationViewModel @Inject constructor(
                     wireCellEnabled = groupOptionsState.isWireCellsEnabled ?: false,
                     accessRole = Conversation.accessRolesFor(
                         guestAllowed = groupOptionsState.isAllowGuestEnabled,
-                        servicesAllowed = groupOptionsState.isAllowAppsEnabled,
+                        servicesAllowed = groupOptionsState.isAppsAvailable && groupOptionsState.isAllowAppsEnabled,
                         nonTeamMembersAllowed = groupOptionsState.isAllowGuestEnabled
                     ),
                     access = Conversation.accessFor(groupOptionsState.isAllowGuestEnabled),

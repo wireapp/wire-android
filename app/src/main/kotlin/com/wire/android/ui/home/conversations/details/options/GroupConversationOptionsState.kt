@@ -48,6 +48,7 @@ data class GroupConversationOptionsState(
     val areAccessOptionsAvailable: Boolean = false,
     val isGuestAllowed: Boolean = false,
     val isAppsAllowed: Boolean = false,
+    val isAppsVisible: Boolean = true,
     val shouldUseNewAppsUi: Boolean = false,
     val isReadReceiptAllowed: Boolean = false,
     val isUpdatingNameAllowed: Boolean = false,

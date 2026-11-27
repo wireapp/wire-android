@@ -66,6 +66,7 @@ import com.wire.kalium.logic.feature.debug.GetFeatureConfigUseCase
 import com.wire.kalium.logic.feature.featureConfig.AppsAllowedProtocol
 import com.wire.kalium.logic.feature.featureConfig.AppsAllowedResult
 import com.wire.kalium.logic.feature.featureConfig.ObserveIsAppsAllowedForUsageUseCase
+import com.wire.kalium.logic.feature.service.HasWhitelistedServicesUseCase
 import com.wire.kalium.logic.feature.publicuser.RefreshUsersWithoutMetadataUseCase
 import com.wire.kalium.logic.feature.selfDeletingMessages.ObserveSelfDeletionTimerSettingsForConversationUseCase
 import com.wire.kalium.logic.feature.user.ObserveSelfUserWithTeamUseCase
@@ -391,6 +392,7 @@ class GroupDetailsViewModelTest {
         val (_, viewModel) = GroupConversationDetailsViewModelArrangement()
             .withConversationDetailUpdate(details)
             .withAppsAllowedResult(AppsAllowedResult.Enabled(AppsAllowedProtocol.PROTEUS))
+            .withWhitelistedServices(true)
             .withSelfTeamUseCaseReturns(selfTeam)
             .arrange()
 
@@ -1019,6 +1021,9 @@ internal class GroupConversationDetailsViewModelArrangement {
     @MockK
     lateinit var migrateConversationToMLS: MigrateConversationToMLSUseCase
 
+    @MockK
+    lateinit var hasWhitelistedServices: HasWhitelistedServicesUseCase
+
     private var arrangedSelfUser: SelfUser = TestUser.SELF_USER
     private var arrangedTeam: Team? = TestTeam.TEAM
 
@@ -1037,6 +1042,7 @@ internal class GroupConversationDetailsViewModelArrangement {
             isWireCellsEnabled = isWireCellsEnabled,
             getFeatureConfig = getFeatureConfig,
             migrateConversationToMLS = migrateConversationToMLS,
+            hasWhitelistedServices = hasWhitelistedServices,
         )
     }
 
@@ -1058,6 +1064,11 @@ internal class GroupConversationDetailsViewModelArrangement {
         coEvery { migrateConversationToMLS(any()) } returns MigrateConversationToMLSUseCase.Result.Success
         withMlsMigrationFeatureFlag(Status.DISABLED)
         withAppsAllowedResult(AppsAllowedResult.Disabled)
+        withWhitelistedServices(false)
+    }
+
+    fun withWhitelistedServices(available: Boolean) = apply {
+        coEvery { hasWhitelistedServices() } returns available
     }
 
     fun withAppsAllowedResult(result: AppsAllowedResult) = apply {

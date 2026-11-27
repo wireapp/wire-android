@@ -38,6 +38,7 @@ import com.wire.kalium.logic.feature.conversation.apps.ChangeAccessForAppsInConv
 import com.wire.kalium.logic.feature.featureConfig.AppsAllowedProtocol
 import com.wire.kalium.logic.feature.featureConfig.AppsAllowedResult
 import com.wire.kalium.logic.feature.featureConfig.ObserveIsAppsAllowedForUsageUseCase
+import com.wire.kalium.logic.feature.service.HasWhitelistedServicesUseCase
 import com.wire.kalium.logic.feature.user.ObserveSelfUserUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
@@ -98,6 +99,7 @@ class UpdateAppsAccessViewModelTest {
 
         val (arrangement, viewModel) = UpdateAppsAccessViewModelArrangement()
             .withGuestDisabledNavArgs()
+            .withWhitelistedServices(true)
             .withUpdateConversationAccessUseCaseReturns(
                 UpdateConversationAccessRoleUseCase.Result.Success
             )
@@ -134,6 +136,7 @@ class UpdateAppsAccessViewModelTest {
                 accessRole = Conversation.defaultGroupAccessRoles.toMutableList().apply {
                     remove(Conversation.AccessRole.NON_TEAM_MEMBER)
                     remove(Conversation.AccessRole.GUEST)
+                    add(Conversation.AccessRole.SERVICE)
                 },
                 access = listOf()
             )
@@ -150,6 +153,7 @@ class UpdateAppsAccessViewModelTest {
             .arrange()
 
         // When
+        viewModel.onAppsAccessUpdate(false)
         viewModel.onServiceDialogConfirm()
 
         // Then
@@ -249,7 +253,7 @@ class UpdateAppsAccessViewModelTest {
     }
 
     @Test
-    fun `given team does not allow apps, when observing conversation, then apps access update is not allowed`() = runTest {
+    fun `given apps are already on, then admin can disable them despite disabled team capability`() = runTest {
         // Given
         val conversationParticipantsData = ConversationParticipantsData(isSelfAnAdmin = true)
         val details = testGroup
@@ -263,8 +267,8 @@ class UpdateAppsAccessViewModelTest {
         advanceUntilIdle()
 
         // Then
-        assertEquals(false, viewModel.updateAppsAccessState.isUpdatingAppAccessAllowed)
-        assertEquals(false, viewModel.updateAppsAccessState.isAppAccessAllowed)
+        assertEquals(true, viewModel.updateAppsAccessState.isUpdatingAppAccessAllowed)
+        assertEquals(true, viewModel.updateAppsAccessState.isAppAccessAllowed)
     }
 
     @Test
@@ -365,6 +369,7 @@ class UpdateAppsAccessViewModelTest {
             )
         )
         val (arrangement, viewModel) = UpdateAppsAccessViewModelArrangement()
+            .withWhitelistedServices(true)
             .withConversationDetailUpdate(initial)
             .withConversationMembersUpdate(ConversationParticipantsData(isSelfAnAdmin = true))
             .withAppsAllowedResult(AppsAllowedResult.Enabled(AppsAllowedProtocol.PROTEUS))
@@ -456,6 +461,9 @@ internal class UpdateAppsAccessViewModelArrangement {
     @MockK
     lateinit var observeSelfUser: ObserveSelfUserUseCase
 
+    @MockK
+    lateinit var hasWhitelistedServices: HasWhitelistedServicesUseCase
+
     private val conversationDetailsFlow = MutableSharedFlow<ConversationDetails>(replay = Int.MAX_VALUE)
 
     private val observeParticipantsForConversationFlow =
@@ -479,6 +487,7 @@ internal class UpdateAppsAccessViewModelArrangement {
             observeIsAppsAllowedForUsage = observeIsAppsAllowedForUsage,
             selfUser = observeSelfUser,
             navigationArgs = navigationArgs,
+            hasWhitelistedServices = hasWhitelistedServices,
         )
     }
 
@@ -491,8 +500,9 @@ internal class UpdateAppsAccessViewModelArrangement {
         // Default empty values
         coEvery { observeConversationDetails(any()) } returns flowOf()
         coEvery { observeParticipantsForConversationUseCase(any()) } returns flowOf()
-        coEvery { observeSelfUser() } returns flowOf(TestUser.SELF_USER)
+        coEvery { observeSelfUser() } returns flowOf(TestUser.SELF_USER.copy(teamId = TeamId("team_id")))
         withAppsAllowedResult(AppsAllowedResult.Disabled)
+        withWhitelistedServices(false)
     }
 
     fun withGuestDisabledNavArgs() = apply {
@@ -504,6 +514,10 @@ internal class UpdateAppsAccessViewModelArrangement {
                 shouldUseNewAppsUi = true,
             ),
         )
+    }
+
+    fun withWhitelistedServices(available: Boolean) = apply {
+        coEvery { hasWhitelistedServices() } returns available
     }
 
     fun withAppsAllowedResult(result: AppsAllowedResult) = apply {

@@ -42,6 +42,7 @@ import com.wire.kalium.logic.feature.conversation.createconversation.CreateChann
 import com.wire.kalium.logic.feature.conversation.createconversation.CreateRegularGroupUseCase
 import com.wire.kalium.logic.feature.featureConfig.AppsAllowedResult
 import com.wire.kalium.logic.feature.featureConfig.ObserveIsAppsAllowedForUsageUseCase
+import com.wire.kalium.logic.feature.service.HasWhitelistedServicesUseCase
 import com.wire.kalium.logic.feature.user.GetDefaultProtocolUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.IsMLSEnabledUseCase
@@ -66,6 +67,7 @@ internal class NewConversationViewModelArrangement {
         coEvery { getDefaultProtocol() } returns SupportedProtocol.PROTEUS
         coEvery { isWireCellsEnabled() } returns false
         withAppsAllowedResult(AppsAllowedResult.Disabled)
+        withWhitelistedServices(false)
     }
 
     @MockK
@@ -91,6 +93,9 @@ internal class NewConversationViewModelArrangement {
 
     @MockK
     lateinit var isWireCellsEnabled: IsWireCellsEnabledUseCase
+
+    @MockK
+    lateinit var hasWhitelistedServices: HasWhitelistedServicesUseCase
 
     private var createGroupState: CreateGroupState = CreateGroupState.Default
 
@@ -247,6 +252,10 @@ internal class NewConversationViewModelArrangement {
         coEvery { observeIsAppsAllowedForUsage() } returns flowOf(result)
     }
 
+    fun withWhitelistedServices(available: Boolean) = apply {
+        coEvery { hasWhitelistedServices() } returns available
+    }
+
     var pendingConnectionsEnabled = true
 
     fun arrange() = this to NewConversationViewModel(
@@ -258,6 +267,7 @@ internal class NewConversationViewModelArrangement {
         isWireCellsFeatureEnabled = isWireCellsEnabled,
         observeIsAppsAllowedForUsage = observeIsAppsAllowedForUsage,
         kaliumConfigs = KaliumConfigs(pendingConnections = pendingConnectionsEnabled),
+        hasWhitelistedServices = hasWhitelistedServices,
     ).also {
         it.createGroupState = createGroupState
     }

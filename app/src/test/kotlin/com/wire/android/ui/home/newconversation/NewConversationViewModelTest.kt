@@ -562,6 +562,7 @@ class NewConversationViewModelTest {
         val (_, viewModel) = NewConversationViewModelArrangement()
             .withGetSelfUser(isTeamMember = true)
             .withAppsAllowedResult(AppsAllowedResult.Enabled(AppsAllowedProtocol.MLS))
+            .withDefaultProtocol(SupportedProtocol.MLS)
             .arrange()
 
         assertTrue(viewModel.groupOptionsState.isTeamAllowedToUseApps is AppsAllowedResult.Enabled)
@@ -574,6 +575,7 @@ class NewConversationViewModelTest {
         val (_, viewModel) = NewConversationViewModelArrangement()
             .withGetSelfUser(isTeamMember = true)
             .withAppsAllowedResult(AppsAllowedResult.Enabled(AppsAllowedProtocol.MLS))
+            .withDefaultProtocol(SupportedProtocol.MLS)
             .arrange()
 
         // dirty state

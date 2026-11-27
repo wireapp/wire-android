@@ -127,7 +127,7 @@ class MeetingReminderSchedulerTest {
         restartedScheduler.onAlarm(arrangement.user.id, FIRST_START)
         assertEquals(3, arrangement.scheduledAlarms.size)
         coVerify(exactly = 1) { arrangement.reminders.within(FIRST_START, Instant.parse("2026-10-07T15:02:00Z")) }
-        verify(exactly = 1) { arrangement.notificationManager.showReminder(reminder, arrangement.user.id) }
+        coVerify(exactly = 1) { arrangement.notificationManager.showReminder(reminder, arrangement.user.id) }
     }
 
     @Test
@@ -138,7 +138,7 @@ class MeetingReminderSchedulerTest {
         arrangement.scheduler.restore()
         arrangement.now = ALARM_TIME
         arrangement.scheduler.onAlarm(arrangement.user.id, FIRST_START)
-        verify(exactly = 1) { arrangement.notificationManager.showReminder(reminder, arrangement.user.id) }
+        coVerify(exactly = 1) { arrangement.notificationManager.showReminder(reminder, arrangement.user.id) }
     }
 
     @Test
@@ -150,7 +150,7 @@ class MeetingReminderSchedulerTest {
         arrangement.scheduler.restore()
         arrangement.now = ALARM_TIME
         arrangement.scheduler.onAlarm(arrangement.user.id, FIRST_START)
-        verify(exactly = 0) { arrangement.notificationManager.showReminder(any(), any()) }
+        coVerify(exactly = 0) { arrangement.notificationManager.showReminder(any(), any()) }
     }
 
     @Test
@@ -163,8 +163,8 @@ class MeetingReminderSchedulerTest {
         arrangement.scheduler.restore()
         arrangement.now = ALARM_TIME
         arrangement.scheduler.onAlarm(arrangement.user.id, FIRST_START)
-        verify(exactly = 0) { arrangement.notificationManager.showReminder(meetingInCall, arrangement.user.id) }
-        verify(exactly = 1) { arrangement.notificationManager.showReminder(otherMeeting, arrangement.user.id) }
+        coVerify(exactly = 0) { arrangement.notificationManager.showReminder(meetingInCall, arrangement.user.id) }
+        coVerify(exactly = 1) { arrangement.notificationManager.showReminder(otherMeeting, arrangement.user.id) }
     }
 
     @Test
@@ -174,7 +174,7 @@ class MeetingReminderSchedulerTest {
         arrangement.upcomingStarts.clear()
         arrangement.now = ALARM_TIME
         arrangement.scheduler.onAlarm(arrangement.user.id, FIRST_START)
-        verify(exactly = 0) { arrangement.notificationManager.showReminder(any(), any()) }
+        coVerify(exactly = 0) { arrangement.notificationManager.showReminder(any(), any()) }
     }
 
     @Test
@@ -188,7 +188,7 @@ class MeetingReminderSchedulerTest {
 
         arrangement.scheduler.onAlarm(arrangement.user.id, FIRST_START)
 
-        verify(exactly = 0) { arrangement.notificationManager.showReminder(any(), any()) }
+        coVerify(exactly = 0) { arrangement.notificationManager.showReminder(any(), any()) }
         assertEquals(2, arrangement.scheduledAlarms.size)
     }
 
